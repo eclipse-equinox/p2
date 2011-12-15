@@ -15,8 +15,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.filesystem.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -36,6 +35,10 @@ public class Bug351944 extends AbstractProvisioningTest {
 		changeWritePermission(artifactRepoFile, false);
 	}
 
+	/**
+	 * it doesn't work on Windows to make a folder read-only then can't create
+	 * new file in it
+	 */
 	private void changeWritePermission(File target, boolean canWrite) throws CoreException {
 		if (target.exists()) {
 			IFileStore fileStore = EFS.getLocalFileSystem().getStore(target.toURI());
@@ -58,28 +61,30 @@ public class Bug351944 extends AbstractProvisioningTest {
 	}
 
 	public void testSimpleRepositoryPerformanceOnLoadReadonlyLocalRepository() throws ProvisionException, URISyntaxException {
-		final URI testRepo = artifactRepoFile.toURI();
-		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
-		IArtifactRepository repo = artifactRepositoryManager.loadRepository(testRepo, new NullProgressMonitor());
-		IQueryResult<IArtifactKey> allArtifactKeys = repo.query(ArtifactKeyQuery.ALL_KEYS, new NullProgressMonitor());
-		Set<IArtifactKey> keySet = allArtifactKeys.toUnmodifiableSet();
+		if (!Platform.OS_WIN32.equals(Platform.getOS())) {
+			final URI testRepo = artifactRepoFile.toURI();
+			IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
+			IArtifactRepository repo = artifactRepositoryManager.loadRepository(testRepo, new NullProgressMonitor());
+			IQueryResult<IArtifactKey> allArtifactKeys = repo.query(ArtifactKeyQuery.ALL_KEYS, new NullProgressMonitor());
+			Set<IArtifactKey> keySet = allArtifactKeys.toUnmodifiableSet();
 
-		Collection<IArtifactRequest> requests = new ArrayList<IArtifactRequest>();
-		for (IArtifactKey key : keySet)
-			requests.add(artifactRepositoryManager.createMirrorRequest(key, repo, null, null));
+			Collection<IArtifactRequest> requests = new ArrayList<IArtifactRequest>();
+			for (IArtifactKey key : keySet)
+				requests.add(artifactRepositoryManager.createMirrorRequest(key, repo, null, null));
 
-		long start = System.currentTimeMillis();
-		IArtifactRequest[] toBeRequests = getRequestsForRepository(repo, requests.toArray(new IArtifactRequest[requests.size()]));
-		long end = System.currentTimeMillis();
-		long queryArtifactOneByOne = end - start;
+			long start = System.currentTimeMillis();
+			IArtifactRequest[] toBeRequests = getRequestsForRepository(repo, requests.toArray(new IArtifactRequest[requests.size()]));
+			long end = System.currentTimeMillis();
+			long queryArtifactOneByOne = end - start;
 
-		start = System.currentTimeMillis();
-		IArtifactRequest[] toBeRequests2 = getRequestsForRepository2(repo, requests.toArray(new IArtifactRequest[requests.size()]));
-		end = System.currentTimeMillis();
-		long queryAllArtifacts = end - start;
+			start = System.currentTimeMillis();
+			IArtifactRequest[] toBeRequests2 = getRequestsForRepository2(repo, requests.toArray(new IArtifactRequest[requests.size()]));
+			end = System.currentTimeMillis();
+			long queryAllArtifacts = end - start;
 
-		assertEquals("Test case has problem, not find same requests.", toBeRequests.length, toBeRequests2.length);
-		assertEquals("Querying artifact key from simple repository has performance issue.", queryAllArtifacts, queryArtifactOneByOne, 10);
+			assertEquals("Test case has problem, not find same requests.", toBeRequests.length, toBeRequests2.length);
+			assertEquals("Querying artifact key from simple repository has performance issue.", queryAllArtifacts, queryArtifactOneByOne, 10);
+		}
 	}
 
 	/**
