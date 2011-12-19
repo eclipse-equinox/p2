@@ -88,12 +88,18 @@ public class Activator implements BundleActivator {
 	private boolean isReadOnly(File file) {
 		if (file == null)
 			return true; // If we've reached the root, then return true
-		else if (file.canWrite())
-			return false; // If we can write to this area, then it's not read-only
-		else if (file.exists())
-			return true; // if we can't write && file exists, then this is a read only area
-		else
-			return isReadOnly(file.getParentFile());
+		if (file.exists()) {
+			try {
+				// on Vista/Windows 7 you are not allowed to write executable files on virtual directories like "Program Files"
+				File tmpTestFile = File.createTempFile(".artifactlocktest", ".dll", file); //$NON-NLS-1$ //$NON-NLS-2$
+				tmpTestFile.delete();
+				return false;
+			} catch (IOException e) {
+				return true; // permission issue to create new file, so it's readonly
+			}
+		}
+
+		return isReadOnly(file.getParentFile());
 	}
 
 	private File getLockFile(URI repositoryLocation) throws IOException {
