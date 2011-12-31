@@ -122,4 +122,9 @@ public interface IProfileChangeRequest {
 	 */
 	public abstract Collection<IInstallableUnit> getRemovals();
 
+	/**
+	 * Get the extra requirements that have been specified through method {@link #addExtraRequirements(Collection)}
+	 * @since 2.2
+	 */
+	public abstract Collection<IRequirement> getExtraRequirements();
 }
