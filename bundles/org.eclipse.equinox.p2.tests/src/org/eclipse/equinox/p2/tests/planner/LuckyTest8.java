@@ -32,7 +32,7 @@ public class LuckyTest8 extends AbstractProvisioningTest {
 	@IUDescription(content = "package: egit \n" + "singleton: true\n" + "version: 2 \n" + "depends: platform = 2")
 	public IInstallableUnit egit2;
 
-	IProfile profile = createProfile("TestProfile." + getName());
+	IProfile profile = createProfile("TestProfile." + getClass().getSimpleName());
 
 	private IPlanner planner;
 
@@ -54,7 +54,7 @@ public class LuckyTest8 extends AbstractProvisioningTest {
 		changeRequest.setInstallableUnitInclusionRules(egit2, ProfileInclusionRules.createOptionalInclusionRule(egit2));
 		assertTrue(planner.getProvisioningPlan(changeRequest, null, null).getAdditions().query(QueryUtil.createIUQuery(egit2), null).isEmpty());
 
-		ProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, changeRequest, new ProvisioningContext(getAgent()), getMonitor());
+		IProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, changeRequest, new ProvisioningContext(getAgent()), getMonitor());
 		assertEquals(2, res.getAdditions().size());
 		assertTrue(res.getAdditions().contains(sdk2));
 		assertEquals(1, res.getRemovals().size());

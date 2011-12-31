@@ -20,18 +20,42 @@ import org.eclipse.equinox.p2.planner.*;
 import org.eclipse.equinox.p2.query.*;
 
 public class LuckyHelper {
-	private final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
+	private static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
+	private static final String INCLUSION_OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
+	private static final String INCLUSION_STRICT = "STRICT"; //$NON-NLS-1$
 
-	ProfileChangeRequest computeProfileChangeRequest(IProfile profile, IPlanner planner, IProfileChangeRequest originalRequest, ProvisioningContext context, IProgressMonitor monitor) {
+	private IProfile profile;
+	private IPlanner planner;
+	private IProfileChangeRequest originalRequest;
+	private ProvisioningContext provisioningContext;
+
+	private Set<IInstallableUnit> strictRoots;
+	private Set<IInstallableUnit> optionalRoots;
+
+	private IProfileChangeRequest updateFinderRequest;
+
+	IProfileChangeRequest computeProfileChangeRequest(IProfile profile, IPlanner plannor, IProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
 		//		IProfileRegistry profileRegistry = (IProfileRegistry) session.getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
-		IPlanner plan = planner; //(IPlanner) session.getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
-		IProfile prof = profile; //profileRegistry.getProfile(getProfileId());
+		this.planner = plannor; //(IPlanner) session.getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
+		this.profile = profile; //profileRegistry.getProfile(getProfileId());
+		this.provisioningContext = context;
+		originalRequest = request;
 
-		final String INCLUSION_OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
-		final String INCLUSION_STRICT = "STRICT"; //$NON-NLS-1$
+		gatherRoots();
+		CollectionResult<IInstallableUnit> allInitialRoots = buildUpdateFinderRequest();
 
-		Set<IInstallableUnit> strictRoots = prof.query(new IUProfilePropertyQuery(INCLUSION_RULES, INCLUSION_STRICT), null).toSet();
-		Set<IInstallableUnit> optionalRoots = prof.query(new IUProfilePropertyQuery(INCLUSION_RULES, INCLUSION_OPTIONAL), null).toSet();
+		IProvisioningPlan updateFinderPlan = planner.getProvisioningPlan(updateFinderRequest, provisioningContext, null);
+		if (updateFinderPlan.getAdditions().query(QueryUtil.ALL_UNITS, null).isEmpty()) {
+			return null;
+		}
+
+		return buildFinalRequest(allInitialRoots, updateFinderPlan);
+	}
+
+	//Gather the initial roots and merge them with those from the original request
+	private void gatherRoots() {
+		strictRoots = profile.query(new IUProfilePropertyQuery(INCLUSION_RULES, INCLUSION_STRICT), null).toSet();
+		optionalRoots = profile.query(new IUProfilePropertyQuery(INCLUSION_RULES, INCLUSION_OPTIONAL), null).toSet();
 
 		//Take into account the changes from the request (potential addition or removals)
 		if (originalRequest != null) {
@@ -48,22 +72,26 @@ public class LuckyHelper {
 				}
 			}
 		}
+	}
 
+	//Produce a profile change request which is used to find the best update
+	private CollectionResult<IInstallableUnit> buildUpdateFinderRequest() {
 		Set<IInstallableUnit> tmpRoots = new HashSet<IInstallableUnit>(strictRoots);
 		tmpRoots.addAll(optionalRoots);
 
 		CollectionResult<IInstallableUnit> allInitialRoots = new CollectionResult<IInstallableUnit>(tmpRoots);
 
-		ProfileChangeRequest updateFinderRequest = (ProfileChangeRequest) plan.createChangeRequest(prof);
+		updateFinderRequest = planner.createChangeRequest(profile);
 		Collection<IRequirement> limitingRequirements = new ArrayList<IRequirement>();
-		limitingRequirements.addAll(originalRequest.getExtraRequirements());
+		if (originalRequest != null && originalRequest.getExtraRequirements() != null)
+			limitingRequirements.addAll(originalRequest.getExtraRequirements());
 
 		//Create a profile change request that attempts at installing updates for all the existing roots.
 		for (Iterator<IInstallableUnit> iterator = allInitialRoots.query(QueryUtil.ALL_UNITS, null).iterator(); iterator.hasNext();) {
 			IInstallableUnit currentlyInstalled = iterator.next();
 
 			//find all the potential updates for the currentlyInstalled iu
-			IQueryResult<IInstallableUnit> updatesAvailable = plan.updatesFor(currentlyInstalled, context, null);
+			IQueryResult<IInstallableUnit> updatesAvailable = planner.updatesFor(currentlyInstalled, provisioningContext, null);
 			for (Iterator<IInstallableUnit> iterator2 = updatesAvailable.iterator(); iterator2.hasNext();) {
 				IInstallableUnit update = iterator2.next();
 				updateFinderRequest.add(update);
@@ -75,15 +103,15 @@ public class LuckyHelper {
 			limitingRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, currentlyInstalled.getId(), new VersionRange(currentlyInstalled.getVersion(), true, Version.MAX_VERSION, true), null, false, false));
 		}
 		updateFinderRequest.addExtraRequirements(limitingRequirements);
+		return allInitialRoots;
+	}
 
-		IProvisioningPlan updateFinderPlan = plan.getProvisioningPlan(updateFinderRequest, context, null);
-		if (updateFinderPlan.getAdditions().query(QueryUtil.ALL_UNITS, null).isEmpty()) {
-			return null;
-		}
-
+	//Analyze the plan produced by the execution of the updateFinderRequest, and produce a plan representing the recommended changes 
+	private IProfileChangeRequest buildFinalRequest(CollectionResult<IInstallableUnit> allInitialRoots, IProvisioningPlan updateFinderPlan) {
 		//Take into account all the removals
-		IProfileChangeRequest finalChangeRequest = plan.createChangeRequest(prof);
-		finalChangeRequest.addExtraRequirements(originalRequest.getExtraRequirements());
+		IProfileChangeRequest finalChangeRequest = planner.createChangeRequest(profile);
+		if (originalRequest != null && originalRequest.getExtraRequirements() != null)
+			finalChangeRequest.addExtraRequirements(originalRequest.getExtraRequirements());
 		IQueryResult<IInstallableUnit> removals = updateFinderPlan.getRemovals().query(QueryUtil.ALL_UNITS, null);
 		for (Iterator<IInstallableUnit> iterator = removals.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
@@ -98,7 +126,7 @@ public class LuckyHelper {
 			IQueryResult<IInstallableUnit> update = updateFinderPlan.getAdditions().query(new UpdateQuery(formerRoot), null);
 			if (!update.isEmpty())
 				finalChangeRequest.addAll(update.toUnmodifiableSet());
-			else if (originalRequest.getAdditions().contains(formerRoot)) //deal with the case of the elements added by the request
+			else if (originalRequest != null && originalRequest.getAdditions().contains(formerRoot)) //deal with the case of the elements added by the request
 				finalChangeRequest.add(formerRoot);
 		}
 
@@ -112,12 +140,12 @@ public class LuckyHelper {
 					finalChangeRequest.add(updatedOptionalIU);
 					finalChangeRequest.setInstallableUnitInclusionRules(updatedOptionalIU, ProfileInclusionRules.createOptionalInclusionRule(updatedOptionalIU));
 				}
-			} else if (originalRequest.getAdditions().contains(formerRoot)) {
+			} else if (originalRequest != null && originalRequest.getAdditions().contains(formerRoot)) {
 				finalChangeRequest.add(formerRoot);
 				finalChangeRequest.setInstallableUnitInclusionRules(formerRoot, ProfileInclusionRules.createOptionalInclusionRule(formerRoot));
 			}
 		}
-		return (ProfileChangeRequest) finalChangeRequest;
+		return finalChangeRequest;
 	}
 
 }

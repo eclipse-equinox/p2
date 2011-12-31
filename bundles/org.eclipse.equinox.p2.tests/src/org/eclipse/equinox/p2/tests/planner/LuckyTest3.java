@@ -9,10 +9,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.tests.*;
 
 public class LuckyTest3 extends AbstractProvisioningTest {
@@ -31,7 +31,7 @@ public class LuckyTest3 extends AbstractProvisioningTest {
 	@IUDescription(content = "package: egit \n" + "singleton: true\n" + "version: 1 \n")
 	public IInstallableUnit egit1;
 
-	IProfile profile = createProfile("TestProfile." + getName());
+	IProfile profile = createProfile("TestProfile." + getClass().getSimpleName());
 
 	private IPlanner planner;
 
@@ -54,7 +54,7 @@ public class LuckyTest3 extends AbstractProvisioningTest {
 	public void testInstallSDK2() {
 		assertNotOK(install(profile, new IInstallableUnit[] {platform2}, true, planner, engine));
 
-		ProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, null, new ProvisioningContext(getAgent()), getMonitor());
+		IProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, null, new ProvisioningContext(getAgent()), getMonitor());
 		assertEquals(1, res.getAdditions().size());
 		assertTrue(res.getAdditions().contains(sdk2));
 		assertEquals(1, res.getRemovals().size());

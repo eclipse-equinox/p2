@@ -9,10 +9,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.tests.*;
 
 public class LuckyTest4 extends AbstractProvisioningTest {
@@ -60,7 +60,7 @@ public class LuckyTest4 extends AbstractProvisioningTest {
 	public void testInstallSDK2() {
 		assertNotOK(install(profile, new IInstallableUnit[] {platform2, egit2}, true, planner, engine));
 
-		ProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, null, new ProvisioningContext(getAgent()), getMonitor());
+		IProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, null, new ProvisioningContext(getAgent()), getMonitor());
 		assertEquals(2, res.getAdditions().size());
 		assertTrue(res.getAdditions().contains(sdk2));
 		assertTrue(res.getAdditions().contains(egit2));
@@ -79,7 +79,7 @@ public class LuckyTest4 extends AbstractProvisioningTest {
 	public void updateWithInterference() {
 		assertNotOK(install(profile, new IInstallableUnit[] {platform2, egit2}, true, planner, engine));
 
-		ProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, null, new ProvisioningContext(getAgent()), getMonitor());
+		IProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, null, new ProvisioningContext(getAgent()), getMonitor());
 		assertEquals(2, res.getAdditions().size());
 		assertTrue(res.getAdditions().contains(sdk2));
 		assertTrue(res.getAdditions().contains(egit2));
