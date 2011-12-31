@@ -30,8 +30,7 @@ import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.equinox.p2.planner.IPlanner;
-import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+import org.eclipse.equinox.p2.planner.*;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.query.*;
@@ -1023,7 +1022,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return install(req, planner, engine);
 	}
 
-	protected IStatus install(ProfileChangeRequest req, IPlanner planner, IEngine engine) {
+	protected IStatus install(IProfileChangeRequest req, IPlanner planner, IEngine engine) {
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
