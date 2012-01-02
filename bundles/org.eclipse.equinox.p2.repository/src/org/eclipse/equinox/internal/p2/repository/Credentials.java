@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2012 IBM Corporation and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -233,12 +233,14 @@ public class Credentials {
 							loginDetails = lastUsed != null ? adminUIService.getUsernamePassword(host, lastUsed) : adminUIService.getUsernamePassword(host);
 							//null result means user canceled password dialog
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-								if (loginDetails == null)
+								if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED)
 									DebugHelper.debug("Credentials", "forLocation:PROMPTED - USER CANCELED (PROMPT LOCK RELEASED)", // //$NON-NLS-1$ //$NON-NLS-2$
 											new Object[] {"host", location}); //$NON-NLS-1$					
 							}
-							if (loginDetails == null) {
+							if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED) {
 								rememberCancel(host);
+								throw new LoginCanceledException();
+							} else if (loginDetails == null) {
 								throw new LoginCanceledException();
 							}
 							//save user name and password if requested by user

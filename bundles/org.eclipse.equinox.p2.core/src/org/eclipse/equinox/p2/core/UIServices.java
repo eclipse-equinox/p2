@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -29,6 +29,14 @@ public abstract class UIServices {
 	 * Service name constant for the UI service.
 	 */
 	public static final String SERVICE_NAME = UIServices.class.getName();
+
+	/**
+	 * This constant may be returned by the <code>getUsernamePassword</code> methods if the user 
+	 * explicitly canceled the authentication prompt.
+	 * 
+	 * @since 2.1.1
+	 */
+	public static final AuthenticationInfo AUTHENTICATION_PROMPT_CANCELED = new AuthenticationInfo("", "", false); //$NON-NLS-1$//$NON-NLS-2$
 
 	/**
 	 * Authentication information returned from an authentication prompt request.
@@ -109,7 +117,7 @@ public abstract class UIServices {
 	 * Opens a UI prompt for authentication details
 	 * 
 	 * @param location - the location requiring login details, may be <code>null</code>.
-	 * @return The authentication result
+	 * @return The authentication result, or <code>null</code>, or {@link #AUTHENTICATION_PROMPT_CANCELED}
 	 */
 	public abstract AuthenticationInfo getUsernamePassword(String location);
 
@@ -119,7 +127,7 @@ public abstract class UIServices {
 	 * 
 	 * @param location  the location requiring login details
 	 * @param previousInfo - the previously used authentication details - may not be null.
-	 * @return The authentication result
+	 * @return The authentication result, or <code>null</code>, or {@link #AUTHENTICATION_PROMPT_CANCELED}
 	 */
 	public abstract AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo);
 
