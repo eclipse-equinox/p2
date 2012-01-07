@@ -61,8 +61,9 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	private String flavor;
 	private String productFile;
 	private String executables;
-	private List<ConfigElement> configurations = new ArrayList<ConfigElement>(3);
-	private List<AdviceElement> advice = new ArrayList<AdviceElement>(3);
+	private String jreLocation;
+	private final List<ConfigElement> configurations = new ArrayList<ConfigElement>(3);
+	private final List<AdviceElement> advice = new ArrayList<AdviceElement>(3);
 
 	public void execute() throws BuildException {
 		try {
@@ -82,7 +83,7 @@ public class ProductPublisherTask extends AbstractPublishTask {
 		if (flavor == null || flavor.startsWith(ANT_PROPERTY_PREFIX))
 			flavor = "tooling"; //$NON-NLS-1$
 
-		IPublisherAction action = new ProductAction(source, productDescriptor, flavor, executables != null ? new File(executables) : null);
+		IPublisherAction action = new ProductAction(source, productDescriptor, flavor, executables != null ? new File(executables) : null, jreLocation != null ? new File(jreLocation) : null);
 		new Publisher(getInfo()).publish(new IPublisherAction[] {action}, new NullProgressMonitor());
 	}
 
@@ -121,6 +122,10 @@ public class ProductPublisherTask extends AbstractPublishTask {
 
 	public void setExecutables(String executables) {
 		this.executables = executables;
+	}
+
+	public void setJreLocation(String jreLocation) {
+		this.jreLocation = jreLocation;
 	}
 
 	public void setSource(String source) {

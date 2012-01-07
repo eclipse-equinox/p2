@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   SAP AG - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -26,6 +27,7 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 	private String product;
 	private String executables;
 	private String flavor;
+	private String jreLocation;
 
 	public ProductPublisherApplication() {
 		//hidden
@@ -45,7 +47,8 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_errorLoadingProductFile, product, e.toString()));
 		}
 		File executablesFeature = executables == null ? null : new File(executables);
-		return new ProductAction(source, productDescriptor, flavor, executablesFeature);
+		File jreLocationFile = jreLocation == null ? null : new File(jreLocation);
+		return new ProductAction(source, productDescriptor, flavor, executablesFeature, jreLocationFile);
 	}
 
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
@@ -57,6 +60,8 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 			executables = parameter;
 		if (arg.equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 			flavor = parameter;
+		if (arg.equalsIgnoreCase("-jreLocation")) //$NON-NLS-1$
+			jreLocation = parameter;
 		if (arg.equalsIgnoreCase("-pluginVersionsAdvice")) { //$NON-NLS-1$
 			VersionAdvice versionAdvice = new VersionAdvice();
 			versionAdvice.load(IInstallableUnit.NAMESPACE_IU_ID, parameter, null);

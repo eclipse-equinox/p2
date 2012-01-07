@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,7 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
- *   SAP - ongoing development
+ *   SAP AG - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
@@ -37,6 +37,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ProductActionTest.class);
 		suite.addTestSuite(ProductActionTestMac.class);
 		suite.addTestSuite(ProductActionWithAdviceFileTest.class);
+		suite.addTestSuite(ProductActionWithJRELocationTest.class);
 		suite.addTestSuite(ProductContentTypeTest.class);
 		suite.addTestSuite(ProductFileAdviceTest.class);
 		suite.addTestSuite(ProductFileTest.class);

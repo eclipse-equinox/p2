@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   SAP AG - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
@@ -18,6 +19,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
+import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -25,6 +27,7 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleException;
 
 public class JREAction extends AbstractPublisherAction {
@@ -82,7 +85,7 @@ public class JREAction extends AbstractPublisherAction {
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		Map<String, String> touchpointData = new HashMap<String, String>();
 
-		if (jreLocation == null || !jreLocation.exists()) {
+		if (jreLocation == null || !jreLocation.isDirectory()) {
 			touchpointData.put("install", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 			results.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
@@ -120,7 +123,9 @@ public class JREAction extends AbstractPublisherAction {
 			IProvidedCapability[] exportedPackageAsCapabilities = new IProvidedCapability[jrePackages.length + 1];
 			exportedPackageAsCapabilities[0] = PublisherHelper.createSelfCapability(id, version);
 			for (int i = 1; i <= jrePackages.length; i++) {
-				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, jrePackages[i - 1].getValue(), null);
+				String packageName = jrePackages[i - 1].getValue();
+				Version packageVersion = Version.create(jrePackages[i - 1].getAttribute("version")); //$NON-NLS-1$
+				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName, packageVersion);
 			}
 			return exportedPackageAsCapabilities;
 		} catch (BundleException e) {
@@ -176,15 +181,26 @@ public class JREAction extends AbstractPublisherAction {
 		this.info = publisherInfo;
 
 		if (jreLocation != null) {
-			//Look for a JRE profile file to set version and capabilities
-			File[] profiles = jreLocation.listFiles(new FileFilter() {
-				public boolean accept(File pathname) {
-					return pathname.getAbsolutePath().endsWith(".profile"); //$NON-NLS-1$
+
+			File javaProfile = null;
+
+			if (jreLocation.isDirectory()) {
+				//Look for a JRE profile file to set version and capabilities
+				File[] profiles = jreLocation.listFiles(new FileFilter() {
+					public boolean accept(File pathname) {
+						return pathname.getAbsolutePath().endsWith(".profile"); //$NON-NLS-1$
+					}
+				});
+				if (profiles != null && profiles.length > 0) {
+					javaProfile = profiles[0];
 				}
-			});
-			if (profiles != null && profiles.length > 0) {
-				profileProperties = loadProfile(profiles[0]);
-			}
+			} else if (jreLocation.isFile())
+				javaProfile = jreLocation;
+			else
+				// jreLocation file does not exist
+				throw new IllegalArgumentException(NLS.bind(Messages.exception_nonExistingJreLocationFile, jreLocation.getAbsolutePath()));
+
+			profileProperties = loadProfile(javaProfile);
 		}
 		if (profileProperties == null) {
 			String entry = environment != null ? "/profiles/" + environment.replace('/', '_') + ".profile" : DEFAULT_PROFILE; //$NON-NLS-1$ //$NON-NLS-2$

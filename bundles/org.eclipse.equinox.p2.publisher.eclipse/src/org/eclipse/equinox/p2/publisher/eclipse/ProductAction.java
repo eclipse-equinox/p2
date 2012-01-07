@@ -32,16 +32,22 @@ public class ProductAction extends AbstractPublisherAction {
 	//protected String productLocation;
 	protected File executablesFeatureLocation;
 	protected IProductDescriptor product;
+	protected File jreLocation;
 	protected IPublisherResult publisherResults;
 	protected MultiStatus finalStatus;
 
-	public ProductAction(String source, IProductDescriptor product, String flavor, File executablesFeatureLocation) {
+	public ProductAction(String source, IProductDescriptor product, String flavor, File executablesFeatureLocation, File jreLocation) {
 		super();
 		this.source = source;
 		this.flavor = flavor;
 		this.executablesFeatureLocation = executablesFeatureLocation;
 		this.product = product;
+		this.jreLocation = jreLocation;
 		//this.productLocation = productLocation;
+	}
+
+	public ProductAction(String source, IProductDescriptor product, String flavor, File executablesFeatureLocation) {
+		this(source, product, flavor, executablesFeatureLocation, null);
 	}
 
 	protected IPublisherAction[] createActions(IPublisherResult results) {
@@ -78,8 +84,7 @@ public class ProductAction extends AbstractPublisherAction {
 	}
 
 	protected IPublisherAction createJREAction() {
-		//TODO set a proper execution environment
-		return new JREAction((String) null);
+		return new JREAction(jreLocation);
 	}
 
 	@Override
