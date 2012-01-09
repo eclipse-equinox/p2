@@ -7,8 +7,13 @@
         <cs:dependency name="org.eclipse.equinox.p2.tests.ui" componentType="osgi.bundle"/>
         <cs:dependency name="org.eclipse.equinox.p2.repository.tools" componentType="osgi.bundle"/>
         <cs:dependency name="org.eclipse.equinox.p2.ui.importexport" componentType="osgi.bundle"/>
+        <cs:dependency name="org.eclipse.equinox.console" componentType="osgi.bundle"/>
+        <cs:dependency name="org.eclipse.equinox.launcher.gtk.linux.x86_64" componentType="osgi.bundle"/>
+        <cs:dependency name="org.eclipse.core.net.linux.x86_64" componentType="osgi.bundle"/>
         <cs:dependency name="org.eclipse.swt.gtk.linux.x86_64" componentType="osgi.bundle"/>
         <cs:dependency name="com.ibm.icu" componentType="osgi.bundle"/>
         <cs:dependency name="org.eclipse.compare" componentType="osgi.bundle"/>
+        <cs:dependency name="org.apache.felix.gogo.runtime" componentType="osgi.bundle"/>
+        <cs:dependency name="org.apache.felix.gogo.shell" componentType="osgi.bundle"/>
     </cs:dependencies>
 </cs:cspec>

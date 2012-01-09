@@ -30,9 +30,9 @@
 				<bc:propertyRef key="buckminster.component" />
 			</rm:uri>
 		</rm:provider>
-		<rm:provider componentTypes="unknown" readerType="git" source="true">
+		<rm:provider componentTypes="buckminster,unknown" readerType="git" source="true">
 			<rm:property key="git.remote.uri" value="${equinox.git.prefix}/rt.equinox.p2.git" />
-			<rm:uri format="{0}/{1}">
+			<rm:uri format="{0}/rt.equinox.p2,{1}">
 				<bc:propertyRef key="git.clones.root" />
 				<bc:propertyRef key="buckminster.component" />
 			</rm:uri>
