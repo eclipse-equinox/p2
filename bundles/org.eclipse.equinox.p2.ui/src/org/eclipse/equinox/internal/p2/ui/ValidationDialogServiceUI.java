@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui;
 import java.security.cert.Certificate;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.core.helpers.UIServicesHelper_R37x;
 import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
 import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
@@ -67,7 +68,7 @@ public class ValidationDialogServiceUI extends UIServices {
 					if (dialogCode == Window.OK) {
 						result[0] = dialog.getResult();
 					} else if (dialogCode == Window.CANCEL) {
-						result[0] = AUTHENTICATION_PROMPT_CANCELED;
+						result[0] = UIServicesHelper_R37x.AUTHENTICATION_PROMPT_CANCELED;
 					}
 				}
 
@@ -177,7 +178,7 @@ public class ValidationDialogServiceUI extends UIServices {
 					if (dialogCode == Window.OK) {
 						result[0] = dialog.getResult();
 					} else if (dialogCode == Window.CANCEL) {
-						result[0] = AUTHENTICATION_PROMPT_CANCELED;
+						result[0] = UIServicesHelper_R37x.AUTHENTICATION_PROMPT_CANCELED;
 					}
 				}
 

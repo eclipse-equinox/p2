@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.core;
 
 import java.security.cert.Certificate;
+import org.eclipse.equinox.internal.p2.core.helpers.UIServicesHelper_R37x;
 
 /**
  * Service used for prompting for user information from within lower level code.
@@ -33,10 +34,10 @@ public abstract class UIServices {
 	/**
 	 * This constant may be returned by the <code>getUsernamePassword</code> methods if the user 
 	 * explicitly canceled the authentication prompt.
-	 * 
-	 * @since 2.1.1
 	 */
-	public static final AuthenticationInfo AUTHENTICATION_PROMPT_CANCELED = new AuthenticationInfo("", "", false); //$NON-NLS-1$//$NON-NLS-2$
+	// For the back-port of 348366 to R37x, this constant was moved to the class
+	// UIServicesHelper_R37x in an internal package so that no minor version increment is required
+	//	public static final AuthenticationInfo AUTHENTICATION_PROMPT_CANCELED = new AuthenticationInfo("", "", false); //$NON-NLS-1$//$NON-NLS-2$
 
 	/**
 	 * Authentication information returned from an authentication prompt request.
@@ -117,7 +118,7 @@ public abstract class UIServices {
 	 * Opens a UI prompt for authentication details
 	 * 
 	 * @param location - the location requiring login details, may be <code>null</code>.
-	 * @return The authentication result, or <code>null</code>, or {@link #AUTHENTICATION_PROMPT_CANCELED}
+	 * @return The authentication result, or <code>null</code>, or {@link UIServicesHelper_R37x#AUTHENTICATION_PROMPT_CANCELED}
 	 */
 	public abstract AuthenticationInfo getUsernamePassword(String location);
 
@@ -127,7 +128,7 @@ public abstract class UIServices {
 	 * 
 	 * @param location  the location requiring login details
 	 * @param previousInfo - the previously used authentication details - may not be null.
-	 * @return The authentication result, or <code>null</code>, or {@link #AUTHENTICATION_PROMPT_CANCELED}
+	 * @return The authentication result, or <code>null</code>, or {@link UIServicesHelper_R37x#AUTHENTICATION_PROMPT_CANCELED}
 	 */
 	public abstract AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo);
 

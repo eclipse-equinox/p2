@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.UIServicesHelper_R37x;
 import org.eclipse.equinox.internal.p2.repository.helpers.DebugHelper;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -233,11 +234,11 @@ public class Credentials {
 							loginDetails = lastUsed != null ? adminUIService.getUsernamePassword(host, lastUsed) : adminUIService.getUsernamePassword(host);
 							//null result means user canceled password dialog
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-								if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED)
+								if (loginDetails == UIServicesHelper_R37x.AUTHENTICATION_PROMPT_CANCELED)
 									DebugHelper.debug("Credentials", "forLocation:PROMPTED - USER CANCELED (PROMPT LOCK RELEASED)", // //$NON-NLS-1$ //$NON-NLS-2$
 											new Object[] {"host", location}); //$NON-NLS-1$					
 							}
-							if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED) {
+							if (loginDetails == UIServicesHelper_R37x.AUTHENTICATION_PROMPT_CANCELED) {
 								rememberCancel(host);
 								throw new LoginCanceledException();
 							} else if (loginDetails == null) {
