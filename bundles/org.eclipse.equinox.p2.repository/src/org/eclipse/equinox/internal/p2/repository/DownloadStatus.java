@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -73,5 +73,20 @@ public class DownloadStatus extends Status {
 
 	public long getLastModified() {
 		return lastModified;
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer(super.toString());
+		sb.append(' ');
+		sb.append("LastModified="); //$NON-NLS-1$
+		sb.append(getLastModified());
+		sb.append(' ');
+		sb.append("FileSize="); //$NON-NLS-1$
+		sb.append(getFileSize() == UNKNOWN_SIZE ? "Unknown size" : getFileSize()); //$NON-NLS-1$
+		sb.append(' ');
+		sb.append("Download rate="); //$NON-NLS-1$
+		sb.append(getTransferRate() == UNKNOWN_RATE ? "Unknown rate" : getTransferRate()); //$NON-NLS-1$
+		return sb.toString();
 	}
 }

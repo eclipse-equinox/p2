@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,12 +25,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
-import org.eclipse.equinox.internal.p2.repository.Transport;
+import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -557,18 +558,28 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			}
 			// TODO: optimize and ensure manifest is written first
 			File zipFile = null;
+			long start = System.currentTimeMillis();
+			long totalArtifactSize = 0;
 			try {
 				zipFile = File.createTempFile(artifactFolder.getName(), JAR_EXTENSION, null);
 				FileUtils.zip(artifactFolder.listFiles(), null, zipFile, FileUtils.createRootPathComputer(artifactFolder));
 				FileInputStream fis = new FileInputStream(zipFile);
-				FileUtils.copyStream(fis, true, destination, false);
+				totalArtifactSize += FileUtils.copyStream(fis, true, destination, false);
 			} catch (IOException e) {
 				return reportStatus(descriptor, destination, new Status(IStatus.ERROR, Activator.ID, e.getMessage()));
 			} finally {
 				if (zipFile != null)
 					zipFile.delete();
 			}
-			return reportStatus(descriptor, destination, Status.OK_STATUS);
+			long end = System.currentTimeMillis();
+			DownloadStatus statusWithDownloadSpeed = new DownloadStatus(IStatus.OK, Activator.ID, Status.OK_STATUS.getMessage());
+			try {
+				statusWithDownloadSpeed.setFileSize(totalArtifactSize);
+				statusWithDownloadSpeed.setTransferRate(totalArtifactSize / Math.max((end - start), 1) * 1000);
+			} catch (NumberFormatException e) {
+				// ignore
+			}
+			return reportStatus(descriptor, destination, statusWithDownloadSpeed);
 		}
 
 		//download from the best available mirror
@@ -607,8 +618,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		int expected_loops = new Double(in.length() / bufferSize).intValue() + 1; // +1: also count the initial run
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.downloading + in.getName(), expected_loops);
 		// Be optimistic about the outcome of this...
-		IStatus status = Status.OK_STATUS;
+		IStatus status = new DownloadStatus(IStatus.OK, Activator.ID, Status.OK_STATUS.getMessage());
 		try {
+			long start = System.currentTimeMillis();
 			FileInputStream stream = new FileInputStream(in);
 			try {
 				int len;
@@ -619,6 +631,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			} finally {
 				stream.close();
 			}
+			long end = System.currentTimeMillis();
+			((DownloadStatus) status).setFileSize(in.length());
+			((DownloadStatus) status).setLastModified(in.lastModified());
+			((DownloadStatus) status).setTransferRate(in.length() / Math.max((end - start), 1) * 1000);
 		} catch (IOException ioe) {
 			status = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_copying_local_file, in.getAbsolutePath()), ioe);
 		}
@@ -731,6 +747,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
+
+		ProgressStatistics.setProvisioningAgent(getProvisioningAgent());
 
 		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
 		LinkedList<IArtifactRequest> requestsPending = new LinkedList<IArtifactRequest>(Arrays.asList(requests));

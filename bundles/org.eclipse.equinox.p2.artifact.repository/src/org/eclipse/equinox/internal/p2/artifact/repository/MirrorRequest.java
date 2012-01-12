@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -192,6 +193,9 @@ public class MirrorRequest extends ArtifactRequest {
 			lastResult = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
 			allResults.add(lastResult);
 		} while (lastResult.getSeverity() == IStatus.ERROR && lastResult.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);
+		IProvisioningEventBus bus = (IProvisioningEventBus) source.getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+		if (bus != null)
+			bus.publishEvent(new MirrorEvent(source, sourceDescriptor, lastResult.isOK() ? lastResult : (allResults.getChildren().length <= 1 ? lastResult : allResults)));
 		if (lastResult.isOK()) {
 			collectStats(sourceDescriptor, monitor);
 			return lastResult;

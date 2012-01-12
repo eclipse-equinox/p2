@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ public class Messages extends NLS {
 	public static String error_parsing_profile;
 	public static String error_persisting_profile;
 	public static String forced_action_execute_error;
-	public static String InstallableUnitEvent_type_not_install_or_uninstall;
+	public static String InstallableUnitEvent_type_not_install_or_uninstall_or_configure;
 	public static String io_FailedRead;
 	public static String io_NotFound;
 	public static String not_current_operand;

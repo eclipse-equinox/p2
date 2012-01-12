@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
@@ -66,9 +67,21 @@ public abstract class Phase {
 		return getClass().getName() + " - " + this.weight; //$NON-NLS-1$
 	}
 
+	private void broadcastPhaseEvent(EngineSession session, Operand[] operands, int type) {
+		IProvisioningEventBus bus = (IProvisioningEventBus) session.getAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+		if (bus != null) {
+			bus.publishEvent(getPhaseEvent(operands, type));
+		}
+	}
+
+	protected PhaseEvent getPhaseEvent(final Operand[] operands, int type) {
+		return new PhaseEvent(phaseId, operands, type);
+	}
+
 	void perform(MultiStatus status, EngineSession session, Operand[] operands, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, prePerformWork + mainPerformWork + postPerformWork);
 		session.recordPhaseEnter(this);
+		broadcastPhaseEvent(session, operands, PhaseEvent.TYPE_START);
 		prePerform(status, session, subMonitor.newChild(prePerformWork));
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
@@ -85,6 +98,7 @@ public abstract class Phase {
 		phaseParameters.clear();
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
+		broadcastPhaseEvent(session, operands, PhaseEvent.TYPE_END);
 		session.recordPhaseExit(this);
 		subMonitor.done();
 	}

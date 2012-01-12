@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
@@ -107,12 +108,20 @@ public class DownloadManager {
 		SubMonitor monitor = SubMonitor.convert(mon, requestsToProcess.size());
 		for (int i = 0; i < repositories.length && !requestsToProcess.isEmpty() && !monitor.isCanceled(); i++) {
 			IArtifactRequest[] requests = getRequestsForRepository(repositories[i]);
+			publishDownloadEvent(new CollectEvent(CollectEvent.TYPE_REPOSITORY_START, repositories[i], provContext, requests));
 			IStatus dlStatus = repositories[i].getArtifacts(requests, monitor.newChild(requests.length));
+			publishDownloadEvent(new CollectEvent(CollectEvent.TYPE_REPOSITORY_END, repositories[i], provContext, requests));
 			if (dlStatus.getSeverity() == IStatus.CANCEL)
 				return;
 			filterUnfetched();
 			monitor.setWorkRemaining(requestsToProcess.size());
 		}
+	}
+
+	private void publishDownloadEvent(CollectEvent event) {
+		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		if (bus != null)
+			bus.publishEvent(event);
 	}
 
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
@@ -69,11 +70,24 @@ public class Collect extends InstallableUnitPhase {
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 
+		List<IArtifactRequest> totalArtifactRequests = new ArrayList<IArtifactRequest>(artifactRequests.size());
 		DownloadManager dm = new DownloadManager(context, agent);
 		for (IArtifactRequest[] requests : artifactRequests) {
-			dm.add(requests);
+			for (int i = 0; i < requests.length; i++) {
+				dm.add(requests[i]);
+				totalArtifactRequests.add(requests[i]);
+			}
 		}
-		return dm.start(monitor);
+		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		if (bus != null)
+			bus.publishEvent(new CollectEvent(CollectEvent.TYPE_OVERALL_START, null, context, totalArtifactRequests.toArray(new IArtifactRequest[totalArtifactRequests.size()])));
+		IStatus downloadStatus = dm.start(monitor);
+		try {
+			return downloadStatus;
+		} finally {
+			if (downloadStatus.isOK() && bus != null)
+				bus.publishEvent(new CollectEvent(CollectEvent.TYPE_OVERALL_END, null, context, totalArtifactRequests.toArray(new IArtifactRequest[totalArtifactRequests.size()])));
+		}
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {

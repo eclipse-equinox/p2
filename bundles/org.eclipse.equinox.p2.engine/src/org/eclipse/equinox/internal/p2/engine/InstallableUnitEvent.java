@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,14 +7,14 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Wind River - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
-
-import org.eclipse.equinox.p2.engine.IProfile;
 
 import java.util.EventObject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
@@ -24,6 +24,8 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 public class InstallableUnitEvent extends EventObject {
 	public static final int UNINSTALL = 0;
 	public static final int INSTALL = 1;
+	public static final int UNCONFIGURE = 2;
+	public static final int CONFIGURE = 3;
 	private static final long serialVersionUID = 3318712818811459886L;
 
 	private String phaseId;
@@ -45,8 +47,8 @@ public class InstallableUnitEvent extends EventObject {
 		this.prePhase = prePhase;
 		this.profile = profile;
 		this.iu = iu;
-		if (type != UNINSTALL && type != INSTALL)
-			throw new IllegalArgumentException(Messages.InstallableUnitEvent_type_not_install_or_uninstall);
+		if (type != UNINSTALL && type != INSTALL && type != UNCONFIGURE && type != CONFIGURE)
+			throw new IllegalArgumentException(Messages.InstallableUnitEvent_type_not_install_or_uninstall_or_configure);
 		this.type = type;
 		this.result = result;
 		this.touchpoint = touchpoint;
@@ -87,5 +89,13 @@ public class InstallableUnitEvent extends EventObject {
 
 	public boolean isUninstall() {
 		return type == UNINSTALL;
+	}
+
+	public boolean isConfigure() {
+		return type == CONFIGURE;
+	}
+
+	public boolean isUnConfigure() {
+		return type == UNCONFIGURE;
 	}
 }

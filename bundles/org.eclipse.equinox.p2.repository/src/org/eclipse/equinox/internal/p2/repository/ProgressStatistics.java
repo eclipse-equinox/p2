@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011 Cloudsmith Inc.
+ * Copyright (c) 2006, 2012 Cloudsmith Inc.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -16,6 +16,9 @@ import java.net.URI;
 import java.text.NumberFormat;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -30,6 +33,8 @@ public class ProgressStatistics {
 
 	private static final int SPEED_RESOLUTION = 1000;
 
+	private static IProvisioningAgent agent = null;
+
 	private static String convert(long amount) {
 		NumberFormat fmt = NumberFormat.getInstance();
 		if (amount < 1024)
@@ -42,13 +47,27 @@ public class ProgressStatistics {
 		return fmt.format(((double) amount) / (1024 * 1024)) + "MB"; //$NON-NLS-1$
 	}
 
-	private final String m_fileName;
+	public static void setProvisioningAgent(IProvisioningAgent agent) {
+		ProgressStatistics.agent = agent;
+	}
+
+	private void publishEvent(DownloadProgressEvent event) {
+		if (agent == null) {
+			agent = ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.class);
+		}
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		if (eventBus != null) {
+			eventBus.publishEvent(event);
+		}
+	}
+
+	final String m_fileName;
 
 	private final long m_total;
 
 	private final long m_startTime;
 
-	private long m_current;
+	long m_current;
 
 	private long m_lastReportTime;
 
@@ -58,7 +77,7 @@ public class ProgressStatistics {
 
 	private long m_recentSpeedMapKey;
 
-	private URI m_uri;
+	URI m_uri;
 
 	public ProgressStatistics(URI uri, String fileName, long total) {
 		m_startTime = System.currentTimeMillis();
@@ -125,6 +144,11 @@ public class ProgressStatistics {
 	}
 
 	public synchronized String report() {
+		publishEvent(new DownloadProgressEvent(this));
+		return createReportString();
+	}
+
+	private String createReportString() {
 		String uriString = m_uri.toString();
 		if (m_fileName != null && uriString.endsWith(m_fileName))
 			uriString = uriString.substring(0, uriString.lastIndexOf(m_fileName));
@@ -145,7 +169,7 @@ public class ProgressStatistics {
 	}
 
 	public String toString() {
-		return report();
+		return createReportString();
 	}
 
 	synchronized private void registerRecentSpeed(long key, long inc) {
