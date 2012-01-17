@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2011 IBM Corporation and others.
+ *  Copyright (c) 2005, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -144,6 +144,12 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 * @since 2.1
 	 */
 	public static final String STATE_PROP_TAG = "org.eclipse.equinox.p2.state.tag"; //$NON-NLS-1$
+
+	/**
+	 * Profile property constant for additional parameters of the downloading stats(e.g., package=jee&os=linux).
+	 * @since 2.2 
+	 */
+	public static final String PROP_STATS_PARAMETERS = "org.eclipse.equinox.p2.stats.parameters"; //$NON-NLS-1$
 
 	/**
 	 * Returns the provisioning agent that manages this profile

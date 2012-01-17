@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Wind River - continuing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
@@ -58,6 +59,22 @@ public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifact
 	 * @return the newly created request object
 	 */
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties);
+
+	/**
+	 * Return a new request to mirror the given artifact into the destination repository.
+	 * @param key the artifact to mirror
+	 * @param destination the destination where the artifact will be mirrored
+	 * @param destinationDescriptorProperties additional properties for use in creating the repository's ArtifactDescriptor, 
+	 * or <code>null</code> to indicate no additional properties are needed
+	 * @param destinationRepositoryProperties additional repository specific properties for use in creating the repositor's ArtifactDescriptor,
+	 * , or <code>null</code> to indicate no additional properties are needed
+	 * @param downloadStatsParameters additional customizable parameters for downloading statistics
+	 * , or <code>null</code> to indicate no additional customizable stats parameters
+	 * @return the newly created request object
+	 * @see IArtifactRepositoryManager#createMirrorRequest(IArtifactKey, IArtifactRepository, Map, Map)
+	 * @since 2.1
+	 */
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties, String downloadStatsParameters);
 
 	/**
 	 * Creates and returns a new empty artifact repository of the given type at 

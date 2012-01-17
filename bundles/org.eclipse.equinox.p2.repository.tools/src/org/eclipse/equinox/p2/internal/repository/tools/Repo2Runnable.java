@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	private static final String NATIVE_ARTIFACTS = "nativeArtifacts"; //$NON-NLS-1$
 	private static final String NATIVE_TYPE = "org.eclipse.equinox.p2.native"; //$NON-NLS-1$
 	private static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
+	private static final String PARM_PROFILE = "profile"; //$NON-NLS-1$
 
 	protected class CollectNativesAction extends ProvisioningAction {
 		public IStatus execute(Map<String, Object> parameters) {
@@ -57,8 +58,13 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			@SuppressWarnings("unchecked")
 			List<IArtifactRequest> artifactRequests = (List<IArtifactRequest>) parameters.get(NATIVE_ARTIFACTS);
 
+			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
+			String statsParameter = null;
+			if (profile != null)
+				statsParameter = profile.getProperty(IProfile.PROP_STATS_PARAMETERS);
+
 			for (IArtifactKey keyToDownload : toDownload) {
-				IArtifactRequest request = manager.createMirrorRequest(keyToDownload, destinationArtifactRepository, null, null);
+				IArtifactRequest request = manager.createMirrorRequest(keyToDownload, destinationArtifactRepository, null, null, statsParameter);
 				artifactRequests.add(request);
 			}
 			return Status.OK_STATUS;

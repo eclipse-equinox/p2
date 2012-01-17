@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2012 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.testserver.servlets.FileMolester;
 import org.eclipse.equinox.p2.testserver.servlets.IntermittentTimeout;
 import org.eclipse.equinox.p2.testserver.servlets.LastModifiedLier;
 import org.eclipse.equinox.p2.testserver.servlets.Redirector;
+import org.eclipse.equinox.p2.testserver.servlets.Stats;
 import org.eclipse.equinox.p2.testserver.servlets.StatusCodeResponse;
 import org.eclipse.equinox.p2.testserver.servlets.TimeOut;
 import org.eclipse.equinox.p2.testserver.servlets.Truncator;
@@ -88,6 +89,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
 			httpService.registerServlet("/proxy3/aprivate", new BasicResourceDelivery("/proxy3/aprivate", URI.create(SITE2)), null, artifactSecuredHttpContext); //$NON-NLS-1$//$NON-NLS-2$
 			httpService.registerServlet("/proxy4/aprivate", new BasicResourceDelivery("/proxy4/aprivate", URI.create(SITE3)), null, artifactSecuredHttpContext); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/stats", new Stats(), null, null); //$NON-NLS-1$
 
 		} catch (NamespaceException e) {
 			// TODO Auto-generated catch block
@@ -147,6 +149,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		httpService = (HttpService) service;
 		httpService.unregister("/public"); //$NON-NLS-1$
 		httpService.unregister("/private"); //$NON-NLS-1$
+		httpService.unregister("/stats"); //$NON-NLS-1$
 	}
 
 }

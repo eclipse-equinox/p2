@@ -55,6 +55,10 @@ public class MirrorRequest extends ArtifactRequest {
 	 * for reporting download statistics for that artifact.
 	 */
 	private static final String PROP_DOWNLOAD_STATS = "download.stats"; //$NON-NLS-1$
+	/**
+	 * The additional parameters for downloading statistics 
+	 */
+	private String downloadStatsParamters;
 
 	protected final IArtifactRepository target;
 
@@ -63,6 +67,10 @@ public class MirrorRequest extends ArtifactRequest {
 	protected IArtifactDescriptor descriptor;
 
 	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Map<String, String> targetDescriptorProperties, Map<String, String> targetRepositoryProperties, Transport transport) {
+		this(key, targetRepository, targetDescriptorProperties, targetRepositoryProperties, transport, null);
+	}
+
+	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Map<String, String> targetDescriptorProperties, Map<String, String> targetRepositoryProperties, Transport transport, String statsParameters) {
 		super(key, transport);
 		target = targetRepository;
 		if (targetDescriptorProperties == null || targetDescriptorProperties.isEmpty()) {
@@ -78,6 +86,7 @@ public class MirrorRequest extends ArtifactRequest {
 			this.targetRepositoryProperties = new HashMap<String, String>();
 			this.targetRepositoryProperties.putAll(targetRepositoryProperties);
 		}
+		this.downloadStatsParamters = statsParameters;
 	}
 
 	public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
@@ -218,6 +227,13 @@ public class MirrorRequest extends ArtifactRequest {
 		URI statsURI;
 		try {
 			statsURI = URIUtil.append(new URI(statsRoot), statsProperty);
+			if (downloadStatsParamters != null) {
+				try {
+					statsURI = new URI(statsURI.getScheme(), statsURI.getUserInfo(), statsURI.getHost(), statsURI.getPort(), statsURI.getPath(), statsURI.getQuery() == null ? downloadStatsParamters : downloadStatsParamters + "&" + statsURI.getQuery(), statsURI.getFragment()); //$NON-NLS-1$
+				} catch (URISyntaxException e) {
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unable to create download statistics due to invalid URL query: " + statsRoot + " suffix: " + statsProperty + " query: " + downloadStatsParamters)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$		
+				}
+			}
 		} catch (URISyntaxException e) {
 			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unable to report download statistics due to invalid URL: " + statsRoot + " suffix: " + statsProperty)); //$NON-NLS-1$ //$NON-NLS-2$
 			return;

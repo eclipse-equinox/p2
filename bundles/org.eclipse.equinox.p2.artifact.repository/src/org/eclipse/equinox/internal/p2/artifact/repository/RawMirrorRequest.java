@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - transport split
+ *     Wind River - continue development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -26,7 +27,11 @@ public class RawMirrorRequest extends MirrorRequest {
 	protected IArtifactDescriptor sourceDescriptor, targetDescriptor;
 
 	public RawMirrorRequest(IArtifactDescriptor sourceDescriptor, IArtifactDescriptor targetDescriptor, IArtifactRepository targetRepository, Transport transport) {
-		super(sourceDescriptor.getArtifactKey(), targetRepository, null, null, transport);
+		this(sourceDescriptor, targetDescriptor, targetRepository, transport, null);
+	}
+
+	public RawMirrorRequest(IArtifactDescriptor sourceDescriptor, IArtifactDescriptor targetDescriptor, IArtifactRepository targetRepository, Transport transport, String statsParameters) {
+		super(sourceDescriptor.getArtifactKey(), targetRepository, null, null, transport, statsParameters);
 		this.sourceDescriptor = sourceDescriptor;
 		this.targetDescriptor = targetDescriptor;
 	}

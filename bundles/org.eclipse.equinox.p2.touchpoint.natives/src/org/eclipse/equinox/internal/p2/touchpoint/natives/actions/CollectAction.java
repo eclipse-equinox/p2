@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,7 +57,7 @@ public class CollectAction extends ProvisioningAction {
 		int count = 0;
 		for (IArtifactKey key : toDownload) {
 			//TODO Here there are cases where the download is not necessary again because what needs to be done is just a configuration step
-			requests[count++] = Util.getArtifactRepositoryManager(agent).createMirrorRequest(key, destination, null, null);
+			requests[count++] = Util.getArtifactRepositoryManager(agent).createMirrorRequest(key, destination, null, null, profile.getProperty(IProfile.PROP_STATS_PARAMETERS));
 		}
 
 		if (requests.length == count)
