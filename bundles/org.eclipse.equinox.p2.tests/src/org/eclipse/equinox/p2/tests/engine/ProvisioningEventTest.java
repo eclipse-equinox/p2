@@ -14,6 +14,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.eclipse.core.internal.registry.ExtensionRegistry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.spi.RegistryContributor;
@@ -21,6 +23,9 @@ import org.eclipse.equinox.internal.p2.artifact.repository.MirrorEvent;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.metadata.TouchpointData;
 import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.RemoveRepositoryAction;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
@@ -28,6 +33,8 @@ import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -52,11 +59,12 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testCollectEvent() throws ProvisionException, OperationCanceledException {
+	public void testCollectEvent() throws ProvisionException, OperationCanceledException, InterruptedException {
 		class ProvTestListener implements ProvisioningListener {
 			int requestsNumber = 0;
 			boolean called = false;
 			boolean mirrorEevent = false;
+			CountDownLatch latch = new CountDownLatch(1);
 
 			public void notify(EventObject o) {
 				if (o instanceof CollectEvent) {
@@ -68,7 +76,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 				} else if (o instanceof MirrorEvent) {
 					mirrorEevent = true;
 					System.out.println(((MirrorEvent) o).getDownloadStatus());
-				}
+				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent)
+					latch.countDown();
 			}
 		}
 		final ProvTestListener listener = new ProvTestListener();
@@ -76,6 +85,9 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 		try {
 			URI repoLoc = getTestData("Load test data.", "/testData/testRepos/updateSite").toURI();
 			IProfile profile = createProfile("test");
+			// clean possible cached artifacts
+			IArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
+			bundlePool.removeAll(new NullProgressMonitor());
 			ProvisioningContext context = new ProvisioningContext(getAgent());
 			context.setArtifactRepositories(new URI[] {repoLoc});
 			context.setMetadataRepositories(new URI[] {repoLoc});
@@ -86,6 +98,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			}
 			IStatus status = engine.perform(plan, new NullProgressMonitor());
 			assertTrue("Provisioning was failed.", status.isOK());
+			//			// make sure the listener handles all event already that are dispatched asynchronously
+			listener.latch.await(10, TimeUnit.SECONDS);
 			assertTrue("Collect event wasn't dispatched.", listener.called);
 			assertEquals("Collect event didn't report expected artifacts to be downloaded.", 19, listener.requestsNumber);
 			assertTrue("Mirror event wasn't dispatched.", listener.mirrorEevent);
@@ -95,7 +109,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testPhaseEvent() throws ProvisionException, OperationCanceledException {
+	public void testPhaseEvent() throws ProvisionException, OperationCanceledException, InterruptedException {
 		final String[] phaseSets = new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST, PhaseSetFactory.PHASE_INSTALL, PhaseSetFactory.PHASE_CONFIGURE};
 
 		class ProvTestListener implements ProvisioningListener {
@@ -103,6 +117,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			int publishUnWantedPhaseType = 0;
 			List<String> phaseStartEventToBePublised = new ArrayList<String>(Arrays.asList(phaseSets));
 			List<String> phaseEndEventToBePublised = new ArrayList<String>(Arrays.asList(phaseSets));
+			CountDownLatch latch = new CountDownLatch(1);
 
 			public void notify(EventObject o) {
 				if (o instanceof PhaseEvent) {
@@ -115,7 +130,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 							publishUnWantedPhaseEvent = event.getPhaseId();
 					} else
 						publishUnWantedPhaseType = event.getType();
-				}
+				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent)
+					latch.countDown();
 			}
 		}
 		final ProvTestListener listener = new ProvTestListener();
@@ -133,6 +149,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			}
 			IStatus status = engine.perform(plan, PhaseSetFactory.createPhaseSetIncluding(phaseSets), new NullProgressMonitor());
 			assertTrue("Provisioning was failed.", status.isOK());
+			// make sure the listener handles all event already that are dispatched asynchronously
+			listener.latch.await(10, TimeUnit.SECONDS);
 			assertNull("Published phase event with unwanted phase id.", listener.publishUnWantedPhaseEvent);
 			assertEquals("Published unwanted type of phase event.", 0, listener.publishUnWantedPhaseType);
 			assertEquals("Expected Phase start event is not published.", new ArrayList<String>(0), listener.phaseStartEventToBePublised);
@@ -143,13 +161,14 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testConfigureUnConfigureEvent() {
+	public void testConfigureUnConfigureEvent() throws InterruptedException {
 		final String iuId = "test";
 		class ProvTestListener implements ProvisioningListener {
 			int preConfigureEvent = 0;
 			int postConfigureEvent = 0;
 			int preUnConfigureEvent = 0;
 			int postUnConfigureEvent = 0;
+			CountDownLatch latch = new CountDownLatch(2);
 
 			public void notify(EventObject o) {
 				if (o instanceof InstallableUnitEvent) {
@@ -165,7 +184,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 						else if (event.isPost())
 							postUnConfigureEvent++;
 					}
-				}
+				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent)
+					latch.countDown();
 			}
 		}
 		final ProvTestListener listener = new ProvTestListener();
@@ -174,10 +194,20 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 		try {
 			IProfile profile = createProfile("testConfigureEvent");
 			IProvisioningPlan plan = engine.createPlan(profile, null);
+
+			final String testLocation = "http://download.eclipse.org/releases/juno";
+			// remove the existing location in case it has
+			Map args = new HashMap();
+			args.put(ActionConstants.PARM_AGENT, getAgent());
+			args.put("location", testLocation);
+			args.put("type", Integer.toString(IRepository.TYPE_ARTIFACT));
+			args.put("enabled", "true");
+			new RemoveRepositoryAction().execute(args);
+
 			Map<String, ITouchpointInstruction> data = new HashMap<String, ITouchpointInstruction>();
 			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put("location", "http://download.eclipse.org/releases/juno");
-			parameters.put("type", "1");
+			parameters.put("location", testLocation);
+			parameters.put("type", Integer.toString(IRepository.TYPE_ARTIFACT));
 			parameters.put("name", "Juno");
 			parameters.put("enabled", "true");
 			data.put(PhaseSetFactory.PHASE_CONFIGURE, new TouchpointInstruction(TouchpointInstruction.encodeAction("addRepository", parameters), null));
@@ -191,6 +221,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			plan.removeInstallableUnit(testIU);
 			result = engine.perform(plan, PhaseSetFactory.createDefaultPhaseSet(), new NullProgressMonitor());
 			assertTrue("0.4", result.isOK());
+			// make sure the listener handles all event already that are dispatched asynchronously
+			listener.latch.await(10, TimeUnit.SECONDS);
 			assertEquals("0.5", 1, listener.preConfigureEvent);
 			assertEquals("0.6", 1, listener.postConfigureEvent);
 			assertEquals("0.7", 1, listener.preUnConfigureEvent);
@@ -218,7 +250,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testConfigureUndoEvent() {
+	public void testConfigureUndoEvent() throws InterruptedException {
 		final String iuId = "test";
 		final String failureIU = "alwaysFail";
 		class ProvTestListener implements ProvisioningListener {
@@ -226,6 +258,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			int postConfigureEvent = 0;
 			int preUnConfigureEventForUndo = 0;
 			int postUnConfigureEventForUndo = 0;
+			CountDownLatch latch = new CountDownLatch(1);
 
 			public void notify(EventObject o) {
 				if (o instanceof InstallableUnitEvent) {
@@ -249,7 +282,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 						else if (event.isUnConfigure() && event.isPost())
 							postUnConfigureEventForUndo++;
 					}
-				}
+				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent)
+					latch.countDown();
 			}
 		}
 		final ProvTestListener listener = new ProvTestListener();
@@ -272,6 +306,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			plan.addInstallableUnit(createResolvedIU(createEclipseIU(failureIU, Version.create("1.0.0"), new IRequirement[0], new TouchpointData(data))));
 			IStatus result = engine.perform(plan, PhaseSetFactory.createDefaultPhaseSet(), new NullProgressMonitor());
 			assertFalse(result.isOK());
+			// make sure the listener handles all event already that are dispatched asynchronously
+			listener.latch.await(10, TimeUnit.SECONDS);
 			assertEquals("0.5", 2, listener.preConfigureEvent);
 			assertEquals("0.6", 1, listener.postConfigureEvent);
 			assertEquals("0.7", 1, listener.preUnConfigureEventForUndo);
