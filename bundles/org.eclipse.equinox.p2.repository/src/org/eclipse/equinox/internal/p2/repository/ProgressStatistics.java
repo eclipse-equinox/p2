@@ -16,7 +16,6 @@ import java.net.URI;
 import java.text.NumberFormat;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
@@ -24,7 +23,8 @@ import org.eclipse.osgi.util.NLS;
 /**
  * Converts progress of file download to average download speed and keeps track of
  * when it is suitable to update a progress monitor. A suitably scaled and formatted string for use
- * in progress monitoring is provided.
+ * in progress monitoring is provided. It will publishes {@link DownloadProgressEvent} if {@link IProvisioningAgent}
+ * is given and {@link IProvisioningEventBus} is available.
  */
 public class ProgressStatistics {
 	private static final int DEFAULT_REPORT_INTERVAL = 1000;
@@ -32,8 +32,6 @@ public class ProgressStatistics {
 	private static final int SPEED_INTERVAL = 5000;
 
 	private static final int SPEED_RESOLUTION = 1000;
-
-	private static IProvisioningAgent agent = null;
 
 	private static String convert(long amount) {
 		NumberFormat fmt = NumberFormat.getInstance();
@@ -47,17 +45,12 @@ public class ProgressStatistics {
 		return fmt.format(((double) amount) / (1024 * 1024)) + "MB"; //$NON-NLS-1$
 	}
 
-	public static void setProvisioningAgent(IProvisioningAgent agent) {
-		ProgressStatistics.agent = agent;
-	}
-
 	private void publishEvent(DownloadProgressEvent event) {
-		if (agent == null) {
-			agent = ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.class);
-		}
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
-		if (eventBus != null) {
-			eventBus.publishEvent(event);
+		if (m_agent != null) {
+			IProvisioningEventBus eventBus = (IProvisioningEventBus) m_agent.getService(IProvisioningEventBus.SERVICE_NAME);
+			if (eventBus != null) {
+				eventBus.publishEvent(event);
+			}
 		}
 	}
 
@@ -79,7 +72,9 @@ public class ProgressStatistics {
 
 	URI m_uri;
 
-	public ProgressStatistics(URI uri, String fileName, long total) {
+	IProvisioningAgent m_agent;
+
+	public ProgressStatistics(IProvisioningAgent agent, URI uri, String fileName, long total) {
 		m_startTime = System.currentTimeMillis();
 		m_fileName = fileName;
 
@@ -91,6 +86,7 @@ public class ProgressStatistics {
 		m_recentSpeedMap = new TreeMap<Long, Long>();
 		m_recentSpeedMapKey = 0L;
 		m_uri = uri;
+		m_agent = agent;
 	}
 
 	public long getAverageSpeed() {

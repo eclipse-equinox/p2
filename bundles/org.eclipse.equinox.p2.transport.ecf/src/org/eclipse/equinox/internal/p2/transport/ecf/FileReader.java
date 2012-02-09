@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 Cloudsmith Inc.
+ * Copyright (c) 2006, 2012 Cloudsmith Inc.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -12,16 +12,41 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.Date;
-import org.eclipse.core.runtime.*;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.filetransfer.*;
-import org.eclipse.ecf.filetransfer.events.*;
-import org.eclipse.ecf.filetransfer.identity.*;
+import org.eclipse.ecf.filetransfer.FileTransferJob;
+import org.eclipse.ecf.filetransfer.IFileRangeSpecification;
+import org.eclipse.ecf.filetransfer.IFileTransferListener;
+import org.eclipse.ecf.filetransfer.IIncomingFileTransfer;
+import org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter;
+import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.ecf.filetransfer.UserCancelledException;
+import org.eclipse.ecf.filetransfer.events.IFileTransferConnectStartEvent;
+import org.eclipse.ecf.filetransfer.events.IFileTransferEvent;
+import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferEvent;
+import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveDataEvent;
+import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveDoneEvent;
+import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEvent;
+import org.eclipse.ecf.filetransfer.identity.FileCreateException;
+import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
+import org.eclipse.ecf.filetransfer.identity.IFileID;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
@@ -31,6 +56,7 @@ import org.eclipse.equinox.internal.p2.repository.Messages;
 import org.eclipse.equinox.internal.p2.repository.ProgressStatistics;
 import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTracing;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -72,12 +98,13 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	protected IFileTransferConnectStartEvent connectEvent;
 	private Job cancelJob;
 	private boolean monitorStarted;
+	private IProvisioningAgent agent;
 
 	/**
 	 * Create a new FileReader that will retry failed connection attempts and sleep some amount of time between each
 	 * attempt.
 	 */
-	public FileReader(IConnectContext aConnectContext) {
+	public FileReader(IProvisioningAgent aAgent, IConnectContext aConnectContext) {
 		super(Messages.FileTransport_reader); // job label
 
 		// Hide this job.
@@ -86,6 +113,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		connectionRetryCount = RepositoryPreferences.getConnectionRetryCount();
 		connectionRetryDelay = RepositoryPreferences.getConnectionMsRetryDelay();
 		connectContext = aConnectContext;
+		this.agent = aAgent;
 	}
 
 	public FileInfo getLastFileInfo() {
@@ -155,7 +183,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				return;
 			}
 			long fileLength = source.getFileLength();
-			ProgressStatistics stats = new ProgressStatistics(requestUri, source.getRemoteFileName(), fileLength);
+			ProgressStatistics stats = new ProgressStatistics(agent, requestUri, source.getRemoteFileName(), fileLength);
 			setStatistics(stats);
 
 			if (theMonitor != null) {

@@ -17,10 +17,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.repository.ProgressStatistics;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -31,6 +28,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
+import org.junit.Test;
 
 public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 
@@ -60,11 +58,9 @@ public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * Tests loading a repository in a zip file.
 	 * This test case comes from bug 369834.
 	 */
-	public void _testZipFileRepository() throws IOException, ProvisionException, OperationCanceledException {
+	@Test
+	public void testZipFileRepository() throws IOException, ProvisionException, OperationCanceledException {
 		//ensure a random agent doesn't cause it to fail
-		IProvisioningAgent other = new ProvisioningAgent();
-		other.stop();
-		ProgressStatistics.setProvisioningAgent(other);
 		File zip = TestData.getFile("bug369834", "f-TestBuild-group.group.group.zip");
 		URI location = URIUtil.toJarURI(zip.toURI(), new Path(""));
 		IMetadataRepository repo = manager.loadRepository(location, null);

@@ -15,6 +15,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.p2.tests.artifact.repository.MirrorRequestTest2;
 import org.eclipse.equinox.p2.tests.artifact.repository.StatsTest;
+import org.eclipse.equinox.p2.tests.engine.ProvisioningEventTest2;
 import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerSuite;
 
 public class AllTestServerTests extends AbstractTestServerSuite {
@@ -37,6 +38,7 @@ public class AllTestServerTests extends AbstractTestServerSuite {
 		suite.addTestSuite(NTLMTest.class);
 		suite.addTestSuite(MirrorRequestTest2.class);
 		suite.addTestSuite(StatsTest.class);
+		suite.addTestSuite(ProvisioningEventTest2.class);
 
 		suite.addTest(new AbstractTestServerSuite("stopServer"));
 	}

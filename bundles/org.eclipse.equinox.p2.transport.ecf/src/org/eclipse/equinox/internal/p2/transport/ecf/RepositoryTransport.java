@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011, IBM Corporation and other.
+ * Copyright (c) 2006, 2012 IBM Corporation and other.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -56,11 +56,11 @@ import org.eclipse.osgi.util.NLS;
  * Download is performed by {@link FileReader}, and file browsing is performed by
  * {@link FileInfoReader}.
  */
-public class RepositoryTransport extends Transport implements IAgentServiceFactory {
-	private static RepositoryTransport instance;
+public class RepositoryTransport extends Transport {
 
 	public static final String TIMEOUT_RETRY = "org.eclipse.equinox.p2.transport.ecf.retry"; //$NON-NLS-1$
 	private static Map<URI, Integer> socketExceptionRetry = null;
+	private IProvisioningAgent agent = null;
 	/**
 	 * Returns an shared instance of Generic Transport
 	 */
@@ -70,6 +70,19 @@ public class RepositoryTransport extends Transport implements IAgentServiceFacto
 	//		}
 	//		return instance;
 	//	}
+	
+	public RepositoryTransport() {
+		this(null);
+	}
+	
+	/**
+	 * 
+	 * @param agent If agent is <code>null</code>, it means client would like to use RepositoryTransport as a download utility, 
+	 * don't want to publish download progress.
+	 */
+	public RepositoryTransport(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
 
 	public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
 
@@ -83,7 +96,7 @@ public class RepositoryTransport extends Transport implements IAgentServiceFacto
 				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
 
 				// perform the download
-				reader = new FileReader(context);
+				reader = new FileReader(agent, context);
 				reader.readInto(toDownload, target, startPos, monitor);
 
 				// check that job ended ok - throw exceptions otherwise
@@ -149,7 +162,7 @@ public class RepositoryTransport extends Transport implements IAgentServiceFacto
 				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
 
 				// perform the streamed download
-				reader = new FileReader(context);
+				reader = new FileReader(agent, context);
 				return reader.read(toDownload, monitor);
 			} catch (UserCancelledException e) {
 				throw new OperationCanceledException();
@@ -316,9 +329,4 @@ public class RepositoryTransport extends Transport implements IAgentServiceFacto
 						: RepositoryStatus.codeToMessage(code, toDownload.toString()), t);
 	}
 
-	public Object createService(IProvisioningAgent agent) {
-		if (instance ==  null)
-			return instance;
-		return instance;
-	}
 }

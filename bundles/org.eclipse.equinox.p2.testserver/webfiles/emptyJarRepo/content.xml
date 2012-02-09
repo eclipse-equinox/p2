@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+
+<repository name='Test Repo'
+	type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository'
+	version='1'>
+
+	<properties size='1'>
+		<property name='p2.timestamp' value='1239212031654' />
+	</properties>
+
+	<units size='4'>
+		<unit id='A' version='1.0.0'>
+			<properties>
+				<property name='org.eclipse.equinox.p2.type.group' value='true' />
+			</properties>
+			<artifacts size='1'>
+				<artifact classifier='test.txt' id='HelloWorldText'
+					version='1.0.0' />
+			</artifacts>
+			<provides size='1'>
+				<provided namespace='org.eclipse.equinox.p2.iu' name='A'
+					version='1.0.0' />
+			</provides>
+			<touchpoint id="org.eclipse.equinox.p2.native" version="1.0.0"/>
+		</unit>
+	</units>
+
+</repository>

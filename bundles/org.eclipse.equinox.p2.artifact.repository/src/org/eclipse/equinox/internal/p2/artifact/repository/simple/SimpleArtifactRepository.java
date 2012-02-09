@@ -25,13 +25,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
-import org.eclipse.equinox.internal.p2.repository.*;
+import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -747,8 +747,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
-
-		ProgressStatistics.setProvisioningAgent(getProvisioningAgent());
 
 		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
 		LinkedList<IArtifactRequest> requestsPending = new LinkedList<IArtifactRequest>(Arrays.asList(requests));

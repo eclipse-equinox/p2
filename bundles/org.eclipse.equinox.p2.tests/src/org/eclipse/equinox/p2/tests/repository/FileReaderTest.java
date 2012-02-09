@@ -48,7 +48,7 @@ public class FileReaderTest extends AbstractTestServerClientCase {
 	 */
 	public void testReadStream() throws URISyntaxException, CoreException, IOException {
 		RepositoryTransport transport = new RepositoryTransport();
-		URI toDownload = new URI("http://localhost:8080/public/index.html");
+		URI toDownload = new URI(getBaseURL() + "/public/index.html");
 		final NullProgressMonitor monitor = new NullProgressMonitor();
 		InputStream stream = transport.stream(toDownload, monitor);
 		stream.close();
@@ -60,7 +60,7 @@ public class FileReaderTest extends AbstractTestServerClientCase {
 	 */
 	public void testRead() throws URISyntaxException, CoreException, IOException {
 		RepositoryTransport transport = new RepositoryTransport();
-		URI toDownload = new URI("http://localhost:8080/public/index.html");
+		URI toDownload = new URI(getBaseURL() + "/public/index.html");
 		OutputStream target = new ByteArrayOutputStream();
 		final NullProgressMonitor monitor = new NullProgressMonitor();
 		IStatus result = transport.download(toDownload, target, monitor);
