@@ -102,16 +102,19 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	// Test that SimpleArtifactRepository & MirrorRequest use mirrors in the event of a failure. 
 	public void testMirrorFailOver() {
 		OrderedMirrorSelector selector = new OrderedMirrorSelector(sourceRepository);
+		try {
+			// call test
+			IArtifactKey key = new ArtifactKey("test.txt", "HelloWorldText", Version.parseVersion("1.0.0"));
+			MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, getTransport());
+			request.perform(sourceRepository, new NullProgressMonitor());
 
-		// call test
-		IArtifactKey key = new ArtifactKey("test.txt", "HelloWorldText", Version.parseVersion("1.0.0"));
-		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, getTransport());
-		request.perform(sourceRepository, new NullProgressMonitor());
-
-		// The download succeeded
-		assertTrue(request.getResult().toString(), request.getResult().isOK());
-		// All available mirrors used
-		assertEquals("All mirrors utilized", selector.mirrors.length, selector.index);
+			// The download succeeded
+			assertTrue(request.getResult().toString(), request.getResult().isOK());
+			// All available mirrors used
+			assertEquals("All mirrors utilized", selector.mirrors.length, selector.index);
+		} finally {
+			selector.clearSelector();
+		}
 	}
 
 	/*
@@ -313,6 +316,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		int index = 0;
 		MirrorInfo[] mirrors;
 		IArtifactRepository repo;
+		MirrorSelector oldSelector = null;
 
 		OrderedMirrorSelector(IArtifactRepository repo) {
 			super(repo, getTransport());
@@ -331,7 +335,24 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			try {
 				mirrorField = SimpleArtifactRepository.class.getDeclaredField("mirrors");
 				mirrorField.setAccessible(true);
+				oldSelector = (MirrorSelector) mirrorField.get(repo); // Store the old value so we can restore it
 				mirrorField.set(repo, this);
+			} catch (Exception e) {
+				fail("0.2", e);
+			}
+		}
+
+		// Clear the mirror selector we place on the repository
+		public void clearSelector() {
+			if (repo == null || oldSelector == null) {
+				return;
+			}
+			repo.setProperty(SimpleArtifactRepository.PROP_FORCE_THREADING, String.valueOf(false));
+			Field mirrorField = null;
+			try {
+				mirrorField = SimpleArtifactRepository.class.getDeclaredField("mirrors");
+				mirrorField.setAccessible(true);
+				mirrorField.set(repo, oldSelector);
 			} catch (Exception e) {
 				fail("0.2", e);
 			}
