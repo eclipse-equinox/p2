@@ -344,7 +344,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		// Clear the mirror selector we place on the repository
 		public void clearSelector() {
-			if (repo == null || oldSelector == null) {
+			if (repo == null) {
 				return;
 			}
 			repo.setProperty(SimpleArtifactRepository.PROP_FORCE_THREADING, String.valueOf(false));
