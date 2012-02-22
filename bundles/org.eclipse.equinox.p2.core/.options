@@ -31,6 +31,9 @@ org.eclipse.equinox.p2.core/planner/operands=false
 #Detailed debugging information about the projector 
 org.eclipse.equinox.p2.core/planner/projector=false
 
+#Detailed debugging information about the projector encoding
+org.eclipse.equinox.p2.core/planner/encoding=false
+
 #Detailed debugging information about the reconciler 
 org.eclipse.equinox.p2.core/reconciler=false
 

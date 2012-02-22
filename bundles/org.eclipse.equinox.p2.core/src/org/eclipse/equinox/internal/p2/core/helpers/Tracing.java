@@ -30,6 +30,7 @@ public class Tracing {
 	public static boolean DEBUG_PARSE_PROBLEMS = false;
 	public static boolean DEBUG_PLANNER_OPERANDS = false;
 	public static boolean DEBUG_PLANNER_PROJECTOR = false;
+	public static boolean DEBUG_PLANNER_PROJECTOR_ENCODING = false;
 	public static boolean DEBUG_PROFILE_PREFERENCES = false;
 	public static boolean DEBUG_PUBLISHING = false;
 	public static boolean DEBUG_RECONCILER = false;
@@ -51,6 +52,7 @@ public class Tracing {
 				DEBUG_PARSE_PROBLEMS = options.getBooleanOption(Activator.ID + "/core/parseproblems", false); //$NON-NLS-1$
 				DEBUG_PLANNER_OPERANDS = options.getBooleanOption(Activator.ID + "/planner/operands", false); //$NON-NLS-1$
 				DEBUG_PLANNER_PROJECTOR = options.getBooleanOption(Activator.ID + "/planner/projector", false); //$NON-NLS-1$
+				DEBUG_PLANNER_PROJECTOR_ENCODING = options.getBooleanOption(Activator.ID + "/planner/encoding", false); //$NON-NLS-1$
 				DEBUG_PROFILE_PREFERENCES = options.getBooleanOption(Activator.ID + "/engine/profilepreferences", false); //$NON-NLS-1$
 				DEBUG_PUBLISHING = options.getBooleanOption(Activator.ID + "/publisher", false); //$NON-NLS-1$
 				DEBUG_RECONCILER = options.getBooleanOption(Activator.ID + "/reconciler", false); //$NON-NLS-1$

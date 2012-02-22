@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -39,7 +39,7 @@ import org.sat4j.specs.*;
  */
 public class Projector {
 	static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
-	private static boolean DEBUG_ENCODING = false;
+	private static boolean DEBUG_ENCODING = Tracing.DEBUG_PLANNER_PROJECTOR_ENCODING;
 	private IQueryable<IInstallableUnit> picker;
 	private QueryableArray patches;
 
