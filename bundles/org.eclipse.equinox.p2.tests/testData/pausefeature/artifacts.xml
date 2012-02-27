@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='&quot;Eclipse Project Test Site&quot;'
+	type='org.eclipse.equinox.p2.artifact.repository.simpleRepository'
+	version='1.0.0'>
+	<properties size='4'>
+		<property name='publishPackFilesAsSiblings' value='true' />
+		<property name='p2.mirrorsURL'
+			value='http://www.eclipse.org/downloads/download.php?file=/eclipse/updates/3.7/R-3.7.2-201202080800&amp;format=xml&amp;protocol=http' />
+		<property name='p2.timestamp' value='1328722968200' />
+		<property name='p2.compressed' value='false' />
+	</properties>
+	<mappings size='5'>
+		<rule filter='(&amp; (classifier=osgi.bundle) (format=packed))'
+			output='http://download.eclipse.org/eclipse/updates/3.7/R-3.7.2-201202080800/plugins/${id}_${version}.jar.pack.gz' />
+		<rule filter='(&amp; (classifier=osgi.bundle))' output='http://download.eclipse.org/eclipse/updates/3.7/R-3.7.2-201202080800/plugins/${id}_${version}.jar' />
+		<rule filter='(&amp; (classifier=binary))' output='http://download.eclipse.org/eclipse/updates/3.7/R-3.7.2-201202080800/binary/${id}_${version}' />
+		<rule
+			filter='(&amp; (classifier=org.eclipse.update.feature) (format=packed))'
+			output='http://download.eclipse.org/eclipse/updates/3.7/R-3.7.2-201202080800/features/${id}_${version}.jar.pack.gz' />
+		<rule filter='(&amp; (classifier=org.eclipse.update.feature))'
+			output='http://download.eclipse.org/eclipse/updates/3.7/R-3.7.2-201202080800/features/${id}_${version}.jar' />
+	</mappings>
+	<artifacts size='13433'>
+		<artifact classifier='binary'
+			id='org.eclipse.equinox.executable_root.gtk.linux.x86' version='3.5.1.v20111216-1653-7P7NFUIFIbaUcU77s0KQWHw5HZTZ'>
+			<properties size='3'>
+				<property name='download.size' value='161367' />
+				<property name='artifact.size' value='161367' />
+				<property name='download.md5' value='2211bc75c31415de3b6b1d85df031ad2' />
+			</properties>
+		</artifact>
+		<artifact classifier='osgi.bundle'
+			id='org.eclipse.equinox.launcher.gtk.linux.x86' version='1.1.100.v20110505'>
+			<properties size='3'>
+				<property name='artifact.size' value='73673' />
+				<property name='download.size' value='73673' />
+				<property name='download.md5' value='b2dd3eb2753f67aca3a16d4aca4b4236' />
+			</properties>
+		</artifact>
+		<artifact classifier='osgi.bundle' id='org.eclipse.equinox.launcher'
+			version='1.2.0.v20110502'>
+			<properties size='3'>
+				<property name='artifact.size' value='47262' />
+				<property name='download.size' value='47262' />
+				<property name='download.md5' value='8f64108bbd31ae9cdc4d7c2dd1e06deb' />
+			</properties>
+		</artifact>
+	</artifacts>
+</repository>    
+  

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -19,6 +19,8 @@ import org.eclipse.osgi.util.NLS;
 public class PhaseSet implements IPhaseSet {
 
 	private final Phase[] phases;
+	private boolean isRunning = false;
+	private boolean isPaused = false;
 
 	public PhaseSet(Phase[] phases) {
 		if (phases == null)
@@ -33,6 +35,7 @@ public class PhaseSet implements IPhaseSet {
 		int totalWork = getTotalWork(weights);
 		SubMonitor pm = SubMonitor.convert(monitor, totalWork);
 		try {
+			isRunning = true;
 			for (int i = 0; i < phases.length; i++) {
 				if (pm.isCanceled()) {
 					status.add(Status.CANCEL_STATUS);
@@ -68,8 +71,31 @@ public class PhaseSet implements IPhaseSet {
 			}
 		} finally {
 			pm.done();
+			isRunning = false;
 		}
 		return status;
+	}
+
+	public synchronized boolean pause() {
+		if (isRunning && !isPaused) {
+			isPaused = true;
+			for (Phase phase : phases) {
+				phase.setPaused(isPaused);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public synchronized boolean resume() {
+		if (isRunning && isPaused) {
+			isPaused = false;
+			for (Phase phase : phases) {
+				phase.setPaused(isPaused);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	public final IStatus validate(ActionManager actionManager, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {

@@ -20,6 +20,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,12 +38,15 @@ import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.repository.Credentials;
 import org.eclipse.equinox.internal.p2.repository.Credentials.LoginCanceledException;
+import org.eclipse.equinox.internal.p2.repository.DownloadPauseResumeEvent;
 import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.internal.p2.repository.FileInfo;
 import org.eclipse.equinox.internal.p2.repository.JREHttpClientRequiredException;
 import org.eclipse.equinox.internal.p2.repository.Messages;
 import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
 import org.eclipse.equinox.internal.p2.repository.Transport;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -96,7 +100,33 @@ public class RepositoryTransport extends Transport {
 
 				// perform the download
 				reader = new FileReader(agent, context);
-				reader.readInto(toDownload, target, startPos, monitor);
+				ProvisioningListener listener = null;
+				IProvisioningEventBus eventBus = null;
+				try {
+					final FileReader fileReader = reader;
+					if (agent != null) {
+						eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+						if (eventBus != null) {
+							listener = new ProvisioningListener() {							
+								@Override
+								public void notify(EventObject event) {
+									if (event instanceof DownloadPauseResumeEvent) {
+										if (((DownloadPauseResumeEvent) event).getType() == DownloadPauseResumeEvent.TYPE_PAUSE)
+											fileReader.pause();
+										else if (((DownloadPauseResumeEvent) event).getType() == DownloadPauseResumeEvent.TYPE_RESUME)
+											fileReader.resume();
+									}
+								}
+							};
+							eventBus.addListener(listener);
+						}
+					}
+					reader.readInto(toDownload, target, startPos, monitor);
+				} finally {
+					if (eventBus != null) {
+						eventBus.removeListener(listener);
+					}
+				}
 
 				// check that job ended ok - throw exceptions otherwise
 				IStatus result = reader.getResult();

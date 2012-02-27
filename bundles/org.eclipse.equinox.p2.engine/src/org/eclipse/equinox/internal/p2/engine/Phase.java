@@ -44,6 +44,7 @@ public abstract class Phase {
 	private Map<Touchpoint, Map<String, Object>> touchpointToTouchpointPhaseParameters = new HashMap<Touchpoint, Map<String, Object>>();
 	private Map<Touchpoint, Map<String, Object>> touchpointToTouchpointOperandParameters = new HashMap<Touchpoint, Map<String, Object>>();
 	ActionManager actionManager; // injected from phaseset
+	protected boolean isPaused = false;
 
 	protected Phase(String phaseId, int weight, boolean forced) {
 		if (phaseId == null || phaseId.length() == 0)
@@ -121,6 +122,16 @@ public abstract class Phase {
 			subMonitor.setWorkRemaining(operands.length - i);
 			if (subMonitor.isCanceled())
 				throw new OperationCanceledException();
+			while (isPaused) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					mergeStatus(status, new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_thread_interrupted_error, phaseId), e));
+					return;
+				}
+				if (subMonitor.isCanceled())
+					throw new OperationCanceledException();
+			}
 			Operand operand = operands[i];
 			if (!isApplicable(operand))
 				continue;
@@ -335,5 +346,9 @@ public abstract class Phase {
 	 */
 	protected String getProblemMessage() {
 		return NLS.bind(Messages.phase_error, getClass().getName());
+	}
+
+	protected void setPaused(boolean isPaused) {
+		this.isPaused = isPaused;
 	}
 }

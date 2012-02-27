@@ -53,7 +53,7 @@
 				<configuration>
 					<testSuite>org.eclipse.equinox.p2.tests</testSuite>
 					<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
-					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository</argLine>
+					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
 					<appArgLine>-consoleLog</appArgLine>
 					<bundleStartLevel>
 						<bundle>

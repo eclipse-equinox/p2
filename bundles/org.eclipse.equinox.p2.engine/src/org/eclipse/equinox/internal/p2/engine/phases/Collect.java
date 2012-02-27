@@ -12,9 +12,9 @@
 package org.eclipse.equinox.internal.p2.engine.phases;
 
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.repository.DownloadPauseResumeEvent;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ITouchpointType;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
@@ -29,6 +30,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 public class Collect extends InstallableUnitPhase {
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	public static final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
+	private IProvisioningAgent agent = null;
 
 	public Collect(int weight) {
 		super(PhaseSetFactory.PHASE_COLLECT, weight);
@@ -67,8 +69,23 @@ public class Collect extends InstallableUnitPhase {
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		@SuppressWarnings("unchecked")
 		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(PARM_ARTIFACT_REQUESTS);
+		// it happens when rollbacking
+		if (artifactRequests.size() == 0)
+			return Status.OK_STATUS;
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
-		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
+		synchronized (this) {
+			agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
+		}
+
+		if (isPaused) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				return new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_thread_interrupted_error, phaseId), e);
+			}
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
+		}
 
 		List<IArtifactRequest> totalArtifactRequests = new ArrayList<IArtifactRequest>(artifactRequests.size());
 		DownloadManager dm = new DownloadManager(context, agent);
@@ -87,12 +104,31 @@ public class Collect extends InstallableUnitPhase {
 		} finally {
 			if (downloadStatus.isOK() && bus != null)
 				bus.publishEvent(new CollectEvent(CollectEvent.TYPE_OVERALL_END, null, context, totalArtifactRequests.toArray(new IArtifactRequest[totalArtifactRequests.size()])));
+			synchronized (this) {
+				agent = null;
+			}
 		}
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
 		return null;
+	}
+
+	@Override
+	protected void setPaused(boolean isPaused) {
+		super.setPaused(isPaused);
+		firePauseEventToDownloadJobs();
+	}
+
+	private void firePauseEventToDownloadJobs() {
+		synchronized (this) {
+			if (agent != null) {
+				IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+				if (bus != null)
+					bus.publishEvent(new DownloadPauseResumeEvent(isPaused ? DownloadPauseResumeEvent.TYPE_PAUSE : DownloadPauseResumeEvent.TYPE_RESUME));
+			}
+		}
 	}
 
 	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {

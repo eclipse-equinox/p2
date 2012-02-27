@@ -70,6 +70,8 @@ public class Messages extends NLS {
 	public static String Phase_Install_Task;
 	public static String Phase_Sizing_Error;
 	public static String Phase_Sizing_Warning;
+
+	public static String phase_thread_interrupted_error;
 	public static String Phase_Unconfigure_Error;
 	public static String Phase_Uninstall_Error;
 
