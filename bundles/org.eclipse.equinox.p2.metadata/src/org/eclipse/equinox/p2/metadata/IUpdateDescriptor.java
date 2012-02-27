@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -15,6 +15,13 @@ import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 /**
+ * An update descriptor is attached to an installable unit to describe what that
+ * installable unit is capable of acting as an update for. Typically an installable unit
+ * will specify that it is capable of updating all installable units of the same name
+ * and with an older version. However, this descriptor allows an installable
+ * unit to be considered an update for an installable unit with a different name, or
+ * even an update for a unit with a higher version than itself.
+ * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -23,6 +30,11 @@ public interface IUpdateDescriptor {
 	public final int NORMAL = 0;
 	public final int HIGH = 1;
 
+	/**
+	 * Returns an expression matching all installable units that will be updated by
+	 * the unit with this update descriptor.
+	 * @return An expression matching all matching installable units
+	 */
 	Collection<IMatchExpression<IInstallableUnit>> getIUsBeingUpdated();
 
 	/**
