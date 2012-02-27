@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -10,12 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.p2.query.MatchQuery;
-
 import java.io.File;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -27,6 +24,7 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.QueryableFilterAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -112,6 +110,36 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		assertEquals("1.1", 1, data.size());
 		String configure = data.iterator().next().getInstruction("configure").getBody();
 		assertEquals("1.2", "addRepository(type:0,location:http${#58}//download.eclipse.org/releases/fred);addRepository(type:1,location:http${#58}//download.eclipse.org/releases/fred);", configure);
+
+		//update.id = com.zoobar
+		//update.range = [4.0,4.3)
+		//update.severity = 0
+		//update.description = This is the description
+		IUpdateDescriptor update = product.getUpdateDescriptor();
+		assertEquals("2.0", 0, update.getSeverity());
+		assertEquals("2.1", "This is the description", update.getDescription());
+		//unit that fits in range
+		assertTrue("2.2", update.isUpdateOf(createUnit("com.zoobar", Version.createOSGi(4, 1, 0))));
+		//unit that is too old for range
+		assertFalse("2.3", update.isUpdateOf(createUnit("com.zoobar", Version.createOSGi(3, 1, 0))));
+		//version that is too new and outside of range
+		assertFalse("2.4", update.isUpdateOf(createUnit("com.zoobar", Version.createOSGi(6, 1, 0))));
+		//unit with matching version but not matching id
+		assertFalse("2.6", update.isUpdateOf(createUnit("com.other", Version.createOSGi(4, 1, 0))));
+	}
+
+	/**
+	 * Helper method to create units to match update descriptor.
+	 */
+	private IInstallableUnit createUnit(String id, Version version) {
+		InstallableUnitDescription description = new InstallableUnitDescription();
+		description.setId(id);
+		description.setVersion(version);
+		IProvidedCapability provide = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.iu", id, version);
+		List<IProvidedCapability> provides = new ArrayList<IProvidedCapability>();
+		provides.add(provide);
+		description.addProvidedCapabilities(provides);
+		return MetadataFactory.createInstallableUnit(description);
 	}
 
 }
