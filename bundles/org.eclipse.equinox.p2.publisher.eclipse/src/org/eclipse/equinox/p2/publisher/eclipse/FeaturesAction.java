@@ -456,7 +456,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 				File[] files = descriptor.getFiles();
 				IArtifactKey artifactKey = iu.getArtifacts().iterator().next();
-				ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(artifactKey);
+				IArtifactDescriptor artifactDescriptor = PublisherHelper.createArtifactDescriptor(info, artifactKey, null);
 				IPathComputer computer = advice.getRootFileComputer(config);
 				if (computer == null)
 					computer = FileUtils.createDynamicPathComputer(1);

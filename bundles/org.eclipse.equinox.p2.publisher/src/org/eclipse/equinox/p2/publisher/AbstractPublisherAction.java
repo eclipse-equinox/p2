@@ -182,8 +182,8 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	protected IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
+		ArtifactDescriptor result = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info, key, pathOnDisk);
 		//TODO this size calculation is bogus
-		ArtifactDescriptor result = new ArtifactDescriptor(key);
 		if (pathOnDisk != null) {
 			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
 			// TODO - this is wrong but I'm testing a work-around for bug 205842
