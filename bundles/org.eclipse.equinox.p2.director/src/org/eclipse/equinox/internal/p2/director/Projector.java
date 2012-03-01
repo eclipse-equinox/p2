@@ -38,6 +38,16 @@ import org.sat4j.specs.*;
  * back into information understandable by the planner.
  */
 public class Projector {
+	/**
+	 * The name of a Java system property specifying the timeout to set in the SAT solver.
+	 * Note this value is not a time, but rather a conflict count. Essentially the solver
+	 * will give up on a particular solution path when this number of conflicts is reached.
+	 */
+	private static final String PROP_PROJECTOR_TIMEOUT = "eclipse.p2.projector.timeout"; //$NON-NLS-1$
+	/**
+	 * The default SAT solver timeout (in number of conflicts). See bug 372529 for discussion.
+	 */
+	private static final int DEFAULT_SOLVER_TIMEOUT = 10000;
 	static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
 	private static boolean DEBUG_ENCODING = Tracing.DEBUG_PLANNER_PROJECTOR_ENCODING;
 	private IQueryable<IInstallableUnit> picker;
@@ -178,13 +188,13 @@ public class Projector {
 			} else {
 				solver = SolverFactory.newEclipseP2();
 			}
-			int timeout = 1000;
+			int timeout = DEFAULT_SOLVER_TIMEOUT;
 			String timeoutString = null;
 			try {
 				// allow the user to specify a longer timeout. 
 				// only set the value if it is a positive integer larger than the default.
 				// see https://bugs.eclipse.org/336967
-				timeoutString = DirectorActivator.context.getProperty("eclipse.p2.projector.timeout"); //$NON-NLS-1$
+				timeoutString = DirectorActivator.context.getProperty(PROP_PROJECTOR_TIMEOUT);
 				if (timeoutString != null)
 					timeout = Math.max(timeout, Integer.parseInt(timeoutString));
 			} catch (Exception e) {
