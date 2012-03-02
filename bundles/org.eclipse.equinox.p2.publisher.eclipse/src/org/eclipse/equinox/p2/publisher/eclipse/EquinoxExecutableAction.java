@@ -175,7 +175,8 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		if (Constants.OS_MACOSX.equals(os)) {
 			String execName = execDescriptor.getExecutableName();
-			configurationData += " chmod(targetDir:${installFolder}/" + execName + ".app/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String appName = guessMacAppName(execName);
+			configurationData += " chmod(targetDir:${installFolder}/" + appName + ".app/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		} else if (!Constants.OS_WIN32.equals(os)) {
 			// We are on linux/unix.  by default set all of the files to be executable.
 			File[] fileList = execDescriptor.getFiles();
@@ -186,6 +187,17 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		return touchpointData;
+	}
+
+	private String guessMacAppName(String execName) {
+		// repeat magic from org.eclipse.equinox.internal.p2.publisher.eclipse.BrandingIron.brandMac to fix bug 352457
+		// TODO the application name for Mac really should be a parameter of the product configuration
+		String appName = execName;
+		if (appName.equals("eclipse")) //$NON-NLS-1$
+			appName = "Eclipse"; //$NON-NLS-1$
+		else if (appName.equals("launcher")) //$NON-NLS-1$
+			appName = "Launcher"; //$NON-NLS-1$
+		return appName;
 	}
 
 	/**
