@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2011 IBM Corporation and others.
+ *  Copyright (c) 2005, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -37,6 +37,8 @@ public class BrandingIron {
 
 	private String[] icons = null;
 	private String name;
+	private String applicationName;
+
 	private String description;
 	private String os = "win32"; //$NON-NLS-1$
 	private boolean brandIcons = true;
@@ -48,6 +50,16 @@ public class BrandingIron {
 
 	public void setName(String value) {
 		name = value;
+		if (applicationName == null) {
+			applicationName = value;
+		}
+	}
+
+	/**
+	 * Sets the name for the MacOS "<i>ProductName</i>.app" folder.
+	 */
+	public void setApplicationName(String value) {
+		applicationName = value;
 	}
 
 	public void setIcons(String[] value) {
@@ -172,15 +184,9 @@ public class BrandingIron {
 		//Because java does not support the rename of a folder, files are copied.
 
 		//Initialize the target folders
-		String appName = name;
-		if (appName.equals("eclipse")) //$NON-NLS-1$
-			appName = "Eclipse"; //$NON-NLS-1$
-		else if (appName.equals("launcher")) //$NON-NLS-1$
-			appName = "Launcher"; //$NON-NLS-1$
-
 		File root = descriptor.getLocation();
 
-		File target = new File(root, appName + ".app/Contents"); //$NON-NLS-1$
+		File target = new File(root, applicationName + ".app/Contents"); //$NON-NLS-1$
 		target.mkdirs();
 		new File(target, "MacOS").mkdirs(); //$NON-NLS-1$
 		new File(target, "Resources").mkdirs(); //$NON-NLS-1$

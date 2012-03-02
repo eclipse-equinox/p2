@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -190,7 +190,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	}
 
 	private String guessMacAppName(String execName) {
-		// repeat magic from org.eclipse.equinox.internal.p2.publisher.eclipse.BrandingIron.brandMac to fix bug 352457
+		// magic moved here from BrandingIron.brandMac for bug 342550; PDE build requires appName == execName
 		// TODO the application name for Mac really should be a parameter of the product configuration
 		String appName = execName;
 		if (appName.equals("eclipse")) //$NON-NLS-1$
@@ -237,6 +237,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		if (name == null)
 			name = "eclipse"; //$NON-NLS-1$
 		iron.setName(name);
+		iron.setApplicationName(guessMacAppName(name));
 		iron.setOS(advice.getOS());
 		// FIXME: use product's aboutText as description?
 		// iron.setDescription(advice.getAboutText());
