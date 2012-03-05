@@ -12,44 +12,21 @@
 
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ConnectException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.EventObject;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.ecf.filetransfer.UserCancelledException;
-import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
-import org.eclipse.equinox.internal.p2.repository.Credentials;
+import org.eclipse.ecf.filetransfer.*;
+import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Credentials.LoginCanceledException;
-import org.eclipse.equinox.internal.p2.repository.DownloadPauseResumeEvent;
-import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
-import org.eclipse.equinox.internal.p2.repository.FileInfo;
-import org.eclipse.equinox.internal.p2.repository.JREHttpClientRequiredException;
 import org.eclipse.equinox.internal.p2.repository.Messages;
-import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
-import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.osgi.util.NLS;
@@ -64,6 +41,7 @@ public class RepositoryTransport extends Transport {
 	public static final String TIMEOUT_RETRY = "org.eclipse.equinox.p2.transport.ecf.retry"; //$NON-NLS-1$
 	private static Map<URI, Integer> socketExceptionRetry = null;
 	private IProvisioningAgent agent = null;
+
 	/**
 	 * Returns an shared instance of Generic Transport
 	 */
@@ -73,11 +51,11 @@ public class RepositoryTransport extends Transport {
 	//		}
 	//		return instance;
 	//	}
-	
+
 	public RepositoryTransport() {
 		this(null);
 	}
-	
+
 	/**
 	 * 
 	 * @param agent If agent is <code>null</code>, it means client would like to use RepositoryTransport as a download utility, 
@@ -103,12 +81,11 @@ public class RepositoryTransport extends Transport {
 				ProvisioningListener listener = null;
 				IProvisioningEventBus eventBus = null;
 				try {
-					final FileReader fileReader = reader;
 					if (agent != null) {
 						eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 						if (eventBus != null) {
-							listener = new ProvisioningListener() {							
-								@Override
+							final FileReader fileReader = reader;
+							listener = new ProvisioningListener() {
 								public void notify(EventObject event) {
 									if (event instanceof DownloadPauseResumeEvent) {
 										if (((DownloadPauseResumeEvent) event).getType() == DownloadPauseResumeEvent.TYPE_PAUSE)
@@ -202,7 +179,7 @@ public class RepositoryTransport extends Transport {
 				if (e.getStatus().getException() == null)
 					throw new CoreException(RepositoryStatus.forException(e, toDownload));
 				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
-			} catch (LoginCanceledException e) {	
+			} catch (LoginCanceledException e) {
 				// i.e. same behavior when user cancels as when failing n attempts.
 				throw new AuthenticationFailedException();
 			} catch (JREHttpClientRequiredException e) {
@@ -311,8 +288,7 @@ public class RepositoryTransport extends Transport {
 						}
 						if (retryCount != null) {
 							socketExceptionRetry.put(toDownload, retryCount);
-							return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY, 
-									NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {toDownload.toString(), t.getMessage(), retryCount.toString()}), t); 
+							return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY, NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {toDownload.toString(), t.getMessage(), retryCount.toString()}), t);
 						}
 					}
 				} catch (NumberFormatException e) {
