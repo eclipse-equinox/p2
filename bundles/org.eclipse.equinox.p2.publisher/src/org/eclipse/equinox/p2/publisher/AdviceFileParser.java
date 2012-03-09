@@ -13,9 +13,11 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class AdviceFileParser {
@@ -38,6 +40,8 @@ public class AdviceFileParser {
 	private static final String SINGLETON = "singleton"; //$NON-NLS-1$
 	private static final String IMPORT = "import"; //$NON-NLS-1$
 	private static final String RANGE = "range"; //$NON-NLS-1$
+	private static final String MIN = "min"; //$NON-NLS-1$
+	private static final String MAX = "max"; //$NON-NLS-1$
 	private static final String FILTER = "filter"; //$NON-NLS-1$
 	private static final String MULTIPLE = "multiple"; //$NON-NLS-1$
 	private static final String OPTIONAL = "optional"; //$NON-NLS-1$
@@ -238,6 +242,9 @@ public class AdviceFileParser {
 		boolean multiple = false;
 		boolean greedy = true;
 
+		int min = -1;
+		int max = -1;
+
 		while (current != null && current.startsWith(prefix)) {
 			String token = current.substring(prefix.length());
 			if (token.equals(GREEDY)) {
@@ -254,15 +261,29 @@ public class AdviceFileParser {
 				namespace = currentValue();
 			} else if (token.equals(RANGE)) {
 				range = new VersionRange(substituteVersionAndQualifier(currentValue()));
+			} else if (token.equals(MIN)) {
+				min = Integer.valueOf(currentValue()).intValue();
+			} else if (token.equals(MAX)) {
+				max = Integer.valueOf(currentValue()).intValue();
 			} else {
 				// we ignore elements we do not understand
 			}
 			next();
 		}
-		IRequirement capability = createRequirement(namespace, name, range, filter, optional, multiple, greedy);
+		IRequirement capability = null;
+		if (min >= 0 && max >= 0) {
+			capability = createRequirement(namespace, name, range, filter, min, max, greedy);
+		} else {
+			capability = createRequirement(namespace, name, range, filter, optional, multiple, greedy);
+		}
 		if (capability != null) {
 			requires.add(capability);
 		}
+	}
+
+	protected IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, int min, int max, boolean greedy) {
+		IMatchExpression<IInstallableUnit> filterExpression = InstallableUnit.parseFilter(filter);
+		return MetadataFactory.createRequirement(namespace, name, range, filterExpression, min, max, greedy);
 	}
 
 	protected IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
