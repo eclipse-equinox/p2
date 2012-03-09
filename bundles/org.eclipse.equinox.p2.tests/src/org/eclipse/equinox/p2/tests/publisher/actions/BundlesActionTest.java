@@ -55,6 +55,7 @@ public class BundlesActionTest extends ActionTest {
 	private static final String TEST4_REQ_PACKAGE_OPTGREEDY_NAME = "iuf";//$NON-NLS-1$
 	private static final String TEST4_REQ_BUNDLE_OPTIONAL_NAME = "iug";//$NON-NLS-1$
 	private static final String TEST4_REQ_BUNDLE_OPTGREEDY_NAME = "iuh";//$NON-NLS-1$
+	private static final String TEST5_PROVBUNDLE_NAME = "test5";//$NON-NLS-1$
 
 	private static final File TEST_BASE = new File(TestActivator.getTestDataFolder(), "BundlesActionTest");//$NON-NLS-1$
 	private static final File TEST_FILE1 = new File(TEST_BASE, TEST1_PROVBUNDLE_NAME);
@@ -75,6 +76,7 @@ public class BundlesActionTest extends ActionTest {
 	private final Version BUNDLE2_VERSION = Version.create("1.0.0.qualifier");//$NON-NLS-1$
 	private final Version BUNDLE3_VERSION = Version.create("0.1.0.qualifier");//$NON-NLS-1$
 	private final Version BUNDLE4_VERSION = Version.create("2.0.1");//$NON-NLS-1$
+	private final Version BUNDLE5_VERSION = Version.create("0.1.0.qualifier");//$NON-NLS-1$
 
 	private final VersionRange DEFAULT_VERSION_RANGE = VersionRange.emptyRange;
 	private final Version PROVBUNDLE2_VERSION = BUNDLE2_VERSION;
@@ -90,6 +92,7 @@ public class BundlesActionTest extends ActionTest {
 
 	private MultiCapture<ITouchpointAdvice> tpAdvice1, tpAdvice2;
 	private MultiCapture<IUpdateDescriptorAdvice> udAdvice3;
+	private MultiCapture<ICapabilityAdvice> capAdvice5;
 
 	@Override
 	public void setupPublisherInfo() {
@@ -97,6 +100,7 @@ public class BundlesActionTest extends ActionTest {
 		tpAdvice2 = new MultiCapture<ITouchpointAdvice>();
 
 		udAdvice3 = new MultiCapture<IUpdateDescriptorAdvice>();
+		capAdvice5 = new MultiCapture<ICapabilityAdvice>();
 
 		super.setupPublisherInfo();
 	}
@@ -157,6 +161,7 @@ public class BundlesActionTest extends ActionTest {
 		verifyBundle2();
 		verifyBundle3();
 		verifyBundle4();
+		verifyBundle5();
 
 		verifyArtifactRepository();
 	}
@@ -312,6 +317,22 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("2.0", 4, requiredCapability.size());
 	}
 
+	private void verifyBundle5() {
+		ArrayList ius = new ArrayList(publisherResult.getIUs(TEST5_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		assertTrue(ius.size() == 1);
+		IInstallableUnit bundle5IU = (IInstallableUnit) ius.get(0);
+
+		Collection<IRequirement> requirements = bundle5IU.getRequirements();
+		assertTrue(requirements.size() == 1);
+		IRequirement requirement = requirements.iterator().next();
+
+		int min = requirement.getMin();
+		int max = requirement.getMax();
+
+		assertTrue(min == 6);
+		assertTrue(max == 7);
+	}
+
 	public void cleanup() {
 		super.cleanup();
 		if (artifactRepository != null) {
@@ -355,6 +376,12 @@ public class BundlesActionTest extends ActionTest {
 		expectUpdateDescriptorAdviceQuery(TEST4_PROVBUNDLE_NAME, BUNDLE4_VERSION, null);
 		expectTouchpointAdviceQuery(TEST4_PROVBUNDLE_NAME, BUNDLE4_VERSION, null);
 
+		expectCapabilityAdviceQuery(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, capAdvice5);
+		expectOtherAdviceQueries(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION);
+		expectPropertyAdviceQuery(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, sarProperties);
+		expectUpdateDescriptorAdviceQuery(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, null);
+		expectTouchpointAdviceQuery(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, null);
+
 		//capture any touchpoint advice, and return the captured advice when the action asks for it
 		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, ITouchpointAdvice.class), capture(tpAdvice1)));
 		EasyMock.expectLastCall().anyTimes();
@@ -363,6 +390,8 @@ public class BundlesActionTest extends ActionTest {
 		EasyMock.expectLastCall().anyTimes();
 
 		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, AdviceFileAdvice.class), capture(udAdvice3)));
+
+		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, AdviceFileAdvice.class), capture(capAdvice5)));
 		EasyMock.expectLastCall().anyTimes();
 	}
 
@@ -370,6 +399,12 @@ public class BundlesActionTest extends ActionTest {
 		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, true, bundleName, bundleVersion, IBundleShapeAdvice.class)).andReturn(null); //$NON-NLS-1$
+	}
+
+	private void expectCapabilityAdviceQuery(String bundleName, Version bundleVersion, Collection<ICapabilityAdvice> answer) {
+		if (answer == null)
+			answer = Collections.emptyList();
+		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, ICapabilityAdvice.class)).andReturn(answer);
 	}
 
 	private void expectUpdateDescriptorAdviceQuery(String bundleName, Version bundleVersion, Collection<IUpdateDescriptorAdvice> answer) {

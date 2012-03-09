@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: test5
+Bundle-SymbolicName: test5;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.4,
+ CDC-1.1/Foundation-1.1
+Export-Package: iuz;x-friends:="friend1,friend2"
+Eclipse-SourceBundle: test2;version="1.0.0.qualifier"
