@@ -75,21 +75,21 @@ public class EmbeddedEquinox {
 		}
 
 		protected Class findClass(String name) throws ClassNotFoundException {
-			if (name.startsWith("org.osgi.framework."))
+			if (name.startsWith("org.osgi.framework.") || name.startsWith("org.osgi.resource."))
 				// TODO this should call findClass; but then have to use reflection!!
 				return embeddedBundleLoader.loadClass(name);
 			return super.findClass(name);
 		}
 
 		public URL findResource(String name) {
-			if (name.startsWith("org/osgi/framework/"))
+			if (name.startsWith("org/osgi/framework/") || name.startsWith("org/osgi/resource/"))
 				// TODO this should call findResource; but then have to use reflection!!
 				return embeddedBundleLoader.getResource(name);
 			return super.findResource(name);
 		}
 
 		public Enumeration findResources(String name) throws IOException {
-			if (name.startsWith("org/osgi/framework/"))
+			if (name.startsWith("org/osgi/framework/") || name.startsWith("org/osgi/resource/"))
 				// TODO this should call findResources; but then have to use reflection!!
 				return embeddedBundleLoader.getResources(name);
 			return super.findResources(name);
