@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.ui;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -109,6 +108,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	PatternFilter filter;
 	WorkbenchJob filterJob;
 	Button addButton, removeButton, editButton, refreshButton, disableButton, exportButton;
+
+	private Map<MetadataRepositoryElement, URI> originalURICache = new HashMap<MetadataRepositoryElement, URI>(2);
+	private Map<MetadataRepositoryElement, String> originalNameCache = new HashMap<MetadataRepositoryElement, String>(2);
 
 	class CachedMetadataRepositories extends MetadataRepositories {
 		private Hashtable<String, MetadataRepositoryElement> cachedElements;
@@ -541,6 +543,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	public boolean performOk() {
 		if (changed)
 			ElementUtils.updateRepositoryUsingElements(ui, getElements(), getShell());
+		originalNameCache.clear();
+		originalURICache.clear();
 		return super.performOk();
 	}
 
@@ -742,6 +746,18 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		final MetadataRepositoryElement[] selected = getSelectedElements();
 		if (selected.length != 1)
 			return;
+
+		URI originalLocation = null;
+		String originalName = null;
+		if (originalURICache.containsKey(selected[0])) {
+			originalLocation = originalURICache.get(selected[0]);
+		} else
+			originalLocation = selected[0].getLocation();
+		if (originalNameCache.containsKey(selected[0])) {
+			originalName = originalNameCache.get(selected[0]);
+		} else
+			originalName = selected[0].getName();
+		final URI existingLocation = originalLocation;
 		RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(getShell(), ui) {
 			protected String getInitialLocationText() {
 				return URIUtil.toUnencodedString(selected[0].getLocation());
@@ -751,12 +767,30 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				return selected[0].getName();
 			}
 
+			@Override
+			protected URI getOriginalLocation() {
+				return existingLocation;
+			}
 		};
+
 		int retCode = dialog.open();
 		if (retCode == Window.OK) {
 			selected[0].setNickname(dialog.getName());
 			selected[0].setLocation(dialog.getLocation());
-			changed = true;
+			if (dialog.getLocation().equals(existingLocation)) {
+				// the change is reverted
+				originalURICache.remove(selected[0]);
+			} else if (!originalURICache.containsKey(selected[0]))
+				originalURICache.put(selected[0], existingLocation);
+			if (dialog.getName().equals(originalName)) {
+				// the change is reverted
+				originalNameCache.remove(selected[0]);
+			} else if (!originalNameCache.containsKey(selected[0]))
+				originalNameCache.put(selected[0], originalName);
+			if (originalURICache.size() > 0 || originalNameCache.size() > 0)
+				changed = true;
+			else
+				changed = false;
 			repositoryViewer.update(selected[0], null);
 			setDetails();
 		}

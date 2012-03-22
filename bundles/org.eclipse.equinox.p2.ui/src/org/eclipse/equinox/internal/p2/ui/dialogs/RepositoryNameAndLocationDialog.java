@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	ProvisioningUI ui;
 	URI location;
 	String name;
+	String initialURL;
 
 	public RepositoryNameAndLocationDialog(Shell parentShell, ProvisioningUI ui) {
 		super(parentShell);
@@ -140,11 +141,17 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		else if (userLocation == null)
 			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, RepositoryTracker.STATUS_INVALID_REPOSITORY_LOCATION, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
 		else {
-			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
-				public void run() {
-					status[0] = getRepositoryTracker().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null);
-				}
-			});
+			if (initialURL.equals(url.getText().trim()))
+				status[0] = Status.OK_STATUS;
+			else if (userLocation.equals(getOriginalLocation()))
+				// the location is reverted to the original one that has not been saved
+				status[0] = Status.OK_STATUS;
+			else
+				BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+					public void run() {
+						status[0] = getRepositoryTracker().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null);
+					}
+				});
 		}
 		// At this point the subclasses may have decided to opt out of
 		// this dialog.
@@ -173,6 +180,14 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 
 	protected String getInitialNameText() {
 		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	 * the location of repository to be changed
+	 * @return the location of an existing repository
+	 */
+	protected URI getOriginalLocation() {
+		return null;
 	}
 
 	protected Text createNameField(Composite parent) {
@@ -204,7 +219,8 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 				validateRepositoryURL(false);
 			}
 		});
-		url.setText(getInitialLocationText());
+		initialURL = getInitialLocationText();
+		url.setText(initialURL);
 		url.setSelection(0, url.getText().length());
 		return url;
 	}
