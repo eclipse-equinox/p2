@@ -99,4 +99,22 @@
           class="org.eclipse.equinox.p2.tests.FailingMetadataRepositoryFactory">
     </factory>
  </extension>
+ <extension
+       point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
+    <factory
+          class="org.eclipse.equinox.p2.tests.repository.RepositoryExtensionPointTest$TestMetadataRepositoryRegistry">
+    </factory>
+    <filter
+          suffix="@testMetadataRepositoryRegistry">
+    </filter>
+ </extension>
+ <extension
+       point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
+    <factory
+          class="org.eclipse.equinox.p2.tests.repository.RepositoryExtensionPointTest$TestArtifactRepositoryRegistry">
+    </factory>
+    <filter
+          suffix="@testArtifactRepositoryRegistry">
+    </filter>
+ </extension>
 </plugin>

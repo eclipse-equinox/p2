@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@
 package org.eclipse.equinox.internal.p2.repository;
 
 import java.io.*;
-import java.net.URI;
+import java.net.*;
 import java.util.EventObject;
 import java.util.HashSet;
 import org.eclipse.core.runtime.*;
@@ -102,6 +102,9 @@ public class CacheManager {
 	 * @throws OperationCanceledException - if user canceled
 	 */
 	public File createCache(URI repositoryLocation, String prefix, IProgressMonitor monitor) throws IOException, ProvisionException {
+		if (!isURL(repositoryLocation)) {
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_CannotLoadNonUrlLocation, repositoryLocation), null));
+		}
 
 		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
 		try {
@@ -259,6 +262,15 @@ public class CacheManager {
 		files[0] = new File(dataAreaFile, prefix + hashCode + JAR_EXTENSION);
 		files[1] = new File(dataAreaFile, prefix + hashCode + XML_EXTENSION);
 		return files;
+	}
+
+	private static boolean isURL(URI location) {
+		try {
+			new URL(location.toASCIIString());
+		} catch (MalformedURLException e) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -18,6 +18,8 @@ public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.repository.messages"; //$NON-NLS-1$
 
 	public static String CacheManager_AuthenticationFaileFor_0;
+
+	public static String CacheManager_CannotLoadNonUrlLocation;
 	public static String CacheManager_FailedCommunicationWithRepo_0;
 	public static String CacheManager_Neither_0_nor_1_found;
 	public static String CacheManage_ErrorRenamingCache;

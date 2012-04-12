@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
-import java.net.URI;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
@@ -52,6 +52,10 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
 			return null;
 		}
+		if (!isURL(location)) {
+			return null;
+		}
+
 		IArtifactRepository repository = loadRepository(location, monitor);
 		try {
 			initializeRepository(repository, location, monitor);
@@ -64,6 +68,15 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Unexpected_exception, location.toString()), e));
 		}
 		return new UpdateSiteArtifactRepository(location, repository);
+	}
+
+	private static boolean isURL(URI location) {
+		try {
+			new URL(location.toASCIIString());
+		} catch (MalformedURLException e) {
+			return false;
+		}
+		return true;
 	}
 
 	private void resetCache(IArtifactRepository repository) {

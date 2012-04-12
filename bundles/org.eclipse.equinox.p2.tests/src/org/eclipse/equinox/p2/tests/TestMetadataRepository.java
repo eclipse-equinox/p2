@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		return null;
 	}
 
-	public TestMetadataRepository(IProvisioningAgent agent, IInstallableUnit[] ius) {
+	public TestMetadataRepository(IProvisioningAgent agent, IInstallableUnit... ius) {
 		super(agent, NAME, TYPE, VERSION, createLocation(), DESCRIPTION, PROVIDER, null);
 		units.addAll(Arrays.asList(ius));
 	}

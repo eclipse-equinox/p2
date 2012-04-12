@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
 import java.io.File;
-import java.net.URI;
+import java.net.*;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository;
@@ -50,6 +50,9 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
 			return null;
 		}
+		if (!isURL(location)) {
+			return null;
+		}
 
 		IMetadataRepository repository = loadRepository(location, monitor);
 		try {
@@ -63,6 +66,15 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Unexpected_exception, location.toString()), e));
 		}
 		return new UpdateSiteMetadataRepository(location, repository);
+	}
+
+	private static boolean isURL(URI location) {
+		try {
+			new URL(location.toASCIIString());
+		} catch (MalformedURLException e) {
+			return false;
+		}
+		return true;
 	}
 
 	private void resetCache(IMetadataRepository repository) {

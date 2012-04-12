@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -689,8 +689,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	private LocationProperties loadIndexFile(URI location, IProgressMonitor monitor) {
 		LocationProperties locationProperties = LocationProperties.createEmptyIndexFile();
-		//Handle the case of local repos
-		if ("memory".equals(location.getScheme())) //$NON-NLS-1$
+		//Handle the case of in-memory repos
+		if (!isURL(location))
 			return locationProperties;
 
 		if ("file".equals(location.getScheme())) { //$NON-NLS-1$ 
@@ -738,6 +738,15 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		if (!location.isAbsolute())
 			throw new IllegalArgumentException("Location must be absolute: " + location); //$NON-NLS-1$
 		return location;
+	}
+
+	private static boolean isURL(URI location) {
+		try {
+			new URL(location.toASCIIString());
+		} catch (MalformedURLException e) {
+			return false;
+		}
+		return true;
 	}
 
 	private IRepository<T> loadRepository(URI location, String suffix, String type, int flags, SubMonitor monitor) throws ProvisionException {

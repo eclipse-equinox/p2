@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(RepositoryHelperTest.class);
 		//		suite.addTestSuite(FileReaderTest2.class);
+		suite.addTestSuite(RepositoryExtensionPointTest.class);
 		return suite;
 	}
 }

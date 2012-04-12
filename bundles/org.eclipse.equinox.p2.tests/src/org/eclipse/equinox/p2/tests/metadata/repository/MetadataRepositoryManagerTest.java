@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -126,14 +126,14 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		try {
 			factory.load(location, 0, new NullProgressMonitor());
 		} catch (ProvisionException e) {
-			assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
+			assertEquals(ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
 		}
 		factory = new UpdateSiteMetadataRepositoryFactory();
 		factory.setAgent(getAgent());
 		try {
 			factory.load(location, 0, new NullProgressMonitor());
 		} catch (ProvisionException e) {
-			assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
+			assertEquals(ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
 		}
 	}
 

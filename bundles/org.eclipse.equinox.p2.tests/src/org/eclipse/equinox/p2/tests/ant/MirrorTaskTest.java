@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2011 IBM Corporation and others.
+ *  Copyright (c) 2009, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -290,7 +290,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	 * Test the handling of invalid destinations with the mirror task
 	 */
 	public void testMirrorWithInvalidSource() throws URISyntaxException {
-		URI location = new URI("invalid:/scheme2");
+		URI location = new URI("unknown:/scheme2");
 
 		AntTaskElement mirror = createMirrorTask(TYPE_BOTH);
 		mirror.addElement(createSourceElement(location, location));
@@ -308,7 +308,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		while (exception.getCause() != null && !(exception instanceof ProvisionException))
 			exception = exception.getCause();
 		assertTrue("Expecting a CoreException", exception instanceof CoreException);
-		assertEquals("Unexpected error code.", ProvisionException.REPOSITORY_FAILED_READ, ((CoreException) exception).getStatus().getCode());
+		assertEquals("Unexpected error code.", ProvisionException.REPOSITORY_NOT_FOUND, ((CoreException) exception).getStatus().getCode());
 	}
 
 	/*
