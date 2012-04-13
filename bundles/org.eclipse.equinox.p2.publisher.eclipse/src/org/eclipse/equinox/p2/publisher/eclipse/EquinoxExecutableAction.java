@@ -177,6 +177,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 			String execName = execDescriptor.getExecutableName();
 			String appName = guessMacAppName(execName);
 			configurationData += " chmod(targetDir:${installFolder}/" + appName + ".app/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			configurationData += " ln(targetDir:${installFolder}, linkTarget:" + appName + ".app/Contents/MacOS/" + execName + ", linkName:" + execName + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		} else if (!Constants.OS_WIN32.equals(os)) {
 			// We are on linux/unix.  by default set all of the files to be executable.
 			File[] fileList = execDescriptor.getFiles();
