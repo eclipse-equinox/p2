@@ -47,7 +47,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private boolean raw = true;
 	private boolean verbose = false;
 	private boolean validate = false;
-	private boolean mirrorReferences = false;
+	private boolean mirrorReferences = true;
 	private String metadataOrArtifacts = null;
 	private String[] rootIUs = null;
 
