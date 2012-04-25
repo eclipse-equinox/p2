@@ -86,6 +86,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	 */
 	private void createLauncherAdvice(IPublisherInfo publisherInfo, IPublisherResult results) {
 		Collection<IInstallableUnit> ius = getIUs(results.getIUs(null, null), EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER);
+		ius.addAll(getIUs(publisherInfo.getContextMetadataRepository().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet(), EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER));
 		VersionAdvice advice = new VersionAdvice();
 		boolean found = false;
 		for (IInstallableUnit iu : ius) {
