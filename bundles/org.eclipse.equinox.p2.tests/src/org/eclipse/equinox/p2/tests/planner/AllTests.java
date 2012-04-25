@@ -154,6 +154,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SWTFragment.class);
 		suite.addTestSuite(SynchronizeOperationTest.class);
 		suite.addTestSuite(TestNoopChangeRequest.class);
+		suite.addTestSuite(TestFilteringOnAbsentProperty.class);
 		suite.addTestSuite(TopLevelFilterTest.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
