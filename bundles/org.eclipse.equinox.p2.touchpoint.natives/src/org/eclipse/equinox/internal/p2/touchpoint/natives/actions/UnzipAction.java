@@ -62,7 +62,12 @@ public class UnzipAction extends ProvisioningAction {
 			source = artifactLocation;
 		}
 		IBackupStore store = restoreable ? (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP) : null;
-		File[] unzippedFiles = unzip(source, target, store);
+
+		String path = (String) parameters.get(ActionConstants.PARM_PATH);
+		String includePattern = (String) parameters.get(ActionConstants.PARM_INCLUDE);
+		String excludePattern = (String) parameters.get(ActionConstants.PARM_EXCLUDE);
+
+		File[] unzippedFiles = unzip(source, target, path, includePattern, excludePattern, store);
 		StringBuffer unzippedFileNameBuffer = new StringBuffer();
 		for (int i = 0; i < unzippedFiles.length; i++)
 			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append(ActionConstants.PIPE);
@@ -76,14 +81,16 @@ public class UnzipAction extends ProvisioningAction {
 	 * Unzips a source zip into the given destination. Any existing contents in the destination
 	 * are backed up in the provided backup store.
 	 */
-	private static File[] unzip(String source, String destination, IBackupStore store) {
+	private static File[] unzip(String source, String destination, String path, String includePattern, String excludePattern, IBackupStore store) {
 		File zipFile = new File(source);
 		if (zipFile == null || !zipFile.exists()) {
 			Util.log(UnzipAction.class.getName() + " the files to be unzipped is not here"); //$NON-NLS-1$
 		}
 		try {
 			String taskName = NLS.bind(Messages.unzipping, source);
-			return Util.unzipFile(zipFile, new File(destination), store, taskName, new NullProgressMonitor());
+			String[] includes = includePattern == null ? null : includePattern.split("\\s+"); //$NON-NLS-1$
+			String[] excludes = excludePattern == null ? null : excludePattern.split("\\s+"); //$NON-NLS-1$
+			return Util.unzipFile(zipFile, new File(destination), path, includes, excludes, store, taskName, new NullProgressMonitor());
 		} catch (IOException e) {
 			Util.log(UnzipAction.class.getName() + " error unzipping zipfile: " + zipFile.getAbsolutePath() + "destination: " + destination); //$NON-NLS-1$ //$NON-NLS-2$
 		}

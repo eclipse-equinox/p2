@@ -19,6 +19,8 @@ public class ActionConstants {
 	public static final String PARM_TARGET_DIR = "targetDir"; //$NON-NLS-1$
 	public static final String PARM_TARGET = "target"; //$NON-NLS-1$
 	public static final String PARM_SOURCE = "source"; //$NON-NLS-1$
+	public static final String PARM_INCLUDE = "include"; //$NON-NLS-1$
+	public static final String PARM_EXCLUDE = "exclude"; //$NON-NLS-1$
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 	public static final String PIPE = "|"; //$NON-NLS-1$
 	public static final String PARM_AT_ARTIFACT = "@artifact"; //$NON-NLS-1$
