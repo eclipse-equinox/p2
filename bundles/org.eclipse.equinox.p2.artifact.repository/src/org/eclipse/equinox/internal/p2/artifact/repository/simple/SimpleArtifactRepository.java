@@ -592,7 +592,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// if the original download went reasonably but the reportStatus found some issues
 		// (e..g, in the processing steps/validators) then mark the mirror as bad and return
 		// a retry code (assuming we have more mirrors)
-		if ((status.isOK() || status.matches(IStatus.INFO | IStatus.WARNING)) && result.getSeverity() == IStatus.ERROR) {
+		if ((status.isOK() || status.matches(IStatus.INFO | IStatus.WARNING)) && result.getSeverity() == IStatus.ERROR && !artifactError(result)) {
 			if (mirrors != null) {
 				mirrors.reportResult(mirrorLocation.toString(), result);
 				if (mirrors.hasValidMirror())
@@ -601,6 +601,23 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		// if the original status was a retry, don't lose that.
 		return status.getCode() == CODE_RETRY ? status : result;
+	}
+
+	/**
+	 * Return true if there is an 'artifact error'. You cannot retry when an artifact error is found.
+	 * @return True if the status (or children status) have an artifact error status code. False otherwise
+	 */
+	private boolean artifactError(IStatus status) {
+		if (status.getCode() == MirrorRequest.ARTIFACT_PROCESSING_ERROR)
+			return true;
+		if (status.getChildren() != null) {
+			IStatus[] children = status.getChildren();
+			for (IStatus child : children) {
+				if (artifactError(child))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	/**

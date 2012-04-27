@@ -38,6 +38,12 @@ import org.eclipse.osgi.util.NLS;
 public class MirrorRequest extends ArtifactRequest {
 
 	/**
+	 * A Status code that represents an error while processing the artifact. This error is not
+	 * related to transport, but rather a problem with the processing step.
+	 */
+	public static final int ARTIFACT_PROCESSING_ERROR = 2;
+
+	/**
 	 * Maximum number of times a request for a single artifact should be tried
 	 */
 	private static final int MAX_RETRY_REQUEST = 200;
@@ -199,6 +205,9 @@ public class MirrorRequest extends ArtifactRequest {
 
 		int counter = 0;
 		do {
+			if (counter > 0) {
+				System.out.println("Retry: " + counter + " " + sourceDescriptor.getArtifactKey().getId());
+			}
 			lastResult = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
 			allResults.add(lastResult);
 		} while (lastResult.getSeverity() == IStatus.ERROR && lastResult.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);

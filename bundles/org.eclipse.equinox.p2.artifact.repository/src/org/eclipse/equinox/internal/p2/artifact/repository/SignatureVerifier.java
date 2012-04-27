@@ -76,7 +76,7 @@ public class SignatureVerifier extends ProcessingStep {
 		try {
 			signedContent = verifierFactory.getSignedContent(inputFile);
 		} catch (GeneralSecurityException e) {
-			return new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerification_failedRead + inputFile, e);
+			return new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, Messages.SignatureVerification_failedRead + inputFile, e);
 		}
 		ArrayList<IStatus> allStatus = new ArrayList<IStatus>(0);
 		SignedContentEntry[] entries = signedContent.getSignedEntries();
@@ -84,7 +84,7 @@ public class SignatureVerifier extends ProcessingStep {
 			try {
 				entries[i].verify();
 			} catch (InvalidContentException e) {
-				allStatus.add(new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerification_invalidContent + entries[i].getName(), e));
+				allStatus.add(new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, Messages.SignatureVerification_invalidContent + entries[i].getName(), e));
 			} catch (OutOfMemoryError e) {
 				allStatus.add(new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerifier_OutOfMemory, e));
 				break;
