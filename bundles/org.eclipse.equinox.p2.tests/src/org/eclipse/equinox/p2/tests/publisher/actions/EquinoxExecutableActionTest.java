@@ -108,7 +108,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		verifyExecIU(iuList, idBase, configSpec);
 		verifyEclipseIU(iuList, idBase, configSpec);
 		verifyCU(iuList, idBase, configSpec);
-		assertTrue(iuList.size() == 3);
+		if (configSpec.contains("macosx"))
+			assertTrue(iuList.size() == 4);
+		else
+			assertTrue(iuList.size() == 3);
 	}
 
 	@SuppressWarnings("hiding")
@@ -127,7 +130,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				Collection<IRequirement> requiredCapability = fragment.getHost();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
 				assertTrue(requiredCapability.size() == 1);
-				assertTrue(fragment.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+
+				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.ws=" + ws + ")") != -1);
+				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.os=" + os + ")") != -1);
+				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.arch=" + arch + ")") != -1);
 				assertTrue(fragment.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$ //$NON-NLS-2$
 				return;//pass
 			}
