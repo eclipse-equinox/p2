@@ -46,6 +46,7 @@ public class Mirroring {
 	private List<IArtifactKey> keysToMirror;
 	private IArtifactMirrorLog comparatorLog;
 	private Transport transport;
+	private boolean includePacked = true;
 
 	private IArtifactComparator getComparator() {
 		if (comparator == null)
@@ -121,6 +122,9 @@ public class Mirroring {
 	}
 
 	private IStatus mirror(IArtifactDescriptor sourceDescriptor, boolean verbose) {
+		if (!includePacked && IArtifactDescriptor.FORMAT_PACKED.equals(sourceDescriptor.getProperty(IArtifactDescriptor.FORMAT)))
+			return Status.OK_STATUS;
+
 		IArtifactDescriptor targetDescriptor = raw ? sourceDescriptor : new ArtifactDescriptor(sourceDescriptor);
 		IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(sourceDescriptor);
 
@@ -312,5 +316,9 @@ public class Mirroring {
 
 	public void setTransport(Transport transport) {
 		this.transport = transport;
+	}
+
+	public void setIncludePacked(boolean includePacked) {
+		this.includePacked = includePacked;
 	}
 }

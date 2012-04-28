@@ -50,6 +50,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private boolean mirrorReferences = true;
 	private String metadataOrArtifacts = null;
 	private String[] rootIUs = null;
+	private boolean includePacked = true;
 
 	private File mirrorLogFile; // file to log mirror output to (optional)
 	private File comparatorLogFile; // file to comparator output to (optional)
@@ -201,6 +202,18 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	}
 
 	private IStatus mirrorArtifacts(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
+		Mirroring mirror = getMirroring(slice, monitor);
+
+		IStatus result = mirror.run(failOnError, verbose);
+
+		if (mirrorLog != null)
+			mirrorLog.log(result);
+		else
+			LogHelper.log(result);
+		return result;
+	}
+
+	protected Mirroring getMirroring(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
 		// Obtain ArtifactKeys from IUs
 		IQueryResult<IInstallableUnit> ius = slice.query(QueryUtil.createIUAnyQuery(), monitor);
 		ArrayList<IArtifactKey> keys = new ArrayList<IArtifactKey>();
@@ -216,6 +229,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		mirror.setValidate(validate);
 		mirror.setCompareExclusions(compareExclusions);
 		mirror.setTransport((Transport) agent.getService(Transport.SERVICE_NAME));
+		mirror.setIncludePacked(includePacked);
 
 		// If IUs have been specified then only they should be mirrored, otherwise mirror everything.
 		if (keys.size() > 0)
@@ -223,14 +237,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 		if (comparatorLog != null)
 			mirror.setComparatorLog(comparatorLog);
-
-		IStatus result = mirror.run(failOnError, verbose);
-
-		if (mirrorLog != null)
-			mirrorLog.log(result);
-		else
-			LogHelper.log(result);
-		return result;
+		return mirror;
 	}
 
 	private IArtifactRepository initializeBaseline() {
@@ -449,5 +456,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	public void setComparatorExclusions(IQuery<IArtifactDescriptor> exclusions) {
 		compareExclusions = exclusions;
+	}
+
+	public void setIncludePacked(boolean includePacked) {
+		this.includePacked = includePacked;
 	}
 }

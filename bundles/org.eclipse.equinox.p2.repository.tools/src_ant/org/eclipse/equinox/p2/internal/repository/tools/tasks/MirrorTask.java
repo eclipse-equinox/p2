@@ -133,4 +133,8 @@ public class MirrorTask extends AbstractRepositoryTask {
 	public void setValidate(boolean value) {
 		((MirrorApplication) application).setValidate(value);
 	}
+
+	public void setIncludePacked(boolean value) {
+		((MirrorApplication) application).setIncludePacked(value);
+	}
 }
