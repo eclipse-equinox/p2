@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  *******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.equinox.utils;
 
@@ -14,12 +15,12 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.osgi.service.environment.Constants;
 import org.osgi.framework.Version;
+import org.osgi.service.log.LogService;
 
 public class FileUtils {
 	private static String FILE_SCHEME = "file"; //$NON-NLS-1$
@@ -79,6 +80,8 @@ public class FileUtils {
 					launcherPath = launcherPath.removeLastSegments(4);
 					launcherDir = launcherPath.toFile();
 				}
+			} else if (EclipseLauncherParser.MACOSX_BUNDLED.equals(launcherData.getOS())) {
+				Log.log(LogService.LOG_WARNING, "Problem figuring out the osgi install area. The bundled mode of macosx requires a -startup argument to be specified."); //$NON-NLS-1$
 			} else
 				launcherDir = launcherData.getLauncher().getParentFile();
 			pluginsDir = new File(launcherDir, EquinoxConstants.PLUGINS_DIR);

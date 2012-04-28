@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Cloudsmith - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226401
  *     EclipseSource - ongoing development
  *     Sonatype, Inc. - ongoing development
+ *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
@@ -34,7 +35,6 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
@@ -495,6 +495,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				props.put(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
 
 			String env = getEnvironmentProperty();
+			//Detect the desire to have a bundled mac application and tweak the environemtn
+			if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(os) && destination.getName().endsWith(".app")) //$NON-NLS-1$
+				env += ',' + org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED + "=true"; //$NON-NLS-1$
 			if (env != null)
 				props.put(IProfile.PROP_ENVIRONMENTS, env);
 			if (profileProperties != null)

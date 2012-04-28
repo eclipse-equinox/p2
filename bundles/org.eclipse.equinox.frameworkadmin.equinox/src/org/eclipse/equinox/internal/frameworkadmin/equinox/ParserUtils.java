@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  *******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
@@ -56,6 +57,9 @@ public class ParserUtils {
 					launcherPath = launcherPath.removeLastSegments(4);
 					return launcherPath.toFile();
 				}
+			}
+			if (EclipseLauncherParser.MACOSX_BUNDLED.equals(launcherData.getOS())) {
+				Log.log(LogService.LOG_WARNING, "Problem figuring out the osgi install area. The bundled mode of macosx requires a -startup argument to be specified."); //$NON-NLS-1$
 			}
 			return launcherFile.getParentFile();
 		}

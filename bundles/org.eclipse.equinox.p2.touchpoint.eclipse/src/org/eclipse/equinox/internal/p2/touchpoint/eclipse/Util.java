@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Red Hat Incorporated - fix for bug 225145
  *     Code 9 - ongoing development
+ *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
@@ -21,6 +22,7 @@ import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.spi.Constants;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -250,8 +252,17 @@ public class Util {
 		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
 		if (name == null || name.length() == 0)
 			name = "eclipse"; //$NON-NLS-1$
-		String launcherName = getLauncherName(name, getOSFromProfile(profile), getInstallFolder(profile));
+		String launcherName = getLauncherName(name, (isMacOSBundled(profile) ? Constants.MACOSX_BUNDLED : getOSFromProfile(profile)), getInstallFolder(profile));
 		return launcherName == null ? null : new File(getInstallFolder(profile), launcherName);
+	}
+
+	public static boolean isMacOSBundled(IProfile profile) {
+		String environments = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
+		if (environments == null)
+			return false;
+		if (environments.indexOf(Constants.MACOSX_BUNDLED + "=true") != -1) //$NON-NLS-1$
+			return true;
+		return false;
 	}
 
 	/**
@@ -271,6 +282,10 @@ public class Util {
 				return name;
 			return name + ".exe"; //$NON-NLS-1$
 		}
+		if (os.equals(Constants.MACOSX_BUNDLED)) {
+			return "/Contents/MacOS/" + name; //$NON-NLS-1$
+		}
+
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
 			IPath path = new Path(name);
 			if (path.segment(0).endsWith(".app")) //$NON-NLS-1$

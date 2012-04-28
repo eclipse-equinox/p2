@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  *******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
@@ -25,6 +26,7 @@ import org.osgi.service.log.LogService;
 public class EclipseLauncherParser {
 	private static final String MAC_OS_APP_FOLDER = ".app/Contents/MacOS"; //$NON-NLS-1$
 	private static final String CONFIGURATION_FOLDER = "configuration"; //$NON-NLS-1$
+	public static final String MACOSX_BUNDLED = "macosx-bundled"; //$NON-NLS-1$
 
 	//this figures out the location of the data area on partial data read from the <eclipse>.ini
 	private URI getOSGiInstallArea(List lines, URI base, LauncherData launcherData) {
@@ -47,7 +49,9 @@ public class EclipseLauncherParser {
 		String launcherString = launcherFolder.getAbsolutePath().replace('\\', '/');
 		if (launcherString.endsWith(MAC_OS_APP_FOLDER)) {
 			//We can do 3 calls to getParentFile without checking because
-			launcherFolder = launcherFolder.getParentFile().getParentFile().getParentFile();
+			launcherFolder = launcherFolder.getParentFile().getParentFile();
+			if (!launcherData.getOS().endsWith(MACOSX_BUNDLED))
+				launcherFolder = launcherFolder.getParentFile();
 		}
 		if (!ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()).equals(launcherFolder)) {
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, launcherFolder.getAbsolutePath().replace('\\', '/'), lines);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
@@ -33,6 +34,7 @@ public class Messages extends NLS {
 	public static String platform_config_unavailable;
 	public static String unexpected_prepareiu_error;
 	public static String error_validating_profile;
+	public static String invalid_macox_bundled_setup;
 
 	static {
 		// load message values from bundle file and assign to fields below

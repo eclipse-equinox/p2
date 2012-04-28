@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
@@ -15,6 +16,7 @@ import java.net.*;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
@@ -86,6 +88,12 @@ public class PlatformConfigurationWrapper {
 						// ignore - shouldn't happen
 					}
 				}
+			}
+			if (org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED.equals(launcherData.getOS())) {
+				//We are in a situation where the launcher path is not set in the launcher file. 
+				//The laid out installation is not going to work because the macos launcher looks 3 levels up for the launcher jars (see previous if).
+				//Log this fact and move on. Though we should probably fail.
+				LogHelper.log(Util.createError(Messages.invalid_macox_bundled_setup));
 			}
 			try {
 				return launcherFile.getParentFile().toURI().toURL();

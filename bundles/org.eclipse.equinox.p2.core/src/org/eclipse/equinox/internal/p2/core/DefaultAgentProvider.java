@@ -15,6 +15,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.equinox.p2.core.*;
 import org.osgi.framework.*;
+import org.osgi.framework.Constants;
 
 /**
  * Default implementation of {@link IProvisioningAgentProvider}.

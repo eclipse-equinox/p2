@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -14,6 +15,7 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.BrandingIron;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.p2.metadata.*;
@@ -151,6 +153,21 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 
 	// Create the CU that installs (e.g., unzips) the executable
 	private void publishExecutableCU(ExecutablesDescriptor execDescriptor, IPublisherResult result) {
+		InstallableUnitFragmentDescription cu = createSkeletonExecutableCU(execDescriptor);
+		String[] config = parseConfigSpec(configSpec);
+		String os = config[1];
+		Map<String, String> touchpointData = computeInstallActions(execDescriptor, os);
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		if (Constants.OS_MACOSX.equals(os)) {
+			result.addIU(createBundledMacIU(execDescriptor), IPublisherResult.ROOT);
+			cu.setFilter(InstallableUnit.parseFilter("(& (!(macosx-bundled=*)) " + createLDAPString(configSpec) + ")")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
+		result.addIU(unit, IPublisherResult.ROOT);
+
+	}
+
+	private InstallableUnitFragmentDescription createSkeletonExecutableCU(ExecutablesDescriptor execDescriptor) {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String id = createCUIdString(idBase, TYPE, flavor, configSpec);
 		cu.setId(id);
@@ -162,18 +179,30 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		String[] config = parseConfigSpec(configSpec);
-		String os = config[1];
-		Map<String, String> touchpointData = computeInstallActions(execDescriptor, os);
+		return cu;
+	}
+
+	private IInstallableUnit createBundledMacIU(ExecutablesDescriptor execDescriptor) {
+		InstallableUnitFragmentDescription cu = createSkeletonExecutableCU(execDescriptor);
+		String baseId = createCUIdString(idBase, TYPE, flavor, configSpec);
+		String id = baseId + "-bundled"; //$NON-NLS-1$
+		cu.setId(id);
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(baseId, version), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, version)});
+		cu.setFilter(InstallableUnit.parseFilter("(&(macosx-bundled=true)" + createLDAPString(configSpec) + ")")); //$NON-NLS-1$//$NON-NLS-2$
+		Map<String, String> touchpointData = computeInstallActions(execDescriptor, org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED);
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
-		result.addIU(unit, IPublisherResult.ROOT);
+		return MetadataFactory.createInstallableUnit(cu);
 	}
 
 	private Map<String, String> computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
 		Map<String, String> touchpointData = new HashMap<String, String>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-		if (Constants.OS_MACOSX.equals(os)) {
+		if (org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED.equals(os)) {
+			String execName = execDescriptor.getExecutableName();
+			String appName = guessMacAppName(execName);
+			configurationData = "unzip(source:@artifact, target:${installFolder}, path:" + appName + ".app);"; //$NON-NLS-1$ //$NON-NLS-2$
+			configurationData += " chmod(targetDir:${installFolder}/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$			
+		} else if (Constants.OS_MACOSX.equals(os)) {
 			String execName = execDescriptor.getExecutableName();
 			String appName = guessMacAppName(execName);
 			configurationData += " chmod(targetDir:${installFolder}/" + appName + ".app/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

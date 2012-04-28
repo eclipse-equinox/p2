@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,6 +8,7 @@
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP - ongoing development
+ *   Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
@@ -102,6 +103,13 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * parse into a filter.
 	 */
 	protected IMatchExpression<IInstallableUnit> createFilterSpec(String configSpec) {
+		String ldap = createLDAPString(configSpec);
+		if (ldap == null)
+			return null;
+		return InstallableUnit.parseFilter(ldap);
+	}
+
+	protected String createLDAPString(String configSpec) {
 		String[] config = parseConfigSpec(configSpec);
 		if (config[0] != null || config[1] != null || config[2] != null) {
 			String filterWs = config[0] != null && !CONFIG_ANY.equalsIgnoreCase(config[0]) ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -109,7 +117,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			String filterArch = config[2] != null && !CONFIG_ANY.equalsIgnoreCase(config[2]) ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0)
 				return null;
-			return InstallableUnit.parseFilter("(& " + filterWs + filterOs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
