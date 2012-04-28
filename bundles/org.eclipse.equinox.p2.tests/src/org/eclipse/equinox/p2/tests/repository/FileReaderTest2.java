@@ -186,13 +186,25 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 		}
 	}
 
-	private void doFileReaderTest(PauseJob pauseJob, IProgressMonitor monitor) throws IOException, CoreException {
+	private void doFileReaderTest(final PauseJob pauseJob, IProgressMonitor monitor) throws IOException, CoreException {
 		final String testRemoteFileURL = "http://ftp.osuosl.org/pub/eclipse/rt/ecf/3.5.4/site.p2/plugins/org.eclipse.ecf.doc_1.3.0.v20111230-0120.jar";
 		OutputStream out = null;
 		OutputStream out1 = null;
 		File tmpFolder = getTempFolder();
 		File tmpFile = new File(tmpFolder, "testDownloadPauseResume.zip");
 		File tmpFile1 = new File(tmpFolder, "testDownloadWithoutPause.zip");
+		ProvisioningListener listener = new ProvisioningListener() {
+			boolean startedPauseJob = false;
+
+			public void notify(EventObject o) {
+				if (!startedPauseJob && o instanceof DownloadProgressEvent) {
+					pauseJob.schedule();
+					startedPauseJob = true;
+				}
+
+			}
+		};
+		getEventBus().addListener(listener);
 		try {
 			tmpFile1.createNewFile();
 			out1 = new FileOutputStream(tmpFile1);
@@ -203,12 +215,12 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 			tmpFile.createNewFile();
 			out = new FileOutputStream(tmpFile);
 			FileReader reader = pauseJob.getReader();
-			pauseJob.schedule(5000);
 			reader.readInto(URI.create(testRemoteFileURL), out, monitor);
 			assertNotNull(reader.getResult());
 			assertTrue(reader.getResult().isOK());
 			assertEquals("File with pausing/resuming is not identical with file without pausing.", tmpFile1.length(), tmpFile.length());
 		} finally {
+			getEventBus().removeListener(listener);
 			if (out1 != null)
 				out1.close();
 			tmpFile1.delete();

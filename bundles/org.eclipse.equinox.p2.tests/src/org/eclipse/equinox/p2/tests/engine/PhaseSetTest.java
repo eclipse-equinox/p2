@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.repository.DownloadProgressEvent;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
@@ -260,32 +261,55 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 	public void testCancelPausedProvisioing() throws ProvisionException, InterruptedException {
 		URI repoLoc = getTestData("Load test data.", "/testData/pausefeature").toURI();
 		final PhaseSet phaseSet = (PhaseSet) PhaseSetFactory.createDefaultPhaseSet();
-		pause = new PauseJob("pause") {
-			protected IStatus run(IProgressMonitor monitor) {
-				if (!phaseSet.pause())
-					return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, "pause() failed.");
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				System.out.println(new Date() + " -- paused provisioning.");
-				// wait seconds
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// 
-				}
-				setPause(true);
-				return Status.OK_STATUS;
-			}
-		};
+		class ProvListener implements ProvisioningListener {
+			boolean hasDownloadEvent = false;
 
-		basicTest(repoLoc, phaseSet, pause, QueryUtil.createLatestQuery(QueryUtil.createIUQuery("org.eclipse.equinox.executable.feature.group")), 3000, IStatus.CANCEL, new NullProgressMonitor() {
-			@Override
-			public boolean isCanceled() {
-				return pause.isPaused();
+			public void notify(EventObject o) {
+				if (o instanceof DownloadProgressEvent)
+					hasDownloadEvent = true;
 			}
-		});
+
+		};
+		final ProvListener listener = new ProvListener();
+		getEventBus().addListener(listener);
+		try {
+
+			pause = new PauseJob("pause") {
+				protected IStatus run(IProgressMonitor monitor) {
+					while (!listener.hasDownloadEvent) {
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+					}
+					if (!phaseSet.pause())
+						return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, "pause() failed.");
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					System.out.println(new Date() + " -- paused provisioning.");
+					// wait seconds
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						// 
+					}
+					setPause(true);
+					return Status.OK_STATUS;
+				}
+			};
+
+			basicTest(repoLoc, phaseSet, pause, QueryUtil.createLatestQuery(QueryUtil.createIUQuery("org.eclipse.equinox.executable.feature.group")), 0, IStatus.CANCEL, new NullProgressMonitor() {
+				@Override
+				public boolean isCanceled() {
+					return pause.isPaused();
+				}
+			});
+		} finally {
+			getEventBus().removeListener(listener);
+		}
 	}
 }
