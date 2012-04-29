@@ -99,7 +99,7 @@ public class Policy {
 	private boolean allowDrilldown = true;
 	private boolean repositoriesVisible = true;
 	private boolean showLatestVersionsOnly = true;
-	private int restartPolicy = RESTART_POLICY_PROMPT_RESTART_OR_APPLY;
+	private int restartPolicy = RESTART_POLICY_PROMPT;
 	private String repoPrefPageId;
 	private String repoPrefPageName;
 	private boolean filterOnEnv = false;
