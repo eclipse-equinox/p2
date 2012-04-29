@@ -36,16 +36,19 @@ public class ProvisioningHelper {
 
 	static IMetadataRepository addMetadataRepository(IProvisioningAgent agent, URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		boolean createRepo = "file".equals(location.getScheme()); //$NON-NLS-1$
+
 		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found");
+			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
 		try {
 			return manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
-			//fall through and create a new repository
+			if (!createRepo)
+				return null;
 		}
 
 		// for convenience create and add a repository here
-		String repositoryName = location + " - metadata";
+		String repositoryName = location + " - metadata"; //$NON-NLS-1$
 		try {
 			return manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
@@ -56,7 +59,7 @@ public class ProvisioningHelper {
 	static IMetadataRepository getMetadataRepository(IProvisioningAgent agent, URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found");
+			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
 		try {
 			return manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
@@ -67,22 +70,26 @@ public class ProvisioningHelper {
 	static void removeMetadataRepository(IProvisioningAgent agent, URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found");
+			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
 		manager.removeRepository(location);
 	}
 
 	static IArtifactRepository addArtifactRepository(IProvisioningAgent agent, URI location) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		boolean createRepo = "file".equals(location.getScheme()); //$NON-NLS-1$
+
 		if (manager == null)
-			// TODO log here
-			return null;
+			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
+
 		try {
 			return manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
+			if (!createRepo)
+				return null;
 		}
 		// could not load a repo at that location so create one as a convenience
-		String repositoryName = location + " - artifacts";
+		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
 		try {
 			return manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		} catch (ProvisionException e) {
@@ -112,7 +119,7 @@ public class ProvisioningHelper {
 			if (info != null)
 				profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch()); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			else
-				profileProperties.put(IProfile.PROP_ENVIRONMENTS, "");
+				profileProperties.put(IProfile.PROP_ENVIRONMENTS, ""); //$NON-NLS-1$
 		}
 
 		return profileRegistry.addProfile(profileId, profileProperties);
@@ -181,23 +188,23 @@ public class ProvisioningHelper {
 		IQueryResult<IInstallableUnit> units = getInstallableUnits(agent, (URI) null, QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
-			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
-			error.append("Repositories searched:\n");
+			error.append("Installable unit not found: " + unitId + ' ' + version + '\n'); //$NON-NLS-1$
+			error.append("Repositories searched:\n");//$NON-NLS-1$
 			URI[] repos = getMetadataRepositories(agent);
 			if (repos != null) {
 				for (int i = 0; i < repos.length; i++)
-					error.append(repos[i] + "\n");
+					error.append(repos[i] + "\n");//$NON-NLS-1$
 			}
 			throw new ProvisionException(error.toString());
 		}
 
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		if (planner == null)
-			throw new ProvisionException("No planner service found.");
+			throw new ProvisionException("No planner service found.");//$NON-NLS-1$
 
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
-			throw new ProvisionException("No director service found.");
+			throw new ProvisionException("No director service found."); //$NON-NLS-1$
 		ProvisioningContext context = new ProvisioningContext(agent);
 		IProfileChangeRequest request = planner.createChangeRequest(profile);
 		request.addAll(units.toUnmodifiableSet());
@@ -208,8 +215,7 @@ public class ProvisioningHelper {
 	static URI[] getArtifactRepositories(IProvisioningAgent agent) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
-			// TODO log here
-			return null;
+			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
 		URI[] repos = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		if (repos.length > 0)
 			return repos;
@@ -240,13 +246,13 @@ public class ProvisioningHelper {
 	static IStatus revertToPreviousState(IProvisioningAgent agent, IProfile profile, long revertToPreviousState) throws ProvisionException {
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
-			throw new ProvisionException("No p2 engine found.");
+			throw new ProvisionException("No p2 engine found."); //$NON-NLS-1$
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		if (planner == null)
-			throw new ProvisionException("No planner found.");
+			throw new ProvisionException("No planner found."); //$NON-NLS-1$
 		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
-			throw new ProvisionException("profile registry cannot be null");
+			throw new ProvisionException("profile registry cannot be null"); //$NON-NLS-1$
 		// If given profile is null, then get/use the self profile
 		if (profile == null) {
 			profile = getProfile(agent, IProfileRegistry.SELF);
@@ -262,7 +268,7 @@ public class ProvisioningHelper {
 			targetProfile = profileRegistry.getProfile(profile.getProfileId(), revertToPreviousState);
 		}
 		if (targetProfile == null)
-			throw new ProvisionException("target profile with timestamp=" + revertToPreviousState + " not found");
+			throw new ProvisionException("target profile with timestamp=" + revertToPreviousState + " not found"); //$NON-NLS-1$//$NON-NLS-2$
 		URI[] artifactRepos = getArtifactRepositories(agent);
 		URI[] metadataRepos = getMetadataRepositories(agent);
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
@@ -281,8 +287,8 @@ public class ProvisioningHelper {
 		IQueryResult<IInstallableUnit> units = profile.query(QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
-			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
-			error.append("Repositories searched:\n");
+			error.append("Installable unit not found: " + unitId + ' ' + version + '\n'); //$NON-NLS-1$
+			error.append("Repositories searched:\n"); //$NON-NLS-1$
 			URI[] repos = getMetadataRepositories(agent);
 			if (repos != null) {
 				for (int i = 0; i < repos.length; i++)
@@ -293,11 +299,11 @@ public class ProvisioningHelper {
 
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		if (planner == null)
-			throw new ProvisionException("No planner service found.");
+			throw new ProvisionException("No planner service found."); //$NON-NLS-1$
 
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
-			throw new ProvisionException("No engine service found.");
+			throw new ProvisionException("No engine service found."); //$NON-NLS-1$
 		ProvisioningContext context = new ProvisioningContext(agent);
 		IProfileChangeRequest request = planner.createChangeRequest(profile);
 		request.removeAll(units.toUnmodifiableSet());
