@@ -205,9 +205,6 @@ public class MirrorRequest extends ArtifactRequest {
 
 		int counter = 0;
 		do {
-			if (counter > 0) {
-				System.out.println("Retry: " + counter + " " + sourceDescriptor.getArtifactKey().getId());
-			}
 			lastResult = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
 			allResults.add(lastResult);
 		} while (lastResult.getSeverity() == IStatus.ERROR && lastResult.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);
