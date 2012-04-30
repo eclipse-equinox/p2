@@ -112,8 +112,6 @@ public abstract class RepositoryTracker {
 		if (!localValidationStatus.isOK())
 			return localValidationStatus;
 
-		if (contains(location, session))
-			return new Status(IStatus.ERROR, Activator.ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, Messages.RepositoryTracker_DuplicateLocation, null);
 		return Status.OK_STATUS;
 	}
 
@@ -126,7 +124,7 @@ public abstract class RepositoryTracker {
 	 * @since 2.1
 	 */
 	protected boolean contains(URI location, ProvisioningSession session) {
-		// This is a fallback implementation in the absence of a repository manager
+		// This is a fallback implementation in the absence of a repository tracker
 		// that would know what to do.
 		URI[] knownRepositories = getKnownRepositories(session);
 		for (int i = 0; i < knownRepositories.length; i++) {

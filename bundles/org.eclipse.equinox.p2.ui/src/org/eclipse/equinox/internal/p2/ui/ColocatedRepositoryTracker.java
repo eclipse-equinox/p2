@@ -62,6 +62,8 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		try {
 			getMetadataRepositoryManager().addRepository(repoLocation);
 			getArtifactRepositoryManager().addRepository(repoLocation);
+			getMetadataRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_SYSTEM, Boolean.FALSE.toString());
+			getArtifactRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_SYSTEM, Boolean.FALSE.toString());
 			if (nickname != null) {
 				getMetadataRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
 				getArtifactRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
