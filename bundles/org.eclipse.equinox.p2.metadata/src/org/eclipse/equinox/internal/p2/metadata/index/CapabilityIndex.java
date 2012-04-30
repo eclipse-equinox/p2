@@ -132,6 +132,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 			case IExpression.TYPE_ALL :
 			case IExpression.TYPE_EXISTS :
 				CollectionFilter cf = (CollectionFilter) expr;
+
 				if (isIndexedMember(cf.getOperand(), variable, InstallableUnit.MEMBER_PROVIDED_CAPABILITIES)) {
 					// This is providedCapabilities.exists or providedCapabilites.all
 					//
@@ -143,6 +144,30 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 					Expression op = cf.getOperand();
 					if (op instanceof Member && InstallableUnit.MEMBER_REQUIREMENTS.equals(((Member) op).getName())) {
 						queriedKeys = getQueriedIDs(ctx, variable, ProvidedCapability.MEMBER_NAME, booleanExpr, queriedKeys);
+					}
+				}
+				if (queriedKeys == null) {
+					// Might be a parameterized query of requirements
+					// If matching class is InstallableUnit && paramter exists && parameter is IRequirement
+					if (cf.getOperand() instanceof Parameter && ctx.getParameter(0) instanceof Collection<?>) {
+						// Check that the parameter really is the requirement array
+						// This only really works for IRequiredCapabilities, not any IRequirements
+						Collection<?> collection = (Collection<?>) ctx.getParameter(0);
+						boolean instance = !collection.isEmpty();
+						for (Object object : collection) {
+							instance &= (object instanceof IRequiredCapability);
+						}
+						if (instance) {
+							Collection<String> result = new ArrayList<String>();
+							for (Object object : collection) {
+								// This instance of check was done above
+								IRequiredCapability capability = (IRequiredCapability) object;
+								result.add(capability.getName());
+							}
+							if (result.size() > 0) {
+								queriedKeys = result;
+							}
+						}
 					}
 				}
 				break;
