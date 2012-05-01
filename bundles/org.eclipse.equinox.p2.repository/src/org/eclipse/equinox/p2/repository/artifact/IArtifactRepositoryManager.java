@@ -72,7 +72,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifact
 	 * , or <code>null</code> to indicate no additional customizable stats parameters
 	 * @return the newly created request object
 	 * @see IArtifactRepositoryManager#createMirrorRequest(IArtifactKey, IArtifactRepository, Map, Map)
-	 * @since 2.1
+	 * @since 2.2
 	 */
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties, String downloadStatsParameters);
 
