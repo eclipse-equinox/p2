@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,8 +27,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
+/**
+ * Checks the certificates on a set of files or artifacts and reports back any problems
+ * with unsigned artifacts, untrusted certificates, or tampered content.
+ */
 public class CertificateChecker {
-	private static final String CC = "certificate checker";
+	private static final String DEBUG_PREFIX = "certificate checker"; //$NON-NLS-1$
 
 	private ArrayList<File> artifacts;
 	private final IProvisioningAgent agent;
@@ -95,16 +99,16 @@ public class CertificateChecker {
 
 				// log the unsigned artifacts if requested
 				if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNSIGNED && !unsigned.isEmpty()) {
-					StringBuilder message = new StringBuilder("The following artifacts are unsigned:\n"); //$NON-NLS-1$
+					StringBuffer message = new StringBuffer("The following artifacts are unsigned:\n"); //$NON-NLS-1$
 					for (File file : unsigned) {
 						message.append(NLS.bind("  {0}\n", file.getPath())); //$NON-NLS-1$
 					}
-					DebugHelper.debug(CC, message.toString());
+					DebugHelper.debug(DEBUG_PREFIX, message.toString());
 				}
 
 				// log the untrusted certificates if requested
 				if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED && !untrusted.isEmpty()) {
-					StringBuilder message = new StringBuilder("The following certificates are untrusted:\n"); //$NON-NLS-1$
+					StringBuffer message = new StringBuffer("The following certificates are untrusted:\n"); //$NON-NLS-1$
 					for (Certificate cert : untrustedArtifacts.keySet()) {
 						message.append(cert.toString() + "\n"); //$NON-NLS-1$
 						message.append("  used by the following artifacts:\n"); //$NON-NLS-1$
@@ -112,7 +116,7 @@ public class CertificateChecker {
 							message.append(NLS.bind("    {0}\n", file.getPath())); //$NON-NLS-1$
 						}
 					}
-					DebugHelper.debug(CC, message.toString());
+					DebugHelper.debug(DEBUG_PREFIX, message.toString());
 				}
 			}
 		}
@@ -190,7 +194,7 @@ public class CertificateChecker {
 						continue;
 					try {
 						trustEngine.addTrustAnchor(trustedCertificate, trustedCertificate.toString());
-						// this should mean we added an anchor successfully; continue to next cert
+						// this should mean we added an anchor successfully; continue to next certificate
 						break;
 					} catch (IOException e) {
 						//just return an INFO so the user can proceed with the install
