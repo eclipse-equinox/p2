@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,11 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.tools.comparator.IArtifactComparator;
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * An artifact comparator that compares two JAR files. Class files are disassembled 
+ * and compared for equivalence, properties and manifest files are compared as such, 
+ * all other files are compared byte-for-byte. 
+ */
 public class JarComparator implements IArtifactComparator {
 
 	private static class FeatureEntryWrapper {

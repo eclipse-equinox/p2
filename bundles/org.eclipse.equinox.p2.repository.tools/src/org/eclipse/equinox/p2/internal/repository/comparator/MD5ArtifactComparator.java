@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -19,6 +19,11 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.tools.comparator.IArtifactComparator;
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * A comparator that compares two artifacts by checking the MD5 checksum
+ * recorded in the artifact descriptor. This comparator doesn't actually compute MD5
+ * checksums directly.
+ */
 public class MD5ArtifactComparator implements IArtifactComparator {
 
 	public static String MD5_COMPARATOR_ID = "org.eclipse.equinox.artifact.md5.comparator"; //$NON-NLS-1$
