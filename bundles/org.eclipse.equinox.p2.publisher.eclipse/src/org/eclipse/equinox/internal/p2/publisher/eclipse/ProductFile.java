@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,6 +79,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String WIN32_32_HIGH = "winMediumHigh"; //$NON-NLS-1$
 	private static final String WIN32_48_LOW = "winLargeLow"; //$NON-NLS-1$
 	private static final String WIN32_48_HIGH = "winLargeHigh"; //$NON-NLS-1$
+	private static final String WIN32_256_HIGH = "winExtraLargeHigh"; //$NON-NLS-1$
 
 	private static final String OS_WIN32 = "win32";//$NON-NLS-1$
 	private static final String OS_LINUX = "linux";//$NON-NLS-1$
@@ -863,6 +864,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		addIcon(OS_WIN32, attributes.getValue(WIN32_32_LOW));
 		addIcon(OS_WIN32, attributes.getValue(WIN32_48_HIGH));
 		addIcon(OS_WIN32, attributes.getValue(WIN32_48_LOW));
+		addIcon(OS_WIN32, attributes.getValue(WIN32_256_HIGH));
 	}
 
 	private void processLinux(Attributes attributes) {
