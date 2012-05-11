@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,13 +37,13 @@ public class IconExe {
 	* Note 1. Write access to the executable program is required. As a result, that
 	* program must not be currently running or edited elsewhere.
 	* 
-	* Note 2. The Eclipse 3.4 launcher requires an .ico file with the following 7 images (in any order).
-	* 1. 48x48, 32 bit (RGB / Alpha Channel)
-	* 2. 32x32, 32 bit (RGB / Alpha Channel)
-	* 3. 16x16, 32 bit (RGB / Alpha Channel)
-	* 4. 48x48, 8 bit (256 colors)
-	* 5. 32x32, 8 bit (256 colors)
-	* 6. 24x24, 8 bit (256 colors)
+	* Note 2. The Eclipse 4.2 launcher requires an .ico file with the following 7 images (in any order).
+	* 1. 256x256, 32 bit (RGB / Alpha Channel)
+	* 2. 48x48, 32 bit (RGB / Alpha Channel)
+	* 3. 32x32, 32 bit (RGB / Alpha Channel)
+	* 4. 16x16, 32 bit (RGB / Alpha Channel)
+	* 5. 48x48, 8 bit (256 colors)
+	* 6. 32x32, 8 bit (256 colors)
 	* 7. 16x16, 8 bit (256 colors)	 
 	* A user icon matching exactly the width/height/depth of an executable icon will be written
 	* to the executable and will replace that executable icon. If an executable icon
@@ -85,14 +85,14 @@ public class IconExe {
 	 * Retrieve the Desktop icons provided in the Windows executable program.
 	 * These icons are typically shown in various places of the Windows desktop.
 	 * 
-	 * Note. The Eclipse 3.4 launcher returns the following 7 images (in any order).
-	 * 1. 48x48, 32 bit (RGB / Alpha Channel)
-	 * 2. 32x32, 32 bit (RGB / Alpha Channel)
-	 * 3. 16x16, 32 bit (RGB / Alpha Channel)
-	 * 4. 48x48, 8 bit (256 colors)
-	 * 5. 32x32, 8 bit (256 colors)
-	 * 6. 24x24, 8 bit (256 colors)
-	 * 7. 16x16, 8 bit (256 colors)
+	 * Note 2. The Eclipse 4.2 launcher requires an .ico file with the following 7 images (in any order).
+	 * 1. 256x256, 32 bit (RGB / Alpha Channel)
+	 * 2. 48x48, 32 bit (RGB / Alpha Channel)
+	 * 3. 32x32, 32 bit (RGB / Alpha Channel)
+	 * 4. 16x16, 32 bit (RGB / Alpha Channel)
+	 * 5. 48x48, 8 bit (256 colors)
+	 * 6. 32x32, 8 bit (256 colors)
+	 * 7. 16x16, 8 bit (256 colors)	 
 	 * 
 	 * @param program the Windows executable e.g c:/eclipse/eclipse.exe
 	 */
@@ -122,14 +122,14 @@ public class IconExe {
 	 * the number of icons to write. Finally, use loadIcons after this operation
 	 * to verify the icons have changed as expected.
 	 * 
-	 * Note 3. The Eclipse 3.4 launcher requires the following 7 images (in any order).
-	 * 1. 48x48, 32 bit (RGB / Alpha Channel)
-	 * 2. 32x32, 32 bit (RGB / Alpha Channel)
-	 * 3. 16x16, 32 bit (RGB / Alpha Channel)
-	 * 4. 48x48, 8 bit (256 colors)
-	 * 5. 32x32, 8 bit (256 colors)
-	 * 6. 24x24, 8 bit (256 colors)
-	 * 7. 16x16, 8 bit (256 colors)
+	 * Note 3. The Eclipse 4.2 launcher requires the following 7 images (in any order).
+	 * 1. 256x256, 32 bit (RGB / Alpha Channel)
+	 * 2. 48x48, 32 bit (RGB / Alpha Channel)
+	 * 3. 32x32, 32 bit (RGB / Alpha Channel)
+	 * 4. 16x16, 32 bit (RGB / Alpha Channel)
+	 * 5. 48x48, 8 bit (256 colors)
+	 * 6. 32x32, 8 bit (256 colors)
+	 * 7. 16x16, 8 bit (256 colors)	 
 	 * 
 	 * Note 4. This function modifies the content of the executable program and may cause
 	 * its corruption. 
@@ -3311,6 +3311,15 @@ public class IconExe {
 			int infoWidth = (infoHeader[4] & 0xFF) | ((infoHeader[5] & 0xFF) << 8) | ((infoHeader[6] & 0xFF) << 16) | ((infoHeader[7] & 0xFF) << 24);
 			int infoHeight = (infoHeader[8] & 0xFF) | ((infoHeader[9] & 0xFF) << 8) | ((infoHeader[10] & 0xFF) << 16) | ((infoHeader[11] & 0xFF) << 24);
 			int bitCount = (infoHeader[14] & 0xFF) | ((infoHeader[15] & 0xFF) << 8);
+			/*
+			 * Feature in the ico spec. The spec says that a width/height of 0 represents 256, however, newer images can be created with even larger sizes. 
+			 * Images with a width/height >= 256 will have their width/height set to 0 in the icon header; the fix for this case is to read the width/height 
+			 * directly from the image header.
+			 */
+			if (width == 0)
+				width = infoWidth;
+			if (height == 0)
+				height = infoHeight / 2;
 			if (height == infoHeight && bitCount == 1)
 				height /= 2;
 			if (!((width == infoWidth) && (height * 2 == infoHeight) && (bitCount == 1 || bitCount == 4 || bitCount == 8 || bitCount == 24 || bitCount == 32)))
