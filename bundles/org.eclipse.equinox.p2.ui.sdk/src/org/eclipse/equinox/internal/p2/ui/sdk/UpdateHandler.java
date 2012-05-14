@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
@@ -59,6 +60,12 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 			return false;
 		}
 		return super.preloadRepositories();
+	}
+
+	@Override
+	protected void setLoadJobProperties(Job loadJob) {
+		super.setLoadJobProperties(loadJob);
+		loadJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_ERRORS, Boolean.toString(true));
 	}
 
 	@Override
