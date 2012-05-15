@@ -146,7 +146,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 		}
 	}
 
-	private boolean shouldAccumulateFailures() {
+	protected boolean shouldAccumulateFailures() {
 		return getProperty(LoadMetadataRepositoryJob.ACCUMULATE_LOAD_ERRORS) != null;
 	}
 

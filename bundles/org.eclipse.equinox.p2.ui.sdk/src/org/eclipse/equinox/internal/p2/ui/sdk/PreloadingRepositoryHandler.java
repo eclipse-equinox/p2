@@ -77,6 +77,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 			//cancel any load that is already running
 			Job.getJobManager().cancel(LoadMetadataRepositoryJob.LOAD_FAMILY);
 			final LoadMetadataRepositoryJob loadJob = new LoadMetadataRepositoryJob(getProvisioningUI()) {
+
 				public IStatus runModal(IProgressMonitor monitor) {
 					SubMonitor sub = SubMonitor.convert(monitor, getProgressTaskName(), 1000);
 					IStatus status = super.runModal(sub.newChild(500));
@@ -86,6 +87,12 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 						doPostLoadBackgroundWork(sub.newChild(500));
 					} catch (OperationCanceledException e) {
 						return Status.CANCEL_STATUS;
+					}
+					if (shouldAccumulateFailures()) {
+						// If we are accumulating failures, don't return a combined status here. By returning OK, 
+						// we are indicating that the operation should continue with the repositories that
+						// did load.
+						return Status.OK_STATUS;
 					}
 					return status;
 				}
