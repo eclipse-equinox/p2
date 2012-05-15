@@ -68,15 +68,6 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	 */
 	public static final QualifiedName ACCUMULATE_LOAD_ERRORS = new QualifiedName(ProvUIActivator.PLUGIN_ID, "ACCUMULATE_LOAD_ERRORS"); //$NON-NLS-1$
 
-	/**
-	 * The key that should be used to set a property on a repository load job to indicate
-	 * that load errors should be suppressed.  This is useful if repositories
-	 * are being loaded in the background as part of a check for update.
-	 * 
-	 * @since 2.2
-	 */
-	public static final QualifiedName SUPPRESS_REPOSITORY_ERRORS = new QualifiedName(ProvUIActivator.PLUGIN_ID, "SUPPRESS_REPOSITORY_ERRORS"); //$NON-NLS-1$
-
 	private List<IMetadataRepository> repoCache = new ArrayList<IMetadataRepository>();
 	private RepositoryTracker tracker;
 	private MultiStatus accumulatedStatus;
@@ -134,8 +125,6 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	}
 
 	private void handleLoadFailure(ProvisionException e, URI location) {
-		if (shouldSuppressErrors()) // If we should suppress errors, just skip this
-			return;
 		if (shouldAccumulateFailures()) {
 			// Some ProvisionExceptions include an empty multi status with a message.  
 			// Since empty multi statuses have a severity OK, The platform status handler doesn't handle
@@ -155,10 +144,6 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 		} else {
 			tracker.reportLoadFailure(location, e);
 		}
-	}
-
-	private boolean shouldSuppressErrors() {
-		return getProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_ERRORS) != null;
 	}
 
 	private boolean shouldAccumulateFailures() {
