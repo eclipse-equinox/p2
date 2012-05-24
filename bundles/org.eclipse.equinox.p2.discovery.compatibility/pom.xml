@@ -21,6 +21,6 @@
   </parent>
   <groupId>org.eclipse</groupId>
   <artifactId>org.eclipse.equinox.p2.discovery.compatibility</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.101-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>
