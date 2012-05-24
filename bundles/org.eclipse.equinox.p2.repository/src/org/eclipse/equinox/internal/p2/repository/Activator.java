@@ -29,6 +29,9 @@ public class Activator implements BundleActivator {
 
 	public void start(BundleContext aContext) throws Exception {
 		Activator.context = aContext;
+
+		//Force the startup of the registry bundle to make sure that the preference scope is registered
+		Class.forName("org.eclipse.core.runtime.IExtensionRegistry"); //$NON-NLS-1$
 	}
 
 	public void stop(BundleContext aContext) throws Exception {
