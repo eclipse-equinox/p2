@@ -13,17 +13,17 @@ package org.eclipse.equinox.p2.tests.updatesite;
 import java.io.File;
 import java.io.PrintStream;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.MergeResultsAction;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.tests.*;
@@ -43,9 +43,13 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 		PublisherInfo info = new PublisherInfo();
 		metadataRepository = new TestMetadataRepository(getAgent(), new IInstallableUnit[0]);
 		info.setMetadataRepository(metadataRepository);
-		siteLocation = TestData.getFile("updatesite", "SiteXMLActionTest/site.xml").toURI();
+		File siteLocationFile = TestData.getFile("updatesite", "SiteXMLActionTest/site.xml");
+		siteLocation = siteLocationFile.toURI();
+
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {TestData.getFile("updatesite", "SiteXMLActionTest")});
-		featuresAction.perform(info, actionResult, new NullProgressMonitor());
+		BundlesAction bundlesAction = new BundlesAction(new File[] {TestData.getFile("updatesite", "SiteXMLActionTest")});
+		IPublisherAction publishAction = new MergeResultsAction(new IPublisherAction[] {bundlesAction, featuresAction}, IPublisherResult.MERGE_ALL_NON_ROOT);
+		publishAction.perform(info, actionResult, new NullProgressMonitor());
 
 		SiteXMLAction action = new SiteXMLAction(siteLocation, null);
 		PrintStream out = System.out;
@@ -98,5 +102,21 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 	public void testMirrorsURL() {
 		String mirrorsURL = metadataRepository.getProperties().get(IRepository.PROP_MIRRORS_URL);
 		assertEquals("1.0", "http://www.eclipse.org/downloads/download.php?file=/eclipse/updates/3.4&format=xml", mirrorsURL);
+	}
+
+	public void testBundleInCategory() {
+		IQueryResult results = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		Iterator iter = results.iterator();
+
+		IInstallableUnit unit = (IInstallableUnit) iter.next();
+		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(unit);
+		IQueryResult<IInstallableUnit> categoryMembers = actionResult.query(memberQuery, new NullProgressMonitor());
+		Set<String> membersId = new HashSet<String>();
+		for (IInstallableUnit iu : categoryMembers.toUnmodifiableSet()) {
+			membersId.add(iu.getId());
+		}
+		assertEquals("1.0", 2, membersId.size());
+		assertTrue("2.0", membersId.contains("test.bundle"));
+
 	}
 }

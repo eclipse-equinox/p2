@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
 
 public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFactory {
@@ -114,53 +115,76 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 
 	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
 		final String PACK_EXT = ".pack.gz"; //$NON-NLS-1$
-		Feature[] features = updateSite.loadFeatures(monitor);
 		Set<IArtifactDescriptor> allSiteArtifacts = new HashSet<IArtifactDescriptor>();
 		boolean packSupported = updateSite.getSite().isPack200Supported();
-		for (int i = 0; i < features.length; i++) {
-			Feature feature = features[i];
-			IArtifactKey featureKey = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
-			SimpleArtifactDescriptor featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
-			URI featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
-			featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString());
-			allSiteArtifacts.add(featureArtifactDescriptor);
-
-			if (packSupported) {
-				// Update site supports pack200, create a packed descriptor
-				featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
-				featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
-				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString() + PACK_EXT);
-				IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
-				featureArtifactDescriptor.setProcessingSteps(steps);
-				featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
+		{
+			Feature[] features = updateSite.loadFeatures(monitor);
+			for (int i = 0; i < features.length; i++) {
+				Feature feature = features[i];
+				IArtifactKey featureKey = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
+				SimpleArtifactDescriptor featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
+				URI featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
+				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString());
 				allSiteArtifacts.add(featureArtifactDescriptor);
-			}
 
-			FeatureEntry[] featureEntries = feature.getEntries();
-			for (int j = 0; j < featureEntries.length; j++) {
-				FeatureEntry entry = featureEntries[j];
-				if (entry.isPlugin() && !entry.isRequires()) {
-					IArtifactKey key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
-					SimpleArtifactDescriptor artifactDescriptor = new SimpleArtifactDescriptor(key);
-					URI pluginURL = updateSite.getPluginURI(entry);
-					artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString());
-					allSiteArtifacts.add(artifactDescriptor);
+				if (packSupported) {
+					// Update site supports pack200, create a packed descriptor
+					featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
+					featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
+					featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString() + PACK_EXT);
+					IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+					featureArtifactDescriptor.setProcessingSteps(steps);
+					featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
+					allSiteArtifacts.add(featureArtifactDescriptor);
+				}
 
-					if (packSupported) {
-						// Update site supports pack200, create a packed descriptor
-						key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
-						artifactDescriptor = new SimpleArtifactDescriptor(key);
-						pluginURL = updateSite.getPluginURI(entry);
-						artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString() + PACK_EXT);
-						IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
-						artifactDescriptor.setProcessingSteps(steps);
-						artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
+				FeatureEntry[] featureEntries = feature.getEntries();
+				for (int j = 0; j < featureEntries.length; j++) {
+					FeatureEntry entry = featureEntries[j];
+					if (entry.isPlugin() && !entry.isRequires()) {
+						IArtifactKey key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
+						SimpleArtifactDescriptor artifactDescriptor = new SimpleArtifactDescriptor(key);
+						URI pluginURL = updateSite.getPluginURI(entry);
+						artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString());
 						allSiteArtifacts.add(artifactDescriptor);
+
+						if (packSupported) {
+							// Update site supports pack200, create a packed descriptor
+							key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
+							artifactDescriptor = new SimpleArtifactDescriptor(key);
+							pluginURL = updateSite.getPluginURI(entry);
+							artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString() + PACK_EXT);
+							IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+							artifactDescriptor.setProcessingSteps(steps);
+							artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
+							allSiteArtifacts.add(artifactDescriptor);
+						}
 					}
 				}
 			}
 		}
+		{
+			BundleDescription[] bundles = updateSite.loadBundles(monitor);
+			for (int i = 0; i < bundles.length; i++) {
+				BundleDescription bundle = bundles[i];
+				IArtifactKey bundleKey = BundlesAction.createBundleArtifactKey(bundle.getSymbolicName(), bundle.getVersion().toString());
+				SimpleArtifactDescriptor bundleArtifactDescriptor = new SimpleArtifactDescriptor(bundleKey);
+				URI bundleURI = updateSite.getBundleURI(bundle.getSymbolicName(), bundle.getVersion().toString());
+				bundleArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, bundleURI.toString());
+				allSiteArtifacts.add(bundleArtifactDescriptor);
 
+				if (packSupported) {
+					// Update site supports pack200, create a packed descriptor
+					bundleArtifactDescriptor = new SimpleArtifactDescriptor(bundleKey);
+					bundleURI = updateSite.getBundleURI(bundle.getSymbolicName(), bundle.getVersion().toString());
+					bundleArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, bundleURI.toString() + PACK_EXT);
+					IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+					bundleArtifactDescriptor.setProcessingSteps(steps);
+					bundleArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
+					allSiteArtifacts.add(bundleArtifactDescriptor);
+				}
+			}
+		}
 		IArtifactDescriptor[] descriptors = allSiteArtifacts.toArray(new IArtifactDescriptor[allSiteArtifacts.size()]);
 		repository.addDescriptors(descriptors);
 	}

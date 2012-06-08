@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - 378338: Support for "bundle" element
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
@@ -38,7 +39,9 @@ public class DefaultSiteParser extends DefaultHandler {
 	private static final String DEFAULT_INFO_URL = "index.html"; //$NON-NLS-1$
 	private static final String DESCRIPTION = "description"; //$NON-NLS-1$
 	private static final String FEATURE = "feature"; //$NON-NLS-1$
+	private static final String BUNDLE = "bundle"; //$NON-NLS-1$
 	private static final String FEATURES = "features/"; //$NON-NLS-1$
+	private static final String PLUGINS = "plugins/"; //$NON-NLS-1$
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private static final String PLUGIN_ID = Activator.ID;
 	private static final String SITE = "site"; //$NON-NLS-1$
@@ -49,6 +52,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	private static final int STATE_DESCRIPTION_CATEGORY_DEF = 7;
 	private static final int STATE_DESCRIPTION_SITE = 6;
 	private static final int STATE_FEATURE = 2;
+	private static final int STATE_BUNDLE = 8;
 	private static final int STATE_IGNORED_ELEMENT = -1;
 	private static final int STATE_INITIAL = 0;
 	private static final int STATE_SITE = 1;
@@ -198,6 +202,11 @@ public class DefaultSiteParser extends DefaultHandler {
 				objectStack.pop();
 				break;
 
+			case STATE_BUNDLE :
+				stateStack.pop();
+				objectStack.pop();
+				break;
+
 			case STATE_CATEGORY_DEF :
 				stateStack.pop();
 				if (objectStack.peek() instanceof String) {
@@ -331,6 +340,9 @@ public class DefaultSiteParser extends DefaultHandler {
 			case STATE_FEATURE :
 				return "Feature"; //$NON-NLS-1$
 
+			case STATE_BUNDLE :
+				return "Bundle"; //$NON-NLS-1$
+
 			case STATE_ARCHIVE :
 				return "Archive"; //$NON-NLS-1$
 
@@ -365,6 +377,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		if (elementName.equals(FEATURE)) {
 			stateStack.push(new Integer(STATE_FEATURE));
 			processFeature(attributes);
+		} else if (elementName.equals(BUNDLE)) {
+			stateStack.push(new Integer(STATE_BUNDLE));
+			processBundle(attributes);
 		} else if (elementName.equals(ARCHIVE)) {
 			stateStack.push(new Integer(STATE_ARCHIVE));
 			processArchive(attributes);
@@ -385,6 +400,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		} else if (elementName.equals(FEATURE)) {
 			stateStack.push(new Integer(STATE_FEATURE));
 			processFeature(attributes);
+		} else if (elementName.equals(BUNDLE)) {
+			stateStack.push(new Integer(STATE_BUNDLE));
+			processBundle(attributes);
 		} else if (elementName.equals(ARCHIVE)) {
 			stateStack.push(new Integer(STATE_ARCHIVE));
 			processArchive(attributes);
@@ -418,6 +436,23 @@ public class DefaultSiteParser extends DefaultHandler {
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
 	}
 
+	private void handleBundleState(String elementName, Attributes attributes) {
+		if (elementName.equals(DESCRIPTION)) {
+			stateStack.push(new Integer(STATE_DESCRIPTION_SITE));
+			processInfo(attributes);
+		} else if (elementName.equals(ARCHIVE)) {
+			stateStack.push(new Integer(STATE_ARCHIVE));
+			processArchive(attributes);
+		} else if (elementName.equals(CATEGORY_DEF)) {
+			stateStack.push(new Integer(STATE_CATEGORY_DEF));
+			processCategoryDef(attributes);
+		} else if (elementName.equals(CATEGORY)) {
+			stateStack.push(new Integer(STATE_CATEGORY));
+			processCategory(attributes);
+		} else
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+	}
+
 	private void handleInitialState(String elementName, Attributes attributes) throws SAXException {
 		if (elementName.equals(SITE)) {
 			stateStack.push(new Integer(STATE_SITE));
@@ -437,6 +472,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		} else if (elementName.equals(FEATURE)) {
 			stateStack.push(new Integer(STATE_FEATURE));
 			processFeature(attributes);
+		} else if (elementName.equals(BUNDLE)) {
+			stateStack.push(new Integer(STATE_BUNDLE));
+			processBundle(attributes);
 		} else if (elementName.equals(ARCHIVE)) {
 			stateStack.push(new Integer(STATE_ARCHIVE));
 			processArchive(attributes);
@@ -547,8 +585,14 @@ public class DefaultSiteParser extends DefaultHandler {
 	 */
 	private void processCategory(Attributes attributes) {
 		String category = attributes.getValue("name"); //$NON-NLS-1$
-		SiteFeature feature = (SiteFeature) objectStack.peek();
-		feature.addCategoryName(category);
+		Object item = objectStack.peek();
+		if (item instanceof SiteFeature) {
+			SiteFeature feature = (SiteFeature) item;
+			feature.addCategoryName(category);
+		} else if (item instanceof SiteBundle) {
+			SiteBundle bundle = (SiteBundle) item;
+			bundle.addCategoryName(category);
+		}
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
 			debug("End processing Category: name:" + category); //$NON-NLS-1$
@@ -646,6 +690,85 @@ public class DefaultSiteParser extends DefaultHandler {
 		feature.setSiteModel(site);
 
 		objectStack.push(feature);
+
+		if (Tracing.DEBUG_GENERATOR_PARSING)
+			debug("End Processing DefaultFeature Tag: url:" + urlInfo + " type:" + type); //$NON-NLS-1$ //$NON-NLS-2$
+
+	}
+
+	/* 
+	 * process feature info
+	 */
+	private void processBundle(Attributes attributes) {
+		SiteBundle bundle = new SiteBundle();
+
+		// feature location on the site
+		String urlInfo = attributes.getValue("url"); //$NON-NLS-1$
+		// identifier and version
+		String id = attributes.getValue("id"); //$NON-NLS-1$
+		String ver = attributes.getValue("version"); //$NON-NLS-1$
+
+		boolean noURL = (urlInfo == null || urlInfo.trim().equals("")); //$NON-NLS-1$
+		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
+		boolean noVersion = (ver == null || ver.trim().equals("")); //$NON-NLS-1$
+
+		// We need to have id and version, or the url, or both.
+		if (noURL) {
+			if (noId || noVersion)
+				internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState)}))); //$NON-NLS-1$
+			else
+				// default url
+				urlInfo = PLUGINS + id + '_' + ver; // 
+		}
+
+		bundle.setURLString(urlInfo);
+
+		String type = attributes.getValue("type"); //$NON-NLS-1$
+		bundle.setType(type);
+
+		// if one is null, and not the other
+		if (noId ^ noVersion) {
+			String[] values = new String[] {id, ver, getState(currentState)};
+			log(NLS.bind(Messages.DefaultFeatureParser_IdOrVersionInvalid, values));
+		} else {
+			bundle.setBundleIdentifier(id);
+			bundle.setBundleVersion(ver);
+		}
+
+		// get label if it exists
+		String label = attributes.getValue("label"); //$NON-NLS-1$
+		if (label != null) {
+			if ("".equals(label.trim())) //$NON-NLS-1$
+				label = null;
+			checkTranslated(label);
+		}
+		bundle.setLabel(label);
+
+		// OS
+		String os = attributes.getValue("os"); //$NON-NLS-1$
+		bundle.setOS(os);
+
+		// WS
+		String ws = attributes.getValue("ws"); //$NON-NLS-1$
+		bundle.setWS(ws);
+
+		// NL
+		String nl = attributes.getValue("nl"); //$NON-NLS-1$
+		bundle.setNL(nl);
+
+		// arch
+		String arch = attributes.getValue("arch"); //$NON-NLS-1$
+		bundle.setArch(arch);
+
+		//patch
+		String patch = attributes.getValue("patch"); //$NON-NLS-1$
+		bundle.setPatch(patch);
+
+		SiteModel site = (SiteModel) objectStack.peek();
+		site.addBundle(bundle);
+		bundle.setSiteModel(site);
+
+		objectStack.push(bundle);
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
 			debug("End Processing DefaultFeature Tag: url:" + urlInfo + " type:" + type); //$NON-NLS-1$ //$NON-NLS-2$
@@ -769,6 +892,10 @@ public class DefaultSiteParser extends DefaultHandler {
 
 			case STATE_FEATURE :
 				handleFeatureState(localName, attributes);
+				break;
+
+			case STATE_BUNDLE :
+				handleBundleState(localName, attributes);
 				break;
 
 			case STATE_ARCHIVE :

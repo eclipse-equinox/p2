@@ -36,6 +36,7 @@ public class CategoryParser extends DefaultHandler {
 	private static final String CATEGORY_DEF = "category-def"; //$NON-NLS-1$
 	private static final String DESCRIPTION = "description"; //$NON-NLS-1$
 	private static final String FEATURE = "feature"; //$NON-NLS-1$
+	private static final String BUNDLE = "bundle"; //$NON-NLS-1$
 	private static final String SITE = "site"; //$NON-NLS-1$
 	private static final String IU = "iu"; //$NON-NLS-1$
 	private static final String QUERY = "query"; //$NON-NLS-1$
@@ -48,6 +49,7 @@ public class CategoryParser extends DefaultHandler {
 	private static final int STATE_DESCRIPTION_CATEGORY_DEF = 7;
 	private static final int STATE_DESCRIPTION_SITE = 6;
 	private static final int STATE_FEATURE = 2;
+	private static final int STATE_BUNDLE = 12;
 	private static final int STATE_IGNORED_ELEMENT = -1;
 	private static final int STATE_INITIAL = 0;
 	private static final int STATE_IU = 8;
@@ -183,6 +185,11 @@ public class CategoryParser extends DefaultHandler {
 				break;
 
 			case STATE_FEATURE :
+				stateStack.pop();
+				objectStack.pop();
+				break;
+
+			case STATE_BUNDLE :
 				stateStack.pop();
 				objectStack.pop();
 				break;
@@ -350,6 +357,9 @@ public class CategoryParser extends DefaultHandler {
 			case STATE_FEATURE :
 				return "Feature"; //$NON-NLS-1$
 
+			case STATE_BUNDLE :
+				return "Bundle"; //$NON-NLS-1$
+
 			case STATE_IU :
 				return "IU"; //$NON-NLS-1$
 
@@ -403,6 +413,14 @@ public class CategoryParser extends DefaultHandler {
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
 	}
 
+	private void handleBundleState(String elementName, Attributes attributes) {
+		if (elementName.equals(CATEGORY)) {
+			stateStack.push(new Integer(STATE_CATEGORY));
+			processCategory(attributes);
+		} else
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+	}
+
 	private void handleInitialState(String elementName, Attributes attributes) throws SAXException {
 		if (elementName.equals(SITE)) {
 			stateStack.push(new Integer(STATE_SITE));
@@ -422,6 +440,9 @@ public class CategoryParser extends DefaultHandler {
 		} else if (elementName.equals(FEATURE)) {
 			stateStack.push(new Integer(STATE_FEATURE));
 			processFeature(attributes);
+		} else if (elementName.equals(BUNDLE)) {
+			stateStack.push(new Integer(STATE_BUNDLE));
+			processBundle(attributes);
 		} else if (elementName.equals(IU)) {
 			stateStack.push(new Integer(STATE_IU));
 			processIU(attributes);
@@ -551,10 +572,13 @@ public class CategoryParser extends DefaultHandler {
 		String category = attributes.getValue("name"); //$NON-NLS-1$
 		Object obj = objectStack.peek();
 		// TODO could create common class/interface for adding categories
-		if (obj instanceof SiteFeature)
+		if (obj instanceof SiteFeature) {
 			((SiteFeature) obj).addCategoryName(category);
-		else if (obj instanceof SiteIU)
+		} else if (obj instanceof SiteBundle) {
+			((SiteBundle) obj).addCategoryName(category);
+		} else if (obj instanceof SiteIU) {
 			((SiteIU) obj).addCategoryName(category);
+		}
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
 			debug("End processing Category: name:" + category); //$NON-NLS-1$
@@ -606,6 +630,35 @@ public class CategoryParser extends DefaultHandler {
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
 			debug("End Processing Feature Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/* 
+	 * process bundle info
+	 */
+	private void processBundle(Attributes attributes) {
+		SiteBundle bundle = new SiteBundle();
+
+		// identifier and version
+		String id = attributes.getValue("id"); //$NON-NLS-1$
+		String ver = attributes.getValue("version"); //$NON-NLS-1$
+
+		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
+
+		// We need to have id and version, or the url, or both.
+		if (noId)
+			internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState())}))); //$NON-NLS-1$
+
+		bundle.setBundleIdentifier(id);
+		bundle.setBundleVersion(ver);
+
+		SiteModel site = (SiteModel) objectStack.peek();
+		site.addBundle(bundle);
+		bundle.setSiteModel(site);
+
+		objectStack.push(bundle);
+
+		if (Tracing.DEBUG_GENERATOR_PARSING)
+			debug("End Processing Bundle Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/* 
@@ -712,6 +765,10 @@ public class CategoryParser extends DefaultHandler {
 
 			case STATE_FEATURE :
 				handleFeatureState(localName, attributes);
+				break;
+
+			case STATE_BUNDLE :
+				handleBundleState(localName, attributes);
 				break;
 
 			case STATE_IU :

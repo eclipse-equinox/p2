@@ -98,6 +98,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			}
 		}
 		initialize();
+		initializeRepoFromSite(publisherInfo);
 		return generateCategories(publisherInfo, results, monitor);
 	}
 
@@ -115,14 +116,36 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			if (categories == null || categories.isEmpty())
 				categories = defaultCategorySet;
 			for (SiteCategory category : categories) {
-				Set<IInstallableUnit> featureIUs = categoriesToIUs.get(category);
-				if (featureIUs == null) {
-					featureIUs = new HashSet<IInstallableUnit>();
-					categoriesToIUs.put(category, featureIUs);
+				Set<IInstallableUnit> iusInCategory = categoriesToIUs.get(category);
+				if (iusInCategory == null) {
+					iusInCategory = new HashSet<IInstallableUnit>();
+					categoriesToIUs.put(category, iusInCategory);
 				}
-				featureIUs.addAll(ius);
+				iusInCategory.addAll(ius);
 			}
 		}
+		// Bundles -- bug 378338
+		Map<SiteBundle, Set<SiteCategory>> bundlesToCategories = getBundleToCategoryMappings(publisherInfo);
+		for (SiteBundle bundle : bundlesToCategories.keySet()) {
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
+			Collection<IInstallableUnit> ius = getBundleIU(bundle, publisherInfo, results);
+			if (ius == null)
+				continue;
+			Set<SiteCategory> categories = bundlesToCategories.get(bundle);
+			// if there are no categories for this feature then add it to the default category.
+			if (categories == null || categories.isEmpty())
+				categories = defaultCategorySet;
+			for (SiteCategory category : categories) {
+				Set<IInstallableUnit> iusInCategory = categoriesToIUs.get(category);
+				if (iusInCategory == null) {
+					iusInCategory = new HashSet<IInstallableUnit>();
+					categoriesToIUs.put(category, iusInCategory);
+				}
+				iusInCategory.addAll(ius);
+			}
+		}
+
 		addSiteIUsToCategories(categoriesToIUs, publisherInfo, results);
 		generateCategoryIUs(categoriesToIUs, results);
 		return Status.OK_STATUS;
@@ -219,6 +242,40 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		return null;
 	}
 
+	private Collection<IInstallableUnit> getBundleIU(SiteBundle bundle, IPublisherInfo publisherInfo, IPublisherResult results) {
+		String id = bundle.getBundleIdentifier();
+		String versionString = bundle.getBundleVersion();
+		Version version = versionString != null && versionString.length() > 0 ? Version.create(versionString) : Version.emptyVersion;
+		IQuery<IInstallableUnit> query = null;
+		if (version.equals(Version.emptyVersion)) {
+			query = QueryUtil.createIUQuery(id);
+		} else {
+			String qualifier;
+			try {
+				qualifier = PublisherHelper.toOSGiVersion(version).getQualifier();
+			} catch (UnsupportedOperationException e) {
+				qualifier = null;
+			}
+			if (qualifier != null && qualifier.endsWith(QUALIFIER)) {
+				VersionRange range = createVersionRange(version.toString());
+				IQuery<IInstallableUnit> qualifierQuery = QueryUtil.createMatchQuery(qualifierMatchExpr, id, range);
+				query = qualifierQuery;
+			} else {
+				query = QueryUtil.createLimitQuery(QueryUtil.createIUQuery(id, version), 1);
+			}
+		}
+
+		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
+		if (queryResult.isEmpty())
+			queryResult = publisherInfo.getMetadataRepository().query(query, null);
+		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null)
+			queryResult = publisherInfo.getContextMetadataRepository().query(query, null);
+
+		if (!queryResult.isEmpty())
+			return queryResult.toUnmodifiableSet();
+		return null;
+	}
+
 	protected VersionRange createVersionRange(String versionId) {
 		VersionRange range = null;
 		if (versionId == null || "0.0.0".equals(versionId)) //$NON-NLS-1$
@@ -259,6 +316,55 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (site == null)
 			return mappings;
 
+		SiteFeature[] features = site.getFeatures();
+		for (int i = 0; i < features.length; i++) {
+			//add a mapping for each category this feature belongs to
+			String[] categoryNames = features[i].getCategoryNames();
+			Set<SiteCategory> categories = new HashSet<SiteCategory>();
+			mappings.put(features[i], categories);
+			for (int j = 0; j < categoryNames.length; j++) {
+				SiteCategory category = site.getCategory(categoryNames[j]);
+				if (category != null)
+					categories.add(category);
+			}
+		}
+		return mappings;
+	}
+
+	/**
+	 * Computes the mapping of bundles to categories as defined in the site.xml,
+	 * if available. Returns an empty map if there is not site.xml, or no categories.
+	 * @return A map of SiteBundle -> Set<SiteCategory>.
+	 */
+	protected Map<SiteBundle, Set<SiteCategory>> getBundleToCategoryMappings(IPublisherInfo publisherInfo) {
+		HashMap<SiteBundle, Set<SiteCategory>> mappings = new HashMap<SiteBundle, Set<SiteCategory>>();
+		if (updateSite == null)
+			return mappings;
+		SiteModel site = updateSite.getSite();
+		if (site == null)
+			return mappings;
+
+		SiteBundle[] bundles = site.getBundles();
+		for (int i = 0; i < bundles.length; i++) {
+			//add a mapping for each category this feature belongs to
+			String[] categoryNames = bundles[i].getCategoryNames();
+			Set<SiteCategory> categories = new HashSet<SiteCategory>();
+			mappings.put(bundles[i], categories);
+			for (int j = 0; j < categoryNames.length; j++) {
+				SiteCategory category = site.getCategory(categoryNames[j]);
+				if (category != null)
+					categories.add(category);
+			}
+		}
+		return mappings;
+	}
+
+	/**
+	 * Initializes new p2 repository attributes such as mirror info, associate sites, localization...
+	 * @param publisherInfo configuration for output repository
+	 */
+	private void initializeRepoFromSite(IPublisherInfo publisherInfo) {
+		SiteModel site = updateSite.getSite();
 		//copy mirror information from update site to p2 repositories
 		String mirrors = site.getMirrorsURI();
 		if (mirrors != null) {
@@ -304,20 +410,6 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				site.setLocalizations(LocalizationHelper.getJarPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
 			}
 		}
-
-		SiteFeature[] features = site.getFeatures();
-		for (int i = 0; i < features.length; i++) {
-			//add a mapping for each category this feature belongs to
-			String[] categoryNames = features[i].getCategoryNames();
-			Set<SiteCategory> categories = new HashSet<SiteCategory>();
-			mappings.put(features[i], categories);
-			for (int j = 0; j < categoryNames.length; j++) {
-				SiteCategory category = site.getCategory(categoryNames[j]);
-				if (category != null)
-					categories.add(category);
-			}
-		}
-		return mappings;
 	}
 
 	/**

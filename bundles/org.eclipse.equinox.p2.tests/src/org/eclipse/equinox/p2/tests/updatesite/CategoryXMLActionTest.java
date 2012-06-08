@@ -11,10 +11,13 @@ package org.eclipse.equinox.p2.tests.updatesite;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.MergeResultsAction;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.*;
@@ -91,5 +94,55 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(iu);
 		IQueryResult<IInstallableUnit> categoryMembers = actionResult.query(memberQuery, new NullProgressMonitor());
 		assertEquals("2.0", 2, categoryMembers.toUnmodifiableSet().size());
+	}
+
+	public void testBundlesInCategory() throws Exception {
+		PublisherInfo info = new PublisherInfo();
+
+		info.setMetadataRepository(metadataRepository);
+		siteLocation = TestData.getFile("updatesite", "CategoryXMLActionTest/categoryWithBundle.xml").toURI();
+		FeaturesAction featuresAction = new FeaturesAction(new File[] {TestData.getFile("updatesite", "CategoryXMLActionTest")});
+		BundlesAction bundlesAction = new BundlesAction(new File[] {TestData.getFile("updatesite", "CategoryXMLActionTest")});
+		MergeResultsAction publishAction = new MergeResultsAction(new IPublisherAction[] {featuresAction, bundlesAction}, IPublisherResult.MERGE_ALL_NON_ROOT);
+		publishAction.perform(info, actionResult, new NullProgressMonitor());
+
+		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
+		action.perform(info, actionResult, getMonitor());
+
+		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		assertEquals("1.0", 1, queryResultSize(result));
+		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));
+
+		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(iu);
+		IQueryResult<IInstallableUnit> categoryMembers = actionResult.query(memberQuery, new NullProgressMonitor());
+		Set<IInstallableUnit> categoryMembersSet = categoryMembers.toUnmodifiableSet();
+		assertEquals("2.0", 1, categoryMembersSet.size());
+		assertEquals("2.1", "test.bundle", categoryMembersSet.iterator().next().getId());
+	}
+
+	public void testUncategorizedBundlesInCategory() throws Exception {
+		PublisherInfo info = new PublisherInfo();
+
+		info.setMetadataRepository(metadataRepository);
+		siteLocation = TestData.getFile("updatesite", "CategoryXMLActionTest/categoryUncategorizedBundle.xml").toURI();
+		FeaturesAction featuresAction = new FeaturesAction(new File[] {TestData.getFile("updatesite", "CategoryXMLActionTest")});
+		BundlesAction bundlesAction = new BundlesAction(new File[] {TestData.getFile("updatesite", "CategoryXMLActionTest")});
+		MergeResultsAction publishAction = new MergeResultsAction(new IPublisherAction[] {featuresAction, bundlesAction}, IPublisherResult.MERGE_ALL_NON_ROOT);
+		publishAction.perform(info, actionResult, new NullProgressMonitor());
+
+		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
+		action.perform(info, actionResult, getMonitor());
+
+		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		assertEquals("1.0", 1, queryResultSize(result));
+		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		assertEquals("1.1", "Uncategorized", iu.getProperty(IInstallableUnit.PROP_NAME));
+
+		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(iu);
+		IQueryResult<IInstallableUnit> categoryMembers = actionResult.query(memberQuery, new NullProgressMonitor());
+		Set<IInstallableUnit> categoryMembersSet = categoryMembers.toUnmodifiableSet();
+		assertEquals("2.0", 1, categoryMembersSet.size());
+		assertEquals("2.1", "test.bundle", categoryMembersSet.iterator().next().getId());
 	}
 }

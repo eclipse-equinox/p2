@@ -32,6 +32,7 @@ public class SiteModel {
 	 * Map of String (feature id) -> SiteFeature
 	 */
 	private List<SiteFeature> features;
+	private List<SiteBundle> bundles;
 	private List<SiteIU> ius;
 	private URI locationURI;
 	private String locationURIString;
@@ -90,6 +91,17 @@ public class SiteModel {
 		if (this.features == null)
 			this.features = new ArrayList<SiteFeature>();
 		this.features.add(featureReference);
+	}
+
+	/**
+	 * Adds a bundle reference model to site.
+	 * 
+	 * @param bundleReference bundle reference model
+	 */
+	public void addBundle(SiteBundle bundleReference) {
+		if (this.bundles == null)
+			this.bundles = new ArrayList<SiteBundle>();
+		this.bundles.add(bundleReference);
 	}
 
 	/**
@@ -160,6 +172,17 @@ public class SiteModel {
 		if (features == null || features.size() == 0)
 			return new SiteFeature[0];
 		return features.toArray(new SiteFeature[0]);
+	}
+
+	/**
+	 * Returns an array of bundle reference models on this site.
+	 * 
+	 * @return an array of bundle reference models, or an empty array.
+	 */
+	public SiteBundle[] getBundles() {
+		if (bundles == null || bundles.size() == 0)
+			return new SiteBundle[0];
+		return bundles.toArray(new SiteBundle[0]);
 	}
 
 	/**
@@ -331,4 +354,5 @@ public class SiteModel {
 	public String getDigestURIString() {
 		return digestURIString;
 	}
+
 }

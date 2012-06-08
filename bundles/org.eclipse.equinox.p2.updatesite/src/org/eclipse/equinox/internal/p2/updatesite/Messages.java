@@ -21,6 +21,7 @@ public class Messages extends NLS {
 
 	public static String ErrorReadingDigest;
 	public static String ErrorReadingFeature;
+	public static String ErrorReadingBundle;
 	public static String ErrorReadingSite;
 	public static String Error_generating_category;
 	public static String Error_generating_siteXML;

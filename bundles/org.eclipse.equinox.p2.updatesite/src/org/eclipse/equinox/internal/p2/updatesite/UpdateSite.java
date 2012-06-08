@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
 import org.xml.sax.SAXException;
 
@@ -55,6 +56,8 @@ public class UpdateSite {
 	private static Map<String, SoftReference<UpdateSite>> categoryCache = new HashMap<String, SoftReference<UpdateSite>>();
 	// map of String (featureID_featureVersion) to Feature
 	private Map<String, Feature> featureCache = new HashMap<String, Feature>();
+	// map of String (bundleID_featureVersion) to BundleDescriptr
+	private Map<String, BundleDescription> bundleCache = new HashMap<String, BundleDescription>();
 	private Transport transport;
 
 	/*
@@ -348,6 +351,22 @@ public class UpdateSite {
 	}
 
 	/*
+	 * Return a URI which represents the location of the given bundle.
+	 */
+	public URI getSiteBundleURI(SiteBundle siteBundle) {
+		URL url = siteBundle.getURL();
+		try {
+			if (url != null)
+				return URIUtil.toURI(url);
+		} catch (URISyntaxException e) {
+			//fall through and resolve the URI ourselves
+		}
+		URI base = getBaseURI();
+		String bundleURIString = siteBundle.getURLString();
+		return internalGetURI(base, bundleURIString);
+	}
+
+	/*
 	 * Return a URI which represents the location of the given feature.
 	 */
 	public URI getFeatureURI(String id, String version) {
@@ -355,6 +374,24 @@ public class UpdateSite {
 		for (int i = 0; i < entries.length; i++) {
 			if (id.equals(entries[i].getFeatureIdentifier()) && version.equals(entries[i].getFeatureVersion())) {
 				return getSiteFeatureURI(entries[i]);
+			}
+		}
+
+		URI base = getBaseURI();
+		URI url = getArchiveURI(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
+		if (url != null)
+			return url;
+		return URIUtil.append(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
+	}
+
+	/*
+	 * Return a URI which represents the location of the given bundle.
+	 */
+	public URI getBundleURI(String id, String version) {
+		SiteBundle[] entries = site.getBundles();
+		for (int i = 0; i < entries.length; i++) {
+			if (id.equals(entries[i].getBundleIdentifier()) && version.equals(entries[i].getBundleVersion())) {
+				return getSiteBundleURI(entries[i]);
 			}
 		}
 
@@ -435,6 +472,16 @@ public class UpdateSite {
 			return featureCache.values().toArray(new Feature[featureCache.size()]);
 		Feature[] result = loadFeaturesFromDigest(monitor);
 		return result == null ? loadFeaturesFromSite(monitor) : result;
+	}
+
+	/*
+	 * Load and return the bundle references in this update site.
+	 */
+	public synchronized BundleDescription[] loadBundles(IProgressMonitor monitor) throws ProvisionException {
+		if (!bundleCache.isEmpty())
+			return bundleCache.values().toArray(new BundleDescription[bundleCache.size()]);
+		BundleDescription[] result = null; // TODO loadBundlesFromDigest(monitor);
+		return result == null ? loadBundlesFromSite(monitor) : result;
 	}
 
 	/*
@@ -570,4 +617,87 @@ public class UpdateSite {
 			}
 		}
 	}
+
+	/*
+	 * Load and return the bundles that are referenced by this update site. Note this
+	 * requires downloading and parsing the feature manifest locally.
+	 */
+	private BundleDescription[] loadBundlesFromSite(IProgressMonitor monitor) throws ProvisionException {
+		SiteBundle[] siteBundles = site.getBundles();
+		Map<String, BundleDescription> tmpBundleCache = new HashMap<String, BundleDescription>(siteBundles.length);
+
+		for (int i = 0; i < siteBundles.length; i++) {
+			if (monitor.isCanceled()) {
+				throw new OperationCanceledException();
+			}
+			SiteBundle siteBundle = siteBundles[i];
+			String key = null;
+			if (siteBundle.getBundleIdentifier() != null && siteBundle.getBundleVersion() != null) {
+				key = siteBundle.getBundleIdentifier() + VERSION_SEPARATOR + siteBundle.getBundleVersion();
+				if (tmpBundleCache.containsKey(key))
+					continue;
+			}
+			URI bundleURI = getSiteBundleURI(siteBundle);
+			BundleDescription bundle = parseBundleDescription(bundleURI, monitor);
+			if (bundle == null) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingBundle, bundleURI)));
+			} else {
+				if (key == null) {
+					siteBundle.setBundleIdentifier(bundle.getSymbolicName());
+					siteBundle.setBundleVersion(bundle.getVersion().toString());
+					key = siteBundle.getBundleIdentifier() + VERSION_SEPARATOR + siteBundle.getBundleVersion().toString();
+				}
+				tmpBundleCache.put(key, bundle);
+			}
+		}
+		bundleCache = tmpBundleCache;
+		return bundleCache.values().toArray(new BundleDescription[bundleCache.size()]);
+	}
+
+	/*
+	 * Reads a bundle and extract its BundleDescription
+	 * In case of failure, the failure is logged and null is returned
+	 */
+	private BundleDescription parseBundleDescription(URI bundleURI, IProgressMonitor monitor) {
+		File bundleFile = null;
+		if (PROTOCOL_FILE.equals(bundleURI.getScheme())) {
+			bundleFile = URIUtil.toFile(bundleURI);
+		}
+		try {
+			bundleFile = File.createTempFile("bundle", JAR_EXTENSION); //$NON-NLS-1$
+			IStatus transferResult = null;
+			//try the download twice in case of transient network problems
+			for (int i = 0; i < RETRY_COUNT; i++) {
+				if (monitor.isCanceled())
+					throw new OperationCanceledException();
+				OutputStream destination = new BufferedOutputStream(new FileOutputStream(bundleFile));
+				try {
+					transferResult = transport.download(bundleURI, destination, monitor);
+				} finally {
+					try {
+						destination.close();
+					} catch (IOException e) {
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, bundleURI), e));
+						return null;
+					}
+				}
+				if (transferResult.isOK())
+					break;
+			}
+			if (monitor.isCanceled())
+				throw new OperationCanceledException();
+			if (!transferResult.isOK()) {
+				LogHelper.log(new ProvisionException(transferResult));
+				return null;
+			}
+			return BundlesAction.createBundleDescription(bundleFile);
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingBundle, bundleURI), e));
+		} finally {
+			if (bundleFile != null)
+				bundleFile.delete();
+		}
+		return null;
+	}
+
 }
