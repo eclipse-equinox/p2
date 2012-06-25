@@ -75,33 +75,7 @@
                         
       </menuContribution>
    </extension>
-   <extension
-         point="org.eclipse.ui.activities">
-      <activity
-            description="%classicCategoryDesc"
-            id="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
-            name="%classicCategoryName">
-      </activity>
-      <activityPatternBinding
-            activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
-            isEqualityPattern="false"
-            pattern=".*org\.eclipse\.update\.internal.*">
-      </activityPatternBinding>
-      <activityPatternBinding
-            activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
-            isEqualityPattern="false"
-            pattern=".*org\.eclipse\.ui\.update.*">
-      </activityPatternBinding>
-      <category
-            description="%classicCategoryDesc"
-            id="org.eclipse.equinox.p2.ui.sdk.category.classicUpdate"
-            name="%classicCategoryName">
-      </category>
-      <categoryActivityBinding
-            activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
-            categoryId="org.eclipse.equinox.p2.ui.sdk.category.classicUpdate">
-      </categoryActivityBinding>
-   </extension>
+
       	<extension 
    		id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferences">
 		<initializer class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer"/>
