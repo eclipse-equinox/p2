@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 IBM Corporation and others.
+ *  Copyright (c) 2008, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -77,7 +77,6 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		readOnlyBase = new File(output, "eclipse");
 		assertTrue(readOnlyBase.canWrite());
 		setReadOnly(readOnlyBase, true);
-		assertFalse(readOnlyBase.canWrite());
 		userBase = new File(output, "user");
 		userBase.mkdir();
 	}
@@ -135,7 +134,6 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 			assertTrue("0.7", readOnlyBase.canWrite());
 			remove("1.0", "dropins", "myBundle_1.0.0.jar");
 			setReadOnly(readOnlyBase, true);
-			assertFalse("0.7", readOnlyBase.canWrite());
 
 			reconcileReadOnly("0.21");
 			assertFalse(isInBundlesInfo(userBundlesInfo, "myBundle", null));
