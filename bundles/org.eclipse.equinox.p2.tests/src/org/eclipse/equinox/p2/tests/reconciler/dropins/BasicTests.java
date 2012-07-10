@@ -49,6 +49,7 @@ public class BasicTests extends AbstractReconcilerTest {
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
 		suite.setName(BasicTests.class.getName());
+		suite.addTest(new BasicTests("testOneSessionInstallRemovalOfDependentFeatures"));
 		suite.addTest(new BasicTests("testNonSingleton"));
 		suite.addTest(new BasicTests("testSingleton"));
 		suite.addTest(new BasicTests("testDirectoryBasedPlugin"));
@@ -92,6 +93,7 @@ public class BasicTests extends AbstractReconcilerTest {
 	public void testMove1() {
 		// assert initial state
 		assertInitialized();
+		assertDoesNotExistInBundlesInfo("0.2", "a");
 		assertDoesNotExistInBundlesInfo("0.1", "b");
 
 		// add bundle to dropins
@@ -118,6 +120,29 @@ public class BasicTests extends AbstractReconcilerTest {
 		remove("99.0", "plugins", "b_1.0.0.jar");
 		reconcile("99.1");
 		assertDoesNotExistInBundlesInfo("99.2", "b");
+	}
+
+	public void testOneSessionInstallRemovalOfDependentFeatures() {
+		assertInitialized();
+		assertDoesNotExistInBundlesInfo("0.1", "c");
+
+		// add bundle to dropins
+		File jar = getTestData("2.0", "testData/reconciler/installuninstall/c_1.0.0.jar");
+		add("2.1", "dropins", jar);
+
+		// reconcile
+		reconcile("3.0");
+		assertExistsInBundlesInfo("4.0", "c", "1.0.0", "c_1.0.0.jar");
+
+		//remove b, do not reconcile yet
+		remove("4.1", "dropins", jar.getName());
+
+		File jar2 = getTestData("4.2", "testData/reconciler/installuninstall/d_1.0.0.jar");
+		add("4.3", "dropins", jar2);
+
+		reconcile("5.0");
+		//b was removed. It should be uninstalled, too.
+		assertDoesNotExistInBundlesInfo("5.0", "c");
 	}
 
 	/*
