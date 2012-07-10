@@ -85,6 +85,28 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("Test Description", updateDescriptor.getDescription());
 	}
 
+	public void testUpdateDescriptorWithMatch() {
+		Map map = new HashMap();
+		map.put("update.match", "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && (pc.name == 'B' || pc.name == 'C'))");
+		map.put("update.severity", "10");
+		map.put("update.description", "Test Description");
+
+		AdviceFileParser parser = new AdviceFileParser("id", Version.parseVersion("9.10.11"), map);
+		parser.parse();
+
+		IUpdateDescriptor updateDescriptor = parser.getUpdateDescriptor();
+		assertEquals("Test Description", updateDescriptor.getDescription());
+		assertEquals(10, updateDescriptor.getSeverity());
+		//Here we test that the extraction of the name fails since this is not of an appropriate format
+		boolean exceptionRaised = false;
+		try {
+			RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		} catch (IllegalArgumentException e) {
+			exceptionRaised = true;
+		}
+		assertTrue(exceptionRaised);
+	}
+
 	public void testUpdateDescriptorAdviceDefaultBound2() {
 		Map map = new HashMap();
 		map.put("update.id", "testName");

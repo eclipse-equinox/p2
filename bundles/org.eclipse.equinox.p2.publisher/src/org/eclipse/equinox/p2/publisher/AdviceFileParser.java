@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class AdviceFileParser {
@@ -31,6 +31,7 @@ public class AdviceFileParser {
 	private static final String UPDATE_SEVERITY = "update.severity"; //$NON-NLS-1$
 	private static final String UPDATE_RANGE = "update.range"; //$NON-NLS-1$
 	private static final String UPDATE_ID = "update.id"; //$NON-NLS-1$
+	private static final String UPDATE_MATCH = "update.match"; //$NON-NLS-1$
 	private static final String CLASSIFIER = "classifier"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_VERSION = "touchpoint.version"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_ID = "touchpoint.id"; //$NON-NLS-1$
@@ -168,10 +169,13 @@ public class AdviceFileParser {
 		String description = null;
 		String range = "[0.0.0,$version$)"; //$NON-NLS-1$ 
 		String severity = "0"; //$NON-NLS-1$
+		String match = null;
 
 		while (current != null && current.startsWith(prefix)) {
 			String token = current;
-			if (token.equals(UPDATE_ID)) {
+			if (token.equals(UPDATE_MATCH)) {
+				match = currentValue();
+			} else if (token.equals(UPDATE_ID)) {
 				name = currentValue();
 			} else if (token.equals(UPDATE_DESCRIPTION)) {
 				description = currentValue();
@@ -185,6 +189,14 @@ public class AdviceFileParser {
 			next();
 		}
 
+		if (match != null) {
+			//When update.match is specified, versionRange and id are ignored
+			IExpression expr = ExpressionUtil.parse(substituteVersionAndQualifier(match));
+			IMatchExpression matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
+			Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<IMatchExpression<IInstallableUnit>>(1);
+			descriptors.add(matchExpression);
+			return MetadataFactory.createUpdateDescriptor(descriptors, Integer.valueOf(severity), description, (URI) null);
+		}
 		range = substituteVersionAndQualifier(range);
 		VersionRange versionRange = new VersionRange(range);
 		return MetadataFactory.createUpdateDescriptor(name, versionRange, Integer.valueOf(severity), description);
