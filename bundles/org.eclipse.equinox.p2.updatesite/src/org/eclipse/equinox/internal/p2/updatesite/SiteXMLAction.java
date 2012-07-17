@@ -320,8 +320,11 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		for (int i = 0; i < features.length; i++) {
 			//add a mapping for each category this feature belongs to
 			String[] categoryNames = features[i].getCategoryNames();
-			Set<SiteCategory> categories = new HashSet<SiteCategory>();
-			mappings.put(features[i], categories);
+			Set<SiteCategory> categories = mappings.get(features[i]);
+			if (categories == null) {
+				categories = new HashSet<SiteCategory>();
+				mappings.put(features[i], categories);
+			}
 			for (int j = 0; j < categoryNames.length; j++) {
 				SiteCategory category = site.getCategory(categoryNames[j]);
 				if (category != null)
