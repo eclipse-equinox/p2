@@ -441,10 +441,14 @@ public class SiteFeature {
 	 */
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(getClass().toString() + " :"); //$NON-NLS-1$
-		buffer.append(" at "); //$NON-NLS-1$
-		if (url != null)
+		if (featureId != null)
+			buffer.append(featureId).append(' ');
+		if (featureVersion != null)
+			buffer.append(featureVersion).append(' ');
+		if (url != null) {
+			buffer.append(" at "); //$NON-NLS-1$
 			buffer.append(url.toExternalForm());
+		}
 		return buffer.toString();
 	}
 
