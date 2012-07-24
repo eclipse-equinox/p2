@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -63,8 +63,11 @@ public class ValidationDialogServiceUI extends UIServices {
 					Shell shell = ProvUI.getDefaultParentShell();
 					String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
 					UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
-					if (dialog.open() == Window.OK) {
+					int dialogCode = dialog.open();
+					if (dialogCode == Window.OK) {
 						result[0] = dialog.getResult();
+					} else if (dialogCode == Window.CANCEL) {
+						result[0] = AUTHENTICATION_PROMPT_CANCELED;
 					}
 				}
 
@@ -170,8 +173,11 @@ public class ValidationDialogServiceUI extends UIServices {
 						message = NLS.bind(ProvUIMessages.ProvUIMessages_NotAccepted_EnterFor_0, location);
 
 					UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
-					if (dialog.open() == Window.OK) {
+					int dialogCode = dialog.open();
+					if (dialogCode == Window.OK) {
 						result[0] = dialog.getResult();
+					} else if (dialogCode == Window.CANCEL) {
+						result[0] = AUTHENTICATION_PROMPT_CANCELED;
 					}
 				}
 
