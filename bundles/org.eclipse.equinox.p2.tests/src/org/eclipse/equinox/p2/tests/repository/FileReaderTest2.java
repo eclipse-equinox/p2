@@ -187,7 +187,7 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 	}
 
 	private void doFileReaderTest(final PauseJob pauseJob, IProgressMonitor monitor) throws IOException, CoreException {
-		final String testRemoteFileURL = "http://ftp.osuosl.org/pub/eclipse/rt/ecf/3.5.4/site.p2/plugins/org.eclipse.ecf.doc_1.3.0.v20111230-0120.jar";
+		final String testRemoteFileURL = "http://download.eclipse.org/releases/juno/201206270900/content.jar";
 		OutputStream out = null;
 		OutputStream out1 = null;
 		File tmpFolder = getTempFolder();
