@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.junit.Test;
@@ -133,25 +134,31 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 				return Status.OK_STATUS;
 			}
 		};
-		basicTest(repoLoc, phaseSet, pause, QueryUtil.createIUQuery("org.eclipse.equinox.launcher"), 500, IStatus.OK, null);
+		basicTest(repoLoc, phaseSet, pause, QueryUtil.createIUQuery("org.eclipse.equinox.launcher"), IStatus.OK, null);
 		assertTrue("Pause job is failed.", pause.getResult().isOK());
 		pause.resume.join();
 		assertTrue("Resume job is failed.", pause.resume.getResult().isOK());
 	}
 
-	private void basicTest(URI repoURI, PhaseSet phaseSet, final PauseJob pauseJob, IQuery<IInstallableUnit> query, final long delay, int expectedCode, IProgressMonitor monitor) throws ProvisionException, InterruptedException {
+	private void basicTest(URI repoURI, PhaseSet phaseSet, final PauseJob pauseJob, IQuery<IInstallableUnit> query, int expectedCode, IProgressMonitor monitor) throws ProvisionException, InterruptedException {
 		class ProvTestListener implements ProvisioningListener {
 			boolean hasProvisioningEventAfterPaused = false;
 			CountDownLatch latch = new CountDownLatch(1);
+			boolean canStart = false;
 
 			public void notify(EventObject o) {
 				if (o instanceof BeginOperationEvent) {
-					pauseJob.schedule(delay);
-					System.out.println(new Date() + " -- scheduled pause job.");
-					return;
+					canStart = true;
 				}
 				if (o instanceof RepositoryEvent || o instanceof ProfileEvent)
 					return;
+				if (canStart && o instanceof DownloadProgressEvent) {
+					// make sure to pause downloading after it has started
+					pauseJob.schedule();
+					canStart = false;
+					System.out.println(new Date() + " -- scheduled immediate pause job.");
+					return;
+				}
 				System.out.println(new Date() + " -- recive event " + o.getClass().getName());
 				if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent) {
 					latch.countDown();
@@ -194,6 +201,9 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 			props.put(IProfile.PROP_ENVIRONMENTS, "osgi.ws=gtk,osgi.arch=x86,osgi.os=linux");
 			props.put(IProfile.PROP_INSTALL_FOLDER, testFolder.getAbsolutePath());
 			IProfile profile = createProfile(profileId, props);
+			// clean cached artifacts
+			IArtifactRepository artifactRepo = org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util.getBundlePoolRepository(getAgent(), profile);
+			artifactRepo.removeAll(new NullProgressMonitor());
 			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getAgent(), profile.getProfileId());
 			IQueryResult<IInstallableUnit> toBeInstalledIUs = getMetadataRepositoryManager().loadRepository(repoLoc, null).query(query, null);
 			assertFalse("Test case has problem to find IU to be installed.", toBeInstalledIUs.isEmpty());
@@ -254,7 +264,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 			}
 		};
 
-		basicTest(repoLoc, phaseSet, pause, QueryUtil.createLatestQuery(QueryUtil.createIUQuery("org.eclipse.equinox.executable.feature.group")), 3000, IStatus.OK, null);
+		basicTest(repoLoc, phaseSet, pause, QueryUtil.createLatestQuery(QueryUtil.createIUQuery("org.eclipse.equinox.executable.feature.group")), IStatus.OK, null);
 	}
 
 	@Test
@@ -269,7 +279,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 					hasDownloadEvent = true;
 			}
 
-		};
+		}
 		final ProvListener listener = new ProvListener();
 		getEventBus().addListener(listener);
 		try {
@@ -302,7 +312,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 				}
 			};
 
-			basicTest(repoLoc, phaseSet, pause, QueryUtil.createLatestQuery(QueryUtil.createIUQuery("org.eclipse.equinox.executable.feature.group")), 0, IStatus.CANCEL, new NullProgressMonitor() {
+			basicTest(repoLoc, phaseSet, pause, QueryUtil.createLatestQuery(QueryUtil.createIUQuery("org.eclipse.equinox.executable.feature.group")), IStatus.CANCEL, new NullProgressMonitor() {
 				@Override
 				public boolean isCanceled() {
 					return pause.isPaused();
