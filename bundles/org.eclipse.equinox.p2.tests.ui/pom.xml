@@ -29,6 +29,13 @@
 
 	<build>
 		<plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <configuration>
+          <executionEnvironment>J2SE-1.5</executionEnvironment>
+        </configuration>
+      </plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
