@@ -195,10 +195,21 @@ class ConfigApplier {
 			if (current == null) {
 				try {
 					current = manipulatingContext.installBundle(bundleLocation);
-					if (!version.equals(current.getVersion()) || !symbolicName.equals(current.getSymbolicName()))
-						// can happen if, for example, the new version of the bundle is installed
-						// to the same bundle location as the old version
-						current.update();
+					if (symbolicName != null && version != null) {
+						Version v;
+						try {
+							v = new Version(version);
+							if (!symbolicName.equals(current.getSymbolicName()) || !v.equals(current.getVersion())) {
+								// can happen if, for example, the new version of the bundle is installed
+								// to the same bundle location as the old version
+								current.update();
+							}
+						} catch (IllegalArgumentException e) {
+							// invalid version string; should log
+							if (Activator.DEBUG)
+								e.printStackTrace();
+						}
+					}
 
 					if (Activator.DEBUG)
 						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
@@ -306,6 +317,8 @@ class ConfigApplier {
 			if (bundle.getState() == Bundle.STARTING && (bundle == callingBundle || bundle == manipulatingContext.getBundle()))
 				continue;
 			if (packageAdminService.getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT)
+				continue;
+			if (bundle.getBundleId() == 0)
 				continue;
 
 			try {
