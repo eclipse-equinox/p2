@@ -31,7 +31,7 @@ public class Pack200ProcessorTest extends TestCase {
 		super("");
 	}
 
-	public void testUnpack() throws IOException {
+	public void DISABLE_testUnpack() throws IOException {
 		//this test is only applicable if pack200 is available
 		if (!PackStep.canPack())
 			return;

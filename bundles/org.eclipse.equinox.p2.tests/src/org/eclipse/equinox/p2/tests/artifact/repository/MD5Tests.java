@@ -34,7 +34,7 @@ public class MD5Tests extends AbstractProvisioningTest {
 		assertNotNull("1.0", repo);
 	}
 
-	public void testCheckMD5() {
+	public void DISABLE_testCheckMD5() {
 		IQueryResult<IArtifactDescriptor> descriptors = repo.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 		for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
 			IArtifactDescriptor desc = iterator.next();
