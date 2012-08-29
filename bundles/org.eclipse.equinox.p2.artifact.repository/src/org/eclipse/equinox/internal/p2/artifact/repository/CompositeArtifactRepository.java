@@ -456,9 +456,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 						jarFile.getParentFile().mkdirs();
 					jarFile.createNewFile();
 				}
-				JarOutputStream jOs = new JarOutputStream(new FileOutputStream(jarFile));
-				jOs.putNextEntry(new JarEntry(new Path(artifactsFile.getAbsolutePath()).lastSegment()));
-				os = jOs;
+				os = new JarOutputStream(new FileOutputStream(jarFile));
+				((JarOutputStream) os).putNextEntry(new JarEntry(new Path(artifactsFile.getAbsolutePath()).lastSegment()));
 			}
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
 			new CompositeRepositoryIO().write(toState(), os, PI_REPOSITORY_TYPE);

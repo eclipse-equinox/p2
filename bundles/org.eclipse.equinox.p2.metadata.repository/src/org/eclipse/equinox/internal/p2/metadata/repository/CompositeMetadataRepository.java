@@ -322,9 +322,8 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 					jarFile.createNewFile();
 				}
 				JarEntry jarEntry = new JarEntry(file.getName());
-				JarOutputStream jOutput = new JarOutputStream(new FileOutputStream(jarFile));
-				jOutput.putNextEntry(jarEntry);
-				output = jOutput;
+				output = new JarOutputStream(new FileOutputStream(jarFile));
+				((JarOutputStream) output).putNextEntry(jarEntry);
 			}
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
 			new CompositeRepositoryIO().write(toState(), output, PI_REPOSITORY_TYPE);

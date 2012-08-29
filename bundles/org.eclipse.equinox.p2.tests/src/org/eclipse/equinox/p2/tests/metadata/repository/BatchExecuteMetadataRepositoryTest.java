@@ -40,10 +40,16 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 
 	boolean fileContainsString(URI location, String string) throws IOException {
 		StringBuffer buffer = new StringBuffer();
-		BufferedReader reader = new BufferedReader(new FileReader(new File(location)));
-		while (reader.ready())
-			buffer.append(reader.readLine());
-		return buffer.toString().contains(string);
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(new File(location)));
+			while (reader.ready())
+				buffer.append(reader.readLine());
+			return buffer.toString().contains(string);
+		} finally {
+			if (reader != null)
+				reader.close();
+		}
 	}
 
 	/*

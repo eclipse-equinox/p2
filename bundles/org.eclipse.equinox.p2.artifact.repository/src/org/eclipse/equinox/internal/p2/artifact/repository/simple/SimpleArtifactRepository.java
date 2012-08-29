@@ -1238,9 +1238,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 						mkdirs(jarFile.getParentFile());
 						jarFile.createNewFile();
 					}
-					JarOutputStream jOs = new JarOutputStream(new FileOutputStream(jarFile));
-					jOs.putNextEntry(new JarEntry(new Path(artifactsFile.getAbsolutePath()).lastSegment()));
-					os = jOs;
+					os = new JarOutputStream(new FileOutputStream(jarFile));
+					((JarOutputStream) os).putNextEntry(new JarEntry(new Path(artifactsFile.getAbsolutePath()).lastSegment()));
 				}
 				super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()), new NullProgressMonitor());
 				new SimpleArtifactRepositoryIO(getProvisioningAgent()).write(this, os);

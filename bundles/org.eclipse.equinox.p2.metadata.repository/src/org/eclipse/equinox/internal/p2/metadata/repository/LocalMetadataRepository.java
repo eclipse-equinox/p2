@@ -299,9 +299,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 					jarFile.createNewFile();
 				}
 				JarEntry jarEntry = new JarEntry(file.getName());
-				JarOutputStream jOutput = new JarOutputStream(new FileOutputStream(jarFile));
-				jOutput.putNextEntry(jarEntry);
-				output = jOutput;
+				output = new JarOutputStream(new FileOutputStream(jarFile));
+				((JarOutputStream) output).putNextEntry(jarEntry);
 			}
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()), new NullProgressMonitor());
 			new MetadataRepositoryIO(getProvisioningAgent()).write(this, output);
