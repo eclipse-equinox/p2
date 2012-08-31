@@ -33,9 +33,8 @@
         <configuration>
           <!--
              require at least J2SE-1.4 due to org.eclipse.equinox.security dependency
-             ``?'' syntax means individual project can override with build.properties config 
           -->
-          <executionEnvironment>?J2SE-1.4</executionEnvironment>
+          <executionEnvironment>J2SE-1.4</executionEnvironment>
         </configuration>
       </plugin>
       <plugin>
