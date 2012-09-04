@@ -25,9 +25,16 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
+ * @see MetadataFactory#createUpdateDescriptor(String, VersionRange, int, String)
  */
 public interface IUpdateDescriptor {
+	/**
+	 * Update severity constant (value 0) indicating a normal severity update.
+	 */
 	public final int NORMAL = 0;
+	/**
+	 * Update severity constant (value 1) indicating a high severity update.
+	 */
 	public final int HIGH = 1;
 
 	/**
@@ -52,7 +59,7 @@ public interface IUpdateDescriptor {
 
 	/**
 	 * The importance of the update descriptor represented as a int.
-	 * @return The severity.
+	 * @return The severity (either {@link #HIGH} or {@link #NORMAL}).
 	 */
 	public int getSeverity();
 

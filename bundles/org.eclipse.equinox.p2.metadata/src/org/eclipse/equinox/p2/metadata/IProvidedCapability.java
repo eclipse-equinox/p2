@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2008, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2008, 2012 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -11,11 +11,19 @@
 package org.eclipse.equinox.p2.metadata;
 
 /**
- * Describes a capability as exposed or required by an installable unit
+ * Describes a capability that is exposed by an installable unit. These capabilities
+ * can satisfy the dependencies of other installable units, causing the unit
+ * providing the dependency to be installed.
+ * <p>
+ * Instances of this class are handle objects and do not necessarily
+ * reflect entities that exist in any particular profile or repository. These handle 
+ * objects can be created using {@link MetadataFactory}.
+ * </p>
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
+ * @see IRequirement
  */
 public interface IProvidedCapability {
 

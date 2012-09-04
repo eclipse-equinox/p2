@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,8 +21,7 @@ import org.eclipse.equinox.p2.metadata.expression.*;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
- * @noextend 
- * @noimplement
+ * 
  * @since 2.0
  */
 public final class MetadataFactory {
@@ -677,6 +676,15 @@ public final class MetadataFactory {
 		return new UpdateDescriptor(descriptors, severity, description, location);
 	}
 
+	/**
+	 * Creates a new update descriptor object.
+	 * @param id The id of the installable unit that the descriptor provides updates for
+	 * @param range The version range that the descriptor provides updates for
+	 * @param severity The update severity (either {@link IUpdateDescriptor#NORMAL} 
+	 * or {@link IUpdateDescriptor#HIGH})
+	 * @param description A description of the update
+	 * @return A new update descriptor
+	 */
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
 		return createUpdateDescriptor(id, range, severity, description, null);
 	}

@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2010 IBM and others. All rights reserved. This
+* Copyright (c) 2009, 2012 IBM and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -17,10 +17,17 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
  * it expects to be provided by another {@link IInstallableUnit}. Requirements are
  * entirely generic, and are intended to be capable of representing anything that
  * an {@link IInstallableUnit} may need either at install time, or at runtime.
+ * <p>
+ * Instances of this class are handle objects and do not necessarily
+ * reflect entities that exist in any particular profile or repository. These handle 
+ * objects can be created using {@link MetadataFactory}.
+ * </p>
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
+ * @see IProvidedCapability
+ * @see MetadataFactory#createRequirement(String, String, VersionRange, String, boolean, boolean, boolean)
  */
 public interface IRequirement {
 

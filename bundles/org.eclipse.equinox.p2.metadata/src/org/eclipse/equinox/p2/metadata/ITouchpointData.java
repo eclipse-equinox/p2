@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2008, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2008, 2012 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -18,7 +18,6 @@ import java.util.Map;
  * supporting data needed to perform the phase.
  *
  * @see MetadataFactory#createTouchpointData(Map)
- * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -27,6 +26,9 @@ public interface ITouchpointData {
 
 	/**
 	 * Returns the touchpoint instruction corresponding to the given key.
+	 * 
+	 * @return the touchpoint instruction corresponding to the given key,
+	 * or <code>null</code> if no such instruction exists.
 	 */
 	public ITouchpointInstruction getInstruction(String instructionKey);
 
