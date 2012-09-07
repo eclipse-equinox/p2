@@ -68,6 +68,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 		return new UpdateSiteMetadataRepository(location, repository);
 	}
 
+	@SuppressWarnings("unused")
 	private static boolean isURL(URI location) {
 		try {
 			new URL(location.toASCIIString());

@@ -71,6 +71,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		return new UpdateSiteArtifactRepository(location, repository);
 	}
 
+	@SuppressWarnings("unused")
 	private static boolean isURL(URI location) {
 		try {
 			new URL(location.toASCIIString());
