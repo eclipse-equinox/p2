@@ -164,30 +164,31 @@ public class PackStep extends CommandStep {
 		return "Pack"; //$NON-NLS-1$
 	}
 
-	public void adjustInf(File input, Properties inf, List containers) {
+	public boolean adjustInf(File input, Properties inf, List containers) {
 		if (input == null || inf == null)
-			return;
+			return false;
 
 		//don't be verbose to check if we should mark the inf
 		boolean v = verbose;
 		verbose = false;
 		if (!shouldPack(input, containers, inf)) {
 			verbose = v;
-			return;
+			return false;
 		}
 		verbose = v;
 
 		//mark as conditioned if not previously marked.  A signed jar is assumed to be previously conditioned.
-		if (inf.getProperty(Utils.MARK_PROPERTY) == null) {
-			inf.put(Utils.MARK_PROPERTY, "true"); //$NON-NLS-1$
+		if (inf.getProperty(Utils.MARK_PROPERTY) != null)
+			return false;
 
-			//record arguments used
-			String arguments = inf.getProperty(Utils.PACK_ARGS);
-			if (arguments == null) {
-				arguments = getArguments(input, inf, containers);
-				if (arguments != null && arguments.length() > 0)
-					inf.put(Utils.PACK_ARGS, arguments);
-			}
+		inf.put(Utils.MARK_PROPERTY, "true"); //$NON-NLS-1$
+		//record arguments used
+		String arguments = inf.getProperty(Utils.PACK_ARGS);
+		if (arguments == null) {
+			arguments = getArguments(input, inf, containers);
+			if (arguments != null && arguments.length() > 0)
+				inf.put(Utils.PACK_ARGS, arguments);
 		}
+		return true;
 	}
 }
