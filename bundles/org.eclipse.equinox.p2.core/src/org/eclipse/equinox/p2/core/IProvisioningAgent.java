@@ -39,6 +39,15 @@ public interface IProvisioningAgent {
 	public static final String INSTALLER_AGENT = "org.eclipse.equinox.p2.installer.agent"; //$NON-NLS-1$
 	public static final String INSTALLER_PROFILEID = "org.eclipse.equinox.p2.installer.profile.id"; //$NON-NLS-1$
 
+	/** 
+	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent the agent representing what is in the shared location 
+	 */
+	public static final String SHARED_INSTALL_AGENT = "org.eclipse.equinox.shared.install.agent"; //$NON-NLS-1$
+
+	/** 
+	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent identified by {@link #SHARED_INSTALL_AGENT} the current agent 
+	 */
+	public static final String SHARED_CURRENT_AGENT = "org.eclipse.equinox.shared.current.agent"; //$NON-NLS-1$
 	/**
 	 * Service property identifying whether an agent is the default agent.
 	 * 

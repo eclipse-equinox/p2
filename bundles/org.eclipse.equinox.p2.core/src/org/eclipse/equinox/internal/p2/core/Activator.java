@@ -35,6 +35,7 @@ public class Activator implements BundleActivator {
 
 	private static final String PROP_AGENT_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String PROP_CONFIG_DIR = "osgi.configuration.area"; //$NON-NLS-1$
+	private static final String PROP_SHARED_CONFIG_DIR = "osgi.sharedConfiguration.area"; //$NON-NLS-1$
 	private static final String PROP_USER_DIR = "user.dir"; //$NON-NLS-1$
 	private static final String PROP_USER_HOME = "user.home"; //$NON-NLS-1$
 
@@ -184,6 +185,48 @@ public class Activator implements BundleActivator {
 		} catch (Exception e) {
 			final String msg = "Unable to instantiate p2 agent at location " + agentDataLocation.getRootLocation(); //$NON-NLS-1$
 			LogHelper.log(new Status(IStatus.ERROR, ID, msg, e));
+		}
+		registerSharedAgent(agent, provider);
+	}
+
+	private URI computeLocationSharedAgent(IProvisioningAgent currentAgent, IProvisioningAgentProvider provider) {
+		//This figures out if we are running in shared mode and computes the location of the p2 folder in the base.
+		//Note that this logic only works for the case where the p2 location is colocated with the configuration area
+		//(configuration and p2 are sibling of each others).
+		//To make that work for other scenarios, the config.ini of the base would have to be read and interpreted. 
+		URI location = null;
+		String sharedConfigArea = null;
+		try {
+			sharedConfigArea = context.getProperty(PROP_SHARED_CONFIG_DIR);
+			if (sharedConfigArea == null)
+				return null;
+
+			//Make sure the property has a trai
+			if (!sharedConfigArea.endsWith("/") && !sharedConfigArea.endsWith("\\")) //$NON-NLS-1$ //$NON-NLS-2$
+				sharedConfigArea += "/"; //$NON-NLS-1$
+			location = URIUtil.fromString(sharedConfigArea + DEFAULT_AGENT_LOCATION + '/');
+		} catch (URISyntaxException e) {
+			final String msg = "Unable to instantiate p2 agent for shared location " + sharedConfigArea; //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.WARNING, ID, msg, e));
+			return null;
+		}
+		return location;
+	}
+
+	private void registerSharedAgent(IProvisioningAgent currentAgent, IProvisioningAgentProvider provider) {
+		URI location = computeLocationSharedAgent(currentAgent, provider);
+		if (location == null) {
+			return;
+		}
+
+		IProvisioningAgent sharedAgent;
+		try {
+			sharedAgent = provider.createAgent(location);
+			currentAgent.registerService(IProvisioningAgent.SHARED_INSTALL_AGENT, sharedAgent);
+			sharedAgent.registerService(IProvisioningAgent.SHARED_CURRENT_AGENT, currentAgent);
+		} catch (ProvisionException e) {
+			final String msg = "Unable to instantiate p2 agent for shared location " + location; //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.WARNING, ID, msg, e));
 		}
 	}
 

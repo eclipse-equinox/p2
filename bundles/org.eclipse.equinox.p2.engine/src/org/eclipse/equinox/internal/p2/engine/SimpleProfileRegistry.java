@@ -96,6 +96,11 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (store.equals(getDefaultRegistryDirectory(location))) {
 			//we are the registry for the currently running system
 			self = context.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+		} else if (agent.getService(IProvisioningAgent.SHARED_CURRENT_AGENT) != null) {
+			// In shared mode, _SELF_ is the value of the current running profile for both agents current and shared   
+			if (((IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_CURRENT_AGENT)).getService(IProvisioningAgent.SHARED_INSTALL_AGENT) == agent) {
+				self = context.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+			}
 		}
 		context.ungetService(ref);
 	}
@@ -161,7 +166,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	public synchronized String toString() {
-		return getProfileMap().toString();
+		return "Profile registry for location: " + store.getAbsolutePath() + "\n" + getProfileMap().toString(); //$NON-NLS-1$
 	}
 
 	public synchronized IProfile getProfile(String id) {

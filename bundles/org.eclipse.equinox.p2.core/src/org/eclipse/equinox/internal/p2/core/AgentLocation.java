@@ -32,4 +32,10 @@ public class AgentLocation implements IAgentLocation {
 	public URI getDataArea(String touchpointId) {
 		return URIUtil.append(getRootLocation(), touchpointId + '/');
 	}
+
+	public String toString() {
+		if (location == null)
+			return "No location specified"; //$NON-NLS-1$
+		return location.toString();
+	}
 }

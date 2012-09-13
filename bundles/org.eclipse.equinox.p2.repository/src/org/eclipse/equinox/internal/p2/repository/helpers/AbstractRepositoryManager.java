@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Wind River - fix for bug 299227
  *     Sonatype, Inc. - transport split
+ *     Red Hat,Inc. - fix for bug 249133
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
@@ -504,6 +505,21 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 	}
 
+	Preferences getSharedPreferences() {
+		if (agentLocation == null)
+			return null;
+		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
+		if (prefService == null)
+			return null;
+		try {
+			//see ProfileScope for preference path format
+			String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
+			return prefService.getRootNode().node("/profile/shared/" + locationString + "/_SELF_/" + getBundleId() + '/' + NODE_REPOSITORIES); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
 	/**
 	 * Restores a repository location from the preferences.
 	 */
@@ -944,9 +960,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	/*
 	 * Load the list of repositories from the preferences.
 	 */
-	private void restoreFromPreferences() {
+	private void basicRestoreFromPreferences(Preferences node, boolean save) {
 		// restore the list of repositories from the preference store
-		Preferences node = getPreferences();
 		if (node == null)
 			return;
 		String[] children;
@@ -978,7 +993,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			repositories.put(getKey(info.location), info);
 		}
 		// now that we have loaded everything, remember them
-		saveToPreferences();
+		if (save)
+			saveToPreferences();
 	}
 
 	private void restoreFromSystemProperty() {
@@ -1003,7 +1019,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			repositories = new HashMap<String, RepositoryInfo<T>>();
 			restoreSpecialRepositories();
 			restoreFromSystemProperty();
-			restoreFromPreferences();
+			basicRestoreFromPreferences(getSharedPreferences(), false);
+			basicRestoreFromPreferences(getPreferences(), true);
 		}
 	}
 
