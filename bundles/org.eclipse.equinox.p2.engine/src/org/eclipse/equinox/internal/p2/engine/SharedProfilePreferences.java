@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 IBM Corporation and others.
+ * Copyright (c) 2012 Ericsson AB and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Ericsson AB - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -48,11 +48,11 @@ public class SharedProfilePreferences extends ProfilePreferences {
 
 	protected IProvisioningAgent getAgent(String segment) throws BackingStoreException {
 		IProvisioningAgent agent = super.getAgent(segment);
-		return (IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_INSTALL_AGENT);
+		return (IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_BASE_AGENT);
 	}
 
 	protected void doSave(IProvisioningAgent agent) throws BackingStoreException {
-		throw new BackingStoreException("Can't store in shared install");
+		throw new BackingStoreException("Can't store in shared install"); //$NON-NLS-1$
 	}
 
 	protected EclipsePreferences internalCreate(EclipsePreferences nodeParent, String nodeName, Object context) {

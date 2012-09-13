@@ -10,6 +10,7 @@
  *     Wind River - fix for bug 299227
  *     Sonatype, Inc. - transport split
  *     Red Hat,Inc. - fix for bug 249133
+ *     Ericsson AB (Pascal Rapicault) - reading preferences from base in shared install
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository.helpers;
 

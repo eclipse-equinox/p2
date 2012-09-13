@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - reading preferences from base in shared install
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core;
 
@@ -222,7 +223,7 @@ public class Activator implements BundleActivator {
 		IProvisioningAgent sharedAgent;
 		try {
 			sharedAgent = provider.createAgent(location);
-			currentAgent.registerService(IProvisioningAgent.SHARED_INSTALL_AGENT, sharedAgent);
+			currentAgent.registerService(IProvisioningAgent.SHARED_BASE_AGENT, sharedAgent);
 			sharedAgent.registerService(IProvisioningAgent.SHARED_CURRENT_AGENT, currentAgent);
 		} catch (ProvisionException e) {
 			final String msg = "Unable to instantiate p2 agent for shared location " + location; //$NON-NLS-1$

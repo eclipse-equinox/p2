@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - reading preferences from base in shared install
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 

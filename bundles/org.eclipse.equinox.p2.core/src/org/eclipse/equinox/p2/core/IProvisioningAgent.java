@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - reading preferences from base in shared install
  *******************************************************************************/
 package org.eclipse.equinox.p2.core;
 
@@ -40,12 +41,12 @@ public interface IProvisioningAgent {
 	public static final String INSTALLER_PROFILEID = "org.eclipse.equinox.p2.installer.profile.id"; //$NON-NLS-1$
 
 	/** 
-	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent the agent representing what is in the shared location 
+	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent the agent representing what is in the shared location aka the base
 	 */
-	public static final String SHARED_INSTALL_AGENT = "org.eclipse.equinox.shared.install.agent"; //$NON-NLS-1$
+	public static final String SHARED_BASE_AGENT = "org.eclipse.equinox.shared.base.agent"; //$NON-NLS-1$
 
 	/** 
-	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent identified by {@link #SHARED_INSTALL_AGENT} the current agent 
+	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent identified by {@link #SHARED_BASE_AGENT} the current agent 
 	 */
 	public static final String SHARED_CURRENT_AGENT = "org.eclipse.equinox.shared.current.agent"; //$NON-NLS-1$
 	/**

@@ -1,10 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - reading preferences from base in shared install
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -98,7 +100,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			self = context.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
 		} else if (agent.getService(IProvisioningAgent.SHARED_CURRENT_AGENT) != null) {
 			// In shared mode, _SELF_ is the value of the current running profile for both agents current and shared   
-			if (((IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_CURRENT_AGENT)).getService(IProvisioningAgent.SHARED_INSTALL_AGENT) == agent) {
+			if (((IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_CURRENT_AGENT)).getService(IProvisioningAgent.SHARED_BASE_AGENT) == agent) {
 				self = context.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
 			}
 		}
