@@ -344,7 +344,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 							fail(message + " descriptor mismatch");
 						if (!(expectedFile.exists() && actualFile.exists()))
 							fail(message + " file does not exist");
-						assertTrue(expectedFile.length() == actualFile.length());
+						assertEquals("Unexpected difference in " + actualFile.getName(), expectedFile.length(), actualFile.length());
 						continue top;
 					}
 				}
