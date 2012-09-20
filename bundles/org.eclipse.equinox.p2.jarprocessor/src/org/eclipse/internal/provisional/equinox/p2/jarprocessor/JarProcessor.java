@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 IBM Corporation and others.
+ * Copyright (c) 2006, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -256,13 +256,11 @@ public class JarProcessor {
 		return input;
 	}
 
-	private boolean adjustInf(File input, Properties inf) {
-		boolean adjusted = false;
+	private void adjustInf(File input, Properties inf) {
 		for (Iterator iter = steps.iterator(); iter.hasNext();) {
 			IProcessStep step = (IProcessStep) iter.next();
-			adjusted |= step.adjustInf(input, inf, containingInfs);
+			step.adjustInf(input, inf, containingInfs);
 		}
-		return adjusted;
 	}
 
 	public File processJar(File input) throws IOException {
@@ -309,28 +307,25 @@ public class JarProcessor {
 			Properties inf = Utils.getEclipseInf(workingFile, verbose);
 			extractEntries(jar, tempDir, replacements, inf);
 
-			boolean infAdjusted = false;
 			if (inf != null)
-				infAdjusted = adjustInf(workingFile, inf);
+				adjustInf(workingFile, inf);
 
 			//Recreate the jar with replacements. 
-			//This is not strictly necessary if we didn't change the inf file and didn't change any content
-			if (!replacements.isEmpty() || infAdjusted) {
-				File tempJar = null;
-				tempJar = new File(tempDir, workingFile.getName());
-				File parent = tempJar.getParentFile();
-				if (!parent.exists())
-					parent.mkdirs();
-				JarOutputStream jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
-				recreateJar(jar, jarOut, replacements, tempDir, inf);
+			//TODO: This is not strictly necessary if we didn't change the inf file and didn't change any content
+			File tempJar = null;
+			tempJar = new File(tempDir, workingFile.getName());
+			File parent = tempJar.getParentFile();
+			if (!parent.exists())
+				parent.mkdirs();
+			JarOutputStream jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
+			recreateJar(jar, jarOut, replacements, tempDir, inf);
 
-				jar.close();
-				if (tempJar != null) {
-					if (!workingFile.equals(input)) {
-						workingFile.delete();
-					}
-					workingFile = tempJar;
+			jar.close();
+			if (tempJar != null) {
+				if (!workingFile.equals(input)) {
+					workingFile.delete();
 				}
+				workingFile = tempJar;
 			}
 
 			//post

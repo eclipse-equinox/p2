@@ -68,33 +68,4 @@ public class Pack200ProcessorTest extends TestCase {
 		assertFalse(step.getStatus().isOK());
 	}
 
-	/**
-	 * Tests the case where we are unpacking a file that was not packed by 
-	 * our own pack step. In this case the eclipse.inf may not be present
-	 * and we must not attempt to modify it.
-	 * @throws IOException
-	 */
-	public void testUnpackFileNotPackedByJarProcessor() throws IOException {
-		//this test is only applicable if pack200 is available
-		if (!PackStep.canPack())
-			return;
-		// Setup the processor
-		ProcessingStep step = new Pack200ProcessorStep();
-		ByteArrayOutputStream destination = new ByteArrayOutputStream();
-		step.link(destination, new NullProgressMonitor());
-
-		// drive the source data through the step
-		Bundle bundle = TestActivator.getContext().getBundle();
-		InputStream inputStream = bundle.getEntry("testData/optimizers/bug387557.bundle_1.0.0.201208200951.jar.pack.gz").openStream();
-		FileUtils.copyStream(inputStream, true, step, true);
-
-		// Get the expected result
-		inputStream = bundle.getEntry("testData/optimizers/bug387557.bundle_1.0.0.201208200951.jar").openStream();
-		ByteArrayOutputStream expected = new ByteArrayOutputStream();
-		FileUtils.copyStream(inputStream, true, expected, true);
-
-		// Compare
-		assertTrue(Arrays.equals(expected.toByteArray(), destination.toByteArray()));
-	}
-
 }
