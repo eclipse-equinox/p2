@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -13,12 +13,9 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
@@ -1619,76 +1616,5 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail("String: " + lines[idx] + " not found in " + file.getAbsolutePath());
 		}
 		fail("String:" + lines[idx] + " not found");
-	}
-
-	protected void assertEqualArtifacts(String message, SimpleArtifactRepository expected, SimpleArtifactRepository actual) {
-		IQueryResult expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator iterator = expectedKeys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
-			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(key);
-			IArtifactDescriptor[] actualDescriptors = actual.getArtifactDescriptors(key);
-
-			if (expectedDescriptors == null || actualDescriptors == null)
-				if (!(expectedDescriptors == null && actualDescriptors == null))
-					fail(message + " missing key " + key);
-
-			top: for (int j = 0; j < expectedDescriptors.length; j++) {
-				for (int k = 0; k < actualDescriptors.length; k++) {
-					if (Arrays.equals(expectedDescriptors[j].getProcessingSteps(), actualDescriptors[k].getProcessingSteps())) {
-						File expectedFile = expected.getArtifactFile(expectedDescriptors[j]);
-						File actualFile = actual.getArtifactFile(actualDescriptors[k]);
-						if (expectedFile == null || actualFile == null)
-							fail(message + " descriptor mismatch");
-						if (!(expectedFile.exists() && actualFile.exists()))
-							fail(message + " file does not exist");
-						if ("jar".equals(new Path(expectedFile.getName()).getFileExtension())) {
-							//compare jar contents
-							assertEqualJars(expectedFile, actualFile);
-						} else {
-							//otherwise just compare file size
-							assertEquals("Different file: " + expectedFile.getName(), expectedFile.length(), actualFile.length());
-						}
-						continue top;
-					}
-				}
-				fail(message + "Missing expected descriptor" + expectedDescriptors[j]);
-			}
-		}
-	}
-
-	protected void assertEqualJars(File expectedFile, File actualFile) {
-		JarFile expectedJar = null, actualJar = null;
-		try {
-			expectedJar = new JarFile(expectedFile);
-			actualJar = new JarFile(actualFile);
-			int expectedEntryCount = 0, actualEntryCount = 0;
-			for (Enumeration<JarEntry> en = expectedJar.entries(); en.hasMoreElements();) {
-				expectedEntryCount++;
-				JarEntry expectedEntry = en.nextElement();
-				JarEntry actualEntry = actualJar.getJarEntry(expectedEntry.getName());
-				assertNotNull(actualEntry);
-				assertEquals("Unmatched entry size: " + expectedEntry.getName(), expectedEntry.getSize(), actualEntry.getSize());
-			}
-			for (Enumeration<JarEntry> en = expectedJar.entries(); en.hasMoreElements();) {
-				actualEntryCount++;
-				en.nextElement();
-			}
-			assertEquals("Unexpected difference in entries for " + expectedFile.getName(), expectedEntryCount, actualEntryCount);
-		} catch (IOException e) {
-			fail("Unexpected error comparing jars", e);
-		} finally {
-			ensureClosed(expectedJar);
-			ensureClosed(actualJar);
-		}
-	}
-
-	private void ensureClosed(JarFile file) {
-		if (file == null)
-			return;
-		try {
-			file.close();
-		} catch (IOException e) {
-			//ignore
-		}
 	}
 }

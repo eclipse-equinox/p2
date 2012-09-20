@@ -295,6 +295,39 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 * ensures that all files with entries in the repo have corresponding files on disk.
+	 * Not Biconditional.
+	 */
+	private void assertFileSizes(String message, SimpleArtifactRepository expected, SimpleArtifactRepository actual) {
+		IQueryResult expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator iterator = expectedKeys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
+			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(key);
+			IArtifactDescriptor[] actualDescriptors = actual.getArtifactDescriptors(key);
+
+			if (expectedDescriptors == null || actualDescriptors == null)
+				if (!(expectedDescriptors == null && actualDescriptors == null))
+					fail(message + " missing key " + key);
+
+			top: for (int j = 0; j < expectedDescriptors.length; j++) {
+				for (int k = 0; k < actualDescriptors.length; k++) {
+					if (Arrays.equals(expectedDescriptors[j].getProcessingSteps(), actualDescriptors[k].getProcessingSteps())) {
+						File expectedFile = expected.getArtifactFile(expectedDescriptors[j]);
+						File actualFile = actual.getArtifactFile(actualDescriptors[k]);
+						if (expectedFile == null || actualFile == null)
+							fail(message + " descriptor mismatch");
+						if (!(expectedFile.exists() && actualFile.exists()))
+							fail(message + " file does not exist");
+						assertTrue(expectedFile.length() == actualFile.length());
+						continue top;
+					}
+				}
+				fail(message + "Missing expected descriptor" + expectedDescriptors[j]);
+			}
+		}
+	}
+
+	/**
 	 * Tests mirroring all artifacts in a repository to an empty repository
 	 * Source contains A, B
 	 * Target contains
@@ -851,7 +884,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			//Verify Contents
 			assertContentEquals("26.4", getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//Verify files on disk
-			assertEqualArtifacts("26.5", (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null), (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertFileSizes("26.5", (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null), (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("26.6", e);
 		}
@@ -918,7 +951,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 						fail("27.3 no canonical found for " + key.toString());
 
 					//ensure the canonical matches that in the expected
-					assertEqualArtifacts("27.3", (SimpleArtifactRepository) destinationRepo, (SimpleArtifactRepository) packedRepo);
+					assertFileSizes("27.3", (SimpleArtifactRepository) destinationRepo, (SimpleArtifactRepository) packedRepo);
 				}
 			}
 		}

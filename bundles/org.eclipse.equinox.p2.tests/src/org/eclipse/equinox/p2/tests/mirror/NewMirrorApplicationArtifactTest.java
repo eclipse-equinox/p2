@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2012 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -317,6 +317,39 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			fail("Running mirror application with errored source failed", e);
 		} finally {
 			System.setOut(out);
+		}
+	}
+
+	/**
+	 * ensures that all files with entries in the repo have corresponding files on disk.
+	 * Not Biconditional.
+	 */
+	private void assertFileSizes(String message, SimpleArtifactRepository expected, SimpleArtifactRepository actual) {
+		IQueryResult expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator iterator = expectedKeys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
+			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(key);
+			IArtifactDescriptor[] actualDescriptors = actual.getArtifactDescriptors(key);
+
+			if (expectedDescriptors == null || actualDescriptors == null)
+				if (!(expectedDescriptors == null && actualDescriptors == null))
+					fail(message + " missing key " + key);
+
+			top: for (int j = 0; j < expectedDescriptors.length; j++) {
+				for (int k = 0; k < actualDescriptors.length; k++) {
+					if (Arrays.equals(expectedDescriptors[j].getProcessingSteps(), actualDescriptors[k].getProcessingSteps())) {
+						File expectedFile = expected.getArtifactFile(expectedDescriptors[j]);
+						File actualFile = actual.getArtifactFile(actualDescriptors[k]);
+						if (expectedFile == null || actualFile == null)
+							fail(message + " descriptor mismatch");
+						if (!(expectedFile.exists() && actualFile.exists()))
+							fail(message + " file does not exist");
+						assertEquals("Unexpected difference in " + actualFile.getName(), expectedFile.length(), actualFile.length());
+						continue top;
+					}
+				}
+				fail(message + "Missing expected descriptor" + expectedDescriptors[j]);
+			}
 		}
 	}
 
@@ -871,7 +904,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			//Verify Contents
 			assertContentEquals("26.4", getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//Verify files on disk
-			assertEqualArtifacts("26.5", (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null), (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+			assertFileSizes("26.5", (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null), (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("26.6", e);
 		}
@@ -938,7 +971,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 						fail("27.3 no canonical found for " + key.toString());
 
 					//ensure the canonical matches that in the expected
-					assertEqualArtifacts("27.3", (SimpleArtifactRepository) destinationRepo, (SimpleArtifactRepository) packedRepo);
+					assertFileSizes("27.3", (SimpleArtifactRepository) destinationRepo, (SimpleArtifactRepository) packedRepo);
 				}
 			}
 		}
