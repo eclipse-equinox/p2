@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.publisher.actions;
 
 import java.io.*;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -110,29 +109,32 @@ public class JREAction extends AbstractPublisherAction {
 		return PublisherHelper.createArtifactDescriptor(info, key, jreLocation);
 	}
 
-	private IProvidedCapability[] generateJRECapability(String id, Version version) {
+	private List<IProvidedCapability> generateJRECapability(String id, Version version) {
 		if (profileProperties == null)
-			return new IProvidedCapability[0];
+			return Collections.emptyList();
 
+		List<IProvidedCapability> result = new ArrayList<IProvidedCapability>();
+		result.add(PublisherHelper.createSelfCapability(id, version));
+		generateProvidedPackages(result);
+		return result;
+	}
+
+	private void generateProvidedPackages(List<IProvidedCapability> result) {
 		String packages = profileProperties.get(PROFILE_SYSTEM_PACKAGES);
-		if (packages == null || (packages.trim().length() == 0))
-			return new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)};
+		if (packages != null && (packages.trim().length() > 0)) {
 
-		try {
-			ManifestElement[] jrePackages = ManifestElement.parseHeader(PROFILE_SYSTEM_PACKAGES, packages);
-			IProvidedCapability[] exportedPackageAsCapabilities = new IProvidedCapability[jrePackages.length + 1];
-			exportedPackageAsCapabilities[0] = PublisherHelper.createSelfCapability(id, version);
-			for (int i = 1; i <= jrePackages.length; i++) {
-				String packageName = jrePackages[i - 1].getValue();
-				Version packageVersion = Version.create(jrePackages[i - 1].getAttribute("version")); //$NON-NLS-1$
-				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName, packageVersion);
+			try {
+				ManifestElement[] jrePackages = ManifestElement.parseHeader(PROFILE_SYSTEM_PACKAGES, packages);
+				for (int i = 0; i < jrePackages.length; i++) {
+					String packageName = jrePackages[i].getValue();
+					Version packageVersion = Version.create(jrePackages[i].getAttribute("version")); //$NON-NLS-1$
+					result.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName, packageVersion));
+				}
+			} catch (BundleException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			return exportedPackageAsCapabilities;
-		} catch (BundleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		return new IProvidedCapability[0];
 	}
 
 	private void generateJREIUData(InstallableUnitDescription iu) {
@@ -173,8 +175,8 @@ public class JREAction extends AbstractPublisherAction {
 		profileName = profileName.replace('_', '.');
 		iu.setId("a.jre." + profileName.toLowerCase()); //$NON-NLS-1$
 
-		IProvidedCapability[] capabilities = generateJRECapability(iu.getId(), iu.getVersion());
-		iu.setCapabilities(capabilities);
+		List<IProvidedCapability> capabilities = generateJRECapability(iu.getId(), iu.getVersion());
+		iu.addProvidedCapabilities(capabilities);
 	}
 
 	private void initialize(IPublisherInfo publisherInfo) {
