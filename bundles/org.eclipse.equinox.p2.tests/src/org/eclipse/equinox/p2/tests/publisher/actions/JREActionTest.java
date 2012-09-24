@@ -12,16 +12,22 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipInputStream;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
@@ -128,6 +134,31 @@ public class JREActionTest extends ActionTest {
 		} catch (Exception e) {
 			fail("Expected IllegalArgumentException when the JRE location does not exists, caught " + e.getClass().getName());
 		}
+	}
+
+	public void testOsgiEECapabilities() {
+		// added for bug 388566
+		testAction = new JREAction("JavaSE-1.7");
+		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		Collection<IProvidedCapability> capabilities = getPublishedCapabilitiesOf("a.jre.javase");
+		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.7"))));
+		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.5"))));
+		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "OSGi/Minimum", Version.parseVersion("1.0"))));
+		assertThat(capabilities, not(hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "J2SE", Version.parseVersion("1.5")))));
+	}
+
+	public void testInvalidOsgiEECapabilitySpec() {
+		testAction = new JREAction(new File(TestActivator.getTestDataFolder(), "JREActionTest/invalidOsgiEE/ee-capability-syntax-test.profile"));
+		IStatus status = testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		assertThat(status, is(errorStatus()));
+
+		IStatus eeStatus = status.getChildren()[0];
+		assertThat(eeStatus.getMessage(), containsString("org.osgi.framework.system.capabilities"));
+		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("'osgi.ee' is missing"))));
+		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("'version:List<Version>' is missing"))));
+		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("error in version '1.a.invalidversion'"))));
+		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("unknown capability namespace 'other.namespace'"))));
+		assertThat(eeStatus.getChildren().length, is(4));
 	}
 
 	private void verifyMetadataIU(String id, int expectedProvidedPackages, Version jreVersion) {

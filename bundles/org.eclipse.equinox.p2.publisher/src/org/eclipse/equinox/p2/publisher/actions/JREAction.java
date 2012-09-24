@@ -28,6 +28,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 public class JREAction extends AbstractPublisherAction {
 	private static final String DEFAULT_JRE_NAME = "a.jre"; //$NON-NLS-1$
@@ -38,25 +39,41 @@ public class JREAction extends AbstractPublisherAction {
 	private static final String PROFILE_TARGET_VERSION = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	private static final String PROFILE_SYSTEM_PACKAGES = "org.osgi.framework.system.packages"; //$NON-NLS-1$
 
+	public static final String NAMESPACE_OSGI_EE = "osgi.ee"; //$NON-NLS-1$
+
 	private File jreLocation;
 	private String environment;
 	private Map<String, String> profileProperties;
+	private MultiStatus resultStatus;
 
 	public JREAction(File location) {
 		this.jreLocation = location;
 	}
 
 	public JREAction(String environment) {
-
 		this.environment = environment;
 	}
 
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+		String problemMessage = NLS.bind(Messages.message_problemsWhilePublishingEE, jreLocation != null ? jreLocation : environment);
+		resultStatus = new MultiStatus(Activator.ID, 0, problemMessage, null);
+
 		initialize(publisherInfo);
 		IArtifactDescriptor artifact = createJREData(results);
 		if (artifact != null)
 			publishArtifact(artifact, new File[] {jreLocation}, null, publisherInfo, createRootPrefixComputer(jreLocation));
-		return Status.OK_STATUS;
+
+		if (resultStatus.isOK())
+			return Status.OK_STATUS;
+		return resultStatus;
+	}
+
+	private static Status newErrorStatus(String message, Exception exception) {
+		return new Status(IStatus.ERROR, Activator.ID, message, exception);
+	}
+
+	private static Status newWarningStatus(String message) {
+		return new Status(IStatus.WARNING, Activator.ID, message, null);
 	}
 
 	/**
@@ -116,6 +133,7 @@ public class JREAction extends AbstractPublisherAction {
 		List<IProvidedCapability> result = new ArrayList<IProvidedCapability>();
 		result.add(PublisherHelper.createSelfCapability(id, version));
 		generateProvidedPackages(result);
+		generateOsgiEESystemCapabilities(result);
 		return result;
 	}
 
@@ -133,6 +151,79 @@ public class JREAction extends AbstractPublisherAction {
 			} catch (BundleException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+		}
+	}
+
+	void generateOsgiEESystemCapabilities(List<IProvidedCapability> result) {
+		String message = NLS.bind(Messages.message_problemsWhileParsingProfileProperty, Constants.FRAMEWORK_SYSTEMCAPABILITIES);
+		MultiStatus parsingStatus = new MultiStatus(Activator.ID, 0, message, null);
+
+		String systemCapabilities = profileProperties.get(Constants.FRAMEWORK_SYSTEMCAPABILITIES);
+		parseSystemCapabilities(systemCapabilities, parsingStatus, result);
+
+		// result contains the valid entries, parsingStatus the invalid entries
+		if (!parsingStatus.isOK())
+			resultStatus.add(parsingStatus);
+	}
+
+	static void parseSystemCapabilities(String systemCapabilities, MultiStatus parsingStatus, List<IProvidedCapability> parsingResult) {
+		if (systemCapabilities == null || (systemCapabilities.trim().length() == 0)) {
+			return;
+		}
+
+		try {
+			ManifestElement[] eeEntries = ManifestElement.parseHeader(Constants.FRAMEWORK_SYSTEMCAPABILITIES, systemCapabilities);
+			parseSystemCapabilities(eeEntries, parsingStatus, parsingResult);
+
+		} catch (BundleException e) {
+			parsingStatus.add(newErrorStatus(e.getLocalizedMessage(), e));
+		}
+	}
+
+	private static void parseSystemCapabilities(ManifestElement[] systemCapabilities, MultiStatus parsingStatus, List<IProvidedCapability> parsingResult) {
+		for (int capabilityIx = 0; capabilityIx < systemCapabilities.length; capabilityIx++) {
+			ManifestElement systemCapability = systemCapabilities[capabilityIx];
+
+			// this is general manifest syntax: a "manifest element" can have multiple "value components" -> all attributes apply to each value component (=namespace)
+			String[] namespaces = systemCapability.getValueComponents();
+			for (int namespaceIx = 0; namespaceIx < namespaces.length; namespaceIx++) {
+				String namespace = namespaces[namespaceIx];
+
+				if ("osgi.ee".equals(namespace)) { // this is the OSGi capability namespace "osgi.ee"  //$NON-NLS-1$
+					parseEECapability(systemCapability, parsingStatus, parsingResult);
+
+				} else {
+					parsingStatus.add(newWarningStatus(NLS.bind(Messages.message_eeIgnoringNamespace, namespace)));
+					continue;
+				}
+			}
+		}
+	}
+
+	private static void parseEECapability(ManifestElement eeCapability, MultiStatus parsingStatus, List<IProvidedCapability> parsingResult) {
+		String eeName = eeCapability.getAttribute("osgi.ee"); // this is an attribute required for capabilities in the "osgi.ee" namespace //$NON-NLS-1$
+		if (eeName == null) {
+			parsingStatus.add(newErrorStatus(NLS.bind(Messages.message_eeMissingNameAttribute, eeCapability), null));
+			return;
+		}
+
+		String[] eeVersions = ManifestElement.getArrayFromList(eeCapability.getAttribute("version:List<Version>")); //$NON-NLS-1$
+		if (eeVersions == null) {
+			parsingStatus.add(newErrorStatus(NLS.bind(Messages.message_eeMissingVersionAttribute, eeName), null));
+			return;
+		}
+
+		for (int versionIx = 0; versionIx < eeVersions.length; versionIx++) {
+			String rawVersion = eeVersions[versionIx];
+			try {
+				Version parsedVersion = Version.parseVersion(rawVersion);
+
+				// complete record -> store
+				parsingResult.add(MetadataFactory.createProvidedCapability(NAMESPACE_OSGI_EE, eeName, parsedVersion));
+
+			} catch (IllegalArgumentException e) {
+				parsingStatus.add(newErrorStatus(NLS.bind(Messages.message_eeInvalidVersionAttribute, rawVersion), e));
 			}
 		}
 	}

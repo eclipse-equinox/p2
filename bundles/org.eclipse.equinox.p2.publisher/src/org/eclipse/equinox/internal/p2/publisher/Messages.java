@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -37,9 +37,17 @@ public class Messages extends NLS {
 	public static String message_resultException;
 	public static String message_publisherArguments;
 
+	public static String message_problemsWhilePublishingEE;
+	public static String message_problemsWhileParsingProfileProperty;
+	public static String message_eeIgnoringNamespace;
+	public static String message_eeInvalidVersionAttribute;
+	public static String message_eeMissingNameAttribute;
+	public static String message_eeMissingVersionAttribute;
+
 	public static String exception_artifactRepoNoAppendDestroysInput;
 
 	public static String error_rootIU_generation;
+
 	static {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
