@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -92,7 +92,7 @@ public class ProductAction extends AbstractPublisherAction {
 		monitor = SubMonitor.convert(monitor);
 		this.info = publisherInfo;
 		publisherResults = results;
-		finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
+		finalStatus = new MultiStatus(Activator.ID, 0, NLS.bind(Messages.message_problemPublishingProduct, product.getId()), null);
 		IPublisherAction[] actions = createActions(results);
 		for (int i = 0; i < actions.length; i++) {
 			if (monitor.isCanceled())
@@ -183,12 +183,9 @@ public class ProductAction extends AbstractPublisherAction {
 			IInstallableUnit unit = queryForIU(publisherResults, element.getId(), elementVersion);
 			if (unit != null) {
 				result.add(unit);
-			} else if (elementVersion != null) {
-				//best effort
-				result.add(new VersionedId(element.getId(), elementVersion));
+			} else {
+				finalStatus.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.message_includedElementNotFound, element.getId(), elementVersion)));
 			}
-			//TODO we could still add a requirement on version 0.0.0 to get any version, but if the
-			//bundle is platform specific we will have broken metadata due to a missing filter
 		}
 		return result;
 	}

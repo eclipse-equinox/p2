@@ -76,6 +76,7 @@ public class ProductActionTest extends ActionTest {
 	 */
 	public void testBrandedApplication() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString());
+		addContextUnit("org.eclipse.platform.feature.group", "1.2.3");
 
 		performProductAction(productFile);
 		Collection ius = publisherResult.getIUs("branded.product", IPublisherResult.NON_ROOT);
@@ -218,22 +219,10 @@ public class ProductActionTest extends ActionTest {
 
 	}
 
-	public void testCUNoHost() throws Exception {
-		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
-		setConfiguration(LINUX_CONFIG_SPEC);
-
-		performProductAction(productFile);
-
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 0, queryResultSize(queryResult));
-
-		queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + WIN_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, queryResultSize(queryResult));
-	}
-
 	public void testMultiConfigspecProductPublishing() throws IOException, Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "platform.product").toString());
 		((PublisherInfo) publisherInfo).setConfigurations(new String[] {"carbon.macos.x86", "cocoa.macos.x86"});
+		addContextUnit("org.eclipse.platform.feature.group", "1.2.3");
 
 		performProductAction(productFile);
 

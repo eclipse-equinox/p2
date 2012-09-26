@@ -66,6 +66,7 @@ public class ProductActionTestMac extends ActionTest {
 	 */
 	public void testPlatformProduct() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "platform.product").toString());
+		addContextUnit("org.eclipse.platform.feature.group", "3.8.3");
 		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
 		IStatus status = testAction.perform(publisherInfo, publisherResult, null);
 		assertThat(status, is(okStatus()));

@@ -70,6 +70,8 @@ public class ProductActionCapturingTest extends ActionTest {
 	 * IConfigAdvice (start levels, auto-start).
 	 */
 	public void testSetBundleConfigData() throws Exception {
+		addContextUnit("org.eclipse.rcp.feature.group", "3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t");
+
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "startLevel.product").toString());
 		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
 
@@ -95,6 +97,7 @@ public class ProductActionCapturingTest extends ActionTest {
 	 */
 	public void testPlatformProduct() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "platform.product").toString());
+		addContextUnit("org.eclipse.platform.feature.group", "1.2.3");
 
 		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
 		IStatus status = testAction.perform(publisherInfo, publisherResult, null);

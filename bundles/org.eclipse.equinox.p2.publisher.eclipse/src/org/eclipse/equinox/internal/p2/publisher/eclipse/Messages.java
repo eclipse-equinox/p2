@@ -30,6 +30,9 @@ public class Messages extends NLS {
 	public static String featuresInProductFileIgnored;
 	public static String bundlesInProductFileIgnored;
 
+	public static String message_problemPublishingProduct;
+	public static String message_includedElementNotFound;
+
 	static {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
