@@ -10,9 +10,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.okStatus;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.File;
 import java.net.URI;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -75,9 +80,12 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
 		PublisherInfo info = new PublisherInfo();
 		info.setContextMetadataRepository(repository);
+		// TODO this line doesn't have any effect -> is this a bug in the implementation?
 		info.addAdvice(new QueryableFilterAdvice(info.getContextMetadataRepository()));
 
-		testAction.perform(info, publisherResult, null);
+		IStatus status = testAction.perform(info, publisherResult, null);
+		assertThat(status, is(okStatus()));
+
 		IQueryResult results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), null);
 		assertEquals("1.0", 1, queryResultSize(results));
 		IInstallableUnit unit = (IInstallableUnit) results.iterator().next();
@@ -86,7 +94,7 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		IRequiredCapability capability = null;
 		for (Iterator iterator = requiredCapabilities.iterator(); iterator.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iterator.next();
-			if (req.getName().equals("org.eclipse.equinox.p2.user.ui.feature.group")) {
+			if (req.getName().equals("org.eclipse.platform.feature.group")) {
 				capability = req;
 				break;
 			}
@@ -101,7 +109,8 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 	public void testProductWithAdviceFile() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest/productWithAdvice", "productWithAdvice.product").toString());
 		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
-		testAction.perform(new PublisherInfo(), publisherResult, null);
+		IStatus status = testAction.perform(new PublisherInfo(), publisherResult, null);
+		assertThat(status, is(okStatus()));
 
 		Collection productIUs = publisherResult.getIUs("productWithAdvice.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, productIUs.size());

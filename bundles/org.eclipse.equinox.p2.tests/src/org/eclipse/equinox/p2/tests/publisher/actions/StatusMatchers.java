@@ -31,6 +31,20 @@ public class StatusMatchers {
 		};
 	}
 
+	public static Matcher<IStatus> okStatus() {
+		return new TypeSafeMatcher<IStatus>() {
+
+			public void describeTo(Description description) {
+				description.appendText("a status with severity OK");
+			}
+
+			@Override
+			public boolean matchesSafely(IStatus item) {
+				return item.isOK();
+			}
+		};
+	}
+
 	public static Matcher<IStatus> statusWithMessageWhich(final Matcher<String> messageMatcher) {
 		return new TypeSafeMatcher<IStatus>() {
 

@@ -23,7 +23,6 @@
    </vm>
 
    <plugins>
-      <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.runtime"/>
    </plugins>
 

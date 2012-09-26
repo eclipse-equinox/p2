@@ -35,6 +35,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(LocalUpdateSiteActionTest.class);
 		suite.addTestSuite(MD5GenerationTest.class);
 		suite.addTestSuite(ProductActionTest.class);
+		suite.addTestSuite(ProductActionCapturingTest.class);
 		suite.addTestSuite(ProductActionTestMac.class);
 		suite.addTestSuite(ProductActionWithAdviceFileTest.class);
 		suite.addTestSuite(ProductActionWithJRELocationTest.class);

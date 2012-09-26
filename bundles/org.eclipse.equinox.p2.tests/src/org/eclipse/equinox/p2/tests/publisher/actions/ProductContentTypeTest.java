@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,13 +10,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+
 import java.io.File;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
 
 /**
@@ -24,7 +30,7 @@ import org.eclipse.equinox.p2.tests.TestData;
  * and how its semantics replaces the <code>useFeatures</code> attribute.
  * Verify that all the installable units, expected to be included in the product, are published as its requirements.
  */
-public class ProductContentTypeTest extends AbstractProvisioningTest {
+public class ProductContentTypeTest extends ActionTest {
 
 	private static final String TEST_DATA_FOLDER = "ProductContentTypeTest";
 	private static final String flavor = "tooling";
@@ -34,6 +40,7 @@ public class ProductContentTypeTest extends AbstractProvisioningTest {
 	private IInstallableUnit bundleIU = createIU("TestBundle");
 
 	public void setUp() throws Exception {
+		setupPublisherResult();
 		initCUsList();
 	}
 
@@ -118,6 +125,9 @@ public class ProductContentTypeTest extends AbstractProvisioningTest {
 	}
 
 	private void testTemplate(String productFileName, String productVersion, int expectedRequirementsSize, IInstallableUnit... requiredInstallableUnits) throws Exception {
+		for (int i = 0; i < requiredInstallableUnits.length; i++) {
+			publisherResult.addIU(requiredInstallableUnits[i], IPublisherResult.NON_ROOT);
+		}
 
 		File productFileLocation = TestData.getFile(TEST_DATA_FOLDER, productFileName);
 		IInstallableUnit productIU = publishProduct(productFileLocation, productFileName);
@@ -131,9 +141,9 @@ public class ProductContentTypeTest extends AbstractProvisioningTest {
 
 	private IInstallableUnit publishProduct(final File productFileLocation, final String productIUName) throws Exception {
 		ProductFile productFile = new ProductFile(productFileLocation.toString());
-		ProductAction testAction = new ProductAction(null, productFile, flavor, null);
-		IPublisherResult publisherResult = new PublisherResult();
-		testAction.perform(new PublisherInfo(), publisherResult, null);
+		testAction = new ProductAction(null, productFile, flavor, null);
+		IStatus status = testAction.perform(new PublisherInfo(), publisherResult, null);
+		assertThat(status, is(not(errorStatus())));
 		Collection<IInstallableUnit> ius = publisherResult.getIUs(productIUName, IPublisherResult.NON_ROOT);
 		assertEquals(1, ius.size());
 		return ius.iterator().next();

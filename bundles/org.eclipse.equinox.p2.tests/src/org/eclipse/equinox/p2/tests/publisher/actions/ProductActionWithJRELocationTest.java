@@ -9,8 +9,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.okStatus;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.File;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
@@ -51,7 +56,8 @@ public class ProductActionWithJRELocationTest extends AbstractProvisioningTest {
 		ProductFile productFile = new ProductFile(productFileLocation.getCanonicalPath());
 		ProductAction testAction = new ProductAction(null, productFile, "tooling", null, jreLocation);
 		IPublisherResult publisherResult = new PublisherResult();
-		testAction.perform(new PublisherInfo(), publisherResult, null);
+		IStatus status = testAction.perform(new PublisherInfo(), publisherResult, null);
+		assertThat(status, is(okStatus()));
 
 		Collection<IInstallableUnit> ius = publisherResult.getIUs(jreIuName, IPublisherResult.ROOT);
 		assertEquals(1, ius.size());

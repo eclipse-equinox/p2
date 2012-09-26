@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Branded Product" id="branded.product" application="org.eclipse.ui.ide.workbench" version="3.5.0.I20081118" useFeatures="true">
+<product name="Branded Product" id="branded.product" application="org.eclipse.ui.ide.workbench" version="3.5.0.I20081118" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.eclipse.equinox.p2.tests/testData/ProductActionTest/brandedProduct/about.gif"/>
@@ -35,7 +35,6 @@ org.eclipse.platform</programArgsMac>
       </win>
    </launcher>
 
-
    <vm>
    </vm>
 
@@ -51,7 +50,6 @@ org.eclipse.platform</programArgsMac>
 
    <features>
       <feature id="org.eclipse.platform"/>
-      <feature id="org.eclipse.equinox.p2.user.ui" version="1.0.0.qualifier"/>
    </features>
 
 

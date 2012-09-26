@@ -1,4 +1,7 @@
-<product name="aaTestProduct" id="productWithAdvice.product" application="test.app" version="1" useFeatures="true">
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="aaTestProduct" id="productWithAdvice.product" application="test.app" version="1" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -6,7 +9,5 @@
    <plugins>
    </plugins>
 
-   <features>
-      <feature id="org.eclipse.rcp" version="3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t"/>
-   </features>
+
 </product>

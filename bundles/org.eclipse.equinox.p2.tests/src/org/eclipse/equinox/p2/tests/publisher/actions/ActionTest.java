@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -193,5 +193,13 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	public void debug(String message) {
 		if (DEBUG)
 			debug(message);
+	}
+
+	protected final void addContextUnit(String unitId, String unitVersion) {
+		publisherResult.addIU(createIU(unitId, Version.create(unitVersion)), IPublisherResult.NON_ROOT);
+	}
+
+	protected final void addContextUnit(String unitId, String unitVersion, String filter) {
+		publisherResult.addIU(createIU(unitId, Version.create(unitVersion), filter, NO_PROVIDES), IPublisherResult.NON_ROOT);
 	}
 }

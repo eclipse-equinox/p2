@@ -7,7 +7,7 @@
     <property name='site.checksum' value='2404093275'/>
   </properties>
   <units size='1'>
-    <unit id='org.eclipse.equinox.p2.user.ui.feature.group' version='1.0.0.qualifier'>
+    <unit id='org.eclipse.platform.feature.group' version='1.0.0.qualifier'>
       <provides size='3'>
         <provided namespace='org.eclipse.equinox.p2.iu' name='test.feature.feature.jar' version='1.0.0'/>
         <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
