@@ -39,7 +39,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	static final public String CONTENT_FILENAME = "compositeArtifacts"; //$NON-NLS-1$
 	public static final String PI_REPOSITORY_TYPE = "compositeArtifactRepository"; //$NON-NLS-1$
 	static final public String PROP_ATOMIC_LOADING = "p2.atomic.composite.loading"; //$NON-NLS-1$
-	static final public boolean ATOMIC_LOADING_DEFAULT = false;
+
+	// by default, require that all children of a composite can be loaded; default may be changed to enforce old behavior (see bug 356561)
+	static final public boolean ATOMIC_LOADING_DEFAULT = !"false".equals(Activator.getContext().getProperty("eclipse.p2.atomic.composite.loading.default")); //$NON-NLS-1$//$NON-NLS-2$;
 
 	// keep a list of the child URIs. they can be absolute or relative. they may or may not point
 	// to a valid reachable repo

@@ -603,7 +603,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		//ensure correct properties
 		assertEquals("2.0", "artifact name", compRepo.getName());
 		Map properties = compRepo.getProperties();
-		assertEquals("2.1", 2, properties.size());
+		assertEquals("2.1", 3, properties.size());
 		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
 		assertNotNull("2.2", timestamp);
 		assertEquals("2.3", "1234", timestamp);
@@ -1358,11 +1358,11 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository repo = null;
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
-		File repoFile = getTestData("Strict composite with missing child", "/testData/artifactRepo/compositeBadChildrenStrict");
+		File repoFile = getTestData("Strict composite with missing child", "/testData/artifactRepo/compositeBadChildren");
 		URI correctChildURI = URIUtil.append(repoFile.toURI(), "one");
 		URI repoURI = repoFile.getAbsoluteFile().toURI();
 
-		File alreadyLoadedChildFile = getTestData("Strict composite with missing child", "/testData/artifactRepo/compositeBadChildrenStrict/three");
+		File alreadyLoadedChildFile = getTestData("Strict composite with missing child", "/testData/artifactRepo/compositeBadChildren/three");
 		IArtifactRepository alreadyLoadedChild = manager.loadRepository(alreadyLoadedChildFile.toURI(), null);
 		assertNotNull(alreadyLoadedChild);
 		URI previouslyAddedChildURI = URIUtil.append(repoFile.toURI(), "three");
@@ -1388,7 +1388,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository repo = null;
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
-		File repoFile = getTestData("Composite with missing child", "/testData/artifactRepo/compositeBadChildren");
+		File repoFile = getTestData("Composite with missing child", "/testData/artifactRepo/compositeBadChildrenLenient");
 		URI correctChildURI = URIUtil.append(repoFile.toURI(), "one");
 
 		assertFalse("Child should not be available in repo manager", manager.contains(correctChildURI));

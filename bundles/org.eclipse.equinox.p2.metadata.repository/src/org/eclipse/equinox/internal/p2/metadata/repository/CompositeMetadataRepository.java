@@ -37,7 +37,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	static final public String REPOSITORY_TYPE = CompositeMetadataRepository.class.getName();
 	static final public String PI_REPOSITORY_TYPE = "compositeMetadataRepository"; //$NON-NLS-1$
 	static final public String PROP_ATOMIC_LOADING = "p2.atomic.composite.loading"; //$NON-NLS-1$
-	static final public boolean ATOMIC_LOADING_DEFAULT = false;
+
+	// by default, require that all children of a composite can be loaded; default may be changed to enforce old behavior (see bug 356561)
+	static final public boolean ATOMIC_LOADING_DEFAULT = !"false".equals(Activator.getContext().getProperty("eclipse.p2.atomic.composite.loading.default")); //$NON-NLS-1$//$NON-NLS-2$;
 
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final public String XML_EXTENSION = ".xml"; //$NON-NLS-1$
