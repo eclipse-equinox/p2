@@ -10,19 +10,23 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
+import static org.junit.Assert.assertThat;
 
 import java.io.*;
 import java.util.*;
 import junit.framework.Assert;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.junit.internal.matchers.TypeSafeMatcher;
 
 @SuppressWarnings({"cast", "restriction", "unchecked"})
 public abstract class ActionTest extends AbstractProvisioningTest {
@@ -213,4 +217,48 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	protected final void addContextIU(String unitId, String unitVersion, String filter) {
 		publisherResult.addIU(createIU(unitId, Version.create(unitVersion), filter, NO_PROVIDES), IPublisherResult.NON_ROOT);
 	}
+
+	/**
+	 * Queries the publisher result for installable units with the given ID, and
+	 * returns the result if there is exactly one such IU, or fails otherwise.
+	 */
+	protected final IInstallableUnit getUniquePublishedIU(String id) {
+		assertThat(publisherResult, containsUniqueIU(id));
+
+		IQueryResult<IInstallableUnit> queryResult = publisherResult.query(QueryUtil.createIUQuery(id), new NullProgressMonitor());
+		return queryResult.iterator().next();
+	}
+
+	public static Matcher<IPublisherResult> containsIU(final String id) {
+		final IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id);
+		return new TypeSafeMatcher<IPublisherResult>() {
+
+			public void describeTo(Description description) {
+				description.appendText("contains a unit " + id);
+			}
+
+			@Override
+			public boolean matchesSafely(IPublisherResult item) {
+				IQueryResult<IInstallableUnit> queryResult = item.query(query, null);
+				return queryResultSize(queryResult) > 0;
+			}
+		};
+	}
+
+	public static Matcher<IPublisherResult> containsUniqueIU(final String id) {
+		final IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id);
+		return new TypeSafeMatcher<IPublisherResult>() {
+
+			public void describeTo(Description description) {
+				description.appendText("contains exactly one unit " + id);
+			}
+
+			@Override
+			public boolean matchesSafely(IPublisherResult item) {
+				IQueryResult<IInstallableUnit> queryResult = item.query(query, null);
+				return queryResultSize(queryResult) == 1;
+			}
+		};
+	}
+
 }

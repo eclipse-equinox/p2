@@ -15,6 +15,7 @@ import static org.easymock.EasyMock.createNiceMock;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.okStatus;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
@@ -134,56 +135,43 @@ public class ProductActionTest extends ActionTest {
 		addContextIU("org.eclipse.core.runtime", "4.0.0");
 		performProductAction(productFile1);
 
-		publisherResult = new PublisherResult();
+		setupPublisherResult();
 		addContextIU("org.eclipse.core.runtime", "4.0.0");
 		performProductAction(productFile2);
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, queryResultSize(queryResult));
+		assertThat(publisherResult, containsUniqueIU(flavorArg + configSpec + "org.eclipse.core.runtime"));
 	}
 
 	public void testMultiPlatformCUs_DifferentPlatforms() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
 		setConfiguration(LINUX_CONFIG_SPEC);
-
 		addContextIU("org.eclipse.core.runtime", "0.0.0", WIN_FILTER);
 
 		performProductAction(productFile);
 
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 0, queryResultSize(queryResult));
-
-		queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + WIN_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, queryResultSize(queryResult));
+		assertThat(publisherResult, not(containsIU(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime")));
+		assertThat(publisherResult, not(containsIU(flavorArg + WIN_CONFIG_SPEC + "org.eclipse.core.runtime")));
 	}
 
 	public void testMultiPlatformCUs_SamePlatforms() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
 		setConfiguration(LINUX_CONFIG_SPEC);
-
 		addContextIU("org.eclipse.core.runtime", "0.0.0", LINUX_FILTER);
 
 		performProductAction(productFile);
 
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, queryResultSize(queryResult));
-
-		queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + WIN_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, queryResultSize(queryResult));
+		assertThat(publisherResult, containsUniqueIU(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime"));
+		assertThat(publisherResult, not(containsIU(flavorArg + WIN_CONFIG_SPEC + "org.eclipse.core.runtime")));
 	}
 
 	public void testMultiPlatformCUs_SamePlatforms_NoVersion() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
 		setConfiguration(LINUX_CONFIG_SPEC);
-
 		addContextIU("org.eclipse.core.runtime", null, LINUX_FILTER);
 
 		performProductAction(productFile);
 
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, queryResultSize(queryResult));
-
-		queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + WIN_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, queryResultSize(queryResult));
+		assertThat(publisherResult, containsUniqueIU(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime"));
+		assertThat(publisherResult, not(containsIU(flavorArg + WIN_CONFIG_SPEC + "org.eclipse.core.runtime")));
 	}
 
 	public void testMultiPlatformCUs_SamePlatforms_BoundedVersions() throws Exception {
@@ -196,11 +184,8 @@ public class ProductActionTest extends ActionTest {
 
 		performProductAction(productFile);
 
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, queryResultSize(queryResult));
-
-		queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + WIN_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, queryResultSize(queryResult));
+		assertThat(publisherResult, containsUniqueIU(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime"));
+		assertThat(publisherResult, not(containsIU(flavorArg + WIN_CONFIG_SPEC + "org.eclipse.core.runtime")));
 	}
 
 	public void testCUsHost() throws Exception {
@@ -213,9 +198,7 @@ public class ProductActionTest extends ActionTest {
 
 		performProductAction(productFile);
 
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, queryResultSize(queryResult));
-		IInstallableUnitFragment fragment = (IInstallableUnitFragment) queryResult.iterator().next();
+		IInstallableUnitFragment fragment = (IInstallableUnitFragment) getUniquePublishedIU(flavorArg + LINUX_CONFIG_SPEC + "org.eclipse.core.runtime");
 		assertEquals("1.1", "org.eclipse.core.runtime", RequiredCapability.extractName(fragment.getHost().iterator().next().getMatches()));
 		assertEquals("1.2", Version.create("4.0.0"), RequiredCapability.extractRange(fragment.getHost().iterator().next().getMatches()).getMinimum());
 		assertEquals("1.3", Version.create("1.0.0"), fragment.getVersion());
@@ -243,9 +226,7 @@ public class ProductActionTest extends ActionTest {
 		performProductAction(productFile);
 
 		// there is a CU for the IU because it applies to all platforms
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + configSpecANY + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, queryResultSize(queryResult));
-		IInstallableUnitFragment fragment = (IInstallableUnitFragment) queryResult.iterator().next();
+		IInstallableUnitFragment fragment = (IInstallableUnitFragment) getUniquePublishedIU(flavorArg + configSpecANY + "org.eclipse.core.runtime");
 		assertEquals("1.1", "org.eclipse.core.runtime", RequiredCapability.extractName(fragment.getHost().iterator().next().getMatches()));
 		assertEquals("1.2", Version.create("4.0.0"), RequiredCapability.extractRange(fragment.getHost().iterator().next().getMatches()).getMinimum());
 		assertEquals("1.3", Version.create("1.0.0"), fragment.getVersion());
@@ -262,8 +243,7 @@ public class ProductActionTest extends ActionTest {
 		performProductAction(productFile);
 
 		// there is no CU for the IU because it is platform specific
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + configSpecANY + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, queryResultSize(queryResult));
+		assertThat(publisherResult, not(containsIU(flavorArg + configSpecANY + "org.eclipse.core.runtime")));
 	}
 
 	public void testProductFileWithRepoAdvice() throws Exception {
@@ -310,9 +290,7 @@ public class ProductActionTest extends ActionTest {
 		IStatus status = testAction.perform(new PublisherInfo(), publisherResult, null);
 		assertThat(status, is(okStatus()));
 
-		Collection productIUs = publisherResult.getIUs("productWithAdvice.product", IPublisherResult.NON_ROOT);
-		assertEquals("1.0", 1, productIUs.size());
-		IInstallableUnit product = (IInstallableUnit) productIUs.iterator().next();
+		IInstallableUnit product = getUniquePublishedIU("productWithAdvice.product");
 		Collection<ITouchpointData> data = product.getTouchpointData();
 		assertEquals("1.1", 1, data.size());
 		String configure = data.iterator().next().getInstruction("configure").getBody();
