@@ -21,18 +21,21 @@ import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
+import java.net.URI;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.QueryableFilterAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.IConfigAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
@@ -261,6 +264,75 @@ public class ProductActionTest extends ActionTest {
 		// there is no CU for the IU because it is platform specific
 		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + configSpecANY + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, queryResultSize(queryResult));
+	}
+
+	public void testProductFileWithRepoAdvice() throws Exception {
+		URI location;
+		try {
+			location = TestData.getFile("ProductActionTest", "contextRepos").toURI();
+		} catch (Exception e) {
+			fail("0.99", e);
+			return;
+		}
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "platform.product").toString());
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		IMetadataRepository repository = metadataRepositoryManager.loadRepository(location, new NullProgressMonitor());
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		PublisherInfo info = new PublisherInfo();
+		info.setContextMetadataRepository(repository);
+		// TODO this line doesn't have any effect -> is this a bug in the implementation?
+		info.addAdvice(new QueryableFilterAdvice(info.getContextMetadataRepository()));
+
+		IStatus status = testAction.perform(info, publisherResult, null);
+		assertThat(status, is(okStatus()));
+
+		IQueryResult results = publisherResult.query(QueryUtil.createIUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), null);
+		assertEquals("1.0", 1, queryResultSize(results));
+		IInstallableUnit unit = (IInstallableUnit) results.iterator().next();
+		Collection<IRequirement> requiredCapabilities = unit.getRequirements();
+
+		IRequiredCapability capability = null;
+		for (Iterator iterator = requiredCapabilities.iterator(); iterator.hasNext();) {
+			IRequiredCapability req = (IRequiredCapability) iterator.next();
+			if (req.getName().equals("org.eclipse.platform.feature.group")) {
+				capability = req;
+				break;
+			}
+		}
+		assertTrue("1.1", capability != null);
+		assertEquals("1.2", InstallableUnit.parseFilter("(org.eclipse.update.install.features=true)"), capability.getFilter());
+	}
+
+	public void testProductWithAdviceFile() throws Exception {
+		// product file that has a corresponding advice file (p2.inf).
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest/productWithAdvice", "productWithAdvice.product").toString());
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		IStatus status = testAction.perform(new PublisherInfo(), publisherResult, null);
+		assertThat(status, is(okStatus()));
+
+		Collection productIUs = publisherResult.getIUs("productWithAdvice.product", IPublisherResult.NON_ROOT);
+		assertEquals("1.0", 1, productIUs.size());
+		IInstallableUnit product = (IInstallableUnit) productIUs.iterator().next();
+		Collection<ITouchpointData> data = product.getTouchpointData();
+		assertEquals("1.1", 1, data.size());
+		String configure = data.iterator().next().getInstruction("configure").getBody();
+		assertEquals("1.2", "addRepository(type:0,location:http${#58}//download.eclipse.org/releases/fred);addRepository(type:1,location:http${#58}//download.eclipse.org/releases/fred);", configure);
+
+		//update.id = com.zoobar
+		//update.range = [4.0,4.3)
+		//update.severity = 0
+		//update.description = This is the description
+		IUpdateDescriptor update = product.getUpdateDescriptor();
+		assertEquals("2.0", 0, update.getSeverity());
+		assertEquals("2.1", "This is the description", update.getDescription());
+		//unit that fits in range
+		assertTrue("2.2", update.isUpdateOf(createIU("com.zoobar", Version.createOSGi(4, 1, 0))));
+		//unit that is too old for range
+		assertFalse("2.3", update.isUpdateOf(createIU("com.zoobar", Version.createOSGi(3, 1, 0))));
+		//version that is too new and outside of range
+		assertFalse("2.4", update.isUpdateOf(createIU("com.zoobar", Version.createOSGi(6, 1, 0))));
+		//unit with matching version but not matching id
+		assertFalse("2.6", update.isUpdateOf(createIU("com.other", Version.createOSGi(4, 1, 0))));
 	}
 
 	public void testMessageForProductWithIgnoredContent() throws Exception {
