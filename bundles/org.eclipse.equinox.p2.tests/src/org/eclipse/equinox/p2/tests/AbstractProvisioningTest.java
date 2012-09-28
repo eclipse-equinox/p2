@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,7 +7,6 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -43,6 +42,7 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+
 
 /**
  * Base class for provisioning tests with convenience methods used by multiple tests.
@@ -585,6 +585,19 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected static IRequirement[] createRequiredCapabilities(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter) {
 		return new IRequirement[] {MetadataFactory.createRequirement(namespace, name, range, filter, false, false)};
+	}
+
+	public static IRequirement createIURequirement(String name, VersionRange range) {
+		return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, name, range, null, false, false);
+	}
+
+	public static IRequirement createIURequirement(String name, VersionRange range, String filter) {
+		return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, name, range, InstallableUnit.parseFilter(filter), false, false);
+	}
+
+	public static VersionRange createStrictVersionRange(String version) {
+		Version parsedVersion = Version.create(version);
+		return new VersionRange(parsedVersion, true, parsedVersion, true);
 	}
 
 	public static boolean delete(File file) {

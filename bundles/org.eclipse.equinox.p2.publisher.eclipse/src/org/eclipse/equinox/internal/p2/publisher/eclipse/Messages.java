@@ -31,7 +31,7 @@ public class Messages extends NLS {
 	public static String bundlesInProductFileIgnored;
 
 	public static String message_problemPublishingProduct;
-	public static String message_includedElementNotFound;
+	public static String message_cannotDetermineFilterOnInclusion;
 
 	static {
 		// load message values from bundle file

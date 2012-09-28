@@ -12,8 +12,7 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.createNiceMock;
-import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.okStatus;
-import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -313,10 +312,29 @@ public class ProductActionTest extends ActionTest {
 		assertFalse("2.6", update.isUpdateOf(createIU("com.other", Version.createOSGi(4, 1, 0))));
 	}
 
+	public void testFiltersOfInclusions() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "productIncludingFragments.product").toString());
+		addContextIU("generalbundle", "1.0.1");
+		addContextIU("fragment.win", "1.0.2", WIN_FILTER);
+		// no fragment.linux in the context
+
+		IStatus status = performProductActionAndReturnStatus(productFile);
+
+		IInstallableUnit productIU = getUniquePublishedIU("productIncludingFragments.uid");
+		assertThat(productIU.getRequirements(), hasItem(createIURequirement("generalbundle", createStrictVersionRange("1.0.1"))));
+		assertThat(productIU.getRequirements(), hasItem(createIURequirement("fragment.win", createStrictVersionRange("1.0.2"), WIN_FILTER)));
+
+		// this is bug 390361: the Linux fragment is required without filter, so the product cannot be installed for Windows ...
+		assertThat(productIU.getRequirements(), hasItem(createIURequirement("fragment.linux", ANY_VERSION)));
+
+		// ... therefore the action shall report an error
+		assertThat(status, is(errorStatus()));
+		assertThat(Arrays.asList(status.getChildren()), hasItem(statusWithMessageWhich(containsString("Included element fragment.linux 0.0.0 is missing"))));
+	}
+
 	public void testMessageForProductWithIgnoredContent() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "mixedContentIgnored.product").toString());
-		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
-		IStatus status = testAction.perform(publisherInfo, publisherResult, null);
+		IStatus status = performProductActionAndReturnStatus(productFile);
 
 		// expect a warning about redundant, ignored content in product file -> requested in bug 325611
 		assertThat(Arrays.asList(status.getChildren()), hasItem(statusWithMessageWhich(containsString("are ignored"))));
@@ -324,9 +342,13 @@ public class ProductActionTest extends ActionTest {
 	}
 
 	private void performProductAction(ProductFile productFile) {
-		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
-		IStatus status = testAction.perform(publisherInfo, publisherResult, null);
+		IStatus status = performProductActionAndReturnStatus(productFile);
 		assertThat(status, is(okStatus()));
+	}
+
+	private IStatus performProductActionAndReturnStatus(ProductFile productFile) {
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		return testAction.perform(publisherInfo, publisherResult, null);
 	}
 
 	private void setConfiguration(String configSpec) {

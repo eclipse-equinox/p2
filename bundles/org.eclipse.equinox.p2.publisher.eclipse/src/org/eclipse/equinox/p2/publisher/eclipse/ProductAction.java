@@ -184,7 +184,11 @@ public class ProductAction extends AbstractPublisherAction {
 			if (unit != null) {
 				result.add(unit);
 			} else {
-				finalStatus.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.message_includedElementNotFound, element.getId(), elementVersion)));
+				// if the bundle is platform specific we will have broken metadata due to a missing filter
+				finalStatus.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.message_cannotDetermineFilterOnInclusion, element.getId(), elementVersion)));
+
+				// best effort guess for callers who choose to ignore this problem
+				result.add(new VersionedId(element.getId(), elementVersion));
 			}
 		}
 		return result;

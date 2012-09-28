@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="productIncludingFragments.uid" useFeatures="false" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <plugins>
+      <plugin id="generalbundle"/>
+      <plugin id="fragment.win"/>
+      <plugin id="fragment.linux"/>
+   </plugins>
+
+
+</product>
