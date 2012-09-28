@@ -195,11 +195,22 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 			debug(message);
 	}
 
-	protected final void addContextUnit(String unitId, String unitVersion) {
+	/**
+	 * Adds an installable unit in the context visible to actions.
+	 * 
+	 * @see AbstractPublisherAction#queryForIU
+	 */
+	protected final void addContextIU(String unitId, String unitVersion) {
+		// could also be added to a context metadata repository in the publisher info, but this is easier
 		publisherResult.addIU(createIU(unitId, Version.create(unitVersion)), IPublisherResult.NON_ROOT);
 	}
 
-	protected final void addContextUnit(String unitId, String unitVersion, String filter) {
+	/**
+	 * Adds an installable unit in the context visible to actions.
+	 * 
+	 * @see AbstractPublisherAction#queryForIU
+	 */
+	protected final void addContextIU(String unitId, String unitVersion, String filter) {
 		publisherResult.addIU(createIU(unitId, Version.create(unitVersion), filter, NO_PROVIDES), IPublisherResult.NON_ROOT);
 	}
 }

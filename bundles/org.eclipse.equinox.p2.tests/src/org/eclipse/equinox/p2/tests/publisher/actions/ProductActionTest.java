@@ -79,7 +79,7 @@ public class ProductActionTest extends ActionTest {
 	 */
 	public void testBrandedApplication() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString());
-		addContextUnit("org.eclipse.platform.feature.group", "1.2.3");
+		addContextIU("org.eclipse.platform.feature.group", "1.2.3");
 
 		performProductAction(productFile);
 		Collection ius = publisherResult.getIUs("branded.product", IPublisherResult.NON_ROOT);
@@ -131,11 +131,11 @@ public class ProductActionTest extends ActionTest {
 		ProductFile productFile1 = new ProductFile(TestData.getFile("ProductActionTest", "boundedVersionConfigurations.product").toString());
 		ProductFile productFile2 = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
 
-		addContextUnit("org.eclipse.core.runtime", "4.0.0");
+		addContextIU("org.eclipse.core.runtime", "4.0.0");
 		performProductAction(productFile1);
 
 		publisherResult = new PublisherResult();
-		addContextUnit("org.eclipse.core.runtime", "4.0.0");
+		addContextIU("org.eclipse.core.runtime", "4.0.0");
 		performProductAction(productFile2);
 		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(queryResult));
@@ -145,7 +145,7 @@ public class ProductActionTest extends ActionTest {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
 		setConfiguration(LINUX_CONFIG_SPEC);
 
-		addContextUnit("org.eclipse.core.runtime", "0.0.0", WIN_FILTER);
+		addContextIU("org.eclipse.core.runtime", "0.0.0", WIN_FILTER);
 
 		performProductAction(productFile);
 
@@ -160,7 +160,7 @@ public class ProductActionTest extends ActionTest {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
 		setConfiguration(LINUX_CONFIG_SPEC);
 
-		addContextUnit("org.eclipse.core.runtime", "0.0.0", LINUX_FILTER);
+		addContextIU("org.eclipse.core.runtime", "0.0.0", LINUX_FILTER);
 
 		performProductAction(productFile);
 
@@ -175,7 +175,7 @@ public class ProductActionTest extends ActionTest {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
 		setConfiguration(LINUX_CONFIG_SPEC);
 
-		addContextUnit("org.eclipse.core.runtime", null, LINUX_FILTER);
+		addContextIU("org.eclipse.core.runtime", null, LINUX_FILTER);
 
 		performProductAction(productFile);
 
@@ -192,7 +192,7 @@ public class ProductActionTest extends ActionTest {
 
 		// Set a specific version number, the one in the .product file uses 0.0.0.  Let's see if it binds properly
 		//filter is different from linuxConfigSpec, but will still match
-		addContextUnit("org.eclipse.core.runtime", "4.0.0", "(osgi.os=linux)");
+		addContextIU("org.eclipse.core.runtime", "4.0.0", "(osgi.os=linux)");
 
 		performProductAction(productFile);
 
@@ -209,7 +209,7 @@ public class ProductActionTest extends ActionTest {
 
 		// Set a specific version number, the one in the .product file uses 0.0.0.  Let's see if it binds properly
 		//filter is different from linuxConfigSpec, but will still match
-		addContextUnit("org.eclipse.core.runtime", "4.0.0", "(osgi.os=linux)");
+		addContextIU("org.eclipse.core.runtime", "4.0.0", "(osgi.os=linux)");
 
 		performProductAction(productFile);
 
@@ -225,7 +225,7 @@ public class ProductActionTest extends ActionTest {
 	public void testMultiConfigspecProductPublishing() throws IOException, Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "platform.product").toString());
 		((PublisherInfo) publisherInfo).setConfigurations(new String[] {"carbon.macos.x86", "cocoa.macos.x86"});
-		addContextUnit("org.eclipse.platform.feature.group", "1.2.3");
+		addContextIU("org.eclipse.platform.feature.group", "1.2.3");
 
 		performProductAction(productFile);
 
@@ -238,7 +238,7 @@ public class ProductActionTest extends ActionTest {
 		String configSpecANY = AbstractPublisherAction.createConfigSpec("ANY", "ANY", "ANY"); // configuration spec to create CUs without filters
 		setConfiguration(configSpecANY);
 
-		addContextUnit("org.eclipse.core.runtime", "4.0.0");
+		addContextIU("org.eclipse.core.runtime", "4.0.0");
 
 		performProductAction(productFile);
 
@@ -257,7 +257,7 @@ public class ProductActionTest extends ActionTest {
 		String configSpecANY = AbstractPublisherAction.createConfigSpec("ANY", "ANY", "ANY"); // configuration spec to create CUs without filters
 		setConfiguration(configSpecANY);
 
-		addContextUnit("org.eclipse.core.runtime", "4.0.0", WIN_FILTER); // any valid filter can be set here
+		addContextIU("org.eclipse.core.runtime", "4.0.0", WIN_FILTER); // any valid filter can be set here
 
 		performProductAction(productFile);
 
