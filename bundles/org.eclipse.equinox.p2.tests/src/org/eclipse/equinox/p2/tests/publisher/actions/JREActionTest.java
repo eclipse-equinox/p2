@@ -57,7 +57,7 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction(J14));
 
 		Version jreVersion = Version.create("1.4.0");
-		verifyMetadataIU("a.jre.j2se", 91, jreVersion);
+		verifyMetadataIU("a.jre.j2se", 91, 0, jreVersion);
 		verifyConfigIU("a.jre.j2se", jreVersion); //$NON-NLS-1$
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.j2se,1.4.0"), J14, "J2SE-1.4.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -66,7 +66,7 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction(J15));
 
 		Version jreVersion = Version.create("1.5.0");
-		verifyMetadataIU("a.jre.j2se", 118, jreVersion);
+		verifyMetadataIU("a.jre.j2se", 118, 0, jreVersion);
 		verifyConfigIU("a.jre.j2se", jreVersion); //$NON-NLS-1$
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.j2se,1.5.0"), J15, "J2SE-1.5.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -75,7 +75,7 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction(J16));
 
 		Version jreVersion = Version.create("1.6.0");
-		verifyMetadataIU("a.jre.javase", 116, jreVersion);
+		verifyMetadataIU("a.jre.javase", 116, 0, jreVersion);
 		verifyConfigIU("a.jre.javase", jreVersion); //$NON-NLS-1$
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.javase,1.6.0"), J16, "JavaSE-1.6.profile"); //$NON-NLS-1$//$NON-NLS-2$
 	}
@@ -84,7 +84,7 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction("OSGi/Minimum-1.2"));
 
 		Version jreVersion = Version.create("1.2.0");
-		verifyMetadataIU("a.jre.osgi.minimum", 1, jreVersion);
+		verifyMetadataIU("a.jre.osgi.minimum", 1, 3, jreVersion);
 		// verifyConfigIU("a.jre.osgi.minimum", jreVersion); // TODO config IU is not needed!?
 	}
 
@@ -111,7 +111,7 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction((String) null));
 
 		// these assertions need to be changed each time the default java profile, hardcoded in o.e.e.p2.publisher.actions.JREAction, is changed;
-		verifyMetadataIU("a.jre.javase", 158, Version.parseVersion("1.6"));
+		verifyMetadataIU("a.jre.javase", 158, 12, Version.parseVersion("1.6"));
 		// verifyConfigIU(DEFAULT_JRE_NAME, DEFAULT_JRE_VERSION); // TODO config IU is not needed!?
 	}
 
@@ -158,7 +158,7 @@ public class JREActionTest extends ActionTest {
 		assertThat(status, is(okStatus()));
 	}
 
-	private void verifyMetadataIU(String id, int expectedProvidedPackages, Version jreVersion) {
+	private void verifyMetadataIU(String id, int expectedProvidedPackages, int expectedProvidedEEs, Version jreVersion) {
 		IInstallableUnit foo = getPublishedUnit(id);
 
 		// check version
@@ -170,7 +170,7 @@ public class JREActionTest extends ActionTest {
 
 		// check provided capabilities
 		Collection<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
-		assertThat(fooProvidedCapabilities.size(), is(1 + expectedProvidedPackages));
+		assertThat(fooProvidedCapabilities.size(), is(1 + expectedProvidedPackages + expectedProvidedEEs));
 	}
 
 	private void verifyConfigIU(String id, Version jreVersion) {
