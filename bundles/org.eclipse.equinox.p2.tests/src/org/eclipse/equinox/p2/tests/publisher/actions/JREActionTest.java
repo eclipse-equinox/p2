@@ -12,8 +12,7 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
-import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
-import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -55,8 +54,8 @@ public class JREActionTest extends ActionTest {
 
 	// TODO this name is misleading: the test doesn't test the real Java 1.4 JRE IU but a broken local copy of the 1.4 profile 
 	public void test14() throws Exception {
-		testAction = new JREAction(J14);
-		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		performAction(new JREAction(J14));
+
 		Version jreVersion = Version.create("1.4.0");
 		verifyMetadataIU("a.jre.j2se", 91, jreVersion);
 		verifyConfigIU("a.jre.j2se", jreVersion); //$NON-NLS-1$
@@ -64,8 +63,8 @@ public class JREActionTest extends ActionTest {
 	}
 
 	public void test15() throws Exception {
-		testAction = new JREAction(J15);
-		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		performAction(new JREAction(J15));
+
 		Version jreVersion = Version.create("1.5.0");
 		verifyMetadataIU("a.jre.j2se", 118, jreVersion);
 		verifyConfigIU("a.jre.j2se", jreVersion); //$NON-NLS-1$
@@ -73,8 +72,8 @@ public class JREActionTest extends ActionTest {
 	}
 
 	public void test16() throws Exception {
-		testAction = new JREAction(J16);
-		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		performAction(new JREAction(J16));
+
 		Version jreVersion = Version.create("1.6.0");
 		verifyMetadataIU("a.jre.javase", 116, jreVersion);
 		verifyConfigIU("a.jre.javase", jreVersion); //$NON-NLS-1$
@@ -82,16 +81,15 @@ public class JREActionTest extends ActionTest {
 	}
 
 	public void testOSGiMin() throws Exception {
-		testAction = new JREAction("OSGi/Minimum-1.2");
-		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		performAction(new JREAction("OSGi/Minimum-1.2"));
+
 		Version jreVersion = Version.create("1.2.0");
 		verifyMetadataIU("a.jre.osgi.minimum", 1, jreVersion);
 		// verifyConfigIU("a.jre.osgi.minimum", jreVersion); // TODO config IU is not needed!?
 	}
 
 	public void testPackageVersionsFromJreFolder() throws Exception {
-		testAction = new JREAction(jreWithPackageVersionsFolder);
-		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		performAction(new JREAction(jreWithPackageVersionsFolder));
 
 		Collection<IProvidedCapability> providedCapabilities = getPublishedCapabilitiesOf("a.jre.test");
 		assertThat(providedCapabilities, hasItem(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, "my.package", null)));
@@ -102,8 +100,7 @@ public class JREActionTest extends ActionTest {
 
 	public void testPackageVersionsFromJavaProfile() throws Exception {
 		// introduced for bug 334519: directly point to a profile file
-		testAction = new JREAction(jreWithPackageVersionsProfile);
-		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		performAction(new JREAction(jreWithPackageVersionsProfile));
 
 		Collection<IProvidedCapability> providedCapabilities = getPublishedCapabilitiesOf("a.jre.test");
 		assertThat(providedCapabilities, hasItem(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, "my.package", null)));
@@ -111,24 +108,19 @@ public class JREActionTest extends ActionTest {
 	}
 
 	public void testDefaultJavaProfile() throws Exception {
-		// take note that these constants should be changed each time the default java profile, hardcoded in o.e.e.p2.publisher.actions.JREAction, is changed;
-		// this could be avoided by making the respective static properties of JREAction class public but doing so for test purposes only is questionable
-		final String DEFAULT_JRE_NAME = "a.jre.javase"; //$NON-NLS-1$
-		final Version DEFAULT_JRE_VERSION = Version.parseVersion("1.6"); //$NON-NLS-1$
-		final int DEFAULT_NUM_PROVIDED_PACKAGES = 158;
+		performAction(new JREAction((String) null));
 
-		testAction = new JREAction((File) null);
-		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
-		verifyMetadataIU(DEFAULT_JRE_NAME, DEFAULT_NUM_PROVIDED_PACKAGES, DEFAULT_JRE_VERSION);
+		// these assertions need to be changed each time the default java profile, hardcoded in o.e.e.p2.publisher.actions.JREAction, is changed;
+		verifyMetadataIU("a.jre.javase", 158, Version.parseVersion("1.6"));
 		// verifyConfigIU(DEFAULT_JRE_NAME, DEFAULT_JRE_VERSION); // TODO config IU is not needed!?
 	}
 
 	public void testNonExistingJreLocation() {
 		File nonExistingProfile = new File(jreWithPackageVersionsFolder, "no.profile");
-		testAction = new JREAction(nonExistingProfile);
 		try {
-			testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+			performAction(new JREAction(nonExistingProfile));
 			fail("Expected failure when the JRE location does not exists.");
+			// TODO shouldn't this be an error status?
 		} catch (IllegalArgumentException e) {
 			// test is successful
 		} catch (Exception e) {
@@ -138,8 +130,8 @@ public class JREActionTest extends ActionTest {
 
 	public void testOsgiEECapabilities() {
 		// added for bug 388566
-		testAction = new JREAction("JavaSE-1.7");
-		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		performAction(new JREAction("JavaSE-1.7"));
+
 		Collection<IProvidedCapability> capabilities = getPublishedCapabilitiesOf("a.jre.javase");
 		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.7"))));
 		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.5"))));
@@ -159,6 +151,11 @@ public class JREActionTest extends ActionTest {
 		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("error in version '1.a.invalidversion'"))));
 		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("unknown capability namespace 'other.namespace'"))));
 		assertThat(eeStatus.getChildren().length, is(4));
+	}
+
+	private void performAction(JREAction jreAction) {
+		IStatus status = jreAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		assertThat(status, is(okStatus()));
 	}
 
 	private void verifyMetadataIU(String id, int expectedProvidedPackages, Version jreVersion) {
