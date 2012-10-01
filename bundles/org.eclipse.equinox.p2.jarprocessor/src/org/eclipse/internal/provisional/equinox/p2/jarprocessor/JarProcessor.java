@@ -339,6 +339,10 @@ public class JarProcessor {
 			//have to normalize after the post steps
 			normalize(result, workingDir);
 
+			// If the original input is where we ended up, just return it
+			if (input.equals(result))
+				return result;
+
 			if (!result.equals(workingFile) && !workingFile.equals(input))
 				workingFile.delete();
 			if (!result.getParentFile().equals(workingDir)) {
