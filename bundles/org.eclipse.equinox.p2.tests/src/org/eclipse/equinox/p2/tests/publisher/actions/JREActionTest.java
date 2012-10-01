@@ -130,13 +130,23 @@ public class JREActionTest extends ActionTest {
 
 	public void testOsgiEECapabilities() {
 		// added for bug 388566
-		performAction(new JREAction("JavaSE-1.7"));
+		performAction(new JREAction("J2SE-1.5"));
 
-		Collection<IProvidedCapability> capabilities = getPublishedCapabilitiesOf("a.jre.javase");
-		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.7"))));
+		Collection<IProvidedCapability> capabilities = getPublishedCapabilitiesOf("a.jre.j2se");
+		assertThat(capabilities, not(hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.6")))));
 		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.5"))));
 		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "OSGi/Minimum", Version.parseVersion("1.0"))));
+
 		assertThat(capabilities, not(hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "J2SE", Version.parseVersion("1.5")))));
+	}
+
+	public void testSingleOsgiEECapability() {
+		// contains a single version:Version attribute instead of the common version:List<Version>
+		performAction(new JREAction("OSGi/Minimum-1.0"));
+
+		Collection<IProvidedCapability> capabilities = getPublishedCapabilitiesOf("a.jre.osgi.minimum");
+		assertThat(capabilities, not(hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.5")))));
+		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "OSGi/Minimum", Version.parseVersion("1.0"))));
 	}
 
 	public void testInvalidOsgiEECapabilitySpec() {
@@ -146,11 +156,12 @@ public class JREActionTest extends ActionTest {
 
 		IStatus eeStatus = status.getChildren()[0];
 		assertThat(eeStatus.getMessage(), containsString("org.osgi.framework.system.capabilities"));
-		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("'osgi.ee' is missing"))));
-		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("'version:List<Version>' is missing"))));
-		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("error in version '1.a.invalidversion'"))));
-		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("unknown capability namespace 'other.namespace'"))));
-		assertThat(eeStatus.getChildren().length, is(4));
+		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("Attribute 'osgi.ee' is missing"))));
+		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("Either 'version:Version' or 'version:List<Version>' must be specified"))));
+		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("Syntax error in version '1.a.invalidversion'"))));
+		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("Ignoring unknown capability namespace 'other.namespace'"))));
+		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("Cannot specify both 'version:Version' and 'version:List<Version>'"))));
+		assertThat(eeStatus.getChildren().length, is(5));
 	}
 
 	private void performAction(JREAction jreAction) {

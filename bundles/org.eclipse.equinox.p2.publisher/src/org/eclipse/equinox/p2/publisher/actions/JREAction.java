@@ -208,9 +208,9 @@ public class JREAction extends AbstractPublisherAction {
 			return;
 		}
 
-		String[] eeVersions = ManifestElement.getArrayFromList(eeCapability.getAttribute("version:List<Version>")); //$NON-NLS-1$
+		String[] eeVersions = parseEECapabilityVersion(eeCapability, parsingStatus);
 		if (eeVersions == null) {
-			parsingStatus.add(newErrorStatus(NLS.bind(Messages.message_eeMissingVersionAttribute, eeName), null));
+			// status was already updated by parse method
 			return;
 		}
 
@@ -225,6 +225,26 @@ public class JREAction extends AbstractPublisherAction {
 			} catch (IllegalArgumentException e) {
 				parsingStatus.add(newErrorStatus(NLS.bind(Messages.message_eeInvalidVersionAttribute, rawVersion), e));
 			}
+		}
+	}
+
+	private static String[] parseEECapabilityVersion(ManifestElement eeCapability, MultiStatus parsingStatus) {
+		String singleVersion = eeCapability.getAttribute("version:Version"); //$NON-NLS-1$
+		String[] multipleVersions = ManifestElement.getArrayFromList(eeCapability.getAttribute("version:List<Version>")); //$NON-NLS-1$
+
+		if (singleVersion == null && multipleVersions == null) {
+			parsingStatus.add(newErrorStatus(NLS.bind(Messages.message_eeMissingVersionAttribute, eeCapability), null));
+			return null;
+
+		} else if (singleVersion == null) {
+			return multipleVersions;
+
+		} else if (multipleVersions == null) {
+			return new String[] {singleVersion};
+
+		} else {
+			parsingStatus.add(newErrorStatus(NLS.bind(Messages.message_eeDuplicateVersionAttribute, eeCapability), null));
+			return null;
 		}
 	}
 

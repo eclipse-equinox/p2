@@ -43,6 +43,7 @@ public class Messages extends NLS {
 	public static String message_eeInvalidVersionAttribute;
 	public static String message_eeMissingNameAttribute;
 	public static String message_eeMissingVersionAttribute;
+	public static String message_eeDuplicateVersionAttribute;
 
 	public static String exception_artifactRepoNoAppendDestroysInput;
 

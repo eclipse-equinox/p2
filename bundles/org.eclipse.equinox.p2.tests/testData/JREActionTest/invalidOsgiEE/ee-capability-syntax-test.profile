@@ -14,5 +14,6 @@ org.osgi.framework.system.capabilities = \
  osgi.ee; other.namespace; version:List<Version>="1.0"; osgi.ee="JavaSE",\
  osgi.ee; osgi.ee="JavaSE"; version:List<Version>="1.a.invalidversion",\
  osgi.ee; osgi.ee="OSGi/Minimum",\
- osgi.ee; version:List<Version>="2.0,2.1"
+ osgi.ee; version:List<Version>="2.0,2.1",\
+ osgi.ee; osgi.ee="JavaSE"; version:List<Version>="1.0, 1.1"; version:Version="1.1"
 osgi.java.profile.name = EECapabilitySyntaxTest
