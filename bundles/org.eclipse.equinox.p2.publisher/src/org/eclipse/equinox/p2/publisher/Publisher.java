@@ -241,9 +241,7 @@ public class Publisher {
 			if (Tracing.DEBUG_PUBLISHING)
 				Tracing.debug("Publishing complete. Result=" + finalStatus); //$NON-NLS-1$
 
-			// if there were no errors, publish all the ius.
-			if (finalStatus.isOK() || finalStatus.matches(IStatus.INFO | IStatus.WARNING))
-				savePublishedIUs();
+			savePublishedIUs();
 
 			if (!finalStatus.isOK())
 				return finalStatus;
