@@ -40,7 +40,9 @@ public class Messages extends NLS {
 	public static String sar_reportStatus;
 
 	public static String mirror_alreadyExists;
-	public static String message_childrenRepos;
+	public static String message_artifactsFromChildRepos;
+	public static String message_problemReadingArtifact;
+
 	public static String exception_comparatorNotFound;
 	public static String exception_noComparators;
 	public static String exception_unsupportedAddToComposite;

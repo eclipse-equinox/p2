@@ -10,6 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.matchers.JUnitMatchers.hasItem;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -571,6 +578,27 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		if (!(repo2File.exists() && destFile2.exists()))
 			fail("File does not exist on disk");
 		assertTrue(repo2File.length() == destFile2.length());
+	}
+
+	public void testGetArtifactsWithErrorInChild() throws Exception {
+		repositoryURI = getTestData("1", "/testData/artifactRepo/composite/errorInChild").toURI();
+		IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(repositoryURI, null);
+
+		IArtifactRequest[] requests = new IArtifactRequest[] {new ArtifactRequest(new ArtifactKey("osgi.bundle", "plugin", Version.parseVersion("1.0.0")), null) {
+			@Override
+			public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
+				setResult(sourceRepository.getArtifact(sourceRepository.getArtifactDescriptors(getArtifactKey())[0], new ByteArrayOutputStream(), monitor));
+			}
+		}};
+
+		IStatus status = repo.getArtifacts(requests, null);
+
+		assertThat(status, is(errorStatus()));
+		assertThat(status, is(statusWithMessageWhich(containsString("while reading artifacts from child repositories"))));
+
+		// bug 391400: status should point to repository with problem
+		String brokenChildURI = repositoryURI.toString() + "child";
+		assertThat(Arrays.asList(status.getChildren()), hasItem(statusWithMessageWhich(containsString(brokenChildURI))));
 	}
 
 	public void testLoadingRepositoryRemote() {

@@ -765,7 +765,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
 
-		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
+		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, NLS.bind(Messages.message_problemReadingArtifact, getLocation()), null);
 		LinkedList<IArtifactRequest> requestsPending = new LinkedList<IArtifactRequest>(Arrays.asList(requests));
 
 		int numberOfJobs = Math.min(requests.length, getMaximumThreads());
@@ -802,7 +802,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				monitor.done();
 			}
 		}
-		return (monitor.isCanceled() ? Status.CANCEL_STATUS : overallStatus);
+
+		if (monitor.isCanceled())
+			return Status.CANCEL_STATUS;
+		else if (overallStatus.isOK())
+			return Status.OK_STATUS;
+		else
+			return overallStatus;
 	}
 
 	public synchronized IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {

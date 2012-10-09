@@ -334,7 +334,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
-		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_childrenRepos, null);
+		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_artifactsFromChildRepos, null);
 		for (ChildInfo childInfo : loadedRepos) {
 			if (requests.length == 0)
 				break;
@@ -347,7 +347,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			requests = filterUnfetched(requests);
 			subMonitor.setWorkRemaining(requests.length);
 
-			if (monitor.isCanceled())
+			if (subMonitor.isCanceled())
 				return Status.CANCEL_STATUS;
 		}
 		return multiStatus;
