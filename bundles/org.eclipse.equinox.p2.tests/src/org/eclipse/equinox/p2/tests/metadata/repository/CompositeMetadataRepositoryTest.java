@@ -685,11 +685,11 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = null;
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 
-		File repoFile = getTestData("Strict composite with missing child", "/testData/metadataRepo/compositeBadChildren");
+		File repoFile = getTestData("Atomic composite with missing child", "/testData/metadataRepo/composite/missingChild/atomicLoading");
 		URI correctChildURI = URIUtil.append(repoFile.toURI(), "one");
 		URI repoURI = repoFile.getAbsoluteFile().toURI();
 
-		File alreadyLoadedChildFile = getTestData("Strict composite with missing child", "/testData/metadataRepo/compositeBadChildren/three");
+		File alreadyLoadedChildFile = getTestData("Atomic composite with missing child", "/testData/metadataRepo/composite/missingChild/atomicLoading/three");
 		IMetadataRepository alreadyLoadedChild = manager.loadRepository(alreadyLoadedChildFile.toURI(), null);
 		assertNotNull(alreadyLoadedChild);
 		URI previouslyAddedChildURI = URIUtil.append(repoFile.toURI(), "three");
@@ -705,7 +705,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 		assertNull(repo);
 		assertTrue("an exception should have been reported", exception);
-		assertFalse("Successfully loaded child should be removed when composite loading mode is set to strict", manager.contains(correctChildURI));
+		assertFalse("Successfully loaded child should be removed when composite loading mode is set to atomic", manager.contains(correctChildURI));
 		assertTrue("Periously loaded child should remain in repo manager", manager.contains(previouslyAddedChildURI));
 
 	}
@@ -715,7 +715,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = null;
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 
-		File repoFile = getTestData("Composite with missing child", "/testData/metadataRepo/compositeBadChildrenLenient");
+		File repoFile = getTestData("Composite with missing child", "/testData/metadataRepo/composite/missingChild/nonAtomicLoading");
 		URI correctChildURI = URIUtil.append(repoFile.toURI(), "one");
 
 		assertFalse("Child should not be available in repo manager", manager.contains(correctChildURI));
