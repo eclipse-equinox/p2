@@ -25,6 +25,10 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
+  <properties>
+    <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/equinox/rt.equinox.p2.git</tycho.scmUrl>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
