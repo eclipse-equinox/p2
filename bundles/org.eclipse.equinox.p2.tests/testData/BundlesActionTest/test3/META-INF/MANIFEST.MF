@@ -1,11 +1,11 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: test3
-Bundle-SymbolicName: test3;singleton:=true
-Bundle-Version: 0.1.0.qualifier
-Import-Package: iud;version="1.3.0"
-Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.4,
+manifest-Version: 1.0
+bundle-ManifestVersion: 2
+bundle-Name: test3
+bundle-SymbolicName: test3;singleton:=true
+bundle-Version: 0.1.0.qualifier
+import-Package: iud;version="1.3.0"
+bundle-ActivationPolicy: lazy
+bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
-Export-Package: iuz;x-friends:="friend1,friend2"
-Eclipse-SourceBundle: test2;version="1.0.0.qualifier"
+export-package: iuz;x-friends:="friend1,friend2"
+eclipse-SourceBundle: test2;version="1.0.0.qualifier"

@@ -37,6 +37,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.osgi.framework.util.Headers;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
 import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.osgi.service.resolver.*;
@@ -591,10 +592,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		try {
 			if (manifestStream != null) {
 				try {
-					Map<String, String> manifestMap = ManifestElement.parseBundleManifest(manifestStream, null);
-					// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
-					// real answer is to have people expect a Map but that is a wider change.
-					manifest = new Hashtable<String, String>(manifestMap);
+					manifest = parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(manifestStream);
 				} catch (IOException e) {
 					String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
@@ -624,6 +622,13 @@ public class BundlesAction extends AbstractPublisherAction {
 			manifest = convertPluginManifest(bundleLocation, true);
 		return manifest;
 
+	}
+
+	/**
+	 * @return the same result as {@link Headers#parseManifest(InputStream)}, but with a modifiable {@link Headers} instance
+	 */
+	private static Headers<String, String> parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(InputStream manifestStream) throws IOException, BundleException {
+		return (Headers<String, String>) ManifestElement.parseBundleManifest(manifestStream, new Headers<String, String>(10));
 	}
 
 	private static ManifestElement[] parseManifestHeader(String header, Map<String, String> manifest, String bundleLocation) {

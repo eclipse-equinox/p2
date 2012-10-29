@@ -282,6 +282,7 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void verifyBundle3() {
+		// also a regression test for bug 393051: manifest headers use uncommon (but valid) capitalization 
 		ArrayList ius = new ArrayList(publisherResult.getIUs(TEST3_PROVBUNDLE_NAME, IPublisherResult.ROOT));
 
 		assertTrue(ius.size() == 1);
