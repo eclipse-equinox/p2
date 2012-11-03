@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,13 +14,12 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import org.eclipse.core.runtime.internal.adaptor.EclipseEnvironmentInfo;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.osgi.framework.internal.core.FrameworkProperties;
+import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
@@ -160,37 +159,44 @@ public class EquinoxBundlesState implements BundlesState {
 	// "osgi.os", "osgi.ws", "osgi.nl", "osgi.arch",
 	// Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode",
 	// Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "osgi.resolveOptional"
-	static Properties setDefaultPlatformProperties() {
+	private Properties setDefaultPlatformProperties() {
 		Properties platformProperties = new Properties();
 		// set default value
 
-		String nl = Locale.getDefault().toString();
-		platformProperties.setProperty("osgi.nl", nl); //$NON-NLS-1$
+		ServiceReference environmentRef = context.getServiceReference(EnvironmentInfo.class);
+		EnvironmentInfo environment = environmentRef == null ? null : (EnvironmentInfo) context.getService(environmentRef);
+		if (environment != null) {
+			try {
+				String nl = Locale.getDefault().toString();
+				platformProperties.setProperty("osgi.nl", nl); //$NON-NLS-1$
 
-		// TODO remove EclipseEnvironmentInfo
-		String os = EclipseEnvironmentInfo.guessOS(System.getProperty("os.name"));//$NON-NLS-1$);
-		platformProperties.setProperty("osgi.os", os); //$NON-NLS-1$
+				String os = environment.getOS();
+				platformProperties.setProperty("osgi.os", os); //$NON-NLS-1$
 
-		String ws = EclipseEnvironmentInfo.guessWS(os);
-		platformProperties.setProperty("osgi.ws", ws); //$NON-NLS-1$
+				String ws = environment.getWS();
+				platformProperties.setProperty("osgi.ws", ws); //$NON-NLS-1$
 
-		// if the user didn't set the system architecture with a command line
-		// argument then use the default.
-		String arch = null;
-		String name = FrameworkProperties.getProperty("os.arch");//$NON-NLS-1$
-		// Map i386 architecture to x86
-		if (name.equalsIgnoreCase(INTERNAL_ARCH_I386))
-			arch = org.eclipse.osgi.service.environment.Constants.ARCH_X86;
-		// Map amd64 architecture to x86_64
-		else if (name.equalsIgnoreCase(INTERNAL_AMD64))
-			arch = org.eclipse.osgi.service.environment.Constants.ARCH_X86_64;
-		else
-			arch = name;
-		platformProperties.setProperty("osgi.arch", arch); //$NON-NLS-1$			
+				// if the user didn't set the system architecture with a command line
+				// argument then use the default.
+				String arch = null;
+				String name = context.getProperty("os.arch");//$NON-NLS-1$
+				// Map i386 architecture to x86
+				if (name.equalsIgnoreCase(INTERNAL_ARCH_I386))
+					arch = org.eclipse.osgi.service.environment.Constants.ARCH_X86;
+				// Map amd64 architecture to x86_64
+				else if (name.equalsIgnoreCase(INTERNAL_AMD64))
+					arch = org.eclipse.osgi.service.environment.Constants.ARCH_X86_64;
+				else
+					arch = name;
+				platformProperties.setProperty("osgi.arch", arch); //$NON-NLS-1$			
 
-		platformProperties.setProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, FrameworkProperties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES));
-		platformProperties.setProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, FrameworkProperties.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT));
-		platformProperties.setProperty("osgi.resolveOptional", "" + "true".equals(FrameworkProperties.getProperty("osgi.resolveOptional"))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				platformProperties.setProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, context.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES));
+				platformProperties.setProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, context.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT));
+				platformProperties.setProperty("osgi.resolveOptional", "" + "true".equals(context.getProperty("osgi.resolveOptional"))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			} finally {
+				context.ungetService(environmentRef);
+			}
+		}
 		return platformProperties;
 	}
 
