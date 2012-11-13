@@ -27,8 +27,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 /**
@@ -44,6 +43,8 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	private static final String NATIVE_TYPE = "org.eclipse.equinox.p2.native"; //$NON-NLS-1$
 	private static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
 	private static final String PARM_PROFILE = "profile"; //$NON-NLS-1$
+
+	private boolean flagAsRunnable = false;
 
 	protected class CollectNativesAction extends ProvisioningAction {
 		public IStatus execute(Map<String, Object> parameters) {
@@ -146,6 +147,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			// publish the metadata to a destination - if requested
 			publishMetadata(progress.newChild(1));
 
+			setRunnableProperty(destinationArtifactRepository);
 			// return the resulting status
 			return result;
 		} finally {
@@ -153,6 +155,11 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			removeProfile(profile);
 			finalizeRepositories();
 		}
+	}
+
+	private void setRunnableProperty(IArtifactRepository destinationArtifactRepository) {
+		if (flagAsRunnable)
+			destinationArtifactRepository.setProperty(IArtifactRepository.PROP_RUNNABLE, Boolean.TRUE.toString(), new NullProgressMonitor());
 	}
 
 	protected URI[] getRepositories(boolean metadata) {
@@ -269,7 +276,15 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 				destination.setLocation(URIUtil.fromString(arg));
 				addDestination(destination);
 			}
+
+			if (option.equalsIgnoreCase("-flagAsRunnable")) { //$NON-NLS-1$
+				setFlagAsRunnable(true);
+			}
 		}
+	}
+
+	public void setFlagAsRunnable(boolean runnable) {
+		flagAsRunnable = runnable;
 	}
 
 	/*

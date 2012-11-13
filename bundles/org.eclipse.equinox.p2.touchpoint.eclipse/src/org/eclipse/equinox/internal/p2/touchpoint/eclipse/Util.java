@@ -26,6 +26,7 @@ import org.eclipse.equinox.p2.core.spi.Constants;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
@@ -143,7 +144,24 @@ public class Util {
 				}
 			}
 		}
+
+		getRunnableRepositories(manager, bundleRepositories);
 		return new AggregatedBundleRepository(agent, bundleRepositories);
+	}
+
+	private static void getRunnableRepositories(IArtifactRepositoryManager manager, List<IFileArtifactRepository> bundleRepositories) {
+		URI[] localURLs = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
+		for (int i = 0; i < localURLs.length; i++) {
+			try {
+				IArtifactRepository candidate = manager.loadRepository(localURLs[i], new NullProgressMonitor());
+				if (Boolean.parseBoolean(candidate.getProperty(IArtifactRepository.PROP_RUNNABLE))) {
+					if (candidate != null && candidate instanceof IFileArtifactRepository && !bundleRepositories.contains(candidate))
+						bundleRepositories.add((IFileArtifactRepository) candidate);
+				}
+			} catch (ProvisionException e) {
+				//skip repositories that could not be read
+			}
+		}
 	}
 
 	private static List<String> getListProfileProperty(IProfile profile, String key) {

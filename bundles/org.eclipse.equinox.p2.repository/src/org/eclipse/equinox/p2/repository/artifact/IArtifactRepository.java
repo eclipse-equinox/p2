@@ -34,6 +34,12 @@ import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository
  */
 public interface IArtifactRepository extends IRepository<IArtifactKey> {
 
+	/**
+	 * The key for a boolean indicating if the repository is in runnable format.
+	 * @see IRepository#getProperties()
+	 */
+	public static final String PROP_RUNNABLE = "p2.runnable"; //$NON-NLS-1$
+
 	/** 
 	 * The return code to use when a client could/should retry a failed getArtifact() operation.
 	 * For example, the repository may have additional mirrors that could be consulted.

@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.Repo2Runnable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -33,6 +32,7 @@ import org.eclipse.osgi.util.NLS;
 public class Repo2RunnableTask extends AbstractRepositoryTask {
 
 	private boolean failOnError = true;
+	private boolean flagAsRunnable = false;
 
 	/*
 	 * Constructor for the class. Create a new instance of the application
@@ -54,6 +54,7 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 			if ((ius == null || ius.size() == 0) && !(application.hasArtifactSources() || application.hasMetadataSources()))
 				throw new BuildException(Messages.exception_needIUsOrNonEmptyRepo);
 			application.setSourceIUs(ius);
+			((Repo2Runnable) application).setFlagAsRunnable(flagAsRunnable);
 			IStatus result = application.run(null);
 			if (failOnError && result.matches(IStatus.ERROR))
 				throw new ProvisionException(result);
@@ -68,5 +69,9 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 
 	public void setFailOnError(boolean fail) {
 		this.failOnError = fail;
+	}
+
+	public void setFlagAsRunnable(boolean runnable) {
+		this.flagAsRunnable = runnable;
 	}
 }
