@@ -16,9 +16,7 @@ Export-Package: org.eclipse.equinox.internal.p2.publisher;
  org.eclipse.equinox.p2.publisher.actions;x-friends:="org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.directorywatcher,org.eclipse.pde.publishing",
  org.eclipse.equinox.spi.p2.publisher;x-friends:="org.eclipse.equinox.p2.updatesite"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5,
- J2SE-1.4,
- CDC-1.1/Foundation-1.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.app;version="1.0.0";resolution:=optional,
  org.eclipse.equinox.internal.p2.artifact.repository,
