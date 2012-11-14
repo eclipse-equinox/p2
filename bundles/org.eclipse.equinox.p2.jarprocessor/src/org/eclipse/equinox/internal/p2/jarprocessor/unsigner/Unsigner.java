@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -9,11 +9,13 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.jarprocessor.unsigner;
+
 import java.io.*;
 import java.util.Enumeration;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.*;
+import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
 
 /**
  * This class removes the signature files from a jar and clean up the manifest.   
@@ -24,11 +26,11 @@ public class Unsigner {
 	private static final String RSA_EXT = ".RSA"; //$NON-NLS-1$
 	private static final String SF_EXT = ".SF"; //$NON-NLS-1$
 	private static final String META_INF_PREFIX = META_INF + '/';
-	
+
 	private String[] signers;
 	private File jarFile;
 	private boolean keepManifestContent = false;
-	
+
 	private boolean isSigned(File file) {
 		ZipFile jar = null;
 		try {
@@ -44,7 +46,7 @@ public class Unsigner {
 				while (entries.hasMoreElements()) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
 					String entryName = entry.getName();
-					if(entryName.endsWith(SF_EXT) && entryName.startsWith(META_INF))
+					if (entryName.endsWith(SF_EXT) && entryName.startsWith(META_INF))
 						return true;
 				}
 			}
@@ -54,27 +56,30 @@ public class Unsigner {
 		} catch (IOException e) {
 			return false;
 		} finally {
-			if (jar != null)
+			if (jar != null) {
 				try {
 					jar.close();
 				} catch (IOException e) {
 					//Ignore
 				}
+			}
 		}
 	}
-	
+
 	public void execute() {
 		processJar(jarFile);
 	}
-	
+
 	private void processJar(File inputFile) {
 		if (!isSigned(inputFile))
 			return;
 
+		ZipInputStream input = null;
+		ZipOutputStream output = null;
 		try {
-			ZipInputStream input = new ZipInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
+			input = new ZipInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
 			File outputFile = File.createTempFile("removing.", ".signature", inputFile.getParentFile()); //$NON-NLS-1$ //$NON-NLS-2$
-			ZipOutputStream output = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)));
+			output = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)));
 
 			ZipEntry inputZe = input.getNextEntry();
 			byte[] b = new byte[8192];
@@ -113,12 +118,15 @@ public class Unsigner {
 			//this can't happen we have checked before
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			Utils.close(input);
+			Utils.close(output);
 		}
 	}
-	
+
 	private byte shouldRemove(ZipEntry entry) {
 		String entryName = entry.getName();
-		if(keepManifestContent == false && entryName.equalsIgnoreCase(JarFile.MANIFEST_NAME)) {
+		if (keepManifestContent == false && entryName.equalsIgnoreCase(JarFile.MANIFEST_NAME)) {
 			return 1;
 		}
 		if (signers != null) {
@@ -132,15 +140,15 @@ public class Unsigner {
 		}
 		return 0;
 	}
-	
+
 	public void setRemoveSigners(String[] fileName) {
 		signers = fileName;
 	}
-	
+
 	public void setJar(File file) {
 		jarFile = file;
 	}
-	
+
 	public void setKeepManifestEntries(boolean keep) {
 		keepManifestContent = keep;
 	}

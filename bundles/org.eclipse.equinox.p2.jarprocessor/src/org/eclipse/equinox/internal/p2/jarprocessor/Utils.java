@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 IBM Corporation and others.
+ * Copyright (c) 2006, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -253,17 +253,6 @@ public class Utils {
 		JarFile jar = null;
 		try {
 			jar = new JarFile(jarFile, false);
-		} catch (ZipException e) {
-			//not a jar, don't bother logging this.
-			return null;
-		} catch (IOException e) {
-			if (verbose) {
-				System.out.println("Failed to obtain eclipse.inf due to IOException: " + jarFile); //$NON-NLS-1$
-				e.printStackTrace();
-			}
-			return null;
-		}
-		try {
 			JarEntry mark = jar.getJarEntry(MARK_FILE_NAME);
 			if (mark != null) {
 				InputStream in = jar.getInputStream(mark);
@@ -273,6 +262,9 @@ public class Utils {
 				return props;
 			}
 			return new Properties();
+		} catch (ZipException e) {
+			//not a jar, don't bother logging this.
+			return null;
 		} catch (IOException e) {
 			if (verbose) {
 				System.out.println("Failed to obtain eclipse.inf due to IOException: " + jarFile); //$NON-NLS-1$

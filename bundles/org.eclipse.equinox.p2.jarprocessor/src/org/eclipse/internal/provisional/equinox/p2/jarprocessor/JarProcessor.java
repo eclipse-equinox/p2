@@ -304,33 +304,41 @@ public class JarProcessor {
 				tempDir = new File(parent, "temp_" + depth + '_' + workingFile.getName()); //$NON-NLS-1$
 			}
 
-			JarFile jar = new JarFile(workingFile, false);
-			Map replacements = new HashMap();
-			Properties inf = Utils.getEclipseInf(workingFile, verbose);
-			extractEntries(jar, tempDir, replacements, inf);
+			JarFile jar = null;
+			try {
+				jar = new JarFile(workingFile, false);
+				Map replacements = new HashMap();
+				Properties inf = Utils.getEclipseInf(workingFile, verbose);
+				extractEntries(jar, tempDir, replacements, inf);
 
-			boolean infAdjusted = false;
-			if (inf != null)
-				infAdjusted = adjustInf(workingFile, inf);
+				boolean infAdjusted = false;
+				if (inf != null)
+					infAdjusted = adjustInf(workingFile, inf);
 
-			//Recreate the jar with replacements. 
-			//This is not strictly necessary if we didn't change the inf file and didn't change any content
-			if (!replacements.isEmpty() || infAdjusted) {
-				File tempJar = null;
-				tempJar = new File(tempDir, workingFile.getName());
-				File parent = tempJar.getParentFile();
-				if (!parent.exists())
-					parent.mkdirs();
-				JarOutputStream jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
-				recreateJar(jar, jarOut, replacements, tempDir, inf);
-
-				jar.close();
-				if (tempJar != null) {
-					if (!workingFile.equals(input)) {
-						workingFile.delete();
+				//Recreate the jar with replacements. 
+				//This is not strictly necessary if we didn't change the inf file and didn't change any content
+				if (!replacements.isEmpty() || infAdjusted) {
+					File tempJar = null;
+					tempJar = new File(tempDir, workingFile.getName());
+					File parent = tempJar.getParentFile();
+					if (!parent.exists())
+						parent.mkdirs();
+					JarOutputStream jarOut = null;
+					try {
+						jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
+						recreateJar(jar, jarOut, replacements, tempDir, inf);
+					} finally {
+						Utils.close(jarOut);
 					}
-					workingFile = tempJar;
+					if (tempJar != null) {
+						if (!workingFile.equals(input)) {
+							workingFile.delete();
+						}
+						workingFile = tempJar;
+					}
 				}
+			} finally {
+				Utils.close(jar);
 			}
 
 			//post
@@ -370,29 +378,28 @@ public class JarProcessor {
 		try {
 			File tempJar = new File(directory, "temp_" + input.getName()); //$NON-NLS-1$
 			JarFile jar = null;
+			JarOutputStream jarOut = null;
+			InputStream jarIn = null;
 			try {
 				jar = new JarFile(input, false);
-			} catch (JarException e) {
-				//not a jar
-				return;
-			}
-			JarOutputStream jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
-			InputStream in = null;
-			try {
+				jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
 				Enumeration entries = jar.entries();
 				for (JarEntry entry = (JarEntry) entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
 					JarEntry newEntry = new JarEntry(entry.getName());
 					newEntry.setTime(entry.getTime());
-					in = new BufferedInputStream(jar.getInputStream(entry));
+					jarIn = new BufferedInputStream(jar.getInputStream(entry));
 					jarOut.putNextEntry(newEntry);
-					Utils.transferStreams(in, jarOut, false);
+					Utils.transferStreams(jarIn, jarOut, false);
 					jarOut.closeEntry();
-					in.close();
+					jarIn.close();
 				}
+			} catch (JarException e) {
+				//not a jar
+				return;
 			} finally {
 				Utils.close(jarOut);
+				Utils.close(jarIn);
 				Utils.close(jar);
-				Utils.close(in);
 			}
 			tempJar.setLastModified(input.lastModified());
 			input.delete();
