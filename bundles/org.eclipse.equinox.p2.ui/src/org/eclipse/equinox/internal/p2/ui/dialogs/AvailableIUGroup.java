@@ -300,7 +300,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * @return the array of checked IU's
 	 */
 	public IInstallableUnit[] getCheckedLeafIUs() {
-		Object[] selections = filteredTree.getCheckboxTreeViewer().getCheckedElements();
+		Object[] selections = filteredTree.getCheckedElements(); // Get all the elements that have been selected, not just the visible ones
 		if (selections.length == 0)
 			return new IInstallableUnit[0];
 		ArrayList<IInstallableUnit> leaves = new ArrayList<IInstallableUnit>(selections.length);

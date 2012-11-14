@@ -48,7 +48,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	WorkbenchJob filterJob;
 	boolean ignoreFiltering = true;
 	Object viewerInput;
-	ArrayList<Object> checkState = new ArrayList<Object>();
+	HashSet<Object> checkState = new HashSet<Object>();
 	Set<Object> expanded = new HashSet<Object>();
 	ContainerCheckedTreeViewer checkboxViewer;
 
@@ -276,7 +276,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		ContainerCheckedTreeViewer v = (ContainerCheckedTreeViewer) getViewer();
 		Object[] checked = v.getCheckedElements();
 		if (checkState == null)
-			checkState = new ArrayList<Object>(checked.length);
+			checkState = new HashSet<Object>(checked.length);
 		for (int i = 0; i < checked.length; i++)
 			if (!v.getGrayed(checked[i]) && contentProvider.getChildren(checked[i]).length == 0)
 				if (!checkState.contains(checked[i]))
@@ -328,5 +328,12 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	 */
 	protected long getRefreshJobDelay() {
 		return FILTER_DELAY;
+	}
+
+	public Object[] getCheckedElements() {
+		if (this.checkState != null) {
+			return this.checkState.toArray();
+		}
+		return new Object[0];
 	}
 }
