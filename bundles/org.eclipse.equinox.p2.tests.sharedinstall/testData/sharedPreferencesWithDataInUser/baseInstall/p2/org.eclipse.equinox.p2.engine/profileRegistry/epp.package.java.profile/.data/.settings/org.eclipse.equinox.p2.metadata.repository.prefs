@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+repositories/http\:__download.eclipse.org_eclipse_updates_4.2/count=1
+repositories/http\:__download.eclipse.org_eclipse_updates_4.2/enabled=true
+repositories/http\:__download.eclipse.org_eclipse_updates_4.2/nickname=The Eclipse Project Updates
+repositories/http\:__download.eclipse.org_eclipse_updates_4.2/uri=http\://download.eclipse.org/eclipse/updates/4.2
+repositories/http\:__download.eclipse.org_mylyn_releases_juno/count=3
+repositories/http\:__download.eclipse.org_mylyn_releases_juno/enabled=true
+repositories/http\:__download.eclipse.org_mylyn_releases_juno/nickname=Mylyn for Eclipse Juno
+repositories/http\:__download.eclipse.org_mylyn_releases_juno/uri=http\://download.eclipse.org/mylyn/releases/juno
+repositories/http\:__download.eclipse.org_releases_juno/count=1
+repositories/http\:__download.eclipse.org_releases_juno/enabled=true
+repositories/http\:__download.eclipse.org_releases_juno/nickname=Juno
+repositories/http\:__download.eclipse.org_releases_juno/uri=http\://download.eclipse.org/releases/juno
