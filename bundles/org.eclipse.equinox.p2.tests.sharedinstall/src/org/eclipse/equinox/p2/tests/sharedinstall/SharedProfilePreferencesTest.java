@@ -1,3 +1,5 @@
+package org.eclipse.equinox.p2.tests.sharedinstall;
+
 /*******************************************************************************
  * Copyright (c) 2012 Ericsson and others.
  * All rights reserved. This program and the accompanying materials
@@ -20,6 +22,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.security.storage.EncodingUtils;
@@ -59,7 +63,8 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString());
 		System.setProperty("eclipse.p2.profile", "epp.package.java");
 		System.setProperty("eclipse.p2.data.area", "@config.dir/../p2");
-		
+		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
+		prefService.getRootNode().node("/profile/").removeNode();
 		p2Core.start();
 	}
 	
