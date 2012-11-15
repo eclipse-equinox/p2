@@ -82,12 +82,11 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		
 	}
 
-
-//	public void testCountRepoInSharedInstallThroughRepoManagerAPI() {
-//		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
-//		URI[] repos = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-//		assertEquals(3, repos.length);
-//	}
+	public void testCountRepoInSharedInstallThroughRepoManagerAPI() {
+		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		URI[] repos = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		assertEquals(3, repos.length);
+	}
 	
 	
 }
