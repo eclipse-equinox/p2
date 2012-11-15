@@ -15,9 +15,13 @@ import java.net.MalformedURLException;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.AggregatedBundleRepository;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -50,5 +54,21 @@ public class UtilTest extends AbstractProvisioningTest {
 		props.put(IProfile.PROP_CACHE, cacheDir.toString());
 		IProfile profile = createProfile("test", props);
 		assertEquals(cacheDir.toURL().toExternalForm(), Util.getBundlePoolLocation(getAgent(), profile).toString());
+	}
+
+	public void testCheckRunnableArtifactRepos() throws ProvisionException {
+		File withFlag = getTestData("Get artifact repo in runnable format", "testData/utilTest/repoWithFlag");
+		File withoutFlag = getTestData("Get artifact repo in runnable format", "testData/utilTest/repoWithoutFlag");
+		IArtifactRepository repoWithFlag = getArtifactRepositoryManager().loadRepository(withFlag.toURI(), new NullProgressMonitor());
+		IArtifactRepository repoWithoutFlag = getArtifactRepositoryManager().loadRepository(withoutFlag.toURI(), new NullProgressMonitor());
+
+		assertNotNull(repoWithFlag.getProperty(IArtifactRepository.PROP_RUNNABLE));
+		assertTrue(Boolean.TRUE.toString().equalsIgnoreCase(repoWithFlag.getProperty(IArtifactRepository.PROP_RUNNABLE)));
+		assertNull(repoWithoutFlag.getProperty(IArtifactRepository.PROP_RUNNABLE));
+
+		AggregatedBundleRepository repos = (AggregatedBundleRepository) Util.getAggregatedBundleRepository(getAgent(), null, 0);
+		assertTrue(repos.testGetBundleRepositories().contains(repoWithFlag));
+		assertTrue(!repos.testGetBundleRepositories().contains(repoWithoutFlag));
+
 	}
 }
