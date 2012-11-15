@@ -48,7 +48,7 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 	}
 	
 	protected void setUp() throws Exception {
-		super.setUp();
+		//We don't call super.setUp() on purpose
 
 		Bundle p2Core = Platform.getBundle("org.eclipse.equinox.p2.core");
 		p2Core.stop();
@@ -58,6 +58,7 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		System.setProperty("osgi.sharedConfiguration.area", new File(baseInstall, "configuration").toURI().toString());
 		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString());
 		System.setProperty("eclipse.p2.profile", "epp.package.java");
+		System.setProperty("eclipse.p2.data.area", "@config.dir/../p2");
 		
 		p2Core.start();
 	}
@@ -66,7 +67,7 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
 		assertNotNull(prefService);
 		try {
-			URI defaultLocation = URIUtil.fromString(TestActivator.getContext().getProperty("osgi.configuration.area") + "/p2/");
+			URI defaultLocation = URIUtil.makeAbsolute(URIUtil.fromString(TestActivator.getContext().getProperty("osgi.configuration.area") + "../p2/"), new URI("."));
 			String locationString = EncodingUtils.encodeSlashes(defaultLocation.toString());
 			Preferences node = prefService.getRootNode().node("/profile/shared/" + locationString + "/_SELF_/org.eclipse.equinox.p2.metadata.repository/repositories"); //$NON-NLS-1$
 			String[] children = node.childrenNames();
@@ -81,4 +82,12 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		
 	}
 
+
+//	public void testCountRepoInSharedInstallThroughRepoManagerAPI() {
+//		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+//		URI[] repos = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+//		assertEquals(3, repos.length);
+//	}
+	
+	
 }
