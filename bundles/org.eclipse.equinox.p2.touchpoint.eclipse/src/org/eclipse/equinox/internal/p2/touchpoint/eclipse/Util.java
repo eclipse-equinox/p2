@@ -10,6 +10,7 @@
  *     Red Hat Incorporated - fix for bug 225145
  *     Code 9 - ongoing development
  *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
+ *     Ericsson AB (Pascal Rapicault) - Support to reuse bundles in place
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
