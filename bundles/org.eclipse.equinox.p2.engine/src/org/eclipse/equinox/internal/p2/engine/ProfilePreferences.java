@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.osgi.framework.*;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -144,7 +143,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	 * agent location. Never returns null; throws an exception if the agent could not be found.
 	 */
 	protected IProvisioningAgent getAgent(String segment) throws BackingStoreException {
-		String locationString = EncodingUtils.decodeSlashes(segment);
+		String locationString = SlashEncode.decode(segment);
 		Exception failure = null;
 		IProvisioningAgent result = null;
 		try {

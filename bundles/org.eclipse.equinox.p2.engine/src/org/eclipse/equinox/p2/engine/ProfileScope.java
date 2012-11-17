@@ -15,8 +15,8 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.equinox.internal.p2.engine.SlashEncode;
 import org.eclipse.equinox.p2.core.IAgentLocation;
-import org.eclipse.equinox.security.storage.EncodingUtils;
 
 /**
  * A profile scope contains the preferences associated with a particular profile
@@ -72,7 +72,7 @@ public final class ProfileScope implements IScopeContext {
 	public IEclipsePreferences getNode(String qualifier) {
 		if (qualifier == null)
 			throw new IllegalArgumentException();
-		String locationString = EncodingUtils.encodeSlashes(location.getRootLocation().toString());
+		String locationString = SlashEncode.encode(location.getRootLocation().toString());
 		//format is /profile/{agentLocationURI}/{profileId}/qualifier
 		return (IEclipsePreferences) PreferencesService.getDefault().getRootNode().node(getName()).node(locationString).node(profileId).node(qualifier);
 	}
