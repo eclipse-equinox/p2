@@ -66,6 +66,10 @@ public abstract class QueriedElement extends ProvElement {
 	}
 
 	public Object[] getChildren(Object o) {
+		Object[] cache = getCachedChildren();
+		if (cache.length > 0) {
+			return getCachedChildren();
+		}
 		return fetchChildren(o, new NullProgressMonitor());
 	}
 
@@ -159,6 +163,9 @@ public abstract class QueriedElement extends ProvElement {
 	}
 
 	public Object[] getCachedChildren() {
+		if (cachedChildren == null) {
+			return new Object[0];
+		}
 		return cachedChildren.toArray();
 	}
 
