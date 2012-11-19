@@ -141,11 +141,7 @@ public class QueryProvider {
 						// We need an expression that uses the requirements of the element's requirements, which could be merged
 						// from multiple category IUs shown as one in the UI.
 						IExpression matchesRequirementsExpression = ExpressionUtil.parse("$0.exists(r | this ~= r)"); //$NON-NLS-1$
-						// First perform the "top level" query to limit the amount of
-						// data we need to match in our category query.
-						IQuery<IInstallableUnit> iuGroupQuery = topLevelQuery;
-						IQuery<IInstallableUnit> memberQuery = QueryUtil.createMatchQuery(matchesRequirementsExpression, ((CategoryElement) element).getRequirements());
-						memberOfCategoryQuery = QueryUtil.createPipeQuery(iuGroupQuery, memberQuery);
+						memberOfCategoryQuery = QueryUtil.createMatchQuery(matchesRequirementsExpression, ((CategoryElement) element).getRequirements());
 					} else {
 						memberOfCategoryQuery = QueryUtil.createIUCategoryMemberQuery(((IIUElement) element).getIU());
 					}
