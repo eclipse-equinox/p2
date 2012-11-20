@@ -28,6 +28,7 @@ public class MirrorMetadataTask extends Task {
 	URI destination;
 	String destinationName;
 	String writeMode;
+	boolean references = true;
 
 	/* (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()
@@ -48,6 +49,7 @@ public class MirrorMetadataTask extends Task {
 		MirrorApplication app = new MirrorApplication();
 		app.addDestination(destinationRepo);
 		app.addSource(sourceRepo);
+		app.setReferences(references);
 		try {
 			IStatus result = app.run(null);
 			if (result.getSeverity() != IStatus.OK)
@@ -91,5 +93,9 @@ public class MirrorMetadataTask extends Task {
 	 */
 	public void setWriteMode(String value) {
 		writeMode = value;
+	}
+
+	public void setReferences(boolean value) {
+		references = value;
 	}
 }

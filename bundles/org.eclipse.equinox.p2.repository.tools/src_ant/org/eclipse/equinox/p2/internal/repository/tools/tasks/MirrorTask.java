@@ -137,4 +137,8 @@ public class MirrorTask extends AbstractRepositoryTask {
 	public void setIncludePacked(boolean value) {
 		((MirrorApplication) application).setIncludePacked(value);
 	}
+
+	public void setReferences(boolean value) {
+		((MirrorApplication) application).setReferences(value);
+	}
 }

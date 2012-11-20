@@ -35,6 +35,7 @@ public class MirrorArtifactsTask extends Task {
 	boolean ignoreErrors = false;
 	boolean raw = false; // use raw artifact descriptors?
 	boolean verbose = false;
+	boolean references = true;
 
 	/* (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()
@@ -62,6 +63,7 @@ public class MirrorArtifactsTask extends Task {
 		app.setCompare(compare);
 		app.setComparatorID(comparatorID);
 		app.setBaseline(baseline);
+		app.setReferences(references);
 		if (comparatorLog != null)
 			app.setComparatorLog(comparatorLog);
 		if (mirrorLog != null)
@@ -77,7 +79,7 @@ public class MirrorArtifactsTask extends Task {
 		try {
 			app.run(null);
 		} catch (Exception e) {
-			throw new BuildException("Exception while running mirror application.", e);
+			throw new BuildException("Exception while running mirror application.", e); //$NON-NLS-1$
 		}
 	}
 
@@ -177,5 +179,12 @@ public class MirrorArtifactsTask extends Task {
 	 */
 	public void setVerbose(boolean value) {
 		verbose = value;
+	}
+
+	/*
+	 * Set whether the repository references should be copied to the new repository
+	 */
+	public void setReferences(boolean value) {
+		references = value;
 	}
 }

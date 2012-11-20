@@ -152,6 +152,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 				mirrorLogLocation = new File(arg);
 			} else if (args[i - 1].equalsIgnoreCase("-roots")) { //$NON-NLS-1$
 				rootIUs = getArrayArgsFromString(arg, ","); //$NON-NLS-1$
+			} else if (args[i - 1].equalsIgnoreCase("-references")) {//$NON-NLS-1$
+				mirrorReferences = Boolean.parseBoolean(args[i]);
 			} else {
 				try {
 					if (args[i - 1].equalsIgnoreCase("-source")) { //$NON-NLS-1$

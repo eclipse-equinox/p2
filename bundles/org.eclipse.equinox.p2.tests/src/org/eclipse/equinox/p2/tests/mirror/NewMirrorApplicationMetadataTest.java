@@ -985,6 +985,26 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 
 		IMetadataRepository destRepo = getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null);
 		Collection<IRepositoryReference> destRefs = destRepo.getReferences();
-		assertEquals(destRefs.size(), 4);
+		assertEquals(4, destRefs.size());
+	}
+
+	public void testMirrorWithoutReferences() throws Exception {
+		MirrorApplication app = new MirrorApplication();
+		RepositoryDescriptor dest = new RepositoryDescriptor();
+		dest.setLocation(destRepoLocation.toURI());
+		dest.setAppend(false);
+		dest.setKind("metadata");
+		app.addDestination(dest);
+
+		RepositoryDescriptor src = new RepositoryDescriptor();
+		src.setLocation(sourceRepoWithRefs.toURI());
+		src.setKind("metadata");
+		app.addSource(src);
+		app.setReferences(false);
+		app.run(null);
+
+		IMetadataRepository destRepo = getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null);
+		Collection<IRepositoryReference> destRefs = destRepo.getReferences();
+		assertEquals(0, destRefs.size());
 	}
 }
