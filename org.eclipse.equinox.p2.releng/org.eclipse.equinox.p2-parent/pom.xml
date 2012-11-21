@@ -8,74 +8,25 @@
  
   Contributors:
      Igor Fedorenko - initial implementation
-      Ericsson AB (Pascal Rapicault) - enable standalone p2 build
 -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
-	<parent>
-		<groupId>org.eclipse</groupId>
-		<artifactId>eclipse-parent</artifactId>
-		<version>3</version>
-	</parent>
-
+  
+  <parent>
+    <groupId>org.eclipse</groupId>
+    <artifactId>eclipse-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  
 	<groupId>org.eclipse</groupId>
 	<artifactId>org.eclipse.equinox.p2-parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<properties>
-		<tycho.version>0.16.0</tycho.version>
-		<orbit-repo.url>http://download.eclipse.org/tools/orbit/downloads/drops/R20120526062928/repository/</orbit-repo.url>
-		<ecf-repo.url>http://download.eclipse.org/rt/ecf/3.5.6/site.p2</ecf-repo.url>
-		<tycho-repo.url>https://oss.sonatype.org/content/groups/public/</tycho-repo.url>
-		<tycho-extras.version>0.16.0</tycho-extras.version>
-		<platform-repo.url>http://download.eclipse.org/eclipse/updates/4.3-I-builds</platform-repo.url>
-	</properties>
-
-	<repositories>
-		<repository>
-			<id>platform-43</id>
-			<url>${platform-repo.url}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>orbit</id>
-			<url>${orbit-repo.url}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>ecf</id>
-			<url>${ecf-repo.url}</url>
-			<layout>p2</layout>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>tycho</id>
-			<url>${tycho-repo.url}</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-
-
 	<build>
 		<plugins>
-			<plugin>
-				<!-- enable tycho build extension -->
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho.version}</version>
-				<extensions>true</extensions>
-			</plugin>
-
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
@@ -108,12 +59,10 @@
 							<arch>x86_64</arch>
 						</environment>
 					</environments>
-					<executionEnvironment>J2SE-1.5</executionEnvironment>
 				</configuration>
 			</plugin>
 
-			<!-- workaround for bug 353505 - need to repeat compiler source and target 
-				levels in POM -->
+			<!-- workaround for bug 353505 - need to repeat compiler source and target levels in POM -->
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
@@ -123,109 +72,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>target-platform-configuration</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-compiler-plugin</artifactId>
-					<version>${tycho.version}</version>
-					<dependencies>
-						<dependency>
-							<groupId>org.eclipse.tycho</groupId>
-							<artifactId>org.eclipse.jdt.core</artifactId>
-							<version>3.8.1.v20120531-0637</version>
-						</dependency>
-					</dependencies>
-					<configuration>
-						<compilerArguments>
-							<inlineJSR />
-							<enableJavadoc />
-							<encoding>ISO-8859-1</encoding>
-						</compilerArguments>
-					</configuration>
-				</plugin>
-<!-- 				<plugin> -->
-<!-- 					<groupId>org.eclipse.tycho</groupId> -->
-<!-- 					<artifactId>tycho-packaging-plugin</artifactId> -->
-<!-- 					<version>${tycho.version}</version> -->
-<!-- 					<dependencies> -->
-<!-- 						<dependency> -->
-<!-- 							<groupId>org.eclipse.tycho.extras</groupId> -->
-<!-- 							<artifactId>tycho-buildtimestamp-jgit</artifactId> -->
-<!-- 							<version>${tycho-extras.version}</version> -->
-<!-- 						</dependency> -->
-<!-- 						<dependency> -->
-<!-- 							<groupId>org.eclipse.tycho.extras</groupId> -->
-<!-- 							<artifactId>tycho-sourceref-jgit</artifactId> -->
-<!-- 							<version>${tycho-extras.version}</version> -->
-<!-- 						</dependency> -->
-<!-- 					</dependencies> -->
-<!-- 					<configuration> -->
-<!-- 						<strictBinIncludes>false</strictBinIncludes> -->
-<!-- 						<format>'v'yyyyMMdd-HHmm</format> -->
-<!-- 						<timestampProvider>jgit</timestampProvider> -->
-<!-- 						<jgit.ignore> -->
-<!-- 						</jgit.ignore> -->
-<!-- 						<sourceReferences> -->
-<!-- 							<generate>true</generate> -->
-<!-- 						</sourceReferences> -->
-<!-- 					</configuration> -->
-<!-- 				</plugin> -->
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-surefire-plugin</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-source-plugin</artifactId>
-					<version>${tycho.version}</version>
-					<configuration>
-						<strictSrcIncludes>false</strictSrcIncludes>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-p2-director-plugin</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-p2-repository-plugin</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho.extras</groupId>
-					<artifactId>tycho-source-feature-plugin</artifactId>
-					<version>${tycho-extras.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho.extras</groupId>
-					<artifactId>tycho-custom-bundle-plugin</artifactId>
-					<version>${tycho-extras.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-p2-plugin</artifactId>
-					<version>${tycho.version}</version>
-					<configuration>
-						<baselineMode>warn</baselineMode>
-						<baselineReplace>none</baselineReplace>
-						<baselineRepositories>
-							<repository>
-								<url>${comparator.repo}</url>
-							</repository>
-						</baselineRepositories>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 
 	<profiles>
