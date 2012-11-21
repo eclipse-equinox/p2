@@ -8,7 +8,6 @@
  
   Contributors:
      Igor Fedorenko - initial implementation
-     Ericsson AB (Pascal Rapicault) - enable standalone p2 build
 -->
 
 <project
@@ -20,7 +19,6 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../org.eclipse.equinox.p2-parent</relativePath>
 	</parent>
-	
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse</groupId>
 	<artifactId>org.eclipse.equinox.p2-aggregator</artifactId>
@@ -38,7 +36,7 @@
 		<module>../../bundles/org.eclipse.equinox.p2.artifact.repository</module>
 		<module>../../bundles/org.eclipse.equinox.p2.console</module>
 		<module>../../bundles/org.eclipse.equinox.p2.core</module>
-<!-- 		<module>../../features/org.eclipse.equinox.p2.core.feature</module> -->
+		<module>../../features/org.eclipse.equinox.p2.core.feature</module>
 		<module>../../bundles/org.eclipse.equinox.p2.director</module>
 		<module>../../bundles/org.eclipse.equinox.p2.director.app</module>
 		<module>../../bundles/org.eclipse.equinox.p2.directorywatcher</module>
@@ -46,7 +44,7 @@
 		<module>../../bundles/org.eclipse.equinox.p2.discovery.compatibility</module>
 		<module>../../bundles/org.eclipse.equinox.p2.engine</module>
 		<module>../../bundles/org.eclipse.equinox.p2.extensionlocation</module>
-<!-- 		<module>../../features/org.eclipse.equinox.p2.extras.feature</module> -->
+		<module>../../features/org.eclipse.equinox.p2.extras.feature</module>
 		<module>../../bundles/org.eclipse.equinox.p2.garbagecollector</module>
 		<module>../../bundles/org.eclipse.equinox.p2.installer</module>
 		<module>../../bundles/org.eclipse.equinox.p2.jarprocessor</module>
@@ -60,8 +58,8 @@
 		<module>../../bundles/org.eclipse.equinox.p2.repository.tools</module>
 		<module>../../bundles/org.eclipse.equinox.p2.sar</module>
 		<module>../../bundles/org.eclipse.equinox.p2.tests</module>
-		<module>../../bundles/org.eclipse.equinox.p2.tests.discovery</module>
-		<module>../../bundles/org.eclipse.equinox.p2.tests.ui</module>
+<!--		<module>../../bundles/org.eclipse.equinox.p2.tests.discovery</module>-->
+<!--		<module>../../bundles/org.eclipse.equinox.p2.tests.ui</module>-->
 <!--		<module>../../bundles/org.eclipse.equinox.p2.tests.verifier</module> -->
 <!--		<module>../../bundles/org.eclipse.equinox.p2.testserver</module>-->
 		<module>../../bundles/org.eclipse.equinox.p2.touchpoint.eclipse</module>
@@ -80,9 +78,9 @@
 		<module>../../bundles/org.eclipse.equinox.simpleconfigurator.manipulator</module>
 		<module>../../bundles/org.eclipse.equinox.p2.publisher.eclipse</module>
 
-<!--         <module>../../features/org.eclipse.equinox.p2.user.ui</module> -->
-<!--         <module>../../features/org.eclipse.equinox.p2.rcp.feature</module> -->
-<!--         <module>../../features/org.eclipse.equinox.p2.sdk</module> -->
-<!--         <module>../../features/org.eclipse.equinox.p2.discovery.feature</module> -->
+        <module>../../features/org.eclipse.equinox.p2.user.ui</module>
+        <module>../../features/org.eclipse.equinox.p2.rcp.feature</module>
+        <module>../../features/org.eclipse.equinox.p2.sdk</module>
+        <module>../../features/org.eclipse.equinox.p2.discovery.feature</module>
 	</modules>
 </project>
