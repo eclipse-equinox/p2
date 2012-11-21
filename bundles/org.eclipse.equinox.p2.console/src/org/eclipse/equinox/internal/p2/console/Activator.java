@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Composent, Inc. - additions
+ *     SAP AG - additions
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
@@ -23,6 +24,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<IPro
 	private static BundleContext context;
 
 	private ServiceTracker<IProvisioningAgent, IProvisioningAgent> agentTracker;
+	private IProvisioningAgent provAgent;
 	private ProvCommandProvider provider;
 	private ServiceRegistration<?> providerRegistration = null;
 
@@ -54,14 +56,24 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<IPro
 		if (providerRegistration != null)
 			providerRegistration.unregister();
 		providerRegistration = null;
+		provAgent = null;
 		Activator.context = null;
 	}
 
 	public IProvisioningAgent addingService(ServiceReference<IProvisioningAgent> reference) {
+		if (providerRegistration != null) {
+			return null;
+		}
+
+		if (!Boolean.TRUE.toString().equals(reference.getProperty(IProvisioningAgent.SERVICE_CURRENT))) {
+			return null;
+		}
+
 		BundleContext ctxt = Activator.getContext();
 		IProvisioningAgent agent = ctxt.getService(reference);
 		provider = new ProvCommandProvider(ctxt.getProperty("eclipse.p2.profile"), agent); //$NON-NLS-1$
 		providerRegistration = ctxt.registerService(PROVIDER_NAME, provider, null);
+		this.provAgent = agent;
 		return agent;
 	}
 
@@ -70,9 +82,15 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<IPro
 	}
 
 	public void removedService(ServiceReference<IProvisioningAgent> reference, IProvisioningAgent service) {
+		if (provAgent != service) {
+			return;
+		}
+
 		if (providerRegistration != null)
 			providerRegistration.unregister();
 		providerRegistration = null;
+		provider = null;
+		provAgent = null;
 	}
 
 }
