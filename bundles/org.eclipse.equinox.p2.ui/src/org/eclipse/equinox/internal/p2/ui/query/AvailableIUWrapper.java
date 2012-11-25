@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
+ *     Rapicorp, Inc (Pascal Rapicault) - Bug 394156 - Add support for updates from one namespace to another
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
@@ -17,9 +18,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 /**
  * A wrapper that examines available IU's and wraps them in an
@@ -82,18 +84,15 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 	private InformationCache computeIUInformation(IInstallableUnit iu) {
 		boolean isUpdate = false;
 		boolean isInstalled = false;
-		boolean isPatch = iu == null ? false : Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
+		boolean isPatch = iu == null ? false : QueryUtil.isPatch(iu);
 		if (profile != null && iu != null) {
-			IQueryResult<IInstallableUnit> queryResult = profile.query(QueryUtil.createIUQuery(iu.getId()), null);
-			Iterator<IInstallableUnit> iter = queryResult.iterator();
-			// We are typically iterating over only one IU unless it's a non-singleton.
+			isInstalled = !profile.query(QueryUtil.createIUQuery(iu), null).isEmpty();
+			Iterator<IInstallableUnit> iter = profile.query(new UserVisibleRootQuery(), null).iterator();
 			while (iter.hasNext()) {
 				IInstallableUnit installed = iter.next();
-				if (installed.getVersion().compareTo(iu.getVersion()) < 0)
+				if (iu.getUpdateDescriptor() != null && iu.getUpdateDescriptor().isUpdateOf(installed)) {
 					isUpdate = true;
-				else {
-					isUpdate = false;
-					isInstalled = true;
+					break;
 				}
 			}
 		}

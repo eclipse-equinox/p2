@@ -8,10 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
+ *     Rapicorp, Inc (Pascal Rapicault) - Bug 394156 - Add support for updates from one namespace to another
  ******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
 import java.util.Collection;
+import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
@@ -70,8 +72,7 @@ public class InstallOperation extends ProfileChangeOperation {
 	 */
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		request = ProfileChangeRequest.createByProfileId(session.getProvisioningAgent(), profileId);
-		IProfile profile;
-		profile = session.getProfileRegistry().getProfile(profileId);
+		IProfile profile = session.getProfileRegistry().getProfile(profileId);
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.InstallOperation_ComputeProfileChangeProgress, toInstall.size());
 		for (IInstallableUnit entryToInstall : toInstall) {
 			// If the user is installing a patch, we mark it optional.  This allows
@@ -87,31 +88,22 @@ public class InstallOperation extends ProfileChangeOperation {
 			if (!alreadyInstalled.isEmpty()) { //  && installedIU.isSingleton()
 				IInstallableUnit installedIU = alreadyInstalled.iterator().next();
 				int compareTo = entryToInstall.getVersion().compareTo(installedIU.getVersion());
-				// If the iu is a newer version of something already installed, consider this an
-				// update request
+				// If the iu is a newer version of something already installed, consider this an update request
 				if (compareTo > 0) {
 					boolean lockedForUpdate = false;
 					String value = profile.getInstallableUnitProperty(installedIU, IProfile.PROP_PROFILE_LOCKED_IU);
 					if (value != null)
 						lockedForUpdate = (Integer.parseInt(value) & IProfile.LOCK_UPDATE) == IProfile.LOCK_UPDATE;
 					if (lockedForUpdate) {
-						// Add a status telling the user that this implies an update, but the
-						// iu should not be updated
+						// Add a status telling the user that this implies an update, but the iu should not be updated
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE, entryToInstall));
 					} else {
-						request.add(entryToInstall);
-						request.remove(installedIU);
-						// Add a status informing the user that the update has been inferred
-						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, entryToInstall));
-						// Mark it as a root if it hasn't been already
-						if (!UserVisibleRootQuery.isUserVisible(installedIU, profile))
-							request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+						dealWithUpdates(status, profile, entryToInstall, installedIU);
 					}
 				} else if (compareTo < 0) {
 					// An implied downgrade.  We will not put this in the plan, add a status informing the user
 					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE, entryToInstall));
 				} else {
-					//					if (rootMarkerKey != null) {
 					if (UserVisibleRootQuery.isUserVisible(installedIU, profile))
 						// It is already a root, nothing to do. We tell the user it was already installed
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, entryToInstall));
@@ -121,17 +113,37 @@ public class InstallOperation extends ProfileChangeOperation {
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_PARTIAL_INSTALL, entryToInstall));
 						request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 					}
-					//					}
 				}
 			} else {
-				// Install it and mark as a root
-				request.add(entryToInstall);
-				//				if (rootMarkerKey != null)
+				//Deal with the case of updates with renames
+				boolean handled = false;
+				Iterator<IInstallableUnit> allIUsIterator = profile.query(QueryUtil.ALL_UNITS, null).iterator();
+				while (allIUsIterator.hasNext()) {
+					IInstallableUnit iuAlreadyInstalled = allIUsIterator.next();
+					if (entryToInstall.getUpdateDescriptor() != null && entryToInstall.getUpdateDescriptor().isUpdateOf(iuAlreadyInstalled)) {
+						dealWithUpdates(status, profile, entryToInstall, iuAlreadyInstalled);
+						handled = true;
+						break;
+					}
+				}
+				if (!handled)
+					// Install it and mark as a root
+					request.add(entryToInstall);
 				request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
 			sub.worked(1);
 		}
 		sub.done();
+	}
+
+	private void dealWithUpdates(MultiStatus status, IProfile profile, IInstallableUnit entryToInstall, IInstallableUnit installedIU) {
+		request.add(entryToInstall);
+		request.remove(installedIU);
+		// Add a status informing the user that the update has been inferred
+		status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, entryToInstall));
+		// Mark it as a root if it hasn't been already
+		if (!UserVisibleRootQuery.isUserVisible(installedIU, profile))
+			request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 	}
 
 	/* (non-Javadoc)
