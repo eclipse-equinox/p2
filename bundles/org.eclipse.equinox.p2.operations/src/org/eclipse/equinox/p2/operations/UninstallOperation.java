@@ -65,7 +65,6 @@ public class UninstallOperation extends ProfileChangeOperation {
 		// We ask to remove the the profile root property in addition to removing the IU.  In theory this
 		// should be redundant, but there are cases where the planner decides not to uninstall something because
 		// it is needed by others.  We still want to remove the root in this case.
-		//		if (rootMarkerKey != null)
 		for (IInstallableUnit iuToUninstall : toUninstall) {
 			request.removeInstallableUnitProfileProperty(iuToUninstall, IProfile.PROP_PROFILE_ROOT_IU);
 		}
