@@ -352,14 +352,12 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 			List<URI> referredRepos = new ArrayList<URI>(checked.length);
 			for (Object checkItem : checked) {
 				IUDetail feature = (IUDetail) checkItem;
-				for (URI uri : feature.getReferencedRepositories()) {
-					referredRepos.add(uri);
-				}
+				referredRepos.addAll(feature.getReferencedRepositories());
 			}
 			ProvisioningContext context = new ProvisioningContext(agent);
 			if (!contactAll.getSelection()) {
-				context.setArtifactRepositories(referredRepos.toArray(new URI[referredRepos.size()]));
-				context.setMetadataRepositories(referredRepos.toArray(new URI[referredRepos.size()]));
+				context.setArtifactRepositories(null);
+				context.setMetadataRepositories(null);
 			}
 			return context;
 		}
