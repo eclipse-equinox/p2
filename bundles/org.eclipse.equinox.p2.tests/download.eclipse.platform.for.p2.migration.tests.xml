@@ -35,9 +35,9 @@
 	</target>
 
 	<target name="download.for.unix" unless="isWindows">
-		<get src="http://mirror.csclub.uwaterloo.ca/eclipse/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-platform-3.7.2-linux-gtk.tar.gz" dest="eclipse-indigo-platform.tar.gz" />
+		<get src="http://eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-platform-3.7.2-linux-gtk.tar.gz&amp;r=1" dest="eclipse-indigo-platform.tar.gz" />
 	</target>
 	<target name="download.for.windows" if="isWindows">
-		<get src="http://mirror.csclub.uwaterloo.ca/eclipse/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-platform-3.7.2-win32.zip" dest="eclipse-indigo-platform.zip" />
+		<get src="http://eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-platform-3.7.2-win32.zip&amp;r=1" dest="eclipse-indigo-platform.zip" />
 	</target>
 </project>
