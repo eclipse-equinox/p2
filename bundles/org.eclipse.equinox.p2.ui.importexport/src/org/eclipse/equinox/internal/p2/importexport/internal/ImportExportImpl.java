@@ -31,7 +31,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class ImportExportImpl implements P2ImportExport {
 
-	private static final String SCHEME_FILE = "file"; //$NON-NLS-1$
 	public static final int IGNORE_LOCAL_REPOSITORY = 1;
 	public static final int CANNOT_FIND_REPOSITORY = 2;
 
@@ -53,26 +52,14 @@ public class ImportExportImpl implements P2ImportExport {
 		return parser.getIUs();
 	}
 
-	public IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, IProgressMonitor monitor) {
+	public IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, boolean allowEntriesWithoutRepo, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.Replicator_ExportJobName, 1000);
+
+		//Collect repos where the IUs are going to be searched
 		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		URI[] uris = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		Arrays.sort(uris, new Comparator<URI>() {
-			public int compare(URI o1, URI o2) {
-				String scheme1 = o1.getScheme();
-				String scheme2 = o2.getScheme();
-				if (scheme1.equals(scheme2))
-					return 0;
-				if (SCHEME_FILE.equals(scheme1)) {
-					return 1;
-				} else if (SCHEME_FILE.equals(scheme2)) {
-					return -1;
-				}
-				return 0;
-			}
-		});
+		URI[] uris = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_LOCAL | IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		List<IMetadataRepository> repos = new ArrayList<IMetadataRepository>(uris.length);
 		for (URI uri : uris) {
 			try {
@@ -83,7 +70,7 @@ public class ImportExportImpl implements P2ImportExport {
 			}
 		}
 		subMonitor.setWorkRemaining(500);
-		List<IUDetail> features = new ArrayList<IUDetail>(ius.length);
+		List<IUDetail> rootsToExport = new ArrayList<IUDetail>(ius.length);
 		SubMonitor sub2 = subMonitor.newChild(450, SubMonitor.SUPPRESS_ALL_LABELS);
 		sub2.setWorkRemaining(ius.length * 100);
 		MultiStatus queryRepoResult = new MultiStatus(Constants.Bundle_ID, 0, null, null);
@@ -93,34 +80,51 @@ public class ImportExportImpl implements P2ImportExport {
 				throw new OperationCanceledException();
 			SubMonitor sub3 = sub2.newChild(100);
 			sub3.setWorkRemaining(repos.size() * 100);
+
+			//Search for repo matching the given IU
 			for (IMetadataRepository repo : repos) {
-				if (SCHEME_FILE.equals(repo.getLocation().getScheme()) && referredRepos.size() > 0)
-					break;
 				IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, true)), sub3.newChild(100));
 				if (!result.isEmpty())
 					referredRepos.add(repo.getLocation());
 			}
 			sub3.setWorkRemaining(1).worked(1);
-			if (referredRepos.size() == 0) {
-				queryRepoResult.add(new Status(IStatus.WARNING, Constants.Bundle_ID, CANNOT_FIND_REPOSITORY, NLS.bind(Messages.Replicator_NotFoundInRepository, iu.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString())), null));
+
+			//Create object representing given IU
+			if (referredRepos.size() != 0 || (referredRepos.size() == 0 && allowEntriesWithoutRepo)) {
+				IUDetail iuToExport = new IUDetail(iu, referredRepos);
+				rootsToExport.add(iuToExport);
 			} else {
-				if (SCHEME_FILE.equals(referredRepos.get(0).getScheme()))
+				if (isContainedInLocalRepo(iu))
 					queryRepoResult.add(new Status(IStatus.INFO, Constants.Bundle_ID, IGNORE_LOCAL_REPOSITORY, NLS.bind(Messages.Replicator_InstallFromLocal, iu.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString())), null));
-				else {
-					IUDetail feature = new IUDetail(iu, referredRepos);
-					features.add(feature);
-				}
+				else
+					queryRepoResult.add(new Status(IStatus.WARNING, Constants.Bundle_ID, CANNOT_FIND_REPOSITORY, NLS.bind(Messages.Replicator_NotFoundInRepository, iu.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString())), null));
 			}
 		}
 		subMonitor.setWorkRemaining(50);
-		IStatus status = exportP2F(output, features, subMonitor);
+		//Serialize
+		IStatus status = exportP2F(output, rootsToExport, subMonitor);
 		if (status.isOK() && queryRepoResult.isOK())
 			return status;
 		MultiStatus rt = new MultiStatus(Constants.Bundle_ID, 0, new IStatus[] {queryRepoResult, status}, null, null);
 		return rt;
 	}
 
-	public IStatus exportP2F(OutputStream output, List<IUDetail> features, IProgressMonitor monitor) {
+	private boolean isContainedInLocalRepo(IInstallableUnit iu) {
+		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		URI[] uris = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL | IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		for (URI uri : uris) {
+			try {
+				IMetadataRepository repo = repoManager.loadRepository(uri, null);
+				if (!repo.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, true)), null).isEmpty())
+					return true;
+			} catch (ProvisionException e) {
+				// ignore
+			}
+		}
+		return false;
+	}
+
+	public IStatus exportP2F(OutputStream output, List<IUDetail> ius, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Replicator_SaveJobName, 100);
@@ -128,7 +132,7 @@ public class ImportExportImpl implements P2ImportExport {
 			throw new OperationCanceledException();
 		try {
 			P2FWriter writer = new P2FWriter(output, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(P2FConstants.P2F_ELEMENT, P2FConstants.CURRENT_VERSION)});
-			writer.write(features);
+			writer.write(ius);
 			return Status.OK_STATUS;
 		} catch (UnsupportedEncodingException e) {
 			return new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e);

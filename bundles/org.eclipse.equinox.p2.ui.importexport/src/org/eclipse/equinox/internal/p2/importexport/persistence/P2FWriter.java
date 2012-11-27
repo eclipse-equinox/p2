@@ -26,31 +26,31 @@ public class P2FWriter extends XMLWriter implements P2FConstants {
 		super(output, piElements);
 	}
 
-	public void write(List<IUDetail> features) {
+	public void write(List<IUDetail> ius) {
 		start(P2F_ELEMENT);
 		attribute(VERSION_ATTRIBUTE, CURRENT_VERSION);
-		writeFeatures(features);
+		writeIUs(ius);
 		end(P2F_ELEMENT);
 		flush();
 	}
 
-	private void writeFeatures(List<IUDetail> features) {
+	private void writeIUs(List<IUDetail> ius) {
 		start(IUS_ELEMENT);
-		attributeOptional(COLLECTION_SIZE_ATTRIBUTE, String.valueOf(features.size()));
-		for (IUDetail feature : features)
-			writeFeature(feature);
+		attributeOptional(COLLECTION_SIZE_ATTRIBUTE, String.valueOf(ius.size()));
+		for (IUDetail iu : ius)
+			writeIU(iu);
 		end(IUS_ELEMENT);
 	}
 
-	private void writeFeature(IUDetail feature) {
-		IInstallableUnit unit = feature.getIU();
+	private void writeIU(IUDetail iu) {
+		IInstallableUnit unit = iu.getIU();
 		start(IU_ELEMENT);
 		attribute(ID_ATTRIBUTE, unit.getId());
 		attribute(NAME_ATTRIBUTE, unit.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString()));
 		attribute(VERSION_ATTRIBUTE, unit.getVersion().toString());
 		start(REPOSITORIES_ELEMENT);
-		attribute(COLLECTION_SIZE_ATTRIBUTE, feature.getReferencedRepositories().size());
-		for (URI uri : feature.getReferencedRepositories()) {
+		attribute(COLLECTION_SIZE_ATTRIBUTE, iu.getReferencedRepositories().size());
+		for (URI uri : iu.getReferencedRepositories()) {
 			start(REPOSITORY_ELEMENT);
 			String unencoded = URIUtil.toUnencodedString(uri);
 			attribute(LOCATION_ELEMENT, unencoded);

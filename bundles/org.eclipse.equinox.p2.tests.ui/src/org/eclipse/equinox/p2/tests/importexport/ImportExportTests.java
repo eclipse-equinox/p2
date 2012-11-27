@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2011 WindRiver Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     WindRiver Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - Bug 387115 - Allow to export everything
+ *******************************************************************************/
 package org.eclipse.equinox.p2.tests.importexport;
 
 import java.io.*;
@@ -102,7 +113,7 @@ public class ImportExportTests extends AbstractProvisioningTest {
 			assertNotNull("Fail to load local repo", repo);
 			IInstallableUnit iu = createIU("A", Version.create("1.0.0"));
 			OutputStream output = new FileOutputStream(testFile);
-			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, null);
+			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
 			assertFalse("Not expected return result.", status.isOK());
 			assertTrue("Should be a multiple status", status.isMultiStatus());
 			boolean hasFeaturesIgnored = false;
@@ -110,6 +121,23 @@ public class ImportExportTests extends AbstractProvisioningTest {
 				if (s.getCode() == ImportExportImpl.IGNORE_LOCAL_REPOSITORY)
 					hasFeaturesIgnored = true;
 			assertTrue("Should have features ignored due to they're installed from local repository.", hasFeaturesIgnored);
+			output.close();
+		} finally {
+			testFile.delete();
+		}
+	}
+
+	public void testAllowExportFeaturesInstalledFromLocal() throws ProvisionException, OperationCanceledException, IOException {
+		File testFile = File.createTempFile("test", "p2f");
+		try {
+			IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+			File localRepoFile = getTestData("Error load data", "testData/importexport/repo1");
+			IMetadataRepository repo = metaManager.loadRepository(localRepoFile.toURI(), null);
+			assertNotNull("Fail to load local repo", repo);
+			IInstallableUnit iu = createIU("A", Version.create("1.0.0"));
+			OutputStream output = new FileOutputStream(testFile);
+			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, true, null);
+			assertTrue(status.isOK());
 			output.close();
 		} finally {
 			testFile.delete();

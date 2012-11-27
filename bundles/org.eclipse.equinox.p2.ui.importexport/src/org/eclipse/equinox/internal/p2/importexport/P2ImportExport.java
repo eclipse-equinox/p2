@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - Bug 387115 - Allow to export everything
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport;
 
@@ -26,7 +27,7 @@ public interface P2ImportExport {
 	 */
 	List<IUDetail> importP2F(InputStream input) throws IOException;
 
-	IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, IProgressMonitor monitor);
+	IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, boolean allowEntriesWithoutRepo, IProgressMonitor monitor);
 
 	IStatus exportP2F(OutputStream output, List<IUDetail> ius, IProgressMonitor monitor);
 }

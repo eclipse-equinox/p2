@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2011 WindRiver Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     WindRiver Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.p2.tests.importexport;
 
 import java.io.*;
@@ -55,7 +65,7 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 			assertNotNull("Fail to load remote repo", repo);
 			IInstallableUnit iu = AbstractProvisioningTest.createIU("A", Version.create("1.0.0"));
 			OutputStream output = new FileOutputStream(testFile);
-			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, null);
+			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
 			assertTrue("Not expected return result.", status.isOK());
 			output.close();
 			InputStream input = new FileInputStream(testFile);
@@ -101,7 +111,7 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 			assertNotNull("Fail to load remote repo", repo);
 			IInstallableUnit iu = AbstractProvisioningTest.createIU("A", Version.create("1.0.0"));
 			OutputStream output = new FileOutputStream(testFile);
-			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, null);
+			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
 			assertTrue("Not expected return result.", status.isOK());
 			output.close();
 			InputStream input = new FileInputStream(testFile);

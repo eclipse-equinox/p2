@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - Bug 387115 - Allow to export everything
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
@@ -59,7 +60,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 	@Override
 	protected void createContents(Composite composite) {
-		createDestinationGroup(composite);
+		createDestinationGroup(composite, true);
 		createInstallationTable(composite);
 	}
 

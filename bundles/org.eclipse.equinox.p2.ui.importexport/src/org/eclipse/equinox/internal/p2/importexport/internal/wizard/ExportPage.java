@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - Bug 387115 - Allow to export everything
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
@@ -23,7 +24,6 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 
 public class ExportPage extends AbstractPage {
-
 	public ExportPage(String pageName) {
 		super(pageName);
 		setTitle(Messages.ExportPage_Title);
@@ -40,7 +40,7 @@ public class ExportPage extends AbstractPage {
 			label.setText(Messages.ExportPage_Label);
 
 			createInstallationTable(composite);
-			createDestinationGroup(composite);
+			createDestinationGroup(composite, true);
 		}
 	}
 
@@ -52,6 +52,7 @@ public class ExportPage extends AbstractPage {
 		// about to invoke the operation so save our state
 		saveWidgetValues();
 		final Object[] checked = viewer.getCheckedElements();
+		final boolean includeAllEntries = includeAllButton.getSelection();
 		OutputStream stream = null;
 		try {
 			File target = new File(ExportPage.this.destinationNameField.getText());
@@ -66,7 +67,7 @@ public class ExportPage extends AbstractPage {
 						IInstallableUnit[] units = new IInstallableUnit[checked.length];
 						for (int i = 0; i < units.length; i++)
 							units[i] = ProvUI.getAdapter(checked[i], IInstallableUnit.class);
-						IStatus status = importexportService.exportP2F(out, units, monitor);
+						IStatus status = importexportService.exportP2F(out, units, includeAllEntries, monitor);
 						if (status.isMultiStatus()) {
 							final StringBuilder sb = new StringBuilder();
 							for (IStatus child : status.getChildren()) {

@@ -8,6 +8,7 @@
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
  *     IBM Corporation - Ongoing development
+ *     Ericsson AB (Pascal Rapicault) - Bug 387115 - Allow to export everything
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
@@ -17,6 +18,8 @@ import java.util.List;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.equinox.internal.p2.importexport.P2ImportExport;
 import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
 import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
@@ -51,6 +54,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	protected String currentMessage;
 	protected Button destinationBrowseButton;
+	protected Button includeAllButton;
 	protected Combo destinationNameField;
 	protected P2ImportExport importexportService = null;
 	protected CheckboxTreeViewer viewer = null;
@@ -288,7 +292,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		Dialog.applyDialogFont(composite);
 	}
 
-	protected void createDestinationGroup(Composite parent) {
+	protected void createDestinationGroup(Composite parent, boolean includeButton) {
 		Composite composite = new Composite(parent, SWT.BORDER);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 3;
@@ -314,6 +318,19 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		destinationBrowseButton.setText(Messages.Page_BUTTON_BROWSER);
 		destinationBrowseButton.addListener(SWT.Selection, this);
 		destinationBrowseButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+
+		if (includeButton) {
+			includeAllButton = new Button(composite, SWT.CHECK);
+			includeAllButton.setText("Include entries that can't be found in repositories");
+			includeAllButton.setSelection(allowExportWithoutRepositoryReference());
+			GridData dataIncludeButton = new GridData();
+			dataIncludeButton.horizontalSpan = 3;
+			includeAllButton.setLayoutData(dataIncludeButton);
+		}
+	}
+
+	private boolean allowExportWithoutRepositoryReference() {
+		return Platform.getPreferencesService().getBoolean(Constants.Bundle_ID, Constants.PREF_IU_WITHOUT_REPO, false, new IScopeContext[] {DefaultScope.INSTANCE});
 	}
 
 	protected IUColumnConfig[] getColumnConfig() {

@@ -8,6 +8,7 @@
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
  *     IBM Corporation - Ongoing development
+ *     Ericsson AB (Pascal Rapicault) - Bug 387115 - Allow to export everything
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
@@ -204,7 +205,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 	@Override
 	protected void createContents(Composite composite) {
-		createDestinationGroup(composite);
+		createDestinationGroup(composite, false);
 		createInstallationTable(composite);
 		createAdditionOptions(composite);
 	}
@@ -283,6 +284,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 			try {
 				input = new BufferedInputStream(new FileInputStream(getDestinationValue()));
 				features = importexportService.importP2F(input);
+				contactAll.setSelection(hasEntriesWithoutRepo());
 				viewer.setInput(features.toArray(new IUDetail[features.size()]));
 				input.close();
 			} catch (VersionIncompatibleException e) {
@@ -294,6 +296,14 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 			}
 		} else
 			viewer.setInput(null);
+	}
+
+	private boolean hasEntriesWithoutRepo() {
+		for (IUDetail entry : features) {
+			if (entry.getReferencedRepositories().size() == 0)
+				return true;
+		}
+		return false;
 	}
 
 	@Override
