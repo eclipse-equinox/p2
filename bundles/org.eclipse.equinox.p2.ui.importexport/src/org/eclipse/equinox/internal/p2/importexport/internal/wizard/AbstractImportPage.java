@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - Bug 395210
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
@@ -71,7 +72,8 @@ public abstract class AbstractImportPage extends AbstractPage {
 
 	public String getIUNameWithDetail(IInstallableUnit iu) {
 		IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), null);
-		final String text = iu.getProperty(IProfile.PROP_NAME, null);
+		String text = iu.getProperty(IProfile.PROP_NAME, null);
+		text = (text != null) ? text : iu.getId();
 		if (!results.isEmpty()) {
 			boolean hasHigherVersion = false;
 			boolean hasEqualVersion = false;
