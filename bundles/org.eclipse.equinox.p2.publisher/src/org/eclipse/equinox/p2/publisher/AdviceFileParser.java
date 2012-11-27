@@ -192,7 +192,7 @@ public class AdviceFileParser {
 		if (match != null) {
 			//When update.match is specified, versionRange and id are ignored
 			IExpression expr = ExpressionUtil.parse(substituteVersionAndQualifier(match));
-			IMatchExpression matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
+			IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
 			Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<IMatchExpression<IInstallableUnit>>(1);
 			descriptors.add(matchExpression);
 			return MetadataFactory.createUpdateDescriptor(descriptors, Integer.valueOf(severity), description, (URI) null);

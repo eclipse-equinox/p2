@@ -31,8 +31,8 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 		this.antTaskName = antTaskName;
 	}
 
-	protected FileFilter createFileFilter(Options options) {
-		baseFilter = super.createFileFilter(options);
+	protected FileFilter createFileFilter(Options opt) {
+		baseFilter = super.createFileFilter(opt);
 		if (inputFiles == null || inputFiles.size() == 0)
 			return baseFilter;
 
@@ -60,11 +60,11 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 		super.processDirectory(input, filter, verbose, processor, packProperties);
 	}
 
-	public void addSignStep(JarProcessor processor, Properties properties, Options options) {
+	public void addSignStep(JarProcessor processor, Properties properties, Options opt) {
 		if (signArguments.get(JarProcessorTask.UNSIGN) != null)
-			processor.addProcessStep(new UnsignCommand(properties, options.signCommand, options.verbose));
+			processor.addProcessStep(new UnsignCommand(properties, opt.signCommand, opt.verbose));
 		if (signArguments.get(JarProcessorTask.SIGN) != null)
-			processor.addProcessStep(new AntSignCommand(properties, signArguments, project, antTaskName, options.signCommand, options.verbose));
+			processor.addProcessStep(new AntSignCommand(properties, signArguments, project, antTaskName, opt.signCommand, opt.verbose));
 	}
 
 	public void setInputFiles(List inputFiles) {

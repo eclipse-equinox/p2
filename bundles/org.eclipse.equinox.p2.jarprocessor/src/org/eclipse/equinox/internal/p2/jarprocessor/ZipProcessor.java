@@ -138,12 +138,12 @@ public class ZipProcessor {
 										Utils.close(entryStream);
 										if (options.verbose) {
 											e.printStackTrace();
-											System.out.println("Warning: Problem reading " + modifiedFile.getPath() + ".");
+											System.out.println("Warning: Problem reading " + modifiedFile.getPath() + "."); //$NON-NLS-1$//$NON-NLS-2$
 										}
 									}
 									entryStream = null;
 								} else if (options.verbose) {
-									System.out.println("Warning: " + modifiedFile.getPath() + " not found.");
+									System.out.println("Warning: " + modifiedFile.getPath() + " not found."); //$NON-NLS-1$//$NON-NLS-2$
 								}
 							}
 						}
@@ -153,7 +153,7 @@ public class ZipProcessor {
 							} catch (IOException e) {
 								if (options.verbose) {
 									e.printStackTrace();
-									System.out.println("Warning: Problem reading " + extractedFile.getPath() + ".");
+									System.out.println("Warning: Problem reading " + extractedFile.getPath() + "."); //$NON-NLS-1$//$NON-NLS-2$
 								}
 							}
 						}
@@ -171,7 +171,7 @@ public class ZipProcessor {
 						zipOut.closeEntry();
 					} catch (ZipException e) {
 						if (options.verbose) {
-							System.out.println("Warning: " + name + " already exists in " + outputFile.getName() + ".  Skipping.");
+							System.out.println("Warning: " + name + " already exists in " + outputFile.getName() + ".  Skipping."); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 						}
 					}
 					entryStream.close();
