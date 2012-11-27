@@ -321,7 +321,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 		if (includeButton) {
 			includeAllButton = new Button(composite, SWT.CHECK);
-			includeAllButton.setText("Include entries that can't be found in repositories");
+			includeAllButton.setText(Messages.ExportPage_EntriesNotInRepo);
 			includeAllButton.setSelection(allowExportWithoutRepositoryReference());
 			GridData dataIncludeButton = new GridData();
 			dataIncludeButton.horizontalSpan = 3;

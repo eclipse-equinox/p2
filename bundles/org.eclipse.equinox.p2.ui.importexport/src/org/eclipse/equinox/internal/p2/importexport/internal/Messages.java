@@ -25,6 +25,7 @@ public class Messages extends NLS {
 	public static String ExportPage_Fail;
 	public static String ExportPage_FILEDIALOG_TITLE;
 	public static String ExportPage_FixSuggestion;
+	public static String ExportPage_EntriesNotInRepo;
 	public static String EXTENSION_ALL;
 	public static String EXTENSION_ALL_NAME;
 	public static String EXTENSION_p2F_NAME;
