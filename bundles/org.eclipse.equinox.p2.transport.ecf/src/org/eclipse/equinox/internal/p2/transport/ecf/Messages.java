@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -15,18 +15,10 @@ package org.eclipse.equinox.internal.p2.transport.ecf;
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.repository.messages"; //$NON-NLS-1$
-
-	public static String CacheManager_AuthenticationFaileFor_0;
-	public static String CacheManager_FailedCommunicationWithRepo_0;
-	public static String CacheManager_Neither_0_nor_1_found;
-	public static String CacheManage_ErrorRenamingCache;
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.transport.ecf.messages"; //$NON-NLS-1$
 
 	public static String artifact_not_found;
 	public static String io_failedRead;
-	public static String ecf_configuration_error;
-	public static String repoMan_internalError;
-	public static String repo_loading;
 
 	public static String exception_malformedRepoURI;
 	public static String TransportErrorTranslator_400;
@@ -70,18 +62,6 @@ public class Messages extends NLS {
 
 	public static String TransportErrorTranslator_UnknownErrorCode;
 	public static String TransportErrorTranslator_UnknownHost;
-
-	public static String fetching_0_from_1_2_at_3;
-	public static String fetching_0_from_1_2_of_3_at_4;
-	public static String connection_to_0_failed_on_1_retry_attempt_2;
-
-	public static String FileTransport_reader;
-	public static String FileTransport_cancelCheck;
-
-	public static String UnableToRead_0_TooManyAttempts;
-	public static String UnableToRead_0_UserCanceled;
-
-	public static String RepositoryTransport_failedReadRepo;
 
 	static {
 		// initialize resource bundles
