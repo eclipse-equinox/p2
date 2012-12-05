@@ -283,6 +283,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 		if (selectedFileName != null) {
 			setDestinationValue(selectedFileName);
+			handleDestinationChanged(selectedFileName);
 		}
 	}
 

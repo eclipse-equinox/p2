@@ -306,8 +306,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		restoreWidgetValues();
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
 		destinationNameField.setLayoutData(data);
-		destinationNameField.addListener(SWT.Modify, this);
-		destinationNameField.addListener(SWT.Selection, this);
+		destinationNameField.addListener(SWT.FocusOut, this);
 		destinationNameField.addListener(SWT.FocusIn, new Listener() {
 
 			public void handleEvent(Event event) {
@@ -580,6 +579,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			if (!selectedFileName.endsWith(Messages.EXTENSION_p2F.substring(1)))
 				selectedFileName += Messages.EXTENSION_p2F.substring(1);
 			setDestinationValue(selectedFileName);
+			handleDestinationChanged(selectedFileName);
 		}
 	}
 
