@@ -59,8 +59,8 @@ public class SharedProfilePreferencesTestWithDataInUser extends AbstractProvisio
 		Bundle p2Core = Platform.getBundle("org.eclipse.equinox.p2.core");
 		p2Core.stop();
 		
-		File baseInstall = getTestData("test shared install", "testData/sharedPreferencesWithDataInUser/baseInstall");
-		File userHome = getTestData("test shared install", "testData/sharedPreferencesWithDataInUser/userHome");
+		File baseInstall = getTestData("test shared install", "data/test1/base");
+		File userHome = getTestData("test shared install", "data/test1/user");
 		System.setProperty("osgi.sharedConfiguration.area", new File(baseInstall, "configuration").toURI().toString());
 		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString());
 		System.setProperty("eclipse.p2.profile", "epp.package.java");
