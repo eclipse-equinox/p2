@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.net.URI;
 import java.util.*;
 import junit.framework.Assert;
@@ -48,7 +50,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	 */
 	public void testCollectObject() {
 		AvailableIUWrapper wrapper = createWrapper();
-		Collector collector = new Collector();
+		Collector<Object> collector = new Collector<Object>();
 		Object object = new Object();
 		collector.accept(object);
 		Collection results = wrapper.getElements(collector);
@@ -61,7 +63,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	 */
 	public void testCollectIU() {
 		AvailableIUWrapper wrapper = createWrapper();
-		Collector collector = new Collector();
+		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
 		IInstallableUnit unit = createIU("f1");
 		collector.accept(unit);
 		Collection results = wrapper.getElements(collector);
@@ -75,8 +77,8 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	 */
 	public void testMakeCategory() {
 		AvailableIUWrapper wrapper = createWrapper(true);
-		Collector collector = new Collector();
-		Map properties = new HashMap();
+		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
+		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(InstallableUnitDescription.PROP_TYPE_CATEGORY, "true");
 		IInstallableUnit category = createIU("category", Version.createOSGi(1, 0, 0), NO_REQUIRES, properties, false);
 		IInstallableUnit unit = createIU("basicIU");
@@ -104,8 +106,8 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	 */
 	public void testNoMakeCategory() {
 		AvailableIUWrapper wrapper = createWrapper(false);
-		Collector collector = new Collector();
-		Map properties = new HashMap();
+		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
+		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(InstallableUnitDescription.PROP_TYPE_CATEGORY, "true");
 		IInstallableUnit category = createIU("category", Version.createOSGi(1, 0, 0), NO_REQUIRES, properties, false);
 		IInstallableUnit unit = createIU("basicIU");
@@ -134,7 +136,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	public void testHideInstalled() {
 		IProfile profile = createProfile("TestProfile");
 		AvailableIUWrapper wrapper = createWrapper(true);
-		Collector collector = new Collector();
+		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
 		IInstallableUnit installed = createIU("installed");
 		IInstallableUnit notInstalled = createIU("notInstalled");
 		install(profile, new IInstallableUnit[] {installed}, true, createPlanner(), createEngine());
@@ -159,7 +161,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 
 		String orExpression = "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && pc.name == 'B')";
 		IExpression expr = ExpressionUtil.parse(orExpression);
-		IMatchExpression matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
+		IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
 
 		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<IMatchExpression<IInstallableUnit>>();
 		updateExpression.add(matchExpression);
@@ -172,7 +174,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		//Setup the profile
 		IProfile profile = createProfile("TestProfile");
 		AvailableIUWrapper wrapper = createWrapper(true);
-		Collector collector = new Collector();
+		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
 		installAsRoots(profile, new IInstallableUnit[] {installed}, true, createPlanner(), createEngine());
 		wrapper.markInstalledIUs(profile, true);
 
