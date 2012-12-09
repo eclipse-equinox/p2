@@ -31,7 +31,7 @@ public class AdviceFileParser {
 	private static final String UPDATE_SEVERITY = "update.severity"; //$NON-NLS-1$
 	private static final String UPDATE_RANGE = "update.range"; //$NON-NLS-1$
 	private static final String UPDATE_ID = "update.id"; //$NON-NLS-1$
-	private static final String UPDATE_MATCH = "update.match"; //$NON-NLS-1$
+	private static final String UPDATE_MATCH_EXP = "update.matchExp"; //$NON-NLS-1$
 	private static final String CLASSIFIER = "classifier"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_VERSION = "touchpoint.version"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_ID = "touchpoint.id"; //$NON-NLS-1$
@@ -50,6 +50,7 @@ public class AdviceFileParser {
 	private static final String VERSION = "version"; //$NON-NLS-1$
 	private static final String NAMESPACE = "namespace"; //$NON-NLS-1$
 	private static final String NAME = "name"; //$NON-NLS-1$
+	private static final String MATCH_EXP = "matchExp"; //$NON-NLS-1$
 	private static final String LOCATION = "location"; //$NON-NLS-1$
 	private static final String VALUE = "value"; //$NON-NLS-1$
 
@@ -173,7 +174,7 @@ public class AdviceFileParser {
 
 		while (current != null && current.startsWith(prefix)) {
 			String token = current;
-			if (token.equals(UPDATE_MATCH)) {
+			if (token.equals(UPDATE_MATCH_EXP)) {
 				match = currentValue();
 			} else if (token.equals(UPDATE_ID)) {
 				name = currentValue();
@@ -249,6 +250,7 @@ public class AdviceFileParser {
 		String namespace = null;
 		String name = null;
 		VersionRange range = null;
+		String matchExp = null;
 		String filter = null;
 		boolean optional = false;
 		boolean multiple = false;
@@ -277,20 +279,38 @@ public class AdviceFileParser {
 				min = Integer.valueOf(currentValue()).intValue();
 			} else if (token.equals(MAX)) {
 				max = Integer.valueOf(currentValue()).intValue();
+			} else if (token.equals(MATCH_EXP)) {
+				matchExp = currentValue();
 			} else {
 				// we ignore elements we do not understand
 			}
 			next();
 		}
 		IRequirement capability = null;
-		if (min >= 0 && max >= 0) {
-			capability = createRequirement(namespace, name, range, filter, min, max, greedy);
+		if (matchExp == null) {
+			if (min >= 0 && max >= 0) {
+				capability = createRequirement(namespace, name, range, filter, min, max, greedy);
+			} else {
+				capability = createRequirement(namespace, name, range, filter, optional, multiple, greedy);
+			}
 		} else {
-			capability = createRequirement(namespace, name, range, filter, optional, multiple, greedy);
+			//When a match expression is specified, namespace, name and versionRange are ignored
+			if (optional && min == -1 && max == -1) {
+				min = 0;
+				max = 1;
+			}
+			capability = createRequirement(matchExp, filter, min, max, greedy, null);
 		}
 		if (capability != null) {
 			requires.add(capability);
 		}
+	}
+
+	protected IRequirement createRequirement(String requirement, String filter, int min, int max, boolean greedy, String description) {
+		IExpression expr = ExpressionUtil.parse(substituteVersionAndQualifier(requirement));
+		IMatchExpression<IInstallableUnit> requirementExp = ExpressionUtil.getFactory().matchExpression(expr);
+		IMatchExpression<IInstallableUnit> filterExp = InstallableUnit.parseFilter(filter);
+		return MetadataFactory.createRequirement(requirementExp, filterExp, min, max, greedy, description);
 	}
 
 	protected IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, int min, int max, boolean greedy) {

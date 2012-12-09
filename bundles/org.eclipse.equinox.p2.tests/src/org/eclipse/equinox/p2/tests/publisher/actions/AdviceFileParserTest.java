@@ -15,6 +15,8 @@ import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.AdviceFileParser;
 import org.eclipse.equinox.p2.query.QueryUtil;
 
@@ -87,7 +89,7 @@ public class AdviceFileParserTest extends TestCase {
 
 	public void testUpdateDescriptorWithMatch() {
 		Map map = new HashMap();
-		map.put("update.match", "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && (pc.name == 'B' || pc.name == 'C'))");
+		map.put("update.matchExp", "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && (pc.name == 'B' || pc.name == 'C'))");
 		map.put("update.severity", "10");
 		map.put("update.description", "Test Description");
 
@@ -243,6 +245,43 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(new VersionRange(Version.emptyVersion.toString()), RequiredCapability.extractRange(reqs[1].getMatches()));
 		assertEquals(false, reqs[1].isGreedy());
 		assertEquals(1, reqs[1].getMin());
+	}
+
+	public void testRequireWithExpression() {
+		Map map = new HashMap();
+		String matchExp = "properties[abc] == 'def'";
+		map.put("requires.0.matchExp", matchExp);
+		map.put("requires.0.greedy", Boolean.TRUE.toString());
+		map.put("requires.0.min", "1");
+		map.put("requires.0.max", "1");
+
+		AdviceFileParser parser = new AdviceFileParser("id", Version.emptyVersion, map);
+		parser.parse();
+		IRequirement[] reqs = parser.getRequiredCapabilities();
+		reqs = parser.getRequiredCapabilities();
+		assertEquals(1, reqs.length);
+
+		IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse(matchExp));
+		assertEquals(matchExpression, reqs[0].getMatches());
+	}
+
+	public void testRequireWithExpressionAndOptional() {
+		Map map = new HashMap();
+		String matchExp = "properties[abc] == 'def'";
+		map.put("requires.0.matchExp", matchExp);
+		map.put("requires.0.greedy", Boolean.TRUE.toString());
+		map.put("requires.0.optional", Boolean.TRUE.toString());
+
+		AdviceFileParser parser = new AdviceFileParser("id", Version.emptyVersion, map);
+		parser.parse();
+		IRequirement[] reqs = parser.getRequiredCapabilities();
+		reqs = parser.getRequiredCapabilities();
+		assertEquals(1, reqs.length);
+
+		IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse(matchExp));
+		assertEquals(matchExpression, reqs[0].getMatches());
+		assertEquals(0, reqs[0].getMin());
+		assertEquals(1, reqs[0].getMax());
 	}
 
 	public void testMetaRequiresAdvice() {
