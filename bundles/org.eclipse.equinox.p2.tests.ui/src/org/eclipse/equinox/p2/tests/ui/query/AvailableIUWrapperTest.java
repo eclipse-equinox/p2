@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,18 +8,19 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
+ *     Rapicorp, Inc (Pascal Rapicault) - Bug 394156 - Add support for updates from one namespace to another
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
+import java.net.URI;
 import java.util.*;
-import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
-import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
+import junit.framework.Assert;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.AvailableIUWrapper;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 
@@ -148,6 +149,43 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		assertEquals("1.1", 1, results.size());
 		Object iuElement = results.iterator().next();
 		assertEquals("1.2", notInstalled, getIU(iuElement));
+	}
+
+	public void testUpdate() {
+		//Create the IU that will be detected as an update
+		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+		iud.setId("NewB");
+		iud.setVersion(Version.create("1.0.0"));
+
+		String orExpression = "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && pc.name == 'B')";
+		IExpression expr = ExpressionUtil.parse(orExpression);
+		IMatchExpression matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
+
+		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<IMatchExpression<IInstallableUnit>>();
+		updateExpression.add(matchExpression);
+		iud.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateExpression, IUpdateDescriptor.HIGH, (String) null, (URI) null));
+		IInstallableUnit newIUB = MetadataFactory.createInstallableUnit(iud);
+
+		//create the IU being updated
+		IInstallableUnit installed = createIU("B");
+
+		//Setup the profile
+		IProfile profile = createProfile("TestProfile");
+		AvailableIUWrapper wrapper = createWrapper(true);
+		Collector collector = new Collector();
+		installAsRoots(profile, new IInstallableUnit[] {installed}, true, createPlanner(), createEngine());
+		wrapper.markInstalledIUs(profile, true);
+
+		//now feed in the installed and non-installed units, and the installed unit should be ignored.
+		collector.accept(newIUB);
+
+		Collection results = wrapper.getElements(collector);
+
+		//Verify 
+		assertEquals("1.1", 1, results.size());
+		Object iuElement = results.iterator().next();
+		assertEquals("1.2", newIUB, getIU(iuElement));
+		Assert.assertTrue(((AvailableIUElement) iuElement).isUpdate());
 	}
 
 	protected IQuery getMockQuery() {

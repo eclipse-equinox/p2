@@ -7,6 +7,7 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -45,7 +46,6 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
-
 
 /**
  * Base class for provisioning tests with convenience methods used by multiple tests.
@@ -1026,6 +1026,17 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		for (int i = 0; i < repos.length; i++) {
 			repoMan.removeRepository(repos[i]);
 		}
+	}
+
+	protected IStatus installAsRoots(IProfile profile, IInstallableUnit[] ius, boolean strict, IPlanner planner, IEngine engine) {
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		for (int i = 0; i < ius.length; i++) {
+			req.add(ius[i]);
+			req.setInstallableUnitInclusionRules(ius[i], strict ? ProfileInclusionRules.createStrictInclusionRule(ius[i]) : ProfileInclusionRules.createOptionalInclusionRule(ius[i]));
+			req.setInstallableUnitProfileProperty(ius[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+		}
+
+		return install(req, planner, engine);
 	}
 
 	protected IStatus install(IProfile profile, IInstallableUnit[] ius, boolean strict, IPlanner planner, IEngine engine) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 IBM Corporation and others.
+ *  Copyright (c) 2010-2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,16 +7,19 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Rapicorp, Inc (Pascal Rapicault) - Bug 394156 - Add support for updates from one namespace to another
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.Set;
-import org.eclipse.core.runtime.OperationCanceledException;
+import java.util.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.operations.IStatusCodes;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.operations.InstallOperation;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -90,5 +93,36 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 		getMetadataRepositoryManager().removeRepository(uriB);
 		getMetadataRepositoryManager().removeRepository(uriC);
 
+	}
+
+	public void testUpdateWithNamespaceChange() {
+		//Create the IU that will be detected as an update
+		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+		iud.setId("NewB");
+		iud.setVersion(Version.create("1.0.0"));
+
+		String orExpression = "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && pc.name == 'B')";
+		IExpression expr = ExpressionUtil.parse(orExpression);
+		IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
+
+		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<IMatchExpression<IInstallableUnit>>();
+		updateExpression.add(matchExpression);
+		iud.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateExpression, IUpdateDescriptor.HIGH, (String) null, (URI) null));
+		IInstallableUnit newIUB = MetadataFactory.createInstallableUnit(iud);
+
+		//create the IU being updated
+		IInstallableUnit installed = createIU("B");
+
+		//Setup the profile
+		installAsRoots(profile, new IInstallableUnit[] {installed}, true, createPlanner(), createEngine());
+
+		List<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		ius.add(newIUB);
+		InstallOperation op = new InstallOperation(getSession(), ius);
+		op.setProfileId(TESTPROFILE);
+
+		IStatus resolutionStatus = op.resolveModal(getMonitor());
+		assertEquals(IStatusCodes.PROFILE_CHANGE_ALTERED, ((MultiStatus) resolutionStatus).getChildren()[0].getCode());
+		assertEquals(IStatusCodes.ALTERED_IMPLIED_UPDATE, ((MultiStatus) (((MultiStatus) resolutionStatus).getChildren()[0])).getChildren()[0].getCode());
 	}
 }
