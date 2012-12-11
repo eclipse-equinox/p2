@@ -16,8 +16,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import org.eclipse.equinox.internal.p2.jarprocessor.UnpackStep;
 import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
-import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
-import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.*;
 
 public class Verifier extends JarProcessorExecutor {
 
@@ -89,7 +88,7 @@ public class Verifier extends JarProcessorExecutor {
 		final VerifyStep verifyStep = new VerifyStep(properties, false);
 		JarProcessor verifier = new JarProcessor() {
 			public File processJar(File inputFile) throws IOException {
-				Iterator iterator = getStepIterator();
+				Iterator<IProcessStep> iterator = getStepIterator();
 				if (iterator.hasNext() && iterator.next() instanceof VerifyStep)
 					return verifyStep.postProcess(inputFile, workingDirectory, null);
 				//else we are unpacking, call super

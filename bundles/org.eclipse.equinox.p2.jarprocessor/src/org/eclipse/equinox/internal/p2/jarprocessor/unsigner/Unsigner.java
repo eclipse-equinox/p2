@@ -42,9 +42,9 @@ public class Unsigner {
 						return true;
 				}
 			} else {
-				Enumeration entries = jar.entries();
+				Enumeration<? extends ZipEntry> entries = jar.entries();
 				while (entries.hasMoreElements()) {
-					ZipEntry entry = (ZipEntry) entries.nextElement();
+					ZipEntry entry = entries.nextElement();
 					String entryName = entry.getName();
 					if (entryName.endsWith(SF_EXT) && entryName.startsWith(META_INF))
 						return true;
