@@ -53,6 +53,7 @@ public interface IRequirement {
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 2.0
 	 */
 	IMatchExpression<IInstallableUnit> getFilter();
 

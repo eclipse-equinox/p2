@@ -37,6 +37,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	/**
 	 * The key for a boolean indicating if the repository is in runnable format.
 	 * @see IRepository#getProperties()
+	 * @since 2.3
 	 */
 	public static final String PROP_RUNNABLE = "p2.runnable"; //$NON-NLS-1$
 

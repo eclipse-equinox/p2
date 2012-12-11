@@ -38,6 +38,7 @@ public interface IMatchQuery<T> extends IQuery<T> {
 	 * of this query, and <code>false</code> otherwise
 	 * 
 	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 2.0
 	 */
 	public boolean isMatch(T candidate);
 }

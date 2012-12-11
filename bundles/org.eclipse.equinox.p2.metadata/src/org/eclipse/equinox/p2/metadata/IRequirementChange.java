@@ -21,21 +21,22 @@ public interface IRequirementChange {
 	/**
 	 * 
 	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 2.0
 	 */
 	public IRequiredCapability applyOn();
 
 	/**
 	 * 
 	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 2.0
 	 */
-
 	public IRequiredCapability newValue();
 
 	/**
 	 * 
 	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 2.0
 	 */
-
 	public boolean matches(IRequiredCapability toMatch);
 
 	/**
@@ -48,6 +49,7 @@ public interface IRequirementChange {
 	 *  <li> The result of <b>newValue()</b> on both objects are equal
 	 * </ul> 
 	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 2.0
 	 */
 	public boolean equals(Object other);
 }
