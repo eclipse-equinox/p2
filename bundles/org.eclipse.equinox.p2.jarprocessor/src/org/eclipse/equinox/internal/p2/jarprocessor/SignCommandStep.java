@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class SignCommandStep extends CommandStep {
-	private Set exclusions = null;
+	private Set<String> exclusions = null;
 
 	public SignCommandStep(Properties options, String command) {
 		super(options, command, ".jar", false); //$NON-NLS-1$
@@ -39,14 +39,14 @@ public class SignCommandStep extends CommandStep {
 	/* (non-Javadoc)
 	 * @see org.eclipse.update.jarprocessor.IProcessStep#preProcess(java.io.File, java.io.File)
 	 */
-	public File preProcess(File input, File workingDirectory, List containers) {
+	public File preProcess(File input, File workingDirectory, List<Properties> containers) {
 		return null;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.update.jarprocessor.IProcessStep#postProcess(java.io.File, java.io.File)
 	 */
-	public File postProcess(File input, File workingDirectory, List containers) {
+	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (command != null && input != null && shouldSign(input, containers)) {
 			try {
 				String[] cmd = new String[] {command, input.getCanonicalPath()};
@@ -65,15 +65,15 @@ public class SignCommandStep extends CommandStep {
 		return null;
 	}
 
-	public boolean shouldSign(File input, List containers) {
+	public boolean shouldSign(File input, List<Properties> containers) {
 		Properties inf = null;
 
 		//1: Are we excluded from signing by our parents?
 		//innermost jar is first on the list, it overrides outer jars
-		for (Iterator iterator = containers.iterator(); iterator.hasNext();) {
-			inf = (Properties) iterator.next();
-			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN_SIGN)){
-				if(Boolean.valueOf(inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN_SIGN)).booleanValue()) {
+		for (Iterator<Properties> iterator = containers.iterator(); iterator.hasNext();) {
+			inf = iterator.next();
+			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN_SIGN)) {
+				if (Boolean.valueOf(inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN_SIGN)).booleanValue()) {
 					if (verbose)
 						System.out.println(input.getName() + "is excluded from signing by its containers."); //$NON-NLS-1$ 
 					return false;

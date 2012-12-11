@@ -49,7 +49,7 @@ public class VerifyStep extends CommandStep {
 		return "Verify"; //$NON-NLS-1$
 	}
 
-	public File postProcess(File input, File workingDirectory, List containers) {
+	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (canVerify() && verifyCommand != null) {
 			try {
 				System.out.print("Verifying " + input.getName() + ":  "); //$NON-NLS-1$ //$NON-NLS-2$
@@ -67,7 +67,7 @@ public class VerifyStep extends CommandStep {
 		return null;
 	}
 
-	public File preProcess(File input, File workingDirectory, List containers) {
+	public File preProcess(File input, File workingDirectory, List<Properties> containers) {
 		return null;
 	}
 

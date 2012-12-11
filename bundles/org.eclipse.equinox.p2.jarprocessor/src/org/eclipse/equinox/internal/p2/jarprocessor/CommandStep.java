@@ -62,7 +62,7 @@ public abstract class CommandStep implements IProcessStep {
 		return options;
 	}
 
-	public boolean adjustInf(File input, Properties inf, List containers) {
+	public boolean adjustInf(File input, Properties inf, List<Properties> containers) {
 		//do nothing by default
 		return false;
 	}

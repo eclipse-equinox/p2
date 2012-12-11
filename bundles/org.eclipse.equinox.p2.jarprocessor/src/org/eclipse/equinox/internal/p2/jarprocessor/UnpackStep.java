@@ -72,7 +72,7 @@ public class UnpackStep extends CommandStep {
 	/* (non-Javadoc)
 	 * @see org.eclipse.update.jarprocessor.IProcessStep#preProcess(java.io.File, java.io.File)
 	 */
-	public File preProcess(File input, File workingDirectory, List containers) {
+	public File preProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (canUnpack() && unpackCommand != null) {
 			String name = input.getName();
 			if (name.endsWith(Utils.PACKED_SUFFIX)) {
@@ -107,7 +107,7 @@ public class UnpackStep extends CommandStep {
 	/* (non-Javadoc)
 	 * @see org.eclipse.update.jarprocessor.IProcessStep#postProcess(java.io.File, java.io.File)
 	 */
-	public File postProcess(File input, File workingDirectory, List containers) {
+	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		return null;
 	}
 

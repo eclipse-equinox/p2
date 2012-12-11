@@ -18,12 +18,12 @@ import org.eclipse.equinox.internal.p2.jarprocessor.*;
 public class JarProcessor {
 	public static final String PACKED_SUFFIX = "pack.gz"; //$NON-NLS-1$
 
-	private List steps = new ArrayList();
+	private List<IProcessStep> steps = new ArrayList<IProcessStep>();
 	private String workingDirectory = ""; //$NON-NLS-1$
 	private int depth = -1;
 	private boolean verbose = false;
 	private boolean processAll = false;
-	private LinkedList containingInfs = new LinkedList();
+	private LinkedList<Properties> containingInfs = new LinkedList<Properties>();
 
 	static public JarProcessor getUnpackProcessor(Properties properties) {
 		if (!canPerformUnpack())
@@ -74,7 +74,7 @@ public class JarProcessor {
 		steps.clear();
 	}
 
-	public Iterator getStepIterator() {
+	public Iterator<IProcessStep> getStepIterator() {
 		return steps.iterator();
 	}
 
@@ -88,16 +88,16 @@ public class JarProcessor {
 	 * @param directory - location to find file for new entryName
 	 * @throws IOException
 	 */
-	private void recreateJar(JarFile jar, JarOutputStream outputJar, Map replacements, File directory, Properties inf) throws IOException {
+	private void recreateJar(JarFile jar, JarOutputStream outputJar, Map<String, String> replacements, File directory, Properties inf) throws IOException {
 		InputStream in = null;
 		boolean marked = false;
 		try {
-			Enumeration entries = jar.entries();
-			for (JarEntry entry = (JarEntry) entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
+			Enumeration<JarEntry> entries = jar.entries();
+			for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
 				File replacement = null;
 				JarEntry newEntry = null;
 				if (replacements.containsKey(entry.getName())) {
-					String name = (String) replacements.get(entry.getName());
+					String name = replacements.get(entry.getName());
 					replacement = new File(directory, name);
 					if (name != null) {
 						if (replacement.exists()) {
@@ -159,8 +159,8 @@ public class JarProcessor {
 
 	private String recursionEffect(String entryName) {
 		String result = null;
-		for (Iterator iter = steps.iterator(); iter.hasNext();) {
-			IProcessStep step = (IProcessStep) iter.next();
+		for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
+			IProcessStep step = iter.next();
 
 			result = step.recursionEffect(entryName);
 			if (result != null)
@@ -169,7 +169,7 @@ public class JarProcessor {
 		return result;
 	}
 
-	private void extractEntries(JarFile jar, File tempDir, Map data, Properties inf) throws IOException {
+	private void extractEntries(JarFile jar, File tempDir, Map<String, String> data, Properties inf) throws IOException {
 		if (inf != null) {
 			//skip if excluding children
 			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN)) {
@@ -184,9 +184,9 @@ public class JarProcessor {
 			}
 		}
 
-		Enumeration entries = jar.entries();
+		Enumeration<JarEntry> entries = jar.entries();
 		if (entries.hasMoreElements()) {
-			for (JarEntry entry = (JarEntry) entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
+			for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
 				String name = entry.getName();
 				String newName = recursionEffect(name);
 				if (newName != null) {
@@ -236,8 +236,8 @@ public class JarProcessor {
 
 	private File preProcess(File input, File tempDir) {
 		File result = null;
-		for (Iterator iter = steps.iterator(); iter.hasNext();) {
-			IProcessStep step = (IProcessStep) iter.next();
+		for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
+			IProcessStep step = iter.next();
 			result = step.preProcess(input, tempDir, containingInfs);
 			if (result != null)
 				input = result;
@@ -247,8 +247,8 @@ public class JarProcessor {
 
 	private File postProcess(File input, File tempDir) {
 		File result = null;
-		for (Iterator iter = steps.iterator(); iter.hasNext();) {
-			IProcessStep step = (IProcessStep) iter.next();
+		for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
+			IProcessStep step = iter.next();
 			result = step.postProcess(input, tempDir, containingInfs);
 			if (result != null)
 				input = result;
@@ -258,8 +258,8 @@ public class JarProcessor {
 
 	private boolean adjustInf(File input, Properties inf) {
 		boolean adjusted = false;
-		for (Iterator iter = steps.iterator(); iter.hasNext();) {
-			IProcessStep step = (IProcessStep) iter.next();
+		for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
+			IProcessStep step = iter.next();
 			adjusted |= step.adjustInf(input, inf, containingInfs);
 		}
 		return adjusted;
@@ -280,8 +280,8 @@ public class JarProcessor {
 					System.out.println("Skipping " + input.getPath()); //$NON-NLS-1$
 				else {
 					System.out.print("Running "); //$NON-NLS-1$ 
-					for (Iterator iter = steps.iterator(); iter.hasNext();) {
-						IProcessStep step = (IProcessStep) iter.next();
+					for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
+						IProcessStep step = iter.next();
 						System.out.print(step.getStepName() + " "); //$NON-NLS-1$
 					}
 					System.out.println("on " + input.getPath()); //$NON-NLS-1$
@@ -307,7 +307,7 @@ public class JarProcessor {
 			JarFile jar = null;
 			try {
 				jar = new JarFile(workingFile, false);
-				Map replacements = new HashMap();
+				Map<String, String> replacements = new HashMap<String, String>();
 				Properties inf = Utils.getEclipseInf(workingFile, verbose);
 				extractEntries(jar, tempDir, replacements, inf);
 
@@ -383,8 +383,8 @@ public class JarProcessor {
 			try {
 				jar = new JarFile(input, false);
 				jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
-				Enumeration entries = jar.entries();
-				for (JarEntry entry = (JarEntry) entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
+				Enumeration<JarEntry> entries = jar.entries();
+				for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
 					JarEntry newEntry = new JarEntry(entry.getName());
 					newEntry.setTime(entry.getTime());
 					jarIn = new BufferedInputStream(jar.getInputStream(entry));

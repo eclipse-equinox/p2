@@ -27,8 +27,8 @@ public class ZipProcessor {
 
 	private String workingDirectory = null;
 	private Properties properties = null;
-	private Set packExclusions = null;
-	private Set signExclusions = null;
+	private Set<String> packExclusions = null;
+	private Set<String> signExclusions = null;
 
 	public void setExecutor(JarProcessorExecutor executor) {
 		this.executor = executor;
@@ -73,9 +73,9 @@ public class ZipProcessor {
 		if (!parent.exists())
 			parent.mkdirs();
 		ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(outputFile));
-		Enumeration entries = zip.entries();
+		Enumeration<? extends ZipEntry> entries = zip.entries();
 		if (entries.hasMoreElements()) {
-			for (ZipEntry entry = (ZipEntry) entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (ZipEntry) entries.nextElement() : null) {
+			for (ZipEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (ZipEntry) entries.nextElement() : null) {
 				String name = entry.getName();
 
 				InputStream entryStream = zip.getInputStream(entry);

@@ -25,7 +25,7 @@ import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExec
 public class JarProcessorTask extends Task {
 	private final Options options = new Options();
 	private final Properties signArgs = new Properties();
-	private final ArrayList inputFiles = new ArrayList();
+	private final ArrayList<File> inputFiles = new ArrayList<File>();
 
 	public static final String ALIAS = "alias"; //$NON-NLS-1$
 	public static final String KEYSTORE = "keystore"; //$NON-NLS-1$
@@ -119,7 +119,7 @@ public class JarProcessorTask extends Task {
 
 	public void addConfiguredFile(FileSet fileset) {
 		DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
-		String [] included = scanner.getIncludedFiles();
+		String[] included = scanner.getIncludedFiles();
 		for (int i = 0; i < included.length; i++) {
 			addInputFile(new File(scanner.getBasedir(), included[i]));
 		}

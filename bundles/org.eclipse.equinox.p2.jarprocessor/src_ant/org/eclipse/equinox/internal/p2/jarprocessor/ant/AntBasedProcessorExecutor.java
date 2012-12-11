@@ -21,8 +21,8 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 	private final Project project;
 	private final Properties signArguments;
 	private final String antTaskName;
-	private List inputFiles;
-	private HashSet filterSet = null;
+	private List<File> inputFiles;
+	private HashSet<File> filterSet = null;
 	private FileFilter baseFilter = null;
 
 	public AntBasedProcessorExecutor(Properties signArguments, Project project, String antTaskName) {
@@ -36,7 +36,7 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 		if (inputFiles == null || inputFiles.size() == 0)
 			return baseFilter;
 
-		filterSet = new HashSet();
+		filterSet = new HashSet<File>();
 		filterSet.addAll(inputFiles);
 		return new FileFilter() {
 			public boolean accept(File pathname) {
@@ -45,7 +45,7 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 		};
 	}
 
-	protected HashSet getFilterSet() {
+	protected HashSet<File> getFilterSet() {
 		return filterSet;
 	}
 
@@ -67,7 +67,7 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 			processor.addProcessStep(new AntSignCommand(properties, signArguments, project, antTaskName, opt.signCommand, opt.verbose));
 	}
 
-	public void setInputFiles(List inputFiles) {
+	public void setInputFiles(List<File> inputFiles) {
 		this.inputFiles = inputFiles;
 	}
 }

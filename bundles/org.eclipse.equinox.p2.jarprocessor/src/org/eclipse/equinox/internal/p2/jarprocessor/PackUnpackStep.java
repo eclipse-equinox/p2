@@ -19,7 +19,7 @@ import java.util.*;
  *
  */
 public class PackUnpackStep extends PackStep {
-	private Set exclusions = null;
+	private Set<String> exclusions = null;
 
 	public PackUnpackStep(Properties options) {
 		super(options);
@@ -41,7 +41,7 @@ public class PackUnpackStep extends PackStep {
 	/* (non-Javadoc)
 	 * @see org.eclipse.update.internal.jarprocessor.PackStep#postProcess(java.io.File, java.io.File, java.util.LinkedList)
 	 */
-	public File postProcess(File input, File workingDirectory, List containers) {
+	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (canPack() && packCommand != null && input != null) {
 			Properties inf = Utils.getEclipseInf(input, verbose);
 			if (!shouldPack(input, containers, inf))
@@ -76,7 +76,7 @@ public class PackUnpackStep extends PackStep {
 	/* (non-Javadoc)
 	 * @see org.eclipse.update.internal.jarprocessor.PackStep#preProcess(java.io.File, java.io.File, java.util.LinkedList)
 	 */
-	public File preProcess(File input, File workingDirectory, List containers) {
+	public File preProcess(File input, File workingDirectory, List<Properties> containers) {
 		return null;
 	}
 

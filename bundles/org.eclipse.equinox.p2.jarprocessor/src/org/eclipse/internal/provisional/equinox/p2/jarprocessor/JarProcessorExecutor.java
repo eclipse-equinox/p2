@@ -30,8 +30,8 @@ public class JarProcessorExecutor {
 	}
 
 	protected Options options = null;
-	private Set packExclusions = null;
-	private Set signExclusions = null;
+	private Set<String> packExclusions = null;
+	private Set<String> signExclusions = null;
 
 	public void runJarProcessor(Options processOptions) {
 		this.options = processOptions;

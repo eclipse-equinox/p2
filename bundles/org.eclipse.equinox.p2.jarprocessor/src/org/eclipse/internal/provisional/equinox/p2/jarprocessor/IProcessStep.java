@@ -36,7 +36,7 @@ public interface IProcessStep {
 	 * @param containers inf properties for containing jars, innermost jar is first on the list
 	 * @return the file containing the result of the processing
 	 */
-	public File preProcess(File input, File workingDirectory, List containers);
+	public File preProcess(File input, File workingDirectory, List<Properties> containers);
 
 	/**
 	 * Perform some processing on the input file after the JarProcessor returns from recursion.
@@ -46,7 +46,7 @@ public interface IProcessStep {
 	 * @param containers inf properties for containing jars, innermost jar is first on the list
 	 * @return the file containing the result of the processing
 	 */
-	public File postProcess(File input, File workingDirectory, List containers);
+	public File postProcess(File input, File workingDirectory, List<Properties> containers);
 
 	/**
 	 * Return the name of this process step
@@ -61,5 +61,5 @@ public interface IProcessStep {
 	 * @param containers inf properties for containing jars, innermost jar is first on the list
 	 * @return <code>true</code> if the properties file was adjusted, and false othewise
 	 */
-	public boolean adjustInf(File input, Properties inf, List containers);
+	public boolean adjustInf(File input, Properties inf, List<Properties> containers);
 }

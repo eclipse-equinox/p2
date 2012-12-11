@@ -21,7 +21,7 @@ public class UnsignCommand extends SignCommandStep {
 		super(options, command, verbose);
 	}
 
-	public File postProcess(File input, File workingDirectory, List containers) {
+	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (command != null && input != null && shouldSign(input, containers)) {
 			execute(input);
 		}

@@ -187,35 +187,35 @@ public class Utils {
 		return result;
 	}
 
-	public static Set getPackExclusions(Properties properties) {
+	public static Set<String> getPackExclusions(Properties properties) {
 		if (properties == null)
-			return Collections.EMPTY_SET;
+			return Collections.emptySet();
 
 		String packExcludes = properties.getProperty(PACK_EXCLUDES);
 		if (packExcludes != null) {
 			String[] excludes = toStringArray(packExcludes, ","); //$NON-NLS-1$
-			Set packExclusions = new HashSet();
+			Set<String> packExclusions = new HashSet<String>();
 			for (int i = 0; i < excludes.length; i++) {
 				packExclusions.add(excludes[i]);
 			}
 			return packExclusions;
 		}
-		return Collections.EMPTY_SET;
+		return Collections.emptySet();
 	}
 
-	public static Set getSignExclusions(Properties properties) {
+	public static Set<String> getSignExclusions(Properties properties) {
 		if (properties == null)
-			return Collections.EMPTY_SET;
+			return Collections.emptySet();
 		String signExcludes = properties.getProperty(SIGN_EXCLUDES);
 		if (signExcludes != null) {
 			String[] excludes = toStringArray(signExcludes, ","); //$NON-NLS-1$
-			Set signExclusions = new HashSet();
+			Set<String> signExclusions = new HashSet<String>();
 			for (int i = 0; i < excludes.length; i++) {
 				signExclusions.add(excludes[i]);
 			}
 			return signExclusions;
 		}
-		return Collections.EMPTY_SET;
+		return Collections.emptySet();
 	}
 
 	public static String concat(String[] array) {
@@ -306,8 +306,8 @@ public class Utils {
 	public static void storeProperties(Properties props, OutputStream stream) {
 		PrintStream printStream = new PrintStream(stream);
 		printStream.print("#Processed using Jarprocessor\n"); //$NON-NLS-1$
-		SortedMap sorted = new TreeMap(props);
-		for (Iterator iter = sorted.keySet().iterator(); iter.hasNext();) {
+		SortedMap<Object, Object> sorted = new TreeMap<Object, Object>(props);
+		for (Iterator<Object> iter = sorted.keySet().iterator(); iter.hasNext();) {
 			String key = (String) iter.next();
 			printStream.print(key);
 			printStream.print(" = "); //$NON-NLS-1$

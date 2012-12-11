@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.jarprocessor;
 
+import java.util.Properties;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -19,7 +21,7 @@ public class PackStep extends CommandStep {
 	protected static String packCommand = null;
 	private static Boolean canPack = null;
 
-	private Set exclusions = Collections.EMPTY_SET;
+	private Set<String> exclusions = Collections.emptySet();
 
 	public static boolean canPack() {
 		if (canPack != null)
@@ -65,11 +67,11 @@ public class PackStep extends CommandStep {
 		return null;
 	}
 
-	public File preProcess(File input, File workingDirectory, List containers) {
+	public File preProcess(File input, File workingDirectory, List<Properties> containers) {
 		return null;
 	}
 
-	public File postProcess(File input, File workingDirectory, List containers) {
+	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (canPack() && packCommand != null) {
 			Properties inf = Utils.getEclipseInf(input, verbose);
 			if (!shouldPack(input, containers, inf))
@@ -90,11 +92,11 @@ public class PackStep extends CommandStep {
 		return null;
 	}
 
-	protected boolean shouldPack(File input, List containers, Properties inf) {
+	protected boolean shouldPack(File input, List<Properties> containers, Properties inf) {
 		//1: exclude by containers
 		// innermost jar is first on the list, it can override outer jars
-		for (Iterator iterator = containers.iterator(); iterator.hasNext();) {
-			Properties container = (Properties) iterator.next();
+		for (Iterator<Properties> iterator = containers.iterator(); iterator.hasNext();) {
+			Properties container = iterator.next();
 			if (container.containsKey(Utils.MARK_EXCLUDE_CHILDREN_PACK)) {
 				if (Boolean.valueOf(container.getProperty(Utils.MARK_EXCLUDE_CHILDREN_PACK)).booleanValue()) {
 					if (verbose)
@@ -115,7 +117,7 @@ public class PackStep extends CommandStep {
 		return true;
 	}
 
-	protected String[] getCommand(File input, File outputFile, Properties inf, List containers) throws IOException {
+	protected String[] getCommand(File input, File outputFile, Properties inf, List<Properties> containers) throws IOException {
 		String[] cmd = null;
 		String arguments = getArguments(input, inf, containers);
 		if (arguments != null && arguments.length() > 0) {
@@ -131,15 +133,15 @@ public class PackStep extends CommandStep {
 		return cmd;
 	}
 
-	protected String getArguments(File input, Properties inf, List containers) {
+	protected String getArguments(File input, Properties inf, List<Properties> containers) {
 		//1: Explicitly marked in our .inf file
 		if (inf != null && inf.containsKey(Utils.PACK_ARGS)) {
 			return inf.getProperty(Utils.PACK_ARGS);
 		}
 
 		//2: Defaults set in one of our containing jars
-		for (Iterator iterator = containers.iterator(); iterator.hasNext();) {
-			Properties container = (Properties) iterator.next();
+		for (Iterator<Properties> iterator = containers.iterator(); iterator.hasNext();) {
+			Properties container = iterator.next();
 			if (container.containsKey(Utils.DEFAULT_PACK_ARGS)) {
 				return container.getProperty(Utils.DEFAULT_PACK_ARGS);
 			}
@@ -164,7 +166,7 @@ public class PackStep extends CommandStep {
 		return "Pack"; //$NON-NLS-1$
 	}
 
-	public boolean adjustInf(File input, Properties inf, List containers) {
+	public boolean adjustInf(File input, Properties inf, List<Properties> containers) {
 		if (input == null || inf == null)
 			return false;
 
