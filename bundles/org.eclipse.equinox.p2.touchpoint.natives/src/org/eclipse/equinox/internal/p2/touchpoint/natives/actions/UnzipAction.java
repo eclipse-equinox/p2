@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Landmark Graphics Corporation - bug 397183
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
@@ -17,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.Value;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
@@ -24,6 +26,7 @@ import org.eclipse.osgi.util.NLS;
 public class UnzipAction extends ProvisioningAction {
 
 	public static final String ACTION_UNZIP = "unzip"; //$NON-NLS-1$
+	private Value<String[]> result;
 
 	public IStatus execute(Map<String, Object> parameters) {
 		return unzip(parameters, true);
@@ -40,7 +43,7 @@ public class UnzipAction extends ProvisioningAction {
 	 * @param restoreable - if the unzip should be backed up
 	 * @return status
 	 */
-	public static IStatus unzip(Map<String, Object> parameters, boolean restoreable) {
+	public IStatus unzip(Map<String, Object> parameters, boolean restoreable) {
 		String source = (String) parameters.get(ActionConstants.PARM_SOURCE);
 		if (source == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_SOURCE, ACTION_UNZIP));
@@ -68,6 +71,12 @@ public class UnzipAction extends ProvisioningAction {
 		String excludePattern = (String) parameters.get(ActionConstants.PARM_EXCLUDE);
 
 		File[] unzippedFiles = unzip(source, target, path, includePattern, excludePattern, store);
+		String[] filesAsString = new String[unzippedFiles.length];
+		for (int i = 0; i < unzippedFiles.length; i++) {
+			filesAsString[i] = unzippedFiles[i].getAbsolutePath();
+		}
+		result = new Value<String[]>(filesAsString);
+
 		StringBuffer unzippedFileNameBuffer = new StringBuffer();
 		for (int i = 0; i < unzippedFiles.length; i++)
 			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append(ActionConstants.PIPE);
@@ -95,5 +104,10 @@ public class UnzipAction extends ProvisioningAction {
 			Util.log(UnzipAction.class.getName() + " error unzipping zipfile: " + zipFile.getAbsolutePath() + "destination: " + destination); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return new File[0];
+	}
+
+	@Override
+	public Value<String[]> getResult() {
+		return result;
 	}
 }

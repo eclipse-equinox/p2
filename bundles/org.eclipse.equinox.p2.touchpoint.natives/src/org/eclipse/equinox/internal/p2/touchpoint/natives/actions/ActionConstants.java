@@ -33,4 +33,5 @@ public class ActionConstants {
 	public static final String PARM_COPY_SOURCE = "source"; //$NON-NLS-1$
 	public static final String PARM_COPY_OVERWRITE = "overwrite"; //$NON-NLS-1$
 	public static final String PARM_OPTIONS = "options"; //$NON-NLS-1$
+	public static final String PARM_ABSOLUTE_FILES = "absoluteFiles"; //$NON-NLS-1$
 }

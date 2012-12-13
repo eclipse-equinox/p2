@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,19 +7,21 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Landmark Graphics Corporation - bug 397183
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.engine.spi.*;
 
 public class ParameterizedProvisioningAction extends ProvisioningAction {
-
 	private ProvisioningAction action;
 	private Map<String, String> actionParameters;
+	//ActualParameter is used to keep values to which variables have been resolved.
+	//This is especially useful when undoing in the presence of variables that change (e.g. lastResult) 
+	private Map<String, Object> actualParameters;
 	private String actionText;
 
 	public ParameterizedProvisioningAction(ProvisioningAction action, Map<String, String> actionParameters, String actionText) {
@@ -27,6 +29,7 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 			throw new IllegalArgumentException(Messages.ParameterizedProvisioningAction_action_or_parameters_null);
 		this.action = action;
 		this.actionParameters = actionParameters;
+		this.actualParameters = new HashMap<String, Object>(actionParameters.size());
 		this.actionText = actionText;
 	}
 
@@ -44,14 +47,14 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 		Map<String, Object> result = new HashMap<String, Object>(parameters);
 		for (Entry<String, String> entry : actionParameters.entrySet()) {
 			String name = entry.getKey();
-			String value = processVariables(entry.getValue(), parameters);
+			Object value = processVariables(entry.getValue(), parameters, false);
 			result.put(name, value);
 		}
 		return Collections.unmodifiableMap(result);
 	}
 
-	private String processVariables(String parameterValue, Map<String, Object> parameters) {
-
+	//allowInfixReplacement triggers the replacement of the variables found in the middle of a string (e.g. abc${var}def) 
+	private Object processVariables(String parameterValue, Map<String, Object> parameters, boolean allowInfixReplacement) {
 		int variableBeginIndex = parameterValue.indexOf("${"); //$NON-NLS-1$
 		if (variableBeginIndex == -1)
 			return parameterValue;
@@ -62,7 +65,25 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 
 		String preVariable = parameterValue.substring(0, variableBeginIndex);
 		String variableName = parameterValue.substring(variableBeginIndex + 2, variableEndIndex);
-		Object value = parameters.get(variableName);
+
+		//replace the internal name by the user visible name
+		if (Phase.LAST_RESULT_PUBLIC_NAME.equals(variableName)) {
+			variableName = Phase.LAST_RESULT_INTERNAL_NAME;
+		}
+		Object valueUsed = actualParameters.get(variableName);
+		Object value = valueUsed == null ? parameters.get(variableName) : valueUsed;
+		actualParameters.put(variableName, value);
+
+		if (value instanceof Value) {
+			if (allowInfixReplacement == false && variableBeginIndex == 0 && variableEndIndex == parameterValue.length() - 1)
+				return value;
+
+			Value<?> result = (Value<?>) value;
+			if (result.getClazz() == String.class)
+				value = result.getValue();
+			else
+				throw new RuntimeException("The type of the variable is expected to be a String"); //$NON-NLS-1$
+		}
 
 		// try to replace this parameter with a character
 		if (value == null && variableName.charAt(0) == '#') {
@@ -75,8 +96,8 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 			}
 		}
 
-		String variableValue = value == null ? "" : value.toString(); //$NON-NLS-1$
-		String postVariable = processVariables(parameterValue.substring(variableEndIndex + 1), parameters);
+		String variableValue = value == null ? "" : value.toString(); //$NON-NLS-1$			//TODO This is where we replace the values
+		String postVariable = (String) processVariables(parameterValue.substring(variableEndIndex + 1), parameters, true);
 		return preVariable + variableValue + postVariable;
 	}
 
@@ -99,4 +120,10 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 	public void setTouchpoint(Touchpoint touchpoint) {
 		throw new UnsupportedOperationException();
 	}
+
+	@Override
+	public Value<?> getResult() {
+		return action.getResult();
+	}
+
 }

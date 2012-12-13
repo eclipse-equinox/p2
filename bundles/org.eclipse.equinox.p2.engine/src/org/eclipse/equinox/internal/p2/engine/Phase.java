@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Landmark Graphics Corporation - bug 397183
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -16,8 +17,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.engine.spi.*;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Phase {
@@ -32,6 +32,8 @@ public abstract class Phase {
 	protected static final String PARM_AGENT = "agent"; //$NON-NLS-1$
 	protected static final String PARM_FORCED = "forced"; //$NON-NLS-1$
 	protected static final String PARM_TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
+	protected static final String LAST_RESULT_INTERNAL_NAME = "_p2_internal_last_result_variable_"; //$NON-NLS-1$ //
+	protected static final String LAST_RESULT_PUBLIC_NAME = "lastResult"; //$NON-NLS-1$
 
 	protected final String phaseId;
 	protected final int weight;
@@ -155,8 +157,8 @@ public abstract class Phase {
 				operandParameters = touchpointToTouchpointOperandParameters.get(operandTouchpoint);
 			}
 
-			operandParameters = Collections.unmodifiableMap(operandParameters);
 			if (actions != null) {
+				Object lastResult = null;
 				for (int j = 0; j < actions.size(); j++) {
 					ProvisioningAction action = actions.get(j);
 					Map<String, Object> parameters = operandParameters;
@@ -168,10 +170,17 @@ public abstract class Phase {
 
 						parameters = touchpointToTouchpointOperandParameters.get(touchpoint);
 					}
+					if (lastResult != null && lastResult != Value.NO_VALUE) {
+						parameters = new HashMap<String, Object>(parameters);
+						parameters.put(LAST_RESULT_INTERNAL_NAME, lastResult);
+					}
+					parameters = Collections.unmodifiableMap(parameters);
+
 					IStatus actionStatus = null;
 					try {
 						session.recordActionExecute(action, parameters);
 						actionStatus = action.execute(parameters);
+						lastResult = action.getResult().getValue();
 					} catch (RuntimeException e) {
 						if (!forced)
 							throw e;
