@@ -318,7 +318,7 @@ public class SiteListener extends DirectoryChangeListener {
 		for (int i = 0; plugins != null && i < plugins.length; i++) {
 			File bundleLocation = plugins[i];
 			if (bundleLocation.isDirectory() || bundleLocation.getName().endsWith(".jar")) { //$NON-NLS-1$
-				BundleDescription description = BundlesAction.createBundleDescription(bundleLocation);
+				BundleDescription description = BundlesAction.createBundleDescriptionIgnoringExceptions(bundleLocation);
 				if (description != null) {
 					String id = description.getSymbolicName();
 					String version = description.getVersion().toString();

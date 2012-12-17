@@ -116,6 +116,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	private File[] locations;
 	private BundleDescription[] bundles;
+	protected MultiStatus finalStatus;
 
 	public static IArtifactKey createBundleArtifactKey(String bsn, String version) {
 		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, Version.parseVersion(version));
@@ -552,14 +553,51 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
-	public static BundleDescription createBundleDescription(File bundleLocation) {
+	/**
+	 * @deprecated use {@link #createBundleDescription(File)} instead.
+	 */
+	@Deprecated
+	public static BundleDescription createBundleDescriptionIgnoringExceptions(File bundleLocation) {
+		try {
+			return createBundleDescription(bundleLocation);
+		} catch (IOException e) {
+			logWarning(bundleLocation, e);
+			return null;
+		} catch (BundleException e) {
+			logWarning(bundleLocation, e);
+			return null;
+		}
+	}
+
+	private static void logWarning(File bundleLocation, Throwable t) {
+		String message = NLS.bind(Messages.exception_errorLoadingManifest, bundleLocation);
+		LogHelper.log(new Status(IStatus.WARNING, Activator.ID, message, t));
+	}
+
+	public static BundleDescription createBundleDescription(File bundleLocation) throws IOException, BundleException {
 		Dictionary<String, String> manifest = loadManifest(bundleLocation);
 		if (manifest == null)
 			return null;
 		return createBundleDescription(manifest, bundleLocation);
 	}
 
-	public static Dictionary<String, String> loadManifest(File bundleLocation) {
+	/**
+	 * @deprecated use {@link #loadManifest(File)} instead.
+	 */
+	@Deprecated
+	public static Dictionary<String, String> loadManifestIgnoringExceptions(File bundleLocation) {
+		try {
+			return loadManifest(bundleLocation);
+		} catch (IOException e) {
+			logWarning(bundleLocation, e);
+			return null;
+		} catch (BundleException e) {
+			logWarning(bundleLocation, e);
+			return null;
+		}
+	}
+
+	public static Dictionary<String, String> loadManifest(File bundleLocation) throws IOException, BundleException {
 		Dictionary<String, String> manifest = basicLoadManifest(bundleLocation);
 		if (manifest == null)
 			return null;
@@ -569,39 +607,41 @@ public class BundlesAction extends AbstractPublisherAction {
 		return manifest;
 	}
 
-	public static Dictionary<String, String> basicLoadManifest(File bundleLocation) {
+	/**
+	 * @deprecated use {@link #basicLoadManifest(File)} instead.
+	 */
+	@Deprecated
+	public static Dictionary<String, String> basicLoadManifestIgnoringExceptions(File bundleLocation) {
+		try {
+			return basicLoadManifest(bundleLocation);
+		} catch (IOException e) {
+			logWarning(bundleLocation, e);
+			return null;
+		} catch (BundleException e) {
+			logWarning(bundleLocation, e);
+			return null;
+		}
+	}
+
+	public static Dictionary<String, String> basicLoadManifest(File bundleLocation) throws IOException, BundleException {
 		InputStream manifestStream = null;
 		ZipFile jarFile = null;
-		try {
-			if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && bundleLocation.isFile()) { //$NON-NLS-1$
-				jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
-				ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
-				if (manifestEntry != null) {
-					manifestStream = jarFile.getInputStream(manifestEntry);
-				}
-			} else {
-				File manifestFile = new File(bundleLocation, JarFile.MANIFEST_NAME);
-				if (manifestFile.exists())
-					manifestStream = new BufferedInputStream(new FileInputStream(manifestFile));
+		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && bundleLocation.isFile()) { //$NON-NLS-1$
+			jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
+			ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
+			if (manifestEntry != null) {
+				manifestStream = jarFile.getInputStream(manifestEntry);
 			}
-		} catch (IOException e) {
-			String message = NLS.bind(Messages.exception_errorLoadingManifest, bundleLocation);
-			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, message, e));
+		} else {
+			File manifestFile = new File(bundleLocation, JarFile.MANIFEST_NAME);
+			if (manifestFile.exists()) {
+				manifestStream = new BufferedInputStream(new FileInputStream(manifestFile));
+			}
 		}
 		Dictionary<String, String> manifest = null;
 		try {
 			if (manifestStream != null) {
-				try {
-					manifest = parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(manifestStream);
-				} catch (IOException e) {
-					String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
-					return null;
-				} catch (BundleException e) {
-					String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
-					return null;
-				}
+				manifest = parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(manifestStream);
 			} else {
 				manifest = convertPluginManifest(bundleLocation, true);
 			}
@@ -668,6 +708,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			throw new IllegalStateException(Messages.exception_noBundlesOrLocations);
 
 		setPublisherInfo(publisherInfo);
+		finalStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_bundlesPublisherMultistatus, null);
 
 		try {
 			if (bundles == null)
@@ -676,6 +717,9 @@ public class BundlesAction extends AbstractPublisherAction {
 			bundles = null;
 		} catch (OperationCanceledException e) {
 			return Status.CANCEL_STATUS;
+		}
+		if (!finalStatus.isOK()) {
+			return finalStatus;
 		}
 		return Status.OK_STATUS;
 	}
@@ -856,11 +900,21 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 		if (scIn)
 			addSimpleConfigurator = false;
-		BundleDescription[] result = new BundleDescription[bundleLocations.length + (addSimpleConfigurator ? 1 : 0)];
+		List<BundleDescription> result = new ArrayList<BundleDescription>(bundleLocations.length);
 		for (int i = 0; i < bundleLocations.length; i++) {
 			if (monitor.isCanceled())
 				throw new OperationCanceledException();
-			result[i] = createBundleDescription(bundleLocations[i]);
+			BundleDescription description = null;
+			try {
+				description = createBundleDescription(bundleLocations[i]);
+			} catch (IOException e) {
+				addPublishingErrorToFinalStatus(e, bundleLocations[i]);
+			} catch (BundleException e) {
+				addPublishingErrorToFinalStatus(e, bundleLocations[i]);
+			}
+			if (description != null) {
+				result.add(description);
+			}
 		}
 		if (addSimpleConfigurator) {
 			// Add simple configurator to the list of bundles
@@ -870,13 +924,25 @@ public class BundlesAction extends AbstractPublisherAction {
 					LogHelper.log(new Status(IStatus.INFO, Activator.ID, Messages.message_noSimpleconfigurator));
 				else {
 					File location = FileLocator.getBundleFile(simpleConfigBundle);
-					result[result.length - 1] = createBundleDescription(location);
+					BundleDescription description = null;
+					try {
+						description = createBundleDescription(location);
+					} catch (BundleException e) {
+						addPublishingErrorToFinalStatus(e, location);
+					}
+					if (description != null) {
+						result.add(description);
+					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		return result;
+		return result.toArray(new BundleDescription[0]);
+	}
+
+	private void addPublishingErrorToFinalStatus(Throwable t, File bundleLocation) {
+		finalStatus.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.exception_errorPublishingBundle, bundleLocation, t.getMessage()), t));
 	}
 
 	// This method is based on core.runtime's InternalPlatform.getBundle(...) with a difference just in how we get PackageAdmin

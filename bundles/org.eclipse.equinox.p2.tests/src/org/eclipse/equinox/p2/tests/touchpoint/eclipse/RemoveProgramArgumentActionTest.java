@@ -66,7 +66,7 @@ public class RemoveProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertTrue(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(programArg));
 	}
 
-	public void testExecuteUndoWithArtifact() {
+	public void testExecuteUndoWithArtifact() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -122,7 +122,7 @@ public class RemoveProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertTrue(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
 	}
 
-	public void testExecuteUndoWithArtifactLocation() {
+	public void testExecuteUndoWithArtifactLocation() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());

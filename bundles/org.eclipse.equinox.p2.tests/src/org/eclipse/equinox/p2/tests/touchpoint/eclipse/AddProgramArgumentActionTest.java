@@ -64,7 +64,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertFalse(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(programArg));
 	}
 
-	public void testExecuteUndoWithArtifact() {
+	public void testExecuteUndoWithArtifact() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -117,7 +117,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertFalse(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
 	}
 
-	public void testExecuteUndoWithArtifactByProgramArgValue() {
+	public void testExecuteUndoWithArtifactByProgramArgValue() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -176,7 +176,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertFalse(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
 	}
 
-	public void testExecuteUndoWithArtifactLocation() {
+	public void testExecuteUndoWithArtifactLocation() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -229,7 +229,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertFalse(Arrays.asList(manipulator.getLauncherData().getProgramArgs()).contains(resolvedArtifact));
 	}
 
-	public void testExecuteUndoWithArtifactLocationByProgramArgValue() {
+	public void testExecuteUndoWithArtifactLocationByProgramArgValue() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());

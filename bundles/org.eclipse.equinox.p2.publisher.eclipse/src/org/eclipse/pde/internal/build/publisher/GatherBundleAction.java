@@ -50,7 +50,7 @@ public class GatherBundleAction extends BundlesAction {
 
 	@Override
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations, IProgressMonitor monitor) {
-		Dictionary<String, String> manifest = basicLoadManifest(manifestRoot);
+		Dictionary<String, String> manifest = basicLoadManifestIgnoringExceptions(manifestRoot);
 		if (manifest == null)
 			return null;
 

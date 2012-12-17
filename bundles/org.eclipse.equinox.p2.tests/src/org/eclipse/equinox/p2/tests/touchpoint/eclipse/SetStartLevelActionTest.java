@@ -40,7 +40,7 @@ public class SetStartLevelActionTest extends AbstractProvisioningTest {
 		super("");
 	}
 
-	public void testExecuteUndo() {
+	public void testExecuteUndo() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -86,7 +86,7 @@ public class SetStartLevelActionTest extends AbstractProvisioningTest {
 		assertTrue(isStartLevel(manipulator, osgiTarget, -1));
 	}
 
-	public void testExecuteUndoWithMissingArtifact() {
+	public void testExecuteUndoWithMissingArtifact() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -135,7 +135,7 @@ public class SetStartLevelActionTest extends AbstractProvisioningTest {
 		assertTrue(isStartLevel(manipulator, osgiTarget, -1));
 	}
 
-	public void testExecuteOnFragmentBundleResultsInBundleNotBeingMarkedStarted() {
+	public void testExecuteOnFragmentBundleResultsInBundleNotBeingMarkedStarted() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());

@@ -12,6 +12,12 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.*;
 import java.util.*;
@@ -437,9 +443,27 @@ public class BundlesActionTest extends ActionTest {
 		return mockAdvice;
 	}
 
-	public void testDynamicImport() {
+	public void testDynamicImport() throws Exception {
 		File testData = getTestData("dymamicImport", "testData/dynamicImport");
 		IInstallableUnit iu = BundlesAction.createBundleIU(BundlesAction.createBundleDescription(testData), null, new PublisherInfo());
 		assertEquals(0, iu.getRequirements().size());
+	}
+
+	public void testPublishBundlesWhereOneBundleIsInvalid() throws Exception {
+		File[] bundleLocations = new File(TestActivator.getTestDataFolder(), "bug331683").listFiles();
+		testAction = new BundlesAction(bundleLocations);
+		setupPublisherResult();
+		PublisherInfo info = new PublisherInfo();
+		IStatus status = testAction.perform(info, publisherResult, new NullProgressMonitor());
+
+		// overall status shall be error...
+		assertThat(status, errorStatus());
+		List<IStatus> childStatuses = Arrays.asList(status.getChildren());
+		assertThat(childStatuses, hasItem(statusWithMessageWhich(containsString("The manifest line \"foo\" is invalid; it has no colon ':' character after the header key."))));
+		assertThat(childStatuses.size(), is(1));
+
+		// ... but the valid bundle must still be published
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("org.eclipse.p2.test.validManifest", IPublisherResult.ROOT);
+		assertThat(ius.size(), is(1));
 	}
 }

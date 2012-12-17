@@ -85,6 +85,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		this.version = version;
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherResult innerResult = new PublisherResult();
 		this.outerResults = results;
@@ -148,7 +149,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 				else {
 					try {
 						File location = new File(bundleInfo.getLocation());
-						Dictionary<String, String> manifest = BundlesAction.loadManifest(location);
+						Dictionary<String, String> manifest = BundlesAction.loadManifestIgnoringExceptions(location);
 						if (manifest == null)
 							continue;
 						GeneratorBundleInfo newInfo = new GeneratorBundleInfo(bundleInfo);

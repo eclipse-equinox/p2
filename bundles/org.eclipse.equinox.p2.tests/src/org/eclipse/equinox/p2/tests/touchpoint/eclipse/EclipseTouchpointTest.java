@@ -115,7 +115,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		touchpoint.completeOperand(profile, parameters);
 	}
 
-	public void testPrepareIU() {
+	public void testPrepareIU() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -153,7 +153,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		assertFalse(Boolean.valueOf(fullIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 	}
 
-	public void testInstallPartialIU() {
+	public void testInstallPartialIU() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());

@@ -104,7 +104,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testExecuteUndoWithArtifact() {
+	public void testExecuteUndoWithArtifact() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -182,7 +182,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		action.undo(xparameters);
 	}
 
-	public void testExecuteUndoWithArtifactLocation() {
+	public void testExecuteUndoWithArtifactLocation() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());

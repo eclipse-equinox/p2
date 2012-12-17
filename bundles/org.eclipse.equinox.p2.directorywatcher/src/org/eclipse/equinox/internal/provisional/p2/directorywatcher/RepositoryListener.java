@@ -138,7 +138,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private boolean processBundle(File file, boolean isDirectory, boolean isAddition) {
-		BundleDescription bundleDescription = BundlesAction.createBundleDescription(file);
+		BundleDescription bundleDescription = BundlesAction.createBundleDescriptionIgnoringExceptions(file);
 		if (bundleDescription == null)
 			return false;
 

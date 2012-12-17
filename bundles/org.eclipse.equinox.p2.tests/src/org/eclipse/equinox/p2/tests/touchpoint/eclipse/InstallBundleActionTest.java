@@ -40,7 +40,7 @@ public class InstallBundleActionTest extends AbstractProvisioningTest {
 		super("");
 	}
 
-	public void testExecuteUndo() {
+	public void testExecuteUndo() throws Exception {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());

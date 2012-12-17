@@ -690,7 +690,7 @@ public class UpdateSite {
 				LogHelper.log(new ProvisionException(transferResult));
 				return null;
 			}
-			return BundlesAction.createBundleDescription(bundleFile);
+			return BundlesAction.createBundleDescriptionIgnoringExceptions(bundleFile);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingBundle, bundleURI), e));
 		} finally {

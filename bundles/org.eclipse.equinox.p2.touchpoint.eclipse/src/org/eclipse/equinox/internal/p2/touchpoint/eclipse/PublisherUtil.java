@@ -26,7 +26,7 @@ public class PublisherUtil {
 	 * if an IU could not be created.
 	 */
 	public static IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
-		BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleFile);
+		BundleDescription bundleDescription = BundlesAction.createBundleDescriptionIgnoringExceptions(bundleFile);
 		if (bundleDescription == null)
 			return null;
 		PublisherInfo info = new PublisherInfo();
