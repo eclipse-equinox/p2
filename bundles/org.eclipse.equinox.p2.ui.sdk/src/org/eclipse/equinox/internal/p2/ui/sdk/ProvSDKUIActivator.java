@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
@@ -120,7 +121,24 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	void updateWithPreferences(Policy policy) {
-		policy.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
+
+		IPreferenceStore store = getPreferenceStore();
+
+		String value = store.getString(PreferenceConstants.PREF_SHOW_LATEST_VERSION);
+		policy.setShowLatestVersionsOnly(!IPreferenceStore.STRING_DEFAULT_DEFAULT.equals(value) ? store.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION) : policy.getShowLatestVersionsOnly());
+
+		value = store.getString(PreferenceConstants.PREF_HIDE_INSTALLED);
+		policy.setHideAlreadyInstalled(!IPreferenceStore.STRING_DEFAULT_DEFAULT.equals(value) ? store.getBoolean(PreferenceConstants.PREF_HIDE_INSTALLED) : policy.getHideAlreadyInstalled());
+
+		value = store.getString(PreferenceConstants.PREF_FILTER_ON_ENV);
+		policy.setFilterOnEnv(!IPreferenceStore.STRING_DEFAULT_DEFAULT.equals(value) ? store.getBoolean(PreferenceConstants.PREF_FILTER_ON_ENV) : policy.getFilterOnEnv());
+
+		value = store.getString(PreferenceConstants.PREF_CONTACT_ALL_SITES);
+		policy.setContactAllSites(!IPreferenceStore.STRING_DEFAULT_DEFAULT.equals(value) ? store.getBoolean(PreferenceConstants.PREF_CONTACT_ALL_SITES) : policy.getContactAllSites());
+
+		value = store.getString(PreferenceConstants.PREF_GROUP_BY_CATEGORY);
+		policy.setGroupByCategory(!IPreferenceStore.STRING_DEFAULT_DEFAULT.equals(value) ? store.getBoolean(PreferenceConstants.PREF_GROUP_BY_CATEGORY) : policy.getGroupByCategory());
+
 	}
 
 	/*

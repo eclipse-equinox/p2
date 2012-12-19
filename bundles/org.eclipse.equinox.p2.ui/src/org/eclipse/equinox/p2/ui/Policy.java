@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
@@ -98,6 +99,8 @@ public class Policy {
 	private boolean groupByCategory = true;
 	private boolean allowDrilldown = true;
 	private boolean repositoriesVisible = true;
+	private boolean contactAllSites = true;
+	private boolean hideAlreadyInstalled = true;
 	private boolean showLatestVersionsOnly = true;
 	private int restartPolicy = RESTART_POLICY_PROMPT;
 	private String repoPrefPageId;
@@ -445,5 +448,53 @@ public class Policy {
 
 	public void setUpdateDetailsPreferredSize(Point preferredSize) {
 		this.wizardDetailsPreferredSize = preferredSize;
+	}
+
+	/**
+	 * Get a boolean value indicating whether to contact all sites. 
+	 * 
+	 * @return <code>true</code> true if all sites need to be contacted,
+	 * <code>false</code> otherwise.
+	 *
+	 * @since 4.3
+	 */
+	public boolean getContactAllSites() {
+		return this.contactAllSites;
+	}
+
+	/**
+	 * Set a boolean indicating whether all sites need to be contacted.
+	 * 
+	 * @param contactAll <code>true</code> if all sites need to be contacted,
+	 * <code>false</code> otherwise.
+	 *
+	 *  @since 4.3
+	 */
+	public void setContactAllSites(boolean contactAll) {
+		this.contactAllSites = contactAll;
+	}
+
+	/**
+	 * Get a boolean value indicating whether to hide already installed units.
+	 * 
+	 * @return <code>true</code> if already installed units are to be hidden,
+	 * <code>false</code> otherwise.
+	 *
+	 * @since 4.3
+	 */
+	public boolean getHideAlreadyInstalled() {
+		return this.hideAlreadyInstalled;
+	}
+
+	/**
+	 * Set a boolean indicating whether to hide already installed units.
+	 *
+	 * @param hide <code>true</code> if already installed units need to be hidden,
+	 * <code>false</code> otherwise.
+	 *
+	 *  @since 4.3
+	 */
+	public void setHideAlreadyInstalled(boolean hide) {
+		this.hideAlreadyInstalled = hide;
 	}
 }

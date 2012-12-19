@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *     Sonatype, Inc. - ongoing development
+ *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -41,6 +42,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private static final String SHOW_LATEST_VERSIONS_ONLY = "ShowLatestVersionsOnly"; //$NON-NLS-1$
 	private static final String HIDE_INSTALLED_IUS = "HideInstalledContent"; //$NON-NLS-1$
 	private static final String RESOLVE_ALL = "ResolveInstallWithAllSites"; //$NON-NLS-1$
+	private static final String FILTER_ON_ENV = "FilterOnEnv"; //$NON-NLS-1$
 	private static final String NAME_COLUMN_WIDTH = "AvailableNameColumnWidth"; //$NON-NLS-1$
 	private static final String VERSION_COLUMN_WIDTH = "AvailableVersionColumnWidth"; //$NON-NLS-1$
 	private static final String LIST_WEIGHT = "AvailableListSashWeight"; //$NON-NLS-1$
@@ -353,12 +355,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 	void updateQueryContext() {
 		queryContext.setShowLatestVersionsOnly(showLatestVersionsCheckbox.getSelection());
-		if (hideInstalledCheckbox.getSelection())
-			queryContext.hideAlreadyInstalled(getProfileId());
-		else {
-			queryContext.showAlreadyInstalled();
-			queryContext.setInstalledProfileId(getProfileId());
-		}
+		queryContext.setHideAlreadyInstalled(hideInstalledCheckbox.getSelection());
 		if (useCategoriesCheckbox.getSelection())
 			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
 		else
@@ -430,26 +427,22 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
 			IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
 			String value = null;
-			if (section != null)
+
+			if (section != null) {
 				value = section.get(RESOLVE_ALL);
-			// no section or no value in the section
-			if (value == null)
-				resolveAllCheckbox.setSelection(true);
-			else
 				resolveAllCheckbox.setSelection(section.getBoolean(RESOLVE_ALL));
+			}
+			// no section or no value in the section
+			if (value == null) {
+				resolveAllCheckbox.setSelection(getPolicy().getContactAllSites());
+			}
 		}
 	}
 
 	private void makeQueryContext() {
-		// Make a local query context that is based on the default.
-		IUViewQueryContext defaultQueryContext = ProvUI.getQueryContext(getPolicy());
-		queryContext = new IUViewQueryContext(defaultQueryContext.getViewType());
-		if (defaultQueryContext.getHideAlreadyInstalled()) {
-			queryContext.hideAlreadyInstalled(getProfileId());
-		} else {
-			queryContext.setInstalledProfileId(getProfileId());
-		}
-		queryContext.setShowLatestVersionsOnly(defaultQueryContext.getShowLatestVersionsOnly());
+		queryContext = ProvUI.getQueryContext(getPolicy());
+		queryContext.setInstalledProfileId(getProfileId());
+
 		// Now check for saved away dialog settings
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
@@ -471,13 +464,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 				queryContext.setShowLatestVersionsOnly(section.getBoolean(SHOW_LATEST_VERSIONS_ONLY));
 
 			// Hide installed content
-			boolean hideContent = section.getBoolean(HIDE_INSTALLED_IUS);
-			if (hideContent)
-				queryContext.hideAlreadyInstalled(getProfileId());
-			else {
-				queryContext.setInstalledProfileId(getProfileId());
-				queryContext.showAlreadyInstalled();
-			}
+			if (section.get(HIDE_INSTALLED_IUS) != null)
+				queryContext.setHideAlreadyInstalled(section.getBoolean(HIDE_INSTALLED_IUS));
+
+			if (section.get(FILTER_ON_ENV) != null)
+				queryContext.setFilterOnEnv(section.getBoolean(FILTER_ON_ENV));
 		}
 	}
 
@@ -529,6 +520,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		section.put(HIDE_INSTALLED_IUS, hideInstalledCheckbox.getSelection());
 		if (resolveAllCheckbox != null)
 			section.put(RESOLVE_ALL, resolveAllCheckbox.getSelection());
+		section.put(FILTER_ON_ENV, filterOnEnvCheckBox.getSelection());
 
 		TreeColumn col = availableIUGroup.getCheckboxTreeViewer().getTree().getColumn(0);
 		section.put(NAME_COLUMN_WIDTH, col.getWidth());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
@@ -38,7 +39,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				// don't migrate everything.  Some of the preferences moved to
 				// another bundle.
 				pref.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, oldPref.get(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.PROMPT));
-				pref.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, oldPref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true));
+
+				// if the preference value associated with PREF_SHOW_LATEST_VERSION does not exist do not initialize it
+				String showLatestVersionString = oldPref.get(PreferenceConstants.PREF_SHOW_LATEST_VERSION, null);
+				if (showLatestVersionString != null) {
+					pref.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, Boolean.TRUE.toString().equalsIgnoreCase(showLatestVersionString));
+				}
 				pref.flush();
 			}
 		} catch (BackingStoreException e) {

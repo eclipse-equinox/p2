@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2012 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui;
@@ -118,11 +119,15 @@ public class ProvUI {
 
 	}
 
+	//Factory method returning a new instance of a IUViewQueryContext
 	public static IUViewQueryContext getQueryContext(Policy policy) {
 		IUViewQueryContext queryContext = new IUViewQueryContext(policy.getGroupByCategory() ? IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY : IUViewQueryContext.AVAILABLE_VIEW_FLAT);
-		queryContext.setShowLatestVersionsOnly(policy.getShowLatestVersionsOnly());
 		queryContext.setShowInstallChildren(policy.getShowDrilldownRequirements());
 		queryContext.setShowProvisioningPlanChildren(policy.getShowDrilldownRequirements());
+
+		//among other things the 4 calls below are used to control the available software dialog (AvailableIUPage)
+		queryContext.setShowLatestVersionsOnly(policy.getShowLatestVersionsOnly());
+		queryContext.setHideAlreadyInstalled(policy.getHideAlreadyInstalled());
 		queryContext.setUseCategories(policy.getGroupByCategory());
 		queryContext.setFilterOnEnv(policy.getFilterOnEnv());
 		return queryContext;
