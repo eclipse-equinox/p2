@@ -46,6 +46,7 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 * Clients should call {@link #perform(Iterator)}
+	 * @since 2.0
 	 */
 	public abstract boolean isMatch(T candidate);
 

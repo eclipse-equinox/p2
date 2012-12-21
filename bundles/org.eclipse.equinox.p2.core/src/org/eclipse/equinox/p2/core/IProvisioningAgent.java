@@ -42,11 +42,13 @@ public interface IProvisioningAgent {
 
 	/** 
 	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent the agent representing what is in the shared location aka the base
+	 * @since 2.3
 	 */
 	public static final String SHARED_BASE_AGENT = "org.eclipse.equinox.shared.base.agent"; //$NON-NLS-1$
 
 	/** 
 	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent identified by {@link #SHARED_BASE_AGENT} the current agent 
+	 * @since 2.3
 	 */
 	public static final String SHARED_CURRENT_AGENT = "org.eclipse.equinox.shared.current.agent"; //$NON-NLS-1$
 	/**

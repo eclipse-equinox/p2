@@ -28,6 +28,7 @@ public abstract class Touchpoint {
 	 * @param actionId the unqualified action id
 	 * @return the qualified action id
 	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 2.0
 	 */
 	public String qualifyAction(String actionId) {
 		return actionId;
