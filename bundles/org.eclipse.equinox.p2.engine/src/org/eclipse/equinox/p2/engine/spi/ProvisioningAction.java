@@ -18,10 +18,12 @@ import org.eclipse.core.runtime.IStatus;
  */
 public abstract class ProvisioningAction {
 
-	private Memento memento = new Memento();
+	private Memento memento;
 	private Touchpoint touchpoint;
 
 	protected Memento getMemento() {
+		if (memento == null)
+			memento = new Memento();
 		return memento;
 	}
 
