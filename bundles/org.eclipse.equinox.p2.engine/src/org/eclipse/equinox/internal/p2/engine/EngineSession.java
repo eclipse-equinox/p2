@@ -149,10 +149,11 @@ public class EngineSession {
 			monitor.subTask(Messages.rollingback_error);
 
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+		SubMonitor sub = SubMonitor.convert(monitor, 100 * (phaseActionRecordsPairs.size() + (currentPhaseActive ? 1 : 0) + 1 /* for touchpoint */));
 
 		if (currentPhaseActive) {
 			try {
-				IStatus result = rollBackPhase(currentPhase, currentActionRecords);
+				IStatus result = rollBackPhase(currentPhase, currentActionRecords, sub.newChild(100));
 				if (!result.isOK())
 					status.add(result);
 			} catch (RuntimeException e) {
@@ -175,7 +176,7 @@ public class EngineSession {
 			@SuppressWarnings("unchecked")
 			List<ActionsRecord> actionRecords = (List<ActionsRecord>) pair[1];
 			try {
-				final IStatus result = rollBackPhase(phase, actionRecords);
+				final IStatus result = rollBackPhase(phase, actionRecords, sub.newChild(100));
 				if (!result.isOK())
 					status.add(result);
 			} catch (RuntimeException e) {
@@ -189,6 +190,7 @@ public class EngineSession {
 		}
 
 		phaseActionRecordsPairs.clear();
+		SubMonitor touchpointSub = sub.setWorkRemaining(100).newChild(100).setWorkRemaining(touchpoints.size() + 1);
 		for (Touchpoint touchpoint : touchpoints) {
 			try {
 				IStatus result = touchpoint.rollback(profile);
@@ -201,24 +203,31 @@ public class EngineSession {
 			} catch (LinkageError e) {
 				// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
 				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.touchpoint_rollback_error, touchpoint.getClass().getName()), e));
+			} finally {
+				touchpointSub.worked(1);
 			}
 		}
 
-		if (status.matches(IStatus.ERROR)) {
-			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, NLS.bind(Messages.session_commit_error, profile.getProfileId()), null);
-			result.merge(status);
-			return result;
+		try {
+			if (status.matches(IStatus.ERROR)) {
+				MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, NLS.bind(Messages.session_commit_error, profile.getProfileId()), null);
+				result.merge(status);
+				return result;
+			}
+			return status;
+		} finally {
+			touchpointSub.worked(1);
 		}
-		return status;
 	}
 
-	private IStatus rollBackPhase(Phase phase, List<ActionsRecord> actionRecords) {
+	private IStatus rollBackPhase(Phase phase, List<ActionsRecord> actionRecords, IProgressMonitor monitor) {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+		SubMonitor sub = SubMonitor.convert(monitor, 10 + 10 + 10 * actionRecords.size());
 		try {
 			phase.actionManager = (ActionManager) agent.getService(ActionManager.SERVICE_NAME);
 
 			if (!currentPhaseActive)
-				phase.prePerform(result, this, new NullProgressMonitor());
+				phase.prePerform(result, this, sub.newChild(10));
 
 			for (ListIterator<ActionsRecord> it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 				ActionsRecord record = it.previous();
@@ -234,9 +243,11 @@ public class EngineSession {
 				} catch (LinkageError e) {
 					// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
 					result.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_undo_operand_error, phase.getClass().getName(), record.operand), e));
+				} finally {
+					sub.worked(10);
 				}
 			}
-			phase.postPerform(result, this, new NullProgressMonitor());
+			phase.postPerform(result, this, sub.setWorkRemaining(10).newChild(10));
 		} finally {
 			phase.actionManager = null;
 		}

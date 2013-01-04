@@ -67,6 +67,9 @@ public class Collect extends InstallableUnitPhase {
 	}
 
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
+		// do nothing for rollback if the provisioning has been cancelled
+		if (monitor.isCanceled())
+			return Status.OK_STATUS;
 		@SuppressWarnings("unchecked")
 		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(PARM_ARTIFACT_REQUESTS);
 		// it happens when rollbacking

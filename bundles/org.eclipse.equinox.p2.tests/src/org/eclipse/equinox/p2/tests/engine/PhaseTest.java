@@ -15,9 +15,15 @@ import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.phases.Collect;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -303,4 +309,67 @@ public class PhaseTest extends AbstractProvisioningTest {
 		assertEquals(TestAction.class, ((ParameterizedProvisioningAction) actionsList2.get(0)).getAction().getClass());
 	}
 
+	public void testCancelHappenBeforeCompleteCollectPhase() {
+		final String testDataLocation = "testData/mirror/mirrorSourceRepo3";
+		Set<IInstallableUnit> ius = null;
+		try {
+			IArtifactRepositoryManager mgr = getArtifactRepositoryManager();
+			mgr.loadRepository((getTestData("test artifact repo", testDataLocation).toURI()), null);
+			IMetadataRepositoryManager metaManager = getMetadataRepositoryManager();
+			IMetadataRepository metaRepo = metaManager.loadRepository((getTestData("test metadata repo", testDataLocation).toURI()), null);
+			ius = metaRepo.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
+		} catch (Exception e) {
+			fail("1.0", e);
+		}
+		class MyCollect extends Collect {
+			boolean isCancelled = false;
+			int progress = 0;
+			final static int THREHOLD = 2;
+
+			public MyCollect(int weight) {
+				super(weight);
+			}
+
+			@Override
+			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
+				List<ProvisioningAction> actions = super.getActions(operand);
+				if (actions != null)
+					progress++;
+				if (progress > THREHOLD)
+					isCancelled = true;
+				return actions;
+			}
+		}
+		final MyCollect collect = new MyCollect(100);
+		PhaseSet phaseSet = new TestPhaseSet(new Phase[] {collect});
+		IProfile profile = createProfile("PhaseTest");
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		for (IInstallableUnit iu : ius)
+			plan.addInstallableUnit(iu);
+		class TestListener implements ProvisioningListener {
+			boolean collectEvent = false;
+
+			public void notify(EventObject o) {
+				if (o instanceof CollectEvent)
+					collectEvent = true;
+			}
+
+		}
+		TestListener listener = new TestListener();
+		getEventBus().addListener(listener);
+		try {
+			IStatus status = engine.perform(plan, phaseSet, new NullProgressMonitor() {
+				@Override
+				public boolean isCanceled() {
+					return collect.isCancelled;
+				}
+			});
+			if (!status.matches(IStatus.CANCEL)) {
+				fail(status.toString());
+			}
+			assertFalse("Collect actually happened!", listener.collectEvent);
+		} finally {
+			getEventBus().removeListener(listener);
+		}
+	}
 }
