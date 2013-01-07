@@ -66,7 +66,6 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
  org.eclipse.equinox.p2.core.spi;version="2.1.0"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
- J2SE-1.4,
  CDC-1.1/Foundation-1.1
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/eventBus.xml, OSGI-INF/agentProvider.xml
