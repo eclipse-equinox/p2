@@ -136,8 +136,8 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue("Step is not ready.", status.isOK());
 		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/jarprocessor.jar.pack.gz").openStream();
 		FileUtils.copyStream(inputStream, true, testStream, true);
-		//the value 34759 obtained by manually unpacking the test artifact using unpack200.exe from sun 7u2 JRE
-		assertEquals(34759, result.size());
+		//the value 35062 obtained by manually unpacking the test artifact using unpack200.exe from sun 7u9 JRE
+		assertEquals(35062, result.size());
 	}
 
 	public void testCreateByteShifterPS() {
