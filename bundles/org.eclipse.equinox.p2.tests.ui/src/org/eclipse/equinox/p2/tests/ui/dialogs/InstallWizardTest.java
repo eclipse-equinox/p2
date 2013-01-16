@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Hamdan Msheik) - Bypass install license wizard page via plugin_customization
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
@@ -21,6 +22,7 @@ import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.ui.AcceptLicensesWizardPage;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -120,6 +122,66 @@ public class InstallWizardTest extends WizardTest {
 			Field opField = ResolutionResultsWizardPage.class.getDeclaredField("resolvedOperation");
 			opField.setAccessible(true);
 			assertTrue("Expected instance of MyNewInstallOperation", opField.get(page) instanceof MyNewInstallOperation);
+		} finally {
+			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
+		}
+	}
+
+	public void testInstallWizardWithoutLicenceBypass() throws Exception {
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(toInstall);
+		InstallOperation op = new MyNewInstallOperation(getSession(), iusInvolved);
+		op.setProfileId(TESTPROFILE);
+		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, iusInvolved, null);
+		wizard.setBypassLicencePage(false);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		dialog.setBlockOnOpen(false);
+		dialog.open();
+		ProfileModificationJob longOp = null;
+
+		try {
+			SelectableIUsPage selectableIUsPage = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
+			// should already have a plan
+			assertTrue("1.0", selectableIUsPage.isPageComplete());
+			// simulate the next button by getting next page and showing
+			InstallWizardPage installWizardPage = (InstallWizardPage) selectableIUsPage.getNextPage();
+
+			assertFalse("Licence page bypass flag must be false", wizard.isBypassLicencePage());
+			IWizardPage licensePage = installWizardPage.getNextPage();
+			assertTrue("Expected instance of AcceptLicensesWizardPage", licensePage instanceof AcceptLicensesWizardPage);
+
+		} finally {
+			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
+		}
+	}
+
+	public void testInstallWizardWithLicenceBypass() throws Exception {
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(toInstall);
+		InstallOperation op = new MyNewInstallOperation(getSession(), iusInvolved);
+		op.setProfileId(TESTPROFILE);
+		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, iusInvolved, null);
+		wizard.setBypassLicencePage(true);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		dialog.setBlockOnOpen(false);
+		dialog.open();
+		ProfileModificationJob longOp = null;
+
+		try {
+			SelectableIUsPage selectableIUsPage = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
+			// should already have a plan
+			assertTrue("1.0", selectableIUsPage.isPageComplete());
+			// simulate the next button by getting next page and showing
+			InstallWizardPage installWizardPage = (InstallWizardPage) selectableIUsPage.getNextPage();
+
+			assertTrue("Licence page bypass flag must be true", wizard.isBypassLicencePage());
+			IWizardPage licensePage = installWizardPage.getNextPage();
+			assertNull("Expected instance of AcceptLicensesWizardPage must be null", licensePage);
+
 		} finally {
 			dialog.getShell().close();
 			if (longOp != null)
