@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
+ *     Rapicorp, Inc (Pascal Rapicault) - Bug 396147 - Add support for updates from one namespace to another
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
@@ -84,16 +85,18 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 		boolean isInstalled = false;
 		boolean isPatch = iu == null ? false : Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
 		if (profile != null && iu != null) {
-			IQueryResult<IInstallableUnit> queryResult = profile.query(QueryUtil.createIUQuery(iu.getId()), null);
+			IQuery<IInstallableUnit> query = QueryUtil.isGroup(iu) ? QueryUtil.createIUGroupQuery() : QueryUtil.ALL_UNITS;
+			IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
 			Iterator<IInstallableUnit> iter = queryResult.iterator();
 			// We are typically iterating over only one IU unless it's a non-singleton.
 			while (iter.hasNext()) {
 				IInstallableUnit installed = iter.next();
-				if (installed.getVersion().compareTo(iu.getVersion()) < 0)
-					isUpdate = true;
-				else {
+				if (iu.getId().equals(installed.getId()) && installed.getVersion().compareTo(iu.getVersion()) >= 0) {
 					isUpdate = false;
 					isInstalled = true;
+				} else {
+					if (iu.getUpdateDescriptor() != null && iu.getUpdateDescriptor().isUpdateOf(installed))
+						isUpdate = true;
 				}
 			}
 		}
