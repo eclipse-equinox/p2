@@ -17,7 +17,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.engine.spi.*;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Phase {
@@ -170,7 +171,7 @@ public abstract class Phase {
 
 						parameters = touchpointToTouchpointOperandParameters.get(touchpoint);
 					}
-					if (lastResult != null && lastResult != Value.NO_VALUE) {
+					if (lastResult != null) {
 						parameters = new HashMap<String, Object>(parameters);
 						parameters.put(LAST_RESULT_INTERNAL_NAME, lastResult);
 					}
@@ -180,7 +181,7 @@ public abstract class Phase {
 					try {
 						session.recordActionExecute(action, parameters);
 						actionStatus = action.execute(parameters);
-						lastResult = action.getResult().getValue();
+						lastResult = action.getResult();
 					} catch (RuntimeException e) {
 						if (!forced)
 							throw e;

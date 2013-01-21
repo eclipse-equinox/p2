@@ -38,6 +38,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(TouchpointTest.class);
 		suite.addTestSuite(ProvisioningEventTest.class);
 		suite.addTestSuite(VariableTest.class);
+		suite.addTestSuite(VariableTest2.class);
+		suite.addTestSuite(VariableTest3.class);
 		return suite;
 	}
 

@@ -75,13 +75,14 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 		actualParameters.put(variableName, value);
 
 		if (value instanceof Value) {
-			if (allowInfixReplacement == false && variableBeginIndex == 0 && variableEndIndex == parameterValue.length() - 1)
-				return value;
+			if (allowInfixReplacement == false && variableBeginIndex == 0 && variableEndIndex == parameterValue.length() - 1) {
+				return ((Value<?>) value).getValue();
+			}
 
 			Value<?> result = (Value<?>) value;
-			if (result.getClazz() == String.class)
+			if (result.getClazz() == String.class) {
 				value = result.getValue();
-			else
+			} else
 				throw new RuntimeException("The type of the variable is expected to be a String"); //$NON-NLS-1$
 		}
 
