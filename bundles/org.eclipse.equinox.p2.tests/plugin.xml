@@ -45,14 +45,6 @@
           version="1.0.0">
     </action>
   </extension>
-   <extension
-       point="org.eclipse.equinox.p2.engine.actions">
-    <action
-          class="org.eclipse.equinox.p2.tests.engine.VariableTest$Action"
-          name="test.actionForVariableTesting"
-          version="1.0.0">
-    </action>
-  </extension>
  <extension
        point="org.eclipse.equinox.p2.engine.actions">
     <action

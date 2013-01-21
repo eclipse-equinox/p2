@@ -47,7 +47,6 @@ public class Messages extends NLS {
 	public static String download_cache_not_writeable;
 	public static String unzipping;
 	public static String param_not_set;
-	public static String chmod_param_cant_be_set_together;
 	public static String copy_failed;
 	public static String failed_backup_restore;
 	public static String backup_file_failed;

@@ -31,7 +31,7 @@ public class CleanupzipAction extends ProvisioningAction {
 	}
 
 	public IStatus undo(Map<String, Object> parameters) {
-		return new UnzipAction().unzip(parameters, false);
+		return UnzipAction.unzip(parameters, false);
 	}
 
 	public static IStatus cleanupzip(Map<String, Object> parameters, boolean restoreable) {
