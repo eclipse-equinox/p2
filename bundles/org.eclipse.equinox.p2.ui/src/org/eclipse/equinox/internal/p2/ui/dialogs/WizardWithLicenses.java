@@ -28,7 +28,7 @@ import org.eclipse.jface.wizard.IWizardPage;
  */
 public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 
-	public static final String BYPASS_LICENSE_PAGE = "bypassLicensePage"; //$NON-NLS-<n>$
+	private static final String BYPASS_LICENSE_PAGE = "bypassLicensePage"; //$NON-NLS-1$
 
 	AcceptLicensesWizardPage licensePage;
 	boolean bypassLicencePage;
