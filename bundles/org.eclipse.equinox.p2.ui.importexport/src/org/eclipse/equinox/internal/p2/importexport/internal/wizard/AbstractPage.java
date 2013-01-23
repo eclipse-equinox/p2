@@ -59,6 +59,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	protected P2ImportExport importexportService = null;
 	protected CheckboxTreeViewer viewer = null;
 	protected Exception finishException;
+	protected boolean entryChanged = false;
 	protected static IProfileRegistry profileRegistry = null;
 	static IProvisioningAgent agent = null;
 
@@ -306,13 +307,53 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		restoreWidgetValues();
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
 		destinationNameField.setLayoutData(data);
-		destinationNameField.addListener(SWT.FocusOut, this);
-		destinationNameField.addListener(SWT.FocusIn, new Listener() {
-
-			public void handleEvent(Event event) {
-				destinationNameField.clearSelection();
+		destinationNameField.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				handleDestinationChanged(getDestinationValue());
 			}
 		});
+		destinationNameField.addKeyListener(new KeyListener() {
+
+			/*
+			 * @see KeyListener.keyPressed
+			 */
+			public void keyPressed(KeyEvent e) {
+				if (e.character == SWT.CR) {
+					entryChanged = false;
+					handleDestinationChanged(getDestinationValue());
+				}
+			}
+
+			public void keyReleased(KeyEvent e) {
+				// do nothing
+			}
+		});
+		destinationNameField.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				entryChanged = true;
+			}
+		});
+		destinationNameField.addFocusListener(new FocusListener() {
+			/*
+			 * @see FocusListener.focusGained(FocusEvent)
+			 */
+			public void focusGained(FocusEvent e) {
+				//Do nothing when getting focus
+			}
+
+			/*
+			 * @see FocusListener.focusLost(FocusEvent)
+			 */
+			public void focusLost(FocusEvent e) {
+				//Clear the flag to prevent constant update
+				if (entryChanged) {
+					entryChanged = false;
+					handleDestinationChanged(getDestinationValue());
+				}
+
+			}
+		});
+
 		destinationBrowseButton = new Button(composite, SWT.PUSH);
 		destinationBrowseButton.setText(Messages.Page_BUTTON_BROWSER);
 		destinationBrowseButton.addListener(SWT.Selection, this);
@@ -588,8 +629,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 		if (source == destinationBrowseButton) {
 			handleDestinationBrowseButtonPressed();
-		} else
-			handleDestinationChanged(getDestinationValue());
+		}
 		updatePageCompletion();
 	}
 

@@ -36,6 +36,7 @@ public class ExportPage extends AbstractPage {
 		label.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
 		if (getSelfProfile() == null) {
 			label.setText(Messages.ExportPage_ERROR_CONFIG);
+			setPageComplete(false);
 		} else {
 			label.setText(Messages.ExportPage_Label);
 
@@ -146,5 +147,10 @@ public class ExportPage extends AbstractPage {
 	@Override
 	protected int getBrowseDialogStyle() {
 		return SWT.SAVE;
+	}
+
+	@Override
+	protected void handleDestinationChanged(String newDestination) {
+		updatePageCompletion();
 	}
 }

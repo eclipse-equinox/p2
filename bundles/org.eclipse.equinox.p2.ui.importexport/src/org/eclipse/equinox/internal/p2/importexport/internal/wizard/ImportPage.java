@@ -296,6 +296,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 			}
 		} else
 			viewer.setInput(null);
+		updatePageCompletion();
 	}
 
 	private boolean hasEntriesWithoutRepo() {
