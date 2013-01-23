@@ -90,7 +90,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 			Iterator<IInstallableUnit> iter = profile.query(new UserVisibleRootQuery(), null).iterator();
 			while (iter.hasNext()) {
 				IInstallableUnit installed = iter.next();
-				if (iu.getUpdateDescriptor() != null && iu.getUpdateDescriptor().isUpdateOf(installed)) {
+				if (iu.getUpdateDescriptor() != null && iu.getUpdateDescriptor().isUpdateOf(installed) && (!iu.getId().equals(installed.getId()) || installed.getVersion().compareTo(iu.getVersion()) < 0)) {
 					isUpdate = true;
 					break;
 				}
