@@ -27,7 +27,6 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
@@ -44,8 +43,8 @@ import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.pde.internal.publishing.Activator;
-import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 /**
  * Publish IUs for all of the bundles in a given set of locations or described by a set of
@@ -63,9 +62,6 @@ import org.osgi.service.packageadmin.PackageAdmin;
  */
 public class BundlesAction extends AbstractPublisherAction {
 
-	// TODO reconsider the references to these specific ids in the action.  The action should be generic
-	protected static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
-	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 	/**
 	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing and OSGi bundle resource
@@ -883,23 +879,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		return (bd.getHost() != null ? true : false);
 	}
 
-	// TODO reconsider the special cases here for the configurators.  Perhaps these should be in their own actions.
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations, IProgressMonitor monitor) {
 		if (bundleLocations == null)
 			return new BundleDescription[0];
-		boolean addSimpleConfigurator = false;
-		boolean scIn = false;
-		for (int i = 0; i < bundleLocations.length; i++) {
-			if (!addSimpleConfigurator)
-				addSimpleConfigurator = bundleLocations[i].toString().indexOf(ORG_ECLIPSE_UPDATE_CONFIGURATOR) > 0;
-			if (!scIn) {
-				scIn = bundleLocations[i].toString().indexOf(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR) > 0;
-				if (scIn)
-					break;
-			}
-		}
-		if (scIn)
-			addSimpleConfigurator = false;
 		List<BundleDescription> result = new ArrayList<BundleDescription>(bundleLocations.length);
 		for (int i = 0; i < bundleLocations.length; i++) {
 			if (monitor.isCanceled())
@@ -916,49 +898,10 @@ public class BundlesAction extends AbstractPublisherAction {
 				result.add(description);
 			}
 		}
-		if (addSimpleConfigurator) {
-			// Add simple configurator to the list of bundles
-			try {
-				Bundle simpleConfigBundle = getBundle(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
-				if (simpleConfigBundle == null)
-					LogHelper.log(new Status(IStatus.INFO, Activator.ID, Messages.message_noSimpleconfigurator));
-				else {
-					File location = FileLocator.getBundleFile(simpleConfigBundle);
-					BundleDescription description = null;
-					try {
-						description = createBundleDescription(location);
-					} catch (BundleException e) {
-						addPublishingErrorToFinalStatus(e, location);
-					}
-					if (description != null) {
-						result.add(description);
-					}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 		return result.toArray(new BundleDescription[0]);
 	}
 
 	private void addPublishingErrorToFinalStatus(Throwable t, File bundleLocation) {
 		finalStatus.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.exception_errorPublishingBundle, bundleLocation, t.getMessage()), t));
-	}
-
-	// This method is based on core.runtime's InternalPlatform.getBundle(...) with a difference just in how we get PackageAdmin
-	private static Bundle getBundle(String symbolicName) {
-		PackageAdmin packageAdmin = ServiceHelper.getService(Activator.getContext(), PackageAdmin.class);
-		if (packageAdmin == null)
-			return null;
-		Bundle[] matchingBundles = packageAdmin.getBundles(symbolicName, null);
-		if (matchingBundles == null)
-			return null;
-		//Return the first bundle that is not installed or uninstalled
-		for (int i = 0; i < matchingBundles.length; i++) {
-			if ((matchingBundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
-				return matchingBundles[i];
-			}
-		}
-		return null;
 	}
 }
