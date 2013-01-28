@@ -38,7 +38,7 @@ import org.xml.sax.SAXException;
 
 public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
-	private static final String SIMPLE_PROFILE_REGISTRY_INTERNAL = "_simpleProfileRegistry_internal_";
+	private static final String SIMPLE_PROFILE_REGISTRY_INTERNAL = "_simpleProfileRegistry_internal_"; //$NON-NLS-1$
 	private static final String ECLIPSE_IGNORE_USER_CONFIGURATION = "eclipse.ignoreUserConfiguration"; //$NON-NLS-1$
 	private static final String PROFILE_REGISTRY = "profile registry"; //$NON-NLS-1$
 	private static final String PROFILE_PROPERTIES_FILE = "state.properties"; //$NON-NLS-1$
@@ -881,7 +881,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	public synchronized void unlockProfile(IProfile profile) {
 		if (profile == null)
-			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
+			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, "")); //$NON-NLS-1$
 		internalUnlockProfile(profile);
 	}
 
