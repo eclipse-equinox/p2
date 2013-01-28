@@ -398,7 +398,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			return;
 		}
 		SimpleConfiguratorManipulatorUtils.writeConfiguration(simpleInfos, outputFile);
-		if (CONFIG_LIST.equals(outputFile.getName()) && isSharedInstallSetup(URIUtil.toFile(installArea), outputFile))
+		if (CONFIG_LIST.equals(outputFile.getName()) && installArea != null && isSharedInstallSetup(URIUtil.toFile(installArea), outputFile))
 			rememberSharedBundlesInfoTimestamp(installArea, outputFile.getParentFile());
 	}
 
