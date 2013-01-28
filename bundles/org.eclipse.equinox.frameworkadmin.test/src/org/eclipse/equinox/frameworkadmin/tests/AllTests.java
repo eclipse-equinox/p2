@@ -42,7 +42,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(RemovingABundle.class);
 		suite.addTestSuite(RemovingAllBundles.class);
 		suite.addTestSuite(RenamingLauncherIni.class);
-		suite.addTestSuite(SharedConfigurationTest.class);
+//		suite.addTestSuite(SharedConfigurationTest.class);
 		suite.addTestSuite(SimpleConfiguratorComingAndGoing.class);
 		suite.addTestSuite(SimpleConfiguratorTest.class);
 		suite.addTestSuite(TestEclipseDataArea.class);
