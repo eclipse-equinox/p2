@@ -920,8 +920,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	public void testGetProfileStateProperties2() throws ProvisionException {
-		assertNull(registry.getProfile(PROFILE_NAME));
-		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		assertNull(registry.getProfile(getName()));
+		Profile profile = (Profile) registry.addProfile(getName());
 
 		Map<String, String> profileProperties = new HashMap<String, String>();
 		profileProperties.put("profileFoo", "profileBar");
@@ -988,8 +988,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	public void testRemoveProfileStateProperties() throws ProvisionException {
-		assertNull(registry.getProfile(PROFILE_NAME));
-		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		assertNull(registry.getProfile(getName()));
+		Profile profile = (Profile) registry.addProfile(getName());
 
 		Map<String, String> profileProperties = new HashMap<String, String>();
 		profileProperties.put("profileFoo", "profileBar");
@@ -1041,8 +1041,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	public void testRemoveProfileStateProperties2() throws ProvisionException {
-		assertNull(registry.getProfile(PROFILE_NAME));
-		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		assertNull(registry.getProfile(getName()));
+		Profile profile = (Profile) registry.addProfile(getName());
 
 		Map<String, String> profileProperties = new HashMap<String, String>();
 		profileProperties.put("profileFoo", "profileBar");
