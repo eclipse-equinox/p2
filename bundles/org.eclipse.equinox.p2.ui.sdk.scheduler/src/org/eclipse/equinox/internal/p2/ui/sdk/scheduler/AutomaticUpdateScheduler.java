@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -22,8 +23,11 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.IStartup;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -78,8 +82,44 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	public void earlyStartup() {
+		if (baseChanged())
+			return;
 		garbageCollect();
 		scheduleUpdate();
+	}
+
+	Shell getWorkbenchWindowShell() {
+		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		return activeWindow != null ? activeWindow.getShell() : null;
+
+	}
+
+	private boolean baseChanged() {
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		//Access the running profile to force its reinitialization if it has not been done.
+		registry.getProfile(IProfileRegistry.SELF);
+		String resetState = (String) agent.getService(IProfileRegistry.SERVICE_SHARED_INSTALL_NEW_TIMESTAMP);
+		if (resetState == null)
+			return false;
+
+		final String PREF_MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
+
+		//Have we already shown the migration dialog
+		if (AutomaticUpdatePlugin.getDefault().getPreferenceStore().getString(PREF_MIGRATION_DIALOG_SHOWN) == resetState)
+			return false;
+
+		//Remember that we are showing the migration dialog
+		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(PREF_MIGRATION_DIALOG_SHOWN, resetState);
+		AutomaticUpdatePlugin.getDefault().savePreferences();
+
+		Display d = Display.getDefault();
+		d.asyncExec(new Runnable() {
+			public void run() {
+				MessageDialog.openWarning(getWorkbenchWindowShell(), "Installation modified", "An upgrade of the eclipse installation you are using has been performed. The plugins you had installed have been uninstalled."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		});
+		return true;
 	}
 
 	/**

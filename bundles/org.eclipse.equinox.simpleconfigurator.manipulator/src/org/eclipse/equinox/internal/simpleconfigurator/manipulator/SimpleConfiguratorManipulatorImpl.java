@@ -1,10 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: IBM Corporation - initial API and implementation
+ * 
+ * Ericsson AB (Pascal Rapicault) - Bug 397216 -[Shared] Better shared
+ * configuration change discovery
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
@@ -42,8 +45,10 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 	public static final String PROP_KEY_EXCLUSIVE_INSTALLATION = "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation"; //$NON-NLS-1$
 	public static final String CONFIG_LIST = "bundles.info"; //$NON-NLS-1$
+	public static final String CONFIG_FOLDER = "configuration"; //$NON-NLS-1$
 	public static final String CONFIGURATOR_FOLDER = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
+	public static final String SHARED_BUNDLES_INFO = CONFIG_FOLDER + File.separatorChar + CONFIGURATOR_FOLDER + File.separatorChar + CONFIG_LIST;
 
 	private Set manipulators = new HashSet();
 
@@ -63,7 +68,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 				if (manipulator.getLauncherData().getLauncher() != null) {
 					baseDir = manipulator.getLauncherData().getLauncher().getParentFile();
 				} else {
-					throw new IllegalStateException("All of fwConfigFile, home, launcher are not set.");
+					throw new IllegalStateException("All of fwConfigFile, home, launcher are not set."); //$NON-NLS-1$
 				}
 			}
 		} else {
@@ -393,6 +398,33 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			return;
 		}
 		SimpleConfiguratorManipulatorUtils.writeConfiguration(simpleInfos, outputFile);
+		if (CONFIG_LIST.equals(outputFile.getName()) && isSharedInstallSetup(URIUtil.toFile(installArea), outputFile))
+			rememberSharedBundlesInfoTimestamp(installArea, outputFile.getParentFile());
+	}
+
+	private void rememberSharedBundlesInfoTimestamp(URI installArea, File outputFolder) {
+		if (installArea == null)
+			return;
+
+		File sharedBundlesInfo = new File(URIUtil.append(installArea, SHARED_BUNDLES_INFO));
+		if (!sharedBundlesInfo.exists())
+			return;
+
+		Properties timestampToPersist = new Properties();
+		timestampToPersist.put(SimpleConfiguratorImpl.KEY_BUNDLESINFO_TIMESTAMP, Long.toString(sharedBundlesInfo.lastModified()));
+		OutputStream os = null;
+		try {
+			try {
+				File outputFile = new File(outputFolder, SimpleConfiguratorImpl.BASE_TIMESTAMP_FILE_BUNDLESINFO);
+				os = new BufferedOutputStream(new FileOutputStream(outputFile));
+				timestampToPersist.store(os, "Written by " + this.getClass()); //$NON-NLS-1$
+			} finally {
+				if (os != null)
+					os.close();
+			}
+		} catch (IOException e) {
+			return;
+		}
 	}
 
 	private org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] convertBundleInfos(BundleInfo[] configuration, URI installArea) {
@@ -402,7 +434,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			BundleInfo bundleInfo = configuration[i];
 			URI location = bundleInfo.getLocation();
 			if (bundleInfo.getSymbolicName() == null || bundleInfo.getVersion() == null || location == null)
-				throw new IllegalArgumentException("Cannot persist bundleinfo: " + bundleInfo.toString());
+				throw new IllegalArgumentException("Cannot persist bundleinfo: " + bundleInfo.toString()); //$NON-NLS-1$
 			//only need to make a new BundleInfo if we are changing it.
 			if (installArea != null)
 				location = URIUtil.makeRelative(location, installArea);
@@ -492,13 +524,17 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		File configFile = getConfigFile(manipulator);
 
 		File installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData());
-		BundleInfo[] toInstall = null;
-		try {
-			//input stream will be closed for us
-			toInstall = loadConfiguration(new FileInputStream(configFile), installArea.toURI());
-		} catch (FileNotFoundException e) {
-			//no file, just return an empty list
-			toInstall = new BundleInfo[0];
+		BundleInfo[] toInstall = new BundleInfo[0];
+
+		boolean isShared = isSharedInstallSetup(installArea, configFile);
+		if (!isShared || (isShared && !hasBaseChanged(installArea.toURI(), configFile.getParentFile()))) {
+			try {
+				//input stream will be closed for us
+				toInstall = loadConfiguration(new FileInputStream(configFile), installArea.toURI());
+			} catch (FileNotFoundException e) {
+				//no file, just return an empty list
+				toInstall = new BundleInfo[0];
+			}
 		}
 
 		List toUninstall = new LinkedList();
@@ -537,5 +573,44 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 		if (outputFile.getParentFile().isDirectory())
 			outputFile.getParentFile().delete();
+	}
+
+	private boolean hasBaseChanged(URI installArea, File outputFolder) {
+		String rememberedTimestamp;
+		try {
+			rememberedTimestamp = (String) loadProperties(new File(outputFolder, SimpleConfiguratorImpl.BASE_TIMESTAMP_FILE_BUNDLESINFO)).get(SimpleConfiguratorImpl.KEY_BUNDLESINFO_TIMESTAMP);
+		} catch (IOException e) {
+			return false;
+		}
+		if (rememberedTimestamp == null)
+			return false;
+
+		File sharedBundlesInfo = new File(URIUtil.append(installArea, SHARED_BUNDLES_INFO));
+		if (!sharedBundlesInfo.exists())
+			return true;
+		return !String.valueOf(sharedBundlesInfo.lastModified()).equals(rememberedTimestamp);
+	}
+
+	private boolean isSharedInstallSetup(File installArea, File outputFile) {
+		//An instance is treated as shared if the bundles.info file is not located in the install area.
+		return !new File(installArea, SHARED_BUNDLES_INFO).equals(outputFile);
+	}
+
+	private Properties loadProperties(File inputFile) throws FileNotFoundException, IOException {
+		Properties props = new Properties();
+		InputStream is = null;
+		try {
+			is = new FileInputStream(inputFile);
+			props.load(is);
+		} finally {
+			try {
+				if (is != null)
+					is.close();
+			} catch (IOException e) {
+				//Do nothing
+			}
+			is = null;
+		}
+		return props;
 	}
 }

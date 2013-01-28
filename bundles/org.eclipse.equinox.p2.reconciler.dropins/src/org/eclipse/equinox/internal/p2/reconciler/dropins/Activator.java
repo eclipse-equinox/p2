@@ -227,6 +227,13 @@ public class Activator implements BundleActivator {
 			trace("Performing reconciliation."); //$NON-NLS-1$
 			return false;
 		}
+		// master configuration changed. Reconcile.
+		if (Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ProfileSynchronizer.PROP_IGNORE_USER_CONFIGURATION))) {
+			Activator.trace("Master profile changed."); //$NON-NLS-1$
+			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
+			return false;
+		}
+
 		// read timestamps
 		Properties timestamps = readTimestamps();
 		if (timestamps.isEmpty()) {

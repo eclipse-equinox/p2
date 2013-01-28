@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
  *     IBM Corporation - initial API and implementation
- *     Ericsson AB (Pascal Rapicault) - reading preferences from base in shared install
+ *     Ericsson AB - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -38,6 +38,8 @@ import org.xml.sax.SAXException;
 
 public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
+	private static final String SIMPLE_PROFILE_REGISTRY_INTERNAL = "_simpleProfileRegistry_internal_";
+	private static final String ECLIPSE_IGNORE_USER_CONFIGURATION = "eclipse.ignoreUserConfiguration"; //$NON-NLS-1$
 	private static final String PROFILE_REGISTRY = "profile registry"; //$NON-NLS-1$
 	private static final String PROFILE_PROPERTIES_FILE = "state.properties"; //$NON-NLS-1$
 
@@ -168,7 +170,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	public synchronized String toString() {
-		return "Profile registry for location: " + store.getAbsolutePath() + "\n" + getProfileMap().toString(); //$NON-NLS-1$
+		return "Profile registry for location: " + store.getAbsolutePath() + "\n" + getProfileMap().toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public synchronized IProfile getProfile(String id) {
@@ -243,10 +245,55 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (SELF.equals(id))
 			id = self;
 		Profile profile = getProfileMap().get(id);
-		if (profile == null && self != null && self.equals(id))
-			profile = createSurrogateProfile(id);
-
+		if (self != null && self.equals(id)) {
+			boolean resetProfile = false;
+			if (profile != null && ignoreExistingProfile(profile)) {
+				internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_BEFOREFLUSH);
+				profile = null;
+				resetProfile = true;
+			}
+			if (profile == null) {
+				profile = createSurrogateProfile(id);
+				if (resetProfile) {
+					//Now that we created a new profile. Tag it, override the property and register the timestamp in the agent registry for pickup by other  
+					internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_NEW);
+					internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + getBaseTimestamp(profile.getProfileId()), getBaseTimestamp(id));
+					System.setProperty(ECLIPSE_IGNORE_USER_CONFIGURATION, "profileFlushed"); //$NON-NLS-1$
+					agent.registerService(SERVICE_SHARED_INSTALL_NEW_TIMESTAMP, Long.toString(profile.getTimestamp()));
+				} else {
+					//This is the first time we create the shared profile. Tag it as such and also remember the timestamp of the base
+					internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL);
+					internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + getBaseTimestamp(profile.getProfileId()), getBaseTimestamp(id));
+				}
+			}
+		}
 		return profile;
+	}
+
+	private boolean ignoreExistingProfile(IProfile profile) {
+		if (!Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_IGNORE_USER_CONFIGURATION)))
+			return false;
+
+		String baseTimestamp = getBaseTimestamp(profile.getProfileId());
+		if (baseTimestamp == null)
+			return false;
+
+		if (internalGetProfileStateProperties(profile, SIMPLE_PROFILE_REGISTRY_INTERNAL + baseTimestamp, false).size() != 0)
+			return false;
+
+		return true;
+	}
+
+	private String getBaseTimestamp(String id) {
+		IProvisioningAgent installer = (IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_BASE_AGENT);
+		if (installer == null)
+			return null;
+		IProfileRegistry registry = (IProfileRegistry) installer.getService(IProfileRegistry.SERVICE_NAME);
+		long[] revisions = registry.listProfileTimestamps(id);
+		if (revisions.length >= 1) {
+			return Long.toString(revisions[revisions.length - 1]);
+		}
+		return null;
 	}
 
 	private Profile createSurrogateProfile(String id) {
@@ -294,7 +341,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	public synchronized void updateProfile(Profile profile) {
 		String id = profile.getProfileId();
-		Profile current = internalGetProfile(id);
+		Profile current = getProfileMap().get(id);
 		if (current == null)
 			throw new IllegalArgumentException(NLS.bind(Messages.profile_does_not_exist, id));
 
@@ -730,7 +777,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	public synchronized boolean isCurrent(IProfile profile) {
-		Profile internalProfile = internalGetProfile(profile.getProfileId());
+		Profile internalProfile = getProfileMap().get(profile.getProfileId());
 		if (internalProfile == null)
 			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
 
@@ -833,10 +880,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	public synchronized void unlockProfile(IProfile profile) {
-		Profile internalProfile = internalGetProfile(profile.getProfileId());
-		if (internalProfile == null)
+		if (profile == null)
 			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
-		internalUnlockProfile(internalProfile);
+		internalUnlockProfile(profile);
 	}
 
 	private void internalUnlockProfile(IProfile profile) {
@@ -897,6 +943,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 		// return true if the cached timestamp is the same as the one on disk
 		boolean isCurrent() {
+			if (!file.exists())
+				return true;
 			return file.lastModified() == timestamp;
 		}
 
@@ -936,8 +984,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 		File file = new File(profileDirectory, PROFILE_PROPERTIES_FILE);
 		Properties properties = new Properties();
-		if (!file.exists())
+		if (!file.exists()) {
+			lastAccessedProperties = new ProfileStateProperties(id, file, properties);
 			return properties;
+		}
 		InputStream input = null;
 		try {
 			input = new BufferedInputStream(new FileInputStream(file));
@@ -1032,22 +1082,30 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	public IStatus setProfileStateProperties(String id, long timestamp, Map<String, String> propertiesToAdd) {
 		if (id == null || propertiesToAdd == null)
 			throw new NullPointerException();
-		IStatus result = validateState(id, timestamp);
+
+		Profile internalProfile = internalGetProfile(id);
+		return internalSetProfileStateProperties(internalProfile, timestamp, propertiesToAdd);
+	}
+
+	private IStatus internalSetProfileStateProperties(IProfile profile, long timestamp, Map<String, String> propertiesToAdd) {
+		IStatus result = validateState(profile.getProfileId(), timestamp);
 		if (!result.isOK())
 			return result;
-		Profile internalProfile = internalGetProfile(id);
-		lockProfile(internalProfile);
+
+		if (!internalLockProfile(profile))
+			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+
 		try {
-			Properties properties = readStateProperties(id);
+			Properties properties = readStateProperties(profile.getProfileId());
 			for (Map.Entry<String, String> entry : propertiesToAdd.entrySet()) {
 				// property key format is timestamp.key
 				properties.put(timestamp + "." + entry.getKey(), entry.getValue()); //$NON-NLS-1$
 			}
-			writeStateProperties(id, properties);
+			writeStateProperties(profile.getProfileId(), properties);
 		} catch (ProvisionException e) {
 			return e.getStatus();
 		} finally {
-			unlockProfile(internalProfile);
+			internalUnlockProfile(profile);
 		}
 		return Status.OK_STATUS;
 	}
@@ -1056,27 +1114,36 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#setProfileStateProperty(java.lang.String, long, java.lang.String, java.lang.String)
 	 */
 	public IStatus setProfileStateProperty(String id, long timestamp, String key, String value) {
-		if (id == null || key == null || value == null)
+		if (id == null)
+			throw new NullPointerException();
+		return internalSetProfileStateProperty(internalGetProfile(id), timestamp, key, value);
+	}
+
+	private IStatus internalSetProfileStateProperty(IProfile profile, long timestamp, String key, String value) {
+		if (key == null || value == null)
 			throw new NullPointerException();
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(key, value);
-		return setProfileStateProperties(id, timestamp, properties);
+
+		return internalSetProfileStateProperties(profile, timestamp, properties);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#getProfileStateProperties(java.lang.String, long)
-	 */
 	public Map<String, String> getProfileStateProperties(String id, long timestamp) {
 		if (id == null)
 			throw new NullPointerException();
+		return internalGetProfileStateProperties(internalGetProfile(id), timestamp, true);
+	}
 
+	private Map<String, String> internalGetProfileStateProperties(IProfile profile, long timestamp, boolean lock) {
 		Map<String, String> result = new HashMap<String, String>();
 		String timestampString = String.valueOf(timestamp);
 		int keyOffset = timestampString.length() + 1;
-		Profile internalProfile = internalGetProfile(id);
-		lockProfile(internalProfile);
+		lock = lock || lastAccessedProperties == null;
+		if (lock)
+			if (!internalLockProfile(profile))
+				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
 		try {
-			Properties properties = readStateProperties(id);
+			Properties properties = readStateProperties(profile.getProfileId());
 			Iterator<Object> keys = properties.keySet().iterator();
 			while (keys.hasNext()) {
 				String key = (String) keys.next();
@@ -1086,7 +1153,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		} finally {
-			unlockProfile(internalProfile);
+			if (lock)
+				internalUnlockProfile(profile);
 		}
 		return result;
 	}
@@ -1098,11 +1166,18 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (id == null || userKey == null)
 			throw new NullPointerException();
 
-		Map<String, String> result = new HashMap<String, String>();
 		Profile internalProfile = internalGetProfile(id);
-		lockProfile(internalProfile);
+		return internalGetProfileStateProperties(internalProfile, userKey, true);
+	}
+
+	private Map<String, String> internalGetProfileStateProperties(IProfile profile, String userKey, boolean lock) {
+		Map<String, String> result = new HashMap<String, String>();
+		lock = lock || lastAccessedProperties == null;
+		if (lock)
+			if (!internalLockProfile(profile))
+				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
 		try {
-			Properties properties = readStateProperties(id);
+			Properties properties = readStateProperties(profile.getProfileId());
 			Iterator<Object> keys = properties.keySet().iterator();
 			while (keys.hasNext()) {
 				// property key format is timestamp.key
@@ -1115,7 +1190,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		} finally {
-			unlockProfile(internalProfile);
+			if (lock)
+				internalUnlockProfile(profile);
 		}
 		return result;
 	}
@@ -1131,7 +1207,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			return Status.OK_STATUS;
 
 		Profile internalProfile = internalGetProfile(id);
-		lockProfile(internalProfile);
+		if (!internalLockProfile(internalProfile))
+			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+
 		try {
 			Properties properties = readStateProperties(id);
 			String timestampString = String.valueOf(timestamp);
@@ -1154,7 +1232,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		} catch (ProvisionException e) {
 			return e.getStatus();
 		} finally {
-			unlockProfile(internalProfile);
+			internalUnlockProfile(internalProfile);
 		}
 		return Status.OK_STATUS;
 	}

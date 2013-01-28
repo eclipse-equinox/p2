@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,10 +7,9 @@
  * Contributors: 
  * IBM Corporation - initial implementation and ideas
  *     Sonatype, Inc. - ongoing development
+ *     RedHat, Inc. - Bug 397216
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
-
-import org.eclipse.equinox.p2.metadata.IRequirement;
 
 import java.io.*;
 import java.net.*;
@@ -56,6 +55,9 @@ public class ProfileSynchronizer {
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 	private static final String EXPLANATION = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
+
+	static final String PROP_IGNORE_USER_CONFIGURATION = "eclipse.ignoreUserConfiguration"; //$NON-NLS-1$
+
 	final IProfile profile;
 
 	final Map<String, IMetadataRepository> repositoryMap;
@@ -396,6 +398,12 @@ public class ProfileSynchronizer {
 	 * Read the values of the stored timestamps that we use for caching.
 	 */
 	private void readTimestamps() {
+		if (Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(PROP_IGNORE_USER_CONFIGURATION))) {
+			timestamps = new HashMap<String, String>();
+			Activator.trace("Master profile changed."); //$NON-NLS-1$
+			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
+			return;
+		}
 		File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
 		try {
 			InputStream is = new BufferedInputStream(new FileInputStream(file));

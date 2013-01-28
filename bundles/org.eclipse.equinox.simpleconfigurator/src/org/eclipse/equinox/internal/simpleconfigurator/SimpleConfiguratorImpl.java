@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,13 +7,14 @@
  * 
  *  Contributors:
  *      IBM Corporation - initial API and implementation
+ *      Ericsson AB (Pascal Rapicault) - Bug 397216 -[Shared] Better shared configuration change discovery 
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.*;
-import java.util.List;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Properties;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.Bundle;
@@ -41,6 +42,12 @@ public class SimpleConfiguratorImpl implements Configurator {
 	private BundleContext context;
 	private ConfigApplier configApplier;
 	private Bundle bundle;
+
+	//for change detection in the base when running in shared install mode
+	private static final long NO_TIMESTAMP = -1;
+	public static final String BASE_TIMESTAMP_FILE_BUNDLESINFO = ".baseBundlesInfoTimestamp"; //$NON-NLS-1$
+	public static final String KEY_BUNDLESINFO_TIMESTAMP = "bundlesInfoTimestamp";
+	public static final String PROP_IGNORE_USER_CONFIGURATION = "eclipse.ignoreUserConfiguration"; //$NON-NLS-1$
 
 	public SimpleConfiguratorImpl(BundleContext context, Bundle bundle) {
 		this.context = context;
@@ -80,27 +87,10 @@ public class SimpleConfiguratorImpl implements Configurator {
 			//if it is an relative file URL, then resolve it against the configuration area
 			// TODO Support relative file URLs when not on Equinox
 			URL[] configURL = EquinoxUtils.getConfigAreaURL(context);
-			if (configURL != null) {
-				File userConfig = new File(configURL[0].getFile(), url.getFile());
-				if (configURL.length == 1)
-					return userConfig.exists() ? userConfig.toURL() : null;
 
-				File sharedConfig = new File(configURL[1].getFile(), url.getFile());
-				if (!userConfig.exists())
-					return sharedConfig.exists() ? sharedConfig.toURL() : null;
-
-				if (!sharedConfig.exists())
-					return userConfig.toURL();
-
-				URI base = EquinoxUtils.getInstallLocationURI(context);
-
-				URL sharedConfigURL = sharedConfig.toURL();
-				List sharedBundles = SimpleConfiguratorUtils.readConfiguration(sharedConfigURL, base);
-
-				URL userConfigURL = userConfig.toURL();
-				List userBundles = SimpleConfiguratorUtils.readConfiguration(userConfigURL, base);
-
-				return (userBundles.containsAll(sharedBundles)) ? userConfigURL : sharedConfigURL;
+			URL result = chooseConfigurationURL(url, configURL);
+			if (result != null) {
+				return result;
 			}
 		} catch (MalformedURLException e) {
 			return null;
@@ -114,6 +104,69 @@ public class SimpleConfiguratorImpl implements Configurator {
 		}
 
 		return null;
+	}
+
+	/**
+	 * This method is public for testing purposes only.
+	 * @param relativeURL - a relative URL of the configuration
+	 * @param configURL - an array of parent config URLs to which relativeURL can be appended. 
+	 */
+	public URL chooseConfigurationURL(URL relativeURL, URL[] configURL) throws MalformedURLException {
+		if (configURL != null) {
+			File userConfig = new File(configURL[0].getFile(), relativeURL.getFile());
+			if (configURL.length == 1)
+				return userConfig.exists() ? userConfig.toURL() : null;
+
+			File sharedConfig = new File(configURL[1].getFile(), relativeURL.getFile());
+			if (!userConfig.exists())
+				return sharedConfig.exists() ? sharedConfig.toURL() : null;
+
+			if (!sharedConfig.exists())
+				return userConfig.toURL();
+
+			if (Boolean.TRUE.toString().equals(System.getProperty(PROP_IGNORE_USER_CONFIGURATION)))
+				return sharedConfig.toURL();
+
+			long sharedBundlesInfoTimestamp = getCurrentBundlesInfoBaseTimestamp(sharedConfig);
+			long lastKnownBaseTimestamp = getLastKnownBundlesInfoBaseTimestamp(userConfig.getParentFile());
+
+			if (lastKnownBaseTimestamp == sharedBundlesInfoTimestamp || lastKnownBaseTimestamp == NO_TIMESTAMP) {
+				return userConfig.toURL();
+			} else {
+				System.setProperty(PROP_IGNORE_USER_CONFIGURATION, Boolean.TRUE.toString());
+				return sharedConfig.toURL();
+			}
+		}
+		return null;
+	}
+
+	private long getLastKnownBundlesInfoBaseTimestamp(File configFolder) {
+		File storedSharedTimestamp = new File(configFolder, BASE_TIMESTAMP_FILE_BUNDLESINFO);
+		if (!storedSharedTimestamp.exists())
+			return NO_TIMESTAMP;
+
+		Properties p = new Properties();
+		InputStream is = null;
+		try {
+			try {
+				is = new BufferedInputStream(new FileInputStream(storedSharedTimestamp));
+				p.load(is);
+				if (p.get(KEY_BUNDLESINFO_TIMESTAMP) != null) {
+					return Long.valueOf((String) p.get(KEY_BUNDLESINFO_TIMESTAMP)).longValue();
+				}
+			} finally {
+				is.close();
+			}
+		} catch (IOException e) {
+			return NO_TIMESTAMP;
+		}
+		return NO_TIMESTAMP;
+	}
+
+	private long getCurrentBundlesInfoBaseTimestamp(File sharedBundlesInfo) {
+		if (!sharedBundlesInfo.exists())
+			return NO_TIMESTAMP;
+		return sharedBundlesInfo.lastModified();
 	}
 
 	public void applyConfiguration(URL url) throws IOException {

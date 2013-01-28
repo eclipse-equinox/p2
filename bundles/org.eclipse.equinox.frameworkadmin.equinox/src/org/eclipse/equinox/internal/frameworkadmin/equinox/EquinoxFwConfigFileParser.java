@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - Bug 397216 -[Shared] Better shared
+ *                                      configuration change discovery
  *******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
@@ -30,6 +32,9 @@ public class EquinoxFwConfigFileParser {
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String REFERENCE_SCHEME = "reference:"; //$NON-NLS-1$
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+	private static final String BASE_TIMESTAMP_FILE_CONFIGINI = ".baseConfigIniTimestamp"; //$NON-NLS-1$
+	private static final String KEY_CONFIGINI_TIMESTAMP = "configIniTimestamp"; //$NON-NLS-1$
+
 	private static boolean DEBUG = false;
 
 	public EquinoxFwConfigFileParser(BundleContext context) {
@@ -198,6 +203,7 @@ public class EquinoxFwConfigFileParser {
 		if (inputFile.isDirectory())
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_inputFileIsDirectory, inputFile));
 
+		boolean baseHasChanged = false;
 		//Initialize data structures
 		ConfigData configData = manipulator.getConfigData();
 		LauncherData launcherData = manipulator.getLauncherData();
@@ -208,9 +214,15 @@ public class EquinoxFwConfigFileParser {
 		Properties props = loadProperties(inputFile);
 
 		// load shared configuration properties
-		Properties sharedConfigProperties = getSharedConfiguration(props.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), props, manipulator.getLauncherData()));
+		Properties sharedConfigProperties = getSharedConfiguration(ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), props, manipulator.getLauncherData()), props.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
 		if (sharedConfigProperties != null) {
-			sharedConfigProperties.putAll(props);
+			baseHasChanged = hasBaseChanged(inputFile, manipulator, props);
+			if (!baseHasChanged)
+				sharedConfigProperties.putAll(props);
+			else {
+				sharedConfigProperties.put(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA, props.get(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
+			}
+
 			props = sharedConfigProperties;
 		}
 
@@ -222,7 +234,9 @@ public class EquinoxFwConfigFileParser {
 		//readLauncherPath(props, rootURI);
 		readp2DataArea(props, configArea);
 		readSimpleConfiguratorURL(props, configArea);
-		readBundlesList(manipulator, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), props, launcherData).toURI(), props);
+
+		if (!baseHasChanged)
+			readBundlesList(manipulator, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), props, launcherData).toURI(), props);
 		readInitialStartLeve(configData, props);
 		readDefaultStartLevel(configData, props);
 
@@ -234,6 +248,21 @@ public class EquinoxFwConfigFileParser {
 			configData.setProperty(key, value);
 		}
 		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, inputFile.getAbsolutePath()));
+	}
+
+	private boolean hasBaseChanged(File configIni, Manipulator manipulator, Properties configProps) {
+		LauncherData launcherData = manipulator.getLauncherData();
+		File sharedConfigIni = findSharedConfigIniFile(ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData), configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
+		File timestampFile = new File(configIni.getParentFile(), BASE_TIMESTAMP_FILE_CONFIGINI);
+		Properties timestamps;
+		try {
+			timestamps = loadProperties(timestampFile);
+		} catch (FileNotFoundException e) {
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
+		return !String.valueOf(sharedConfigIni.lastModified()).equals(timestamps.getProperty(KEY_CONFIGINI_TIMESTAMP));
 	}
 
 	private void readDefaultStartLevel(ConfigData configData, Properties props) {
@@ -293,7 +322,8 @@ public class EquinoxFwConfigFileParser {
 			props.load(is);
 		} finally {
 			try {
-				is.close();
+				if (is != null)
+					is.close();
 			} catch (IOException e) {
 				Log.log(LogService.LOG_WARNING, NLS.bind(Messages.log_failed_reading_properties, inputFile));
 			}
@@ -302,7 +332,18 @@ public class EquinoxFwConfigFileParser {
 		return props;
 	}
 
-	private File findSharedConfigIniFile(URL rootURL, String sharedConfigurationArea) {
+	private File findSharedConfigIniFile(File base, String sharedConfigurationArea) {
+		if (base == null)
+			return null;
+		URL rootURL;
+		try {
+			rootURL = base.toURL();
+		} catch (MalformedURLException e1) {
+			return null;
+		}
+		if (rootURL == null)
+			return null;
+
 		URL sharedConfigurationURL = null;
 		try {
 			sharedConfigurationURL = new URL(sharedConfigurationArea);
@@ -415,7 +456,6 @@ public class EquinoxFwConfigFileParser {
 				outputFile = new File(outputFile, EquinoxConstants.CONFIG_INI);
 			}
 		}
-		String header = "This configuration file was written by: " + this.getClass().getName(); //$NON-NLS-1$
 
 		Properties configProps = new Properties();
 		//URI rootURI = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURI() : null;
@@ -459,13 +499,18 @@ public class EquinoxFwConfigFileParser {
 				Log.log(LogService.LOG_INFO, this, "saveFwConfig()", NLS.bind(Messages.log_renameSuccessful, outputFile, dest)); //$NON-NLS-1$
 			}
 
+		filterPropertiesFromSharedArea(configProps, manipulator);
+		saveProperties(outputFile, configProps);
+		rememberSharedConfigurationTimestamp(configProps, manipulator, outputFile.getParentFile());
+	}
+
+	private void saveProperties(File outputFile, Properties configProps) throws IOException {
+		String header = "This configuration file was written by: " + this.getClass().getName(); //$NON-NLS-1$
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outputFile);
-			//			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURI(), fwJar, outputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
-			filterPropertiesFromSharedArea(configProps, manipulator);
 			configProps.store(out, header);
-			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_fwConfigSave, outputFile));
+			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_propertiesSaved, outputFile));
 		} finally {
 			try {
 				out.flush();
@@ -473,14 +518,13 @@ public class EquinoxFwConfigFileParser {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			out = null;
 		}
 	}
 
 	private void filterPropertiesFromSharedArea(Properties configProps, Manipulator manipulator) {
 		LauncherData launcherData = manipulator.getLauncherData();
 		//Remove from the config file that we are about to write the properties that are unchanged compared to what is in the base
-		Properties sharedConfigProperties = getSharedConfiguration(configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData));
+		Properties sharedConfigProperties = getSharedConfiguration(ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData), configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
 		if (sharedConfigProperties == null)
 			return;
 		Enumeration keys = configProps.propertyNames();
@@ -549,16 +593,28 @@ public class EquinoxFwConfigFileParser {
 		}
 	}
 
-	private Properties getSharedConfiguration(String sharedConfigurationArea, File baseFile) {
+	private void rememberSharedConfigurationTimestamp(Properties configProps, Manipulator manipulator, File folder) throws IOException {
+		LauncherData launcherData = manipulator.getLauncherData();
+		//Remove from the config file that we are about to write the properties that are unchanged compared to what is in the base
+		File sharedConfigIni = findSharedConfigIniFile(ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData), configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
+		if (sharedConfigIni == null)
+			return;
+		File timestampFile = new File(folder, BASE_TIMESTAMP_FILE_CONFIGINI);
+		Properties timestamps;
+		try {
+			timestamps = loadProperties(timestampFile);
+		} catch (IOException e) {
+			timestamps = new Properties();
+		}
+		timestamps.setProperty(KEY_CONFIGINI_TIMESTAMP, String.valueOf(sharedConfigIni.lastModified()));
+		saveProperties(timestampFile, timestamps);
+	}
+
+	private Properties getSharedConfiguration(File baseFile, String sharedConfigurationArea) {
 		if (sharedConfigurationArea == null)
 			return null;
-		File sharedConfigIni;
-		try {
-			sharedConfigIni = findSharedConfigIniFile(baseFile.toURL(), sharedConfigurationArea);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-		if (sharedConfigIni != null && sharedConfigIni.exists())
+		File sharedConfigIni = findSharedConfigIniFile(baseFile, sharedConfigurationArea);
+		if (sharedConfigIni != null && sharedConfigIni.exists()) {
 			try {
 				return loadProperties(sharedConfigIni);
 			} catch (FileNotFoundException e) {
@@ -566,6 +622,7 @@ public class EquinoxFwConfigFileParser {
 			} catch (IOException e) {
 				return null;
 			}
+		}
 		return null;
 	}
 }

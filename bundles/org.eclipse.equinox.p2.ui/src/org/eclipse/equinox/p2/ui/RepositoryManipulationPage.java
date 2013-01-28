@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault) - bug 398539
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
@@ -774,7 +775,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		};
 
 		int retCode = dialog.open();
-		if (retCode == Window.OK) {
+		if (retCode == Window.OK && dialog.getLocation() != null) {
 			selected[0].setNickname(dialog.getName());
 			selected[0].setLocation(dialog.getLocation());
 			if (dialog.getLocation().equals(existingLocation)) {

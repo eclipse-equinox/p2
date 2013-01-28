@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
@@ -36,6 +37,8 @@ public interface IProfileRegistry {
 	 * Service name constant for the profile registry service.
 	 */
 	public static final String SERVICE_NAME = IProfileRegistry.class.getName();
+
+	public static final String SERVICE_SHARED_INSTALL_NEW_TIMESTAMP = IProfileRegistry.class.getName() + '_' + "NEW_SELF_TIMESTAMP"; //$NON-NLS-1$
 
 	/**
 	 * Return the profile in the registry that has the given id. If it does not exist, 

@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
@@ -144,6 +145,29 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 * @since 2.1
 	 */
 	public static final String STATE_PROP_TAG = "org.eclipse.equinox.p2.state.tag"; //$NON-NLS-1$
+
+	/**
+	 * Profile state metadata property key used to represent the state of the user profile when running in shared install.
+	 * The value for this property could be:  {@value #STATE_PROP_INITIAL}, {@value #STATE_SHARED_INSTALL_VALUE_BEFOREFLUSH}, or {@value #STATE_SHARED_INSTALL_VALUE_NEW}
+	 * @since 2.3
+	 */
+	public static final String STATE_PROP_SHARED_INSTALL = "org.eclipse.equinox.p2.state.shared"; //$NON-NLS-1$
+
+	/**
+	 * Value to represent a user profile the first time it is created.
+	 * @since 2.3
+	 */
+	public static final String STATE_SHARED_INSTALL_VALUE_INITIAL = "initial"; //$NON-NLS-1$
+	/**
+	 * Value to represent a user profile before it is being flushed because the base had changed.
+	 * @since 2.3
+	 */
+	public static final String STATE_SHARED_INSTALL_VALUE_BEFOREFLUSH = "beforeFlush"; //$NON-NLS-1$
+	/**
+	 * Value to represent the new user profile created once the base profile has been flushed.
+	 * @since 2.3
+	 */
+	public static final String STATE_SHARED_INSTALL_VALUE_NEW = "new"; //$NON-NLS-1$
 
 	/**
 	 * Profile property constant for additional parameters of the downloading stats(e.g., package=jee&os=linux).
