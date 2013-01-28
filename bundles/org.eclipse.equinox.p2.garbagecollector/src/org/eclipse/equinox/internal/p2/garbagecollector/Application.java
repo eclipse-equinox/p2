@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
  */
 public class Application implements IApplication {
 
-	private static final String DEFAULT_PROFILE_ID = "SDKProfile"; //$NON-NLS-1$
 	private String profileId;
 	private IProvisioningAgent agent;
 
@@ -43,7 +42,7 @@ public class Application implements IApplication {
 		processArguments(args);
 		// if the user didn't give us a profile id, then use the default SDK one
 		if (profileId == null)
-			profileId = DEFAULT_PROFILE_ID;
+			profileId = IProfileRegistry.SELF;
 
 		initializeServices();
 		IProfile profile = getProfile(profileId);
