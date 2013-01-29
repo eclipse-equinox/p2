@@ -254,6 +254,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			}
 			if (profile == null) {
 				profile = createSurrogateProfile(id);
+				if (profile == null)
+					return null;
+
 				if (resetProfile) {
 					//Now that we created a new profile. Tag it, override the property and register the timestamp in the agent registry for pickup by other  
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_NEW);
