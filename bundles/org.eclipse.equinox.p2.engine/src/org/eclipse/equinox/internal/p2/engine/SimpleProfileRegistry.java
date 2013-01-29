@@ -263,7 +263,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				} else {
 					//This is the first time we create the shared profile. Tag it as such and also remember the timestamp of the base
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL);
-					internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + getBaseTimestamp(profile.getProfileId()), getBaseTimestamp(id));
+					String baseTimestamp = getBaseTimestamp(id);
+					if (baseTimestamp != null)
+						internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + baseTimestamp, baseTimestamp);
 				}
 			}
 		}
