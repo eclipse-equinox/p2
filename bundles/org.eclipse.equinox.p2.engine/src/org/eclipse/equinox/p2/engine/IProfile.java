@@ -148,7 +148,7 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 
 	/**
 	 * Profile state metadata property key used to represent the state of the user profile when running in shared install.
-	 * The value for this property could be:  {@value #STATE_PROP_INITIAL}, {@value #STATE_SHARED_INSTALL_VALUE_BEFOREFLUSH}, or {@value #STATE_SHARED_INSTALL_VALUE_NEW}
+	 * The value for this property could be: {@link IProfile#STATE_SHARED_INSTALL_VALUE_INITIAL}, {@link IProfile#STATE_SHARED_INSTALL_VALUE_BEFOREFLUSH} or {@link IProfile#STATE_SHARED_INSTALL_VALUE_NEW}
 	 * @since 2.3
 	 */
 	public static final String STATE_PROP_SHARED_INSTALL = "org.eclipse.equinox.p2.state.shared"; //$NON-NLS-1$
