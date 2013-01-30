@@ -116,7 +116,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		Display d = Display.getDefault();
 		d.asyncExec(new Runnable() {
 			public void run() {
-				MessageDialog.openWarning(getWorkbenchWindowShell(), "Installation modified", "An upgrade of the eclipse installation you are using has been performed. The plugins you had installed have been uninstalled."); //$NON-NLS-1$ //$NON-NLS-2$
+				MessageDialog.openWarning(getWorkbenchWindowShell(), "Installation modified", "An upgrade of the eclipse installation you are using has been performed. The plugins you had installed have been uninstalled. Look for more improvements to this dialog in Kepler M6 (http://bugs.eclipse.org/398833"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
 		return true;
