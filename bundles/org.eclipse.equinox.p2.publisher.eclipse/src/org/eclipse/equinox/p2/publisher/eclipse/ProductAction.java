@@ -187,8 +187,11 @@ public class ProductAction extends AbstractPublisherAction {
 				// if the bundle is platform specific we will have broken metadata due to a missing filter
 				finalStatus.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.message_cannotDetermineFilterOnInclusion, element.getId(), elementVersion)));
 
-				// best effort guess for callers who choose to ignore this problem
-				result.add(new VersionedId(element.getId(), elementVersion));
+				// preserve legacy behaviour for callers who choose to ignore the error status:
+				// include element without filter, but only if there was an IVersionAdvice with "no advice" for this bundle (see bug 398066)
+				if (elementVersion != null) {
+					result.add(new VersionedId(element.getId(), elementVersion));
+				}
 			}
 		}
 		return result;
