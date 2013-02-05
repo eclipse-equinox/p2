@@ -279,9 +279,11 @@ public class VerifierApplication implements IApplication {
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
 		if (profile == null)
 			return createError("SELF profile not available in profile registry."); //$NON-NLS-1$
-		IQueryResult results = profile.query(QueryUtil.createIUQuery(Activator.PLUGIN_ID), null);
-		if (results.isEmpty())
-			return createError(NLS.bind("IU for {0} not found in SELF profile.", Activator.PLUGIN_ID)); //$NON-NLS-1$
+		if (!Boolean.FALSE.toString().equals(properties.get("checkPresenceOfVerifier"))) {
+			IQueryResult results = profile.query(QueryUtil.createIUQuery(Activator.PLUGIN_ID), null);
+			if (results.isEmpty())
+				return createError(NLS.bind("IU for {0} not found in SELF profile.", Activator.PLUGIN_ID)); //$NON-NLS-1$
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -302,7 +304,69 @@ public class VerifierApplication implements IApplication {
 		if (!temp.isOK())
 			result.merge(temp);
 
+		temp = hasProfileFlag();
+		if (!temp.isOK())
+			result.merge(temp);
+
+		temp = checkAbsenceOfBundles();
+		if (!temp.isOK())
+			result.merge(temp);
+
+		temp = checkPresenceOfBundles();
+		if (!temp.isOK())
+			result.merge(temp);
+
 		return result;
+	}
+
+	private IStatus checkAbsenceOfBundles() {
+		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.ERROR, "Some bundles should not be there", null);
+		String unexpectedBundlesString = properties.getProperty("unexpectedBundleList");
+		if (unexpectedBundlesString == null)
+			return Status.OK_STATUS;
+		String[] unexpectedBundles = unexpectedBundlesString.split(",");
+		for (String bsn : unexpectedBundles) {
+			if (containsBundle(bsn)) {
+				result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, bsn + " should not have been found in the install"));
+			}
+		}
+		if (result.getChildren().length == 0)
+			return Status.OK_STATUS;
+		return result;
+	}
+
+	private IStatus checkPresenceOfBundles() {
+		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.ERROR, "Some bundles should not be there", null);
+		String expectedBundlesString = properties.getProperty("expectedBundleList");
+		if (expectedBundlesString == null)
+			return Status.OK_STATUS;
+		String[] expectedBundles = expectedBundlesString.split(",");
+		for (String bsn : expectedBundles) {
+			if (!containsBundle(bsn)) {
+				result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, bsn + " is missing from the install"));
+			}
+		}
+		if (result.getChildren().length == 0)
+			return Status.OK_STATUS;
+		return result;
+	}
+
+	private boolean containsBundle(String bsn) {
+		PlatformAdmin platformAdmin = (PlatformAdmin) ServiceHelper.getService(Activator.getBundleContext(), PlatformAdmin.class.getName());
+		State state = platformAdmin.getState(false);
+		return state.getBundle(bsn, null) != null;
+	}
+
+	private IStatus hasProfileFlag() {
+		if (properties.getProperty("checkProfileResetFlag") == null)
+			return Status.OK_STATUS;
+		//Make sure that the profile is already loaded
+		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		reg.getProfile(IProfileRegistry.SELF);
+
+		if (Boolean.valueOf(properties.getProperty("checkProfileResetFlag")).booleanValue() == (agent.getService(IProfileRegistry.SERVICE_SHARED_INSTALL_NEW_TIMESTAMP) != null))
+			return Status.OK_STATUS;
+		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The flag indicating that a profile has been reset is incorrectly setup");
 	}
 
 }
