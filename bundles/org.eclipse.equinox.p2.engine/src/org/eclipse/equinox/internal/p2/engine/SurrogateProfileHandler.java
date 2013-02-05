@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *      IBM Corporation - initial API and implementation
+ *      Ericsson AB - Bug 400011 - [shared] Cleanup the SurrogateProfileHandler code
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -20,8 +21,6 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
@@ -38,10 +37,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private static final String ECLIPSE_INI_IGNORED = "eclipse.ini.ignored"; //$NON-NLS-1$
 	private static final String IU_LOCKED = Integer.toString(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE);
 	private static final String PROP_SURROGATE = "org.eclipse.equinox.p2.surrogate"; //$NON-NLS-1$
-	private static final String PROP_SHARED_TIMESTAMP = "org.eclipse.equinox.p2.shared.timestamp"; //$NON-NLS-1$
 	private static final String PROP_BASE = "org.eclipse.equinox.p2.base"; //$NON-NLS-1$
-	private static final String PROP_RESOLVE = "org.eclipse.equinox.p2.resolve"; //$NON-NLS-1$
-	private static final String OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
 	private static final String STRICT = "STRICT"; //$NON-NLS-1$
 	private static final String PROP_INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
 
@@ -94,25 +90,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		return sharedProfileIU;
 	}
 
-	private static void removeUserProfileBaseIUs(final Profile userProfile) {
-		IQuery<IInstallableUnit> baseIUQuery = new IUProfilePropertyQuery(PROP_BASE, Boolean.TRUE.toString());
-		IQueryResult<IInstallableUnit> rootIUs = userProfile.query(baseIUQuery, null);
-		for (Iterator<IInstallableUnit> iterator = rootIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
-			userProfile.removeInstallableUnit(iu);
-		}
-	}
-
-	private static void markRootsOptional(final Profile userProfile) {
-		IQueryResult<IInstallableUnit> rootIUs = userProfile.query(new UserVisibleRootQuery(), null);
-		for (Iterator<IInstallableUnit> iterator = rootIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
-			userProfile.setInstallableUnitProperty(iu, PROP_INCLUSION_RULES, OPTIONAL);
-		}
-	}
-
 	private static void updateProperties(final IProfile sharedProfile, Profile userProfile) {
-		userProfile.setProperty(PROP_SHARED_TIMESTAMP, Long.toString(sharedProfile.getTimestamp()));
 		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
 		File installFolder = new File(installLocation.getURL().getPath());
 
@@ -220,27 +198,5 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		result.addAll(sharedProfile.query(query, monitor));
 		result.addAll(profile.query(query, monitor));
 		return result;
-	}
-
-	public boolean updateProfile(IProfile userProfile) {
-		final IProfile sharedProfile = getSharedProfile(userProfile.getProfileId());
-		if (sharedProfile == null)
-			throw new IllegalStateException(NLS.bind(Messages.shared_profile_not_found, userProfile.getProfileId()));
-
-		String sharedTimeStamp = Long.toString(sharedProfile.getTimestamp());
-		String userSharedTimeStamp = userProfile.getProperty(PROP_SHARED_TIMESTAMP);
-
-		if (userSharedTimeStamp != null && userSharedTimeStamp.equals(sharedTimeStamp))
-			return false;
-
-		Profile writableUserProfile = (Profile) userProfile;
-		updateProperties(sharedProfile, writableUserProfile);
-		removeUserProfileBaseIUs(writableUserProfile);
-		if (!userProfile.query(QueryUtil.createIUAnyQuery(), null).isEmpty()) {
-			writableUserProfile.setProperty(PROP_RESOLVE, Boolean.TRUE.toString());
-			markRootsOptional(writableUserProfile);
-		}
-		addSharedProfileBaseIUs(sharedProfile, writableUserProfile);
-		return true;
 	}
 }

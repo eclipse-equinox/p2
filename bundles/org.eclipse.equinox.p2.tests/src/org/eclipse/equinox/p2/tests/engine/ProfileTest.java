@@ -142,9 +142,6 @@ public class ProfileTest extends AbstractProvisioningTest {
 				return new Collector();
 			}
 
-			public boolean updateProfile(IProfile selfProfile) {
-				return false;
-			}
 		});
 		assertTrue(profile.available(QueryUtil.createIUAnyQuery(), null).isEmpty());
 		assertTrue(profile.snapshot().available(QueryUtil.createIUAnyQuery(), null).isEmpty());

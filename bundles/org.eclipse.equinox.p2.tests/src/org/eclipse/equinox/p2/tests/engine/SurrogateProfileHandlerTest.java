@@ -22,8 +22,6 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 	private static final String PROFILE_NAME = "profile.SurrogateProfileHandlerTest";
-	private static final String PROP_TYPE_ROOT = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
-	private static final String PROP_SHARED_TIMESTAMP = "org.eclipse.equinox.p2.shared.timestamp"; //$NON-NLS-1$
 
 	public static Test suite() {
 		return new TestSuite(SurrogateProfileHandlerTest.class);
@@ -84,42 +82,5 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		assertTrue(handler.isSurrogate(surrogateProfile));
 		assertEquals(1, queryResultSize(surrogateProfile.query(QueryUtil.createIUAnyQuery(), null)));
 		assertEquals(2, queryResultSize(surrogateProfile.available(QueryUtil.createIUAnyQuery(), null)));
-	}
-
-	public void testUpdateProfile() throws ProvisionException {
-		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
-		profile.addInstallableUnit(createIU("test"));
-		profile.setInstallableUnitProperty(createIU("test"), PROP_TYPE_ROOT, Boolean.TRUE.toString());
-		saveProfile(registry, profile);
-		IProfile surrogateProfile = handler.createProfile(PROFILE_NAME);
-		assertEquals(2, queryResultSize(surrogateProfile.query(QueryUtil.createIUAnyQuery(), null)));
-		// HashSet used here to eliminate duplicates
-		assertEquals(2, queryResultUniqueSize(surrogateProfile.available(QueryUtil.createIUAnyQuery(), null)));
-		handler.updateProfile(surrogateProfile);
-		assertEquals(2, queryResultSize(surrogateProfile.query(QueryUtil.createIUAnyQuery(), null)));
-		// HashSet used here to eliminate duplicates
-		assertEquals(2, queryResultUniqueSize(surrogateProfile.available(QueryUtil.createIUAnyQuery(), null)));
-
-		Profile writeableSurrogateProfile = (Profile) surrogateProfile;
-
-		writeableSurrogateProfile.addInstallableUnit(createIU("surrogate.test"));
-		writeableSurrogateProfile.setInstallableUnitProperty(createIU("surrogate.test"), PROP_TYPE_ROOT, Boolean.TRUE.toString());
-		assertEquals(3, queryResultSize(surrogateProfile.query(QueryUtil.createIUAnyQuery(), null)));
-		// HashSet used here to eliminate duplicates
-		assertEquals(3, queryResultUniqueSize(surrogateProfile.available(QueryUtil.createIUAnyQuery(), null)));
-
-		profile.addInstallableUnit(createIU("test2"));
-		profile.setInstallableUnitProperty(createIU("test2"), PROP_TYPE_ROOT, Boolean.TRUE.toString());
-		saveProfile(registry, profile);
-		assertEquals(3, queryResultSize(surrogateProfile.query(QueryUtil.createIUAnyQuery(), null)));
-		// HashSet used here to eliminate duplicates
-		assertEquals(4, queryResultUniqueSize(surrogateProfile.available(QueryUtil.createIUAnyQuery(), null)));
-
-		//Strictly speaking this should not be necessary however without resetting the timestamp this test will sometimes fail
-		writeableSurrogateProfile.setProperty(PROP_SHARED_TIMESTAMP, null);
-		handler.updateProfile(surrogateProfile);
-		assertEquals(4, queryResultSize(surrogateProfile.query(QueryUtil.createIUAnyQuery(), null)));
-		// HashSet used here to eliminate duplicates
-		assertEquals(4, queryResultUniqueSize(surrogateProfile.available(QueryUtil.createIUAnyQuery(), null)));
 	}
 }
