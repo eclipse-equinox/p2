@@ -73,15 +73,4 @@ public class SmokeTestSAT4J extends AbstractProvisioningTest {
 		assertNull(raised);
 
 	}
-
-	//	private void backToIU(IProblem problem) {
-	//		solution = new ArrayList();
-	//		for (Iterator allIUs = variables.entrySet().iterator(); allIUs.hasNext();) {
-	//			Entry entry = (Entry) allIUs.next();
-	//			int match = Integer.parseInt(((String) entry.getValue()).substring(1));
-	//			if (problem.model(match)) {
-	//				solution.add(((IInstallableUnit) entry.getKey()).unresolved());
-	//			}
-	//		}
-	//	}
 }

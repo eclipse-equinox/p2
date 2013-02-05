@@ -7,7 +7,9 @@
  * Contributors: 
  *     Ericsson AB - ongoing development
  ******************************************************************************/
-package org.eclipse.equinox.p2.tests.reconciler.dropins;
+package org.eclipse.equinox.p2.tests.sharedinstall;
+
+import org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest;
 
 import java.io.*;
 import java.util.Properties;
