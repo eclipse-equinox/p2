@@ -5,7 +5,7 @@
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
- *     Ericsson AB - ongoing development
+ *     Ericsson AB - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
@@ -21,7 +21,10 @@ import junit.framework.*;
 public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTest(SharedInstallEnd2End.suite());
+		suite.addTest(BaseChange.suite());
+		suite.addTest(BaseChangeWithoutUserChange.suite());
+		suite.addTest(InstallInUserSpace.suite());
+		suite.addTest(TestInitialRun.suite());
 		return suite;
 	}
 }

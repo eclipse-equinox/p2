@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,13 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.tests.verifier;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.internal.adaptor.EclipseAdaptorMsg;
 import org.eclipse.core.runtime.internal.adaptor.MessageHelper;
@@ -316,6 +318,35 @@ public class VerifierApplication implements IApplication {
 		if (!temp.isOK())
 			result.merge(temp);
 
+		temp = checkSystemProperties();
+		if (!temp.isOK())
+			result.merge(temp);
+
+		return result;
+	}
+
+	private IStatus checkSystemProperties() {
+		final String ABSENT_SYS_PROPERTY = "not.sysprop.";
+		final String PRESENT_SYS_PROPERTY = "sysprop.";
+		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.ERROR, "System properties validation", null);
+
+		Set<Entry<Object, Object>> entries = properties.entrySet();
+		for (Entry<Object, Object> entry : entries) {
+			String key = (String) entry.getKey();
+			if (key.startsWith(ABSENT_SYS_PROPERTY)) {
+				String property = key.substring(ABSENT_SYS_PROPERTY.length());
+				if (System.getProperty(property) != null)
+					result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Property " + property + " should not be set."));
+			}
+			if (key.startsWith(PRESENT_SYS_PROPERTY)) {
+				String property = key.substring(PRESENT_SYS_PROPERTY.length());
+				String foundValue = System.getProperty(property);
+				if (!entry.getValue().equals(foundValue))
+					result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Property " + property + " should be set to " + entry.getValue() + " and is set to " + foundValue + "."));
+			}
+		}
+		if (result.getChildren().length == 0)
+			return Status.OK_STATUS;
 		return result;
 	}
 

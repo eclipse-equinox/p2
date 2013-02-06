@@ -5,14 +5,14 @@
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
- *     Ericsson AB - ongoing development
+ *     Ericsson AB - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
-import org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest;
-
 import java.io.*;
-import java.util.Properties;
+import java.util.*;
+import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest;
 
 public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	static final boolean WINDOWS = java.io.File.separatorChar == '\\';
@@ -22,6 +22,118 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 
 	public File getUserBundleInfo() {
 		return new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+	}
+
+	protected String getTestRepo() {
+		return getTestData("repo for shared install tests", "testData/sharedInstall/repo").toURI().toString();
+	}
+
+	protected File getUserBundleInfoTimestamp() {
+		return new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/.baseBundlesInfoTimestamp");
+	}
+
+	protected File getUserProfileRegistryFolder() {
+		return new File(userBase, "p2/org.eclipse.equinox.p2.engine/profileRegistry/");
+	}
+
+	protected File getUserProfileFolder() {
+		return new File(getUserProfileRegistryFolder(), profileId + ".profile");
+	}
+
+	protected File getBaseProfileRegistryFolder() {
+		return new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry/");
+	}
+
+	protected long[] getProfileTimestampsFromUser() {
+		return new SimpleProfileRegistry(getAgent(), getUserProfileRegistryFolder()).listProfileTimestamps(profileId);
+	}
+
+	protected long getMostRecentProfileTimestamp(File profileFolder) {
+		long[] ts = new SimpleProfileRegistry(getAgent(), profileFolder).listProfileTimestamps(profileId);
+		return ts[ts.length - 1];
+	}
+
+	protected long getMostRecentProfileTimestampFromBase() {
+		return getMostRecentProfileTimestamp(getBaseProfileRegistryFolder());
+	}
+
+	protected void assertProfileStatePropertiesHasValue(File profileFolder, String value) {
+		try {
+			Properties p = loadProperties(new File(profileFolder, "state.properties"));
+			Collection<Object> values = p.values();
+			for (Object v : values) {
+				if (((String) v).contains(value)) {
+					return;
+				}
+			}
+			fail("Value: " + value + " not found.");
+		} catch (IOException e) {
+			fail("exception while loading profile state properties in " + profileFolder.getAbsolutePath());
+		}
+
+	}
+
+	protected File getConfigIniTimestamp() {
+		return new File(userBase, "configuration/.baseConfigIniTimestamp");
+	}
+
+	protected void assertProfileStatePropertiesHasKey(File profileFolder, String key) {
+		try {
+			Properties p = loadProperties(new File(profileFolder, "state.properties"));
+			Set<Object> keys = p.keySet();
+			for (Object k : keys) {
+				if (((String) k).contains(key)) {
+					return;
+				}
+			}
+			fail("Key: " + key + " not found.");
+		} catch (IOException e) {
+			fail("exception while loading profile state properties in " + profileFolder.getAbsolutePath());
+		}
+
+	}
+
+	protected void installInUser() {
+		//TODO Install something into eclipse - make sure that this can be done in an automated setup
+		runEclipse("Installing in user", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group,Verifier.feature.group", "-repository", getTestRepo()});
+	}
+
+	protected void installInUser2() {
+		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature2.feature.group", "-repository", getTestRepo()});
+	}
+
+	protected void installVerifierInBase() {
+		setReadOnly(readOnlyBase, false);
+		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "Verifier.feature.group", "-repository", getTestRepo()});
+		setReadOnly(readOnlyBase, true);
+	}
+
+	protected boolean isInUserBundlesInfo(String bundleId) {
+		try {
+			return isInBundlesInfo(getUserBundlesInfo(), bundleId, null, null);
+		} catch (IOException e) {
+			fail("Problem reading bundles.info");
+		}
+		//should never be reached
+		return false;
+	}
+
+	protected File getUserBundlesInfo() {
+		return new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+	}
+
+	protected void startEclipseAsUser() {
+		runEclipse("Running eclipse", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.garbagecollector.application", "-profile", "_SELF_"});
+	}
+
+	protected void executeVerifier(Properties verificationProperties) {
+		File verifierConfig = new File(getTempFolder(), "verification.properties");
+		try {
+			writeProperties(verifierConfig, verificationProperties);
+		} catch (IOException e) {
+			fail("Failing to write out properties to configure verifier", e);
+		}
+		assertEquals(0, runEclipse("Running verifier", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"}));
 	}
 
 	public static Properties loadProperties(File inputFile) throws FileNotFoundException, IOException {

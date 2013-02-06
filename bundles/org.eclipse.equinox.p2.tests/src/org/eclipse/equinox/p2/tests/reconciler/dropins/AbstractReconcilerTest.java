@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 IBM Corporation and others.
+ *  Copyright (c) 2008, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ericsson AB - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
@@ -43,6 +44,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	private static Properties archiveAndRepositoryProperties = null;
 
 	private String propertyToPlatformArchive;
+	private boolean debug = false;
 
 	static {
 		loadPlatformZipPropertiesFromFile();
@@ -618,13 +620,18 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		Collections.addAll(command, args);
 		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
 		// command-line if you want to run and allow a remote debugger to connect
-		//Collections.addAll(command, new String[] {"-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"});
+		if (debug)
+			Collections.addAll(command, new String[] {"-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"});
 		int result = run(message, command.toArray(new String[command.size()]));
 		// 13 means that we wrote something out in the log file.
 		// so try and parse it and fail via that message if we can.
 		if (result == 13)
 			parseExitdata(message);
 		return result;
+	}
+
+	protected void debugEclipse(boolean on) {
+		this.debug = on;
 	}
 
 	private void parseExitdata(String message) {
