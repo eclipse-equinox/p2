@@ -287,10 +287,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	private String getBaseTimestamp(String id) {
-		IProvisioningAgent installer = (IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_BASE_AGENT);
-		if (installer == null)
+		IProvisioningAgent baseAgent = (IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_BASE_AGENT);
+		if (baseAgent == null)
 			return null;
-		IProfileRegistry registry = (IProfileRegistry) installer.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = (IProfileRegistry) baseAgent.getService(IProfileRegistry.SERVICE_NAME);
 		if (registry == null)
 			return null;
 		long[] revisions = registry.listProfileTimestamps(id);
