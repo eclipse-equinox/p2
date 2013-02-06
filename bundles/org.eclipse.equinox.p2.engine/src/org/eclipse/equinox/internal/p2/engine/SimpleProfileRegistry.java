@@ -142,9 +142,6 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (Boolean.valueOf(selfProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
 			changed = updateRoamingProfile(selfProfile);
 
-		if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(selfProfile))
-			changed = changed || surrogateProfileHandler.updateProfile(selfProfile);
-
 		if (changed)
 			saveProfile(selfProfile);
 	}
@@ -276,7 +273,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	private boolean ignoreExistingProfile(IProfile profile) {
-		if (!Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_IGNORE_USER_CONFIGURATION)))
+		if (agent.getService(SERVICE_SHARED_INSTALL_NEW_TIMESTAMP) != null)
 			return false;
 
 		String baseTimestamp = getBaseTimestamp(profile.getProfileId());
@@ -294,6 +291,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (installer == null)
 			return null;
 		IProfileRegistry registry = (IProfileRegistry) installer.getService(IProfileRegistry.SERVICE_NAME);
+		if (registry == null)
+			return null;
 		long[] revisions = registry.listProfileTimestamps(id);
 		if (revisions.length >= 1) {
 			return Long.toString(revisions[revisions.length - 1]);
