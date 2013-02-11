@@ -276,6 +276,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private ILog log = null;
 
 	private IProvisioningAgent targetAgent;
+	private boolean targetAgentIsSelfAndUp = false;
 	private boolean noArtifactRepositorySpecified = false;
 
 	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs, Collection<IInstallableUnit> uninstalls) {
@@ -580,9 +581,23 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		} else {
 			p2DataArea = null;
 		}
-		targetAgent = provider.createAgent(p2DataArea);
-		targetAgent.registerService(IProvisioningAgent.INSTALLER_AGENT, provider.createAgent(null));
-
+		if (p2DataArea == null) {
+			final String currentAgentFiler = '(' + IProvisioningAgent.SERVICE_CURRENT + '=' + "true)"; //$NON-NLS-1$
+			try {
+				Collection<ServiceReference<IProvisioningAgent>> refs;
+				refs = context.getServiceReferences(IProvisioningAgent.class, currentAgentFiler);
+				if (!refs.isEmpty()) {
+					targetAgent = context.getService(refs.iterator().next());
+					targetAgentIsSelfAndUp = true;
+				}
+			} catch (InvalidSyntaxException e) {
+				//Can't happen the filter never changes
+			}
+		}
+		if (targetAgent == null) {
+			targetAgent = provider.createAgent(p2DataArea);
+			targetAgent.registerService(IProvisioningAgent.INSTALLER_AGENT, provider.createAgent(null));
+		}
 		context.ungetService(agentProviderRef);
 		if (profileId == null) {
 			if (destination != null) {
@@ -647,6 +662,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		RepositoryEvent event = (RepositoryEvent) o;
 		if (RepositoryEvent.ADDED != event.getKind())
 			return;
+
+		//TODO BE CAREFUL SINCE WE ARE MODIFYING THE SELF PROFILE
 		int type = event.getRepositoryType();
 		URI location = event.getRepositoryLocation();
 		if (IRepository.TYPE_ARTIFACT == type) {
@@ -1015,8 +1032,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private void cleanupServices() {
 		BundleContext context = Activator.getContext();
-		//dispose agent
-		if (targetAgent != null) {
+		//dispose agent, only if it is not already up and running
+		if (targetAgent != null && !targetAgentIsSelfAndUp) {
 			targetAgent.stop();
 			targetAgent = null;
 		}
