@@ -76,9 +76,12 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IFileArtifactRepository getBundlePoolRepository() {
-		IProfile profile = getCurrentProfile();
 		IProvisioningAgent agent = getCurrentAgent();
-		if (profile == null || agent == null)
+		if (agent == null)
+			return null;
+
+		IProfile profile = getCurrentProfile();
+		if (profile == null)
 			return null;
 
 		return Util.getAggregatedBundleRepository(agent, profile, Util.AGGREGATE_CACHE | Util.AGGREGATE_SHARED_CACHE);
