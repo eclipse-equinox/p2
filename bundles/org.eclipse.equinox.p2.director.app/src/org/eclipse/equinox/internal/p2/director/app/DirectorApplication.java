@@ -1050,7 +1050,14 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				performHelpInfo();
 			else {
 				initializeServices();
+				if (!(printIUList || printRootIUList || printTags)) {
+					if (!canInstallInDestination()) {
+						printMessage(NLS.bind(Messages.Cant_write_in_destination, destination.getAbsolutePath()));
+						return EXIT_ERROR;
+					}
+				}
 				initializeRepositories();
+
 				if (revertToPreviousState != NOTHING_TO_REVERT_TO) {
 					revertToPreviousState();
 				} else if (!(rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()))
@@ -1325,5 +1332,34 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		for (String timestamp : timeStamps) {
 			System.out.println(tags.get(timestamp));
 		}
+	}
+
+	private boolean canInstallInDestination() {
+		//When we are provisioning what we are running. We can always install.  
+		if (targetAgentIsSelfAndUp)
+			return true;
+		return canWrite(destination);
+	}
+
+	private static boolean canWrite(File installDir) {
+		if (installDir.canWrite() == false)
+			return false;
+
+		if (!installDir.isDirectory())
+			return false;
+
+		File fileTest = null;
+		try {
+			// we use the .dll suffix to properly test on Vista virtual directories
+			// on Vista you are not allowed to write executable files on virtual directories like "Program Files"
+			fileTest = File.createTempFile("writtableArea", ".dll", installDir); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (IOException e) {
+			//If an exception occured while trying to create the file, it means that it is not writtable
+			return false;
+		} finally {
+			if (fileTest != null)
+				fileTest.delete();
+		}
+		return true;
 	}
 }

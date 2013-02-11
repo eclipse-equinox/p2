@@ -86,6 +86,8 @@ public class Messages extends NLS {
 	public static String unableToWriteLogFile;
 	public static String Unmatched_iu_profile_property_key_value;
 
+	public static String Cant_write_in_destination;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
