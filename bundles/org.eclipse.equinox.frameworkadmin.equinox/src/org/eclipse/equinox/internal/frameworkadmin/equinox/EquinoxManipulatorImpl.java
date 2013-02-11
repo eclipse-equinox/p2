@@ -339,11 +339,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	private void loadWithoutFwPersistentData() throws IOException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		File launcherConfigFile = getLauncherConfigLocation(launcherData);
-		if (launcherConfigFile != null) {
-			// if ignored then try to read the parent
-			if (launcherConfigFile.getName().endsWith(IGNORED)) {
-				launcherConfigFile = new File(launcherData.getLauncher().getAbsolutePath() + EquinoxConstants.INI_EXTENSION);
-			}
+		if (launcherConfigFile != null && !launcherConfigFile.getName().endsWith(IGNORED)) {
 			// use launcher. -- > load from LaucnherConfig file.
 			// the parameters in memory will be updated.
 			EclipseLauncherParser parser = new EclipseLauncherParser();
