@@ -26,6 +26,8 @@ import org.osgi.service.log.LogService;
 
 public class SharedConfigurationTest extends AbstractFwkAdminTest {
 
+	private static final String BASE_CONFIG_INI_TIMESTAMP = ".baseConfigIniTimestamp";
+
 	public SharedConfigurationTest(String name) {
 		super(name);
 	}
@@ -136,6 +138,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
+			e.printStackTrace();
 			//TODO We ignore the framework JAR location not set exception
 		}
 
@@ -146,7 +149,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		manipulator.getConfigData().addBundle(configuratorBi);
 
 		manipulator.save(false);
-		File baseTimestamp = new File(userConfigurationFolder, ".baseTimestamps");
+		File baseTimestamp = new File(userConfigurationFolder, BASE_CONFIG_INI_TIMESTAMP);
 		assertIsFile(baseTimestamp);
 		assertContent(baseTimestamp, Long.toString(new File(defaultConfigurationFolder, "config.ini").lastModified()));
 	}
@@ -167,8 +170,8 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		
 		//setup the timestamp 
 		Properties p = new Properties();
-		p.setProperty("configIniTimestamp", Long.toString(new File(defaultConfigurationFolder, "config.ini").lastModified()));
-		saveProperties(new File(userConfigurationFolder, ".baseTimestamps"), p);
+		p.setProperty("configIniTimestamp", Long.toString(new File(defaultConfigurationFolder, "config.ini").lastModified() - 10)); //Here we write an outdated timestamp to mimic the fact that the base has changed 
+		saveProperties(new File(userConfigurationFolder, BASE_CONFIG_INI_TIMESTAMP), p);
 
 		String launcherName = "foo";
 
