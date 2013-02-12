@@ -1,10 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012 Red Hat, Inc. and others. All rights reserved. This
+ * Copyright (c) 2012,2013 Red Hat, Inc. and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Red Hat, Inc. - initial API and implementation
+ * Contributors: 
+ *      Red Hat, Inc. - initial API and implementation
+ *      Ericsson AB - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
@@ -26,9 +28,17 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 
 	public void setUp() throws Exception {
 		relativeURL = new URL("file://bundles.info");
-		userConfiguration = getTestData("userConfiguration", "testData/simpleconfigurator/user");
+		File tmp = getTempFolder();
+		final String USER_PATH = "testData/simpleconfigurator/user";
+		userConfiguration = new File(tmp, USER_PATH);
+		copy("copyUserConfiguration", getTestData("userConfiguration", USER_PATH), userConfiguration);
+
+		final String MASTER_PATH = "testData/simpleconfigurator/master";
+		masterConfguration = new File(tmp, MASTER_PATH);
+		copy("copymasterConfiguration", getTestData("masterConfiguration", MASTER_PATH), masterConfguration);
+
 		sharedConfiguration[0] = userConfiguration.toURL();
-		masterConfguration = getTestData("userConfiguration", "testData/simpleconfigurator/master");
+
 		sharedConfiguration[1] = masterConfguration.toURL();
 		localConfiguration[0] = sharedConfiguration[1];
 		configurator = getSimpleConfigurator();
@@ -48,10 +58,7 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 	@Override
 	protected void tearDown() throws Exception {
 		System.setProperty(SimpleConfiguratorImpl.PROP_IGNORE_USER_CONFIGURATION, "false");
-		File f = new File(userConfiguration.getParent(), SimpleConfiguratorImpl.BASE_TIMESTAMP_FILE_BUNDLESINFO);
-		if (f.exists()) {
-			f.delete();
-		}
+
 		super.tearDown();
 	}
 
