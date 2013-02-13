@@ -42,7 +42,6 @@ public class InstallInUserSpace extends AbstractSharedInstallTest {
 		assertProfileStatePropertiesHasKey(getUserProfileFolder(), IProfile.STATE_PROP_SHARED_INSTALL);
 		assertProfileStatePropertiesHasValue(getUserProfileFolder(), IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL);
 		assertProfileStatePropertiesHasKey(getUserProfileFolder(), "_simpleProfileRegistry_internal_" + getMostRecentProfileTimestampFromBase());
-		assertEquals(3, getProfileTimestampsFromUser().length);
+		assertEquals(runningWithReconciler ? 3 : 2, getProfileTimestampsFromUser().length);
 	}
-
 }

@@ -19,6 +19,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	protected static File readOnlyBase;
 	protected static File userBase;
 	protected static String profileId;
+	public boolean runningWithReconciler = true;
 
 	public File getUserBundleInfo() {
 		return new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
@@ -123,7 +124,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	}
 
 	protected void startEclipseAsUser() {
-		runEclipse("Running eclipse", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.garbagecollector.application", "-profile", "_SELF_"});
+		runEclipse("Running eclipse", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-listInstalledRoots"});
 	}
 
 	protected void executeVerifier(Properties verificationProperties) {

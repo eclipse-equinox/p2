@@ -33,7 +33,7 @@ public class TestInitialRun extends AbstractSharedInstallTest {
 		System.out.println(readOnlyBase);
 		System.out.println(userBase);
 
-		//Here we are invoking the GC to force the profile to be loaded.
+		//Here we are invoking the director app with -listInstalledRoots to force the profile to be loaded.
 		startEclipseAsUser();
 		assertFalse(getUserBundleInfo().exists());
 		assertFalse(getUserBundleInfoTimestamp().exists());
@@ -41,4 +41,5 @@ public class TestInitialRun extends AbstractSharedInstallTest {
 		assertProfileStatePropertiesHasValue(getUserProfileFolder(), IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL);
 		assertProfileStatePropertiesHasKey(getUserProfileFolder(), "_simpleProfileRegistry_internal_" + getMostRecentProfileTimestampFromBase());
 	}
+
 }
