@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,13 +7,20 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Ericsson AB - ongoing development
+ *     Ericsson AB - (Pascal Rapicault)
+ *     Ericsson AB   (Hamdan Msheik) - Bug 398833
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
+import org.eclipse.equinox.internal.p2.ui.dialogs.AbstractPage_c;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ImportFromInstallationWizard_c;
+
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
+import java.util.Set;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
@@ -21,10 +28,11 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.*;
@@ -32,7 +40,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * This plug-in is loaded on startup to register with the update checker.
- * 
+ *
  * @since 3.5
  */
 public class AutomaticUpdateScheduler implements IStartup {
@@ -82,10 +90,58 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	public void earlyStartup() {
-		if (baseChanged())
-			return;
-		garbageCollect();
-		scheduleUpdate();
+
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfile currentProfile = registry.getProfile(profileId);
+
+		boolean testing = System.getProperty("ignoreMigrationWizard") == null ? false : System.getProperty("ignoreMigrationWizard").equalsIgnoreCase("true") == true ? true : false;
+
+		if (baseChanged(agent, registry, currentProfile) && !testing) {
+
+			IScopeContext[] contexts = new IScopeContext[] {ConfigurationScope.INSTANCE};
+			boolean remindMeLater = Platform.getPreferencesService().getBoolean("org.eclipse.equinox.p2.ui", AbstractPage_c.REMIND_ME_LATER, true, contexts);
+
+			final IProfile previousProfile = findProfileBeforeReset(registry, currentProfile);
+
+			if (previousProfile != null && currentProfile != null) {
+				if (isCurrentProfileLacksUnitsFromPrevious(previousProfile, currentProfile)) {
+					if (remindMeLater) {
+						openMigrationWizard(previousProfile);
+					}
+				}
+			}
+
+		} else {
+			garbageCollect();
+			scheduleUpdate();
+		}
+	}
+
+	/**
+	 * @param previousProfile is the profile used previous to the current one
+	 * @param currentProfile is the current profile used by eclipse.
+	 * @return true if set difference between previousProfile units and currentProfile units not empty, otherwise false
+	 */
+	private boolean isCurrentProfileLacksUnitsFromPrevious(IProfile previousProfile, IProfile currentProfile) {
+
+		Set<IInstallableUnit> previousProfileUnits = previousProfile.query(new UserVisibleRootQuery(), null).toSet();
+		Set<IInstallableUnit> currentProfileUnits = currentProfile.available(new UserVisibleRootQuery(), null).toSet();
+		previousProfileUnits.removeAll(currentProfileUnits);
+		return !previousProfileUnits.isEmpty();
+
+	}
+
+	private void openMigrationWizard(final IProfile inputProfile) {
+
+		Display d = Display.getDefault();
+		d.asyncExec(new Runnable() {
+			public void run() {
+				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new ImportFromInstallationWizard_c(inputProfile));
+				migrateWizard.create();
+				migrateWizard.open();
+			}
+		});
 	}
 
 	Shell getWorkbenchWindowShell() {
@@ -94,9 +150,8 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	}
 
-	private boolean baseChanged() {
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
-		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+	private boolean baseChanged(IProvisioningAgent agent, IProfileRegistry registry, IProfile profile) {
+
 		//Access the running profile to force its reinitialization if it has not been done.
 		registry.getProfile(IProfileRegistry.SELF);
 		String resetState = (String) agent.getService(IProfileRegistry.SERVICE_SHARED_INSTALL_NEW_TIMESTAMP);
@@ -113,17 +168,30 @@ public class AutomaticUpdateScheduler implements IStartup {
 		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(PREF_MIGRATION_DIALOG_SHOWN, resetState);
 		AutomaticUpdatePlugin.getDefault().savePreferences();
 
-		Display d = Display.getDefault();
-		d.asyncExec(new Runnable() {
-			public void run() {
-				MessageDialog.openWarning(getWorkbenchWindowShell(), "Installation modified", "An upgrade of the eclipse installation you are using has been performed. The plugins you had installed have been uninstalled. Look for more improvements to this dialog in Kepler M6 (http://bugs.eclipse.org/398833"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		});
+		//		Display d = Display.getDefault();
+		//		d.asyncExec(new Runnable() {
+		//			public void run() {
+		//				MessageDialog.openWarning(getWorkbenchWindowShell(), "Installation modified", "An upgrade of the eclipse installation you are using has been performed. The plugins you had installed have been uninstalled. Look for more improvements to this dialog in Kepler M6 (http://bugs.eclipse.org/398833"); //$NON-NLS-1$ //$NON-NLS-2$
+		//			}
+		//		});
 		return true;
 	}
 
+	private IProfile findProfileBeforeReset(IProfileRegistry registry, IProfile profile) {
+
+		long[] history = registry.listProfileTimestamps(profile.getProfileId());
+		int index = history.length - 1;
+		boolean found = false;
+		while (!(found = IProfile.STATE_SHARED_INSTALL_VALUE_BEFOREFLUSH.equals(registry.getProfileStateProperties(profile.getProfileId(), history[index]).get(IProfile.STATE_PROP_SHARED_INSTALL))) && index > 0) {
+			index--;
+		}
+		if (!found)
+			return null;
+		return registry.getProfile(profile.getProfileId(), history[index]);
+	}
+
 	/**
-	 * Invokes the garbage collector to discard unused plugins, if specified by a 
+	 * Invokes the garbage collector to discard unused plugins, if specified by a
 	 * corresponding preference.
 	 */
 	private void garbageCollect() {
@@ -179,7 +247,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 			delay = computeDelay(pref);
 			poll = computePoll(pref);
 		}
-		// We do not access the AutomaticUpdater directly when we register 
+		// We do not access the AutomaticUpdater directly when we register
 		// the listener. This prevents the UI classes from being started up
 		// too soon.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=227582
@@ -195,7 +263,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	private IQuery<IInstallableUnit> getProfileQuery() {
 		// We specifically avoid using the default policy's root property so that we don't load all the
-		// p2 UI classes in doing so.  
+		// p2 UI classes in doing so.
 		return new IUProfilePropertyQuery(IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 	}
 

@@ -258,4 +258,18 @@ public class ProvUIMessages extends NLS {
 	public static String UserValidationDialog_SavePasswordButton;
 	public static String UserValidationDialog_UsernameLabel;
 
+	public static String AbstractImportPage_HigherVersionInstalled;
+	public static String AbstractImportPage_SameVersionInstalled;
+	public static String Column_Id;
+	public static String Column_Name;
+	public static String Column_Version;
+	public static String AbstractPage_ButtonSelectAll;
+	public static String AbstractPage_ButtonDeselectAll;
+	public static String PAGE_NOINSTALLTION_ERROR;
+	public static String ImportFromInstallationPage_DIALOG_DESCRIPTION;
+	public static String ImportFromInstallationPage_SELECT_COMPONENT;
+	public static String ImportFromInstallationPage_DIALOG_TITLE;
+	public static String ImportWizard_WINDOWTITLE;
+	public static String ImportFromInstallationPage_INVALID_DESTINATION;
+	public static String REMIND_ME_TO_MIGRATE_LATER;
 }
