@@ -641,7 +641,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 		targetAgent.registerService(UIServices.SERVICE_NAME, new AvoidTrustPromptService());
 
-		// TODO do we only want to do this if we are provisioning to ourself?
 		IProvisioningEventBus eventBus = (IProvisioningEventBus) targetAgent.getService(IProvisioningEventBus.SERVICE_NAME);
 		if (eventBus == null)
 			return;
