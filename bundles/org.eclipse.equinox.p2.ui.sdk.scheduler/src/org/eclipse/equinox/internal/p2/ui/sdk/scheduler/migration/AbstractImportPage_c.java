@@ -10,12 +10,11 @@
  *     Ericsson AB (Pascal Rapicault) - Bug 395210
  *     Ericsson AB (Hamdan Msheik) - Bug 398833
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ui.dialogs;
-
+package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionRange;

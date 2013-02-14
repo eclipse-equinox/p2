@@ -10,7 +10,8 @@ Export-Package: org.eclipse.equinox.internal.p2.ui.sdk.scheduler;x-internal:=tru
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.equinox.p2.updatechecker,
- org.eclipse.equinox.p2.ui
+ org.eclipse.equinox.p2.ui,
+ org.eclipse.equinox.p2.repository;bundle-version="2.3.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4,
  CDC-1.1/Foundation-1.1
@@ -21,6 +22,7 @@ Import-Package: com.ibm.icu.util;version="4.0.1",
  org.eclipse.equinox.internal.p2.engine.phases,
  org.eclipse.equinox.internal.p2.garbagecollector,
  org.eclipse.equinox.internal.p2.metadata.query,
+ org.eclipse.equinox.internal.p2.ui,
  org.eclipse.equinox.internal.p2.ui.actions,
  org.eclipse.equinox.internal.p2.ui.query,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,

@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.AbstractPage_c;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ImportFromInstallationWizard_c;
+
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
 import java.util.Set;
@@ -20,8 +23,6 @@ import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
-import org.eclipse.equinox.internal.p2.ui.dialogs.AbstractPage_c;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ImportFromInstallationWizard_c;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;

@@ -10,12 +10,12 @@
  *     Ericsson AB (Pascal Rapicault) - Bug 387115 - Allow to export everything
  *     Ericsson AB (Hamdan Msheik) - Bug 398833
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ui.dialogs;
-
+package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -43,7 +43,7 @@ public class ImportFromInstallationPage_c extends AbstractImportPage_c implement
 
 	public ImportFromInstallationPage_c(ProvisioningUI ui, ProvisioningOperationWizard wizard) {
 		super("importfrominstancepage", ui, wizard); //$NON-NLS-1$
-		setTitle(ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE);
+		setTitle(org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE);
 		//		setDescription(ProvUIMessages.ImportFromInstallationPage_DIALOG_DESCRIPTION);
 	}
 

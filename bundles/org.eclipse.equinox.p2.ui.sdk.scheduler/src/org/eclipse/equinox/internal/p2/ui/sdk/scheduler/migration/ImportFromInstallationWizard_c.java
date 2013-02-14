@@ -9,12 +9,13 @@
  *     WindRiver Corporation - initial API and implementation
  *     Ericsson AB (Hamdan Msheik) - Bug 398833
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
 import java.util.Collection;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
