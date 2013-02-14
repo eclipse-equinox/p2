@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,17 +12,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.AbstractPage_c;
-import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ImportFromInstallationWizard_c;
-
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
+import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
+import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.AbstractPage_c;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ImportFromInstallationWizard_c;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -31,6 +32,7 @@ import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
@@ -119,7 +121,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		final IProfile previousProfile = findProfileBeforeReset(registry, currentProfile);
 
 		if (previousProfile != null && currentProfile != null) {
-			if (isCurrentProfileLacksUnitsFromPrevious(previousProfile, currentProfile)) {
+			if (needsMigration(previousProfile, currentProfile)) {
 				if (remindMeLater) {
 					openMigrationWizard(previousProfile);
 				}
@@ -133,13 +135,27 @@ public class AutomaticUpdateScheduler implements IStartup {
 	 * @param currentProfile is the current profile used by eclipse.
 	 * @return true if set difference between previousProfile units and currentProfile units not empty, otherwise false
 	 */
-	private boolean isCurrentProfileLacksUnitsFromPrevious(IProfile previousProfile, IProfile currentProfile) {
-
+	private boolean needsMigration(IProfile previousProfile, IProfile currentProfile) {
+		//First, try the case of inclusion
 		Set<IInstallableUnit> previousProfileUnits = previousProfile.query(new UserVisibleRootQuery(), null).toSet();
 		Set<IInstallableUnit> currentProfileUnits = currentProfile.available(new UserVisibleRootQuery(), null).toSet();
 		previousProfileUnits.removeAll(currentProfileUnits);
-		return !previousProfileUnits.isEmpty();
 
+		//For the IUs left in the previous profile, look for those that could be in the base but not as roots
+		Iterator<IInstallableUnit> previousProfileIterator = previousProfileUnits.iterator();
+		while (previousProfileIterator.hasNext()) {
+			if (!currentProfile.available(QueryUtil.createIUQuery(previousProfileIterator.next()), null).isEmpty())
+				previousProfileIterator.remove();
+		}
+
+		//For the IUs left in the previous profile, look for those that could be available in the root but as higher versions (they could be root or not)
+		previousProfileIterator = previousProfileUnits.iterator();
+		while (previousProfileIterator.hasNext()) {
+			if (!currentProfile.available(new UpdateQuery(previousProfileIterator.next()), null).isEmpty())
+				previousProfileIterator.remove();
+		}
+
+		return !previousProfileUnits.isEmpty();
 	}
 
 	private void openMigrationWizard(final IProfile inputProfile) {
