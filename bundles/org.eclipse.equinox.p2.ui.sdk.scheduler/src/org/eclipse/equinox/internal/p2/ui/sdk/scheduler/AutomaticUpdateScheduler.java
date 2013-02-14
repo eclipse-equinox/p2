@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import org.eclipse.equinox.internal.p2.ui.dialogs.AbstractPage_c;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ImportFromInstallationWizard_c;
-
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
 import java.util.Set;
@@ -23,6 +20,8 @@ import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
+import org.eclipse.equinox.internal.p2.ui.dialogs.AbstractPage_c;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ImportFromInstallationWizard_c;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -44,6 +43,9 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * @since 3.5
  */
 public class AutomaticUpdateScheduler implements IStartup {
+
+	private static final String ECLIPSE_P2_SKIP_MIGRATION_WIZARD = "eclipse.p2.skipMigrationWizard"; //$NON-NLS-1$
+
 	// values are to be picked up from the arrays DAYS and HOURS
 	public static final String P_DAY = "day"; //$NON-NLS-1$
 
@@ -95,9 +97,9 @@ public class AutomaticUpdateScheduler implements IStartup {
 		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile currentProfile = registry.getProfile(profileId);
 
-		boolean testing = System.getProperty("ignoreMigrationWizard") == null ? false : System.getProperty("ignoreMigrationWizard").equalsIgnoreCase("true") == true ? true : false;
+		boolean skipWizard = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MIGRATION_WIZARD));
 
-		if (baseChanged(agent, registry, currentProfile) && !testing) {
+		if (baseChanged(agent, registry, currentProfile) && !skipWizard) {
 
 			IScopeContext[] contexts = new IScopeContext[] {ConfigurationScope.INSTANCE};
 			boolean remindMeLater = Platform.getPreferencesService().getBoolean("org.eclipse.equinox.p2.ui", AbstractPage_c.REMIND_ME_LATER, true, contexts);
