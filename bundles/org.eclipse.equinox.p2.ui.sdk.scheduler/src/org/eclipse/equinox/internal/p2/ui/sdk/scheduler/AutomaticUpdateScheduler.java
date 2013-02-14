@@ -95,7 +95,11 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	public void earlyStartup() {
-		if (performMigration())
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfile currentProfile = registry.getProfile(profileId);
+
+		if (performMigration(agent, registry, currentProfile))
 			return;
 
 		garbageCollect();
@@ -103,14 +107,10 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	//This method returns whether the migration dialog is shown or not 
-	private boolean performMigration() {
+	private boolean performMigration(IProvisioningAgent agent, IProfileRegistry registry, IProfile currentProfile) {
 		boolean skipWizard = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MIGRATION_WIZARD));
 		if (skipWizard)
 			return false;
-
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
-		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-		IProfile currentProfile = registry.getProfile(profileId);
 
 		if (!baseChanged(agent, registry, currentProfile))
 			return false;
