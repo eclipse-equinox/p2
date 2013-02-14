@@ -92,32 +92,39 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	public void earlyStartup() {
+		if (performMigration())
+			return;
+
+		garbageCollect();
+		scheduleUpdate();
+	}
+
+	//This method returns whether the migration dialog is shown or not 
+	private boolean performMigration() {
+		boolean skipWizard = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MIGRATION_WIZARD));
+		if (skipWizard)
+			return false;
 
 		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
 		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile currentProfile = registry.getProfile(profileId);
 
-		boolean skipWizard = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MIGRATION_WIZARD));
+		if (!baseChanged(agent, registry, currentProfile))
+			return false;
 
-		if (baseChanged(agent, registry, currentProfile) && !skipWizard) {
+		IScopeContext[] contexts = new IScopeContext[] {ConfigurationScope.INSTANCE};
+		boolean remindMeLater = Platform.getPreferencesService().getBoolean("org.eclipse.equinox.p2.ui", AbstractPage_c.REMIND_ME_LATER, true, contexts);
 
-			IScopeContext[] contexts = new IScopeContext[] {ConfigurationScope.INSTANCE};
-			boolean remindMeLater = Platform.getPreferencesService().getBoolean("org.eclipse.equinox.p2.ui", AbstractPage_c.REMIND_ME_LATER, true, contexts);
+		final IProfile previousProfile = findProfileBeforeReset(registry, currentProfile);
 
-			final IProfile previousProfile = findProfileBeforeReset(registry, currentProfile);
-
-			if (previousProfile != null && currentProfile != null) {
-				if (isCurrentProfileLacksUnitsFromPrevious(previousProfile, currentProfile)) {
-					if (remindMeLater) {
-						openMigrationWizard(previousProfile);
-					}
+		if (previousProfile != null && currentProfile != null) {
+			if (isCurrentProfileLacksUnitsFromPrevious(previousProfile, currentProfile)) {
+				if (remindMeLater) {
+					openMigrationWizard(previousProfile);
 				}
 			}
-
-		} else {
-			garbageCollect();
-			scheduleUpdate();
 		}
+		return true;
 	}
 
 	/**
@@ -153,9 +160,8 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	private boolean baseChanged(IProvisioningAgent agent, IProfileRegistry registry, IProfile profile) {
-
 		//Access the running profile to force its reinitialization if it has not been done.
-		registry.getProfile(IProfileRegistry.SELF);
+		registry.getProfile(profile.getProfileId());
 		String resetState = (String) agent.getService(IProfileRegistry.SERVICE_SHARED_INSTALL_NEW_TIMESTAMP);
 		if (resetState == null)
 			return false;
@@ -170,17 +176,10 @@ public class AutomaticUpdateScheduler implements IStartup {
 		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(PREF_MIGRATION_DIALOG_SHOWN, resetState);
 		AutomaticUpdatePlugin.getDefault().savePreferences();
 
-		//		Display d = Display.getDefault();
-		//		d.asyncExec(new Runnable() {
-		//			public void run() {
-		//				MessageDialog.openWarning(getWorkbenchWindowShell(), "Installation modified", "An upgrade of the eclipse installation you are using has been performed. The plugins you had installed have been uninstalled. Look for more improvements to this dialog in Kepler M6 (http://bugs.eclipse.org/398833"); //$NON-NLS-1$ //$NON-NLS-2$
-		//			}
-		//		});
 		return true;
 	}
 
 	private IProfile findProfileBeforeReset(IProfileRegistry registry, IProfile profile) {
-
 		long[] history = registry.listProfileTimestamps(profile.getProfileId());
 		int index = history.length - 1;
 		boolean found = false;
