@@ -17,12 +17,9 @@ import com.ibm.icu.util.ULocale;
 import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
-import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.AbstractPage_c;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ImportFromInstallationWizard_c;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -98,33 +95,27 @@ public class AutomaticUpdateScheduler implements IStartup {
 		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
 		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile currentProfile = registry.getProfile(profileId);
-
-		if (performMigration(agent, registry, currentProfile))
+		if (currentProfile != null && performMigration(agent, registry, currentProfile))
 			return;
 
 		garbageCollect();
 		scheduleUpdate();
 	}
 
-	//This method returns whether the migration dialog is shown or not 
+	//The return value indicates if the migration dialog has been shown or not. It does not indicate whether the migration has completed. 
 	private boolean performMigration(IProvisioningAgent agent, IProfileRegistry registry, IProfile currentProfile) {
 		boolean skipWizard = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MIGRATION_WIZARD));
 		if (skipWizard)
 			return false;
 
-		if (!baseChanged(agent, registry, currentProfile))
+		if (!baseChangedSinceLastPresentationOfWizard(agent, registry, currentProfile))
 			return false;
 
-		IScopeContext[] contexts = new IScopeContext[] {ConfigurationScope.INSTANCE};
-		boolean remindMeLater = Platform.getPreferencesService().getBoolean("org.eclipse.equinox.p2.ui", AbstractPage_c.REMIND_ME_LATER, true, contexts);
+		final IProfile previousProfile = findMostRecentReset(registry, currentProfile);
 
-		final IProfile previousProfile = findProfileBeforeReset(registry, currentProfile);
-
-		if (previousProfile != null && currentProfile != null) {
+		if (previousProfile != null) {
 			if (needsMigration(previousProfile, currentProfile)) {
-				if (remindMeLater) {
-					openMigrationWizard(previousProfile);
-				}
+				openMigrationWizard(previousProfile);
 			}
 		}
 		return true;
@@ -176,27 +167,37 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	}
 
-	private boolean baseChanged(IProvisioningAgent agent, IProfileRegistry registry, IProfile profile) {
-		//Access the running profile to force its reinitialization if it has not been done.
-		registry.getProfile(profile.getProfileId());
-		String resetState = (String) agent.getService(IProfileRegistry.SERVICE_SHARED_INSTALL_NEW_TIMESTAMP);
-		if (resetState == null)
+	private boolean baseChangedSinceLastPresentationOfWizard(IProvisioningAgent agent, IProfileRegistry registry, IProfile profile) {
+		long lastShownMigration = getLastShownMigration();
+		IProfile lastReset = findMostRecentReset(registry, profile);
+		if (lastReset == null)
 			return false;
+		return lastShownMigration < lastReset.getTimestamp();
 
-		final String PREF_MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
-
-		//Have we already shown the migration dialog
-		if (AutomaticUpdatePlugin.getDefault().getPreferenceStore().getString(PREF_MIGRATION_DIALOG_SHOWN) == resetState)
-			return false;
-
-		//Remember that we are showing the migration dialog
-		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(PREF_MIGRATION_DIALOG_SHOWN, resetState);
-		AutomaticUpdatePlugin.getDefault().savePreferences();
-
-		return true;
+		//		&& !remindMeLater())
+		//			return false;
+		//
+		//		final String PREF_MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
+		//
+		//		//Have we already shown the migration dialog
+		//		if (AutomaticUpdatePlugin.getDefault().getPreferenceStore().getString(PREF_MIGRATION_DIALOG_SHOWN) == resetState)
+		//			return false;
+		//
+		//		//Remember that we are showing the migration dialog
+		//		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(PREF_MIGRATION_DIALOG_SHOWN, resetState);
+		//		AutomaticUpdatePlugin.getDefault().savePreferences();
+		//
+		//		return true;
 	}
 
-	private IProfile findProfileBeforeReset(IProfileRegistry registry, IProfile profile) {
+	public static final String MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
+
+	//Get the timestamp that we migrated from 
+	private long getLastShownMigration() {
+		return AutomaticUpdatePlugin.getDefault().getPreferenceStore().getLong(MIGRATION_DIALOG_SHOWN);
+	}
+
+	private IProfile findMostRecentReset(IProfileRegistry registry, IProfile profile) {
 		long[] history = registry.listProfileTimestamps(profile.getProfileId());
 		int index = history.length - 1;
 		boolean found = false;

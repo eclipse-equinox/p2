@@ -17,8 +17,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
 import org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatePlugin;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdateScheduler;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.InstallOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
@@ -68,5 +70,32 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 	@Override
 	protected ProvisioningContext getProvisioningContext() {
 		return ((ImportFromInstallationPage_c) mainPage).getProvisioningContext();
+	}
+
+	@Override
+	public boolean performFinish() {
+		cleanupProfileRegistry();
+		rememberShownMigration(toImportFrom.getTimestamp());
+		return super.performFinish();
+	}
+
+	//Remember the timestamp that we migrated from.
+	private void rememberShownMigration(long timestamp) {
+		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(AutomaticUpdateScheduler.MIGRATION_DIALOG_SHOWN, timestamp);
+	}
+
+	//Purge the profile registry from all the entries that are no longer relevant
+	//We keep the base we import from on purpose to help with debugging
+	private void cleanupProfileRegistry() {
+		IProfileRegistry registry = (IProfileRegistry) ProvisioningUI.getDefaultUI().getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+		long[] history = registry.listProfileTimestamps(toImportFrom.getProfileId());
+		for (int i = 0; i < history.length; i++) {
+			if (history[i] < toImportFrom.getTimestamp())
+				try {
+					registry.removeProfile(toImportFrom.getProfileId(), history[i]);
+				} catch (ProvisionException e) {
+					//Can't happen
+				}
+		}
 	}
 }
