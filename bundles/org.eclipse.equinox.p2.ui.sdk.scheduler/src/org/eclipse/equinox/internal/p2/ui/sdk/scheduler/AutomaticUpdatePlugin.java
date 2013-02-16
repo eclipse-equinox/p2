@@ -15,8 +15,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.p2.core.IAgentLocation;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
@@ -181,5 +180,14 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	public ProvisioningSession getSession() {
 		return session;
+	}
+
+	public IProvisioningAgentProvider getAgentProvider() {
+		ServiceReference<?> ref = getContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		if (ref == null)
+			return null;
+		IProvisioningAgentProvider agentProvider = (IProvisioningAgentProvider) getContext().getService(ref);
+		getContext().ungetService(ref);
+		return agentProvider;
 	}
 }

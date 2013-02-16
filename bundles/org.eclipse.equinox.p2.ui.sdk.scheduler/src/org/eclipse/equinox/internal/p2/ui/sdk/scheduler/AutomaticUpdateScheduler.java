@@ -14,10 +14,12 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
+import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ImportFromInstallationWizard_c;
@@ -32,6 +34,7 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.*;
@@ -45,6 +48,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class AutomaticUpdateScheduler implements IStartup {
 
 	private static final String ECLIPSE_P2_SKIP_MIGRATION_WIZARD = "eclipse.p2.skipMigrationWizard"; //$NON-NLS-1$
+	private static final String ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION = "eclipse.p2.skipMovedInstallDetection"; //$NON-NLS-1$
 
 	// values are to be picked up from the arrays DAYS and HOURS
 	public static final String P_DAY = "day"; //$NON-NLS-1$
@@ -108,17 +112,69 @@ public class AutomaticUpdateScheduler implements IStartup {
 		if (skipWizard)
 			return false;
 
-		if (!baseChangedSinceLastPresentationOfWizard(agent, registry, currentProfile))
+		IProfile previousProfile = null;
+		if (!skipFirstTimeMigration() && !configurationSpecifiedManually() && isFirstTimeRunningThisSharedInstance(agent, registry, currentProfile)) {
+			File searchRoot = getSearchLocation();
+			if (searchRoot == null)
+				return false;
+			previousProfile = new PreviousConfigurationFinder(getConfigurationLocation().getParentFile()).findPreviousInstalls(searchRoot, getInstallFolder());
+			if (previousProfile == null)
+				return false;
+
+			//At this point we consider that the migration is done since we will present something to the user.
+			registry.setProfileStateProperty(currentProfile.getProfileId(), registry.listProfileTimestamps(currentProfile.getProfileId())[0], "INITIAL", "DONE");
+		}
+
+		if (previousProfile == null && baseChangedSinceLastPresentationOfWizard(agent, registry, currentProfile))
+			previousProfile = findMostRecentReset(registry, currentProfile);
+
+		if (previousProfile == null)
 			return false;
 
-		final IProfile previousProfile = findMostRecentReset(registry, currentProfile);
-
-		if (previousProfile != null) {
-			if (needsMigration(previousProfile, currentProfile)) {
-				openMigrationWizard(previousProfile);
-			}
+		if (needsMigration(previousProfile, currentProfile)) {
+			openMigrationWizard(previousProfile);
 		}
 		return true;
+	}
+
+	private File getInstallFolder() {
+		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		return new File(configurationLocation.getURL().getPath());
+
+	}
+
+	//The search location is two level up from teh configuration location.
+	private File getSearchLocation() {
+		File parent = getConfigurationLocation().getParentFile();
+		if (parent == null)
+			return null;
+		return parent.getParentFile();
+	}
+
+	private File getConfigurationLocation() {
+		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
+		File configurationFolder = new File(configurationLocation.getURL().getPath());
+		return configurationFolder;
+	}
+
+	//Check if the user has explicitly specified -configuration on the command line
+	private boolean configurationSpecifiedManually() {
+		String commandLine = System.getProperty("eclipse.commands"); //$NON-NLS-1$
+		if (commandLine == null)
+			return false;
+		return commandLine.contains("-configuration\n"); //$NON-NLS-1$
+	}
+
+	private boolean skipFirstTimeMigration() {
+		return Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION));
+	}
+
+	private boolean isFirstTimeRunningThisSharedInstance(IProvisioningAgent agent, IProfileRegistry registry, IProfile currentProfile) {
+		long[] history = registry.listProfileTimestamps(currentProfile.getProfileId());
+		boolean isInitial = IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get(IProfile.STATE_PROP_SHARED_INSTALL));
+		if (isInitial)
+			return false;
+		return "DONE".equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get("INITIAL"));
 	}
 
 	/**
