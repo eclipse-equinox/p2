@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -10,10 +10,10 @@
  *   Alban Browaeys - Optimized string concatenation in bug 251357
  *   Jed Anderson - switch from opb files to API calls to DependencyHelper in bug 200380
  *   Sonatype, Inc. - ongoing development
+ *   Rapicorp, Inc. - split the optimization function
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -72,8 +72,6 @@ public class Projector {
 	private boolean considerMetaRequirements;
 	private IInstallableUnit entryPoint;
 	private Map<IInstallableUnitFragment, Set<IInstallableUnit>> fragments = new HashMap<IInstallableUnitFragment, Set<IInstallableUnit>>();
-
-	private int numberOfInstalledIUs;
 
 	//Non greedy things
 	private Set<IInstallableUnit> nonGreedyIUs; //All the IUs that would satisfy non greedy dependencies
@@ -166,14 +164,14 @@ public class Projector {
 		this.considerMetaRequirements = considerMetaRequirements;
 	}
 
-	protected boolean isInstalled(IInstallableUnit iu) {
-		return !lastState.query(QueryUtil.createIUQuery(iu), null).isEmpty();
-	}
+	//	protected boolean isInstalled(IInstallableUnit iu) {
+	//		return !lastState.query(QueryUtil.createIUQuery(iu), null).isEmpty();
+	//	}
 
 	@SuppressWarnings("unchecked")
 	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable<IInstallableUnit> installedIUs, Collection<IInstallableUnit> newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
-		numberOfInstalledIUs = sizeOf(installedIUs);
+		//		numberOfInstalledIUs = sizeOf(installedIUs);
 		lastState = installedIUs;
 		this.entryPoint = entryPointIU;
 		try {
@@ -257,111 +255,10 @@ public class Projector {
 
 	}
 
-	/**
-	 * Efficiently compute the size of a queryable
-	 */
-	private int sizeOf(IQueryable<IInstallableUnit> installedIUs) {
-		IQueryResult<IInstallableUnit> qr = installedIUs.query(QueryUtil.createIUAnyQuery(), null);
-		if (qr instanceof Collector<?>)
-			return ((Collector<?>) qr).size();
-		return qr.toUnmodifiableSet().size();
-	}
-
 	//Create an optimization function favoring the highest version of each IU
 	private void createOptimizationFunction(IInstallableUnit metaIu, Collection<IInstallableUnit> newRoots) {
-
-		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<WeightedObject<? extends Object>>();
-
-		Set<IInstallableUnit> transitiveClosure;
-		if (newRoots.isEmpty()) {
-			transitiveClosure = CollectionUtils.emptySet();
-		} else {
-			IQueryable<IInstallableUnit> queryable = new Slicer(picker, selectionContext, false).slice(newRoots.toArray(new IInstallableUnit[newRoots.size()]), new NullProgressMonitor());
-			if (queryable == null) {
-				transitiveClosure = CollectionUtils.emptySet();
-			} else {
-				transitiveClosure = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet();
-			}
-		}
-
-		Set<Entry<String, Map<Version, IInstallableUnit>>> s = slice.entrySet();
-		final BigInteger POWER = BigInteger.valueOf(numberOfInstalledIUs > 0 ? numberOfInstalledIUs + 1 : 2);
-
-		BigInteger maxWeight = POWER;
-		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
-			List<IInstallableUnit> conflictingEntries = new ArrayList<IInstallableUnit>(entry.getValue().values());
-			if (conflictingEntries.size() == 1) {
-				IInstallableUnit iu = conflictingEntries.get(0);
-				if (iu != metaIu) {
-					weightedObjects.add(WeightedObject.newWO(iu, POWER));
-				}
-				continue;
-			}
-			// IUs are sorted from highest version to lowest.
-			Collections.sort(conflictingEntries, Collections.reverseOrder());
-			BigInteger weight = POWER;
-			// have we already found a version that is already installed?
-			boolean foundInstalled = false;
-			// have we already found a version that is in the new roots?
-			boolean foundRoot = false;
-			for (IInstallableUnit iu : conflictingEntries) {
-				if (!foundRoot && isInstalled(iu) && !transitiveClosure.contains(iu)) {
-					foundInstalled = true;
-					weightedObjects.add(WeightedObject.newWO(iu, BigInteger.ONE));
-				} else if (!foundInstalled && !foundRoot && isRoot(iu, newRoots)) {
-					foundRoot = true;
-					weightedObjects.add(WeightedObject.newWO(iu, BigInteger.ONE));
-				} else {
-					weightedObjects.add(WeightedObject.newWO(iu, weight));
-				}
-				weight = weight.multiply(POWER);
-			}
-			if (weight.compareTo(maxWeight) > 0)
-				maxWeight = weight;
-		}
-
-		// no need to add one here, since maxWeight is strictly greater than the
-		// maximal weight used so far.
-		maxWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(s.size()));
-
-		// Add the abstract variables
-		BigInteger abstractWeight = maxWeight.negate();
-		for (AbstractVariable var : abstractVariables) {
-			weightedObjects.add(WeightedObject.newWO(var, abstractWeight));
-		}
-
-		maxWeight = maxWeight.multiply(POWER).add(BigInteger.ONE);
-
-		BigInteger optionalWeight = maxWeight.negate();
-		long countOptional = 1;
-		List<IInstallableUnit> requestedPatches = new ArrayList<IInstallableUnit>();
-		Collection<IRequirement> reqs = metaIu.getRequirements();
-		for (IRequirement req : reqs) {
-			if (req.getMin() > 0 || !req.isGreedy())
-				continue;
-			IQueryResult<IInstallableUnit> matches = picker.query(QueryUtil.createMatchQuery(req.getMatches()), null);
-			for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
-				IInstallableUnit match = iterator.next();
-				if (match instanceof IInstallableUnitPatch) {
-					requestedPatches.add(match);
-					countOptional = countOptional + 1;
-				} else {
-					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
-				}
-			}
-		}
-
-		BigInteger patchWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(countOptional)).negate();
-		for (Iterator<IInstallableUnit> iterator = requestedPatches.iterator(); iterator.hasNext();) {
-			weightedObjects.add(WeightedObject.newWO(iterator.next(), patchWeight));
-		}
-		if (!weightedObjects.isEmpty()) {
-			createObjectiveFunction(weightedObjects);
-		}
-	}
-
-	private boolean isRoot(IInstallableUnit iu, Collection<IInstallableUnit> newRoots) {
-		return newRoots.contains(iu);
+		List<WeightedObject<? extends Object>> weights = new OptimizationFunction(lastState, abstractVariables, picker, selectionContext, slice).createOptimizationFunction(metaIu, newRoots);
+		createObjectiveFunction(weights);
 	}
 
 	private void createObjectiveFunction(List<WeightedObject<? extends Object>> weightedObjects) {
