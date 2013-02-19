@@ -166,7 +166,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	private boolean skipFirstTimeMigration() {
-		return Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION));
+		return true;//Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION));
 	}
 
 	private boolean isFirstTimeRunningThisSharedInstance(IProvisioningAgent agent, IProfileRegistry registry, IProfile currentProfile) {
