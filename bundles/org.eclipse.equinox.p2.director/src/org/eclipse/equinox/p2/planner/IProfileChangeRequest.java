@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2013 Sonatype, Inc and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,10 +8,12 @@
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *     IBM Corporation - ongoing development
+ *     Rapicorp, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.planner;
 
 import java.util.Collection;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 
@@ -23,6 +25,8 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  *  state consistent.
  *
  *  It is important to note that a change request can only be submitted once to the planner.
+ *  
+ *  Clients should create and manipulate profile change requests via the API {@link IPlanner#createChangeRequest(IProfile)}.
  *  
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
