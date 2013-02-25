@@ -22,7 +22,7 @@
 		<relativePath>../../org.eclipse.equinox.p2.releng/org.eclipse.equinox.p2-parent</relativePath>
 	</parent>
 
-	<groupId>org.eclipse</groupId>
+	<groupId>org.eclipse.equinox</groupId>
 	<artifactId>org.eclipse.equinox.p2.tests.ui</artifactId>
 	<version>1.0.300-SNAPSHOT</version>
 	<packaging>eclipse-test-plugin</packaging>

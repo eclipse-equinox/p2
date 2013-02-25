@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <relativePath>../../org.eclipse.equinox.p2.releng/org.eclipse.equinox.p2-parent</relativePath>
   </parent>
-  <groupId>org.eclipse</groupId>
+  <groupId>org.eclipse.equinox</groupId>
   <artifactId>org.eclipse.equinox.p2.ui.admin</artifactId>
   <version>1.0.100-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
