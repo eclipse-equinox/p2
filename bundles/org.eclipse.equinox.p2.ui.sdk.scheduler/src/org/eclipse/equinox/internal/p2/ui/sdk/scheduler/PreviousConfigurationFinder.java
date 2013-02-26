@@ -1,26 +1,21 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
 
 public class PreviousConfigurationFinder {
 
-	private static final Pattern path = Pattern.compile("(.+)_(.*)_(\\d+)_.*"); //$NON-NLS-1$
+	private static final Pattern path = Pattern.compile("(.+?)_{1}?([0-9\\.]+)_{1}?(\\d+)_*?([^_].*)"); //$NON-NLS-1$
 
-	static class Identifier {
+	public static class Identifier {
 		private static final String DELIM = ". _-"; //$NON-NLS-1$
 		private int major, minor, service;
 
-		Identifier(int major, int minor, int service) {
+		public Identifier(int major, int minor, int service) {
 			super();
 			this.major = major;
 			this.minor = minor;
@@ -77,7 +72,7 @@ public class PreviousConfigurationFinder {
 
 		@Override
 		public boolean equals(Object other) {
-			if (other instanceof Identifier)
+			if (!(other instanceof Identifier))
 				return false;
 			Identifier o = (Identifier) other;
 			if (major == o.major && minor == o.minor && service == o.service)
@@ -86,17 +81,19 @@ public class PreviousConfigurationFinder {
 		}
 	}
 
-	static class ConfigurationData {
+	public static class ConfigurationDescriptor {
 		String productId;
 		Identifier version;
 		String installPathHashcode;
-		File config;
+		File configFolder;
+		String os_ws_arch;
 
-		public ConfigurationData(String productId, Identifier version, String installPathHashcode, File config) {
+		public ConfigurationDescriptor(String productId, Identifier version, String installPathHashcode, String platformConfig, File configFolder) {
 			this.productId = productId;
 			this.version = version;
 			this.installPathHashcode = installPathHashcode;
-			this.config = config;
+			this.configFolder = configFolder;
+			this.os_ws_arch = platformConfig;
 		}
 
 		public String getProductId() {
@@ -112,7 +109,11 @@ public class PreviousConfigurationFinder {
 		}
 
 		public File getConfig() {
-			return config;
+			return configFolder;
+		}
+
+		public String getPlatformConfig() {
+			return os_ws_arch;
 		}
 	}
 
@@ -122,126 +123,86 @@ public class PreviousConfigurationFinder {
 		currentConfig = currentConfiguration;
 	}
 
-	private ConfigurationData extractConfigurationData(File candidate) {
+	public ConfigurationDescriptor extractConfigurationData(File candidate) {
 		Matcher m = path.matcher(candidate.getName());
 		if (!m.matches())
 			return null;
-		return new ConfigurationData(m.group(1), new Identifier(m.group(2)), m.group(3), candidate.getAbsoluteFile());
+		return new ConfigurationDescriptor(m.group(1), new Identifier(m.group(2)), m.group(3), m.group(4), candidate.getAbsoluteFile());
 	}
 
 	public IProfile findPreviousInstalls(File searchRoot, File installFolder) {
-		List<ConfigurationData> potentialConfigurations = readPreviousConfigurations(searchRoot);
-		Object[] productInfo = loadEclipseProductFile(installFolder);
-		ConfigurationData match = findMostRelevantConfiguration(potentialConfigurations, getInstallDirHash(installFolder), productInfo);
+		List<ConfigurationDescriptor> potentialConfigurations = readPreviousConfigurations(searchRoot);
+		ConfigurationDescriptor runningConfiguration = getConfigdataFromProductFile(installFolder);
+		ConfigurationDescriptor match = findMostRelevantConfigurationFromInstallHashDir(potentialConfigurations, runningConfiguration);
 		if (match == null)
-			match = findMostRelevantConfiguration(potentialConfigurations, productInfo);
+			match = findMostRelevantConfigurationFromProductId(potentialConfigurations, runningConfiguration);
 		if (match == null)
 			return null;
-		return fromConfigurationToProfile(match.getConfig());
+		return new ConfigAreaToAgent().fromConfigurationToProfile(match.getConfig());
 	}
 
-	private IProfile fromConfigurationToProfile(File configurationFolder) {
-		//TODO dispose the agent
-		String toBeImportedProfileId = null;
-		File config = new File(configurationFolder, "configuration/config.ini"); //$NON-NLS-1$ 
-		URI configArea = config.getParentFile().toURI();
-		InputStream is = null;
-		// default area
-		File p2DataArea = new File(configurationFolder, "p2"); //$NON-NLS-1$
-		try {
-			Properties props = new Properties();
-			is = new FileInputStream(config);
-			props.load(is);
-			toBeImportedProfileId = props.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
-			String url = props.getProperty("eclipse.p2.data.area"); //$NON-NLS-1$
-			if (url != null) {
-				final String CONFIG_DIR = "@config.dir/"; //$NON-NLS-1$
-				final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
-				if (url.startsWith(CONFIG_DIR))
-					url = FILE_PROTOCOL + url.substring(CONFIG_DIR.length());
-				p2DataArea = new File(URIUtil.makeAbsolute(URIUtil.fromString(new File(url.substring(FILE_PROTOCOL.length())).isAbsolute() ? url : url.substring(FILE_PROTOCOL.length())), configArea));
-			}
-		} catch (IOException ioe) {
-			//ignore
-		} catch (URISyntaxException e) {
-			return null;
-		} finally {
-			try {
-				is.close();
-			} catch (IOException ioe) {
-				//ignore
-			}
-			is = null;
-		}
-		if (p2DataArea.exists()) {
-			IProvisioningAgent agent = null;
-			try {
-				agent = AutomaticUpdatePlugin.getDefault().getAgentProvider().createAgent(p2DataArea.toURI());
-			} catch (ProvisionException e) {
-				//Can't happen
-			}
-			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-			if (toBeImportedProfileId != null)
-				return registry.getProfile(toBeImportedProfileId);
-
-			//TODO we may need to set the SELF profile on the registry to load the repos
-			IProfile[] allProfiles = registry.getProfiles();
-			if (allProfiles.length == 1)
-				return allProfiles[0];
-
-			//			IMetadataRepositoryManager metadataRepoMgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-			//			URI[] metadataRepos = metadataRepoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
-			//TODO deal with the repos
-		}
-		return null;
+	private ConfigurationDescriptor getConfigdataFromProductFile(File installFolder) {
+		Object[] productFileInfo = loadEclipseProductFile(installFolder);
+		return new ConfigurationDescriptor((String) productFileInfo[0], (Identifier) productFileInfo[1], getInstallDirHash(installFolder), Platform.getOS() + '_' + Platform.getWS() + '_' + Platform.getOSArch(), null);
 	}
 
-	private ConfigurationData findMostRelevantConfiguration(List<ConfigurationData> configurations, String installDirHash, Object[] productInfo) {
-		ConfigurationData bestMatch = null;
+	public ConfigurationDescriptor findMostRelevantConfigurationFromInstallHashDir(List<ConfigurationDescriptor> configurations, ConfigurationDescriptor configToMatch) {
+		ConfigurationDescriptor bestMatch = null;
 		int numberOfcriteriaMet = 0;
-		for (ConfigurationData candidate : configurations) {
+		for (ConfigurationDescriptor candidate : configurations) {
 			int criteriaMet = 0;
-			if (!candidate.getInstallPathHashcode().equals(installDirHash))
+			if (!candidate.getInstallPathHashcode().equals(configToMatch.getInstallPathHashcode())) {
 				continue;
+			}
 			criteriaMet++;
-			if (!candidate.getProductId().equals(productInfo[0]))
-				continue;
-			criteriaMet++;
-			if (!candidate.getVersion().equals(productInfo[1]))
-				continue; //This is most likely ourselves
-			criteriaMet++;
+
+			if (candidate.getProductId().equals(configToMatch.getProductId()) && //
+					candidate.getPlatformConfig().equals(configToMatch.getPlatformConfig()) && //
+					(!candidate.getVersion().isGreaterEqualTo(configToMatch.getVersion()))) {
+				//We have a match
+				criteriaMet++;
+			}
+
 			if (criteriaMet > numberOfcriteriaMet) {
 				bestMatch = candidate;
 				numberOfcriteriaMet = criteriaMet;
 			} else if (criteriaMet == numberOfcriteriaMet) {
-				if (bestMatch.getConfig().lastModified() < candidate.getConfig().lastModified())
+				if (bestMatch.getVersion().equals(candidate.getVersion())) {
+					if (bestMatch.getConfig().lastModified() < candidate.getConfig().lastModified()) {
+						bestMatch = candidate;
+					}
+				} else {
 					bestMatch = candidate;
+				}
 			}
 		}
 		return bestMatch;
 	}
 
 	//Out of a set of configuration, find the one with the most similar product info.
-	//TODO do we look for the higer or lower versions?
-	private ConfigurationData findMostRelevantConfiguration(List<ConfigurationData> configurations, Object[] productInfo) {
-		ConfigurationData bestMatch = null;
+	public ConfigurationDescriptor findMostRelevantConfigurationFromProductId(List<ConfigurationDescriptor> configurations, ConfigurationDescriptor configToMatch) {
+		ConfigurationDescriptor bestMatch = null;
 		int numberOfcriteriaMet = 0;
-		for (ConfigurationData candidate : configurations) {
+		for (ConfigurationDescriptor candidate : configurations) {
 			int criteriaMet = 0;
 			criteriaMet++;
-			if (!candidate.getProductId().equals(productInfo[0]))
-				continue;
-			criteriaMet++;
-			if (candidate.getVersion().equals(productInfo[1]))
-				continue; //This is most likely ourselves
-			else if (bestMatch != null && (candidate.getVersion().equals(bestMatch.getVersion())))
+			if (candidate.getProductId().equals(configToMatch.getProductId()) && //
+					candidate.getPlatformConfig().equals(configToMatch.getPlatformConfig()) && //
+					(!candidate.getVersion().isGreaterEqualTo(configToMatch.getVersion()))) {
+				//We have a match
 				criteriaMet++;
+			}
 			if (criteriaMet > numberOfcriteriaMet) {
 				bestMatch = candidate;
 				numberOfcriteriaMet = criteriaMet;
 			} else if (criteriaMet == numberOfcriteriaMet) {
-				if (bestMatch.getConfig().lastModified() < candidate.getConfig().lastModified())
+				if (bestMatch.getVersion().equals(candidate.getVersion())) {
+					if (bestMatch.getConfig().lastModified() < candidate.getConfig().lastModified()) {
+						bestMatch = candidate;
+					}
+				} else {
 					bestMatch = candidate;
+				}
 			}
 		}
 		return bestMatch;
@@ -280,22 +241,23 @@ public class PreviousConfigurationFinder {
 	}
 
 	//Iterate through a folder to look for potential configuration folders and reify them.
-	private List<ConfigurationData> readPreviousConfigurations(File configurationFolder) {
+	public List<ConfigurationDescriptor> readPreviousConfigurations(File configurationFolder) {
 		File[] candidates = configurationFolder.listFiles();
-		List<ConfigurationData> configurations = new ArrayList<ConfigurationData>(candidates.length);
+		List<ConfigurationDescriptor> configurations = new ArrayList<ConfigurationDescriptor>(candidates.length);
 		for (File candidate : candidates) {
 			if (!candidate.isDirectory())
 				continue;
 			if (candidate.equals(currentConfig))
 				continue;
-			ConfigurationData tmp = extractConfigurationData(candidate);
+			ConfigurationDescriptor tmp = extractConfigurationData(candidate);
 			if (tmp != null)
 				configurations.add(tmp);
 		}
 		return configurations;
 	}
 
-	//Simplified code computing the hashCode of the install location. The real runtime code is in the launcher
+	//This code computes the hashCode of the install location. 
+	//This is a simplified version of the code that the launcher executes.
 	private String getInstallDirHash(File installFolder) {
 		try {
 			return Integer.toString(installFolder.getCanonicalPath().hashCode());
