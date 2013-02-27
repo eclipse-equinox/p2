@@ -133,6 +133,8 @@ public class PreviousConfigurationFinder {
 	public IProfile findPreviousInstalls(File searchRoot, File installFolder) {
 		List<ConfigurationDescriptor> potentialConfigurations = readPreviousConfigurations(searchRoot);
 		ConfigurationDescriptor runningConfiguration = getConfigdataFromProductFile(installFolder);
+		if (runningConfiguration == null)
+			return null;
 		ConfigurationDescriptor match = findMostRelevantConfigurationFromInstallHashDir(potentialConfigurations, runningConfiguration);
 		if (match == null)
 			match = findMostRelevantConfigurationFromProductId(potentialConfigurations, runningConfiguration);
@@ -143,6 +145,9 @@ public class PreviousConfigurationFinder {
 
 	private ConfigurationDescriptor getConfigdataFromProductFile(File installFolder) {
 		Object[] productFileInfo = loadEclipseProductFile(installFolder);
+		//Contrarily  to the runtime, when the .eclipseproduct can't be found, we don't fallback to org.eclipse.platform. 
+		if (productFileInfo.length == 0)
+			return null;
 		return new ConfigurationDescriptor((String) productFileInfo[0], (Identifier) productFileInfo[1], getInstallDirHash(installFolder), Platform.getOS() + '_' + Platform.getWS() + '_' + Platform.getOSArch(), null);
 	}
 
