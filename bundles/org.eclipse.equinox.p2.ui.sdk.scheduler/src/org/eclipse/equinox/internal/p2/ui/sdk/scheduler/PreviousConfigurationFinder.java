@@ -220,17 +220,23 @@ public class PreviousConfigurationFinder {
 		Identifier appVersion = null;
 		if (eclipseProduct.exists()) {
 			Properties props = new Properties();
+			FileInputStream is = null;
 			try {
-				props.load(new FileInputStream(eclipseProduct));
-				appId = props.getProperty(PRODUCT_SITE_ID);
-				if (appId == null || appId.trim().length() == 0)
-					appId = ECLIPSE;
-				String version = props.getProperty(PRODUCT_SITE_VERSION);
-				if (version == null || version.trim().length() == 0)
-					appVersion = new Identifier(0, 0, 0);
-				else
-					appVersion = new Identifier(version);
-
+				try {
+					is = new FileInputStream(eclipseProduct);
+					props.load(is);
+					appId = props.getProperty(PRODUCT_SITE_ID);
+					if (appId == null || appId.trim().length() == 0)
+						appId = ECLIPSE;
+					String version = props.getProperty(PRODUCT_SITE_VERSION);
+					if (version == null || version.trim().length() == 0)
+						appVersion = new Identifier(0, 0, 0);
+					else
+						appVersion = new Identifier(version);
+				} finally {
+					if (is != null)
+						is.close();
+				}
 			} catch (IOException e) {
 				return new String[0];
 			}
