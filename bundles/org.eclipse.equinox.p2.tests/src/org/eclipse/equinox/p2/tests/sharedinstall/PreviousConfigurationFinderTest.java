@@ -56,6 +56,21 @@ public class PreviousConfigurationFinderTest extends AbstractProvisioningTest {
 		assertEquals(new Identifier(4, 2, 1), match.getVersion());
 	}
 
+	public void testNewBuildInDifferentFolder_sameProductWithSameVersion() throws Exception {
+		File configFolder = getTestData("sameProduct", "testData/previousConfigurationFinder/testNewBuildInDifferentFolder/sameProductWithSameVersion");
+		List<ConfigurationDescriptor> configs = new PreviousConfigurationFinder(configFolder).readPreviousConfigurations(configFolder);
+		ConfigurationDescriptor match = new PreviousConfigurationFinder(configFolder).findMostRelevantConfigurationFromProductId(configs, referenceConfiguration);
+		assertEquals("org.eclipse.platform", match.getProductId());
+		assertEquals(new Identifier(4, 3, 0), match.getVersion());
+	}
+
+	public void testNewBuildInDifferentFolder_noMatch() throws Exception {
+		File configFolder = getTestData("sameProduct", "testData/previousConfigurationFinder/testNewBuildInDifferentFolder/noMatch");
+		List<ConfigurationDescriptor> configs = new PreviousConfigurationFinder(configFolder).readPreviousConfigurations(configFolder);
+		ConfigurationDescriptor match = new PreviousConfigurationFinder(configFolder).findMostRelevantConfigurationFromProductId(configs, referenceConfiguration);
+		assertNull(match);
+	}
+
 	public void testNewBuildInDifferentFolder_mixedProducts() throws Exception {
 		File configFolder = getTestData("sameProduct", "testData/previousConfigurationFinder/testNewBuildInDifferentFolder/mixedProducts");
 		List<ConfigurationDescriptor> configs = new PreviousConfigurationFinder(configFolder).readPreviousConfigurations(configFolder);

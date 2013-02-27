@@ -185,10 +185,11 @@ public class PreviousConfigurationFinder {
 		int numberOfcriteriaMet = 0;
 		for (ConfigurationDescriptor candidate : configurations) {
 			int criteriaMet = 0;
-			criteriaMet++;
-			if (candidate.getProductId().equals(configToMatch.getProductId()) && //
-					candidate.getPlatformConfig().equals(configToMatch.getPlatformConfig()) && //
-					(!candidate.getVersion().isGreaterEqualTo(configToMatch.getVersion()))) {
+			if (!candidate.getProductId().equals(configToMatch.getProductId()))
+				continue;
+
+			if (candidate.getPlatformConfig().equals(configToMatch.getPlatformConfig()) && //
+					(configToMatch.getVersion().isGreaterEqualTo(candidate.getVersion()))) {
 				//We have a match
 				criteriaMet++;
 			}
