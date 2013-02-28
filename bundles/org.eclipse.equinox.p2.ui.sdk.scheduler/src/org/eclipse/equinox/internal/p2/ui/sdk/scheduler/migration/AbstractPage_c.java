@@ -17,7 +17,6 @@ import java.util.*;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
@@ -42,15 +41,12 @@ import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.progress.DeferredTreeContentManager;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.service.prefs.Preferences;
 import org.osgi.util.tracker.ServiceTracker;
 
 public abstract class AbstractPage_c extends WizardPage implements Listener {
 
 	protected String currentMessage;
 	//	protected Button destinationBrowseButton;
-	protected Button remindMeButton;
 	protected CheckboxTreeViewer viewer = null;
 	protected Exception finishException;
 	protected boolean entryChanged = false;
@@ -286,37 +282,6 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 		setControl(composite);
 		//		giveFocusToDestination();
 		Dialog.applyDialogFont(composite);
-	}
-
-	protected void createRemindMeGroup(Composite parent) {
-
-		remindMeButton = new Button(parent, SWT.CHECK);
-		remindMeButton.setText(ProvUIMessages.REMIND_ME_TO_MIGRATE_LATER);
-		remindMeButton.setSelection(true);
-		GridData dataRemindMeButton = new GridData();
-		dataRemindMeButton.horizontalSpan = 3;
-		remindMeButton.setLayoutData(dataRemindMeButton);
-
-		remindMeButton.addSelectionListener(new SelectionListener() {
-
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-
-			public void widgetSelected(SelectionEvent e) {
-
-				Preferences prefs = ConfigurationScope.INSTANCE.getNode("org.eclipse.equinox.p2.ui"); //$NON-NLS-1$
-				prefs.putBoolean(REMIND_ME_LATER, ((Button) (e.widget)).getSelection());
-
-				try {
-					prefs.flush();
-				} catch (BackingStoreException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-			}
-		});
-
 	}
 
 	//	protected void createDestinationGroup(Composite parent, boolean includeButton) {

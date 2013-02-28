@@ -56,7 +56,6 @@ public class ImportFromInstallationPage_c extends AbstractImportPage_c implement
 
 	@Override
 	protected void createContents(Composite composite) {
-		createRemindMeGroup(composite);
 		createInstallationTable(composite);
 	}
 
@@ -399,8 +398,7 @@ public class ImportFromInstallationPage_c extends AbstractImportPage_c implement
 			otherInstanceAgent = null;
 			toBeImportedProfile = null;
 		}
-		if (getWizard().performCancel())
-			cleanLocalRepository();
+		cleanLocalRepository();
 	}
 
 	public void cleanLocalRepository() {

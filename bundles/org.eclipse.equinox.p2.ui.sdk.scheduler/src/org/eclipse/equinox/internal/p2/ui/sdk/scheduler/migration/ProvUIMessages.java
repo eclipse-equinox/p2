@@ -33,4 +33,6 @@ public class ProvUIMessages extends NLS {
 	public static String ImportWizard_WINDOWTITLE;
 	public static String ImportFromInstallationPage_INVALID_DESTINATION;
 	public static String REMIND_ME_TO_MIGRATE_LATER;
+	public static String ERROR_SAVING_PREFERENCES;
+	public static String ImportFromInstallationPage_CONFIRMATION_DIALOG;
 }

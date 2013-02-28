@@ -19,10 +19,12 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.AbstractPage_c;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ImportFromInstallationWizard_c;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -42,6 +44,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.*;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.service.prefs.Preferences;
 
 /**
  * This plug-in is loaded on startup to register with the update checker.
@@ -51,7 +54,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class AutomaticUpdateScheduler implements IStartup {
 
 	private static final String ECLIPSE_P2_SKIP_MIGRATION_WIZARD = "eclipse.p2.skipMigrationWizard"; //$NON-NLS-1$
-	private static final String ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION = "eclipse.p2.skipMovedInstallDetection"; //$NON-NLS-1$
+	//	private static final String ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION = "eclipse.p2.skipMovedInstallDetection"; //$NON-NLS-1$
 	public static final String MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
 
 	// values are to be picked up from the arrays DAYS and HOURS
@@ -110,7 +113,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		scheduleUpdate();
 	}
 
-	//The return value indicates if the migration dialog has been shown or not. It does not indicate whether the migration has completed. 
+	//The return value indicates if the migration dialog has been shown or not. It does not indicate whether the migration has completed.
 	private boolean performMigration(IProvisioningAgent agent, IProfileRegistry registry, IProfile currentProfile) {
 		boolean skipWizard = Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MIGRATION_WIZARD));
 		if (skipWizard)
@@ -143,12 +146,22 @@ public class AutomaticUpdateScheduler implements IStartup {
 		if (previousProfile == null)
 			return false;
 
+		if (!remindMeLater())
+			return false;
+		
 		if (needsMigration(previousProfile, currentProfile)) {
 			openMigrationWizard(previousProfile);
 		}
 		return true;
 	}
 
+	
+	private boolean remindMeLater() {
+		Preferences prefs = ConfigurationScope.INSTANCE.getNode("org.eclipse.equinox.p2.ui");
+		return prefs.getBoolean(AbstractPage_c.REMIND_ME_LATER, true);
+
+	}
+	
 	private File getInstallFolder() {
 		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
 		return new File(configurationLocation.getURL().getPath());
@@ -242,7 +255,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		return lastShownMigration < lastReset.getTimestamp();
 	}
 
-	//Get the timestamp that we migrated from 
+	//Get the timestamp that we migrated from
 	private long getLastShownMigration() {
 		return AutomaticUpdatePlugin.getDefault().getPreferenceStore().getLong(MIGRATION_DIALOG_SHOWN);
 	}

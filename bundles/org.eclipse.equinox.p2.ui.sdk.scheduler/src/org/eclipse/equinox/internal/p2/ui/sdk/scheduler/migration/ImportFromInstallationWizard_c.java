@@ -12,7 +12,8 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
 import java.util.Collection;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
 import org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizard;
@@ -26,10 +27,14 @@ import org.eclipse.equinox.p2.operations.InstallOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 public class ImportFromInstallationWizard_c extends InstallWizard implements IImportWizard {
 	private IProfile toImportFrom;
@@ -82,6 +87,13 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 	//Remember the timestamp that we migrated from.
 	private void rememberShownMigration(long timestamp) {
 		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(AutomaticUpdateScheduler.MIGRATION_DIALOG_SHOWN, timestamp);
+		try {
+			Preferences prefs = ConfigurationScope.INSTANCE.getNode("org.eclipse.equinox.p2.ui"); //$NON-NLS-1$
+			prefs.putBoolean(AbstractPage_c.REMIND_ME_LATER, true);
+			prefs.flush();
+		} catch (BackingStoreException e) {
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID, 0, ProvUIMessages.ERROR_SAVING_PREFERENCES, e), StatusManager.LOG);
+		}
 	}
 
 	//Purge the profile registry from all the entries that are no longer relevant
@@ -98,4 +110,37 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 				}
 		}
 	}
+
+	public boolean performCancel() {
+
+		Preferences prefs = ConfigurationScope.INSTANCE.getNode("org.eclipse.equinox.p2.ui"); //$NON-NLS-1$
+		boolean result = false;
+		MessageDialog dialog = new MessageDialog(getShell(), "Migration dialaog", null, ProvUIMessages.ImportFromInstallationPage_CONFIRMATION_DIALOG, MessageDialog.QUESTION, new String[] {"Yes", "Yes, but remind me later", "No"}, 2);
+
+		int answer = dialog.open();
+		try {
+			switch (answer) {
+				case -1 : // if the user closes the dialog without clicking any button.
+					break;
+				case 0 :
+					result = true;
+					prefs.putBoolean(AbstractPage_c.REMIND_ME_LATER, false);
+					prefs.flush();
+					break;
+				case 1 :
+					result = true;
+					prefs.putBoolean(AbstractPage_c.REMIND_ME_LATER, true);
+					prefs.flush();
+					break;
+				case 2 :
+					result = false;
+					break;
+			}
+		} catch (BackingStoreException e) {
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID, 0, ProvUIMessages.ERROR_SAVING_PREFERENCES, e), StatusManager.LOG);
+		}
+		return result;
+
+	}
+
 }
