@@ -48,6 +48,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	public static final String DEFAULT_STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
 	private static final String DATA_EXT = ".data"; //$NON-NLS-1$
 
+	//Internal constant used to keep track of the newly created timestamp
+	private static final String SERVICE_SHARED_INSTALL_NEW_TIMESTAMP = IProfileRegistry.class.getName() + '_' + "NEW_SELF_TIMESTAMP"; //$NON-NLS-1$
+
 	protected final IProvisioningAgent agent;
 
 	/**
@@ -106,6 +109,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				self = context.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
 			}
 		}
+		if (self == null)
+			self = (String) agent.getService("FORCED_SELF");
 		context.ungetService(ref);
 	}
 

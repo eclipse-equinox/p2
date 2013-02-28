@@ -38,8 +38,6 @@ public interface IProfileRegistry {
 	 */
 	public static final String SERVICE_NAME = IProfileRegistry.class.getName();
 
-	public static final String SERVICE_SHARED_INSTALL_NEW_TIMESTAMP = IProfileRegistry.class.getName() + '_' + "NEW_SELF_TIMESTAMP"; //$NON-NLS-1$
-
 	/**
 	 * Return the profile in the registry that has the given id. If it does not exist, 
 	 * then return <code>null</code>.
