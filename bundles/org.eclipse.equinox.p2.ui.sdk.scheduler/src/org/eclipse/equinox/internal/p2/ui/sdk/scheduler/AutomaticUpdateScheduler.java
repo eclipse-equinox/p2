@@ -15,6 +15,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
 import java.io.File;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.core.runtime.*;
@@ -32,6 +33,8 @@ import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -49,6 +52,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	private static final String ECLIPSE_P2_SKIP_MIGRATION_WIZARD = "eclipse.p2.skipMigrationWizard"; //$NON-NLS-1$
 	private static final String ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION = "eclipse.p2.skipMovedInstallDetection"; //$NON-NLS-1$
+	public static final String MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
 
 	// values are to be picked up from the arrays DAYS and HOURS
 	public static final String P_DAY = "day"; //$NON-NLS-1$
@@ -113,13 +117,21 @@ public class AutomaticUpdateScheduler implements IStartup {
 			return false;
 
 		IProfile previousProfile = null;
+		URI[] reposToMigrate = null;
 		if (!skipFirstTimeMigration() && !configurationSpecifiedManually() && isFirstTimeRunningThisSharedInstance(agent, registry, currentProfile)) {
 			File searchRoot = getSearchLocation();
 			if (searchRoot == null)
 				return false;
-			previousProfile = new PreviousConfigurationFinder(getConfigurationLocation().getParentFile()).findPreviousInstalls(searchRoot, getInstallFolder());
+
+			IProvisioningAgent otherConfigAgent = new PreviousConfigurationFinder(getConfigurationLocation().getParentFile()).findPreviousInstalls(searchRoot, getInstallFolder());
+			if (otherConfigAgent == null) {
+				return false;
+			}
+			previousProfile = ((IProfileRegistry) otherConfigAgent.getService(IProfileRegistry.SERVICE_NAME)).getProfile(IProfileRegistry.SELF);
 			if (previousProfile == null)
 				return false;
+
+			reposToMigrate = ((IMetadataRepositoryManager) otherConfigAgent.getService(IMetadataRepositoryManager.SERVICE_NAME)).getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 
 			//At this point we consider that the migration is done since we will present something to the user.
 			registry.setProfileStateProperty(currentProfile.getProfileId(), registry.listProfileTimestamps(currentProfile.getProfileId())[0], "INITIAL", "DONE");
@@ -143,7 +155,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	}
 
-	//The search location is two level up from teh configuration location.
+	//The search location is two level up from the configuration location.
 	private File getSearchLocation() {
 		File parent = getConfigurationLocation().getParentFile();
 		if (parent == null)
@@ -173,8 +185,8 @@ public class AutomaticUpdateScheduler implements IStartup {
 		long[] history = registry.listProfileTimestamps(currentProfile.getProfileId());
 		boolean isInitial = IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get(IProfile.STATE_PROP_SHARED_INSTALL));
 		if (isInitial)
-			return false;
-		return "DONE".equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get("INITIAL"));
+			return true;
+		return !"DONE".equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get("INITIAL"));
 	}
 
 	/**
@@ -206,7 +218,6 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	private void openMigrationWizard(final IProfile inputProfile) {
-
 		Display d = Display.getDefault();
 		d.asyncExec(new Runnable() {
 			public void run() {
@@ -229,24 +240,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		if (lastReset == null)
 			return false;
 		return lastShownMigration < lastReset.getTimestamp();
-
-		//		&& !remindMeLater())
-		//			return false;
-		//
-		//		final String PREF_MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
-		//
-		//		//Have we already shown the migration dialog
-		//		if (AutomaticUpdatePlugin.getDefault().getPreferenceStore().getString(PREF_MIGRATION_DIALOG_SHOWN) == resetState)
-		//			return false;
-		//
-		//		//Remember that we are showing the migration dialog
-		//		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(PREF_MIGRATION_DIALOG_SHOWN, resetState);
-		//		AutomaticUpdatePlugin.getDefault().savePreferences();
-		//
-		//		return true;
 	}
-
-	public static final String MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
 
 	//Get the timestamp that we migrated from 
 	private long getLastShownMigration() {

@@ -6,7 +6,11 @@ Bundle-Version: 2.1.200.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Export-Package: org.eclipse.equinox.internal.p2.touchpoint.eclipse;version="2.0.0";x-friends:="org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.extensionlocation",
+Export-Package: org.eclipse.equinox.internal.p2.touchpoint.eclipse;version="2.0.0";
+  x-friends:="org.eclipse.equinox.p2.reconciler.dropins,
+   org.eclipse.equinox.p2.extensionlocation,
+   org.eclipse.equinox.p2.ui.importexport,
+   org.eclipse.equinox.p2.ui.sdk.scheduler",
  org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;version="2.0.0";x-internal:=true,
  org.eclipse.equinox.internal.p2.update;version="2.0.0";x-friends:="org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.directorywatcher",
  org.eclipse.equinox.p2.touchpoint.eclipse.query;version="2.0.0"

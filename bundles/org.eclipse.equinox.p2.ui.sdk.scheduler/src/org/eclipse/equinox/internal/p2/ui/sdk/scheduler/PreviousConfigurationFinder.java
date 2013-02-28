@@ -1,11 +1,23 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Ericsson AB and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Ericsson AB - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
+
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.AgentFromInstall;
 
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 
 public class PreviousConfigurationFinder {
 
@@ -130,7 +142,7 @@ public class PreviousConfigurationFinder {
 		return new ConfigurationDescriptor(m.group(1), new Identifier(m.group(2)), m.group(3), m.group(4), candidate.getAbsoluteFile());
 	}
 
-	public IProfile findPreviousInstalls(File searchRoot, File installFolder) {
+	public IProvisioningAgent findPreviousInstalls(File searchRoot, File installFolder) {
 		List<ConfigurationDescriptor> potentialConfigurations = readPreviousConfigurations(searchRoot);
 		ConfigurationDescriptor runningConfiguration = getConfigdataFromProductFile(installFolder);
 		if (runningConfiguration == null)
@@ -140,7 +152,7 @@ public class PreviousConfigurationFinder {
 			match = findMostRelevantConfigurationFromProductId(potentialConfigurations, runningConfiguration);
 		if (match == null)
 			return null;
-		return new ConfigAreaToAgent().fromConfigurationToProfile(match.getConfig());
+		return AgentFromInstall.createAgentFrom(AutomaticUpdatePlugin.getDefault().getAgentProvider(), null, new File(match.getConfig(), "configuration"), null); //$NON-NLS-1$
 	}
 
 	private ConfigurationDescriptor getConfigdataFromProductFile(File installFolder) {
