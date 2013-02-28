@@ -395,7 +395,7 @@ public class VerifierApplication implements IApplication {
 		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		reg.getProfile(IProfileRegistry.SELF);
 
-		if (Boolean.valueOf(properties.getProperty("checkProfileResetFlag")).booleanValue() == (agent.getService(IProfileRegistry.SERVICE_SHARED_INSTALL_NEW_TIMESTAMP) != null))
+		if (Boolean.valueOf(properties.getProperty("checkProfileResetFlag")).booleanValue() == (agent.getService(IProfileRegistry.class.getName() + '_' + "NEW_SELF_TIMESTAMP") != null))
 			return Status.OK_STATUS;
 		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The flag indicating that a profile has been reset is incorrectly setup");
 	}
