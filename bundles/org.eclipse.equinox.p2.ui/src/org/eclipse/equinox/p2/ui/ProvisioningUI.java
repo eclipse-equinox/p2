@@ -133,16 +133,6 @@ public class ProvisioningUI {
 	}
 
 	/**
-	 * @since 2.2
-	 */
-	public RelaxedUpdateInstallOperation getRelaxedUpdateOperation(ProvisioningContext context) {
-		RelaxedUpdateInstallOperation luckyOperation = new RelaxedUpdateInstallOperation(getSession());
-		luckyOperation.setProfileId(getProfileId());
-		luckyOperation.setProvisioningContext(context);
-		return luckyOperation;
-	}
-
-	/**
 	 * Return an install operation that describes installing the specified IInstallableUnits from the
 	 * provided list of repositories.
 	 * 
@@ -237,6 +227,23 @@ public class ProvisioningUI {
 	 * @return the wizard return code
 	 */
 	public int openUpdateWizard(boolean skipSelectionsPage, UpdateOperation operation, LoadMetadataRepositoryJob job) {
+		return openUpdateWizard(skipSelectionsPage, operation, null, job);
+
+	}
+
+	/**
+	 * Open an update wizard for the specified update operation and remediationOperation.
+	 * 
+	 * @param skipSelectionsPage <code>true</code> if the selection page should be skipped so that the user is 
+	 * viewing the resolution results.  <code>false</code> if the update selection page should be shown first.
+	 * @param operation the operation describing the proposed update.  Must not be <code>null</code>.
+	 * @param remediationOperation the alternate operations if the proposed update failed.  May be <code>null</code>.
+	 * @param job a repository load job that is loading or has already loaded the repositories.  Can be used to pass along
+	 * an in-memory repository reference to the wizard.
+	 * 
+	 * @return the wizard return code
+	 */
+	public int openUpdateWizard(boolean skipSelectionsPage, UpdateOperation operation, RemediationOperation remediationOperation, LoadMetadataRepositoryJob job) {
 		if (getPolicy().getUpdateWizardStyle() == Policy.UPDATE_STYLE_SINGLE_IUS && UpdateSingleIUWizard.validFor(operation)) {
 			UpdateSingleIUWizard wizard = new UpdateSingleIUWizard(this, operation);
 			WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
@@ -245,6 +252,7 @@ public class ProvisioningUI {
 			return dialog.open();
 		}
 		UpdateWizard wizard = new UpdateWizard(this, operation, operation.getSelectedUpdates(), job);
+		wizard.setRemediationOperation(remediationOperation);
 		wizard.setSkipSelectionsPage(skipSelectionsPage);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.create();

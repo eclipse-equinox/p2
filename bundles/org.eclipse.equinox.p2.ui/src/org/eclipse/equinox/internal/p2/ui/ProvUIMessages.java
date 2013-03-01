@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat, Inc - support for remediation page
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui;
@@ -234,6 +235,21 @@ public class ProvUIMessages extends NLS {
 	public static String RollbackProfileElement_CurrentInstallation;
 	public static String SelectableIUsPage_Select_All;
 	public static String SelectableIUsPage_Deselect_All;
+	public static String InstallRemediationPage_Title;
+	public static String InstallRemediationPage_Description;
+	public static String UpdateRemediationPage_Title;
+	public static String UpdateRemediationPage_Description;
+	public static String RemediationPage_SubDescription;
+	public static String RemediationPage_NoSolutionFound;
+	public static String RemediationPage_BeingInstalledSection;
+	public static String RemediationPage_InstalledSection;
+	public static String RemediationPage_BeingInstalledSection_AllowPartialInstall;
+	public static String RemediationPage_BeingInstalledSection_AllowDifferentVersion;
+	public static String RemediationPage_InstalledSection_AllowInstalledUpdate;
+	public static String RemediationPage_InstalledSection_AllowInstalledRemoval;
+	public static String RemediationPage_BestSolutionBeingInstalledRelaxed;
+	public static String RemediationPage_BestSolutionInstallationRelaxed;
+	public static String RemediationPage_BestSolutionBuilt;
 
 	public static String TrustCertificateDialog_Details;
 	public static String TrustCertificateDialog_Title;

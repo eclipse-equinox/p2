@@ -11,10 +11,13 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.operations.RepositoryTracker;
-import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * UpdateHandler invokes the check for updates UI
@@ -39,7 +42,33 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 		// Report any missing repositories.
 		job.reportAccumulatedStatus();
 		if (getProvisioningUI().getPolicy().continueWorkingWithOperation(operation, getShell())) {
-			getProvisioningUI().openUpdateWizard(false, operation, job);
+
+			if (operation.getResolutionResult() == Status.OK_STATUS) {
+				getProvisioningUI().openUpdateWizard(false, operation, job);
+			} else {
+
+				final RemediationOperation remediationOperation = new RemediationOperation(getProvisioningUI().getSession(), operation.getProfileChangeRequest(), true);
+				ProvisioningJob job2 = new ProvisioningJob("Searching alternate solutions...", getProvisioningUI().getSession()) {
+					@Override
+					public IStatus runModal(IProgressMonitor monitor) {
+						monitor.beginTask("Some items cannot be at the highest version. Searching for the highest common denominator ...", RemedyConfig.getAllRemdyConfigs().length);
+						return remediationOperation.resolveModal(monitor);
+					}
+				};
+				job2.addJobChangeListener(new JobChangeAdapter() {
+					public void done(IJobChangeEvent event) {
+						if (PlatformUI.isWorkbenchRunning()) {
+							PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+								public void run() {
+									getProvisioningUI().openUpdateWizard(true, operation, remediationOperation, null);
+								}
+							});
+						}
+					}
+
+				});
+				getProvisioningUI().schedule(job2, StatusManager.SHOW | StatusManager.LOG);
+			}
 		}
 	}
 

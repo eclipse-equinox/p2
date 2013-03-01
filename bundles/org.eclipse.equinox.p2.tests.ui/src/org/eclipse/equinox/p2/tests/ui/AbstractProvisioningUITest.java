@@ -58,8 +58,8 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	protected IInstallableUnit upgrade;
 	protected IInstallableUnit uninstalled;
 	protected IInstallableUnit category;
-	private ProvisioningUI ui;
-	private ServiceRegistration regLicenseManager;
+	protected ProvisioningUI ui;
+	protected ServiceRegistration regLicenseManager;
 
 	protected void setUp() throws Exception {
 		super.setUp();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
  *     Sonatype, Inc. - ongoing development
+ *     Red Hat, Inc. - support for remediation page
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -16,8 +17,7 @@ import java.util.*;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -114,24 +114,32 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
+		if (selectedElements == null)
+			return;
 		root = new IUElementListRoot();
-		ArrayList<AvailableUpdateElement> list = new ArrayList<AvailableUpdateElement>(selectedElements.length);
-		ArrayList<AvailableUpdateElement> selected = new ArrayList<AvailableUpdateElement>(selectedElements.length);
-		for (int i = 0; i < selectedElements.length; i++) {
-			if (selectedElements[i] instanceof AvailableUpdateElement) {
-				AvailableUpdateElement element = (AvailableUpdateElement) selectedElements[i];
-				AvailableUpdateElement newElement = new AvailableUpdateElement(root, element.getIU(), element.getIUToBeUpdated(), getProfileId(), shouldShowProvisioningPlanChildren());
-				list.add(newElement);
-				selected.add(newElement);
-			} else if (selectedElements[i] instanceof Update) {
-				Update update = (Update) selectedElements[i];
-				AvailableUpdateElement newElement = new AvailableUpdateElement(root, update.replacement, update.toUpdate, getProfileId(), shouldShowProvisioningPlanChildren());
-				list.add(newElement);
-				selected.add(newElement);
+		if (operation instanceof RemediationOperation) {
+			ArrayList<AvailableIUElement> list = remediationPage.transformIUstoIUElements();
+			root.setChildren(list.toArray());
+			planSelections = list.toArray();
+		} else {
+			ArrayList<AvailableUpdateElement> list = new ArrayList<AvailableUpdateElement>(selectedElements.length);
+			ArrayList<AvailableUpdateElement> selected = new ArrayList<AvailableUpdateElement>(selectedElements.length);
+			for (int i = 0; i < selectedElements.length; i++) {
+				if (selectedElements[i] instanceof AvailableUpdateElement) {
+					AvailableUpdateElement element = (AvailableUpdateElement) selectedElements[i];
+					AvailableUpdateElement newElement = new AvailableUpdateElement(root, element.getIU(), element.getIUToBeUpdated(), getProfileId(), shouldShowProvisioningPlanChildren());
+					list.add(newElement);
+					selected.add(newElement);
+				} else if (selectedElements[i] instanceof Update) {
+					Update update = (Update) selectedElements[i];
+					AvailableUpdateElement newElement = new AvailableUpdateElement(root, update.replacement, update.toUpdate, getProfileId(), shouldShowProvisioningPlanChildren());
+					list.add(newElement);
+					selected.add(newElement);
+				}
 			}
+			root.setChildren(list.toArray());
+			planSelections = selected.toArray();
 		}
-		root.setChildren(list.toArray());
-		planSelections = selected.toArray();
 	}
 
 	protected IResolutionErrorReportingPage createErrorReportingPage() {
@@ -186,4 +194,11 @@ public class UpdateWizard extends WizardWithLicenses {
 		}
 		return firstPageRoot;
 	}
+
+	@Override
+	protected RemediationPage createRemediationPage() {
+		remediationPage = new RemediationPage(ui, this, root, operation);
+		return remediationPage;
+	}
+
 }

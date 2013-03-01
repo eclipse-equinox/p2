@@ -14,15 +14,20 @@ package org.eclipse.equinox.internal.p2.ui.actions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
-import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 public class UpdateAction extends ExistingIUInProfileAction {
 
@@ -66,7 +71,41 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#performAction(org.eclipse.equinox.p2.operations.ProfileChangeOperation, org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
 	 */
-	protected int performAction(ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
-		return ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, null);
+	protected int performAction(final ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
+		if (operation.getResolutionResult() == Status.OK_STATUS)
+			return ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, null);
+
+		final RemediationOperation remediationOperation = new RemediationOperation(getSession(), (ProfileChangeRequest) operation.getProfileChangeRequest());
+		ProvisioningJob job = new ProvisioningJob("Searching alternate solutions...", getSession()) {
+			@Override
+			public IStatus runModal(IProgressMonitor monitor) {
+				monitor.beginTask("The update operation cannot be completed as requested. Searching alternate solutions ...", RemedyConfig.getAllRemdyConfigs().length);
+				return remediationOperation.resolveModal(monitor);
+			}
+		};
+		job.addJobChangeListener(new JobChangeAdapter() {
+			public void done(IJobChangeEvent event) {
+				if (PlatformUI.isWorkbenchRunning()) {
+					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+						public void run() {
+							ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, remediationOperation, null);
+							//							UpdateWizard wizard = new UpdateWizard(ui, (UpdateOperation) operation, ((UpdateOperation) operation).getSelectedUpdates(), null);
+							//							wizard.setSkipSelectionsPage(skipSelectionPage);
+							//							wizard.setRemediationOperation(remediationOperation);
+							//							WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+							//							dialog.create();
+							//							PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
+							//							if (wizard.getCurrentStatus().getSeverity() == IStatus.ERROR) {
+							//								wizard.deselectLockedIUs();
+							//							}
+							//							dialog.open();
+						}
+					});
+				}
+			}
+
+		});
+		getProvisioningUI().schedule(job, StatusManager.SHOW | StatusManager.LOG);
+		return 1;
 	}
 }

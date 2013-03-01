@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,11 +9,11 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *     Sonatype, Inc. - ongoing development
+ *     Red Hat, Inc. - support for remediation page
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
@@ -28,8 +28,6 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
@@ -56,7 +54,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	protected Display display;
 	protected Policy policy;
 	SashForm sashForm;
-	Button relaxConstraints;
 
 	public SelectableIUsPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, Object[] initialSelections) {
 		super("IUSelectionPage", ui, wizard); //$NON-NLS-1$
@@ -163,8 +160,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		controlsComposite.setLayoutData(gd);
 
-		createViewControlsArea(controlsComposite);
-
 		// The text area shows a description of the selected IU, or error detail if applicable.
 		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), true);
 
@@ -172,36 +167,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		setControl(sashForm);
 		sashForm.setWeights(getSashWeights());
 		Dialog.applyDialogFont(sashForm);
-	}
-
-	@Override
-	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
-		super.updateStatus(newRoot, op);
-		IStatus currentStatus = getProvisioningWizard().getCurrentStatus();
-		if (relaxConstraints != null)
-			relaxConstraints.setEnabled(currentStatus != null && !currentStatus.isOK());
-	}
-
-	private void createViewControlsArea(Composite controlsComposite) {
-		relaxConstraints = new Button(controlsComposite, SWT.CHECK);
-		relaxConstraints.setVisible(false);
-		relaxConstraints.setText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraints);
-		relaxConstraints.setToolTipText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraintsTip);
-		relaxConstraints.setSelection(((ProvisioningOperationWizard) getWizard()).getRelaxedResoltion());
-		relaxConstraints.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				((ProvisioningOperationWizard) getWizard()).setRelaxedResolution(relaxConstraints.getSelection());
-				setPageComplete(true);
-			}
-		});
-	}
-
-	@Override
-	public void setVisible(boolean visible) {
-		super.setVisible(visible);
-		if (visible)
-			relaxConstraints.setSelection(((ProvisioningOperationWizard) getWizard()).getRelaxedResoltion());
 	}
 
 	private void createSelectButtons(Composite parent) {

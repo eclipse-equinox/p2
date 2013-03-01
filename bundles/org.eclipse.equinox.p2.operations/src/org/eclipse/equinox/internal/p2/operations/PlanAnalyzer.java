@@ -129,6 +129,15 @@ public class PlanAnalyzer {
 					report.addSummaryStatus(fail);
 				}
 			}
+		} else {
+			if (plannerStatus.getCode() == IStatusCodes.MISSING_REQUIREMENTS) {
+				IStatus existingSummaryStatus = report.getSummaryStatus();
+				MultiStatus newSummaryStatus = new MultiStatus(Activator.ID, IStatusCodes.MISSING_REQUIREMENTS, Messages.ResolutionResult_SummaryStatus, null);
+				if (!existingSummaryStatus.isOK()) {
+					newSummaryStatus.addAll(existingSummaryStatus);
+					report.setSummaryStatus(newSummaryStatus);
+				}
+			}
 		}
 
 		// Now process the side effects

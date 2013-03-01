@@ -66,8 +66,9 @@ public class Messages extends NLS {
 	public static String UpdateOperation_ResolveJobName;
 	public static String UpdateOperation_UpdateJobName;
 
-	public static String RelaxedUpdateOperation_ResolveJobName;
-	public static String RelaxedUpdateOperation_UpdateJobName;
+	public static String RemediationOperation_ProfileChangeRequestProgress;
+	public static String RemediationOperation_ResolveJobName;
+	public static String RemediationOperation_RemediationJobName;
 
 	public static String OperationFactory_noAgent;
 	public static String OperationFactory_noIUFound;

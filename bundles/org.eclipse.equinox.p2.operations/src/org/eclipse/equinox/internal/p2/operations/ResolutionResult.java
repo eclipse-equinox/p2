@@ -33,6 +33,10 @@ public class ResolutionResult {
 		return Status.OK_STATUS;
 	}
 
+	public void setSummaryStatus(MultiStatus status) {
+		summaryStatus = status;
+	}
+
 	public void addSummaryStatus(IStatus status) {
 		if (summaryStatus == null) {
 			summaryStatus = new MultiStatus(Activator.ID, 0, Messages.ResolutionResult_SummaryStatus, null);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
+ *     Red Hat, Inc. - support for remediation page
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
@@ -38,6 +39,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	boolean isInstalled = false;
 	boolean isUpdate = false;
 	boolean isPatch = false;
+	boolean isUninstall = false;
 
 	// Currently this variable is not settable due to the
 	// poor performance of sizing, but it is kept here for future improvement.
@@ -68,6 +70,8 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 			return isInstalled ? ProvUIImages.IMG_DISABLED_PATCH_IU : ProvUIImages.IMG_PATCH_IU;
 		else if (isInstalled)
 			return ProvUIImages.IMG_DISABLED_IU;
+		else if (isUninstall)
+			return ProvUIImages.IMG_REMOVED_IU;
 		return ProvUIImages.IMG_IU;
 	}
 
@@ -197,6 +201,14 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	public boolean isUpdate() {
 		return isUpdate;
+	}
+
+	public void setIsUninstall(boolean isUninstall) {
+		this.isUninstall = isUninstall;
+	}
+
+	public boolean isUninstall() {
+		return isUninstall;
 	}
 
 	public void setIsPatch(boolean isPatch) {

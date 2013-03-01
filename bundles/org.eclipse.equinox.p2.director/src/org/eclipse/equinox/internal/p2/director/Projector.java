@@ -11,6 +11,7 @@
  *   Jed Anderson - switch from opb files to API calls to DependencyHelper in bug 200380
  *   Sonatype, Inc. - ongoing development
  *   Rapicorp, Inc. - split the optimization function
+ *   Red Hat, Inc. - support for remediation page
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -27,9 +28,10 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
+import org.sat4j.minisat.restarts.LubyRestarts;
 import org.sat4j.pb.*;
-import org.sat4j.pb.tools.DependencyHelper;
-import org.sat4j.pb.tools.WeightedObject;
+import org.sat4j.pb.core.PBSolverResolution;
+import org.sat4j.pb.tools.*;
 import org.sat4j.specs.*;
 
 /**
@@ -53,7 +55,7 @@ public class Projector {
 	private IQueryable<IInstallableUnit> picker;
 	private QueryableArray patches;
 
-	private Map<IInstallableUnit, AbstractVariable> noopVariables; //key IU, value AbstractVariable
+	private List<AbstractVariable> allOptionalAbstractRequirements;
 	private List<AbstractVariable> abstractVariables;
 
 	private Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
@@ -77,6 +79,9 @@ public class Projector {
 	private Set<IInstallableUnit> nonGreedyIUs; //All the IUs that would satisfy non greedy dependencies
 	private Map<IInstallableUnit, AbstractVariable> nonGreedyVariables = new HashMap<IInstallableUnit, AbstractVariable>();
 	private Map<AbstractVariable, List<Object>> nonGreedyProvider = new HashMap<AbstractVariable, List<Object>>(); //Keeps track of all the "object" that provide an IU that is non greedly requested  
+
+	private boolean emptyBecauseFiltered;
+	private boolean userDefinedFunction;
 
 	static class AbstractVariable {
 		//		private String name;
@@ -154,24 +159,19 @@ public class Projector {
 
 	public Projector(IQueryable<IInstallableUnit> q, Map<String, String> context, Set<IInstallableUnit> nonGreedyIUs, boolean considerMetaRequirements) {
 		picker = q;
-		noopVariables = new HashMap<IInstallableUnit, AbstractVariable>();
 		slice = new HashMap<String, Map<Version, IInstallableUnit>>();
 		selectionContext = InstallableUnit.contextIU(context);
 		abstractVariables = new ArrayList<AbstractVariable>();
+		allOptionalAbstractRequirements = new ArrayList<AbstractVariable>();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList<Object>();
 		this.nonGreedyIUs = nonGreedyIUs;
 		this.considerMetaRequirements = considerMetaRequirements;
 	}
 
-	//	protected boolean isInstalled(IInstallableUnit iu) {
-	//		return !lastState.query(QueryUtil.createIUQuery(iu), null).isEmpty();
-	//	}
-
 	@SuppressWarnings("unchecked")
 	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable<IInstallableUnit> installedIUs, Collection<IInstallableUnit> newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
-		//		numberOfInstalledIUs = sizeOf(installedIUs);
 		lastState = installedIUs;
 		this.entryPoint = entryPointIU;
 		try {
@@ -184,7 +184,14 @@ public class Projector {
 			if (DEBUG_ENCODING) {
 				solver = new UserFriendlyPBStringSolver<Object>();
 			} else {
-				solver = SolverFactory.newEclipseP2();
+				if (userDefinedFunction) {
+					PBSolverResolution mysolver = SolverFactory.newCompetPBResLongWLMixedConstraintsObjectiveExpSimp();
+					mysolver.setSimplifier(mysolver.SIMPLE_SIMPLIFICATION);
+					mysolver.setRestartStrategy(new LubyRestarts(512));
+					solver = mysolver;
+				} else {
+					solver = SolverFactory.newEclipseP2();
+				}
 			}
 			int timeout = DEFAULT_SOLVER_TIMEOUT;
 			String timeoutString = null;
@@ -204,10 +211,13 @@ public class Projector {
 			solver.setTimeoutOnConflicts(timeout);
 			IQueryResult<IInstallableUnit> queryResult = picker.query(QueryUtil.createIUAnyQuery(), null);
 			if (DEBUG_ENCODING) {
-				dependencyHelper = new DependencyHelper<Object, Explanation>(solver, false);
+				dependencyHelper = new LexicoHelper<Object, Explanation>(solver, false);
 				((UserFriendlyPBStringSolver<Object>) solver).setMapping(dependencyHelper.getMappingToDomain());
 			} else {
-				dependencyHelper = new DependencyHelper<Object, Explanation>(solver);
+				if (userDefinedFunction)
+					dependencyHelper = new LexicoHelper<Object, Explanation>(solver);
+				else
+					dependencyHelper = new DependencyHelper<Object, Explanation>(solver);
 			}
 			List<IInstallableUnit> iusToOrder = new ArrayList<IInstallableUnit>(queryResult.toSet());
 			Collections.sort(iusToOrder);
@@ -255,13 +265,28 @@ public class Projector {
 
 	}
 
+	private void createOptimizationFunction(IInstallableUnit entryPointIU, Collection<IInstallableUnit> newRoots) {
+		if (!userDefinedFunction) {
+			createStandardOptimizationFunction(entryPointIU, newRoots);
+		} else {
+			createUserDefinedOptimizationFunction(entryPointIU, newRoots);
+		}
+	}
+
 	//Create an optimization function favoring the highest version of each IU
-	private void createOptimizationFunction(IInstallableUnit metaIu, Collection<IInstallableUnit> newRoots) {
-		List<WeightedObject<? extends Object>> weights = new OptimizationFunction(lastState, abstractVariables, picker, selectionContext, slice).createOptimizationFunction(metaIu, newRoots);
+	private void createStandardOptimizationFunction(IInstallableUnit entryPointIU, Collection<IInstallableUnit> newRoots) {
+		List<WeightedObject<? extends Object>> weights = new OptimizationFunction(lastState, abstractVariables, allOptionalAbstractRequirements, picker, selectionContext, slice).createOptimizationFunction(entryPointIU, newRoots);
+		createObjectiveFunction(weights);
+	}
+
+	private void createUserDefinedOptimizationFunction(IInstallableUnit entryPointIU, Collection<IInstallableUnit> newRoots) {
+		List<WeightedObject<? extends Object>> weights = new UserDefinedOptimizationFunction(lastState, abstractVariables, allOptionalAbstractRequirements, picker, selectionContext, slice, dependencyHelper, alreadyInstalledIUs).createOptimizationFunction(entryPointIU, newRoots);
 		createObjectiveFunction(weights);
 	}
 
 	private void createObjectiveFunction(List<WeightedObject<? extends Object>> weightedObjects) {
+		if (weightedObjects == null)
+			return;
 		if (DEBUG) {
 			StringBuffer b = new StringBuffer();
 			for (WeightedObject<? extends Object> object : weightedObjects) {
@@ -399,6 +424,7 @@ public class Projector {
 							addNonGreedyProvider(getNonGreedyVariable(current), abs);
 						}
 					}
+					optionalAbstractRequirements.add(abs);
 				} else {
 					abs = getAbstractVariable(req, false);
 					List<Object> newConstraint = new ArrayList<Object>();
@@ -408,7 +434,6 @@ public class Projector {
 					}
 					createImplication(new Object[] {abs, iu}, newConstraint, Explanation.OPTIONAL_REQUIREMENT);
 				}
-				optionalAbstractRequirements.add(abs);
 			}
 		}
 	}
@@ -425,11 +450,9 @@ public class Projector {
 	private void expandRequirements(Collection<IRequirement> reqs, IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
 		if (reqs.isEmpty())
 			return;
-		List<AbstractVariable> optionalAbstractRequirements = new ArrayList<AbstractVariable>();
 		for (IRequirement req : reqs) {
-			expandRequirement(req, iu, optionalAbstractRequirements, isRootIu);
+			expandRequirement(req, iu, allOptionalAbstractRequirements, isRootIu);
 		}
-		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
 
 	public void processIU(IInstallableUnit iu, boolean isRootIU) throws ContradictionException {
@@ -452,7 +475,7 @@ public class Projector {
 			expandRequirements(getRequiredCapabilities(iu), iu, isRootIU);
 		} else {
 			//Patches are applicable to the IU
-			expandRequirementsWithPatches(iu, applicablePatches, isRootIU);
+			expandRequirementsWithPatches(iu, applicablePatches, allOptionalAbstractRequirements, isRootIU);
 		}
 	}
 
@@ -480,7 +503,7 @@ public class Projector {
 		Object left;
 	}
 
-	private void expandRequirementsWithPatches(IInstallableUnit iu, IQueryResult<IInstallableUnit> applicablePatches, boolean isRootIu) throws ContradictionException {
+	private void expandRequirementsWithPatches(IInstallableUnit iu, IQueryResult<IInstallableUnit> applicablePatches, List<AbstractVariable> optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
 		//Unmodified dependencies
 		Collection<IRequirement> iuRequirements = getRequiredCapabilities(iu);
 		Map<IRequirement, List<IInstallableUnitPatch>> unchangedRequirements = new HashMap<IRequirement, List<IInstallableUnitPatch>>(iuRequirements.size());
@@ -496,7 +519,6 @@ public class Projector {
 			// noop(IU)-> ~ABS
 			// IU -> (noop(IU) or ABS)
 			// Therefore we only need one optional requirement statement per IU
-			List<AbstractVariable> optionalAbstractRequirements = new ArrayList<AbstractVariable>();
 			for (int i = 0; i < reqs.length; i++) {
 				//The requirement is unchanged
 				if (reqs[i][0] == reqs[i][1]) {
@@ -568,6 +590,7 @@ public class Projector {
 										addNonGreedyProvider(getNonGreedyVariable(current), abs);
 									}
 								}
+								optionalAbstractRequirements.add(abs);
 							} else {
 								abs = getAbstractVariable(req, false);
 								List<Object> newConstraint = new ArrayList<Object>(matches.size());
@@ -577,7 +600,6 @@ public class Projector {
 								}
 								createImplication(new Object[] {patch, abs, iu}, newConstraint, Explanation.OPTIONAL_REQUIREMENT);
 							}
-							optionalAbstractRequirements.add(abs);
 						}
 					}
 				}
@@ -683,7 +705,6 @@ public class Projector {
 					}
 				}
 			}
-			createOptionalityExpression(iu, optionalAbstractRequirements);
 		}
 
 		// Fix: now create the pending non-patch requirements based on the full set of patches
@@ -691,7 +712,6 @@ public class Projector {
 			createImplication(pending.left, pending.matches, pending.explanation);
 		}
 
-		List<AbstractVariable> optionalAbstractRequirements = new ArrayList<AbstractVariable>();
 		for (Entry<IRequirement, List<IInstallableUnitPatch>> entry : unchangedRequirements.entrySet()) {
 			List<IInstallableUnitPatch> patchesApplied = entry.getValue();
 			Iterator<IInstallableUnit> allPatches = applicablePatches.iterator();
@@ -779,7 +799,6 @@ public class Projector {
 				}
 			}
 		}
-		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
 
 	private void expandLifeCycle(IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
@@ -796,8 +815,6 @@ public class Projector {
 		result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 		createNegation(iu, req);
 	}
-
-	private boolean emptyBecauseFiltered;
 
 	/**
 	 * @param req
@@ -828,7 +845,7 @@ public class Projector {
 		for (int i = 0; i < changes.size(); i++) {
 			IRequirementChange change = changes.get(i);
 			for (int j = 0; j < originalRequirements.length; j++) {
-				if (originalRequirements[j] != null && change.matches((IRequiredCapability) originalRequirements[j])) {
+				if (originalRequirements[j] != null && safeMatch(originalRequirements, change, j)) {
 					found = true;
 					if (change.newValue() != null)
 						rrr.add(new IRequirement[] {originalRequirements[j], change.newValue()});
@@ -850,24 +867,12 @@ public class Projector {
 		return rrr.toArray(new IRequirement[rrr.size()][]);
 	}
 
-	/**
-	 * Optional requirements are encoded via:
-	 * ABS -> (match1(req) or match2(req) or ... or matchN(req))
-	 * noop(IU)-> ~ABS
-	 * IU -> (noop(IU) or ABS)
-	 * @param iu
-	 * @param optionalRequirements
-	 * @throws ContradictionException
-	 */
-	private void createOptionalityExpression(IInstallableUnit iu, List<AbstractVariable> optionalRequirements) throws ContradictionException {
-		if (optionalRequirements.isEmpty())
-			return;
-		AbstractVariable noop = getNoOperationVariable(iu);
-		for (AbstractVariable abs : optionalRequirements) {
-			createIncompatibleValues(abs, noop);
+	private boolean safeMatch(IRequirement[] originalRequirements, IRequirementChange change, int j) {
+		try {
+			return change.matches((IRequiredCapability) originalRequirements[j]);
+		} catch (ClassCastException e) {
+			return false;
 		}
-		optionalRequirements.add(noop);
-		createImplication(iu, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
 	}
 
 	//This will create as many implication as there is element in the right argument
@@ -948,18 +953,6 @@ public class Projector {
 		dependencyHelper.atMost(1, (Object[]) ius).named(new Explanation.Singleton(ius));
 	}
 
-	private void createIncompatibleValues(AbstractVariable v1, AbstractVariable v2) throws ContradictionException {
-		AbstractVariable[] vars = {v1, v2};
-		if (DEBUG) {
-			StringBuffer b = new StringBuffer();
-			for (int i = 0; i < vars.length; i++) {
-				b.append(vars[i].toString());
-			}
-			Tracing.debug("At most 1 of " + b); //$NON-NLS-1$
-		}
-		dependencyHelper.atMost(1, (Object[]) vars).named(Explanation.OPTIONAL_REQUIREMENT);
-	}
-
 	private AbstractVariable getAbstractVariable(IRequirement req) {
 		return getAbstractVariable(req, true);
 	}
@@ -970,15 +963,6 @@ public class Projector {
 			abstractVariables.add(abstractVariable);
 		}
 		return abstractVariable;
-	}
-
-	private AbstractVariable getNoOperationVariable(IInstallableUnit iu) {
-		AbstractVariable v = noopVariables.get(iu);
-		if (v == null) {
-			v = DEBUG_ENCODING ? new AbstractVariable("Noop_" + iu.toString()) : new AbstractVariable(); //$NON-NLS-1$
-			noopVariables.put(iu, v);
-		}
-		return v;
 	}
 
 	private AbstractVariable getNonGreedyVariable(IInstallableUnit iu) {
@@ -1007,7 +991,7 @@ public class Projector {
 				backToIU();
 				long stop = System.currentTimeMillis();
 				if (DEBUG)
-					Tracing.debug("Solver solution found: " + (stop - start)); //$NON-NLS-1$
+					Tracing.debug("Solver solution found in: " + (stop - start) + " ms."); //$NON-NLS-1$
 			} else {
 				long stop = System.currentTimeMillis();
 				if (DEBUG) {
@@ -1029,6 +1013,7 @@ public class Projector {
 
 	private void backToIU() {
 		solution = new ArrayList<IInstallableUnit>();
+		//TODO WORK AROUND BECAUE OF A BUG IN SAT4J
 		IVec<Object> sat4jSolution = dependencyHelper.getSolution();
 		for (Iterator<Object> iter = sat4jSolution.iterator(); iter.hasNext();) {
 			Object var = iter.next();
@@ -1110,5 +1095,9 @@ public class Projector {
 			existingMatches.addAll(matches);
 		}
 		existingMatches.retainAll(matches);
+	}
+
+	public void setUserDefined(boolean containsKey) {
+		userDefinedFunction = containsKey;
 	}
 }

@@ -1350,6 +1350,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		assertNotContains(null, result, value);
 	}
 
+	//	public void assertContains(IQueryable<IInstallableUnit> queryable, IInstallableUnit iu) {
+	//		assertFalse("Missing IU " + iu.toString(), queryable.query(QueryUtil.ALL_UNITS, null).isEmpty());
+	//	}
+
 	public static void assertContains(String message, IQueryResult result, Object value) {
 		Iterator itor = result.iterator();
 		while (itor.hasNext())
@@ -1714,5 +1718,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		} catch (IOException e) {
 			//ignore
 		}
+	}
+
+	public void assertResolve(IProfileChangeRequest request, IPlanner planner) {
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, null);
+		assertOK(plan.getStatus());
 	}
 }

@@ -45,6 +45,7 @@ public interface IStatusCodes {
 	public static final int UNEXPECTED_NOTHING_TO_DO = 10050;
 	public static final int EXPECTED_NOTHING_TO_DO = 10051;
 	public static final int OPERATION_ALREADY_IN_PROGRESS = 10052;
+	public static final int MISSING_REQUIREMENTS = 10053;
 
 	// Status codes associated with repositories
 	public static final int INVALID_REPOSITORY_LOCATION = 10100;

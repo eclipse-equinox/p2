@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,6 +8,7 @@
  * 	IBM Corporation - initial API and implementation
  * 	Genuitec - bug fixes
  *  Sonatype, Inc. - ongoing development
+ *  Red Hat, Inc. - support for remediation page
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -152,16 +153,20 @@ public class SimplePlanner implements IPlanner {
 		MultiStatus root = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Unsatisfied_Dependencies, null);
 		//try to find a more specific root message if possible
 		String specificMessage = null;
+		int errorCode = 0;
 		for (Explanation next : explanations) {
 			root.add(next.toStatus());
-			if (specificMessage == null && next instanceof Explanation.MissingIU)
+			if (specificMessage == null && next instanceof Explanation.MissingIU) {
 				specificMessage = Messages.Explanation_rootMissing;
-			else if (specificMessage == null && next instanceof Explanation.Singleton)
+				errorCode = 10053;
+			} else if (specificMessage == null && next instanceof Explanation.Singleton) {
 				specificMessage = Messages.Explanation_rootSingleton;
+				errorCode = 10054;
+			}
 		}
 		//use a more specific root message if available
 		if (specificMessage != null) {
-			MultiStatus newRoot = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, specificMessage, null);
+			MultiStatus newRoot = new MultiStatus(DirectorActivator.PI_DIRECTOR, errorCode, specificMessage, null);
 			newRoot.merge(root);
 			root = newRoot;
 		}
@@ -333,6 +338,7 @@ public class SimplePlanner implements IPlanner {
 			final IQueryable<IInstallableUnit>[] queryables = new IQueryable[] {slice, new QueryableArray(profileChangeRequest.getAdditions().toArray(new IInstallableUnit[profileChangeRequest.getAdditions().size()]))};
 			slice = new CompoundQueryable<IInstallableUnit>(queryables);
 			Projector projector = new Projector(slice, newSelectionContext, slicer.getNonGreedyIUs(), satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
+			projector.setUserDefined(profileChangeRequest.getPropertiesToAdd().containsKey("_internal_user_defined_"));
 			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profile, profileChangeRequest.getAdditions(), sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (s.getSeverity() == IStatus.CANCEL) {
@@ -747,7 +753,8 @@ public class SimplePlanner implements IPlanner {
 		//Now add any other requirement that we need to see satisfied
 		if (profileChangeRequest.getExtraRequirements() != null)
 			gatheredRequirements.addAll(profileChangeRequest.getExtraRequirements());
-		return new Object[] {createIURepresentingTheProfile(gatheredRequirements), alreadyInstalled.toArray(IInstallableUnit.class)};
+		IInstallableUnit[] existingRoots = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null).toArray(IInstallableUnit.class);
+		return new Object[] {createIURepresentingTheProfile(gatheredRequirements), existingRoots};
 	}
 
 	private IRequirement createRequirement(IInstallableUnit iu, String rule) {

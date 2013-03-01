@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat, Inc. - support for remediation page
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
@@ -108,6 +109,8 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		createImageDescriptor(ProvUIImages.IMG_IU, reg);
 		createImageDescriptor(ProvUIImages.IMG_DISABLED_IU, reg);
 		createImageDescriptor(ProvUIImages.IMG_UPDATED_IU, reg);
+		createImageDescriptor(ProvUIImages.IMG_ADDED_IU, reg);
+		createImageDescriptor(ProvUIImages.IMG_REMOVED_IU, reg);
 		createImageDescriptor(ProvUIImages.IMG_PATCH_IU, reg);
 		createImageDescriptor(ProvUIImages.IMG_DISABLED_PATCH_IU, reg);
 		createImageDescriptor(ProvUIImages.IMG_CATEGORY, reg);

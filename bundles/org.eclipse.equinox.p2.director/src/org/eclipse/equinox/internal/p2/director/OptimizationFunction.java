@@ -23,17 +23,14 @@ public class OptimizationFunction {
 
 	private IQueryable<IInstallableUnit> picker;
 	private IInstallableUnit selectionContext;
-	private Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
-	private int numberOfInstalledIUs;
+	protected Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
+	private int numberOfInstalledIUs; //TODO this should be renamed to consideredIUs or sliceSize
 	private IQueryable<IInstallableUnit> lastState;
-	private List<AbstractVariable> abstractVariables;
+	private List<AbstractVariable> optionalRequirementVariable;
 
-	//	private IInstallableUnit[] alreadyExistingRoots;
-	//	private IQueryable<IInstallableUnit> beingInstalled;
-
-	public OptimizationFunction(IQueryable<IInstallableUnit> lastState, List<AbstractVariable> abstractVariables, IQueryable<IInstallableUnit> picker, IInstallableUnit selectionContext, Map<String, Map<Version, IInstallableUnit>> slice) {
+	public OptimizationFunction(IQueryable<IInstallableUnit> lastState, List<AbstractVariable> abstractVariables, List<AbstractVariable> optionalRequirementVariable, IQueryable<IInstallableUnit> picker, IInstallableUnit selectionContext, Map<String, Map<Version, IInstallableUnit>> slice) {
 		this.lastState = lastState;
-		this.abstractVariables = abstractVariables;
+		this.optionalRequirementVariable = optionalRequirementVariable;
 		this.picker = picker;
 		this.selectionContext = selectionContext;
 		this.slice = slice;
@@ -44,7 +41,7 @@ public class OptimizationFunction {
 		numberOfInstalledIUs = sizeOf(lastState);
 		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<WeightedObject<? extends Object>>();
 
-		Set<IInstallableUnit> transitiveClosure;
+		Set<IInstallableUnit> transitiveClosure; //The transitive closure of the IUs we are adding (this also means updating)
 		if (newRoots.isEmpty()) {
 			transitiveClosure = CollectionUtils.emptySet();
 		} else {
@@ -63,13 +60,15 @@ public class OptimizationFunction {
 		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
 			List<IInstallableUnit> conflictingEntries = new ArrayList<IInstallableUnit>(entry.getValue().values());
 			if (conflictingEntries.size() == 1) {
+				//Only one IU exists with the namespace.
 				IInstallableUnit iu = conflictingEntries.get(0);
 				if (iu != metaIu) {
 					weightedObjects.add(WeightedObject.newWO(iu, POWER));
 				}
 				continue;
 			}
-			// IUs are sorted from highest version to lowest.
+
+			// Set the weight such that things that are already installed are not updated
 			Collections.sort(conflictingEntries, Collections.reverseOrder());
 			BigInteger weight = POWER;
 			// have we already found a version that is already installed?
@@ -96,14 +95,15 @@ public class OptimizationFunction {
 		// maximal weight used so far.
 		maxWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(s.size()));
 
-		// Add the abstract variables
-		BigInteger abstractWeight = maxWeight.negate();
-		for (AbstractVariable var : abstractVariables) {
-			weightedObjects.add(WeightedObject.newWO(var, abstractWeight));
+		// Add the optional variables
+		BigInteger optionalVarWeight = maxWeight.negate();
+		for (AbstractVariable var : optionalRequirementVariable) {
+			weightedObjects.add(WeightedObject.newWO(var, optionalVarWeight));
 		}
 
 		maxWeight = maxWeight.multiply(POWER).add(BigInteger.ONE);
 
+		//Now we deal the optional IUs,
 		BigInteger optionalWeight = maxWeight.negate();
 		long countOptional = 1;
 		List<IInstallableUnit> requestedPatches = new ArrayList<IInstallableUnit>();
@@ -117,12 +117,11 @@ public class OptimizationFunction {
 				if (match instanceof IInstallableUnitPatch) {
 					requestedPatches.add(match);
 					countOptional = countOptional + 1;
-				} else {
-					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
 				}
 			}
 		}
 
+		// and we make sure that patches are always favored
 		BigInteger patchWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(countOptional)).negate();
 		for (Iterator<IInstallableUnit> iterator = requestedPatches.iterator(); iterator.hasNext();) {
 			weightedObjects.add(WeightedObject.newWO(iterator.next(), patchWeight));

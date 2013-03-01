@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,13 +9,13 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *     Sonatype, Inc. - ongoing development
+ *     Red Hat, Inc. - support for remediation page
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -30,8 +30,6 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -55,7 +53,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	protected Display display;
 	private IUDetailsGroup iuDetailsGroup;
 	SashForm sashForm;
-	Button relaxConstraints;
 
 	protected ResolutionResultsWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
 		super("ResolutionPage", ui, wizard); //$NON-NLS-1$
@@ -134,8 +131,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		controlsComposite.setLayoutData(gd);
 
-		createViewControlsArea(controlsComposite);
-
 		final Runnable runnable = new Runnable() {
 			public void run() {
 				treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -167,31 +162,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	@Override
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		super.updateStatus(newRoot, op);
-		IStatus currentStatus = getProvisioningWizard().getCurrentStatus();
-		if (relaxConstraints != null)
-			relaxConstraints.setEnabled(currentStatus != null && !currentStatus.isOK());
-	}
-
-	private void createViewControlsArea(Composite controlsComposite) {
-		relaxConstraints = new Button(controlsComposite, SWT.CHECK);
-		relaxConstraints.setVisible(false);
-		relaxConstraints.setText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraints);
-		relaxConstraints.setToolTipText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraintsTip);
-		relaxConstraints.setSelection(((ProvisioningOperationWizard) getWizard()).getRelaxedResoltion());
-		relaxConstraints.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				((ProvisioningOperationWizard) getWizard()).setRelaxedResolution(relaxConstraints.getSelection());
-				setPageComplete(true);
-			}
-		});
-	}
-
-	@Override
-	public void setVisible(boolean visible) {
-		super.setVisible(visible);
-		if (visible)
-			relaxConstraints.setSelection(((ProvisioningOperationWizard) getWizard()).getRelaxedResoltion());
 	}
 
 	protected void createSizingInfo(Composite parent) {

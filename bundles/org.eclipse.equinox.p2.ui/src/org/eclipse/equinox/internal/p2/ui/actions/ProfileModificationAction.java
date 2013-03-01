@@ -91,7 +91,8 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 				}
 
 			});
-			getProvisioningUI().schedule(job, StatusManager.SHOW | StatusManager.LOG);
+			// Don't show the error dialog anymore since the remediation operation should be computed
+			getProvisioningUI().schedule(job, StatusManager.NONE | StatusManager.LOG);
 		}
 		// Since we are resolving asynchronously, our job is done.  Setting this allows
 		// callers to decide to close the launching window.

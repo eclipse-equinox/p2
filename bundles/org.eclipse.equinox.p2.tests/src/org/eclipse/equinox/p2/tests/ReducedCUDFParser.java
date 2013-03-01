@@ -218,6 +218,7 @@ public class ReducedCUDFParser {
 		//		if (currentIU.isInstalled()) {
 		//			keepRequests.addAll(currentKeepRequests);
 		//		}
+		currentIU.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, "true");
 		allIUs.add(MetadataFactory.createInstallableUnit(currentIU));
 		// reset to be ready for the next stanza
 		currentIU = null;

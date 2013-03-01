@@ -17,7 +17,7 @@ import java.util.Set;
  * 
  * @since 2.0
  */
-public interface IQueryResult<T> extends IQueryable<T> {
+public interface IQueryResult<T> extends IQueryable<T>, Iterable<T> {
 	/**
 	 * Returns whether this QueryResult  is empty.
 	 * @return <code>true</code> if this QueryResult has accepted any results,
