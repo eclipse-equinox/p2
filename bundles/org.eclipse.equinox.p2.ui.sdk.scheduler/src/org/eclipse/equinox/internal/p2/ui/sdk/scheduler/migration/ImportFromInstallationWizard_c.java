@@ -24,8 +24,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.InstallOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IImportWizard;
@@ -103,7 +102,8 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 
 	public boolean performCancel() {
 		boolean result = false;
-		MessageDialog dialog = new MessageDialog(getShell(), "Migration dialaog", null, ProvUIMessages.ImportFromInstallationPage_CONFIRMATION_DIALOG, MessageDialog.QUESTION, new String[] {"Yes", "Yes, but remind me later", "No"}, 2);
+		String[] buttons = new String[] {IDialogConstants.YES_LABEL, ProvUIMessages.ImportFromInstallationPag_LATER_BUTTON, IDialogConstants.NO_LABEL};
+		MessageDialog dialog = new MessageDialog(getShell(), ProvUIMessages.ImportFromInstallationPage_CONFIRMATION_TITLE, null, ProvUIMessages.ImportFromInstallationPage_CONFIRMATION_DIALOG, MessageDialog.QUESTION, buttons, 2);
 
 		int answer = dialog.open();
 		switch (answer) {

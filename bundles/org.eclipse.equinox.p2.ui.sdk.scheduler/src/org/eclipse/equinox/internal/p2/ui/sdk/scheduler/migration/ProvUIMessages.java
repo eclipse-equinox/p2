@@ -27,12 +27,11 @@ public class ProvUIMessages extends NLS {
 	public static String AbstractPage_ButtonSelectAll;
 	public static String AbstractPage_ButtonDeselectAll;
 	public static String PAGE_NOINSTALLTION_ERROR;
-	public static String ImportFromInstallationPage_DIALOG_DESCRIPTION;
 	public static String ImportFromInstallationPage_SELECT_COMPONENT;
 	public static String ImportFromInstallationPage_DIALOG_TITLE;
+	public static String ImportFromInstallationPage_DIALOG_DESCRIPTION;
 	public static String ImportWizard_WINDOWTITLE;
-	public static String ImportFromInstallationPage_INVALID_DESTINATION;
-	public static String REMIND_ME_TO_MIGRATE_LATER;
-	public static String ERROR_SAVING_PREFERENCES;
+	public static String ImportFromInstallationPage_CONFIRMATION_TITLE;
 	public static String ImportFromInstallationPage_CONFIRMATION_DIALOG;
+	public static String ImportFromInstallationPag_LATER_BUTTON;
 }

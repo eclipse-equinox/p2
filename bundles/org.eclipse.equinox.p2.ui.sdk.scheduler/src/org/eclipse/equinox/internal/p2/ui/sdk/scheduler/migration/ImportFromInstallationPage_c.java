@@ -13,6 +13,7 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
 import java.net.URI;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard;
@@ -26,6 +27,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
@@ -43,14 +45,14 @@ public class ImportFromInstallationPage_c extends AbstractImportPage_c implement
 
 	public ImportFromInstallationPage_c(ProvisioningUI ui, ProvisioningOperationWizard wizard) {
 		super("importfrominstancepage", ui, wizard); //$NON-NLS-1$
-		setTitle(org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE);
-		//		setDescription(ProvUIMessages.ImportFromInstallationPage_DIALOG_DESCRIPTION);
+		setTitle(ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE);
+		setDescription(NLS.bind(ProvUIMessages.ImportFromInstallationPage_DIALOG_DESCRIPTION, Platform.getProduct().getName()));
 	}
 
 	public ImportFromInstallationPage_c(ProvisioningUI ui, ImportFromInstallationWizard_c wizard, IProfile toImportFrom) {
 		super("importfrominstancepage", ui, wizard); //$NON-NLS-1$
 		setTitle(ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE);
-		//		setDescription(ProvUIMessages.ImportFromInstallationPage_DIALOG_DESCRIPTION);
+		setDescription(NLS.bind(ProvUIMessages.ImportFromInstallationPage_DIALOG_DESCRIPTION, Platform.getProduct().getName()));
 		toBeImportedProfile = toImportFrom;
 	}
 
@@ -113,7 +115,7 @@ public class ImportFromInstallationPage_c extends AbstractImportPage_c implement
 
 	@Override
 	protected String getInvalidDestinationMessage() {
-		return ProvUIMessages.ImportFromInstallationPage_INVALID_DESTINATION;
+		return "";//ProvUIMessages.ImportFromInstallationPage_INVALID_DESTINATION; //$NON-NLS-1$
 	}
 
 	@Override
