@@ -19,12 +19,10 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
-import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.AbstractPage_c;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ImportFromInstallationWizard_c;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -44,7 +42,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.*;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.service.prefs.Preferences;
 
 /**
  * This plug-in is loaded on startup to register with the update checker.
@@ -54,7 +51,7 @@ import org.osgi.service.prefs.Preferences;
 public class AutomaticUpdateScheduler implements IStartup {
 
 	private static final String ECLIPSE_P2_SKIP_MIGRATION_WIZARD = "eclipse.p2.skipMigrationWizard"; //$NON-NLS-1$
-	//	private static final String ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION = "eclipse.p2.skipMovedInstallDetection"; //$NON-NLS-1$
+	private static final String ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION = "eclipse.p2.skipMovedInstallDetection"; //$NON-NLS-1$
 	public static final String MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
 
 	// values are to be picked up from the arrays DAYS and HOURS
@@ -135,9 +132,6 @@ public class AutomaticUpdateScheduler implements IStartup {
 				return false;
 
 			reposToMigrate = ((IMetadataRepositoryManager) otherConfigAgent.getService(IMetadataRepositoryManager.SERVICE_NAME)).getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
-
-			//At this point we consider that the migration is done since we will present something to the user.
-			registry.setProfileStateProperty(currentProfile.getProfileId(), registry.listProfileTimestamps(currentProfile.getProfileId())[0], "INITIAL", "DONE");
 		}
 
 		if (previousProfile == null && baseChangedSinceLastPresentationOfWizard(agent, registry, currentProfile))
@@ -146,22 +140,15 @@ public class AutomaticUpdateScheduler implements IStartup {
 		if (previousProfile == null)
 			return false;
 
-		if (!remindMeLater())
-			return false;
-		
 		if (needsMigration(previousProfile, currentProfile)) {
 			openMigrationWizard(previousProfile);
+		} else {
+			//There is nothing to migrate, so we mark the migration complete
+			AutomaticUpdatePlugin.getDefault().rememberMigrationCompleted(currentProfile.getProfileId());
 		}
 		return true;
 	}
 
-	
-	private boolean remindMeLater() {
-		Preferences prefs = ConfigurationScope.INSTANCE.getNode("org.eclipse.equinox.p2.ui");
-		return prefs.getBoolean(AbstractPage_c.REMIND_ME_LATER, true);
-
-	}
-	
 	private File getInstallFolder() {
 		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
 		return new File(configurationLocation.getURL().getPath());
@@ -191,15 +178,18 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	private boolean skipFirstTimeMigration() {
-		return true;//Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION));
+		return Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MOVED_INSTALL_DETECTION));
 	}
 
 	private boolean isFirstTimeRunningThisSharedInstance(IProvisioningAgent agent, IProfileRegistry registry, IProfile currentProfile) {
 		long[] history = registry.listProfileTimestamps(currentProfile.getProfileId());
 		boolean isInitial = IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get(IProfile.STATE_PROP_SHARED_INSTALL));
-		if (isInitial)
+		if (isInitial) {
+			if (AutomaticUpdatePlugin.getDefault().getLastMigration() >= history[0])
+				return false;
 			return true;
-		return !"DONE".equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get("INITIAL"));
+		}
+		return false;
 	}
 
 	/**
@@ -248,19 +238,13 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	private boolean baseChangedSinceLastPresentationOfWizard(IProvisioningAgent agent, IProfileRegistry registry, IProfile profile) {
-		long lastShownMigration = getLastShownMigration();
-		IProfile lastReset = findMostRecentReset(registry, profile);
-		if (lastReset == null)
-			return false;
-		return lastShownMigration < lastReset.getTimestamp();
+		long lastProfileMigrated = AutomaticUpdatePlugin.getDefault().getLastMigration();
+		long lastResetTimestamp = findMostRecentResetTimestamp(registry, profile);
+		return lastProfileMigrated <= lastResetTimestamp;
 	}
 
-	//Get the timestamp that we migrated from
-	private long getLastShownMigration() {
-		return AutomaticUpdatePlugin.getDefault().getPreferenceStore().getLong(MIGRATION_DIALOG_SHOWN);
-	}
-
-	private IProfile findMostRecentReset(IProfileRegistry registry, IProfile profile) {
+	//The timestamp from which we migrated or -1
+	private long findMostRecentResetTimestamp(IProfileRegistry registry, IProfile profile) {
 		long[] history = registry.listProfileTimestamps(profile.getProfileId());
 		int index = history.length - 1;
 		boolean found = false;
@@ -268,8 +252,15 @@ public class AutomaticUpdateScheduler implements IStartup {
 			index--;
 		}
 		if (!found)
+			return -1;
+		return history[index];
+	}
+
+	private IProfile findMostRecentReset(IProfileRegistry registry, IProfile profile) {
+		long ts = findMostRecentResetTimestamp(registry, profile);
+		if (ts == -1)
 			return null;
-		return registry.getProfile(profile.getProfileId(), history[index]);
+		return registry.getProfile(profile.getProfileId(), ts);
 	}
 
 	/**

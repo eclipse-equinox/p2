@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -189,5 +190,18 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		IProvisioningAgentProvider agentProvider = (IProvisioningAgentProvider) getContext().getService(ref);
 		getContext().ungetService(ref);
 		return agentProvider;
+	}
+
+	//TODO Find a better place for these two methods
+	public void rememberMigrationCompleted(String profileId) {
+		IProfileRegistry registry = (IProfileRegistry) ProvisioningUI.getDefaultUI().getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+		long[] history = registry.listProfileTimestamps(profileId);
+		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(AutomaticUpdateScheduler.MIGRATION_DIALOG_SHOWN, history[history.length - 1]);
+		AutomaticUpdatePlugin.getDefault().savePreferences();
+	}
+
+	//Get the timestamp that we migrated from. O if we have not migrated.
+	public long getLastMigration() {
+		return AutomaticUpdatePlugin.getDefault().getPreferenceStore().getLong(AutomaticUpdateScheduler.MIGRATION_DIALOG_SHOWN);
 	}
 }
