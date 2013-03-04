@@ -97,7 +97,7 @@ public class NeedsMigration extends AbstractProvisioningTest {
 		IProfile previousUserProfile = createProfile("previous" + getName());
 		IProfile currentBaseProfile = createProfile("current" + getName());
 		assertOK(installAsRoots(previousUserProfile, new IInstallableUnit[] {sdk1, egit1}, true, planner, engine));
-		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {eppPackage, sdk1, egit1}, true, planner, engine));
+		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {eppPackage}, true, planner, engine));
 
 		//All the elements that are in the user profile are included in the base
 		assertFalse(needsMigration(previousUserProfile, currentBaseProfile));
@@ -107,7 +107,17 @@ public class NeedsMigration extends AbstractProvisioningTest {
 		IProfile previousUserProfile = createProfile("previous" + getName());
 		IProfile currentBaseProfile = createProfile("current" + getName());
 		assertOK(installAsRoots(previousUserProfile, new IInstallableUnit[] {sdk1, egit1, cdt1}, true, planner, engine));
-		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {eppPackage, egit1}, true, planner, engine));
+		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {eppPackage}, true, planner, engine));
+
+		//Not all the elements that are in the user profile are included in the base
+		assertTrue(needsMigration(previousUserProfile, currentBaseProfile));
+	}
+
+	public void testBaseEncompassSomePartsOfWhatUserHas2() {
+		IProfile previousUserProfile = createProfile("previous" + getName());
+		IProfile currentBaseProfile = createProfile("current" + getName());
+		assertOK(installAsRoots(previousUserProfile, new IInstallableUnit[] {sdk1, egit1, cdt1}, true, planner, engine));
+		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {sdk1, egit1}, true, planner, engine));
 
 		//Not all the elements that are in the user profile are included in the base
 		assertTrue(needsMigration(previousUserProfile, currentBaseProfile));
