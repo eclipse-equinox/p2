@@ -47,7 +47,7 @@ public class Policy {
 	 * A constant indicating that restart should be forced (without
 	 * confirmation) immediately after completion of a provisioning operation.
 	 * 
- 	 */
+	 */
 	public static final int RESTART_POLICY_FORCE = 1;
 
 	/**
@@ -456,7 +456,7 @@ public class Policy {
 	 * @return <code>true</code> true if all sites need to be contacted,
 	 * <code>false</code> otherwise.
 	 *
-	 * @since 4.3
+	 * @since 2.3
 	 */
 	public boolean getContactAllSites() {
 		return this.contactAllSites;
@@ -468,7 +468,7 @@ public class Policy {
 	 * @param contactAll <code>true</code> if all sites need to be contacted,
 	 * <code>false</code> otherwise.
 	 *
-	 *  @since 4.3
+	 * @since 2.3
 	 */
 	public void setContactAllSites(boolean contactAll) {
 		this.contactAllSites = contactAll;
@@ -480,7 +480,7 @@ public class Policy {
 	 * @return <code>true</code> if already installed units are to be hidden,
 	 * <code>false</code> otherwise.
 	 *
-	 * @since 4.3
+	 * @since 2.3
 	 */
 	public boolean getHideAlreadyInstalled() {
 		return this.hideAlreadyInstalled;
@@ -492,7 +492,7 @@ public class Policy {
 	 * @param hide <code>true</code> if already installed units need to be hidden,
 	 * <code>false</code> otherwise.
 	 *
-	 *  @since 4.3
+	 * @since 2.3
 	 */
 	public void setHideAlreadyInstalled(boolean hide) {
 		this.hideAlreadyInstalled = hide;
