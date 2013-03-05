@@ -7,21 +7,27 @@
  *
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
- *     Ericsson AB (Hamdan Msheik) - Bug 398833
+ *     Ericsson AB - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
-import java.util.Collection;
+import java.net.URI;
+import java.util.*;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
 import org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatePlugin;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.InstallOperation;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.*;
@@ -32,14 +38,18 @@ import org.eclipse.ui.IWorkbench;
 
 public class ImportFromInstallationWizard_c extends InstallWizard implements IImportWizard {
 	private IProfile toImportFrom;
+	private URI[] reposToMigrate;
+	private List<URI> addedRepos = new ArrayList<URI>();
 
 	public ImportFromInstallationWizard_c() {
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 	}
 
-	public ImportFromInstallationWizard_c(IProfile toImportFrom) {
+	public ImportFromInstallationWizard_c(IProfile toImportFrom, URI[] reposToMigrate) {
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 		this.toImportFrom = toImportFrom;
+		this.reposToMigrate = reposToMigrate;
+		addRepos();
 	}
 
 	public ImportFromInstallationWizard_c(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
@@ -75,9 +85,40 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 	public boolean performFinish() {
 		cleanupProfileRegistry();
 		boolean finished = super.performFinish();
-		if (finished)
+		if (finished) {
 			rememberMigrationCompleted();
+		}
 		return finished;
+	}
+
+	private void addRepos() {
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		List<URI> currentMetaRepos = Arrays.asList(metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL));
+
+		if (reposToMigrate != null && metaManager != null && artifactManager != null) {
+			for (int i = 0; i < reposToMigrate.length; i++) {
+				if (!currentMetaRepos.contains(reposToMigrate[i])) {
+					metaManager.addRepository(reposToMigrate[i]);
+					artifactManager.addRepository(reposToMigrate[i]);
+					addedRepos.add(reposToMigrate[i]);
+				}
+			}
+		}
+	}
+
+	private void removeRepos() {
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+
+		if (metaManager != null && artifactManager != null) {
+			for (int i = 0; i < addedRepos.size(); i++) {
+				metaManager.removeRepository(reposToMigrate[i]);
+				artifactManager.removeRepository(reposToMigrate[i]);
+			}
+		}
 	}
 
 	//Remember that we completed the migration
@@ -111,10 +152,12 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 				break;
 			case 0 :
 				result = true;
+				removeRepos();
 				rememberMigrationCompleted();
 				break;
 			case 1 :
 				result = true;
+				removeRepos();
 				break;
 			case 2 :
 				result = false;
