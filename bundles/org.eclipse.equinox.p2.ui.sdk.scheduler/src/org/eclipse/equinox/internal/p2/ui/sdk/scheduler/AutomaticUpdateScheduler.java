@@ -224,7 +224,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		Display d = Display.getDefault();
 		d.asyncExec(new Runnable() {
 			public void run() {
-				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new ImportFromInstallationWizard_c(inputProfile));
+				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new ImportFromInstallationWizard_c(inputProfile, new URI[0]));
 				migrateWizard.create();
 				migrateWizard.open();
 			}
