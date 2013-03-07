@@ -141,7 +141,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 			return false;
 
 		if (needsMigration(previousProfile, currentProfile)) {
-			openMigrationWizard(previousProfile);
+			openMigrationWizard(previousProfile, reposToMigrate);
 		} else {
 			//There is nothing to migrate, so we mark the migration complete
 			AutomaticUpdatePlugin.getDefault().rememberMigrationCompleted(currentProfile.getProfileId());
@@ -220,11 +220,11 @@ public class AutomaticUpdateScheduler implements IStartup {
 		return !previousProfileUnits.isEmpty();
 	}
 
-	private void openMigrationWizard(final IProfile inputProfile) {
+	private void openMigrationWizard(final IProfile inputProfile, final URI[] reposToMigrate) {
 		Display d = Display.getDefault();
 		d.asyncExec(new Runnable() {
 			public void run() {
-				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new ImportFromInstallationWizard_c(inputProfile, new URI[0]));
+				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new ImportFromInstallationWizard_c(inputProfile, reposToMigrate));
 				migrateWizard.create();
 				migrateWizard.open();
 			}
