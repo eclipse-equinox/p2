@@ -31,7 +31,7 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 
 	URI location; // desired location of the composite repository
 	String name = "Composite Artifact Repository";
-	boolean atomic = false;
+	boolean atomic = true; // bug 356561: newly created repositories shall be atomic (by default)
 	boolean compressed = true;
 	boolean failOnExists = false; // should we fail if a repo already exists?
 	Map<String, String> properties = new HashMap<String, String>();
@@ -69,8 +69,7 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 		// set the properties
 		if (compressed)
 			properties.put(IRepository.PROP_COMPRESSED, Boolean.toString(true));
-		if (atomic)
-			properties.put(CompositeArtifactRepository.PROP_ATOMIC_LOADING, Boolean.toString(true));
+		properties.put(CompositeArtifactRepository.PROP_ATOMIC_LOADING, Boolean.toString(atomic));
 
 		// create the repository
 		try {

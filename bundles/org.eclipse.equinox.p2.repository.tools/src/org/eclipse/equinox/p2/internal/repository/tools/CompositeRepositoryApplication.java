@@ -122,8 +122,6 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			//No existing repository; create a new repository at destinationLocation but with source's attributes.
 			IArtifactRepository repo = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : Messages.CompositeRepository_default_artifactRepo_name), IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, source != null ? source.getProperties() : null);
 			initRepository(repo, toInit);
-			if (toInit.getAtomic() != null)
-				repo.setProperty(CompositeMetadataRepository.PROP_ATOMIC_LOADING, Boolean.toString(Boolean.valueOf(toInit.getAtomic())));
 			return repo;
 		} catch (IllegalStateException e) {
 			mgr.removeRepository(toInit.getRepoLocation());
@@ -162,8 +160,6 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			//No existing repository; create a new repository at destinationLocation but with source's attributes.
 			IMetadataRepository repo = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : Messages.CompositeRepository_default_metadataRepo_name), IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, source != null ? source.getProperties() : null);
 			initRepository(repo, toInit);
-			if (toInit.getAtomic() != null)
-				repo.setProperty(CompositeMetadataRepository.PROP_ATOMIC_LOADING, Boolean.toString(Boolean.valueOf(toInit.getAtomic())));
 			return repo;
 		} catch (IllegalStateException e) {
 			mgr.removeRepository(toInit.getRepoLocation());
@@ -194,6 +190,16 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 		RepositoryHelper.validDestinationRepository(repository);
 		if (desc.isCompressed() && !repository.getProperties().containsKey(IRepository.PROP_COMPRESSED))
 			repository.setProperty(IRepository.PROP_COMPRESSED, String.valueOf(true));
+
+		setAtomicLoadingProperty(repository, desc);
+	}
+
+	private void setAtomicLoadingProperty(IRepository<?> repository, RepositoryDescriptor desc) {
+		// bug 356561: newly created repositories shall be atomic (by default)
+		boolean atomic = true;
+		if (desc.getAtomic() != null)
+			atomic = Boolean.valueOf(desc.getAtomic());
+		repository.setProperty(CompositeMetadataRepository.PROP_ATOMIC_LOADING, Boolean.toString(atomic));
 	}
 
 	public void setComparator(String value) {
