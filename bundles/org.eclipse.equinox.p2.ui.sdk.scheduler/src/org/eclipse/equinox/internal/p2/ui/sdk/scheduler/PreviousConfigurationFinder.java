@@ -172,8 +172,8 @@ public class PreviousConfigurationFinder {
 			}
 			criteriaMet++;
 
-			if (candidate.getProductId().equals(configToMatch.getProductId()) && //
-					candidate.getPlatformConfig().equals(configToMatch.getPlatformConfig()) && //
+			if (configToMatch.getProductId().equals(candidate.getProductId()) && //
+					configToMatch.getPlatformConfig().equals(candidate.getPlatformConfig()) && //
 					(!candidate.getVersion().isGreaterEqualTo(configToMatch.getVersion()))) {
 				//We have a match
 				criteriaMet++;
@@ -203,11 +203,13 @@ public class PreviousConfigurationFinder {
 		int numberOfcriteriaMet = 0;
 		for (ConfigurationDescriptor candidate : configurations) {
 			int criteriaMet = 0;
-			if (!candidate.getProductId().equals(configToMatch.getProductId()))
+			if (!configToMatch.getProductId().equals(candidate.getProductId()))
 				continue;
 
-			if (candidate.getPlatformConfig().equals(configToMatch.getPlatformConfig()) && //
-					(configToMatch.getVersion().isGreaterEqualTo(candidate.getVersion()))) {
+			if (configToMatch.getPlatformConfig().equals(candidate.getPlatformConfig()))
+				criteriaMet++;
+
+			if (configToMatch.getVersion().isGreaterEqualTo(candidate.getVersion())) {
 				//We have a match
 				criteriaMet++;
 			}

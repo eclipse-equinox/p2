@@ -97,4 +97,13 @@ public class PreviousConfigurationFinderTest extends AbstractProvisioningTest {
 		assertEquals(new Identifier(4, 1, 0), match.getVersion());
 	}
 
+	public void testLegacyFormat() throws Exception {
+		File configFolder = getTestData("sameProduct", "testData/previousConfigurationFinder/testLegacyFormat");
+		List<ConfigurationDescriptor> configs = new PreviousConfigurationFinder(configFolder).readPreviousConfigurations(configFolder);
+		ConfigurationDescriptor match = new PreviousConfigurationFinder(configFolder).findMostRelevantConfigurationFromProductId(configs, referenceConfiguration);
+		assertEquals("org.eclipse.platform", match.getProductId());
+		assertEquals(new Identifier(3, 8, 0), match.getVersion());
+		assertNull(match.getPlatformConfig());
+
+	}
 }
