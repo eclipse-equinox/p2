@@ -10,18 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.AgentFromInstall;
-
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.AgentFromInstall;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 
 public class PreviousConfigurationFinder {
 
-	private static final Pattern path = Pattern.compile("(.+?)_{1}?([0-9\\.]+)_{1}?(\\d+)_*?([^_].*)"); //$NON-NLS-1$
+	private static final Pattern path = Pattern.compile("(.+?)_{1}?([0-9\\.]+)_{1}?(\\d+)(_*?([^_].*)|$)"); //$NON-NLS-1$
 
 	public static class Identifier {
 		private static final String DELIM = ". _-"; //$NON-NLS-1$
@@ -139,7 +138,7 @@ public class PreviousConfigurationFinder {
 		Matcher m = path.matcher(candidate.getName());
 		if (!m.matches())
 			return null;
-		return new ConfigurationDescriptor(m.group(1), new Identifier(m.group(2)), m.group(3), m.group(4), candidate.getAbsoluteFile());
+		return new ConfigurationDescriptor(m.group(1), new Identifier(m.group(2)), m.group(3), m.group(5), candidate.getAbsoluteFile());
 	}
 
 	public IProvisioningAgent findPreviousInstalls(File searchRoot, File installFolder) {
@@ -180,6 +179,8 @@ public class PreviousConfigurationFinder {
 				criteriaMet++;
 			}
 
+			if (criteriaMet == 0)
+				continue;
 			if (criteriaMet > numberOfcriteriaMet) {
 				bestMatch = candidate;
 				numberOfcriteriaMet = criteriaMet;
@@ -210,6 +211,8 @@ public class PreviousConfigurationFinder {
 				//We have a match
 				criteriaMet++;
 			}
+			if (criteriaMet == 0)
+				continue;
 			if (criteriaMet > numberOfcriteriaMet) {
 				bestMatch = candidate;
 				numberOfcriteriaMet = criteriaMet;
