@@ -186,6 +186,9 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue("2.0", manager.contains(location));
 		assertFalse("2.1", manager.isEnabled(location));
 		assertEquals("2.2", "MyNick", manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME));
+
+		// Set it back to null for other tests
+		manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, null);
 	}
 
 	/**
