@@ -991,7 +991,7 @@ public class Projector {
 				backToIU();
 				long stop = System.currentTimeMillis();
 				if (DEBUG)
-					Tracing.debug("Solver solution found in: " + (stop - start) + " ms."); //$NON-NLS-1$
+					Tracing.debug("Solver solution found in: " + (stop - start) + " ms."); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
 				long stop = System.currentTimeMillis();
 				if (DEBUG) {
@@ -1013,7 +1013,9 @@ public class Projector {
 
 	private void backToIU() {
 		solution = new ArrayList<IInstallableUnit>();
-		//TODO WORK AROUND BECAUE OF A BUG IN SAT4J
+		//		TODO WORK AROUND BECAUE OF A BUG IN SAT4J
+		if (!userDefinedFunction)
+			dependencyHelper.getSolutionCost();
 		IVec<Object> sat4jSolution = dependencyHelper.getSolution();
 		for (Iterator<Object> iter = sat4jSolution.iterator(); iter.hasNext();) {
 			Object var = iter.next();
