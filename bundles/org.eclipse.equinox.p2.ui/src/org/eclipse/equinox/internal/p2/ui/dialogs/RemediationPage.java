@@ -76,7 +76,7 @@ public class RemediationPage extends ResolutionStatusPage {
 				checkboxes.get(ALLOWINSTALLEDREMOVAL_INDEX).setSelection(remedy != null && remedy.getConfig().allowInstalledRemoval);
 				for (Iterator<Button> iterator = checkboxes.iterator(); iterator.hasNext();) {
 					Button btn1 = iterator.next();
-					btn1.setEnabled(remedy == null);
+					btn1.setVisible(remedy == null);
 				}
 				refreshResultComposite();
 			}
@@ -239,14 +239,9 @@ public class RemediationPage extends ResolutionStatusPage {
 			AvailableIUElement element = new AvailableIUElement(root, addedIU, getProfileId(), true);
 			for (IInstallableUnit removedIU : selectedRemedy.getRequest().getRemovals()) {
 				if (removedIU.getId().equals(addedIU.getId())) {
-					//if (remediationOperation.isCheckForUpdates()) {
-					//						for (IInstallableUnit originalUpdatedIU : remediationOperation.getOriginalRequest().getAdditions()) {
-					//							int q = addedIU.getVersion().compareTo(originalUpdatedIU.getVersion());
-					//
-					//							if (addedIU.getId() == originalUpdatedIU.getId() && addedIU.getVersion().compareTo(originalUpdatedIU.getVersion()) < 0) {
-					//							}
-					//						}
-					//	}
+					int addedComparedToRemoved = addedIU.getVersion().compareTo(removedIU.getVersion());
+					element.setDowngrade(addedComparedToRemoved < 0);
+					element.setUpgrade(addedComparedToRemoved > 0);
 					element.setIsUpdate(true);
 					updateIds.add(addedIU.getId());
 					break;
