@@ -9,26 +9,37 @@
   Contributors:
      Igor Fedorenko - initial implementation
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
   
   <parent>
     <groupId>org.eclipse</groupId>
     <artifactId>eclipse-platform-parent</artifactId>
     <relativePath>../../../eclipse-platform-parent</relativePath>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>4.2.2-SNAPSHOT</version>
   </parent>
   
 	<groupId>org.eclipse</groupId>
 	<artifactId>org.eclipse.equinox.p2-parent</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>4.2.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
   <properties>
     <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/equinox/rt.equinox.p2.git</tycho.scmUrl>
   </properties>
+
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>eclipse-hosted</id>
+      <url>https://repo.eclipse.org/content/repositories/eclipse/</url>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>
