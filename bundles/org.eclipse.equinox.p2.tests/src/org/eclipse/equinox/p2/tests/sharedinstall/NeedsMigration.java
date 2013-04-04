@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdateScheduler;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.MigrationSupport;
 import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -40,7 +40,7 @@ public class NeedsMigration extends AbstractProvisioningTest {
 
 	private IPlanner planner;
 	private IEngine engine;
-	private AutomaticUpdateScheduler scheduler;
+	private MigrationSupport scheduler;
 	private Method needsMigrationMethod;
 
 	@Override
@@ -48,7 +48,7 @@ public class NeedsMigration extends AbstractProvisioningTest {
 		IULoader.loadIUs(this);
 		planner = createPlanner();
 		engine = createEngine();
-		scheduler = new AutomaticUpdateScheduler();
+		scheduler = new MigrationSupport();
 		createTestMetdataRepository(new IInstallableUnit[] {sdk1, sdk2, egit1, egit2, cdt1, eppPackage});
 		needsMigrationMethod = scheduler.getClass().getDeclaredMethod("needsMigration", IProfile.class, IProfile.class);
 		needsMigrationMethod.setAccessible(true);
