@@ -45,7 +45,7 @@ public class BaseChange extends AbstractSharedInstallTest {
 			assertProfileStatePropertiesHasKey(getUserProfileFolder(), "_simpleProfileRegistry_internal_" + getMostRecentProfileTimestampFromBase());
 		}
 
-		{ //Now change the base. Install the verifier and something else in the base, and run the verifier as a user
+		{ //Now change the base. Install the verifier in the base, and run the verifier as a user
 			installVerifierInBase();
 
 			Properties verificationProperties = new Properties();
