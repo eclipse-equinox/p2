@@ -29,7 +29,16 @@ public class RemediationOperation extends ProfileChangeOperation {
 	private List<Remedy> remedies;
 	private Remedy bestSolutionChangingTheRequest;
 	private Remedy bestSolutionChangingWhatIsInstalled;
-	private Remedy userSelectedRemedy;
+	private Remedy currentRemedy;
+
+	public Remedy getCurrentRemedy() {
+		return currentRemedy;
+	}
+
+	public void setCurrentRemedy(Remedy currentRemedy) {
+		this.currentRemedy = currentRemedy;
+	}
+
 	private IProfileChangeRequest originalRequest;
 	private boolean isCheckForUpdates;
 
@@ -67,8 +76,8 @@ public class RemediationOperation extends ProfileChangeOperation {
 
 	@Override
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
-		if (userSelectedRemedy != null) {
-			request = userSelectedRemedy.getRequest();
+		if (currentRemedy != null) {
+			request = currentRemedy.getRequest();
 			return;
 		}
 
@@ -189,10 +198,6 @@ public class RemediationOperation extends ProfileChangeOperation {
 	@Override
 	protected String getProvisioningJobName() {
 		return Messages.RemediationOperation_RemediationJobName;
-	}
-
-	public void setSelectedRemedy(Remedy remedy) {
-		this.userSelectedRemedy = remedy;
 	}
 
 	public ProvisioningJob getProvisioningJob(IProgressMonitor monitor) {

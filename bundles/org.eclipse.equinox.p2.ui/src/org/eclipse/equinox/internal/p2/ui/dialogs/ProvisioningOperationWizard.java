@@ -131,7 +131,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		// advancing.
 
 		if (page == remediationPage) {
-			remediationOperation.setSelectedRemedy(remediationPage.getSelectedRemedy());
 			try {
 				getContainer().run(true, false, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
@@ -164,7 +163,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				if (page == mainPage) {
 					if (remediationOperation != null && remediationOperation.hasRemedies() && remediationOperation.getRemedies().size() == 1) {
 						planChanged();
-						remediationPage.setSelectedRemedy(remediationOperation.getRemedies().get(0));
 						return getNextPage(remediationPage);
 					} else if (remediationOperation != null && remediationOperation.hasRemedies()) {
 						planChanged();

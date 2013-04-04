@@ -14,6 +14,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.DecorationOverlayIcon;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
@@ -56,6 +58,10 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		return null;
 	}
 
+	protected String getImageOverlayId(Object obj) {
+		return null;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -89,7 +95,19 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		Image img = ProvUIImages.getImage(id);
 		if (img == null)
 			img = JFaceResources.getImageRegistry().get(id);
-		return img;
+		String overlayId = getImageOverlayId(object);
+		if (overlayId == null)
+			return img;
+		ImageDescriptor overlay = ProvUIActivator.getDefault().getImageRegistry().getDescriptor(overlayId);
+		String decoratedImageId = id.concat(overlayId);
+		if (ProvUIActivator.getDefault().getImageRegistry().get(decoratedImageId) == null) {
+			DecorationOverlayIcon decoratedImage = new DecorationOverlayIcon(img, overlay, IDecoration.BOTTOM_RIGHT);
+			ProvUIActivator.getDefault().getImageRegistry().put(decoratedImageId, decoratedImage);
+		}
+		Image decoratedImg = ProvUIActivator.getDefault().getImageRegistry().get(decoratedImageId);
+		if (decoratedImg == null)
+			return img;
+		return decoratedImg;
 	}
 
 	protected void handleException(Exception e, String message) {

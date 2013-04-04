@@ -39,7 +39,10 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	boolean isInstalled = false;
 	boolean isUpdate = false;
 	boolean isPatch = false;
-	boolean isUninstall = false;
+	boolean beingAdded = false;
+	boolean beingDowngraded = false;
+	boolean beingUpgraded = false;
+	boolean beingRemoved = false;
 
 	// Currently this variable is not settable due to the
 	// poor performance of sizing, but it is kept here for future improvement.
@@ -70,9 +73,19 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 			return isInstalled ? ProvUIImages.IMG_DISABLED_PATCH_IU : ProvUIImages.IMG_PATCH_IU;
 		else if (isInstalled)
 			return ProvUIImages.IMG_DISABLED_IU;
-		else if (isUninstall)
-			return ProvUIImages.IMG_REMOVED_IU;
 		return ProvUIImages.IMG_IU;
+	}
+
+	protected String getImageOverlayId(Object obj) {
+		if (beingDowngraded)
+			return ProvUIImages.IMG_DOWNGRADE_OVERLAY;
+		if (beingUpgraded)
+			return ProvUIImages.IMG_UPGRADE_OVERLAY;
+		if (beingRemoved)
+			return ProvUIImages.IMG_REMOVED_OVERLAY;
+		if (beingAdded)
+			return ProvUIImages.IMG_ADDED_OVERLAY;
+		return null;
 	}
 
 	public String getLabel(Object o) {
@@ -203,14 +216,6 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return isUpdate;
 	}
 
-	public void setIsUninstall(boolean isUninstall) {
-		this.isUninstall = isUninstall;
-	}
-
-	public boolean isUninstall() {
-		return isUninstall;
-	}
-
 	public void setIsPatch(boolean isPatch) {
 		this.isPatch = isPatch;
 	}
@@ -225,5 +230,37 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 			context.setMetadataRepositories(new URI[] {((IRepository<?>) getQueryable()).getLocation()});
 		}
 		return context;
+	}
+
+	public boolean isBeingAdded() {
+		return beingAdded;
+	}
+
+	public void setBeingAdded(boolean beingAdded) {
+		this.beingAdded = beingAdded;
+	}
+
+	public boolean isBeingDowngraded() {
+		return beingDowngraded;
+	}
+
+	public void setBeingDowngraded(boolean beingDowngraded) {
+		this.beingDowngraded = beingDowngraded;
+	}
+
+	public boolean isBeingUpgraded() {
+		return beingUpgraded;
+	}
+
+	public void setBeingUpgraded(boolean beingUpgraded) {
+		this.beingUpgraded = beingUpgraded;
+	}
+
+	public boolean isBeingRemoved() {
+		return beingRemoved;
+	}
+
+	public void setBeingRemoved(boolean beingRemoved) {
+		this.beingRemoved = beingRemoved;
 	}
 }

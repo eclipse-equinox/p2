@@ -40,10 +40,10 @@ public class ProvUIImages {
 	public final static String IMG_IU = "obj/iu_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_DISABLED_IU = "obj/iu_disabled_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_UPDATED_IU = "obj/iu_update_obj.gif"; //$NON-NLS-1$
-	public final static String IMG_UPGRADE_IU = "obj/iu_upgrade_obj.gif"; //$NON-NLS-1$
-	public final static String IMG_DOWNGRADE_IU = "obj/iu_downgrade_obj.gif"; //$NON-NLS-1$
-	public final static String IMG_ADDED_IU = "obj/iu_add.gif"; //$NON-NLS-1$
-	public final static String IMG_REMOVED_IU = "obj/iu_remove.gif"; //$NON-NLS-1$
+	public final static String IMG_UPGRADE_OVERLAY = "obj/upgraded_overlay.jpg"; //$NON-NLS-1$
+	public final static String IMG_DOWNGRADE_OVERLAY = "obj/downgraded_overlay.jpg"; //$NON-NLS-1$
+	public final static String IMG_ADDED_OVERLAY = "obj/added_overlay.gif"; //$NON-NLS-1$
+	public final static String IMG_REMOVED_OVERLAY = "obj/removed_overlay.gif"; //$NON-NLS-1$
 	public final static String IMG_PATCH_IU = "obj/iu_patch_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_DISABLED_PATCH_IU = "obj/iu_disabled_patch_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_PROFILE = "obj/profile_obj.gif"; //$NON-NLS-1$

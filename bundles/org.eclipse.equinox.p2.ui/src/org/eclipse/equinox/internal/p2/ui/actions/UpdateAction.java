@@ -89,16 +89,6 @@ public class UpdateAction extends ExistingIUInProfileAction {
 					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 						public void run() {
 							ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, remediationOperation, null);
-							//							UpdateWizard wizard = new UpdateWizard(ui, (UpdateOperation) operation, ((UpdateOperation) operation).getSelectedUpdates(), null);
-							//							wizard.setSkipSelectionsPage(skipSelectionPage);
-							//							wizard.setRemediationOperation(remediationOperation);
-							//							WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
-							//							dialog.create();
-							//							PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
-							//							if (wizard.getCurrentStatus().getSeverity() == IStatus.ERROR) {
-							//								wizard.deselectLockedIUs();
-							//							}
-							//							dialog.open();
 						}
 					});
 				}
