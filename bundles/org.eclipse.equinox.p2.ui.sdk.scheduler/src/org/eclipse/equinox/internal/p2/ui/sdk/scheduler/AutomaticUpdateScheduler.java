@@ -183,7 +183,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	private boolean isFirstTimeRunningThisSharedInstance(IProvisioningAgent agent, IProfileRegistry registry, IProfile currentProfile) {
 		long[] history = registry.listProfileTimestamps(currentProfile.getProfileId());
-		boolean isInitial = IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get(IProfile.STATE_PROP_SHARED_INSTALL));
+		boolean isInitial = !IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get(IProfile.STATE_PROP_SHARED_INSTALL));
 		if (isInitial) {
 			if (AutomaticUpdatePlugin.getDefault().getLastMigration() >= history[0])
 				return false;
