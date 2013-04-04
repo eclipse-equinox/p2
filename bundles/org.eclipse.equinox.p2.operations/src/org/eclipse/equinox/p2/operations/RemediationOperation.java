@@ -80,7 +80,6 @@ public class RemediationOperation extends ProfileChangeOperation {
 			request = currentRemedy.getRequest();
 			return;
 		}
-
 		try {
 			if (isCheckForUpdates)
 				status.add(computeCheckForUpdates(monitor));
@@ -108,12 +107,13 @@ public class RemediationOperation extends ProfileChangeOperation {
 
 	private IStatus computeAllRemediations(IProgressMonitor monitor) {
 		RemedyConfig[] remedyConfigs = RemedyConfig.getAllRemdyConfigs();
+		//SubMonitor sub = SubMonitor.convert(monitor, Messages.RemediationOperation_ProfileChangeRequestProgress, remedyConfigs.length);
 		SubMonitor sub = SubMonitor.convert(monitor, remedyConfigs.length);
-		sub.setTaskName("Looking for alternate solutions");
+		sub.setTaskName(Messages.RemediationOperation_ProfileChangeRequestProgress);
 		List<Remedy> tmpRemedies = new ArrayList<Remedy>(remedyConfigs.length);
 		try {
 			for (int i = 0; i < remedyConfigs.length; i++) {
-				sub.subTask(i + " out of " + remedyConfigs.length); //$NON-NLS-1$
+				sub.subTask((i + 1) + " out of " + remedyConfigs.length); //$NON-NLS-1$
 				if (sub.isCanceled())
 					return Status.CANCEL_STATUS;
 				Remedy remedy = computeRemedy(remedyConfigs[i], sub.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
