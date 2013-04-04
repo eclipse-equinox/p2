@@ -389,15 +389,27 @@ public class VerifierApplication implements IApplication {
 	}
 
 	private IStatus hasProfileFlag() {
-		if (properties.getProperty("checkProfileResetFlag") == null)
+		if (properties.getProperty("checkProfileResetFlag") == null || "false".equals(properties.getProperty("checkProfileResetFlag")))
 			return Status.OK_STATUS;
 		//Make sure that the profile is already loaded
 		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-		reg.getProfile(IProfileRegistry.SELF);
+		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
+		String profileId = profile.getProfileId();
 
-		if (Boolean.valueOf(properties.getProperty("checkProfileResetFlag")).booleanValue() == (agent.getService(IProfileRegistry.class.getName() + '_' + "NEW_SELF_TIMESTAMP") != null))
+		long history[] = reg.listProfileTimestamps(profileId);
+		long lastTimestamp = history[history.length - 1];
+		if (IProfile.STATE_SHARED_INSTALL_VALUE_NEW.equals(reg.getProfileStateProperties(profileId, lastTimestamp).get(IProfile.STATE_PROP_SHARED_INSTALL))) {
 			return Status.OK_STATUS;
+		}
+		if (history.length == 1) {
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The flag indicating that a profile has been reset is incorrectly setup");
+		}
+
+		long previousToLastTimestamp = history[history.length - 2];
+		if (IProfile.STATE_SHARED_INSTALL_VALUE_NEW.equals(reg.getProfileStateProperties(profileId, previousToLastTimestamp).get(IProfile.STATE_PROP_SHARED_INSTALL))) {
+			return Status.OK_STATUS;
+		}
+
 		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The flag indicating that a profile has been reset is incorrectly setup");
 	}
-
 }
