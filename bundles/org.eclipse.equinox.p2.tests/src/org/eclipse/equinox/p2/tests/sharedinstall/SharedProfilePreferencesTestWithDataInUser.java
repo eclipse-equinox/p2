@@ -1,7 +1,5 @@
-package org.eclipse.equinox.p2.tests.sharedinstall;
-
 /*******************************************************************************
- * Copyright (c) 2012 Ericsson and others.
+ * Copyright (c) 2012, 2013 Ericsson and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +8,8 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
  * Contributors:
  *     Pascal Rapicault (Ericsson) - Initial API and implementation
  *******************************************************************************/
+package org.eclipse.equinox.p2.tests.sharedinstall;
+
 import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.Platform;
