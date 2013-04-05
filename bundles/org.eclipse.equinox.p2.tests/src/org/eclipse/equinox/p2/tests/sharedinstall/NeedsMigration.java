@@ -123,6 +123,60 @@ public class NeedsMigration extends AbstractProvisioningTest {
 		assertTrue(needsMigration(previousUserProfile, currentBaseProfile));
 	}
 
+	public void testNoIUsInstalledInUserProfile() {
+		IProfile previousUserProfile = createProfile("previous" + getName());
+		IProfile currentBaseProfile = createProfile("current" + getName());
+		assertOK(installAsRootsAndFlaggedAsBase(previousUserProfile, new IInstallableUnit[] {sdk1}, true, planner, engine));
+		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {sdk2}, true, planner, engine));
+
+		//The elements from the previous base are not proposed for migration
+		assertFalse(needsMigration(previousUserProfile, currentBaseProfile));
+	}
+
+	public void testOneIUInUserSpaceNotAvailableInBase() {
+		IProfile previousUserProfile = createProfile("previous" + getName());
+		IProfile currentBaseProfile = createProfile("current" + getName());
+		assertOK(installAsRootsAndFlaggedAsBase(previousUserProfile, new IInstallableUnit[] {sdk1}, true, planner, engine));
+		assertOK(installAsRoots(previousUserProfile, new IInstallableUnit[] {egit1}, true, planner, engine));
+		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {sdk2}, true, planner, engine));
+
+		//In this case egit1 should be migrated
+		assertTrue(needsMigration(previousUserProfile, currentBaseProfile));
+	}
+
+	public void testLowerVersionAvailableInBase() {
+		IProfile previousUserProfile = createProfile("previous" + getName());
+		IProfile currentBaseProfile = createProfile("current" + getName());
+		assertOK(installAsRootsAndFlaggedAsBase(previousUserProfile, new IInstallableUnit[] {sdk1}, true, planner, engine));
+		assertOK(installAsRoots(previousUserProfile, new IInstallableUnit[] {egit2}, true, planner, engine));
+		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {sdk2, egit1}, true, planner, engine));
+
+		//In this case egit2 should be migrated
+		assertTrue(needsMigration(previousUserProfile, currentBaseProfile));
+	}
+
+	public void testHigerVersionAvailableInBase() {
+		IProfile previousUserProfile = createProfile("previous" + getName());
+		IProfile currentBaseProfile = createProfile("current" + getName());
+		assertOK(installAsRootsAndFlaggedAsBase(previousUserProfile, new IInstallableUnit[] {sdk1}, true, planner, engine));
+		assertOK(installAsRoots(previousUserProfile, new IInstallableUnit[] {egit1}, true, planner, engine));
+		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {sdk2, egit1}, true, planner, engine));
+
+		//Nothing to migrate
+		assertFalse(needsMigration(previousUserProfile, currentBaseProfile));
+	}
+
+	public void testSameVersionAvailableInBase() {
+		IProfile previousUserProfile = createProfile("previous" + getName());
+		IProfile currentBaseProfile = createProfile("current" + getName());
+		assertOK(installAsRootsAndFlaggedAsBase(previousUserProfile, new IInstallableUnit[] {sdk1}, true, planner, engine));
+		assertOK(installAsRoots(previousUserProfile, new IInstallableUnit[] {egit1}, true, planner, engine));
+		assertOK(installAsRoots(currentBaseProfile, new IInstallableUnit[] {sdk2, egit1}, true, planner, engine));
+
+		//Nothing to migrate
+		assertFalse(needsMigration(previousUserProfile, currentBaseProfile));
+	}
+
 	private boolean needsMigration(IProfile previousUserProfile, IProfile currentBaseProfile) {
 		try {
 			return (Boolean) needsMigrationMethod.invoke(scheduler, previousUserProfile, currentBaseProfile);

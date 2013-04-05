@@ -21,8 +21,10 @@ import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.PreviousConfigurationFin
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -124,9 +126,9 @@ public class MigrationSupport {
 	 * @param currentProfile is the current profile used by eclipse.
 	 * @return true if set difference between previousProfile units and currentProfile units not empty, otherwise false
 	 */
-	private boolean needsMigration(IProfile previousProfile, IProfile currentProfile) {
+	protected boolean needsMigration(IProfile previousProfile, IProfile currentProfile) {
 		//First, try the case of inclusion
-		Set<IInstallableUnit> previousProfileUnits = previousProfile.query(new UserVisibleRootQuery(), null).toSet();
+		Set<IInstallableUnit> previousProfileUnits = getUserRoots(previousProfile);
 		Set<IInstallableUnit> currentProfileUnits = currentProfile.available(new UserVisibleRootQuery(), null).toSet();
 		previousProfileUnits.removeAll(currentProfileUnits);
 
@@ -147,7 +149,15 @@ public class MigrationSupport {
 		return !previousProfileUnits.isEmpty();
 	}
 
-	private void openMigrationWizard(final IProfile inputProfile, final URI[] reposToMigrate) {
+	private Set<IInstallableUnit> getUserRoots(IProfile previousProfile) {
+		IQueryResult<IInstallableUnit> allRoots = previousProfile.query(new UserVisibleRootQuery(), null);
+		Set<IInstallableUnit> rootsFromTheBase = previousProfile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.base", "true"), null).toUnmodifiableSet();
+		Set<IInstallableUnit> userRoots = allRoots.toSet();
+		userRoots.removeAll(rootsFromTheBase);
+		return userRoots;
+	}
+
+	protected void openMigrationWizard(final IProfile inputProfile, final URI[] reposToMigrate) {
 		Display d = Display.getDefault();
 		d.asyncExec(new Runnable() {
 			public void run() {
