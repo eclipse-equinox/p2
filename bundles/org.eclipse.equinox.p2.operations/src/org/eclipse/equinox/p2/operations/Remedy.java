@@ -13,6 +13,9 @@ package org.eclipse.equinox.p2.operations;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 
 //TODO Javadoc
+/**
+ * @since 2.3
+ */
 public class Remedy {
 
 	private RemedyConfig config;

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.equinox.p2.operations" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="923795461">
+            <message_arguments>
+                <message_argument value="2.3.0"/>
+                <message_argument value="2.2.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/equinox/p2/operations/ProfileChangeOperation.java" type="org.eclipse.equinox.p2.operations.ProfileChangeOperation">
         <filter id="338792546">
             <message_arguments>

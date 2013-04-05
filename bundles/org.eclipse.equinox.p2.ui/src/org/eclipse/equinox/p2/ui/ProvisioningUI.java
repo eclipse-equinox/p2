@@ -45,7 +45,6 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
  * provisioning UI.  
  * 
  * @since 2.0
- *
  */
 public class ProvisioningUI {
 
@@ -242,6 +241,7 @@ public class ProvisioningUI {
 	 * an in-memory repository reference to the wizard.
 	 * 
 	 * @return the wizard return code
+	 * @since 2.3
 	 */
 	public int openUpdateWizard(boolean skipSelectionsPage, UpdateOperation operation, RemediationOperation remediationOperation, LoadMetadataRepositoryJob job) {
 		if (getPolicy().getUpdateWizardStyle() == Policy.UPDATE_STYLE_SINGLE_IUS && UpdateSingleIUWizard.validFor(operation)) {

@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 //TODO Javadoc
+/**
+ * @since 2.3
+ */
 public class RemedyConfig {
 
 	public boolean allowInstalledUpdate = false;

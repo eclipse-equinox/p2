@@ -20,6 +20,9 @@ import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 //TODO Javadoc
+/**
+ * @since 2.3
+ */
 public class RemediationOperation extends ProfileChangeOperation {
 
 	private static int ZERO_WEIGHT = 0;
