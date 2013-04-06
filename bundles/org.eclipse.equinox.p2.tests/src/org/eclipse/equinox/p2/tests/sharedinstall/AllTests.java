@@ -24,6 +24,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(NeedsMigration.class);
 		suite.addTest(BaseChange.suite());
 		suite.addTest(BaseChangeWithoutUserChange.suite());
+		suite.addTest(Cancellation.suite());
 		suite.addTest(DoubleBaseChange.suite());
 		suite.addTest(MultipleChanges.suite());
 		suite.addTest(InstallInUserSpace.suite());

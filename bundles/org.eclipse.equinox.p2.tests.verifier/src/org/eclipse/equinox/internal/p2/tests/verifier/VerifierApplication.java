@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.p2.tests.verifier;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -21,6 +22,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ImportFromInstallationWizard_c;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -29,6 +31,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -327,7 +330,21 @@ public class VerifierApplication implements IApplication {
 			result.merge(temp);
 
 		assumeMigrated();
+
+		handleWizardCancellation();
 		return result;
+	}
+
+	private void handleWizardCancellation() {
+		if (properties.getProperty("checkMigration.cancelAnswer") == null)
+			return;
+		new Display();
+		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
+
+		ImportFromInstallationWizard_c wizardPage = new ImportFromInstallationWizard_c(profile, new URI[0]);
+		int cancelAnswer = Integer.parseInt(properties.getProperty("checkMigration.cancelAnswer"));
+		wizardPage.rememberCancellationDecision(cancelAnswer);
 	}
 
 	private IStatus checkSystemProperties() {

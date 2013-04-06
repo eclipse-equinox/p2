@@ -142,11 +142,15 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 	}
 
 	public boolean performCancel() {
-		boolean result = false;
 		String[] buttons = new String[] {IDialogConstants.YES_LABEL, ProvUIMessages.ImportFromInstallationPag_LATER_BUTTON, IDialogConstants.NO_LABEL};
 		MessageDialog dialog = new MessageDialog(getShell(), ProvUIMessages.ImportFromInstallationPage_CONFIRMATION_TITLE, null, ProvUIMessages.ImportFromInstallationPage_CONFIRMATION_DIALOG, MessageDialog.QUESTION, buttons, 2);
 
-		int answer = dialog.open();
+		return rememberCancellationDecision(dialog.open());
+	}
+
+	//Method public for test
+	public boolean rememberCancellationDecision(int answer) {
+		boolean result = false;
 		switch (answer) {
 			case -1 : // if the user closes the dialog without clicking any button.
 				break;
@@ -164,6 +168,6 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 				break;
 		}
 		return result;
-
 	}
+
 }
