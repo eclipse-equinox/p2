@@ -16,8 +16,7 @@ import java.util.Set;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
-import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatePlugin;
-import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.PreviousConfigurationFinder;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -28,6 +27,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.widgets.Display;
@@ -73,7 +73,7 @@ public class MigrationSupport {
 			openMigrationWizard(previousProfile, reposToMigrate);
 		} else {
 			//There is nothing to migrate, so we mark the migration complete
-			AutomaticUpdatePlugin.getDefault().rememberMigrationCompleted(currentProfile.getProfileId());
+			rememberMigrationCompleted(currentProfile.getProfileId());
 		}
 		return true;
 	}
@@ -114,7 +114,7 @@ public class MigrationSupport {
 		long[] history = registry.listProfileTimestamps(currentProfile.getProfileId());
 		boolean isInitial = !IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get(IProfile.STATE_PROP_SHARED_INSTALL));
 		if (isInitial) {
-			if (AutomaticUpdatePlugin.getDefault().getLastMigration() >= history[0])
+			if (getLastMigration() >= history[0])
 				return false;
 			return true;
 		}
@@ -169,7 +169,7 @@ public class MigrationSupport {
 	}
 
 	private boolean baseChangedSinceLastPresentationOfWizard(IProvisioningAgent agent, IProfileRegistry registry, IProfile profile) {
-		long lastProfileMigrated = AutomaticUpdatePlugin.getDefault().getLastMigration();
+		long lastProfileMigrated = getLastMigration();
 		long lastResetTimestamp = findMostRecentResetTimestamp(registry, profile);
 		return lastProfileMigrated <= lastResetTimestamp;
 	}
@@ -197,7 +197,17 @@ public class MigrationSupport {
 	Shell getWorkbenchWindowShell() {
 		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		return activeWindow != null ? activeWindow.getShell() : null;
-
 	}
 
+	public void rememberMigrationCompleted(String profileId) {
+		IProfileRegistry registry = (IProfileRegistry) ProvisioningUI.getDefaultUI().getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+		long[] history = registry.listProfileTimestamps(profileId);
+		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(AutomaticUpdateScheduler.MIGRATION_DIALOG_SHOWN, history[history.length - 1]);
+		AutomaticUpdatePlugin.getDefault().savePreferences();
+	}
+
+	//Get the timestamp that we migrated from. O if we have not migrated.
+	public long getLastMigration() {
+		return AutomaticUpdatePlugin.getDefault().getPreferenceStore().getLong(AutomaticUpdateScheduler.MIGRATION_DIALOG_SHOWN);
+	}
 }

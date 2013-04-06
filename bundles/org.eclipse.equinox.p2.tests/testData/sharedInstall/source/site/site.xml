@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/Verifier_1.0.0.201304051618.jar" id="Verifier" version="1.0.0.201304051618">
+      <category name="c1"/>
+   </feature>
+   <feature url="features/p2TestFeature1_1.0.0.201304051618.jar" id="p2TestFeature1" version="1.0.0.201304051618">
+      <category name="c1"/>
+   </feature>
+   <feature url="features/p2TestFeature2_1.0.0.201304051618.jar" id="p2TestFeature2" version="1.0.0.201304051618">
+      <category name="c1"/>
+   </feature>
+   <category-def name="c1" label="c1"/>
+</site>

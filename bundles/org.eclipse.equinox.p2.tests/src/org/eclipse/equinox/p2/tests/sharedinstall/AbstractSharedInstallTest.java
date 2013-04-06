@@ -94,18 +94,40 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 
 	}
 
-	protected void installInUser() {
+	protected void installFeature1AndVerifierInUser() {
 		//TODO Install something into eclipse - make sure that this can be done in an automated setup
 		runEclipse("Installing in user", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group,Verifier.feature.group", "-repository", getTestRepo()});
 	}
 
-	protected void installInUser2() {
+	protected void installFeature1InUser() {
+		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group", "-repository", getTestRepo()});
+	}
+
+	protected void installFeature2InUser() {
 		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature2.feature.group", "-repository", getTestRepo()});
 	}
 
 	protected void installVerifierInBase() {
 		setReadOnly(readOnlyBase, false);
 		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "Verifier.feature.group", "-repository", getTestRepo()});
+		setReadOnly(readOnlyBase, true);
+	}
+
+	protected void installVerifierAndFeature1InBase() {
+		setReadOnly(readOnlyBase, false);
+		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "Verifier.feature.group,p2TestFeature1.feature.group", "-repository", getTestRepo()});
+		setReadOnly(readOnlyBase, true);
+	}
+
+	protected void uninstallFeature1InBase() {
+		setReadOnly(readOnlyBase, false);
+		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-uninstallIU", "p2TestFeature1.feature.group", "-repository", getTestRepo()});
+		setReadOnly(readOnlyBase, true);
+	}
+
+	protected void installFeature2InBase() {
+		setReadOnly(readOnlyBase, false);
+		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature2.feature.group", "-repository", getTestRepo()});
 		setReadOnly(readOnlyBase, true);
 	}
 

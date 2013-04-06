@@ -33,7 +33,7 @@ public class InstallInUserSpace extends AbstractSharedInstallTest {
 		System.out.println(readOnlyBase);
 		System.out.println(userBase);
 
-		installInUser();
+		installFeature1AndVerifierInUser();
 		assertTrue(isInUserBundlesInfo("p2TestBundle1"));
 		assertTrue(isInUserBundlesInfo("org.eclipse.swt")); //this verifies that we have the bundles from the base installed in the user bundles.info 
 

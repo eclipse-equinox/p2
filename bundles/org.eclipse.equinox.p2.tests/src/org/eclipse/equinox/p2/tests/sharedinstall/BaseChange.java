@@ -34,7 +34,7 @@ public class BaseChange extends AbstractSharedInstallTest {
 		System.out.println(userBase);
 
 		{ //install verifier and something else in user and checks there are there
-			installInUser();
+			installFeature1AndVerifierInUser();
 			Properties verificationProperties = new Properties();
 			verificationProperties.setProperty("expectedBundleList", "p2TestBundle1,org.eclipse.equinox.p2.tests.verifier");
 			verificationProperties.setProperty("checkProfileResetFlag", "false");
@@ -54,6 +54,8 @@ public class BaseChange extends AbstractSharedInstallTest {
 			verificationProperties.setProperty("expectedBundleList", "org.eclipse.equinox.p2.tests.verifier");
 			verificationProperties.setProperty("checkProfileResetFlag", "true");
 			verificationProperties.setProperty("sysprop.eclipse.ignoreUserConfiguration", "profileFlushed");
+			verificationProperties.setProperty("checkMigrationWizard", "true");
+			verificationProperties.setProperty("checkMigrationWizard.open", "true");
 			executeVerifier(verificationProperties);
 			assertTrue(isInUserBundlesInfo("p2TestBundle1")); //Despite the reset, the bundles.info is still on-disk unmodified since no provisioning has been done
 			assertProfileStatePropertiesHasKey(getUserProfileFolder(), "_simpleProfileRegistry_internal_" + getMostRecentProfileTimestampFromBase());
@@ -67,7 +69,7 @@ public class BaseChange extends AbstractSharedInstallTest {
 		}
 
 		{ //Now add something into the user install again
-			installInUser2();
+			installFeature2InUser();
 			Properties verificationProperties = new Properties();
 			verificationProperties.setProperty("expectedBundleList", "org.eclipse.equinox.p2.tests.verifier");
 			executeVerifier(verificationProperties);

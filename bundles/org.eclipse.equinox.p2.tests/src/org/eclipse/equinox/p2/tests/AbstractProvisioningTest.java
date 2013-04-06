@@ -1039,6 +1039,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return install(req, planner, engine);
 	}
 
+	protected IStatus installAsRootsAndFlaggedAsBase(IProfile profile, IInstallableUnit[] ius, boolean strict, IPlanner planner, IEngine engine) {
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		for (int i = 0; i < ius.length; i++) {
+			req.add(ius[i]);
+			req.setInstallableUnitInclusionRules(ius[i], strict ? ProfileInclusionRules.createStrictInclusionRule(ius[i]) : ProfileInclusionRules.createOptionalInclusionRule(ius[i]));
+			req.setInstallableUnitProfileProperty(ius[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+			req.setInstallableUnitProfileProperty(ius[i], "org.eclipse.equinox.p2.base", Boolean.TRUE.toString());
+		}
+
+		return install(req, planner, engine);
+	}
+
 	protected IStatus install(IProfile profile, IInstallableUnit[] ius, boolean strict, IPlanner planner, IEngine engine) {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		for (int i = 0; i < ius.length; i++) {

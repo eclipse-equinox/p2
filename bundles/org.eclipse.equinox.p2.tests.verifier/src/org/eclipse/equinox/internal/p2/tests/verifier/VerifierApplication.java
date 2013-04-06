@@ -281,7 +281,7 @@ public class VerifierApplication implements IApplication {
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
 		if (profile == null)
 			return createError("SELF profile not available in profile registry."); //$NON-NLS-1$
-		if (!Boolean.FALSE.toString().equals(properties.get("checkPresenceOfVerifier"))) {
+		if (properties.get("checkPresenceOfVerifier") != null && !Boolean.FALSE.toString().equals(properties.get("checkPresenceOfVerifier"))) {
 			IQueryResult results = profile.query(QueryUtil.createIUQuery(Activator.PLUGIN_ID), null);
 			if (results.isEmpty())
 				return createError(NLS.bind("IU for {0} not found in SELF profile.", Activator.PLUGIN_ID)); //$NON-NLS-1$
@@ -322,6 +322,11 @@ public class VerifierApplication implements IApplication {
 		if (!temp.isOK())
 			result.merge(temp);
 
+		temp = checkMigrationWizard();
+		if (!temp.isOK())
+			result.merge(temp);
+
+		assumeMigrated();
 		return result;
 	}
 
@@ -411,5 +416,32 @@ public class VerifierApplication implements IApplication {
 		}
 
 		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The flag indicating that a profile has been reset is incorrectly setup");
+	}
+
+	private IStatus checkMigrationWizard() {
+		if (properties.getProperty("checkMigrationWizard") == null)
+			return Status.OK_STATUS;
+
+		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
+
+		//Fake the opening of the wizard
+		MigrationWizardTestHelper migrationSupport = new MigrationWizardTestHelper();
+		migrationSupport.performMigration(agent, reg, profile);
+
+		boolean wizardExpectedToOpen = Boolean.parseBoolean(properties.getProperty("checkMigrationWizard.open"));
+		if (migrationSupport.wizardOpened == wizardExpectedToOpen)
+			return Status.OK_STATUS;
+
+		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The migration wizard did " + (wizardExpectedToOpen ? "not" : "") + " open");
+	}
+
+	private void assumeMigrated() {
+		if (properties.getProperty("checkMigrationWizard.simulate.reinstall") == null)
+			return;
+
+		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
+		new MigrationWizardTestHelper().rememberMigrationCompleted(profile.getProfileId());
 	}
 }

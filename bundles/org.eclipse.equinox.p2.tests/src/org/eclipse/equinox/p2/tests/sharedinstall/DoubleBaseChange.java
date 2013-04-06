@@ -14,55 +14,45 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.ReconcilerTestSuite;
 
-public class BaseChangeWithoutUserChange extends AbstractSharedInstallTest {
+public class DoubleBaseChange extends AbstractSharedInstallTest {
 
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
-		suite.setName(BaseChangeWithoutUserChange.class.getName());
-		suite.addTest(new BaseChangeWithoutUserChange("testBaseChangeWithoutUserChange"));
+		suite.setName(DoubleBaseChange.class.getName());
+		suite.addTest(new DoubleBaseChange("testTwoChanges"));
 		return suite;
 	}
 
-	public BaseChangeWithoutUserChange(String name) {
+	public DoubleBaseChange(String name) {
 		super(name);
 	}
 
-	public void testBaseChangeWithoutUserChange() {
+	public void testTwoChanges() {
 		assertInitialized();
 		setupReadOnlyInstall();
 		System.out.println(readOnlyBase);
 		System.out.println(userBase);
 
-		{
-			//Run Eclipse a first time to have the user profile created
-			startEclipseAsUser();
-			assertProfileStatePropertiesHasKey(getUserProfileFolder(), "_simpleProfileRegistry_internal_" + getMostRecentProfileTimestampFromBase());
-		}
-
-		{ //Change the base and then verify
-			installVerifierAndFeature1InBase();
-
-			assertFalse(getUserBundleInfo().exists());
-			assertFalse(getUserBundleInfoTimestamp().exists());
-
+		{ //install verifier and feature1
+			installFeature1AndVerifierInUser();
 			Properties verificationProperties = new Properties();
 			verificationProperties.setProperty("expectedBundleList", "p2TestBundle1,org.eclipse.equinox.p2.tests.verifier");
-			verificationProperties.setProperty("checkProfileResetFlag", "true");
-			verificationProperties.setProperty("checkMigrationWizard", "true");
-			verificationProperties.setProperty("checkMigrationWizard.open", "false");
-			verificationProperties.setProperty("checkMigrationWizard.assumeMigrated", "true");
+			verificationProperties.setProperty("checkProfileResetFlag", "false");
+			verificationProperties.setProperty("not.sysprop.eclipse.ignoreUserConfiguration", "");
 			executeVerifier(verificationProperties);
 
+			assertTrue(isInUserBundlesInfo("p2TestBundle1"));
 			assertProfileStatePropertiesHasKey(getUserProfileFolder(), "_simpleProfileRegistry_internal_" + getMostRecentProfileTimestampFromBase());
 		}
 
-		{
-			uninstallFeature1InBase();
+		{ //Now change the base twice in a row and then check if the wizard opens
+			installVerifierInBase();
+			installFeature2InBase();
+
 			Properties verificationProperties = new Properties();
 			verificationProperties.setProperty("checkMigrationWizard", "true");
-			verificationProperties.setProperty("checkMigrationWizard.open", "false");
+			verificationProperties.setProperty("checkMigrationWizard.open", "true");
 			executeVerifier(verificationProperties);
 		}
 	}
-
 }

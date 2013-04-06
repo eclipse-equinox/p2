@@ -123,7 +123,7 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 
 	//Remember that we completed the migration
 	private void rememberMigrationCompleted() {
-		AutomaticUpdatePlugin.getDefault().rememberMigrationCompleted(toImportFrom.getProfileId());
+		new MigrationSupport().rememberMigrationCompleted(toImportFrom.getProfileId());
 	}
 
 	//Purge the profile registry from all the entries that are no longer relevant
