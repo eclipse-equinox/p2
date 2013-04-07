@@ -39,8 +39,8 @@ public class RequestFlexer {
 
 	Set<IRequirement> requirementsForElementsBeingInstalled = new HashSet<IRequirement>();
 	Set<IRequirement> requirementsForElementsAlreadyInstalled = new HashSet<IRequirement>();
-	Map<IRequirement, Map> propertiesPerRequirement = new HashMap();
-	Map<IRequirement, List<String>> removedPropertiesPerRequirement = new HashMap();
+	Map<IRequirement, Map<String, String>> propertiesPerRequirement = new HashMap<IRequirement, Map<String, String>>();
+	Map<IRequirement, List<String>> removedPropertiesPerRequirement = new HashMap<IRequirement, List<String>>();
 
 	IProfile profile;
 
@@ -113,6 +113,9 @@ public class RequestFlexer {
 	//To perform this efficiently, this relies on a traversal of the requirements that are part of the loosened request.  
 	private IProfileChangeRequest computeEffectiveChangeRequest(IProvisioningPlan intermediaryPlan, IProfileChangeRequest loosenedRequest, IProfileChangeRequest originalRequest) {
 		IProfileChangeRequest finalChangeRequest = planner.createChangeRequest(profile);
+		// We have the following two variables because a IPCRequest can not be muted
+		Set<IInstallableUnit> iusToAdd = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> iusToRemove = new HashSet<IInstallableUnit>();
 
 		for (IRequirement beingInstalled : requirementsForElementsBeingInstalled) {
 			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(beingInstalled.getMatches());
@@ -120,7 +123,7 @@ public class RequestFlexer {
 			IInstallableUnit replacementIU = null;
 			if (!matches.isEmpty()) {
 				replacementIU = matches.iterator().next();
-				finalChangeRequest.add(replacementIU);
+				iusToAdd.add(replacementIU);
 				adaptIUPropertiesToNewIU(beingInstalled, replacementIU, finalChangeRequest);
 			}
 		}
@@ -138,16 +141,27 @@ public class RequestFlexer {
 				if (potentialRootChange != null && iuAlreadyInstalled.toUnmodifiableSet().contains(potentialRootChange))
 					continue;
 			}
-			finalChangeRequest.removeAll(iuAlreadyInstalled.toUnmodifiableSet());
+			iusToRemove.addAll(iuAlreadyInstalled.toUnmodifiableSet());
 			if (potentialRootChange != null) {
-				if (!finalChangeRequest.getAdditions().contains(potentialRootChange)) {//So we don't add the same IU twice for addition
-					finalChangeRequest.add(potentialRootChange);
+				if (!iusToAdd.contains(potentialRootChange)) {//So we don't add the same IU twice for addition
+					iusToAdd.add(potentialRootChange);
 					adaptIUPropertiesToNewIU(alreadyInstalled, potentialRootChange, finalChangeRequest);
 				}
 			}
 		}
 
-		finalChangeRequest.removeAll(originalRequest.getRemovals());
+		iusToRemove.addAll(originalRequest.getRemovals());
+
+		//Remove entries that are both in the additions and removals (since this is a no-op)
+		HashSet<IInstallableUnit> commons = new HashSet<IInstallableUnit>(iusToAdd);
+		if (commons.retainAll(iusToRemove)) {
+			iusToAdd.removeAll(commons);
+			iusToRemove.removeAll(commons);
+		}
+
+		//Finish construction of the IPCR
+		finalChangeRequest.addAll(iusToAdd);
+		finalChangeRequest.removeAll(iusToRemove);
 		if (originalRequest.getExtraRequirements() != null)
 			finalChangeRequest.addExtraRequirements(originalRequest.getExtraRequirements());
 		return finalChangeRequest;
@@ -218,7 +232,7 @@ public class RequestFlexer {
 	private void rememberIUProfileProperties(IInstallableUnit iu, IRequirement req, IProfileChangeRequest originalRequest, boolean includeProfile) {
 		Map<String, String> allProperties = new HashMap<String, String>();
 		if (includeProfile) {
-			Map<String, String> tmp = new HashMap(profile.getInstallableUnitProperties(iu));
+			Map<String, String> tmp = new HashMap<String, String>(profile.getInstallableUnitProperties(iu));
 			List<String> propertiesToRemove = ((ProfileChangeRequest) originalRequest).getInstallableUnitProfilePropertiesToRemove().get(iu);
 			if (propertiesToRemove != null) {
 				for (String toRemove : propertiesToRemove) {
@@ -247,7 +261,7 @@ public class RequestFlexer {
 	}
 
 	private Collection<IInstallableUnit> findAllVersionsAvailable(IInstallableUnit iu) {
-		Collection<IInstallableUnit> allVersions = new HashSet();
+		Collection<IInstallableUnit> allVersions = new HashSet<IInstallableUnit>();
 		allVersions.addAll(findIUsWithSameId(iu));
 		allVersions.addAll(findUpdates(iu));
 		return allVersions;
@@ -289,7 +303,7 @@ public class RequestFlexer {
 		IQueryResult<IInstallableUnit> allRoots = profile.query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null);
 
 		for (IInstallableUnit existingIU : allRoots) {
-			Collection<IInstallableUnit> potentialUpdates = allowInstalledUpdate ? findUpdates(existingIU) : new HashSet();
+			Collection<IInstallableUnit> potentialUpdates = allowInstalledUpdate ? findUpdates(existingIU) : new HashSet<IInstallableUnit>();
 			foundDifferentVersionsForElementsInstalled = (foundDifferentVersionsForElementsInstalled || (potentialUpdates.size() == 0 ? false : true));
 			potentialUpdates.add(existingIU);
 			Collection<IRequirement> newRequirement = new ArrayList<IRequirement>(1);
