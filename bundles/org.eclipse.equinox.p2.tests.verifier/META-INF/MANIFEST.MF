@@ -9,6 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.p2.core
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration,
  org.eclipse.equinox.p2.engine;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.query;version="[2.0.0,3.0.0)"
 Bundle-ActivationPolicy: lazy
