@@ -53,7 +53,6 @@ public class BaseChange extends AbstractSharedInstallTest {
 			verificationProperties.setProperty("checkPresenceOfVerifier", "false");
 			verificationProperties.setProperty("expectedBundleList", "org.eclipse.equinox.p2.tests.verifier");
 			verificationProperties.setProperty("checkProfileResetFlag", "true");
-			verificationProperties.setProperty("sysprop.eclipse.ignoreUserConfiguration", "profileFlushed");
 			verificationProperties.setProperty("checkMigrationWizard", "true");
 			verificationProperties.setProperty("checkMigrationWizard.open", "true");
 			executeVerifier(verificationProperties);

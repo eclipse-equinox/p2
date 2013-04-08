@@ -39,7 +39,6 @@ import org.xml.sax.SAXException;
 public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	private static final String SIMPLE_PROFILE_REGISTRY_INTERNAL = "_simpleProfileRegistry_internal_"; //$NON-NLS-1$
-	private static final String ECLIPSE_IGNORE_USER_CONFIGURATION = "eclipse.ignoreUserConfiguration"; //$NON-NLS-1$
 	private static final String PROFILE_REGISTRY = "profile registry"; //$NON-NLS-1$
 	private static final String PROFILE_PROPERTIES_FILE = "state.properties"; //$NON-NLS-1$
 
@@ -263,7 +262,6 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 					//Now that we created a new profile. Tag it, override the property and register the timestamp in the agent registry for pickup by other  
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_NEW);
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + getBaseTimestamp(profile.getProfileId()), getBaseTimestamp(id));
-					System.setProperty(ECLIPSE_IGNORE_USER_CONFIGURATION, "profileFlushed"); //$NON-NLS-1$
 					agent.registerService(SERVICE_SHARED_INSTALL_NEW_TIMESTAMP, Long.toString(profile.getTimestamp()));
 				} else {
 					//This is the first time we create the shared profile. Tag it as such and also remember the timestamp of the base
