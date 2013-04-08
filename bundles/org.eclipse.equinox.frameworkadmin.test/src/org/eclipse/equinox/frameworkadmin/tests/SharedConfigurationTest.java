@@ -37,7 +37,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(SharedConfigurationTest.class.getName());
+		File installFolder = Activator.getContext().getDataFile(getName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
 		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
@@ -63,7 +63,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(SharedConfigurationTest.class.getName());
+		File installFolder = Activator.getContext().getDataFile(getName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
 		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
@@ -92,7 +92,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(SharedConfigurationTest.class.getName());
+		File installFolder = Activator.getContext().getDataFile(getName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
 		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
@@ -121,7 +121,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(SharedConfigurationTest.class.getName());
+		File installFolder = Activator.getContext().getDataFile(getName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
 		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
@@ -160,7 +160,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
 		//setup the files
-		File installFolder = Activator.getContext().getDataFile(SharedConfigurationTest.class.getName());
+		File installFolder = Activator.getContext().getDataFile(getName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
 		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/ignoreUserConfig/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
