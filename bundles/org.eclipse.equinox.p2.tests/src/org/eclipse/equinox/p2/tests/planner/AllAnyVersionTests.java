@@ -20,8 +20,11 @@ public class AllAnyVersionTests extends TestCase {
 		suite.addTestSuite(TestRequestFlexerOneInstalledOneBeingInstalled.class);
 		suite.addTestSuite(TestRequestFlexerOneInstalledReplacingIt.class);
 		suite.addTestSuite(TestRequestFlexerOneInstalledTwoBeingInstalled.class);
+		//		suite.addTestSuite(TestRequestFlexerProduct.class);
 		suite.addTestSuite(TestRequestFlexerRequestWithOptionalInstall.class);
 		suite.addTestSuite(TestRequestFlexerRequestWithRemoval.class);
+		suite.addTestSuite(TestRequestFlexerSharedInstall.class);
 		return suite;
+
 	}
 }

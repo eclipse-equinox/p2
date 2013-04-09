@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.query;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.p2.metadata.expression.ContextExpression;
-import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression.VariableFinder;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
@@ -34,6 +33,8 @@ public class QueryUtil {
 	public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 
 	public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
+
+	public static final String PROP_TYPE_PRODUCT = "org.eclipse.equinox.p2.type.product"; //$NON-NLS-1$
 
 	public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
 
@@ -207,6 +208,14 @@ public class QueryUtil {
 	 */
 	public static IQuery<IInstallableUnit> createIUPatchQuery() {
 		return createIUPropertyQuery(QueryUtil.PROP_TYPE_PATCH, Boolean.TRUE.toString());
+	}
+
+	/**
+	 * Creates an {@link IInstallableUnit} that will match all products.
+	 * @return The created query
+	 */
+	public static IQuery<IInstallableUnit> createIUProductQuery() {
+		return createIUPropertyQuery(QueryUtil.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
 	}
 
 	/**
@@ -492,6 +501,18 @@ public class QueryUtil {
 	 */
 	public static boolean isGroup(IInstallableUnit iu) {
 		String value = iu.getProperty(PROP_TYPE_GROUP);
+		if (value != null && (value.equals(Boolean.TRUE.toString())))
+			return true;
+		return false;
+	}
+
+	/**
+	 * Test if the {@link IInstallableUnit} is a product. 
+	 * @param iu the element being tested.
+	 * @return <tt>true</tt> if the parameter is a group.
+	 */
+	public static boolean isProduct(IInstallableUnit iu) {
+		String value = iu.getProperty(PROP_TYPE_PRODUCT);
 		if (value != null && (value.equals(Boolean.TRUE.toString())))
 			return true;
 		return false;

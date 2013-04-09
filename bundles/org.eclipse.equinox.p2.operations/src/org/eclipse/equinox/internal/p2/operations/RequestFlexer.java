@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
@@ -35,6 +36,10 @@ public class RequestFlexer {
 	private boolean allowInstalledRemoval = false;
 	private boolean allowDifferentVersion = false;
 	private boolean allowPartialInstall = false;
+
+	private boolean ensureProductPresence = true;
+	private boolean honorSharedSettings = true;
+
 	private ProvisioningContext provisioningContext;
 
 	Set<IRequirement> requirementsForElementsBeingInstalled = new HashSet<IRequirement>();
@@ -72,6 +77,10 @@ public class RequestFlexer {
 		provisioningContext = context;
 	}
 
+	public void setEnsureProduct(boolean productPresent) {
+		ensureProductPresence = productPresent;
+	}
+
 	public IProfileChangeRequest getChangeRequest(IProfileChangeRequest request, IProfile prof, IProgressMonitor monitor) {
 		this.profile = prof;
 		IProfileChangeRequest loosenedRequest = computeLooseRequest(request);
@@ -84,6 +93,9 @@ public class RequestFlexer {
 		if (intermediaryPlan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).isEmpty() && intermediaryPlan.getRemovals().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).isEmpty())
 			//No changes, we can't return anything
 			return null;
+		if (!productContainmentOK(intermediaryPlan)) {
+			return null;
+		}
 		IProfileChangeRequest effectiveRequest = computeEffectiveChangeRequest(intermediaryPlan, loosenedRequest, request);
 		if (effectiveRequest.getAdditions().isEmpty() && effectiveRequest.getRemovals().isEmpty())
 			return null;
@@ -92,7 +104,7 @@ public class RequestFlexer {
 
 	private boolean canShortCircuit(IProfileChangeRequest originalRequest) {
 		//Case where the user is asking to install only some of the requested IUs but there is only one IU to install. 
-		if (allowPartialInstall)
+		if (allowPartialInstall && !allowInstalledUpdate && !allowDifferentVersion && !allowInstalledRemoval)
 			if (originalRequest.getAdditions().size() == 1 && originalRequest.getRemovals().isEmpty())
 				return true;
 
@@ -300,7 +312,7 @@ public class RequestFlexer {
 	//Loosen up the IUs that are already part of the profile
 	//Given how we are creating our request, this needs to take into account the removal from the original request as well as the change in inclusion 
 	private IProfileChangeRequest loosenUpInstalledSoftware(IProfileChangeRequest request, IProfileChangeRequest originalRequest) {
-		IQueryResult<IInstallableUnit> allRoots = profile.query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null);
+		Set<IInstallableUnit> allRoots = getRoots();
 
 		for (IInstallableUnit existingIU : allRoots) {
 			Collection<IInstallableUnit> potentialUpdates = allowInstalledUpdate ? findUpdates(existingIU) : new HashSet<IInstallableUnit>();
@@ -317,6 +329,15 @@ public class RequestFlexer {
 		}
 
 		return request;
+	}
+
+	private Set<IInstallableUnit> getRoots() {
+		Set<IInstallableUnit> allRoots = profile.query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null).toSet();
+		if (!honorSharedSettings)
+			return allRoots;
+		IQueryResult<IInstallableUnit> baseRoots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.base", Boolean.TRUE.toString()), null);
+		allRoots.removeAll(baseRoots.toUnmodifiableSet());
+		return allRoots;
 	}
 
 	//This return whether or not the given IU is installed optionally or not.
@@ -353,6 +374,19 @@ public class RequestFlexer {
 			}
 		}
 		return futureOptionalIUs;
-
 	}
+
+	private boolean productContainmentOK(IProvisioningPlan intermediaryPlan) {
+		if (!ensureProductPresence)
+			return true;
+		if (!hasProduct())
+			return true;
+		//At this point we know we had a product installed and we want to make sure there is one in the resulting solution
+		return !intermediaryPlan.getFutureState().query(QueryUtil.createIUProductQuery(), new NullProgressMonitor()).isEmpty();
+	}
+
+	private boolean hasProduct() {
+		return !profile.available(new UserVisibleRootQuery(), new NullProgressMonitor()).query(QueryUtil.createIUPropertyQuery(QueryUtil.PROP_TYPE_PRODUCT, Boolean.TRUE.toString()), new NullProgressMonitor()).isEmpty();
+	}
+
 }

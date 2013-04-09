@@ -62,6 +62,13 @@ public final class MetadataFactory {
 		 */
 		public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 
+		/**
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.product"</code>) for a 
+		 * boolean property indicating that an installable unit is the root IU of a product.
+		 * 
+		 */
+		public static final String PROP_TYPE_PRODUCT = "org.eclipse.equinox.p2.type.product"; //$NON-NLS-1$
+
 		public InstallableUnitDescription() {
 			super();
 		}
