@@ -73,14 +73,14 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 			return isInstalled ? ProvUIImages.IMG_DISABLED_PATCH_IU : ProvUIImages.IMG_PATCH_IU;
 		else if (isInstalled)
 			return ProvUIImages.IMG_DISABLED_IU;
+		if (beingDowngraded)
+			return ProvUIImages.IMG_DOWNGRADED_IU;
+		if (beingUpgraded)
+			return ProvUIImages.IMG_UPGRADED_IU;
 		return ProvUIImages.IMG_IU;
 	}
 
 	protected String getImageOverlayId(Object obj) {
-		if (beingDowngraded)
-			return ProvUIImages.IMG_DOWNGRADE_OVERLAY;
-		if (beingUpgraded)
-			return ProvUIImages.IMG_UPGRADE_OVERLAY;
 		if (beingRemoved)
 			return ProvUIImages.IMG_REMOVED_OVERLAY;
 		if (beingAdded)

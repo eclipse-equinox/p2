@@ -40,8 +40,8 @@ public class ProvUIImages {
 	public final static String IMG_IU = "obj/iu_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_DISABLED_IU = "obj/iu_disabled_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_UPDATED_IU = "obj/iu_update_obj.gif"; //$NON-NLS-1$
-	public final static String IMG_UPGRADE_OVERLAY = "obj/upgraded_overlay.jpg"; //$NON-NLS-1$
-	public final static String IMG_DOWNGRADE_OVERLAY = "obj/downgraded_overlay.jpg"; //$NON-NLS-1$
+	public final static String IMG_UPGRADED_IU = "obj/iu_upgraded.gif"; //$NON-NLS-1$
+	public final static String IMG_DOWNGRADED_IU = "obj/iu_downgraded.gif"; //$NON-NLS-1$
 	public final static String IMG_ADDED_OVERLAY = "obj/added_overlay.gif"; //$NON-NLS-1$
 	public final static String IMG_REMOVED_OVERLAY = "obj/removed_overlay.gif"; //$NON-NLS-1$
 	public final static String IMG_PATCH_IU = "obj/iu_patch_obj.gif"; //$NON-NLS-1$
@@ -71,7 +71,7 @@ public class ProvUIImages {
 	 * Returns the image for the given image ID. Returns <code>null</code> if
 	 * there is no such image.
 	 * 
-	 * @param id
+	 * @param upgraded_overlayid
 	 *            the identifier for the image to retrieve
 	 * @return the image associated with the given ID. This image is managed in
 	 *         an image registry and should not be freed by the client.
