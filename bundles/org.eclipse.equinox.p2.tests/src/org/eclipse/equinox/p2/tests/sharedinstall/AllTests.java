@@ -30,6 +30,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(NeedsMigration.class);
 		suite.addTestSuite(PreviousConfigurationFinderTest.class);
 		suite.addTest(TestInitialRun.suite());
+		suite.addTestSuite(SharedProfilePreferencesTest.class);
+		suite.addTestSuite(SharedProfilePreferencesTestWithDataInUser.class);
 		return suite;
 	}
 }
