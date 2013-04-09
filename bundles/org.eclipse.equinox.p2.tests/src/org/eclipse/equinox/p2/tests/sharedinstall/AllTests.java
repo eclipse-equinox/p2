@@ -21,13 +21,14 @@ import junit.framework.*;
 public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(NeedsMigration.class);
 		suite.addTest(BaseChange.suite());
 		suite.addTest(BaseChangeWithoutUserChange.suite());
 		suite.addTest(Cancellation.suite());
 		suite.addTest(DoubleBaseChange.suite());
-		suite.addTest(MultipleChanges.suite());
 		suite.addTest(InstallInUserSpace.suite());
+		suite.addTest(MultipleChanges.suite());
+		suite.addTestSuite(NeedsMigration.class);
+		suite.addTestSuite(PreviousConfigurationFinderTest.class);
 		suite.addTest(TestInitialRun.suite());
 		return suite;
 	}
