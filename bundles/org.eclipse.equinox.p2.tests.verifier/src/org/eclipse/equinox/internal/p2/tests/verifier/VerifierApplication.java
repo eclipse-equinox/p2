@@ -342,7 +342,7 @@ public class VerifierApplication implements IApplication {
 		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
 
-		ImportFromInstallationWizard_c wizardPage = new ImportFromInstallationWizard_c(profile, new URI[0]);
+		ImportFromInstallationWizard_c wizardPage = new ImportFromInstallationWizard_c(profile, new URI[0], false);
 		int cancelAnswer = Integer.parseInt(properties.getProperty("checkMigration.cancelAnswer"));
 		wizardPage.rememberCancellationDecision(cancelAnswer);
 	}

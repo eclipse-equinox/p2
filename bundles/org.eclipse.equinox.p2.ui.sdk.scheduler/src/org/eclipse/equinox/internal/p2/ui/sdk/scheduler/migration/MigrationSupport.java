@@ -112,7 +112,7 @@ public class MigrationSupport {
 
 	private boolean isFirstTimeRunningThisSharedInstance(IProvisioningAgent agent, IProfileRegistry registry, IProfile currentProfile) {
 		long[] history = registry.listProfileTimestamps(currentProfile.getProfileId());
-		boolean isInitial = !IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get(IProfile.STATE_PROP_SHARED_INSTALL));
+		boolean isInitial = IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get(IProfile.STATE_PROP_SHARED_INSTALL));
 		if (isInitial) {
 			if (getLastMigration() >= history[0])
 				return false;
@@ -161,7 +161,7 @@ public class MigrationSupport {
 		Display d = Display.getDefault();
 		d.asyncExec(new Runnable() {
 			public void run() {
-				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new ImportFromInstallationWizard_c(inputProfile, reposToMigrate));
+				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new ImportFromInstallationWizard_c(inputProfile, reposToMigrate, reposToMigrate != null));
 				migrateWizard.create();
 				migrateWizard.open();
 			}

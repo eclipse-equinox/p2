@@ -40,22 +40,24 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 	private IProfile toImportFrom;
 	private URI[] reposToMigrate;
 	private List<URI> addedRepos = new ArrayList<URI>();
+	private boolean firstTime = false;
 
 	public ImportFromInstallationWizard_c() {
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 	}
 
-	public ImportFromInstallationWizard_c(IProfile toImportFrom, URI[] reposToMigrate) {
+	public ImportFromInstallationWizard_c(IProfile toImportFrom, URI[] reposToMigrate, boolean firstTime) {
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 		this.toImportFrom = toImportFrom;
 		this.reposToMigrate = reposToMigrate;
+		this.firstTime = firstTime;
 		addRepos();
 	}
 
 	public ImportFromInstallationWizard_c(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
 		IDialogSettings workbenchSettings = ProvUIActivator.getDefault().getDialogSettings();
-		String sectionName = "ImportFromInstallationWizard"; //$NON-NLS-1$
+		String sectionName = "MigrationWizard"; //$NON-NLS-1$
 		IDialogSettings section = workbenchSettings.getSection(sectionName);
 		if (section == null) {
 			section = workbenchSettings.addNewSection(sectionName);
@@ -64,7 +66,7 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 	}
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		setWindowTitle(ProvUIMessages.ImportWizard_WINDOWTITLE);
+		setWindowTitle(firstTime ? ProvUIMessages.ImportWizard_WINDOWTITLE_FIRSTRUN : ProvUIMessages.ImportWizard_WINDOWTITLE);
 		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(ProvUIActivator.PLUGIN_ID).getEntry("icons/install_wiz.gif"))); //$NON-NLS-1$
 		setNeedsProgressMonitor(true);
 	}
@@ -72,8 +74,8 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 	@Override
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
 		if (toImportFrom != null)
-			return new ImportFromInstallationPage_c(ui, this, toImportFrom);
-		return new ImportFromInstallationPage_c(ui, this);
+			return new ImportFromInstallationPage_c(ui, this, toImportFrom, firstTime);
+		return new ImportFromInstallationPage_c(ui, this, firstTime);
 	}
 
 	@Override

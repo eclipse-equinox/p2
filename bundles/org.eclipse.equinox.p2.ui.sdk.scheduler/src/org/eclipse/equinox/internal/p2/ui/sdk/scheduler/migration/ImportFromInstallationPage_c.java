@@ -43,16 +43,16 @@ public class ImportFromInstallationPage_c extends AbstractImportPage_c implement
 
 	//	private IProvisioningAgentProvider agentProvider;
 
-	public ImportFromInstallationPage_c(ProvisioningUI ui, ProvisioningOperationWizard wizard) {
+	public ImportFromInstallationPage_c(ProvisioningUI ui, ProvisioningOperationWizard wizard, boolean firstTime) {
 		super("importfrominstancepage", ui, wizard); //$NON-NLS-1$
-		setTitle(ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE);
+		setTitle(firstTime ? ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE_FIRSTRUN : ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE);
 		setDescription(NLS.bind(ProvUIMessages.ImportFromInstallationPage_DIALOG_DESCRIPTION, Platform.getProduct().getName()));
 	}
 
-	public ImportFromInstallationPage_c(ProvisioningUI ui, ImportFromInstallationWizard_c wizard, IProfile toImportFrom) {
+	public ImportFromInstallationPage_c(ProvisioningUI ui, ImportFromInstallationWizard_c wizard, IProfile toImportFrom, boolean firstTime) {
 		super("importfrominstancepage", ui, wizard); //$NON-NLS-1$
-		setTitle(ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE);
-		setDescription(NLS.bind(ProvUIMessages.ImportFromInstallationPage_DIALOG_DESCRIPTION, Platform.getProduct().getName()));
+		setTitle(firstTime ? ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE_FIRSTRUN : ProvUIMessages.ImportFromInstallationPage_DIALOG_TITLE);
+		setDescription(NLS.bind(firstTime ? ProvUIMessages.ImportFromInstallationPage_DIALOG_DESCRIPTION_FIRSTRUN : ProvUIMessages.ImportFromInstallationPage_DIALOG_DESCRIPTION, Platform.getProduct().getName()));
 		toBeImportedProfile = toImportFrom;
 	}
 
