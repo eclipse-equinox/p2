@@ -33,13 +33,14 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		Bundle p2Core = Platform.getBundle("org.eclipse.equinox.p2.core");
 		p2Core.stop();
 
-		File baseInstallToCopy = getTestData("baseInstall", "testData/sharedPrefs/baseInstall");
+		//We have to do all this dance to copy the files because if we store them at the actual path, then the path is too long 
+		File baseInstallToCopy = getTestData("baseInstall", "testData/sharedPrefs/test1/baseInstall");
 		File baseInstall = getTempFolder();
 		File baseInstallToCopyTo = new File(baseInstall, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		baseInstallToCopy.mkdirs();
 		copy("copy base install", baseInstallToCopy, baseInstallToCopyTo);
 
-		File userHomeToCopy = getTestData("useHome", "testData/sharedPrefs/userHome");
+		File userHomeToCopy = getTestData("useHome", "testData/sharedPrefs/test1/userHome");
 		File userHome = getTempFolder();
 		File userHomeToCopyTo = new File(userHome, "p2/org.eclipse.equinox.p2.engine/");
 		userHomeToCopyTo.mkdirs();

@@ -11,10 +11,8 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
  *     Pascal Rapicault (Ericsson) - Initial API and implementation
  *******************************************************************************/
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.Activator;
@@ -26,33 +24,25 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
 
 public class SharedProfilePreferencesTestWithDataInUser extends AbstractProvisioningTest {
-	protected File getTestData(String message, String entry) {
-		if (entry == null)
-			fail(message + " entry is null.");
-		URL base = Platform.getBundle("org.eclipse.equinox.p2.tests.sharedinstall").getEntry(entry);
-		if (base == null)
-			fail(message + " entry not found in bundle: " + entry);
-		try {
-			String osPath = new Path(FileLocator.toFileURL(base).getPath()).toOSString();
-			File result = new File(osPath);
-			if (!result.getCanonicalPath().equals(result.getPath()))
-				fail(message + " result path: " + result.getPath() + " does not match canonical path: " + result.getCanonicalFile().getPath());
-			return result;
-		} catch (IOException e) {
-			fail(message, e);
-		}
-		// avoid compile error... should never reach this code
-		return null;
-	}
-
 	protected void setUp() throws Exception {
 		//We don't call super.setUp() on purpose
 
 		Bundle p2Core = Platform.getBundle("org.eclipse.equinox.p2.core");
 		p2Core.stop();
 
-		File baseInstall = getTestData("test shared install", "data/test1/base");
-		File userHome = getTestData("test shared install", "data/test1/user");
+		//We have to do all this dance to copy the files because if we store them at the actual path, then the path is too long
+		File baseInstallToCopy = getTestData("baseInstall", "testData/sharedPrefs/test2/baseInstall");
+		File baseInstall = getTempFolder();
+		File baseInstallToCopyTo = new File(baseInstall, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		baseInstallToCopy.mkdirs();
+		copy("copy base install", baseInstallToCopy, baseInstallToCopyTo);
+
+		File userHomeToCopy = getTestData("useHome", "testData/sharedPrefs/test2/userHome");
+		File userHome = getTempFolder();
+		File userHomeToCopyTo = new File(userHome, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		userHomeToCopyTo.mkdirs();
+		copy("copy user home data", userHomeToCopy, userHomeToCopyTo);
+
 		System.setProperty("osgi.sharedConfiguration.area", new File(baseInstall, "configuration").toURI().toString());
 		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString());
 		System.setProperty("eclipse.p2.profile", "epp.package.java");
