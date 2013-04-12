@@ -1189,11 +1189,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		String spec = base.toString();
 		if (spec.endsWith(name))
 			return base;
-		if (spec.endsWith("/")) //$NON-NLS-1$
-			spec += name;
-		else
-			spec += "/" + name; //$NON-NLS-1$
-		return new URI(spec);
+		return URIUtil.append(base, name);
 	}
 
 	protected Transport getTransport() {
