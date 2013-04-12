@@ -719,8 +719,6 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 						localStream = new FileInputStream(indexFile);
 						locationProperties = LocationProperties.create(localStream);
 					}
-				} catch (URISyntaxException e) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 				} finally {
 					if (localStream != null)
 						localStream.close();
@@ -734,12 +732,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		//Handle non local repos (i.e. not file:)
 		ByteArrayOutputStream index = new ByteArrayOutputStream();
 		IStatus indexFileStatus = null;
-		try {
-			indexFileStatus = getTransport().download(getIndexFileURI(location), index, monitor);
-		} catch (URISyntaxException uriSyntaxException) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, uriSyntaxException.getMessage(), uriSyntaxException));
-			indexFileStatus = null;
-		}
+		indexFileStatus = getTransport().download(getIndexFileURI(location), index, monitor);
 		if (indexFileStatus != null && indexFileStatus.isOK())
 			locationProperties = LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
 
@@ -1184,7 +1177,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 	}
 
-	private static URI getIndexFileURI(URI base) throws URISyntaxException {
+	private static URI getIndexFileURI(URI base) {
 		final String name = INDEX_FILE;
 		String spec = base.toString();
 		if (spec.endsWith(name))

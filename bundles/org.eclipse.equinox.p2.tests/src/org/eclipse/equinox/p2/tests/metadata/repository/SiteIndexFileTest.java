@@ -262,6 +262,23 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	}
 
 	/*
+	 * Adds a query parameter to the end of the URI and tests that p2 can properly 
+	 * find the p2.index file.
+	 */
+	public void testSingleRepositoryWithQueryParams() throws Exception {
+		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test1").toURI();
+		URI repositoryLocationWithParams = new URI(repositoryLocation.toString() + "?parameter=foo");
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocationWithParams, new NullProgressMonitor());
+			assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		} finally {
+			System.setOut(out);
+		}
+	}
+
+	/*
 	 * Tests that metadata repository manager can read a simple index.p2 file
 	 */
 	public void testSingleRepository2() throws Exception {
