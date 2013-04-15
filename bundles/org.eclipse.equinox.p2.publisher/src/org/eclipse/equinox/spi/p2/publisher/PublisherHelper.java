@@ -129,8 +129,10 @@ public class PublisherHelper {
 		try {
 			fis = new BufferedInputStream(new FileInputStream(file));
 			int read = -1;
-			while ((read = fis.read()) != -1) {
-				md5Checker.update((byte) read);
+			final int bufferSize = 4 * 1024;
+			byte[] buffer = new byte[bufferSize];
+			while ((read = fis.read(buffer, 0, bufferSize)) != -1) {
+				md5Checker.update(buffer, 0, read);
 			}
 			byte[] digest = md5Checker.digest();
 			StringBuffer buf = new StringBuffer();
