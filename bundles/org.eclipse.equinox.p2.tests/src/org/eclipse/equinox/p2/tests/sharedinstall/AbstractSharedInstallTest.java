@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.*;
 import java.util.*;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest;
 
@@ -182,6 +183,9 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	}
 
 	protected void reallyReadOnly(File folder) {
+		if (!Platform.getOS().equals(Platform.OS_WIN32))
+			return;
+
 		try {
 			Path path = folder.toPath();
 			AclFileAttributeView view = Files.getFileAttributeView(path, AclFileAttributeView.class);
@@ -191,7 +195,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 			acl.add(0, newEntry); // insert before any DENY entries
 			view.setAcl(acl);
 		} catch (IOException e) {
-			fail("oh shit");
+			fail("can't mark the folder " + folder + " read-only.");
 		}
 	}
 
