@@ -10,6 +10,9 @@
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.*;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest;
@@ -103,6 +106,10 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group", "-repository", getTestRepo()});
 	}
 
+	protected void installFeature1InUserWithoutSpecifyingConfiguration() {
+		runEclipse("user2", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group", "-repository", getTestRepo()});
+	}
+
 	protected void installFeature2InUser() {
 		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature2.feature.group", "-repository", getTestRepo()});
 	}
@@ -149,14 +156,56 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		runEclipse("Running eclipse", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-listInstalledRoots"});
 	}
 
-	protected void executeVerifier(Properties verificationProperties) {
+	protected void executeVerifierWithoutSpecifyingConfiguration(Properties verificationProperties) {
+		realExecuteVerifier(verificationProperties, false);
+	}
+
+	private void realExecuteVerifier(Properties verificationProperties, boolean withConfigFlag) {
 		File verifierConfig = new File(getTempFolder(), "verification.properties");
 		try {
 			writeProperties(verifierConfig, verificationProperties);
 		} catch (IOException e) {
 			fail("Failing to write out properties to configure verifier", e);
 		}
-		assertEquals(0, runEclipse("Running verifier", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"}));
+
+		String[] args = null;
+		if (withConfigFlag)
+			args = new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"};
+		else
+			args = new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"};;
+
+		assertEquals(0, runEclipse("Running verifier", output, args));
+	}
+
+	protected void executeVerifier(Properties verificationProperties) {
+		realExecuteVerifier(verificationProperties, true);
+	}
+
+	protected void reallyReadOnly(File folder) {
+		try {
+			Path path = folder.toPath();
+			AclFileAttributeView view = Files.getFileAttributeView(path, AclFileAttributeView.class);
+			AclEntry newEntry = AclEntry.newBuilder().setFlags(AclEntryFlag.FILE_INHERIT, AclEntryFlag.DIRECTORY_INHERIT).setPermissions(AclEntryPermission.WRITE_DATA, AclEntryPermission.APPEND_DATA, AclEntryPermission.WRITE_NAMED_ATTRS, AclEntryPermission.WRITE_ATTRIBUTES).setPrincipal(view.getOwner()).setType(AclEntryType.DENY).build();
+
+			List<AclEntry> acl = view.getAcl();
+			acl.add(0, newEntry); // insert before any DENY entries
+			view.setAcl(acl);
+		} catch (IOException e) {
+			fail("oh shit");
+		}
+	}
+
+	protected void removeReallyReadOnly(File folder) {
+		try {
+			Path path = folder.toPath();
+			AclFileAttributeView view = Files.getFileAttributeView(path, AclFileAttributeView.class);
+
+			List<AclEntry> acl = view.getAcl();
+			acl.remove(0);
+			view.setAcl(acl);
+		} catch (IOException e) {
+			fail("oh shit");
+		}
 	}
 
 	public static Properties loadProperties(File inputFile) throws FileNotFoundException, IOException {
@@ -204,6 +253,27 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 
 	public AbstractSharedInstallTest(String name) {
 		super(name);
+	}
+
+	public void replaceDotEclipseProductFile(File base, String id, String version) {
+		File eclipseProductFile = new File(base, ".eclipseproduct");
+		eclipseProductFile.delete();
+
+		Properties newProps = new Properties();
+		newProps.put("id", id);
+		newProps.put("version", version);
+		OutputStream os = null;
+		try {
+			try {
+				os = new FileOutputStream(eclipseProductFile);
+				newProps.save(os, "file generated for tests " + getName());
+			} finally {
+				if (os != null)
+					os.close();
+			}
+		} catch (IOException e) {
+			fail("Failing setting up the .eclipseproduct file at:" + eclipseProductFile.getAbsolutePath());
+		}
 	}
 
 }
