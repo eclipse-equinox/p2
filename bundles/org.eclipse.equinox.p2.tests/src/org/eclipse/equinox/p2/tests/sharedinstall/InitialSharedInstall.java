@@ -25,6 +25,9 @@ public class InitialSharedInstall extends AbstractSharedInstallTest {
 
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
+		if (isRunningJava16orPrevious())
+			return suite;
+
 		suite.setName(InitialSharedInstall.class.getName());
 		suite.addTest(new InitialSharedInstall("setupRun"));
 
@@ -33,6 +36,15 @@ public class InitialSharedInstall extends AbstractSharedInstallTest {
 
 		suite.addTest(suite2);
 		return suite;
+	}
+
+	public static boolean isRunningJava16orPrevious() {
+		try {
+			Class.forName("java.nio.file.attribute.AclEntry");
+		} catch (ClassNotFoundException e) {
+			return true;
+		}
+		return false;
 	}
 
 	public InitialSharedInstall(String name) {
