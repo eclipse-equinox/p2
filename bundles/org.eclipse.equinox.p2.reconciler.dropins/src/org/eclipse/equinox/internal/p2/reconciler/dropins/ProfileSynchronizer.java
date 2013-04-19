@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -558,12 +558,16 @@ public class ProfileSynchronizer {
 				// if the IU is already installed in the profile then check to see if it was moved.
 				String one = iu.getProperty(RepositoryListener.FILE_NAME);
 				String two = existing.getProperty(RepositoryListener.FILE_NAME);
-				// if we have an IU which has been moved, keep track of it.
-				//
 				// cheat here... since we always set the filename property for bundles in the dropins,
 				// if the existing IU's filename is null then it isn't from the dropins. a better
 				// (and more expensive) way to find this out is to do an IU profile property query.
-				if (one != null && two != null && !one.equals(two)) {
+				if (two == null) {
+					// This isn't a dropin.
+					iter.remove();
+					continue;
+				}
+				// if we have an IU which has been moved, keep track of it.
+				if (one != null && !one.equals(two)) {
 					toMove.add(iu);
 					continue;
 				}
