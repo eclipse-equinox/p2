@@ -578,12 +578,16 @@ public class ProfileSynchronizer {
 				// if the IU is already installed in the profile then check to see if it was moved.
 				String one = iu.getProperty(RepositoryListener.FILE_NAME);
 				String two = existing.getProperty(RepositoryListener.FILE_NAME);
-				// if we have an IU which has been moved, keep track of it.
-				//
 				// cheat here... since we always set the filename property for bundles in the dropins,
 				// if the existing IU's filename is null then it isn't from the dropins. a better
 				// (and more expensive) way to find this out is to do an IU profile property query.
-				if (one != null && two != null && !one.equals(two)) {
+				if (two == null) {
+					// the IU is already installed so don't mark it as a dropin now - see bug 404619.
+					iter.remove();
+					continue;
+				}
+				// if we have an IU which has been moved, keep track of it.
+				if (one != null && !one.equals(two)) {
 					toMove.add(iu);
 					continue;
 				}
