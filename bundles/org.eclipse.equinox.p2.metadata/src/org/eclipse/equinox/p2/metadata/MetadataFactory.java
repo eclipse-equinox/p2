@@ -65,7 +65,7 @@ public final class MetadataFactory {
 		/**
 		 * A property key (value <code>"org.eclipse.equinox.p2.type.product"</code>) for a 
 		 * boolean property indicating that an installable unit is the root IU of a product.
-		 * 
+		 * @since 2.2
 		 */
 		public static final String PROP_TYPE_PRODUCT = "org.eclipse.equinox.p2.type.product"; //$NON-NLS-1$
 

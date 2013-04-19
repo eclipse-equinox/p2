@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2013 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
+ *     IBM Corporation - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
@@ -33,8 +34,6 @@ public class QueryUtil {
 	public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 
 	public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
-
-	public static final String PROP_TYPE_PRODUCT = "org.eclipse.equinox.p2.type.product"; //$NON-NLS-1$
 
 	public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
 
@@ -213,9 +212,10 @@ public class QueryUtil {
 	/**
 	 * Creates an {@link IInstallableUnit} that will match all products.
 	 * @return The created query
+	 * @since 2.2
 	 */
 	public static IQuery<IInstallableUnit> createIUProductQuery() {
-		return createIUPropertyQuery(QueryUtil.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
+		return createIUPropertyQuery(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
 	}
 
 	/**
@@ -510,9 +510,10 @@ public class QueryUtil {
 	 * Test if the {@link IInstallableUnit} is a product. 
 	 * @param iu the element being tested.
 	 * @return <tt>true</tt> if the parameter is a group.
+	 * @since 2.2
 	 */
 	public static boolean isProduct(IInstallableUnit iu) {
-		String value = iu.getProperty(PROP_TYPE_PRODUCT);
+		String value = iu.getProperty(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT);
 		if (value != null && (value.equals(Boolean.TRUE.toString())))
 			return true;
 		return false;

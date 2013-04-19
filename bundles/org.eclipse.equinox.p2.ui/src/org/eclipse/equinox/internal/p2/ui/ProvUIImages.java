@@ -71,7 +71,7 @@ public class ProvUIImages {
 	 * Returns the image for the given image ID. Returns <code>null</code> if
 	 * there is no such image.
 	 * 
-	 * @param upgraded_overlayid
+	 * @param id
 	 *            the identifier for the image to retrieve
 	 * @return the image associated with the given ID. This image is managed in
 	 *         an image registry and should not be freed by the client.

@@ -386,7 +386,7 @@ public class RequestFlexer {
 	}
 
 	private boolean hasProduct() {
-		return !profile.available(new UserVisibleRootQuery(), new NullProgressMonitor()).query(QueryUtil.createIUPropertyQuery(QueryUtil.PROP_TYPE_PRODUCT, Boolean.TRUE.toString()), new NullProgressMonitor()).isEmpty();
+		return !profile.available(new UserVisibleRootQuery(), new NullProgressMonitor()).query(QueryUtil.createIUPropertyQuery(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString()), new NullProgressMonitor()).isEmpty();
 	}
 
 }

@@ -8,6 +8,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.eclipse.equinox.p2.operations.RelaxedUpdateInstallOperation">
+        <filter id="305324134">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RelaxedUpdateInstallOperation"/>
+                <message_argument value="org.eclipse.equinox.p2.operations_2.3.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/equinox/p2/operations/ProfileChangeOperation.java" type="org.eclipse.equinox.p2.operations.ProfileChangeOperation">
         <filter id="338792546">
             <message_arguments>
