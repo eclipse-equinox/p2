@@ -90,6 +90,11 @@ public class PreviousConfigurationFinder {
 				return true;
 			return false;
 		}
+
+		@Override
+		public String toString() {
+			return "" + major + '.' + minor + '.' + service; //$NON-NLS-1$
+		}
 	}
 
 	public static class ConfigurationDescriptor {
