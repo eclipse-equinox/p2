@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.p2.operations.RequestFlexer;
-import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
@@ -160,15 +159,13 @@ public class RemediationOperation extends ProfileChangeOperation {
 		Remedy remedy = new Remedy();
 		remedy.setConfig(configuration);
 		IPlanner planner = session.getPlanner();
-		IProfile profile = session.getProfileRegistry().getProfile(profileId);
-		//request = (ProfileChangeRequest) originalRequest.clone();
 		RequestFlexer av = new RequestFlexer(planner);
 		av.setAllowDifferentVersion(configuration.allowDifferentVersion);
 		av.setAllowInstalledElementChange(configuration.allowInstalledUpdate);
 		av.setAllowInstalledElementRemoval(configuration.allowInstalledRemoval);
 		av.setAllowPartialInstall(configuration.allowPartialInstall);
 		av.setProvisioningContext(getProvisioningContext());
-		remedy.setRequest((ProfileChangeRequest) av.getChangeRequest(originalRequest, profile, monitor));
+		remedy.setRequest((ProfileChangeRequest) av.getChangeRequest(originalRequest, ((ProfileChangeRequest) originalRequest).getProfile(), monitor));
 		if (remedy.getRequest() == null)
 			return null;
 
