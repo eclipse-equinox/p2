@@ -48,11 +48,11 @@ public class RemediationPage extends ResolutionStatusPage {
 	protected RemediationPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
 		super("RemediationPage", ui, wizard); //$NON-NLS-1$
 		if (getWizard() instanceof UpdateWizard) {
-			setTitle(ProvUIMessages.InstallRemediationPage_Title);
-			setDescription(ProvUIMessages.InstallRemediationPage_Description);
-		} else {
 			setTitle(ProvUIMessages.UpdateRemediationPage_Title);
 			setDescription(ProvUIMessages.UpdateRemediationPage_Description);
+		} else {
+			setTitle(ProvUIMessages.InstallRemediationPage_Title);
+			setDescription(ProvUIMessages.InstallRemediationPage_Description);
 		}
 	}
 
