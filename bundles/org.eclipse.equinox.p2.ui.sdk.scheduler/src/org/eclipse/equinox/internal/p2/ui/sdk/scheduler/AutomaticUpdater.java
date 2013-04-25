@@ -229,7 +229,13 @@ public class AutomaticUpdater implements IUpdateListener {
 			// can't blame us for trying.
 		}
 
-		IWorkbenchPartSite site = activeWindow.getActivePage().getActivePart().getSite();
+		IWorkbenchPage page = activeWindow.getActivePage();
+		if (page == null)
+			return null;
+		IWorkbenchPart part = page.getActivePart();
+		if (part == null)
+			return null;
+		IWorkbenchPartSite site = part.getSite();
 		if (site instanceof IViewSite) {
 			statusLineManager = ((IViewSite) site).getActionBars().getStatusLineManager();
 		} else if (site instanceof IEditorSite) {
