@@ -143,6 +143,8 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		SubMonitor mon = SubMonitor.convert(monitor, Messages.ProfileChangeOperation_ResolveTaskName, 1000);
 		prepareToResolve();
 		makeResolveJob(mon.newChild(100));
+		if (mon.isCanceled())
+			return null;
 		job.setAdditionalProgressMonitor(mon.newChild(900));
 		return job;
 	}
