@@ -22,9 +22,10 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 	private Collection<IInstallableUnit> alreadyExistingRoots;
 	private LexicoHelper<Object, Explanation> dependencyHelper;
 	private IQueryable<IInstallableUnit> picker;
-	private List changeVariables = new ArrayList();
-	private List removalVariables = new ArrayList();
-	private List newVariables = new ArrayList();
+
+	//	private List changeVariables = new ArrayList();
+	//	private List removalVariables = new ArrayList();
+	//	private List newVariables = new ArrayList();
 
 	public UserDefinedOptimizationFunction(IQueryable<IInstallableUnit> lastState, List<AbstractVariable> abstractVariables, List<AbstractVariable> optionalVariables, IQueryable<IInstallableUnit> picker, IInstallableUnit selectionContext, Map<String, Map<Version, IInstallableUnit>> slice, DependencyHelper<Object, Explanation> dependencyHelper, Collection<IInstallableUnit> alreadyInstalledIUs) {
 		super(lastState, abstractVariables, optionalVariables, picker, selectionContext, slice);
@@ -35,10 +36,10 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 	}
 
 	public List<WeightedObject<? extends Object>> createOptimizationFunction(IInstallableUnit metaIu, Collection<IInstallableUnit> newRoots) {
-		List weightedObjects = new ArrayList();
+		List<WeightedObject<?>> weightedObjects = new ArrayList<WeightedObject<?>>();
 		List objects = new ArrayList();
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
-		String[] criteria = new String[] {"+new", "-removed", "-changed"};
+		String[] criteria = new String[] {"+new", "-changed", "-notuptodate", "-removed"};
 		BigInteger currentWeight = weight.pow(criteria.length - 1);
 		int formermaxvarid = dependencyHelper.getSolver().nextFreeVarId(false);
 		int newmaxvarid;
@@ -53,10 +54,10 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				weightedObjects.clear();
 				removedRoots(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
 				currentWeight = currentWeight.divide(weight);
-				//			} else if (criteria[i].endsWith("notuptodate")) {
-				//				weightedObjects.clear();
-				//				notuptodate(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
-				//				currentWeight = currentWeight.divide(weight);
+			} else if (criteria[i].endsWith("notuptodate")) {
+				weightedObjects.clear();
+				notuptodate(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
+				currentWeight = currentWeight.divide(weight);
 				//			} else if (criteria[i].endsWith("unsat_recommends")) {
 				//				weightedObjects.clear();
 				//				optional(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
@@ -107,7 +108,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			}
 			try {
 				Projector.AbstractVariable abs = new Projector.AbstractVariable("CHANGED"); //TODO
-				changeVariables.add(abs);
+				//				changeVariables.add(abs);
 				// abs <=> iuv1 or not iuv2 or ... or  not iuvn
 				dependencyHelper.or(FakeExplanation.getInstance(), abs, changed);
 				weightedObjects.add(WeightedObject.newWO(abs, weight));
@@ -130,7 +131,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			if (!oneInstalled) {
 				try {
 					Projector.AbstractVariable abs = new Projector.AbstractVariable("NEW"); //TODO
-					newVariables.add(abs);
+					//					newVariables.add(abs);
 					// a <=> iuv1 or ... or iuvn
 					dependencyHelper.or(FakeExplanation.getInstance(), abs, matches.toArray(IInstallableUnit.class));
 					weightedObjects.add(WeightedObject.newWO(abs, weight));
@@ -157,7 +158,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			if (installed) {
 				try {
 					Projector.AbstractVariable abs = new Projector.AbstractVariable("REMOVED"); //TODO
-					removalVariables.add(abs);
+					//					removalVariables.add(abs);
 					// abs <=> not iuv1 and ... and  not iuvn
 					dependencyHelper.and(FakeExplanation.getInstance(), abs, literals);
 					weightedObjects.add(WeightedObject.newWO(abs, weight));
@@ -166,6 +167,34 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+
+	protected void notuptodate(List<WeightedObject<?>> weightedObjects, BigInteger weight, IInstallableUnit entryPointIU) {
+		Collection<IRequirement> requirements = entryPointIU.getRequirements();
+		for (IRequirement req : requirements) {
+			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(req.getMatches());
+			IQueryResult<IInstallableUnit> matches = picker.query(query, null);
+			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(matches.toUnmodifiableSet());
+			Collections.sort(toSort, Collections.reverseOrder());
+			Projector.AbstractVariable abs = new Projector.AbstractVariable();
+			Object notlatest = dependencyHelper.not(toSort.get(0));
+			try {
+				// notuptodate <=> not iuvn and (iuv1 or iuv2 or ... iuvn-1) 
+				dependencyHelper.implication(new Object[] {abs}).implies(notlatest).named(FakeExplanation.getInstance());
+				Object[] clause = new Object[toSort.size()];
+				toSort.toArray(clause);
+				clause[0] = dependencyHelper.not(abs);
+				dependencyHelper.clause(FakeExplanation.getInstance(), clause);
+				for (int i = 1; i < toSort.size(); i++) {
+					dependencyHelper.implication(new Object[] {notlatest, toSort.get(i)}).implies(abs).named(FakeExplanation.getInstance());
+				}
+			} catch (ContradictionException e) {
+				// should never happen
+				e.printStackTrace();
+			}
+
+			weightedObjects.add(WeightedObject.newWO(abs, weight));
 		}
 	}
 
