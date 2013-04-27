@@ -120,10 +120,11 @@ public class TestRequestFlexerOneInstalledTwoBeingInstalled extends AbstractProv
 			av.setAllowDifferentVersion(true);
 			av.setProvisioningContext(context);
 			IProfileChangeRequest realRequest = av.getChangeRequest(originalRequest, profile, new NullProgressMonitor());
-			assertTrue(realRequest.getAdditions().contains(svn1));
-			assertTrue(realRequest.getAdditions().contains(egit1));
-			assertEquals(2, realRequest.getAdditions().size());
-			assertTrue(realRequest.getRemovals().isEmpty());
+			assertTrue(realRequest.getAdditions().contains(svn2));
+			assertTrue(realRequest.getAdditions().contains(egit2));
+			assertTrue(realRequest.getAdditions().contains(svn2));
+			assertEquals(3, realRequest.getAdditions().size());
+			assertTrue(realRequest.getRemovals().contains(sdk1));
 		}
 	}
 

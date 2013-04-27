@@ -161,8 +161,9 @@ public class TestRequestFlexerOneInstalledOneBeingInstalled extends AbstractProv
 		av.setProvisioningContext(context);
 		IProfileChangeRequest realRequest = av.getChangeRequest(originalRequest, profile, new NullProgressMonitor());
 		//We only sdk1 because our goal is maximize the number of installed element and minimize the number of changes
-		assertTrue(realRequest.getAdditions().contains(egit1));
-		assertTrue(realRequest.getRemovals().isEmpty());
+		assertTrue(realRequest.getAdditions().contains(egit2));
+		assertTrue(realRequest.getAdditions().contains(sdk2));
+		assertTrue(realRequest.getRemovals().contains(sdk1));
 		assertOK(install(realRequest, planner, engine));
 	}
 
