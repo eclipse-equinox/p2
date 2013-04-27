@@ -18,8 +18,13 @@ import org.eclipse.equinox.internal.p2.operations.RequestFlexer;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
-//TODO Javadoc
 /**
+ * <p>
+ * <strong>EXPERIMENTAL</strong>. This class or interface has been added as
+ * part of a work in progress. There is no guarantee that this API will
+ * work or that it will remain the same. Please do not use this API without
+ * consulting with the <Your Team Name> team.
+ * </p>
  * @since 2.3
  */
 public class RemediationOperation extends ProfileChangeOperation {

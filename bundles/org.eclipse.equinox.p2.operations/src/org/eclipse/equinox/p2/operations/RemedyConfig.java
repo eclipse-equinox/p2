@@ -13,8 +13,13 @@ package org.eclipse.equinox.p2.operations;
 import java.util.ArrayList;
 import java.util.Collection;
 
-//TODO Javadoc
 /**
+ * <p>
+ * <strong>EXPERIMENTAL</strong>. This class or interface has been added as
+ * part of a work in progress. There is no guarantee that this API will
+ * work or that it will remain the same. Please do not use this API without
+ * consulting with the <Your Team Name> team.
+ * </p>
  * @since 2.3
  */
 public class RemedyConfig {
