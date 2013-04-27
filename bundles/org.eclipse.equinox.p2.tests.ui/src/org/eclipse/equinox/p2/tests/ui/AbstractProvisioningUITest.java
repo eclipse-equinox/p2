@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.p2.ui.sdk.SimpleLicenseManager;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -126,7 +125,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		return ui.getPolicy();
 	}
 
-	protected IStatus install(IInstallableUnit iu, boolean root, boolean lock) throws ProvisionException {
+	protected IStatus install(IInstallableUnit iu, boolean root, boolean lock) {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.add(iu);
 		if (root) {
