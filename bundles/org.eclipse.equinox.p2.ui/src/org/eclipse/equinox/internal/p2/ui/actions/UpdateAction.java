@@ -26,6 +26,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -75,6 +76,9 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		if (operation.getResolutionResult() == Status.OK_STATUS)
 			return ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, null);
 
+		if (!operation.hasResolved())
+			return Window.CANCEL;
+
 		final RemediationOperation remediationOperation = new RemediationOperation(getSession(), (ProfileChangeRequest) operation.getProfileChangeRequest());
 		ProvisioningJob job = new ProvisioningJob("Searching alternate solutions...", getSession()) {
 			@Override
@@ -96,6 +100,6 @@ public class UpdateAction extends ExistingIUInProfileAction {
 
 		});
 		getProvisioningUI().schedule(job, StatusManager.SHOW | StatusManager.LOG);
-		return 1;
+		return Window.CANCEL;
 	}
 }
