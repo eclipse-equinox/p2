@@ -47,7 +47,7 @@ public class RemediationPage extends ResolutionStatusPage {
 
 	protected RemediationPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
 		super("RemediationPage", ui, wizard); //$NON-NLS-1$
-		if (getWizard() instanceof UpdateWizard) {
+		if (wizard instanceof UpdateWizard) {
 			setTitle(ProvUIMessages.UpdateRemediationPage_Title);
 			setDescription(ProvUIMessages.UpdateRemediationPage_Description);
 		} else {
@@ -284,6 +284,7 @@ public class RemediationPage extends ResolutionStatusPage {
 				if (isContraintOK(ALLOWPARTIALINSTALL_INDEX, remedy.getConfig().allowPartialInstall) && isContraintOK(ALLOWDIFFERENTVERSION_INDEX, remedy.getConfig().allowDifferentVersion) && isContraintOK(ALLOWINSTALLEDUPDATE_INDEX, remedy.getConfig().allowInstalledUpdate) && isContraintOK(ALLOWINSTALLEDREMOVAL_INDEX, remedy.getConfig().allowInstalledRemoval)) {
 					if (remedy.getRequest() != null) {
 						currentRemedy = remedy;
+						((ProvisioningOperationWizard) getWizard()).remediationOperation.setCurrentRemedy(currentRemedy);
 						break;
 					}
 				}
