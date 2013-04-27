@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(InstallWizardTest.class);
 		suite.addTestSuite(InstalledSoftwarePageTest.class);
+		suite.addTestSuite(InstallWithRemediationTest.class);
 		suite.addTestSuite(InstallationHistoryPageTest.class);
 		suite.addTestSuite(UpdateWizardTest.class);
 		suite.addTestSuite(UninstallWizardTest.class);
