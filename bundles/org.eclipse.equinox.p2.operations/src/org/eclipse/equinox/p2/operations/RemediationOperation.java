@@ -120,7 +120,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 		List<Remedy> tmpRemedies = new ArrayList<Remedy>(remedyConfigs.length);
 		try {
 			for (int i = 0; i < remedyConfigs.length; i++) {
-				sub.subTask((i + 1) + " out of " + remedyConfigs.length); //$NON-NLS-1$
+				sub.subTask((i + 1) + " / " + remedyConfigs.length); //$NON-NLS-1$
 				if (sub.isCanceled())
 					return Status.CANCEL_STATUS;
 				Remedy remedy = computeRemedy(remedyConfigs[i], sub.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
