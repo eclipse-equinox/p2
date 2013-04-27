@@ -23,10 +23,6 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 	private LexicoHelper<Object, Explanation> dependencyHelper;
 	private IQueryable<IInstallableUnit> picker;
 
-	//	private List changeVariables = new ArrayList();
-	//	private List removalVariables = new ArrayList();
-	//	private List newVariables = new ArrayList();
-
 	public UserDefinedOptimizationFunction(IQueryable<IInstallableUnit> lastState, List<AbstractVariable> abstractVariables, List<AbstractVariable> optionalVariables, IQueryable<IInstallableUnit> picker, IInstallableUnit selectionContext, Map<String, Map<Version, IInstallableUnit>> slice, DependencyHelper<Object, Explanation> dependencyHelper, Collection<IInstallableUnit> alreadyInstalledIUs) {
 		super(lastState, abstractVariables, optionalVariables, picker, selectionContext, slice);
 		this.picker = picker;
@@ -37,60 +33,40 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 
 	public List<WeightedObject<? extends Object>> createOptimizationFunction(IInstallableUnit metaIu, Collection<IInstallableUnit> newRoots) {
 		List<WeightedObject<?>> weightedObjects = new ArrayList<WeightedObject<?>>();
-		List objects = new ArrayList();
+		List<Object> objects = new ArrayList<Object>();
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
-		String[] criteria = new String[] {"+new", "-changed", "-notuptodate", "-removed"};
+		String[] criteria = new String[] {"+new", "-changed", "-notuptodate", "-removed"}; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 		BigInteger currentWeight = weight.pow(criteria.length - 1);
-		int formermaxvarid = dependencyHelper.getSolver().nextFreeVarId(false);
-		int newmaxvarid;
 		boolean maximizes;
 		Object thing;
 		for (int i = 0; i < criteria.length; i++) {
-			if (criteria[i].endsWith("new")) {
+			if (criteria[i].endsWith("new")) { //$NON-NLS-1$
 				weightedObjects.clear();
-				newRoots(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
+				newRoots(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu); //$NON-NLS-1$
 				currentWeight = currentWeight.divide(weight);
-			} else if (criteria[i].endsWith("removed")) {
+			} else if (criteria[i].endsWith("removed")) { //$NON-NLS-1$
 				weightedObjects.clear();
-				removedRoots(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
+				removedRoots(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu); //$NON-NLS-1$
 				currentWeight = currentWeight.divide(weight);
-			} else if (criteria[i].endsWith("notuptodate")) {
+			} else if (criteria[i].endsWith("notuptodate")) { //$NON-NLS-1$
 				weightedObjects.clear();
-				notuptodate(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
+				notuptodate(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu); //$NON-NLS-1$
 				currentWeight = currentWeight.divide(weight);
-				//			} else if (criteria[i].endsWith("unsat_recommends")) {
-				//				weightedObjects.clear();
-				//				optional(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
-				//				currentWeight = currentWeight.divide(weight);
-				//			} else if (criteria[i].endsWith("versionchanged")) {
-				//				weightedObjects.clear();
-				//				versionChanged(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
-			} else if (criteria[i].endsWith("changed")) {
+			} else if (criteria[i].endsWith("changed")) { //$NON-NLS-1$
 				weightedObjects.clear();
-				changedRoots(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
+				changedRoots(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu); //$NON-NLS-1$
 				currentWeight = currentWeight.divide(weight);
-				//			} else if (criteria[i].contains("sum")) {
-				//				weightedObjects.clear();
-				//				sum(weightedObjects, criteria[i].charAt(0) == '-', metaIu, Options.extractSumProperty(criteria[i]));
-				//				dependencyHelper.addWeightedCriterion(weightedObjects);
-				//				System.out.println("# criteria " + criteria[i].substring(1) + " size is " + weightedObjects.size());
-				//				continue;
-				//			} else {
-				//				System.out.println("Skipping unknown criteria:" + criteria[i]);
 			}
 			objects.clear();
-			maximizes = criteria[i].startsWith("+");
-			for (Iterator it = weightedObjects.iterator(); it.hasNext();) {
-				thing = ((WeightedObject) it.next()).thing;
+			maximizes = criteria[i].startsWith("+"); //$NON-NLS-1$
+			for (Iterator<WeightedObject<?>> it = weightedObjects.iterator(); it.hasNext();) {
+				thing = it.next().thing;
 				if (maximizes) {
 					thing = dependencyHelper.not(thing);
 				}
 				objects.add(thing);
 			}
 			dependencyHelper.addCriterion(objects);
-			newmaxvarid = dependencyHelper.getSolver().nextFreeVarId(false);
-			//			System.out.println("# criteria " + criteria[i].substring(1) + " size is " + objects.size() + " using new vars " + formermaxvarid + " to " + newmaxvarid);
-			formermaxvarid = newmaxvarid;
 		}
 		weightedObjects.clear();
 		return null;
@@ -107,9 +83,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				changed[i++] = isInstalledAsRoot(match) ? dependencyHelper.not(match) : match;
 			}
 			try {
-				Projector.AbstractVariable abs = new Projector.AbstractVariable("CHANGED"); //TODO
-				//				changeVariables.add(abs);
-				// abs <=> iuv1 or not iuv2 or ... or  not iuvn
+				Projector.AbstractVariable abs = new Projector.AbstractVariable("CHANGED"); //$NON-NLS-1$
 				dependencyHelper.or(FakeExplanation.getInstance(), abs, changed);
 				weightedObjects.add(WeightedObject.newWO(abs, weight));
 			} catch (ContradictionException e) {
@@ -130,9 +104,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			}
 			if (!oneInstalled) {
 				try {
-					Projector.AbstractVariable abs = new Projector.AbstractVariable("NEW"); //TODO
-					//					newVariables.add(abs);
-					// a <=> iuv1 or ... or iuvn
+					Projector.AbstractVariable abs = new Projector.AbstractVariable("NEW"); //$NON-NLS-1$
 					dependencyHelper.or(FakeExplanation.getInstance(), abs, matches.toArray(IInstallableUnit.class));
 					weightedObjects.add(WeightedObject.newWO(abs, weight));
 				} catch (ContradictionException e) {
@@ -157,9 +129,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			}
 			if (installed) {
 				try {
-					Projector.AbstractVariable abs = new Projector.AbstractVariable("REMOVED"); //TODO
-					//					removalVariables.add(abs);
-					// abs <=> not iuv1 and ... and  not iuvn
+					Projector.AbstractVariable abs = new Projector.AbstractVariable("REMOVED"); //$NON-NLS-1$
 					dependencyHelper.and(FakeExplanation.getInstance(), abs, literals);
 					weightedObjects.add(WeightedObject.newWO(abs, weight));
 				} catch (ContradictionException e) {
