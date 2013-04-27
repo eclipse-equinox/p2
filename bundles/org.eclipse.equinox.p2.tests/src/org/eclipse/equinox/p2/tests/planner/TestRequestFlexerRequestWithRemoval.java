@@ -76,8 +76,9 @@ public class TestRequestFlexerRequestWithRemoval extends AbstractProvisioningTes
 		{
 			RequestFlexer av = new RequestFlexer(planner);
 			av.setProvisioningContext(context);
+			av.setAllowDifferentVersion(true);
 			IProfileChangeRequest realRequest = av.getChangeRequest(originalRequest, profile, new NullProgressMonitor());
-			assertTrue(realRequest.getAdditions().contains(egit2));
+			assertTrue(realRequest.getAdditions().contains(egit1));
 			assertTrue(realRequest.getRemovals().contains(sdk1));
 			assertEquals(1, realRequest.getAdditions().size());
 			assertResolve(realRequest, planner);

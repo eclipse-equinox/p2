@@ -97,15 +97,23 @@ public class RequestFlexer {
 			return null;
 		}
 		IProfileChangeRequest effectiveRequest = computeEffectiveChangeRequest(intermediaryPlan, loosenedRequest, request);
-		if (effectiveRequest.getAdditions().isEmpty() && effectiveRequest.getRemovals().isEmpty())
+		if (isRequestUseless(effectiveRequest))
 			return null;
 		return effectiveRequest;
+	}
+
+	private boolean isRequestUseless(IProfileChangeRequest effectiveRequest) {
+		if (effectiveRequest.getAdditions().isEmpty() && effectiveRequest.getRemovals().isEmpty())
+			return true;
+		if (effectiveRequest.getRemovals().containsAll(effectiveRequest.getAdditions()))
+			return true;
+		return false;
 	}
 
 	private boolean canShortCircuit(IProfileChangeRequest originalRequest) {
 		//Case where the user is asking to install only some of the requested IUs but there is only one IU to install. 
 		if (allowPartialInstall && !allowInstalledUpdate && !allowDifferentVersion && !allowInstalledRemoval)
-			if (originalRequest.getAdditions().size() == 1 && originalRequest.getRemovals().isEmpty())
+			if (originalRequest.getAdditions().size() == 1)
 				return true;
 
 		//When we can find a different version of the IU but the only version available is the one the user is asking to install
@@ -116,6 +124,9 @@ public class RequestFlexer {
 		if (allowInstalledUpdate && !allowDifferentVersion && !allowPartialInstall && !allowInstalledRemoval)
 			if (!foundDifferentVersionsForElementsInstalled)
 				return true;
+
+		if (!allowPartialInstall && !allowInstalledUpdate && !allowDifferentVersion && !allowInstalledRemoval)
+			return true;
 
 		return false;
 	}
@@ -219,7 +230,7 @@ public class RequestFlexer {
 		//First deal with the IUs that are being added
 		Collection<IInstallableUnit> requestedAdditions = originalRequest.getAdditions();
 		for (IInstallableUnit addedIU : requestedAdditions) {
-			Collection<IInstallableUnit> potentialUpdates = allowDifferentVersion ? findAllVersionsAvailable(addedIU) : new ArrayList();
+			Collection<IInstallableUnit> potentialUpdates = allowDifferentVersion ? findAllVersionsAvailable(addedIU) : new ArrayList<IInstallableUnit>();
 			foundDifferentVersionsForElementsToInstall = (foundDifferentVersionsForElementsToInstall || (potentialUpdates.size() == 0 ? false : true));
 			potentialUpdates.add(addedIU); //Make sure that we include the IU that we were initially trying to install
 
@@ -312,6 +323,8 @@ public class RequestFlexer {
 	//Loosen up the IUs that are already part of the profile
 	//Given how we are creating our request, this needs to take into account the removal from the original request as well as the change in inclusion 
 	private IProfileChangeRequest loosenUpInstalledSoftware(IProfileChangeRequest request, IProfileChangeRequest originalRequest) {
+		if (!allowInstalledRemoval && !allowInstalledUpdate)
+			return request;
 		Set<IInstallableUnit> allRoots = getRoots();
 
 		for (IInstallableUnit existingIU : allRoots) {

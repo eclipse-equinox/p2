@@ -75,14 +75,6 @@ public class TestRequestFlexerIUProperties extends AbstractProvisioningTest {
 		assertNotOK(planner.getProvisioningPlan(originalRequest, null, null).getStatus());
 
 		{
-			//sdk1 is requested to be marked strict, so since sdk1 and egit can't be installed together and we don't have any flexibility, we get null
-			RequestFlexer av = new RequestFlexer(planner);
-			av.setProvisioningContext(context);
-			IProfileChangeRequest realRequest = av.getChangeRequest(originalRequest, profile, new NullProgressMonitor());
-			assertNull(realRequest);
-		}
-
-		{
 			//Verify that it is possible to install egit2 because the sdk1 is optional
 			RequestFlexer av = new RequestFlexer(planner);
 			av.setAllowInstalledElementChange(true);
@@ -134,14 +126,7 @@ public class TestRequestFlexerIUProperties extends AbstractProvisioningTest {
 
 		{
 			//Verify that it is possible to install egit2 because the sdk1 inclusion is change to optional
-			RequestFlexer av = new RequestFlexer(planner);
-			av.setProvisioningContext(context);
-			IProfileChangeRequest realRequest = av.getChangeRequest(originalRequest, profile, new NullProgressMonitor());
-			assertTrue(realRequest.getAdditions().contains(egit2));
-			assertTrue(realRequest.getRemovals().contains(sdk1));
-			assertEquals(1, realRequest.getAdditions().size());
-			assertEquals(1, realRequest.getRemovals().size());
-			assertResolve(realRequest, planner);
+			assertResolve(originalRequest, planner);
 		}
 
 		{
