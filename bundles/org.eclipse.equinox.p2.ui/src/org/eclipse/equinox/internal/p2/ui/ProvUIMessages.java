@@ -85,6 +85,7 @@ public class ProvUIMessages extends NLS {
 
 	// Provisioning operations
 	public static String ProvisioningOperationRunner_CannotApplyChanges;
+	public static String ProvisioningOperationWizard_Remediation_Operation;
 	public static String ProvisioningOperationWizard_UnexpectedFailureToResolve;
 	public static String InstalledSoftwarePage_NoProfile;
 	public static String InstallIUOperationLabel;

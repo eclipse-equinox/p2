@@ -16,7 +16,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
@@ -257,10 +256,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		recomputePlan(runnableContext, false);
 	}
 
-	public void computeRemediationOperation(ProfileChangeOperation operation, ProvisioningUI ui, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, "remediationoperation", RemedyConfig.getAllRemdyConfigs().length);
-		monitor.setTaskName("compute remediation operation");
-		remediationOperation = new RemediationOperation(ui.getSession(), (ProfileChangeRequest) operation.getProfileChangeRequest());
+	public void computeRemediationOperation(ProfileChangeOperation op, ProvisioningUI ui, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation, RemedyConfig.getAllRemdyConfigs().length);
+		monitor.setTaskName(ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation);
+		remediationOperation = new RemediationOperation(ui.getSession(), op.getProfileChangeRequest());
 		remediationOperation.getResolveJob(monitor);
 		sub.done();
 	}
