@@ -56,7 +56,6 @@ public class RemediationPage extends ResolutionStatusPage {
 		setPageComplete(false);
 
 		Dialog.applyDialogFont(mainComposite);
-
 	}
 
 	public ArrayList<AvailableIUElement> transformIUstoIUElements() {
@@ -69,59 +68,52 @@ public class RemediationPage extends ResolutionStatusPage {
 
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation operation, Object[] planSelections) {
 		remediationComposite.update(((ProvisioningOperationWizard) getWizard()).getRemediationOperation());
+		setDetailText(operation);
 	}
 
 	@Override
 	protected void updateCaches(IUElementListRoot root, ProfileChangeOperation resolvedOperation) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	protected boolean isCreated() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	protected IUDetailsGroup getDetailsGroup() {
-		// TODO Auto-generated method stub
-		return null;
+		return remediationComposite.getDetailsGroup();
 	}
 
 	@Override
 	protected IInstallableUnit getSelectedIU() {
-		// TODO Auto-generated method stub
+		// Not applicable
 		return null;
 	}
 
 	@Override
 	protected Object[] getSelectedElements() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Object[] {};
 	}
 
 	@Override
 	protected String getDialogSettingsName() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	protected SashForm getSashForm() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	protected int getColumnWidth(int index) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	protected String getClipboardText(Control control) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

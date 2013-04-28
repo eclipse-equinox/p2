@@ -28,27 +28,29 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 public class RemediationComposite {
+	final int ALLOWPARTIALINSTALL_INDEX = 0;
+	final int ALLOWDIFFERENTVERSION_INDEX = 1;
+	final int ALLOWINSTALLEDUPDATE_INDEX = 2;
+	final int ALLOWINSTALLEDREMOVAL_INDEX = 3;
 
 	private RemediationOperation remediationOperation;
 	private Composite remediationComposite;
 	private Button bestBeingInstalledRelaxedButton;
 	private Button bestInstalledRelaxedButton;
-	private Button buildMyOwnSolution;
+	Button buildMyOwnSolution;
 	final ArrayList<Button> checkboxes;
 	private Composite resultFoundComposite;
 	private Composite resultComposite;
 	private Composite resultNotFoundComposite;
 	private Composite resultErrorComposite;
-	final int ALLOWPARTIALINSTALL_INDEX = 0;
-	final int ALLOWDIFFERENTVERSION_INDEX = 1;
-	final int ALLOWINSTALLEDUPDATE_INDEX = 2;
-	final int ALLOWINSTALLEDREMOVAL_INDEX = 3;
+
 	private TreeViewer treeViewer;
 	protected IUElementListRoot input;
 	private StackLayout switchRemediationLayout;
 	Group detailsControl;
 	Text detailStatusText;
-	private static Composite checkBoxesComposite;
+	Composite checkBoxesComposite;
+	private IUDetailsGroup iuDetailsGroup;
 
 	public RemediationComposite() {
 		checkboxes = new ArrayList<Button>();
@@ -156,12 +158,17 @@ public class RemediationComposite {
 		resultNotFoundLabel.setText(ProvUIMessages.RemediationPage_NoSolutionFound);
 
 		resultFoundComposite = new Composite(resultComposite, SWT.NONE);
+		resultFoundComposite.setLayout(new GridLayout());
+
+		Group insideFoundComposite = new Group(resultFoundComposite, SWT.NONE);
+		insideFoundComposite.setText("Solution details");
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.marginWidth = 0;
 		gridLayout.marginHeight = 0;
-		resultFoundComposite.setLayout(gridLayout);
+		insideFoundComposite.setLayout(gridLayout);
+		insideFoundComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		treeViewer = new TreeViewer(resultFoundComposite, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
+		treeViewer = new TreeViewer(insideFoundComposite, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 		data = new GridData(GridData.FILL_BOTH);
 		Tree tree = treeViewer.getTree();
 		tree.setLayoutData(data);
@@ -177,6 +184,13 @@ public class RemediationComposite {
 		treeViewer.setContentProvider(contentProvider);
 		IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider(null, columns, null);
 		treeViewer.setLabelProvider(labelProvider); //	columnLayout.setColumnData(column.getColumn(), new ColumnWeightData(100, 100, true));
+
+		iuDetailsGroup = new IUDetailsGroup(resultErrorComposite, treeViewer, 500, true);
+
+	}
+
+	protected IUDetailsGroup getDetailsGroup() {
+		return iuDetailsGroup;
 	}
 
 	public void update(RemediationOperation operation) {
