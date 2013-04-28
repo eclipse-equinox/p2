@@ -180,6 +180,15 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		StringBuffer result = new StringBuffer();
 		if (matchExpression.getParameters().length == 0)
 			return matchExpression.toString();
+
+		if (matchExpression.getParameters().length < 3 || matchExpression.getParameters().length > 3) {
+			result.append(matchExpression.toString()).append(' ');
+			for (int i = 0; i < matchExpression.getParameters().length; i++) {
+				result.append(matchExpression.getParameters()[i]).append(' ');
+			}
+			return result.toString();
+		}
+
 		if (IInstallableUnit.NAMESPACE_IU_ID.equals(getNamespace())) {
 			//print nothing for an IU id dependency because this is the default (most common) case
 			result.append(""); //$NON-NLS-1$
