@@ -29,6 +29,7 @@ public class RequestFlexer {
 	final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
 	final String INCLUSION_OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
 	final String INCLUSION_STRICT = "STRICT"; //$NON-NLS-1$
+	final String EXPLANATION_ENABLEMENT = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
 
 	IPlanner planner;
 
@@ -220,8 +221,18 @@ public class RequestFlexer {
 	}
 
 	private IProvisioningPlan resolve(IProfileChangeRequest temporaryRequest) {
-		temporaryRequest.setProfileProperty("_internal_user_defined_", "true");
-		return planner.getProvisioningPlan(temporaryRequest, provisioningContext, null);
+		String explainPropertyBackup = null;
+		try {
+			temporaryRequest.setProfileProperty("_internal_user_defined_", "true");
+			explainPropertyBackup = provisioningContext.getProperty(EXPLANATION_ENABLEMENT);
+			provisioningContext.setProperty(EXPLANATION_ENABLEMENT, Boolean.FALSE.toString());
+			return planner.getProvisioningPlan(temporaryRequest, provisioningContext, null);
+		} finally {
+			if (explainPropertyBackup == null)
+				provisioningContext.getProperties().remove(EXPLANATION_ENABLEMENT);
+			else
+				provisioningContext.setProperty(EXPLANATION_ENABLEMENT, explainPropertyBackup);
+		}
 	}
 
 	//Loosen the request originally emitted.
