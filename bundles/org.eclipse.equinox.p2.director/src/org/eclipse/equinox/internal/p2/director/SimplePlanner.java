@@ -162,9 +162,6 @@ public class SimplePlanner implements IPlanner {
 			} else if (specificMessage == null && next instanceof Explanation.Singleton) {
 				specificMessage = Messages.Explanation_rootSingleton;
 				errorCode = 10054;
-			} else if (specificMessage == null && next instanceof Explanation.NotInstallableRoot) {
-				specificMessage = "The selected element is not installable for this platform";
-				errorCode = 10055;
 			}
 		}
 		//use a more specific root message if available
