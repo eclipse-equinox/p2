@@ -286,7 +286,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 						operation.resolveModal(monitor);
 						if (withRemediation) {
 							IStatus status = operation.getResolutionResult();
-							if (remediationPage != null && (status == null || (status.getSeverity() == IStatus.ERROR && status.getCode() != 10053))) {
+							if (remediationPage != null && shouldRemediate(status)) {
 								computeRemediationOperation(operation, ui, monitor);
 							}
 						}
@@ -300,6 +300,14 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			}
 		}
 		planChanged();
+	}
+
+	boolean shouldRemediate(IStatus status) {
+		if (status == null)
+			return true;
+		if (status.getSeverity() != IStatus.ERROR)
+			return false;
+		return true;
 	}
 
 	/*
