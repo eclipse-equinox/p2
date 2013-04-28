@@ -145,7 +145,8 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		makeResolveJob(mon.newChild(100));
 		if (mon.isCanceled())
 			return null;
-		job.setAdditionalProgressMonitor(mon.newChild(900));
+		if (job != null)
+			job.setAdditionalProgressMonitor(mon.newChild(900));
 		return job;
 	}
 
