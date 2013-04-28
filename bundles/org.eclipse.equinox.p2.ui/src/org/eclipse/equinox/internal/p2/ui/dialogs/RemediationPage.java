@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import java.util.ArrayList;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
@@ -28,7 +26,7 @@ import org.eclipse.swt.widgets.Control;
 
 public class RemediationPage extends ResolutionStatusPage {
 
-	private RemediationComposite remediationComposite;
+	private RemediationGroup remediationGroup;
 	private Composite mainComposite;
 
 	protected RemediationPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
@@ -46,28 +44,24 @@ public class RemediationPage extends ResolutionStatusPage {
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setLayout(new GridLayout());
 
-		remediationComposite = new RemediationComposite();
-		remediationComposite.createRemediationControl(mainComposite);
-		Composite innerComposite = remediationComposite.getComposite();
-		setMessage(remediationComposite.getMessage(), IStatus.WARNING);
+		remediationGroup = new RemediationGroup(this);
+		remediationGroup.createRemediationControl(mainComposite);
+		Composite remediationComposite = remediationGroup.getComposite();
+		setMessage(remediationGroup.getMessage(), IStatus.WARNING);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		innerComposite.setLayoutData(gd);
+		remediationComposite.setLayoutData(gd);
 		setControl(mainComposite);
 		setPageComplete(false);
 
 		Dialog.applyDialogFont(mainComposite);
 	}
 
-	public ArrayList<AvailableIUElement> transformIUstoIUElements() {
-		return remediationComposite.transformIUstoIUElements();
-	}
-
 	public boolean canFlipToNextPage() {
-		return isPageComplete();
+		return isPageComplete() && ((ProvisioningOperationWizard) getWizard()).getRemediationOperation().getCurrentRemedy() != null;
 	}
 
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation operation, Object[] planSelections) {
-		remediationComposite.update(((ProvisioningOperationWizard) getWizard()).getRemediationOperation());
+		remediationGroup.update(((ProvisioningOperationWizard) getWizard()).getRemediationOperation());
 		setDetailText(operation);
 	}
 
@@ -83,7 +77,7 @@ public class RemediationPage extends ResolutionStatusPage {
 
 	@Override
 	protected IUDetailsGroup getDetailsGroup() {
-		return remediationComposite.getDetailsGroup();
+		return remediationGroup.getDetailsGroup();
 	}
 
 	@Override

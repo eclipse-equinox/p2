@@ -65,9 +65,9 @@ public class InstallWizard extends WizardWithLicenses {
 			return;
 		root = new IUElementListRoot();
 		if (operation instanceof RemediationOperation) {
-			ArrayList<AvailableIUElement> list = remediationPage.transformIUstoIUElements();
-			root.setChildren(list.toArray());
-			planSelections = list.toArray();
+			AvailableIUElement[] elements = ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy());
+			root.setChildren(elements);
+			planSelections = elements;
 		} else {
 			ArrayList<AvailableIUElement> list = new ArrayList<AvailableIUElement>(selectedElements.length);
 			ArrayList<AvailableIUElement> selections = new ArrayList<AvailableIUElement>(selectedElements.length);

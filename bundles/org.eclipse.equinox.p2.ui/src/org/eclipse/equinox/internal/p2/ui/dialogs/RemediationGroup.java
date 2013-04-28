@@ -21,24 +21,25 @@ import org.eclipse.equinox.p2.operations.RemediationOperation;
 import org.eclipse.equinox.p2.operations.Remedy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
-public class RemediationComposite {
+public class RemediationGroup {
 	final int ALLOWPARTIALINSTALL_INDEX = 0;
 	final int ALLOWDIFFERENTVERSION_INDEX = 1;
 	final int ALLOWINSTALLEDUPDATE_INDEX = 2;
 	final int ALLOWINSTALLEDREMOVAL_INDEX = 3;
 
 	private RemediationOperation remediationOperation;
-	private Composite remediationComposite;
+	Composite remediationComposite;
 	private Button bestBeingInstalledRelaxedButton;
 	private Button bestInstalledRelaxedButton;
 	Button buildMyOwnSolution;
-	final ArrayList<Button> checkboxes;
+	final ArrayList<Button> checkboxes = new ArrayList<Button>();
 	private Composite resultFoundComposite;
 	private Composite resultComposite;
 	private Composite resultNotFoundComposite;
@@ -52,8 +53,15 @@ public class RemediationComposite {
 	Composite checkBoxesComposite;
 	private IUDetailsGroup iuDetailsGroup;
 
-	public RemediationComposite() {
-		checkboxes = new ArrayList<Button>();
+	HashMap<String, String[]> CONSTRAINTS;
+	private WizardPage containerPage;
+
+	public RemediationGroup(WizardPage page) {
+		CONSTRAINTS = new HashMap<String, String[]>();
+		CONSTRAINTS.put(ProvUIMessages.RemediationPage_BeingInstalledSection, new String[] {ProvUIMessages.RemediationPage_BeingInstalledSection_AllowPartialInstall, ProvUIMessages.RemediationPage_BeingInstalledSection_AllowDifferentVersion});
+		CONSTRAINTS.put(ProvUIMessages.RemediationPage_InstalledSection, new String[] {ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledUpdate, ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledRemoval});
+
+		containerPage = page;
 	}
 
 	public Composite getComposite() {
@@ -61,17 +69,9 @@ public class RemediationComposite {
 	}
 
 	public void createRemediationControl(Composite container) {
-
 		remediationComposite = new Composite(container, SWT.NONE);
 		remediationComposite.setLayout(new GridLayout());
 		Listener bestSolutionlistener;
-
-		final HashMap<String, String[]> CONSTRAINTS = new HashMap<String, String[]>() {
-			{
-				put(ProvUIMessages.RemediationPage_BeingInstalledSection, new String[] {ProvUIMessages.RemediationPage_BeingInstalledSection_AllowPartialInstall, ProvUIMessages.RemediationPage_BeingInstalledSection_AllowDifferentVersion});
-				put(ProvUIMessages.RemediationPage_InstalledSection, new String[] {ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledUpdate, ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledRemoval});
-			}
-		};
 
 		Label descriptionLabel = new Label(remediationComposite, SWT.NONE);
 		descriptionLabel.setText(ProvUIMessages.RemediationPage_SubDescription);
@@ -95,7 +95,7 @@ public class RemediationComposite {
 					checkBoxesComposite.setVisible(false);
 					((GridData) checkBoxesComposite.getLayoutData()).exclude = true;
 				}
-				refreshRemediationResultComposite();
+				refresh();
 				remediationComposite.layout(false);
 			}
 		};
@@ -114,7 +114,7 @@ public class RemediationComposite {
 
 		Listener relaxedConstraintlistener = new Listener() {
 			public void handleEvent(Event e) {
-				refreshRemediationResultComposite();
+				refresh();
 			}
 		};
 		checkBoxesComposite = new Composite(remediationComposite, SWT.NONE);
@@ -221,14 +221,13 @@ public class RemediationComposite {
 			buildMyOwnSolution.setData(remediationOperation.getRemedies().get(0));
 			buildMyOwnSolution.notifyListeners(SWT.Selection, new Event());
 		}
-
 	}
 
 	private boolean isContraintOK(int btnIndex, boolean value) {
 		return (checkboxes.get(btnIndex).getSelection() && value) || (!checkboxes.get(btnIndex).getSelection() && !value);
 	}
 
-	public void refreshRemediationResultComposite() {
+	void refresh() {
 		resultComposite.setVisible(true);
 		remediationOperation.setCurrentRemedy(null);
 		Remedy currentRemedy = null;
@@ -263,9 +262,10 @@ public class RemediationComposite {
 			}
 		}
 		resultComposite.layout();
+		containerPage.setPageComplete(currentRemedy != null);
 	}
 
-	public ArrayList<AvailableIUElement> transformIUstoIUElements() {
+	private ArrayList<AvailableIUElement> transformIUstoIUElements() {
 		ArrayList<AvailableIUElement> temp = new ArrayList<AvailableIUElement>();
 
 		ArrayList<String> updateIds = new ArrayList<String>();

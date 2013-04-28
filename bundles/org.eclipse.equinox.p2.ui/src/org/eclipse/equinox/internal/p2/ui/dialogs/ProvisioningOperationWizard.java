@@ -143,7 +143,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				couldNotResolve(null);
 			}
 			operation = remediationOperation;
-			initializeResolutionModelElements(remediationPage.transformIUstoIUElements().toArray());
+			initializeResolutionModelElements(ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy()));
 			planChanged();
 			return resolutionPage;
 		} else if (page == mainPage || page == errorPage) {

@@ -118,9 +118,9 @@ public class UpdateWizard extends WizardWithLicenses {
 			return;
 		root = new IUElementListRoot();
 		if (operation instanceof RemediationOperation) {
-			ArrayList<AvailableIUElement> list = remediationPage.transformIUstoIUElements();
-			root.setChildren(list.toArray());
-			planSelections = list.toArray();
+			AvailableIUElement[] elements = ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy());
+			root.setChildren(elements);
+			planSelections = elements;
 		} else {
 			ArrayList<AvailableUpdateElement> list = new ArrayList<AvailableUpdateElement>(selectedElements.length);
 			ArrayList<AvailableUpdateElement> selected = new ArrayList<AvailableUpdateElement>(selectedElements.length);

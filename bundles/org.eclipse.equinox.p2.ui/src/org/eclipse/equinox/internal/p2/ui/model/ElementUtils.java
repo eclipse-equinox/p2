@@ -17,6 +17,7 @@ import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.Remedy;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -122,5 +123,38 @@ public class ElementUtils {
 			if (locations[i].equals(url))
 				return true;
 		return false;
+	}
+
+	public static AvailableIUElement[] requestToElement(Remedy remedy) {
+		if (remedy == null)
+			return new AvailableIUElement[0];
+		ArrayList<AvailableIUElement> temp = new ArrayList<AvailableIUElement>();
+
+		ArrayList<String> updateIds = new ArrayList<String>();
+		IUElementListRoot root = new IUElementListRoot();
+		for (IInstallableUnit addedIU : remedy.getRequest().getAdditions()) {
+			AvailableIUElement element = new AvailableIUElement(root, addedIU, ProvisioningUI.getDefaultUI().getProfileId(), true);
+			for (IInstallableUnit removedIU : remedy.getRequest().getRemovals()) {
+				if (removedIU.getId().equals(addedIU.getId())) {
+					int addedComparedToRemoved = addedIU.getVersion().compareTo(removedIU.getVersion());
+					element.setBeingDowngraded(addedComparedToRemoved < 0);
+					element.setBeingUpgraded(addedComparedToRemoved > 0);
+					updateIds.add(addedIU.getId());
+					break;
+				}
+			}
+			if (!updateIds.contains(addedIU.getId())) {
+				element.setBeingAdded(true);
+			}
+			temp.add(element);
+		}
+		for (IInstallableUnit removedIU : remedy.getRequest().getRemovals()) {
+			if (!updateIds.contains(removedIU.getId())) {
+				AvailableIUElement element = new AvailableIUElement(root, removedIU, ProvisioningUI.getDefaultUI().getProfileId(), false);
+				element.setBeingRemoved(true);
+				temp.add(element);
+			}
+		}
+		return temp.toArray(new AvailableIUElement[temp.size()]);
 	}
 }
