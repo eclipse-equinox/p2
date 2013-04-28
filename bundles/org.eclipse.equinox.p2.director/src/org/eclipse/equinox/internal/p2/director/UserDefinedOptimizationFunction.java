@@ -147,6 +147,9 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			IQueryResult<IInstallableUnit> matches = picker.query(query, null);
 			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(matches.toUnmodifiableSet());
 			Collections.sort(toSort, Collections.reverseOrder());
+			if (toSort.size() == 0)
+				continue;
+
 			Projector.AbstractVariable abs = new Projector.AbstractVariable();
 			Object notlatest = dependencyHelper.not(toSort.get(0));
 			try {
