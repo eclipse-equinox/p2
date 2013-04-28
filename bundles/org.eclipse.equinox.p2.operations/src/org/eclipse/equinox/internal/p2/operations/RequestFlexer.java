@@ -224,14 +224,18 @@ public class RequestFlexer {
 		String explainPropertyBackup = null;
 		try {
 			temporaryRequest.setProfileProperty("_internal_user_defined_", "true");
-			explainPropertyBackup = provisioningContext.getProperty(EXPLANATION_ENABLEMENT);
-			provisioningContext.setProperty(EXPLANATION_ENABLEMENT, Boolean.FALSE.toString());
+			if (provisioningContext != null) {
+				explainPropertyBackup = provisioningContext.getProperty(EXPLANATION_ENABLEMENT);
+				provisioningContext.setProperty(EXPLANATION_ENABLEMENT, Boolean.FALSE.toString());
+			}
 			return planner.getProvisioningPlan(temporaryRequest, provisioningContext, null);
 		} finally {
-			if (explainPropertyBackup == null)
-				provisioningContext.getProperties().remove(EXPLANATION_ENABLEMENT);
-			else
-				provisioningContext.setProperty(EXPLANATION_ENABLEMENT, explainPropertyBackup);
+			if (provisioningContext != null) {
+				if (explainPropertyBackup == null)
+					provisioningContext.getProperties().remove(EXPLANATION_ENABLEMENT);
+				else
+					provisioningContext.setProperty(EXPLANATION_ENABLEMENT, explainPropertyBackup);
+			}
 		}
 	}
 
