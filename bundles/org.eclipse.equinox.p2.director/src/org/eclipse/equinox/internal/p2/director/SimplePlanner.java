@@ -140,7 +140,7 @@ public class SimplePlanner implements IPlanner {
 		for (Explanation next : explanations) {
 			if (next instanceof Explanation.MissingIU) {
 				Explanation.MissingIU missingIU = (MissingIU) next;
-				if (missingIU.req instanceof IRequiredCapability && "A.PDE.Target.Platform".equals(((IRequiredCapability) missingIU.req).getNamespace())) //$NON-NLS-1$
+				if (missingIU.req instanceof IRequiredCapability && missingIU.req.getMatches().getParameters().length == 3 && "A.PDE.Target.Platform".equals(((IRequiredCapability) missingIU.req).getNamespace())) //$NON-NLS-1$
 					forTargets.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, missingIU.getUserReadableName(missingIU.iu)));
 			}
 		}
@@ -162,6 +162,9 @@ public class SimplePlanner implements IPlanner {
 			} else if (specificMessage == null && next instanceof Explanation.Singleton) {
 				specificMessage = Messages.Explanation_rootSingleton;
 				errorCode = 10054;
+			} else if (specificMessage == null && next instanceof Explanation.NotInstallableRoot) {
+				specificMessage = "The selected element is not installable for this platform";
+				errorCode = 10055;
 			}
 		}
 		//use a more specific root message if available
