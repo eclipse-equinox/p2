@@ -102,7 +102,7 @@ public class PreviousConfigurationFinderTest extends AbstractProvisioningTest {
 		List<ConfigurationDescriptor> configs = new PreviousConfigurationFinder(configFolder).readPreviousConfigurations(configFolder);
 		ConfigurationDescriptor match = new PreviousConfigurationFinder(configFolder).findMostRelevantConfigurationFromProductId(configs, referenceConfiguration);
 		assertEquals("org.eclipse.platform", match.getProductId());
-		assertEquals(new Identifier(3, 8, 0), match.getVersion());
+		assertEquals(new Identifier(3, 8, 1), match.getVersion());
 		assertNull(match.getPlatformConfig());
 
 	}

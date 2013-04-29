@@ -195,7 +195,8 @@ public class PreviousConfigurationFinder {
 						bestMatch = candidate;
 					}
 				} else {
-					bestMatch = candidate;
+					if (candidate.getVersion().isGreaterEqualTo(bestMatch.getVersion()))
+						bestMatch = candidate;
 				}
 			}
 		}
@@ -229,7 +230,8 @@ public class PreviousConfigurationFinder {
 						bestMatch = candidate;
 					}
 				} else {
-					bestMatch = candidate;
+					if (candidate.getVersion().isGreaterEqualTo(bestMatch.getVersion()))
+						bestMatch = candidate;
 				}
 			}
 		}
