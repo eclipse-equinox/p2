@@ -200,6 +200,23 @@ public class ProvisioningUI {
 	 * @return the wizard return code
 	 */
 	public int openInstallWizard(Collection<IInstallableUnit> initialSelections, InstallOperation operation, LoadMetadataRepositoryJob job) {
+		return openInstallWizard(initialSelections, operation, null, job);
+	}
+
+	/**
+	 * Open an install wizard for installing the specified IInstallableUnits and remediationOperation.
+	 * 
+	 * @param initialSelections the IInstallableUnits that should be selected when the wizard opens.  May be <code>null</code>.
+	 * @param operation the operation describing the proposed install.  If this operation is not <code>null</code>, then a wizard showing
+	 * only the IInstallableUnits described in the operation will be shown.  If the operation is <code>null</code>, then a
+	 * wizard allowing the user to browse the repositories will be opened.
+	 * @param remediationOperation the alternate operations if the proposed update failed.  May be <code>null</code>.
+	 * @param job a repository load job that is loading or has already loaded the repositories.  Can be used to pass along
+	 * an in-memory repository reference to the wizard.
+	 * 
+	 * @return the wizard return code
+	 */
+	public int openInstallWizard(Collection<IInstallableUnit> initialSelections, InstallOperation operation, RemediationOperation remediationOperation, LoadMetadataRepositoryJob job) {
 		if (operation == null) {
 			InstallWizard wizard = new InstallWizard(this, operation, initialSelections, job);
 			WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
@@ -208,6 +225,7 @@ public class ProvisioningUI {
 			return dialog.open();
 		}
 		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(this, operation, initialSelections, job);
+		wizard.setRemediationOperation(remediationOperation);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);

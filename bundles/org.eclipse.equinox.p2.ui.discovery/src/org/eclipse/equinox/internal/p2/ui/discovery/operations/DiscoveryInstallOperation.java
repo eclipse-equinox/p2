@@ -16,6 +16,7 @@ import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.discovery.DiscoveryUi;
 import org.eclipse.equinox.internal.p2.ui.discovery.util.WorkbenchUtil;
 import org.eclipse.equinox.internal.p2.ui.discovery.wizards.Messages;
@@ -59,7 +60,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 
 	public void run(IProgressMonitor progressMonitor) throws InvocationTargetException, InterruptedException {
 		try {
-			SubMonitor monitor = SubMonitor.convert(progressMonitor, Messages.InstallConnectorsJob_task_configuring, 100);
+			SubMonitor monitor = SubMonitor.convert(progressMonitor, Messages.InstallConnectorsJob_task_configuring, 150);
 			try {
 				final IInstallableUnit[] ius = computeInstallableUnits(monitor.newChild(50));
 
@@ -69,11 +70,22 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 
 				checkCancelled(monitor);
 
-				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, null);
-					}
-				});
+				if (installOperation.getResolutionResult().getSeverity() > IStatus.WARNING) {
+					monitor.setTaskName(ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation);
+					final RemediationOperation remediationOperation = new RemediationOperation(provisioningUI.getSession(), installOperation.getProfileChangeRequest());
+					remediationOperation.getResolveJob(monitor.newChild(50));
+					Display.getDefault().asyncExec(new Runnable() {
+						public void run() {
+							provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, remediationOperation, null);
+						}
+					});
+				} else {
+					Display.getDefault().asyncExec(new Runnable() {
+						public void run() {
+							provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, null);
+						}
+					});
+				}
 			} finally {
 				monitor.done();
 			}
@@ -92,10 +104,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 
 	private InstallOperation resolve(IProgressMonitor monitor, final IInstallableUnit[] ius, URI[] repositories) throws CoreException {
 		final InstallOperation installOperation = provisioningUI.getInstallOperation(Arrays.asList(ius), repositories);
-		IStatus operationStatus = installOperation.resolveModal(new SubProgressMonitor(monitor, installableConnectors.size()));
-		if (operationStatus.getSeverity() > IStatus.WARNING) {
-			throw new CoreException(operationStatus);
-		}
+		installOperation.resolveModal(new SubProgressMonitor(monitor, installableConnectors.size()));
 		return installOperation;
 	}
 

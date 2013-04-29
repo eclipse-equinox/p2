@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.operations.InstallOperation;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.jface.wizard.IWizardPage;
 
 /**
  * An Install wizard that is invoked when the user has already selected which
@@ -36,6 +37,14 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 		super(ui, operation, initialSelections.toArray(), job);
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));
+	}
+
+	@Override
+	public IWizardPage getStartingPage() {
+		if (remediationOperation != null && remediationOperation.hasRemedies()) {
+			return getNextPage(mainPage);
+		}
+		return super.getStartingPage();
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
@@ -88,8 +97,8 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 
 	@Override
 	protected RemediationPage createRemediationPage() {
-		// TODO Auto-generated method stub
-		return null;
+		remediationPage = new RemediationPage(ui, this, root, operation);
+		return remediationPage;
 	}
 
 }
