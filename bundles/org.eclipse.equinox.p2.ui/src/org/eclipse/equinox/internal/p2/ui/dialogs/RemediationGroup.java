@@ -189,7 +189,7 @@ public class RemediationGroup {
 
 	}
 
-	protected IUDetailsGroup getDetailsGroup() {
+	public IUDetailsGroup getDetailsGroup() {
 		return iuDetailsGroup;
 	}
 
