@@ -44,9 +44,9 @@ public class SharedProfilePreferencesTestWithDataInUser extends AbstractProvisio
 		copy("copy user home data", userHomeToCopy, userHomeToCopyTo);
 
 		System.setProperty("osgi.sharedConfiguration.area", new File(baseInstall, "configuration").toURI().toString());
-		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString());
+		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString() + '/');
 		System.setProperty("eclipse.p2.profile", "epp.package.java");
-		System.setProperty("eclipse.p2.data.area", "@config.dir//../p2");
+		System.setProperty("eclipse.p2.data.area", "@config.dir/../p2");
 		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
 		prefService.getRootNode().node("/profile/").removeNode();
 		p2Core.start();

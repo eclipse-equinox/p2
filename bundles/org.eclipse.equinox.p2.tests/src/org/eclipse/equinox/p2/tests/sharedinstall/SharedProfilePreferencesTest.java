@@ -47,7 +47,7 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		copy("copy user home data", userHomeToCopy, userHomeToCopyTo);
 
 		System.setProperty("osgi.sharedConfiguration.area", new File(baseInstall, "configuration").toURI().toString());
-		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString());
+		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString() + '/');
 		System.setProperty("eclipse.p2.profile", "epp.package.java");
 		System.setProperty("eclipse.p2.data.area", "@config.dir/../p2");
 		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
@@ -59,7 +59,7 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
 		assertNotNull(prefService);
 		try {
-			URI defaultLocation = URIUtil.makeAbsolute(URIUtil.fromString(TestActivator.getContext().getProperty("osgi.configuration.area") + "/../p2/"), new URI("."));
+			URI defaultLocation = adjustTrailingSlash(URIUtil.makeAbsolute(URIUtil.fromString(TestActivator.getContext().getProperty("osgi.configuration.area") + "/../p2/"), new URI(".")), true);
 			String locationString = EncodingUtils.encodeSlashes(defaultLocation.toString());
 			Preferences node = prefService.getRootNode().node("/profile/shared/" + locationString + "/_SELF_/org.eclipse.equinox.p2.metadata.repository/repositories"); //$NON-NLS-1$
 			String[] children = node.childrenNames();
@@ -72,6 +72,14 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 			fail("Exception", e);
 		}
 
+	}
+
+	private static URI adjustTrailingSlash(URI url, boolean trailingSlash) throws URISyntaxException {
+		String file = url.toString();
+		if (trailingSlash == (file.endsWith("/"))) //$NON-NLS-1$
+			return url;
+		file = trailingSlash ? file + "/" : file.substring(0, file.length() - 1); //$NON-NLS-1$
+		return new URI(file);
 	}
 
 	public void testCountRepoInSharedInstallThroughRepoManagerAPI() {
