@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Control;
 public class RemediationPage extends ResolutionStatusPage {
 
 	private RemediationGroup remediationGroup;
+
 	private Composite mainComposite;
 
 	protected RemediationPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
@@ -56,8 +57,12 @@ public class RemediationPage extends ResolutionStatusPage {
 		Dialog.applyDialogFont(mainComposite);
 	}
 
+	public RemediationGroup getRemediationGroup() {
+		return remediationGroup;
+	}
+
 	public boolean canFlipToNextPage() {
-		return isPageComplete() && ((ProvisioningOperationWizard) getWizard()).getRemediationOperation().getCurrentRemedy() != null;
+		return isPageComplete() && remediationGroup.getCurrentRemedy() != null;
 	}
 
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation operation, Object[] planSelections) {

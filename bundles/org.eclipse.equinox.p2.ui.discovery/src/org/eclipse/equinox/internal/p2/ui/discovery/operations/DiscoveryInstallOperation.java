@@ -73,7 +73,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 				if (installOperation.getResolutionResult().getSeverity() > IStatus.WARNING) {
 					monitor.setTaskName(ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation);
 					final RemediationOperation remediationOperation = new RemediationOperation(provisioningUI.getSession(), installOperation.getProfileChangeRequest());
-					remediationOperation.getResolveJob(monitor.newChild(50));
+					remediationOperation.resolveModal(monitor.newChild(50));
 					Display.getDefault().asyncExec(new Runnable() {
 						public void run() {
 							provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, remediationOperation, null);

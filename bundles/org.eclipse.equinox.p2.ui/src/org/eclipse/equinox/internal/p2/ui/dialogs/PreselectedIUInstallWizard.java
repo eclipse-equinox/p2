@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -41,7 +42,7 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 
 	@Override
 	public IWizardPage getStartingPage() {
-		if (remediationOperation != null && remediationOperation.hasRemedies()) {
+		if (remediationOperation != null && remediationOperation.getResolutionResult() == Status.OK_STATUS) {
 			return getNextPage(mainPage);
 		}
 		return super.getStartingPage();
@@ -56,7 +57,7 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 	}
 
 	protected ResolutionResultsWizardPage createResolutionPage() {
-		return new InstallWizardPage(ui, this, root, (InstallOperation) operation);
+		return new InstallWizardPage(ui, this, root, operation);
 	}
 
 	protected void initializeResolutionModelElements(Object[] selectedElements) {

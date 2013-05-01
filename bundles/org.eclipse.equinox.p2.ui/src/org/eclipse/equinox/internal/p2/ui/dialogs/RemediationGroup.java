@@ -13,13 +13,10 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.util.*;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.RemediationOperation;
 import org.eclipse.equinox.p2.operations.Remedy;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -44,6 +41,7 @@ public class RemediationGroup {
 	private Composite resultComposite;
 	private Composite resultNotFoundComposite;
 	private Composite resultErrorComposite;
+	private Remedy currentRemedy;
 
 	private TreeViewer treeViewer;
 	protected IUElementListRoot input;
@@ -71,12 +69,12 @@ public class RemediationGroup {
 	public void createRemediationControl(Composite container) {
 		remediationComposite = new Composite(container, SWT.NONE);
 		remediationComposite.setLayout(new GridLayout());
-		Listener bestSolutionlistener;
+		Listener solutionslistener;
 
 		Label descriptionLabel = new Label(remediationComposite, SWT.NONE);
 		descriptionLabel.setText(ProvUIMessages.RemediationPage_SubDescription);
 
-		bestSolutionlistener = new Listener() {
+		solutionslistener = new Listener() {
 			public void handleEvent(Event e) {
 				Button btn = (Button) e.widget;
 				Remedy remedy = (btn.getData() == null ? null : (Remedy) btn.getData());
@@ -95,26 +93,28 @@ public class RemediationGroup {
 					checkBoxesComposite.setVisible(false);
 					((GridData) checkBoxesComposite.getLayoutData()).exclude = true;
 				}
-				refresh();
+				currentRemedy = searchRemedyMatchingUserChoices();
+				refreshResultComposite();
 				remediationComposite.layout(false);
 			}
 		};
 
 		bestBeingInstalledRelaxedButton = new Button(remediationComposite, SWT.RADIO);
 		bestBeingInstalledRelaxedButton.setText(ProvUIMessages.RemediationPage_BestSolutionBeingInstalledRelaxed);
-		bestBeingInstalledRelaxedButton.addListener(SWT.Selection, bestSolutionlistener);
+		bestBeingInstalledRelaxedButton.addListener(SWT.Selection, solutionslistener);
 
 		bestInstalledRelaxedButton = new Button(remediationComposite, SWT.RADIO);
 		bestInstalledRelaxedButton.setText(ProvUIMessages.RemediationPage_BestSolutionInstallationRelaxed);
-		bestInstalledRelaxedButton.addListener(SWT.Selection, bestSolutionlistener);
+		bestInstalledRelaxedButton.addListener(SWT.Selection, solutionslistener);
 
 		buildMyOwnSolution = new Button(remediationComposite, SWT.RADIO);
 		buildMyOwnSolution.setText(ProvUIMessages.RemediationPage_BestSolutionBuilt);
-		buildMyOwnSolution.addListener(SWT.Selection, bestSolutionlistener);
+		buildMyOwnSolution.addListener(SWT.Selection, solutionslistener);
 
-		Listener relaxedConstraintlistener = new Listener() {
+		Listener checkboxListener = new Listener() {
 			public void handleEvent(Event e) {
-				refresh();
+				currentRemedy = searchRemedyMatchingUserChoices();
+				refreshResultComposite();
 			}
 		};
 		checkBoxesComposite = new Composite(remediationComposite, SWT.NONE);
@@ -135,7 +135,7 @@ public class RemediationGroup {
 				checkBtn.setText(value);
 				checkBtn.setData(value);
 				checkBtn.setLayoutData(gd);
-				checkBtn.addListener(SWT.Selection, relaxedConstraintlistener);
+				checkBtn.addListener(SWT.Selection, checkboxListener);
 				checkboxes.add(checkBtn);
 			}
 
@@ -193,32 +193,38 @@ public class RemediationGroup {
 		return iuDetailsGroup;
 	}
 
+	private Remedy searchBestDefaultRemedy() {
+		if (remediationOperation.bestSolutionChangingTheRequest() != null) {
+			return remediationOperation.bestSolutionChangingTheRequest();
+		}
+		if (remediationOperation.bestSolutionChangingWhatIsInstalled() != null) {
+			return remediationOperation.bestSolutionChangingWhatIsInstalled();
+		}
+		return remediationOperation.getRemedies().get(0);
+	}
+
 	public void update(RemediationOperation operation) {
 		this.remediationOperation = operation;
-		boolean isSelected = false;
-		if (remediationOperation.bestSolutionChangingTheRequest() != null) {
-			bestBeingInstalledRelaxedButton.setData(remediationOperation.bestSolutionChangingTheRequest());
-			bestBeingInstalledRelaxedButton.setSelection(true);
-			remediationOperation.setCurrentRemedy(remediationOperation.bestSolutionChangingTheRequest());
-			bestBeingInstalledRelaxedButton.notifyListeners(SWT.Selection, new Event());
-			isSelected = true;
-		}
-		bestBeingInstalledRelaxedButton.setEnabled(remediationOperation.bestSolutionChangingTheRequest() != null);
+		currentRemedy = searchBestDefaultRemedy();
 
-		if (remediationOperation.bestSolutionChangingWhatIsInstalled() != null) {
-			bestInstalledRelaxedButton.setData(remediationOperation.bestSolutionChangingWhatIsInstalled());
-			bestInstalledRelaxedButton.setSelection(isSelected == false);
-			if (!isSelected) {
-				remediationOperation.setCurrentRemedy(remediationOperation.bestSolutionChangingWhatIsInstalled());
-				bestInstalledRelaxedButton.notifyListeners(SWT.Selection, new Event());
-			}
-			isSelected = true;
-		}
+		bestBeingInstalledRelaxedButton.setData(remediationOperation.bestSolutionChangingTheRequest());
+		bestInstalledRelaxedButton.setData(remediationOperation.bestSolutionChangingWhatIsInstalled());
+
+		bestBeingInstalledRelaxedButton.setEnabled(remediationOperation.bestSolutionChangingTheRequest() != null);
 		bestInstalledRelaxedButton.setEnabled(remediationOperation.bestSolutionChangingWhatIsInstalled() != null);
-		buildMyOwnSolution.setSelection(isSelected == false);
-		if (!isSelected) {
-			remediationOperation.setCurrentRemedy(remediationOperation.getRemedies().get(0));
-			buildMyOwnSolution.setData(remediationOperation.getRemedies().get(0));
+		bestBeingInstalledRelaxedButton.setSelection(false);
+		bestInstalledRelaxedButton.setSelection(false);
+		buildMyOwnSolution.setSelection(false);
+
+		if (currentRemedy == remediationOperation.bestSolutionChangingTheRequest()) {
+			bestBeingInstalledRelaxedButton.setSelection(true);
+			bestBeingInstalledRelaxedButton.notifyListeners(SWT.Selection, new Event());
+		} else if (currentRemedy == remediationOperation.bestSolutionChangingWhatIsInstalled()) {
+			bestInstalledRelaxedButton.setSelection(true);
+			bestInstalledRelaxedButton.notifyListeners(SWT.Selection, new Event());
+		} else {
+			buildMyOwnSolution.setData(currentRemedy);
+			buildMyOwnSolution.setSelection(true);
 			buildMyOwnSolution.notifyListeners(SWT.Selection, new Event());
 		}
 	}
@@ -227,35 +233,33 @@ public class RemediationGroup {
 		return (checkboxes.get(btnIndex).getSelection() && value) || (!checkboxes.get(btnIndex).getSelection() && !value);
 	}
 
-	void refresh() {
+	Remedy searchRemedyMatchingUserChoices() {
+		List<Remedy> remedies = remediationOperation.getRemedies();
+		for (Remedy remedy : remedies) {
+			if (isContraintOK(ALLOWPARTIALINSTALL_INDEX, remedy.getConfig().allowPartialInstall) && isContraintOK(ALLOWDIFFERENTVERSION_INDEX, remedy.getConfig().allowDifferentVersion) && isContraintOK(ALLOWINSTALLEDUPDATE_INDEX, remedy.getConfig().allowInstalledUpdate) && isContraintOK(ALLOWINSTALLEDREMOVAL_INDEX, remedy.getConfig().allowInstalledRemoval)) {
+				if (remedy.getRequest() != null) {
+					return remedy;
+				}
+			}
+		}
+		return null;
+	}
+
+	void refreshResultComposite() {
 		resultComposite.setVisible(true);
-		remediationOperation.setCurrentRemedy(null);
-		Remedy currentRemedy = null;
 		if (!checkboxes.get(ALLOWPARTIALINSTALL_INDEX).getSelection() && !checkboxes.get(ALLOWDIFFERENTVERSION_INDEX).getSelection() && !checkboxes.get(ALLOWINSTALLEDUPDATE_INDEX).getSelection() && !checkboxes.get(ALLOWINSTALLEDREMOVAL_INDEX).getSelection()) {
 			switchRemediationLayout.topControl = resultErrorComposite;
 		} else {
-			List<Remedy> remedies = remediationOperation.getRemedies();
-			for (Remedy remedy : remedies) {
-				if (isContraintOK(ALLOWPARTIALINSTALL_INDEX, remedy.getConfig().allowPartialInstall) && isContraintOK(ALLOWDIFFERENTVERSION_INDEX, remedy.getConfig().allowDifferentVersion) && isContraintOK(ALLOWINSTALLEDUPDATE_INDEX, remedy.getConfig().allowInstalledUpdate) && isContraintOK(ALLOWINSTALLEDREMOVAL_INDEX, remedy.getConfig().allowInstalledRemoval)) {
-					if (remedy.getRequest() != null) {
-						currentRemedy = remedy;
-						remediationOperation.setCurrentRemedy(currentRemedy);
-						break;
-					}
-				}
-			}
+
 			if (currentRemedy == null) {
 				switchRemediationLayout.topControl = resultNotFoundComposite;
 			} else {
-
 				input = new IUElementListRoot();
-				ArrayList<AvailableIUElement> ius = new ArrayList<AvailableIUElement>();
-				ius.addAll(transformIUstoIUElements());
-				if (ius.size() == 0) {
+				AvailableIUElement[] ius = ElementUtils.requestToElement(currentRemedy);
+				if (ius.length == 0) {
 					switchRemediationLayout.topControl = resultNotFoundComposite;
-					currentRemedy = null;
 				} else {
-					input.setChildren(ius.toArray());
+					input.setChildren(ius);
 					treeViewer.setInput(input);
 					switchRemediationLayout.topControl = resultFoundComposite;
 				}
@@ -265,36 +269,8 @@ public class RemediationGroup {
 		containerPage.setPageComplete(currentRemedy != null);
 	}
 
-	private ArrayList<AvailableIUElement> transformIUstoIUElements() {
-		ArrayList<AvailableIUElement> temp = new ArrayList<AvailableIUElement>();
-
-		ArrayList<String> updateIds = new ArrayList<String>();
-		IUElementListRoot root = new IUElementListRoot();
-		Remedy currentRemedy = remediationOperation.getCurrentRemedy();
-		for (IInstallableUnit addedIU : currentRemedy.getRequest().getAdditions()) {
-			AvailableIUElement element = new AvailableIUElement(root, addedIU, ProvisioningUI.getDefaultUI().getProfileId(), true);
-			for (IInstallableUnit removedIU : currentRemedy.getRequest().getRemovals()) {
-				if (removedIU.getId().equals(addedIU.getId())) {
-					int addedComparedToRemoved = addedIU.getVersion().compareTo(removedIU.getVersion());
-					element.setBeingDowngraded(addedComparedToRemoved < 0);
-					element.setBeingUpgraded(addedComparedToRemoved > 0);
-					updateIds.add(addedIU.getId());
-					break;
-				}
-			}
-			if (!updateIds.contains(addedIU.getId())) {
-				element.setBeingAdded(true);
-			}
-			temp.add(element);
-		}
-		for (IInstallableUnit removedIU : currentRemedy.getRequest().getRemovals()) {
-			if (!updateIds.contains(removedIU.getId())) {
-				AvailableIUElement element = new AvailableIUElement(root, removedIU, ProvisioningUI.getDefaultUI().getProfileId(), false);
-				element.setBeingRemoved(true);
-				temp.add(element);
-			}
-		}
-		return temp;
+	public Remedy getCurrentRemedy() {
+		return currentRemedy;
 	}
 
 	public String getMessage() {

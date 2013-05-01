@@ -131,8 +131,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 		if (page == remediationPage) {
 			try {
-				getContainer().run(true, false, new IRunnableWithProgress() {
+				getContainer().run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
+						remediationOperation.setCurrentRemedy(remediationPage.getRemediationGroup().getCurrentRemedy());
 						remediationOperation.resolveModal(monitor);
 					}
 				});
@@ -160,10 +161,11 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			IStatus status = operation.getResolutionResult();
 			if (status == null || status.getSeverity() == IStatus.ERROR) {
 				if (page == mainPage) {
-					if (remediationOperation != null && remediationOperation.hasRemedies() && remediationOperation.getRemedies().size() == 1) {
+					if (remediationOperation != null && remediationOperation.getResolutionResult() == Status.OK_STATUS && remediationOperation.isCheckForUpdates()) {
 						planChanged();
 						return getNextPage(remediationPage);
-					} else if (remediationOperation != null && remediationOperation.hasRemedies()) {
+					}
+					if (remediationOperation != null && remediationOperation.getResolutionResult() == Status.OK_STATUS) {
 						planChanged();
 						return remediationPage;
 					}
@@ -229,7 +231,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	protected void planChanged() {
 		IWizardPage currentPage = ((WizardDialog) getContainer()).getCurrentPage();
-		if ((currentPage == null || currentPage == mainPage) && remediationPage != null && remediationOperation != null && remediationOperation.hasRemedies()) {
+		if ((currentPage == null || currentPage == mainPage) && remediationPage != null && remediationOperation != null && remediationOperation.getResolutionResult() == Status.OK_STATUS) {
 			remediationPage.updateStatus(root, operation, planSelections);
 		}
 		resolutionPage.updateStatus(root, operation);
@@ -260,7 +262,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation, RemedyConfig.getAllRemdyConfigs().length);
 		monitor.setTaskName(ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation);
 		remediationOperation = new RemediationOperation(ui.getSession(), op.getProfileChangeRequest());
-		remediationOperation.getResolveJob(monitor);
+		remediationOperation.resolveModal(monitor);
 		sub.done();
 	}
 
@@ -273,9 +275,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public void recomputePlan(IRunnableContext runnableContext, final boolean withRemediation) {
 		couldNotResolveStatus = Status.OK_STATUS;
 		provisioningContext = getProvisioningContext();
+		operation = null;
+		remediationOperation = null;
 		initializeResolutionModelElements(getOperationSelections());
 		if (planSelections.length == 0) {
-			operation = null;
 			couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
 		} else {
 			operation = getProfileChangeOperation(planSelections);

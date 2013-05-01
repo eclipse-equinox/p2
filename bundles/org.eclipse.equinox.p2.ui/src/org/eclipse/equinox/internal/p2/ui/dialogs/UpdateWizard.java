@@ -120,7 +120,7 @@ public class UpdateWizard extends WizardWithLicenses {
 		if (operation instanceof RemediationOperation) {
 			AvailableIUElement[] elements = ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy());
 			root.setChildren(elements);
-			planSelections = elements;
+			//planSelections = elements;
 		} else {
 			ArrayList<AvailableUpdateElement> list = new ArrayList<AvailableUpdateElement>(selectedElements.length);
 			ArrayList<AvailableUpdateElement> selected = new ArrayList<AvailableUpdateElement>(selectedElements.length);

@@ -12,11 +12,12 @@ package org.eclipse.equinox.p2.operations;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.p2.operations.Messages;
-import org.eclipse.equinox.internal.p2.operations.RequestFlexer;
+import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 
 /**
  * <p>
@@ -44,6 +45,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 
 	public void setCurrentRemedy(Remedy currentRemedy) {
 		this.currentRemedy = currentRemedy;
+		request = currentRemedy == null ? null : currentRemedy.getRequest();
 	}
 
 	private IProfileChangeRequest originalRequest;
@@ -95,8 +97,9 @@ public class RemediationOperation extends ProfileChangeOperation {
 		} catch (OperationCanceledException e) {
 			status.add(Status.CANCEL_STATUS);
 		}
-		if (!isCheckForUpdates)
+		if (!isCheckForUpdates) {
 			determineBestSolutions();
+		}
 	}
 
 	private IStatus computeCheckForUpdates(IProgressMonitor monitor) {
@@ -132,7 +135,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 			sub.done();
 		}
 		remedies = tmpRemedies;
-		return Status.OK_STATUS;
+		return getResolutionResult();
 	}
 
 	private void determineBestSolutions() {
@@ -151,13 +154,8 @@ public class RemediationOperation extends ProfileChangeOperation {
 					installationWeight = remedy.getInstallationRelaxedWeight();
 					continue;
 				}
-				request = remedy.getRequest();
 			}
 		}
-		if (bestSolutionChangingTheRequest != null)
-			request = bestSolutionChangingTheRequest.getRequest();
-		else if (bestSolutionChangingWhatIsInstalled != null)
-			request = bestSolutionChangingWhatIsInstalled.getRequest();
 	}
 
 	private Remedy computeRemedy(RemedyConfig configuration, IProgressMonitor monitor) {
@@ -218,11 +216,38 @@ public class RemediationOperation extends ProfileChangeOperation {
 		return null;
 	}
 
-	public boolean hasRemedies() {
-		return (remedies != null && remedies.size() > 0);
-	}
-
 	public ProfileChangeRequest getOriginalRequest() {
 		return (ProfileChangeRequest) originalRequest;
+	}
+
+	void makeResolveJob(final IProgressMonitor monitor) {
+		// throw away any previous requests
+		request = null;
+		noChangeRequest = PlanAnalyzer.getProfileChangeAlteredStatus();
+		// the requestHolder is a hack to work around the fact that there is no public API
+		// for the resolution job to get the request from the operation after it has been
+		// computed.
+		final ProfileChangeRequest[] requestHolder = new ProfileChangeRequest[1];
+		job = new RemediationResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassEvaluator(), noChangeRequest, new IRunnableWithProgress() {
+			public void run(IProgressMonitor mon) throws OperationCanceledException {
+				//Weird hack to get progress reporting to do something in the install wizard....
+				if (monitor != null)
+					mon = monitor;
+				// We only check for other jobs running if this job is *not* scheduled
+				if (job.getState() == Job.NONE && session.hasScheduledOperationsFor(profileId)) {
+					noChangeRequest.add(PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null));
+				} else {
+					computeProfileChangeRequest(noChangeRequest, mon);
+					requestHolder[0] = RemediationOperation.this.request;
+				}
+			}
+		}, requestHolder, this);
+	}
+
+	@Override
+	public IStatus getResolutionResult() {
+		if (currentRemedy != null)
+			return super.getResolutionResult();
+		return remedies.size() > 0 ? Status.OK_STATUS : new Status(IStatus.ERROR, Activator.ID, "No remedy found");
 	}
 }
