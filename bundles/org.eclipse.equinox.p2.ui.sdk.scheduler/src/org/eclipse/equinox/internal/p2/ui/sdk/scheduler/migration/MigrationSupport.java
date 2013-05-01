@@ -11,8 +11,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
@@ -115,6 +114,10 @@ public class MigrationSupport {
 		boolean isInitial = IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0]).get(IProfile.STATE_PROP_SHARED_INSTALL));
 		if (isInitial) {
 			if (getLastMigration() >= history[0])
+				return false;
+			//This detect the case where the user has not done any migration.
+			Map<String, String> sharedRelatedValues = registry.getProfileStateProperties(currentProfile.getProfileId(), IProfile.STATE_PROP_SHARED_INSTALL);
+			if (sharedRelatedValues.containsValue(IProfile.STATE_SHARED_INSTALL_VALUE_NEW))
 				return false;
 			return true;
 		}
