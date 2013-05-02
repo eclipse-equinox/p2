@@ -32,9 +32,9 @@ public class RemediationResolutionJob extends PlannerResolutionJob {
 	}
 
 	public IStatus runModal(IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor);
+		SubMonitor sub = SubMonitor.convert(monitor, 2);
 		try {
-			computeRemediationRunnable.run(sub.newChild(500));
+			computeRemediationRunnable.run(sub.newChild(1));
 			if (requestHolder.length > 0)
 				this.request = requestHolder[0];
 		} catch (OperationCanceledException e) {
@@ -43,7 +43,7 @@ public class RemediationResolutionJob extends PlannerResolutionJob {
 			// ignore, we don't actually throw this in the supplied runnable
 		}
 		if (request != null)
-			return super.runModal(sub.newChild(500));
+			return super.runModal(sub.newChild(1));
 		return operation.getResolutionResult();
 	}
 }

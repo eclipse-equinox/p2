@@ -85,15 +85,17 @@ public class RemediationOperation extends ProfileChangeOperation {
 
 	@Override
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, 1);
 		if (currentRemedy != null) {
 			request = currentRemedy.getRequest();
+			sub.worked(1);
 			return;
 		}
 		try {
 			if (isCheckForUpdates)
-				status.add(computeCheckForUpdates(monitor));
+				status.add(computeCheckForUpdates(sub.newChild(1)));
 			else
-				status.add(computeAllRemediations(monitor));
+				status.add(computeAllRemediations(sub.newChild(1)));
 		} catch (OperationCanceledException e) {
 			status.add(Status.CANCEL_STATUS);
 		}
@@ -231,13 +233,15 @@ public class RemediationOperation extends ProfileChangeOperation {
 		job = new RemediationResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassEvaluator(), noChangeRequest, new IRunnableWithProgress() {
 			public void run(IProgressMonitor mon) throws OperationCanceledException {
 				//Weird hack to get progress reporting to do something in the install wizard....
-				if (monitor != null)
-					mon = monitor;
+				//				if (monitor != null)
+				//					mon = monitor;
+				SubMonitor sub = SubMonitor.convert(mon, 2);
 				// We only check for other jobs running if this job is *not* scheduled
 				if (job.getState() == Job.NONE && session.hasScheduledOperationsFor(profileId)) {
 					noChangeRequest.add(PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null));
 				} else {
-					computeProfileChangeRequest(noChangeRequest, mon);
+					sub.worked(1);
+					computeProfileChangeRequest(noChangeRequest, sub.newChild(1));
 					requestHolder[0] = RemediationOperation.this.request;
 				}
 			}
