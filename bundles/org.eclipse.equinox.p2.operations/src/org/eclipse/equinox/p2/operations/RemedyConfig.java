@@ -33,7 +33,18 @@ public class RemedyConfig {
 
 	}
 
-	public static RemedyConfig[] getAllRemdyConfigs() {
+	private RemedyConfig(boolean allowPartialInstall, boolean allowDifferentVersion, boolean allowInstalledUpdate, boolean allowInstalledRemoval) {
+		this.allowDifferentVersion = allowDifferentVersion;
+		this.allowInstalledRemoval = allowInstalledRemoval;
+		this.allowInstalledUpdate = allowInstalledUpdate;
+		this.allowPartialInstall = allowPartialInstall;
+	}
+
+	public static RemedyConfig[] getCheckForUpdateRemedyConfigs() {
+		return new RemedyConfig[] {new RemedyConfig(false, true, true, false)};
+	}
+
+	public static RemedyConfig[] getAllRemedyConfigs() {
 		Collection<RemedyConfig> remedyConfigs = new ArrayList<RemedyConfig>();
 		int allMasks = (1 << 4);
 		for (int i = 1; i < allMasks; i++) {

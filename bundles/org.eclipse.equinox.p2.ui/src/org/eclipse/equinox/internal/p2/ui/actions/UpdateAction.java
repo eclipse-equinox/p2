@@ -83,7 +83,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		ProvisioningJob job = new ProvisioningJob("Searching alternate solutions...", getSession()) {
 			@Override
 			public IStatus runModal(IProgressMonitor monitor) {
-				monitor.beginTask("The update operation cannot be completed as requested. Searching alternate solutions ...", RemedyConfig.getAllRemdyConfigs().length);
+				monitor.beginTask("The update operation cannot be completed as requested. Searching alternate solutions ...", RemedyConfig.getAllRemedyConfigs().length);
 				return remediationOperation.resolveModal(monitor);
 			}
 		};

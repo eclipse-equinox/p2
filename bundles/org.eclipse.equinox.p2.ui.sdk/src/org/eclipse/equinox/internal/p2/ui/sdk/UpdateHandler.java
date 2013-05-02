@@ -47,11 +47,11 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 				getProvisioningUI().openUpdateWizard(false, operation, job);
 			} else {
 
-				final RemediationOperation remediationOperation = new RemediationOperation(getProvisioningUI().getSession(), operation.getProfileChangeRequest(), true);
+				final RemediationOperation remediationOperation = new RemediationOperation(getProvisioningUI().getSession(), operation.getProfileChangeRequest(), RemedyConfig.getCheckForUpdateRemedyConfigs());
 				ProvisioningJob job2 = new ProvisioningJob("Searching alternate solutions...", getProvisioningUI().getSession()) {
 					@Override
 					public IStatus runModal(IProgressMonitor monitor) {
-						monitor.beginTask("Some items cannot be at the highest version. Searching for the highest common denominator ...", RemedyConfig.getAllRemdyConfigs().length);
+						monitor.beginTask("Some items cannot be at the highest version. Searching for the highest common denominator ...", RemedyConfig.getAllRemedyConfigs().length);
 						return remediationOperation.resolveModal(monitor);
 					}
 				};

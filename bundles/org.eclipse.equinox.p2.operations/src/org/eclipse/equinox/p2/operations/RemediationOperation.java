@@ -38,6 +38,11 @@ public class RemediationOperation extends ProfileChangeOperation {
 	private Remedy bestSolutionChangingTheRequest;
 	private Remedy bestSolutionChangingWhatIsInstalled;
 	private Remedy currentRemedy;
+	private RemedyConfig[] remedyConfigs;
+
+	public RemedyConfig[] getRemedyConfigs() {
+		return remedyConfigs;
+	}
 
 	public Remedy getCurrentRemedy() {
 		return currentRemedy;
@@ -49,26 +54,17 @@ public class RemediationOperation extends ProfileChangeOperation {
 	}
 
 	private IProfileChangeRequest originalRequest;
-	private boolean isCheckForUpdates;
-
-	public boolean isCheckForUpdates() {
-		return isCheckForUpdates;
-	}
 
 	public RemediationOperation(ProvisioningSession session, IProfileChangeRequest iProfileChangeRequest) {
-		this(session, iProfileChangeRequest, null);
+		this(session, iProfileChangeRequest, RemedyConfig.getAllRemedyConfigs());
 
 	}
 
-	public RemediationOperation(ProvisioningSession session, IProfileChangeRequest originalRequest, List<RemedyConfig> configuration) {
-		this(session, originalRequest, false);
-	}
-
-	public RemediationOperation(ProvisioningSession session, IProfileChangeRequest originalRequest, boolean isCheckForUpdates) {
+	public RemediationOperation(ProvisioningSession session, IProfileChangeRequest originalRequest, RemedyConfig[] remedyConfigs) {
 		super(session);
 		this.originalRequest = originalRequest;
 		remedies = new ArrayList<Remedy>();
-		this.isCheckForUpdates = isCheckForUpdates;
+		this.remedyConfigs = remedyConfigs;
 	}
 
 	public Remedy bestSolutionChangingTheRequest() {
@@ -92,34 +88,14 @@ public class RemediationOperation extends ProfileChangeOperation {
 			return;
 		}
 		try {
-			if (isCheckForUpdates)
-				status.add(computeCheckForUpdates(sub.newChild(1)));
-			else
-				status.add(computeAllRemediations(sub.newChild(1)));
+			status.add(computeAllRemediations(sub.newChild(1)));
 		} catch (OperationCanceledException e) {
 			status.add(Status.CANCEL_STATUS);
 		}
-		if (!isCheckForUpdates) {
-			determineBestSolutions();
-		}
-	}
-
-	private IStatus computeCheckForUpdates(IProgressMonitor monitor) {
-		RemedyConfig config = new RemedyConfig();
-		config.allowDifferentVersion = true;
-		config.allowInstalledRemoval = false;
-		config.allowInstalledUpdate = true;
-		config.allowPartialInstall = false;
-		Remedy remedy = computeRemedy(config, monitor);
-		if (remedy != null) {
-			remedies.add(remedy);
-		}
-		return Status.OK_STATUS;
+		determineBestSolutions();
 	}
 
 	private IStatus computeAllRemediations(IProgressMonitor monitor) {
-		RemedyConfig[] remedyConfigs = RemedyConfig.getAllRemdyConfigs();
-		//SubMonitor sub = SubMonitor.convert(monitor, Messages.RemediationOperation_ProfileChangeRequestProgress, remedyConfigs.length);
 		SubMonitor sub = SubMonitor.convert(monitor, remedyConfigs.length);
 		sub.setTaskName(Messages.RemediationOperation_ProfileChangeRequestProgress);
 		List<Remedy> tmpRemedies = new ArrayList<Remedy>(remedyConfigs.length);
