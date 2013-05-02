@@ -12,10 +12,12 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 import java.io.File;
 import java.net.URI;
 import java.util.*;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.*;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -60,6 +62,8 @@ public class MigrationSupport {
 				return false;
 
 			reposToMigrate = ((IMetadataRepositoryManager) otherConfigAgent.getService(IMetadataRepositoryManager.SERVICE_NAME)).getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+			reposToMigrate = Arrays.copyOf(reposToMigrate, reposToMigrate.length + 1);
+			reposToMigrate[reposToMigrate.length - 1] = getURIForProfile(otherConfigAgent, previousProfile);
 		}
 
 		if (previousProfile == null && baseChangedSinceLastPresentationOfWizard(agent, registry, currentProfile))
@@ -77,10 +81,14 @@ public class MigrationSupport {
 		return true;
 	}
 
+	private URI getURIForProfile(IProvisioningAgent agent, IProfile profile) {
+		IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+		return URIUtil.append(agentLocation.getRootLocation(), "org.eclipse.equinox.p2.engine/profileRegistry/" + profile.getProfileId() + ".profile"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	private File getInstallFolder() {
 		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
 		return new File(configurationLocation.getURL().getPath());
-
 	}
 
 	//The search location is two level up from the configuration location.
