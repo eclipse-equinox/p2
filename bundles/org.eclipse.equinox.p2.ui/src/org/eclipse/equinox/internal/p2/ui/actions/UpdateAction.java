@@ -17,7 +17,6 @@ import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
@@ -79,11 +78,11 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		if (!operation.hasResolved())
 			return Window.CANCEL;
 
-		final RemediationOperation remediationOperation = new RemediationOperation(getSession(), (ProfileChangeRequest) operation.getProfileChangeRequest());
-		ProvisioningJob job = new ProvisioningJob("Searching alternate solutions...", getSession()) {
+		final RemediationOperation remediationOperation = new RemediationOperation(getSession(), operation.getProfileChangeRequest());
+		ProvisioningJob job = new ProvisioningJob(ProvUIMessages.UpdateActionRemediationJobName, getSession()) {
 			@Override
 			public IStatus runModal(IProgressMonitor monitor) {
-				monitor.beginTask("The update operation cannot be completed as requested. Searching alternate solutions ...", RemedyConfig.getAllRemedyConfigs().length);
+				monitor.beginTask(ProvUIMessages.UpdateActionRemediationJobTask, RemedyConfig.getAllRemedyConfigs().length);
 				return remediationOperation.resolveModal(monitor);
 			}
 		};

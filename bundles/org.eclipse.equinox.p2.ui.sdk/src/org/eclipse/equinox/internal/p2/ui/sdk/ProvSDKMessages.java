@@ -44,4 +44,7 @@ public class ProvSDKMessages extends NLS {
 	public static String UpdateHandler_NoSitesMessage;
 	public static String UpdateHandler_NoSitesTitle;
 	public static String UpdateHandler_ProgressTaskName;
+	public static String RemediationOperation_ResolveJobName;
+	public static String RemediationOperation_ResolveJobTask;
+
 }

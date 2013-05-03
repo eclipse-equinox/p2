@@ -205,6 +205,8 @@ public class ProvUIMessages extends NLS {
 	public static String MetadataRepositoryElement_RepositoryLoadError;
 	public static String UpdateAction_UpdatesAvailableMessage;
 	public static String UpdateAction_UpdatesAvailableTitle;
+	public static String UpdateActionRemediationJobName;
+	public static String UpdateActionRemediationJobTask;
 	public static String PlatformUpdateTitle;
 	public static String PlatformRestartMessage;
 	public static String Policy_RequiresUpdateManagerMessage;
@@ -251,6 +253,7 @@ public class ProvUIMessages extends NLS {
 	public static String RemediationPage_BestSolutionBeingInstalledRelaxed;
 	public static String RemediationPage_BestSolutionInstallationRelaxed;
 	public static String RemediationPage_BestSolutionBuilt;
+	public static String RemediationPage_SolutionDetails;
 
 	public static String TrustCertificateDialog_Details;
 	public static String TrustCertificateDialog_Title;

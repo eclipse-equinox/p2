@@ -161,7 +161,7 @@ public class RemediationGroup {
 		resultFoundComposite.setLayout(new GridLayout());
 
 		Group insideFoundComposite = new Group(resultFoundComposite, SWT.NONE);
-		insideFoundComposite.setText("Solution details");
+		insideFoundComposite.setText(ProvUIMessages.RemediationPage_SolutionDetails);
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.marginWidth = 0;
 		gridLayout.marginHeight = 0;

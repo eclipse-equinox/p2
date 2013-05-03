@@ -223,7 +223,7 @@ public class RequestFlexer {
 	private IProvisioningPlan resolve(IProfileChangeRequest temporaryRequest) {
 		String explainPropertyBackup = null;
 		try {
-			temporaryRequest.setProfileProperty("_internal_user_defined_", "true");
+			temporaryRequest.setProfileProperty("_internal_user_defined_", "true"); //$NON-NLS-1$//$NON-NLS-2$
 			if (provisioningContext != null) {
 				explainPropertyBackup = provisioningContext.getProperty(EXPLANATION_ENABLEMENT);
 				provisioningContext.setProperty(EXPLANATION_ENABLEMENT, Boolean.FALSE.toString());
