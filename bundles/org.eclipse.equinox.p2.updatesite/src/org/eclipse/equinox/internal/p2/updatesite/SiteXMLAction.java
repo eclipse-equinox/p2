@@ -3,8 +3,8 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   Sonatype, Inc. - transport split
@@ -62,7 +62,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 	/**
 	 * Creates a SiteXMLAction from an Update site with an optional qualifier to use for category names
-	 * @param updateSite The update site 
+	 * @param updateSite The update site
 	 * @param categoryQualifier The qualifier to prepend to categories. This qualifier is used
 	 * to ensure that the category IDs are unique between update sites. If <b>null</b> a default
 	 * qualifier will be generated
@@ -417,35 +417,106 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 	/**
 	 * Generates IUs corresponding to update site categories.
-	 * @param categoriesToFeatures Map of SiteCategory ->Set (Feature IUs in that category).
+	 * @param categoriesToIUs Map of SiteCategory ->Set (Feature IUs in that category).
 	 * @param result The generator result being built
 	 */
-	protected void generateCategoryIUs(Map<SiteCategory, Set<IInstallableUnit>> categoriesToFeatures, IPublisherResult result) {
-		for (SiteCategory category : categoriesToFeatures.keySet()) {
-			result.addIU(createCategoryIU(category, categoriesToFeatures.get(category), null), IPublisherResult.NON_ROOT);
+	protected void generateCategoryIUs(Map<SiteCategory, Set<IInstallableUnit>> categoriesToIUs, IPublisherResult result) {
+		Map<String, SiteCategory> nameToCategory = new HashMap<String, SiteCategory>();
+		for (SiteCategory category : this.updateSite.getSite().getCategories()) {
+			nameToCategory.put(category.getName(), category);
+		}
+		Map<SiteCategory, Set<SiteCategory>> categoryToNestedCategories = new HashMap<SiteCategory, Set<SiteCategory>>();
+		for (SiteCategory category : this.updateSite.getSite().getCategories()) {
+			for (String parentCategoryName : category.getCategoryNames()) {
+				SiteCategory parentCategory = nameToCategory.get(parentCategoryName);
+				if (categoryToNestedCategories.get(parentCategory) == null) {
+					categoryToNestedCategories.put(parentCategory, new HashSet<SiteCategory>());
+				}
+				categoryToNestedCategories.get(parentCategory).add(category);
+			}
+		}
+
+		// sort category so they are processed in reverse order of dependency
+		// category2 is nested in category1 => category2 < category1
+		Comparator<SiteCategory> isNestedCategoryComparator = new Comparator<SiteCategory>() {
+			public int compare(SiteCategory category1, SiteCategory category2) {
+				if (Arrays.asList(category1.getCategoryNames()).contains(category2.getName())) {
+					// category2 is nested in category1
+					return -1;
+				} else if (Arrays.asList(category2.getCategoryNames()).contains(category1.getName())) {
+					// category1 is nested in category2
+					return +1;
+				}
+				return 0;
+			}
+		};
+		List<SiteCategory> categories = new ArrayList<SiteCategory>(Arrays.asList(this.updateSite.getSite().getCategories()));
+		categories.add(this.defaultCategory);
+		Collections.sort(categories, isNestedCategoryComparator);
+
+		// Then create categories in the right order
+		Map<String, IInstallableUnit> nameToCategoryIU = new HashMap<String, IInstallableUnit>();
+		for (SiteCategory category : categories) {
+			Set<IInstallableUnit> units = categoriesToIUs.get(category);
+			if (units == null) {
+				units = new HashSet<IInstallableUnit>();
+			}
+			Set<SiteCategory> nestedCategories = categoryToNestedCategories.get(category);
+			if (nestedCategories != null) {
+				for (SiteCategory nestedCategory : nestedCategories) {
+					IInstallableUnit nestedCategoryIU = nameToCategoryIU.get(nestedCategory.getName());
+					if (nestedCategoryIU != null) {
+						units.add(nestedCategoryIU);
+					}
+				}
+			}
+			if (!units.isEmpty()) {
+				IInstallableUnit categoryIU = createCategoryIU(category, units);
+				result.addIU(categoryIU, IPublisherResult.NON_ROOT);
+				nameToCategoryIU.put(category.getName(), categoryIU);
+			}
 		}
 	}
 
 	/**
 	 * Creates an IU corresponding to an update site category
 	 * @param category The category descriptor
-	 * @param featureIUs The IUs of the features that belong to the category
-	 * @param parentCategory The parent category, or <code>null</code>
+	 * @param childrenIUs The IUs of the children that belong to the category (can be bundle, feature or nested categories)
+	 * @param nestedCategory A nested category (optional)
+	 * @return an IU representing the category
+	 * @deprecated use {@link IInstallableUnit}{@link #createCategoryIU(SiteCategory, Set)} instead
+	 */
+	@Deprecated
+	public IInstallableUnit createCategoryIU(SiteCategory category, Set<IInstallableUnit> childrenIUs, IInstallableUnit nestedCategory) {
+		Set<IInstallableUnit> allIUs = new HashSet<IInstallableUnit>();
+		if (childrenIUs != null) {
+			allIUs.addAll(childrenIUs);
+		}
+		if (nestedCategory != null) {
+			allIUs.add(nestedCategory);
+		}
+		return createCategoryIU(category, allIUs);
+	}
+
+	/**
+	 * Creates an IU corresponding to an update site category
+	 * @param category The category descriptor
+	 * @param childrenIUs The IUs of the children that belong to the category (can be bundle, feature or nested categories)
 	 * @return an IU representing the category
 	 */
-	public IInstallableUnit createCategoryIU(SiteCategory category, Set<IInstallableUnit> featureIUs, IInstallableUnit parentCategory) {
+	public IInstallableUnit createCategoryIU(SiteCategory category, Set<IInstallableUnit> childrenIUs) {
 		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
 		cat.setSingleton(true);
 		String categoryId = buildCategoryId(category.getName());
 		cat.setId(categoryId);
 		if (categoryVersion == null)
-			cat.setVersion(Version.createOSGi(1, 0, 0, versionSuffixGenerator.generateSuffix(featureIUs, CollectionUtils.<IVersionedId> emptyList())));
+			cat.setVersion(Version.createOSGi(1, 0, 0, versionSuffixGenerator.generateSuffix(childrenIUs, CollectionUtils.<IVersionedId> emptyList())));
 		else {
 			if (categoryVersion.isOSGiCompatible()) {
 				org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(categoryVersion);
 				String qualifier = osgiVersion.getQualifier();
 				if (qualifier.endsWith(QUALIFIER)) {
-					String suffix = versionSuffixGenerator.generateSuffix(featureIUs, CollectionUtils.<IVersionedId> emptyList());
+					String suffix = versionSuffixGenerator.generateSuffix(childrenIUs, CollectionUtils.<IVersionedId> emptyList());
 					qualifier = qualifier.substring(0, qualifier.length() - 9) + suffix;
 					categoryVersion = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor(), osgiVersion.getMicro(), qualifier);
 				}
@@ -457,14 +528,10 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		cat.setProperty(IInstallableUnit.PROP_NAME, label != null ? label : category.getName());
 		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
 
-		ArrayList<IRequirement> reqsConfigurationUnits = new ArrayList<IRequirement>(featureIUs.size());
-		for (IInstallableUnit iu : featureIUs) {
+		ArrayList<IRequirement> reqsConfigurationUnits = new ArrayList<IRequirement>(childrenIUs.size());
+		for (IInstallableUnit iu : childrenIUs) {
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 			reqsConfigurationUnits.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
-		}
-		//note that update sites don't currently support nested categories, but it may be useful to add in the future
-		if (parentCategory != null) {
-			reqsConfigurationUnits.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter(), false, false));
 		}
 		cat.setRequirements(reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
 
@@ -492,7 +559,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Creates a qualified category id. This action's qualifier is used if one exists 
+	 * Creates a qualified category id. This action's qualifier is used if one exists
 	 * or an existing update site's location is used.
 	 */
 	private String buildCategoryId(String categoryName) {

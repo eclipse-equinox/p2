@@ -4,7 +4,7 @@
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -16,7 +16,7 @@ import java.util.*;
 
 /**
  * A category in an update site.
- * 
+ *
  * Based on org.eclipse.update.core.model.CategoryModel.
  */
 public class SiteCategory {
@@ -25,11 +25,12 @@ public class SiteCategory {
 	private String description;
 	private String label;
 	private String name;
+	private List<String> categoryNames;
 	private Map<Locale, Map<String, String>> localizations;
 
 	/**
 	 * Returns a comparator for category models.
-	 * 
+	 *
 	 * @return comparator
 	 * @since 2.0
 	 */
@@ -55,7 +56,7 @@ public class SiteCategory {
 
 	/**
 	 * Creates an uninitialized model object.
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public SiteCategory() {
@@ -64,7 +65,7 @@ public class SiteCategory {
 
 	/**
 	 * Compare two category models for equality.
-	 * 
+	 *
 	 * @see Object#equals(Object)
 	 * @since 2.0
 	 */
@@ -79,7 +80,7 @@ public class SiteCategory {
 
 	/**
 	 * Retrieve the detailed category description
-	 * 
+	 *
 	 * @return category description, or <code>null</code>.
 	 * @since 2.0
 	 */
@@ -89,7 +90,7 @@ public class SiteCategory {
 
 	/**
 	 * Retrieve the non-localized displayable label for the category.
-	 * 
+	 *
 	 * @return non-localized displayable label, or <code>null</code>.
 	 * @since 2.0
 	 */
@@ -100,7 +101,7 @@ public class SiteCategory {
 	/**
 	 * Gets the localizations for the site as a map from locale
 	 * to the set of translated properties for that locale.
-	 * 
+	 *
 	 * @return a map from locale to property set
 	 * @since 3.4
 	 */
@@ -110,7 +111,7 @@ public class SiteCategory {
 
 	/**
 	 * Retrieve the name of the category.
-	 * 
+	 *
 	 * @return category name, or <code>null</code>.
 	 * @since 2.0
 	 */
@@ -120,7 +121,7 @@ public class SiteCategory {
 
 	/**
 	 * Compute hash code for category model.
-	 * 
+	 *
 	 * @see Object#hashCode()
 	 * @since 2.0
 	 */
@@ -130,11 +131,11 @@ public class SiteCategory {
 
 	/**
 	 * Resolve the model object.
-	 * Any URL strings in the model are resolved relative to the 
+	 * Any URL strings in the model are resolved relative to the
 	 * base URL argument. Any translatable strings in the model that are
-	 * specified as translation keys are localized using the supplied 
+	 * specified as translation keys are localized using the supplied
 	 * resource bundle.
-	 * 
+	 *
 	 * @param base URL
 	 * @param bundleURL resource bundle URL
 	 * @exception MalformedURLException
@@ -151,7 +152,7 @@ public class SiteCategory {
 	/**
 	 * Sets the category description.
 	 * Throws a runtime exception if this object is marked read-only.
-	 * 
+	 *
 	 * @param description category description
 	 * @since 2.0
 	 */
@@ -162,7 +163,7 @@ public class SiteCategory {
 	/**
 	 * Sets the category displayable label.
 	 * Throws a runtime exception if this object is marked read-only.
-	 * 
+	 *
 	 * @param label displayable label, or resource key
 	 * @since 2.0
 	 */
@@ -173,7 +174,7 @@ public class SiteCategory {
 	/**
 	 * Sets the localizations for the site as a map from locale
 	 * to the set of translated properties for that locale.
-	 * 
+	 *
 	 * @param localizations as a map from locale to property set
 	 * @since 3.4
 	 */
@@ -184,12 +185,39 @@ public class SiteCategory {
 	/**
 	 * Sets the category name.
 	 * Throws a runtime exception if this object is marked read-only.
-	 * 
+	 *
 	 * @param name category name
 	 * @since 2.0
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	/**
+	 * Adds the name of a category this bundle belongs to.
+	 * Throws a runtime exception if this object is marked read-only.
+	 *
+	 * @param categoryName category name
+	 */
+	public void addCategoryName(String categoryName) {
+		if (this.categoryNames == null) {
+			this.categoryNames = new ArrayList<String>();
+		}
+		if (!this.categoryNames.contains(categoryName)) {
+			this.categoryNames.add(categoryName);
+		}
+	}
+
+	/**
+	 * Returns the names of categories the referenced feature belongs to.
+	 *
+	 * @return an array of names, or an empty array.
+	 */
+	public String[] getCategoryNames() {
+		if (categoryNames == null)
+			return new String[0];
+
+		return categoryNames.toArray(new String[0]);
 	}
 
 }

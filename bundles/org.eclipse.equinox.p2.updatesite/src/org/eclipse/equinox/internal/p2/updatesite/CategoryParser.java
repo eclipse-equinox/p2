@@ -4,7 +4,7 @@
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -74,7 +74,7 @@ public class CategoryParser extends DefaultHandler {
 	private MultiStatus status;
 
 	/*
-	 * 
+	 *
 	 */
 	private static void debug(String s) {
 		Tracing.debug("CategoryParser: " + s); //$NON-NLS-1$
@@ -397,6 +397,9 @@ public class CategoryParser extends DefaultHandler {
 		if (elementName.equals(DESCRIPTION)) {
 			stateStack.push(new Integer(STATE_DESCRIPTION_CATEGORY_DEF));
 			processInfo(attributes);
+		} else if (elementName.equals(CATEGORY)) {
+			stateStack.push(new Integer(STATE_CATEGORY));
+			processCategory(attributes);
 		} else
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
 	}
@@ -487,14 +490,14 @@ public class CategoryParser extends DefaultHandler {
 	}
 
 	/*
-	 * 
+	 *
 	 */
 	private void internalError(String message) {
 		error(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.OK, message, null));
 	}
 
 	/*
-	 * 
+	 *
 	 */
 	private void internalErrorUnknownTag(String msg) {
 		stateStack.push(new Integer(STATE_IGNORED_ELEMENT));
@@ -509,7 +512,7 @@ public class CategoryParser extends DefaultHandler {
 	}
 
 	/*
-	 * 
+	 *
 	 */
 	private void logStatus(SAXParseException ex) {
 		String name = ex.getSystemId();
@@ -531,7 +534,7 @@ public class CategoryParser extends DefaultHandler {
 	/**
 	 * Parses the specified input steam and constructs a site model.
 	 * The input stream is not closed as part of this operation.
-	 * 
+	 *
 	 * @param in input stream
 	 * @return site model
 	 * @exception SAXException
@@ -556,7 +559,7 @@ public class CategoryParser extends DefaultHandler {
 		throw new SAXException(NLS.bind(Messages.DefaultSiteParser_WrongParsingStack, (new String[] {stack})));
 	}
 
-	/* 
+	/*
 	 * process archive info
 	 */
 	private void processArchive(Attributes attributes) {
@@ -565,7 +568,7 @@ public class CategoryParser extends DefaultHandler {
 			debug("End processing Archive"); //$NON-NLS-1$
 	}
 
-	/* 
+	/*
 	 * process the Category  info
 	 */
 	private void processCategory(Attributes attributes) {
@@ -578,13 +581,15 @@ public class CategoryParser extends DefaultHandler {
 			((SiteBundle) obj).addCategoryName(category);
 		} else if (obj instanceof SiteIU) {
 			((SiteIU) obj).addCategoryName(category);
+		} else if (obj instanceof SiteCategory) {
+			((SiteCategory) obj).addCategoryName(category);
 		}
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
 			debug("End processing Category: name:" + category); //$NON-NLS-1$
 	}
 
-	/* 
+	/*
 	 * process category def info
 	 */
 	private void processCategoryDef(Attributes attributes) {
@@ -603,7 +608,7 @@ public class CategoryParser extends DefaultHandler {
 			debug("End processing CategoryDef: name:" + name + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	/* 
+	/*
 	 * process feature info
 	 */
 	private void processFeature(Attributes attributes) {
@@ -632,7 +637,7 @@ public class CategoryParser extends DefaultHandler {
 			debug("End Processing Feature Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	/* 
+	/*
 	 * process bundle info
 	 */
 	private void processBundle(Attributes attributes) {
@@ -661,7 +666,7 @@ public class CategoryParser extends DefaultHandler {
 			debug("End Processing Bundle Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	/* 
+	/*
 	 * process IU info
 	 */
 	private void processIU(Attributes attributes) {
@@ -684,7 +689,7 @@ public class CategoryParser extends DefaultHandler {
 			debug("End processing iu."); //$NON-NLS-1$
 	}
 
-	/* 
+	/*
 	 * process expression info
 	 */
 	private void processExpression(Attributes attributes) {
@@ -692,10 +697,10 @@ public class CategoryParser extends DefaultHandler {
 		iu.setQueryType(attributes.getValue("type")); //$NON-NLS-1$
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
-			debug("End processing Expression: " + iu.getQueryType()); //$NON-NLS-1$ 
+			debug("End processing Expression: " + iu.getQueryType()); //$NON-NLS-1$
 	}
 
-	/* 
+	/*
 	 * process query info
 	 */
 	private void processQuery(Attributes attributes) {
@@ -704,7 +709,7 @@ public class CategoryParser extends DefaultHandler {
 			debug("End processing Query."); //$NON-NLS-1$
 	}
 
-	/* 
+	/*
 	 * process param info
 	 */
 	private void processParam(Attributes attributes) {
@@ -712,7 +717,7 @@ public class CategoryParser extends DefaultHandler {
 			debug("End processing Param."); //$NON-NLS-1$
 	}
 
-	/* 
+	/*
 	 * process URL info with element text
 	 */
 	private void processInfo(Attributes attributes) {
@@ -726,7 +731,7 @@ public class CategoryParser extends DefaultHandler {
 		objectStack.push(inf);
 	}
 
-	/* 
+	/*
 	 * process site info
 	 */
 	private void processSite(Attributes attributes) {

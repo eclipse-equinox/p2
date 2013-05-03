@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site associateSitesURL="associateSites.xml" mirrorsURL="http://www.eclipse.org/downloads/download.php?file=/eclipse/updates/3.4&amp;format=xml">
+   <category-def label="Root Category" name="Root Category"/>
+   <category-def label="Nested Category" name="Nested Category">
+       <category name="Root Category"/>
+   </category-def>
+   <bundle url="plugins/test.bundle_1.0.0.jar" id="test.bundle" version="1.0.0">
+     <category name="Nested Category"/>
+   </bundle>
+</site>
