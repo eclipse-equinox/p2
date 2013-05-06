@@ -1,11 +1,12 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2013 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   Red Hat Inc. - 383795 (bundle element), 406902 (nested categories)
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
@@ -169,17 +170,56 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		}
 		assertNotNull("1.1", rootCategoryIu);
 
-		IQuery<IInstallableUnit> rootCategoryMembersQuery = QueryUtil.createIUCategoryMemberQuery(rootCategoryIu);
-		IQueryResult<IInstallableUnit> rootCategoryMembers = actionResult.query(rootCategoryMembersQuery, new NullProgressMonitor());
-		Set<IInstallableUnit> rootCategoryMembersSet = rootCategoryMembers.toUnmodifiableSet();
-		assertEquals("2.0", 1, rootCategoryMembersSet.size());
-		IInstallableUnit nestedCategory = rootCategoryMembersSet.iterator().next();
-		assertTrue("2.1", nestedCategory.getId().endsWith("Nested Category"));
+		IInstallableUnit nestedCategory = assertContainsAndGetIU(rootCategoryIu, "Nested Category");
 
 		IQuery<IInstallableUnit> nestedCategoryMemberQuery = QueryUtil.createIUCategoryMemberQuery(nestedCategory);
 		IQueryResult<IInstallableUnit> nestedCategoryMembers = actionResult.query(nestedCategoryMemberQuery, new NullProgressMonitor());
 		Set<IInstallableUnit> nestedCategoryMembersSet = nestedCategoryMembers.toUnmodifiableSet();
 		assertEquals("3.0", 1, nestedCategoryMembersSet.size());
 		assertEquals("3.1", "test.bundle", nestedCategoryMembersSet.iterator().next().getId());
+	}
+
+	public void testMultiDepthNestedInCategory() throws Exception {
+		PublisherInfo info = new PublisherInfo();
+
+		info.setMetadataRepository(metadataRepository);
+		siteLocation = TestData.getFile("updatesite", "CategoryXMLActionTest/3-depth-category.xml").toURI();
+		FeaturesAction featuresAction = new FeaturesAction(new File[] {TestData.getFile("updatesite", "CategoryXMLActionTest")});
+		BundlesAction bundlesAction = new BundlesAction(new File[] {TestData.getFile("updatesite", "CategoryXMLActionTest")});
+		MergeResultsAction publishAction = new MergeResultsAction(new IPublisherAction[] {featuresAction, bundlesAction}, IPublisherResult.MERGE_ALL_NON_ROOT);
+		publishAction.perform(info, actionResult, new NullProgressMonitor());
+
+		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
+		action.perform(info, actionResult, getMonitor());
+
+		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		assertEquals("1.0", 4, queryResultSize(result));
+		IInstallableUnit rootCategoryIu = null;
+		for (Object item : result) {
+			if (((IInstallableUnit) item).getId().endsWith("Root Category")) {
+				rootCategoryIu = (IInstallableUnit) item;
+			}
+		}
+		assertNotNull("1.1", rootCategoryIu);
+
+		IInstallableUnit nestedCategoryIu = assertContainsAndGetIU(rootCategoryIu, "Nested Category");
+		IInstallableUnit nestedNestedCategoryIu = assertContainsAndGetIU(nestedCategoryIu, "Nested Nested Category");
+		IInstallableUnit nestedNestedNestedCategoryIu = assertContainsAndGetIU(nestedNestedCategoryIu, "Nested Nested Nested Category");
+
+		IQuery<IInstallableUnit> nestedNestedNestedCategoryMemberQuery = QueryUtil.createIUCategoryMemberQuery(nestedNestedNestedCategoryIu);
+		IQueryResult<IInstallableUnit> nestedNestedNestedCategoryMembers = actionResult.query(nestedNestedNestedCategoryMemberQuery, new NullProgressMonitor());
+		Set<IInstallableUnit> nestedCategoryMembersSet = nestedNestedNestedCategoryMembers.toUnmodifiableSet();
+		assertEquals("3.0", 1, nestedCategoryMembersSet.size());
+		assertEquals("3.1", "test.feature.feature.group", nestedCategoryMembersSet.iterator().next().getId());
+	}
+
+	private IInstallableUnit assertContainsAndGetIU(IInstallableUnit parentCategoryIu, String iuId) {
+		IQuery<IInstallableUnit> rootCategoryMembersQuery = QueryUtil.createIUCategoryMemberQuery(parentCategoryIu);
+		IQueryResult<IInstallableUnit> rootCategoryMembers = actionResult.query(rootCategoryMembersQuery, new NullProgressMonitor());
+		Set<IInstallableUnit> rootCategoryMembersSet = rootCategoryMembers.toUnmodifiableSet();
+		assertEquals("Unexpected multiple items under category", 1, rootCategoryMembersSet.size());
+		IInstallableUnit nestedCategoryIu = rootCategoryMembersSet.iterator().next();
+		assertTrue("Could not find IU '" + iuId + "'", nestedCategoryIu.getId().endsWith(iuId));
+		return nestedCategoryIu;
 	}
 }

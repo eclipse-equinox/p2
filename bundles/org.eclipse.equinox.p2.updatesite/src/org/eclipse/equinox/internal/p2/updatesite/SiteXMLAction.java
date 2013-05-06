@@ -8,6 +8,7 @@
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   Sonatype, Inc. - transport split
+ *   Red Hat Inc. - 383795 (bundle element)
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
@@ -425,7 +426,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		for (SiteCategory category : this.updateSite.getSite().getCategories()) {
 			nameToCategory.put(category.getName(), category);
 		}
-		Map<SiteCategory, Set<SiteCategory>> categoryToNestedCategories = new HashMap<SiteCategory, Set<SiteCategory>>();
+		final Map<SiteCategory, Set<SiteCategory>> categoryToNestedCategories = new HashMap<SiteCategory, Set<SiteCategory>>();
 		for (SiteCategory category : this.updateSite.getSite().getCategories()) {
 			for (String parentCategoryName : category.getCategoryNames()) {
 				SiteCategory parentCategory = nameToCategory.get(parentCategoryName);
@@ -436,22 +437,42 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			}
 		}
 
+		List<SiteCategory> categories = new ArrayList<SiteCategory>(Arrays.asList(this.updateSite.getSite().getCategories()));
+		categories.add(this.defaultCategory);
 		// sort category so they are processed in reverse order of dependency
-		// category2 is nested in category1 => category2 < category1
+		// (Nested categories go first)
 		Comparator<SiteCategory> isNestedCategoryComparator = new Comparator<SiteCategory>() {
 			public int compare(SiteCategory category1, SiteCategory category2) {
-				if (Arrays.asList(category1.getCategoryNames()).contains(category2.getName())) {
-					// category2 is nested in category1
-					return -1;
-				} else if (Arrays.asList(category2.getCategoryNames()).contains(category1.getName())) {
-					// category1 is nested in category2
+				Set<SiteCategory> childrenOfCategory1 = categoryToNestedCategories.get(category1);
+				Set<SiteCategory> childrenOfCategory2 = categoryToNestedCategories.get(category2);
+				if (childrenOfCategory1 != null && childrenOfCategory1.contains(category2)) {
+					// category2 nested in category1 => category2 < category1
 					return +1;
+				}
+				if (childrenOfCategory2 != null && childrenOfCategory2.contains(category1)) {
+					// category1 nested in category2 => category1 < category2
+					return -1;
+				}
+				// Then recurse in childrenCategories for transitivity
+				if (childrenOfCategory1 != null) {
+					for (SiteCategory childOfCategory1 : childrenOfCategory1) {
+						int res = this.compare(childOfCategory1, category2);
+						if (res != 0) {
+							return res;
+						}
+					}
+				}
+				if (childrenOfCategory2 != null) {
+					for (SiteCategory childOfCategory2 : childrenOfCategory2) {
+						int res = this.compare(category1, childOfCategory2);
+						if (res != 0) {
+							return res;
+						}
+					}
 				}
 				return 0;
 			}
 		};
-		List<SiteCategory> categories = new ArrayList<SiteCategory>(Arrays.asList(this.updateSite.getSite().getCategories()));
-		categories.add(this.defaultCategory);
 		Collections.sort(categories, isNestedCategoryComparator);
 
 		// Then create categories in the right order

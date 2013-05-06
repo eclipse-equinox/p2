@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site
+      mirrorsURL="http://www.eclipse.org/downloads/download.php?file=/eclipse/updates/3.4&amp;format=xml"
+      associateSitesURL="associateSites.xml">
+   <feature url="features/test.feature_1.0.0.jar" id="test.feature" version="1.0.0">>
+      <category name="Nested Nested Nested Category"/>
+   </feature>
+   <category-def name="Root Category" label="Root Category"/>
+   <category-def name="Nested Category" label="Nested Category">
+   	<category name="Root Category"/>
+   </category-def>
+   <category-def name="Nested Nested Category" label="Nested Nested Category">
+   	<category name="Nested Category"/>
+   </category-def>
+   <category-def name="Nested Nested Nested Category" label="Nested Nested Nested Category">
+   	<category name="Nested Nested Category"/>
+   </category-def>
+</site>

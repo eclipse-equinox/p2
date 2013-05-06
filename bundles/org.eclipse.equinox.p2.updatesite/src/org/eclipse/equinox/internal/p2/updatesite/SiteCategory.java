@@ -7,6 +7,7 @@
  *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - 406902 (nested categories)
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
