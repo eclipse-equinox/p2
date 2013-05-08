@@ -20,14 +20,14 @@ import org.sat4j.specs.ContradictionException;
 
 public class UserDefinedOptimizationFunction extends OptimizationFunction {
 	private Collection<IInstallableUnit> alreadyExistingRoots;
-	private LexicoHelper<Object, Explanation> dependencyHelper;
+	private SteppedTimeoutLexicoHelper<Object, Explanation> dependencyHelper;
 	private IQueryable<IInstallableUnit> picker;
 
 	public UserDefinedOptimizationFunction(IQueryable<IInstallableUnit> lastState, List<AbstractVariable> abstractVariables, List<AbstractVariable> optionalVariables, IQueryable<IInstallableUnit> picker, IInstallableUnit selectionContext, Map<String, Map<Version, IInstallableUnit>> slice, DependencyHelper<Object, Explanation> dependencyHelper, Collection<IInstallableUnit> alreadyInstalledIUs) {
 		super(lastState, abstractVariables, optionalVariables, picker, selectionContext, slice);
 		this.picker = picker;
 		this.slice = slice;
-		this.dependencyHelper = (LexicoHelper<Object, Explanation>) dependencyHelper;
+		this.dependencyHelper = (SteppedTimeoutLexicoHelper<Object, Explanation>) dependencyHelper;
 		this.alreadyExistingRoots = alreadyInstalledIUs;
 	}
 
@@ -35,7 +35,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 		List<WeightedObject<?>> weightedObjects = new ArrayList<WeightedObject<?>>();
 		List<Object> objects = new ArrayList<Object>();
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
-		String[] criteria = new String[] {"+new", "-changed", "-notuptodate", "-removed"}; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		String[] criteria = new String[] {"+new", "-notuptodate", "-changed", "-removed"}; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 		BigInteger currentWeight = weight.pow(criteria.length - 1);
 		boolean maximizes;
 		Object thing;

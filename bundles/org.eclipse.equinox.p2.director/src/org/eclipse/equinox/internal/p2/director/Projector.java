@@ -215,7 +215,7 @@ public class Projector {
 				((UserFriendlyPBStringSolver<Object>) solver).setMapping(dependencyHelper.getMappingToDomain());
 			} else {
 				if (userDefinedFunction)
-					dependencyHelper = new LexicoHelper<Object, Explanation>(solver);
+					dependencyHelper = new SteppedTimeoutLexicoHelper<Object, Explanation>(solver);
 				else
 					dependencyHelper = new DependencyHelper<Object, Explanation>(solver);
 			}
@@ -1013,9 +1013,6 @@ public class Projector {
 
 	private void backToIU() {
 		solution = new ArrayList<IInstallableUnit>();
-		//		TODO WORK AROUND BECAUE OF A BUG IN SAT4J
-		if (!userDefinedFunction)
-			dependencyHelper.getSolutionCost();
 		IVec<Object> sat4jSolution = dependencyHelper.getSolution();
 		for (Iterator<Object> iter = sat4jSolution.iterator(); iter.hasNext();) {
 			Object var = iter.next();
