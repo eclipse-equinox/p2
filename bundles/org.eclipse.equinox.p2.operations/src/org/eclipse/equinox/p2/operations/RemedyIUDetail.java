@@ -11,8 +11,18 @@
 package org.eclipse.equinox.p2.operations;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.Version;
 
+import org.eclipse.equinox.p2.metadata.Version;
+/**
+ * <p>
+ * <strong>EXPERIMENTAL</strong>. This class or interface has been added as
+ * part of a work in progress. There is no guarantee that this API will
+ * work or that it will remain the same. Please do not use this API without
+ * consulting with the p2 team.
+ * </p>
+ * @since 2.3
+ * @noreference
+ */
 public class RemedyIUDetail {
 
 	public static final int STATUS_ADDED = 1;
