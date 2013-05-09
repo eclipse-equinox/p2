@@ -208,7 +208,11 @@ public class Projector {
 				System.err.println("Ignoring user-specified 'eclipse.p2.projector.timeout' value of: " + timeoutString); //$NON-NLS-1$
 				e.printStackTrace();
 			}
-			solver.setTimeoutOnConflicts(timeout);
+			if (userDefinedFunction)
+				solver.setTimeoutOnConflicts(timeout / 4);
+			else
+				solver.setTimeoutOnConflicts(timeout);
+
 			IQueryResult<IInstallableUnit> queryResult = picker.query(QueryUtil.createIUAnyQuery(), null);
 			if (DEBUG_ENCODING) {
 				dependencyHelper = new LexicoHelper<Object, Explanation>(solver, false);
