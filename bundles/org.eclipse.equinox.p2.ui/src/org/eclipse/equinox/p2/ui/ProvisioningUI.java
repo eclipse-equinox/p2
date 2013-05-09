@@ -14,8 +14,7 @@ package org.eclipse.equinox.p2.ui;
 
 import java.net.URI;
 import java.util.Collection;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
@@ -275,7 +274,7 @@ public class ProvisioningUI {
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
-		if (wizard.getCurrentStatus().getSeverity() == IStatus.ERROR) {
+		if (wizard.getCurrentStatus().getSeverity() == IStatus.ERROR && remediationOperation != null && remediationOperation.getResolutionResult() != Status.OK_STATUS) {
 			wizard.deselectLockedIUs();
 		}
 		return dialog.open();

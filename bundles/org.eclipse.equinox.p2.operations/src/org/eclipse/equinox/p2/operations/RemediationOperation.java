@@ -15,6 +15,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.operations.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
@@ -137,7 +139,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 	}
 
 	private Remedy computeRemedy(RemedyConfig configuration, IProgressMonitor monitor) {
-		Remedy remedy = new Remedy();
+		Remedy remedy = new Remedy(originalRequest);
 		remedy.setConfig(configuration);
 		IPlanner planner = session.getPlanner();
 		RequestFlexer av = new RequestFlexer(planner);
@@ -168,6 +170,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 		} else {
 			remedy.setBeingInstalledRelaxedWeight(ZERO_WEIGHT);
 		}
+		computeRemedyDetails(remedy);
 		return remedy;
 	}
 
@@ -229,5 +232,81 @@ public class RemediationOperation extends ProfileChangeOperation {
 		if (currentRemedy != null)
 			return super.getResolutionResult();
 		return remedies.size() > 0 ? Status.OK_STATUS : new Status(IStatus.ERROR, Activator.ID, Messages.RemediationOperation_NoRemedyFound);
+	}
+
+	private void computeRemedyDetails(Remedy remedy) {
+		ArrayList<String> updateIds = new ArrayList<String>();
+		for (IInstallableUnit addedIU : remedy.getRequest().getAdditions()) {
+			for (IInstallableUnit removedIU : remedy.getRequest().getRemovals()) {
+				if (removedIU.getId().equals(addedIU.getId())) {
+					createModificationRemedyDetail(addedIU, removedIU, remedy);
+					updateIds.add(addedIU.getId());
+					break;
+				}
+			}
+			if (!updateIds.contains(addedIU.getId())) {
+				createAdditionRemedyDetail(addedIU, remedy);
+			}
+		}
+
+		for (IInstallableUnit removedIU : remedy.getRequest().getRemovals()) {
+			if (!updateIds.contains(removedIU.getId())) {
+				createRemovalRemedyDetail(removedIU, remedy);
+			}
+		}
+
+		for (IInstallableUnit addedIUinOriginalRequest : originalRequest.getAdditions()) {
+			boolean found = false;
+			for (IInstallableUnit addedIU : remedy.getRequest().getAdditions()) {
+				if (addedIU.getId().equals(addedIUinOriginalRequest.getId())) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				createNotAddedRemedyDetail(addedIUinOriginalRequest, remedy);
+				found = false;
+			}
+		}
+
+	}
+
+	private void createNotAddedRemedyDetail(IInstallableUnit iu, Remedy remedy) {
+		RemedyIUDetail iuDetail = new RemedyIUDetail(iu);
+		iuDetail.setStatus(RemedyIUDetail.STATUS_NOT_ADDED);
+		iuDetail.setRequestedVersion(iu.getVersion());
+		remedy.addRemedyIUDetail(iuDetail);
+	}
+
+	private void createRemovalRemedyDetail(IInstallableUnit iu, Remedy remedy) {
+		RemedyIUDetail iuDetail = new RemedyIUDetail(iu);
+		iuDetail.setStatus(RemedyIUDetail.STATUS_REMOVED);
+		iuDetail.setInstalledVersion(iu.getVersion());
+		remedy.addRemedyIUDetail(iuDetail);
+	}
+
+	private void createAdditionRemedyDetail(IInstallableUnit iu, Remedy remedy) {
+		RemedyIUDetail iuDetail = new RemedyIUDetail(iu);
+		iuDetail.setStatus(RemedyIUDetail.STATUS_ADDED);
+		iuDetail.setBeingInstalledVersion(iu.getVersion());
+		iuDetail.setRequestedVersion(searchInOriginalRequest(iu.getId()));
+		remedy.addRemedyIUDetail(iuDetail);
+	}
+
+	private void createModificationRemedyDetail(IInstallableUnit beingInstalledIU, IInstallableUnit installedIU, Remedy remedy) {
+		RemedyIUDetail iuDetail = new RemedyIUDetail(beingInstalledIU);
+		iuDetail.setStatus(RemedyIUDetail.STATUS_CHANGED);
+		iuDetail.setBeingInstalledVersion(beingInstalledIU.getVersion());
+		iuDetail.setInstalledVersion(installedIU.getVersion());
+		iuDetail.setRequestedVersion(searchInOriginalRequest(beingInstalledIU.getId()));
+		remedy.addRemedyIUDetail(iuDetail);
+	}
+
+	private Version searchInOriginalRequest(String id) {
+		for (IInstallableUnit iu : originalRequest.getAdditions()) {
+			if (iu.getId() == id)
+				return iu.getVersion();
+		}
+		return null;
 	}
 }

@@ -15,9 +15,10 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.Remedy;
+import org.eclipse.equinox.p2.operations.RemedyIUDetail;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -125,36 +126,51 @@ public class ElementUtils {
 		return false;
 	}
 
-	public static AvailableIUElement[] requestToElement(Remedy remedy) {
+	public static AvailableIUElement[] requestToElement(Remedy remedy, boolean installMode) {
 		if (remedy == null)
 			return new AvailableIUElement[0];
 		ArrayList<AvailableIUElement> temp = new ArrayList<AvailableIUElement>();
-
-		ArrayList<String> updateIds = new ArrayList<String>();
 		IUElementListRoot root = new IUElementListRoot();
-		for (IInstallableUnit addedIU : remedy.getRequest().getAdditions()) {
-			AvailableIUElement element = new AvailableIUElement(root, addedIU, ProvisioningUI.getDefaultUI().getProfileId(), true);
-			for (IInstallableUnit removedIU : remedy.getRequest().getRemovals()) {
-				if (removedIU.getId().equals(addedIU.getId())) {
-					int addedComparedToRemoved = addedIU.getVersion().compareTo(removedIU.getVersion());
-					element.setBeingDowngraded(addedComparedToRemoved < 0);
-					element.setBeingUpgraded(addedComparedToRemoved > 0);
-					updateIds.add(addedIU.getId());
-					break;
-				}
-			}
-			if (!updateIds.contains(addedIU.getId())) {
-				element.setBeingAdded(true);
-			}
+		for (Iterator<RemedyIUDetail> iterator = remedy.getIusDetails().iterator(); iterator.hasNext();) {
+			RemedyIUDetail iuDetail = iterator.next();
+			if (iuDetail.getStatus() == RemedyIUDetail.STATUS_NOT_ADDED)
+				continue;
+			AvailableIUElement element = new AvailableIUElement(root, iuDetail.getIu(), ProvisioningUI.getDefaultUI().getProfileId(), true);
+			if (iuDetail.getBeingInstalledVersion() != null && iuDetail.getRequestedVersion() != null && iuDetail.getBeingInstalledVersion().compareTo(iuDetail.getRequestedVersion()) < 0 && !installMode)
+				element.setImageOverlayId(ProvUIImages.IMG_INFO);
+			else if (iuDetail.getStatus() == RemedyIUDetail.STATUS_REMOVED)
+				element.setImageId(ProvUIImages.IMG_REMOVED);
 			temp.add(element);
 		}
-		for (IInstallableUnit removedIU : remedy.getRequest().getRemovals()) {
-			if (!updateIds.contains(removedIU.getId())) {
-				AvailableIUElement element = new AvailableIUElement(root, removedIU, ProvisioningUI.getDefaultUI().getProfileId(), false);
-				element.setBeingRemoved(true);
-				temp.add(element);
-			}
-		}
 		return temp.toArray(new AvailableIUElement[temp.size()]);
+	}
+
+	public static RemedyElementCategory[] requestToRemedyElementsCategories(Remedy remedy) {
+		List<RemedyElementCategory> categories = new ArrayList<RemedyElementCategory>();
+		RemedyElementCategory categoryAdded = new RemedyElementCategory(ProvUIMessages.RemedyCategoryAdded);
+		RemedyElementCategory cateogyRemoved = new RemedyElementCategory(ProvUIMessages.RemedyCategoryRemoved);
+		RemedyElementCategory categoryNotAdded = new RemedyElementCategory(ProvUIMessages.RemedyCategoryNotAdded);
+		RemedyElementCategory categoryChanged = new RemedyElementCategory(ProvUIMessages.RemedyCategoryChanged);
+		for (Iterator<RemedyIUDetail> iterator = remedy.getIusDetails().iterator(); iterator.hasNext();) {
+			RemedyIUDetail remedyIUVersions = iterator.next();
+			if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_ADDED)
+				categoryAdded.add(remedyIUVersions);
+			else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_CHANGED)
+				categoryChanged.add(remedyIUVersions);
+			else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_REMOVED)
+				cateogyRemoved.add(remedyIUVersions);
+			else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_NOT_ADDED)
+				categoryNotAdded.add(remedyIUVersions);
+		}
+
+		if (cateogyRemoved.getElements().size() > 0)
+			categories.add(cateogyRemoved);
+		if (categoryChanged.getElements().size() > 0)
+			categories.add(categoryChanged);
+		if (categoryNotAdded.getElements().size() > 0)
+			categories.add(categoryNotAdded);
+		if (categoryAdded.getElements().size() > 0)
+			categories.add(categoryAdded);
+		return categories.toArray(new RemedyElementCategory[categories.size()]);
 	}
 }

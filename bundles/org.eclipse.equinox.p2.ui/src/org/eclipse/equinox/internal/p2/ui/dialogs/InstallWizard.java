@@ -65,7 +65,7 @@ public class InstallWizard extends WizardWithLicenses {
 			return;
 		root = new IUElementListRoot();
 		if (operation instanceof RemediationOperation) {
-			AvailableIUElement[] elements = ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy());
+			AvailableIUElement[] elements = ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy(), true);
 			root.setChildren(elements);
 			planSelections = elements;
 		} else {

@@ -15,7 +15,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -30,6 +30,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -90,24 +91,68 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		tree.setLayoutData(data);
 		tree.setHeaderVisible(true);
 		activateCopy(tree);
-		IUColumnConfig[] columns = getColumnConfig();
-		for (int i = 0; i < columns.length; i++) {
-			TreeColumn tc = new TreeColumn(tree, SWT.LEFT, i);
-			tc.setResizable(true);
-			tc.setText(columns[i].getColumnTitle());
-			tc.setWidth(columns[i].getWidthInPixels(tree));
-		}
+		TreeViewerColumn nameColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
+		nameColumn.getColumn().setText(ProvUIMessages.ProvUI_NameColumnTitle);
+		nameColumn.getColumn().setWidth(400);
+		nameColumn.getColumn().setMoveable(true);
+		nameColumn.setLabelProvider(new ColumnLabelProvider() {
+			public String getText(Object element) {
+				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
+				String label = iu.getProperty(IInstallableUnit.PROP_NAME, null);
+				if (label == null)
+					label = iu.getId();
+				return label;
+			}
+
+			public Image getImage(Object element) {
+				if (element instanceof ProvElement)
+					return ((ProvElement) element).getImage(element);
+				if (ProvUI.getAdapter(element, IInstallableUnit.class) != null)
+					return ProvUIImages.getImage(ProvUIImages.IMG_IU);
+				return null;
+			}
+
+			public String getToolTipText(Object element) {
+				if (element instanceof AvailableIUElement && ((AvailableIUElement) element).getImageOverlayId(null) == ProvUIImages.IMG_INFO)
+					return ProvUIMessages.RemedyElementNotHighestVersion;
+				return super.getToolTipText(element);
+			}
+		});
+		TreeViewerColumn versionColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
+		versionColumn.getColumn().setText(ProvUIMessages.ProvUI_VersionColumnTitle);
+		versionColumn.getColumn().setWidth(200);
+		versionColumn.setLabelProvider(new ColumnLabelProvider() {
+			public String getText(Object element) {
+				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
+				if (element instanceof IIUElement) {
+					if (((IIUElement) element).shouldShowVersion())
+						return iu.getVersion().toString();
+					return ""; //$NON-NLS-1$
+				}
+				return iu.getVersion().toString();
+			}
+		});
+		TreeViewerColumn idColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
+		idColumn.getColumn().setText(ProvUIMessages.ProvUI_IdColumnTitle);
+		idColumn.getColumn().setWidth(200);
+
+		idColumn.setLabelProvider(new ColumnLabelProvider() {
+			public String getText(Object element) {
+				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
+				return iu.getId();
+			}
+		});
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
 		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
 		comparator.useColumnConfig(getColumnConfig());
 		treeViewer.setComparator(comparator);
 		treeViewer.setComparer(new ProvElementComparer());
-
+		ColumnViewerToolTipSupport.enableFor(treeViewer);
 		contentProvider = new ProvElementContentProvider();
 		treeViewer.setContentProvider(contentProvider);
-		labelProvider = new IUDetailsLabelProvider(null, getColumnConfig(), getShell());
-		treeViewer.setLabelProvider(labelProvider);
+		//		labelProvider = new IUDetailsLabelProvider(null, getColumnConfig(), getShell());
+		//		treeViewer.setLabelProvider(labelProvider);
 
 		// Optional area to show the size
 		createSizingInfo(composite);

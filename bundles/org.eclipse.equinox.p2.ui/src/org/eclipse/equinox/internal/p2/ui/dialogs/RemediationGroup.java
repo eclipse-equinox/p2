@@ -12,15 +12,17 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.*;
 import java.util.List;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
-import org.eclipse.equinox.internal.p2.ui.viewers.*;
-import org.eclipse.equinox.p2.operations.RemediationOperation;
-import org.eclipse.equinox.p2.operations.Remedy;
-import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -53,6 +55,41 @@ public class RemediationGroup {
 
 	HashMap<String, String[]> CONSTRAINTS;
 	private WizardPage containerPage;
+
+	public class RemedyContentProvider implements ITreeContentProvider {
+
+		public void dispose() {
+			// not needed
+		}
+
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+			// not needed
+		}
+
+		public Object[] getElements(Object inputElement) {
+			Object[] elements = ElementUtils.requestToRemedyElementsCategories((Remedy) inputElement);
+			return elements;
+		}
+
+		public Object[] getChildren(Object parentElement) {
+			if (parentElement instanceof RemedyElementCategory) {
+				RemedyElementCategory category = (RemedyElementCategory) parentElement;
+				return category.getElements().toArray();
+			}
+			return null;
+		}
+
+		public Object getParent(Object element) {
+			return null;
+		}
+
+		public boolean hasChildren(Object element) {
+			if (element instanceof RemedyElementCategory) {
+				return true;
+			}
+			return false;
+		}
+	}
 
 	public RemediationGroup(WizardPage page) {
 		CONSTRAINTS = new HashMap<String, String[]>();
@@ -169,24 +206,132 @@ public class RemediationGroup {
 		insideFoundComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		treeViewer = new TreeViewer(insideFoundComposite, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
+		ColumnViewerToolTipSupport.enableFor(treeViewer);
 		data = new GridData(GridData.FILL_BOTH);
 		Tree tree = treeViewer.getTree();
 		tree.setLayoutData(data);
 		tree.setHeaderVisible(true);
-		IUColumnConfig[] columns = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
-		for (int i = 0; i < columns.length; i++) {
-			TreeColumn tc = new TreeColumn(treeViewer.getTree(), SWT.LEFT, i);
-			tc.setResizable(true);
-			tc.setText(columns[i].getColumnTitle());
-			tc.setWidth(columns[i].getWidthInPixels(treeViewer.getTree()));
-		}
-		ProvElementContentProvider contentProvider = new ProvElementContentProvider();
-		treeViewer.setContentProvider(contentProvider);
-		IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider(null, columns, null);
-		treeViewer.setLabelProvider(labelProvider); //	columnLayout.setColumnData(column.getColumn(), new ColumnWeightData(100, 100, true));
+		TreeViewerColumn nameColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
+		nameColumn.getColumn().setText(ProvUIMessages.ProvUI_NameColumnTitle);
+		nameColumn.getColumn().setWidth(400);
+		nameColumn.getColumn().setMoveable(true);
+		nameColumn.setLabelProvider(new ColumnLabelProvider() {
+			public String getText(Object element) {
+				if (element instanceof RemedyElementCategory)
+					return ((RemedyElementCategory) element).getName();
+				if (element instanceof RemedyIUDetail) {
+					RemedyIUDetail iu = (RemedyIUDetail) element;
+					String label = iu.getIu().getProperty(IInstallableUnit.PROP_NAME, null);
+					if (label == null)
+						label = iu.getIu().getId();
+					return label;
+				}
+				return super.getText(element);
+			}
 
+			public Image getImage(Object element) {
+				if (element instanceof RemedyElementCategory) {
+					RemedyElementCategory category = (RemedyElementCategory) element;
+					if (category.getName().equals(ProvUIMessages.RemedyCategoryAdded))
+						return ProvUIImages.getImage(ProvUIImages.IMG_ADDED);
+					if (category.getName().equals(ProvUIMessages.RemedyCategoryChanged))
+						return ProvUIImages.getImage(ProvUIImages.IMG_CHANGED);
+					if (category.getName().equals(ProvUIMessages.RemedyCategoryNotAdded))
+						return ProvUIImages.getImage(ProvUIImages.IMG_NOTADDED);
+					if (category.getName().equals(ProvUIMessages.RemedyCategoryRemoved))
+						return ProvUIImages.getImage(ProvUIImages.IMG_REMOVED);
+				} else if (element instanceof RemedyIUDetail) {
+					RemedyIUDetail iuDetail = (RemedyIUDetail) element;
+					int status = compare(iuDetail);
+					if (compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0 && containerPage != null && containerPage.getWizard() instanceof UpdateWizard) {
+						Image img = ProvUIImages.getImage(ProvUIImages.IMG_UPGRADED_IU);
+						ImageDescriptor overlay = ProvUIActivator.getDefault().getImageRegistry().getDescriptor(ProvUIImages.IMG_INFO);
+						String decoratedImageId = ProvUIImages.IMG_UPGRADED_IU.concat(ProvUIImages.IMG_INFO);
+						if (ProvUIActivator.getDefault().getImageRegistry().get(decoratedImageId) == null) {
+							DecorationOverlayIcon decoratedImage = new DecorationOverlayIcon(img, overlay, IDecoration.BOTTOM_RIGHT);
+							ProvUIActivator.getDefault().getImageRegistry().put(decoratedImageId, decoratedImage);
+						}
+						Image decoratedImg = ProvUIActivator.getDefault().getImageRegistry().get(decoratedImageId);
+						return decoratedImg;
+					}
+
+					if (status < 0)
+						return ProvUIImages.getImage(ProvUIImages.IMG_DOWNGRADED_IU);
+					if (status > 0)
+						return ProvUIImages.getImage(ProvUIImages.IMG_UPGRADED_IU);
+					return ProvUIImages.getImage(ProvUIImages.IMG_IU);
+				}
+				return super.getImage(element);
+			}
+
+			public String getToolTipText(Object element) {
+				if (element instanceof RemedyIUDetail) {
+					RemedyIUDetail iuDetail = (RemedyIUDetail) element;
+					String toolTipText = ""; //$NON-NLS-1$
+					List<String> versions = new ArrayList<String>();
+					if (iuDetail.getInstalledVersion() != null)
+						versions.add(ProvUIMessages.RemedyElementInstalledVersion + iuDetail.getInstalledVersion().toString());
+					if (iuDetail.getRequestedVersion() != null)
+						versions.add(ProvUIMessages.RemedyElementRequestedVersion + iuDetail.getRequestedVersion().toString());
+					if (iuDetail.getBeingInstalledVersion() != null)
+						versions.add(ProvUIMessages.RemedyElementBeingInstalledVersion + iuDetail.getBeingInstalledVersion().toString());
+					for (Iterator<String> iterator = versions.iterator(); iterator.hasNext();) {
+						String version = iterator.next();
+						toolTipText += (toolTipText == "" ? "" : "\n") + version; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					}
+					if (containerPage != null && containerPage.getWizard() instanceof UpdateWizard && compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0)
+						toolTipText = ProvUIMessages.RemedyElementNotHighestVersion + "\n\n" + toolTipText; //$NON-NLS-1$
+					return toolTipText;
+				}
+				return super.getToolTipText(element);
+			}
+
+			private int compare(Version versionA, Version versionB) {
+				if (versionA != null && versionB != null)
+					return versionA.compareTo(versionB);
+				return 0;
+			}
+
+			private int compare(RemedyIUDetail iuDetail) {
+				if (iuDetail.getStatus() == RemedyIUDetail.STATUS_ADDED && iuDetail.getRequestedVersion() != null && iuDetail.getBeingInstalledVersion() != null) {
+					return compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion());
+				}
+				if (iuDetail.getStatus() == RemedyIUDetail.STATUS_CHANGED && iuDetail.getInstalledVersion() != null && iuDetail.getBeingInstalledVersion() != null) {
+					return compare(iuDetail.getBeingInstalledVersion(), iuDetail.getInstalledVersion());
+				}
+				return 0;
+			}
+		});
+		TreeViewerColumn versionColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
+		versionColumn.getColumn().setText(ProvUIMessages.ProvUI_VersionColumnTitle);
+		versionColumn.getColumn().setWidth(200);
+		versionColumn.setLabelProvider(new ColumnLabelProvider() {
+			public String getText(Object element) {
+				if (element instanceof RemedyIUDetail) {
+					RemedyIUDetail iu = (RemedyIUDetail) element;
+					if (iu.getBeingInstalledVersion() != null)
+						return iu.getBeingInstalledVersion().toString();
+				}
+				return ""; //$NON-NLS-1$
+			}
+		});
+		TreeViewerColumn idColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
+		idColumn.getColumn().setText(ProvUIMessages.ProvUI_IdColumnTitle);
+		idColumn.getColumn().setWidth(200);
+
+		idColumn.setLabelProvider(new ColumnLabelProvider() {
+			public String getText(Object element) {
+				if (element instanceof RemedyIUDetail) {
+					RemedyIUDetail iu = (RemedyIUDetail) element;
+					return iu.getIu().getId();
+				}
+				return ""; //$NON-NLS-1$
+			}
+		});
+
+		treeViewer.setContentProvider(new RemedyContentProvider());
+		treeViewer.setAutoExpandLevel(2);
 		iuDetailsGroup = new IUDetailsGroup(resultErrorComposite, treeViewer, 500, true);
-
 	}
 
 	public IUDetailsGroup getDetailsGroup() {
@@ -254,13 +399,10 @@ public class RemediationGroup {
 			if (currentRemedy == null) {
 				switchRemediationLayout.topControl = resultNotFoundComposite;
 			} else {
-				input = new IUElementListRoot();
-				AvailableIUElement[] ius = ElementUtils.requestToElement(currentRemedy);
-				if (ius.length == 0) {
+				if (currentRemedy.getIusDetails().size() == 0) {
 					switchRemediationLayout.topControl = resultNotFoundComposite;
 				} else {
-					input.setChildren(ius);
-					treeViewer.setInput(input);
+					treeViewer.setInput(currentRemedy);
 					switchRemediationLayout.topControl = resultFoundComposite;
 				}
 			}

@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 /**
  * <p>
@@ -27,6 +30,22 @@ public class Remedy {
 	private ProfileChangeRequest request;
 	private int beingInstalledRelaxedWeight;
 	private int installationRelaxedWeight;
+	private IProfileChangeRequest originalRequest;
+	private List<RemedyIUDetail> iusDetails;
+
+	public List<RemedyIUDetail> getIusDetails() {
+		return iusDetails;
+	}
+
+	public IProfileChangeRequest getOriginalRequest() {
+		return originalRequest;
+
+	}
+
+	public Remedy(IProfileChangeRequest originalRequest) {
+		this.originalRequest = originalRequest;
+		this.iusDetails = new ArrayList<RemedyIUDetail>();
+	}
 
 	public RemedyConfig getConfig() {
 		return config;
@@ -58,6 +77,10 @@ public class Remedy {
 
 	public void setInstallationRelaxedWeight(int installationRelaxedWeight) {
 		this.installationRelaxedWeight = installationRelaxedWeight;
+	}
+
+	public void addRemedyIUDetail(RemedyIUDetail iuDetail) {
+		iusDetails.add(iuDetail);
 	}
 
 }

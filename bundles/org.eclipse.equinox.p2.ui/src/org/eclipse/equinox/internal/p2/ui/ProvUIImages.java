@@ -39,15 +39,21 @@ public class ProvUIImages {
 	public final static String IMG_METADATA_REPOSITORY = "obj/metadata_repo_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_IU = "obj/iu_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_DISABLED_IU = "obj/iu_disabled_obj.gif"; //$NON-NLS-1$
+	public final static String IMG_ADDED = "obj/iu_add.gif"; //$NON-NLS-1$
+	public final static String IMG_REMOVED = "obj/iu_remove.gif"; //$NON-NLS-1$
+	public final static String IMG_CHANGED = "obj/iu_update_obj.gif"; //$NON-NLS-1$
+	public final static String IMG_NOTADDED = "obj/iu_notadd.gif"; //$NON-NLS-1$
+
 	public final static String IMG_UPDATED_IU = "obj/iu_update_obj.gif"; //$NON-NLS-1$
-	public final static String IMG_UPGRADED_IU = "obj/iu_upgraded.gif"; //$NON-NLS-1$
-	public final static String IMG_DOWNGRADED_IU = "obj/iu_downgraded.gif"; //$NON-NLS-1$
+	public final static String IMG_UPGRADED_IU = "obj/iu_upgraded.png"; //$NON-NLS-1$
+	public final static String IMG_DOWNGRADED_IU = "obj/iu_downgraded.png"; //$NON-NLS-1$
 	public final static String IMG_ADDED_OVERLAY = "obj/added_overlay.gif"; //$NON-NLS-1$
 	public final static String IMG_REMOVED_OVERLAY = "obj/removed_overlay.gif"; //$NON-NLS-1$
 	public final static String IMG_PATCH_IU = "obj/iu_patch_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_DISABLED_PATCH_IU = "obj/iu_disabled_patch_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_PROFILE = "obj/profile_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_CATEGORY = "obj/category_obj.gif"; //$NON-NLS-1$
+	public final static String IMG_INFO = "obj/iu_info.gif"; //$NON-NLS-1$
 
 	// wizard graphics
 	public final static String WIZARD_BANNER_INSTALL = "wizban/install_wiz.gif"; //$NON-NLS-1$

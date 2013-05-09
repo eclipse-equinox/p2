@@ -117,6 +117,11 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		createImageDescriptor(ProvUIImages.IMG_DISABLED_PATCH_IU, reg);
 		createImageDescriptor(ProvUIImages.IMG_CATEGORY, reg);
 		createImageDescriptor(ProvUIImages.IMG_PROFILE, reg);
+		createImageDescriptor(ProvUIImages.IMG_INFO, reg);
+		createImageDescriptor(ProvUIImages.IMG_ADDED, reg);
+		createImageDescriptor(ProvUIImages.IMG_REMOVED, reg);
+		createImageDescriptor(ProvUIImages.IMG_CHANGED, reg);
+		createImageDescriptor(ProvUIImages.IMG_NOTADDED, reg);
 		createImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL, reg);
 		createImageDescriptor(ProvUIImages.WIZARD_BANNER_REVERT, reg);
 		createImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL, reg);

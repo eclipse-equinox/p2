@@ -43,6 +43,8 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	boolean beingDowngraded = false;
 	boolean beingUpgraded = false;
 	boolean beingRemoved = false;
+	private String imageId;
+	private String imageOverlayId;
 
 	// Currently this variable is not settable due to the
 	// poor performance of sizing, but it is kept here for future improvement.
@@ -67,6 +69,8 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
 	protected String getImageId(Object obj) {
+		if (imageId != null)
+			return imageId;
 		if (isUpdate)
 			return ProvUIImages.IMG_UPDATED_IU;
 		else if (isPatch)
@@ -80,7 +84,9 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return ProvUIImages.IMG_IU;
 	}
 
-	protected String getImageOverlayId(Object obj) {
+	public String getImageOverlayId(Object obj) {
+		if (imageOverlayId != null)
+			return imageOverlayId;
 		if (beingRemoved)
 			return ProvUIImages.IMG_REMOVED_OVERLAY;
 		if (beingAdded)
@@ -262,5 +268,13 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	public void setBeingRemoved(boolean beingRemoved) {
 		this.beingRemoved = beingRemoved;
+	}
+
+	public void setImageId(String imageId) {
+		this.imageId = imageId;
+	}
+
+	public void setImageOverlayId(String imageOverlayId) {
+		this.imageOverlayId = imageOverlayId;
 	}
 }

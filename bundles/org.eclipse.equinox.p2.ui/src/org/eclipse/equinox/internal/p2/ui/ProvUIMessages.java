@@ -254,6 +254,14 @@ public class ProvUIMessages extends NLS {
 	public static String RemediationPage_BestSolutionInstallationRelaxed;
 	public static String RemediationPage_BestSolutionBuilt;
 	public static String RemediationPage_SolutionDetails;
+	public static String RemedyCategoryAdded;
+	public static String RemedyCategoryRemoved;
+	public static String RemedyCategoryChanged;
+	public static String RemedyCategoryNotAdded;
+	public static String RemedyElementInstalledVersion;
+	public static String RemedyElementRequestedVersion;
+	public static String RemedyElementBeingInstalledVersion;
+	public static String RemedyElementNotHighestVersion;
 
 	public static String TrustCertificateDialog_Details;
 	public static String TrustCertificateDialog_Title;
