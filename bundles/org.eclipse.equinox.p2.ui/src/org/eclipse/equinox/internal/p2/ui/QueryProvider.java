@@ -90,6 +90,7 @@ public class QueryProvider {
 		IUViewQueryContext context = element.getQueryContext();
 		if (context == null) {
 			context = ProvUI.getQueryContext(policy);
+			context.setInstalledProfileId(ui.getProfileId());
 		}
 		switch (queryType) {
 			case ARTIFACT_REPOS :
