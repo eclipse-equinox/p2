@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.p2.operations;
 
 import java.util.*;
 import java.util.Map.Entry;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
@@ -84,11 +83,12 @@ public class RequestFlexer {
 
 	public IProfileChangeRequest getChangeRequest(IProfileChangeRequest request, IProfile prof, IProgressMonitor monitor) {
 		this.profile = prof;
-		IProfileChangeRequest loosenedRequest = computeLooseRequest(request);
+		SubMonitor sub = SubMonitor.convert(monitor, 2);
+		IProfileChangeRequest loosenedRequest = computeLooseRequest(request, sub.newChild(1));
 		if (canShortCircuit(request)) {
 			return null;
 		}
-		IProvisioningPlan intermediaryPlan = resolve(loosenedRequest);
+		IProvisioningPlan intermediaryPlan = resolve(loosenedRequest, sub.newChild(1));
 		if (!intermediaryPlan.getStatus().isOK())
 			return null;
 		if (intermediaryPlan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).isEmpty() && intermediaryPlan.getRemovals().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).isEmpty())
@@ -209,10 +209,11 @@ public class RequestFlexer {
 
 	//Create a request where the original requirements are "loosened" according to flags specified in this instance
 	//The resulting profile change request uses the requirements specified using p2QL and those appear in the extraRequirements.
-	private IProfileChangeRequest computeLooseRequest(IProfileChangeRequest originalRequest) {
+	private IProfileChangeRequest computeLooseRequest(IProfileChangeRequest originalRequest, IProgressMonitor monitor) {
 		IProfileChangeRequest loosenedRequest = planner.createChangeRequest(profile);
-		loosenUpOriginalRequest(loosenedRequest, originalRequest);
-		loosenUpInstalledSoftware(loosenedRequest, originalRequest);
+		SubMonitor sub = SubMonitor.convert(monitor, 2);
+		loosenUpOriginalRequest(loosenedRequest, originalRequest, sub.newChild(1));
+		loosenUpInstalledSoftware(loosenedRequest, originalRequest, sub.newChild(1));
 		return loosenedRequest;
 	}
 
@@ -220,7 +221,7 @@ public class RequestFlexer {
 		return request.getRemovals().contains(removalRequested);
 	}
 
-	private IProvisioningPlan resolve(IProfileChangeRequest temporaryRequest) {
+	private IProvisioningPlan resolve(IProfileChangeRequest temporaryRequest, IProgressMonitor monitor) {
 		String explainPropertyBackup = null;
 		try {
 			temporaryRequest.setProfileProperty("_internal_user_defined_", "true"); //$NON-NLS-1$//$NON-NLS-2$
@@ -228,7 +229,7 @@ public class RequestFlexer {
 				explainPropertyBackup = provisioningContext.getProperty(EXPLANATION_ENABLEMENT);
 				provisioningContext.setProperty(EXPLANATION_ENABLEMENT, Boolean.FALSE.toString());
 			}
-			return planner.getProvisioningPlan(temporaryRequest, provisioningContext, null);
+			return planner.getProvisioningPlan(temporaryRequest, provisioningContext, SubMonitor.convert(monitor));
 		} finally {
 			if (provisioningContext != null) {
 				if (explainPropertyBackup == null)
@@ -241,11 +242,11 @@ public class RequestFlexer {
 
 	//Loosen the request originally emitted.
 	//For example if the user said "install A 1.0", then a new Requirement is added saying (install A 1.0 or install A 2.0), this depending on the configuration flags 
-	private void loosenUpOriginalRequest(IProfileChangeRequest newRequest, IProfileChangeRequest originalRequest) {
+	private void loosenUpOriginalRequest(IProfileChangeRequest newRequest, IProfileChangeRequest originalRequest, IProgressMonitor monitor) {
 		//First deal with the IUs that are being added
 		Collection<IInstallableUnit> requestedAdditions = originalRequest.getAdditions();
 		for (IInstallableUnit addedIU : requestedAdditions) {
-			Collection<IInstallableUnit> potentialUpdates = allowDifferentVersion ? findAllVersionsAvailable(addedIU) : new ArrayList<IInstallableUnit>();
+			Collection<IInstallableUnit> potentialUpdates = allowDifferentVersion ? findAllVersionsAvailable(addedIU, monitor) : new ArrayList<IInstallableUnit>();
 			foundDifferentVersionsForElementsToInstall = (foundDifferentVersionsForElementsToInstall || (potentialUpdates.size() == 0 ? false : true));
 			potentialUpdates.add(addedIU); //Make sure that we include the IU that we were initially trying to install
 
@@ -298,20 +299,23 @@ public class RequestFlexer {
 		return INCLUSION_OPTIONAL.equals(match.get(INCLUSION_RULES));
 	}
 
-	private Collection<IInstallableUnit> findAllVersionsAvailable(IInstallableUnit iu) {
+	private Collection<IInstallableUnit> findAllVersionsAvailable(IInstallableUnit iu, IProgressMonitor monitor) {
 		Collection<IInstallableUnit> allVersions = new HashSet<IInstallableUnit>();
-		allVersions.addAll(findIUsWithSameId(iu));
-		allVersions.addAll(findUpdates(iu));
+		SubMonitor sub = SubMonitor.convert(monitor);
+		allVersions.addAll(findIUsWithSameId(iu, sub.newChild(1)));
+		allVersions.addAll(findUpdates(iu, sub.newChild(1)));
 		return allVersions;
 	}
 
-	private Collection<IInstallableUnit> findIUsWithSameId(IInstallableUnit iu) {
-		return provisioningContext.getMetadata(null).query(QueryUtil.createIUQuery(iu.getId()), null).toUnmodifiableSet();
+	private Collection<IInstallableUnit> findIUsWithSameId(IInstallableUnit iu, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, 2);
+		IQueryable<IInstallableUnit> metadata = provisioningContext.getMetadata(sub.newChild(1));
+		return metadata.query(QueryUtil.createIUQuery(iu.getId()), sub.newChild(1)).toUnmodifiableSet();
 	}
 
-	private Collection<IInstallableUnit> findUpdates(IInstallableUnit iu) {
+	private Collection<IInstallableUnit> findUpdates(IInstallableUnit iu, IProgressMonitor monitor) {
 		Collection<IInstallableUnit> availableUpdates = new HashSet<IInstallableUnit>();
-		IQueryResult<IInstallableUnit> updatesAvailable = planner.updatesFor(iu, provisioningContext, null);
+		IQueryResult<IInstallableUnit> updatesAvailable = planner.updatesFor(iu, provisioningContext, SubMonitor.convert(monitor));
 		for (Iterator<IInstallableUnit> iterator = updatesAvailable.iterator(); iterator.hasNext();) {
 			availableUpdates.add(iterator.next());
 		}
@@ -337,13 +341,13 @@ public class RequestFlexer {
 
 	//Loosen up the IUs that are already part of the profile
 	//Given how we are creating our request, this needs to take into account the removal from the original request as well as the change in inclusion 
-	private IProfileChangeRequest loosenUpInstalledSoftware(IProfileChangeRequest request, IProfileChangeRequest originalRequest) {
+	private IProfileChangeRequest loosenUpInstalledSoftware(IProfileChangeRequest request, IProfileChangeRequest originalRequest, IProgressMonitor monitor) {
 		if (!allowInstalledRemoval && !allowInstalledUpdate)
 			return request;
 		Set<IInstallableUnit> allRoots = getRoots();
 
 		for (IInstallableUnit existingIU : allRoots) {
-			Collection<IInstallableUnit> potentialUpdates = allowInstalledUpdate ? findUpdates(existingIU) : new HashSet<IInstallableUnit>();
+			Collection<IInstallableUnit> potentialUpdates = allowInstalledUpdate ? findUpdates(existingIU, monitor) : new HashSet<IInstallableUnit>();
 			foundDifferentVersionsForElementsInstalled = (foundDifferentVersionsForElementsInstalled || (potentialUpdates.size() == 0 ? false : true));
 			potentialUpdates.add(existingIU);
 			Collection<IRequirement> newRequirement = new ArrayList<IRequirement>(1);
