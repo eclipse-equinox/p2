@@ -298,8 +298,6 @@ public class RepositoryTransport extends Transport {
 		}
 		if (t instanceof FileNotFoundException || (t instanceof IncomingFileTransferException && ((IncomingFileTransferException) t).getErrorCode() == 404))
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, NLS.bind(Messages.artifact_not_found, toDownload), t);
-		if (t.getClass().getName().equals("org.apache.http.conn.HttpHostConnectException"))
-			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
 		if (t instanceof ConnectException)
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.TransportErrorTranslator_UnableToConnectToRepository_0, toDownload), t);
 		if (t instanceof UnknownHostException)

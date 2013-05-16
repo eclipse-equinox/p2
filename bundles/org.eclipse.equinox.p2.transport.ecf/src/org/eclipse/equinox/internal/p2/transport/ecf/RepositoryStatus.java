@@ -11,15 +11,15 @@
 
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
+import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.FileNotFoundException;
 import java.net.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
 import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
-import org.eclipse.equinox.internal.p2.repository.Messages;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -117,8 +117,6 @@ public class RepositoryStatus {
 	public static DownloadStatus forException(Throwable t, URI toDownload) {
 		if (t instanceof FileNotFoundException || (t instanceof IncomingFileTransferException && ((IncomingFileTransferException) t).getErrorCode() == 404))
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, NLS.bind(Messages.artifact_not_found, toDownload), t);
-		if (t.getClass().getName().equals("org.apache.http.conn.HttpHostConnectException"))
-			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
 		if (t instanceof ConnectException)
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.TransportErrorTranslator_UnableToConnectToRepository_0, toDownload), t);
 		if (t instanceof UnknownHostException)
