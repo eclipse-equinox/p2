@@ -16,8 +16,6 @@ import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.internal.adaptor.EclipseAdaptorMsg;
-import org.eclipse.core.runtime.internal.adaptor.MessageHelper;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -28,11 +26,11 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
