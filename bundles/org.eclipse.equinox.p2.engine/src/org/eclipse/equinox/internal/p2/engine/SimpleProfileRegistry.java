@@ -7,6 +7,7 @@
  * Contributors: 
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - ongoing development
+ *     Red Hat, Inc. - Bug 408138
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -38,6 +39,7 @@ import org.xml.sax.SAXException;
 
 public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
+	private static final String PROP_IGNORE_USER_CONFIGURATION = "eclipse.ignoreUserConfiguration"; //$NON-NLS-1$
 	private static final String SIMPLE_PROFILE_REGISTRY_INTERNAL = "_simpleProfileRegistry_internal_"; //$NON-NLS-1$
 	private static final String PROFILE_REGISTRY = "profile registry"; //$NON-NLS-1$
 	private static final String PROFILE_PROPERTIES_FILE = "state.properties"; //$NON-NLS-1$
@@ -263,6 +265,14 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_NEW);
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + getBaseTimestamp(profile.getProfileId()), getBaseTimestamp(id));
 					agent.registerService(SERVICE_SHARED_INSTALL_NEW_TIMESTAMP, Long.toString(profile.getTimestamp()));
+
+					// this looks like a hack, but:
+					// (1) SimpleConfigurationImpl keeps returning master configuration as long as the property is set
+					// (2) SimpleConfigurationImpl sets the propery after it drops user configuration
+					// therefore dropins reconciliation can't load dropins plugins installed into user configuration
+					// after the user configuration has been dropped.
+					// It is necessary to unset this property.
+					System.setProperty(PROP_IGNORE_USER_CONFIGURATION, "processed_and_unset"); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
 					//This is the first time we create the shared profile. Tag it as such and also remember the timestamp of the base
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL);
@@ -278,6 +288,12 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	private boolean ignoreExistingProfile(IProfile profile) {
 		if (agent.getService(SERVICE_SHARED_INSTALL_NEW_TIMESTAMP) != null)
 			return false;
+
+		// if the property is set by OSGI, and there is no new timestamp (because of the previous condition)
+		// ignore current profile. This will happen only once, because SERVICE_SHARED_INSTALL_NEW_TIMESTAMP
+		// is set during profile reset.
+		if ("true".equals(System.getProperty(PROP_IGNORE_USER_CONFIGURATION))) //$NON-NLS-1$ //$NON-NLS-2$
+			return true;
 
 		String baseTimestamp = getBaseTimestamp(profile.getProfileId());
 		if (baseTimestamp == null)
