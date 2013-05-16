@@ -457,8 +457,6 @@ public class VerifierApplication implements IApplication {
 		if (properties.getProperty("checkMigrationWizard.simulate.reinstall") == null)
 			return;
 
-		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
-		new MigrationWizardTestHelper().rememberMigrationCompleted(profile.getProfileId());
+		new MigrationWizardTestHelper().rememberMigrationCompleted();
 	}
 }

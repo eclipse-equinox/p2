@@ -76,7 +76,7 @@ public class MigrationSupport {
 			openMigrationWizard(previousProfile, reposToMigrate);
 		} else {
 			//There is nothing to migrate, so we mark the migration complete
-			rememberMigrationCompleted(currentProfile.getProfileId());
+			rememberMigrationCompleted();
 		}
 		return true;
 	}
@@ -210,9 +210,9 @@ public class MigrationSupport {
 		return activeWindow != null ? activeWindow.getShell() : null;
 	}
 
-	public void rememberMigrationCompleted(String profileId) {
+	public void rememberMigrationCompleted() {
 		IProfileRegistry registry = (IProfileRegistry) ProvisioningUI.getDefaultUI().getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
-		long[] history = registry.listProfileTimestamps(profileId);
+		long[] history = registry.listProfileTimestamps(ProvisioningUI.getDefaultUI().getProfileId());
 		AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(AutomaticUpdateScheduler.MIGRATION_DIALOG_SHOWN, history[history.length - 1]);
 		AutomaticUpdatePlugin.getDefault().savePreferences();
 	}
