@@ -540,11 +540,13 @@ public class BrandingIron {
 			replacePlistValue(buffer, BUNDLE_SHORT_VERSION_KEY, sv.toString());
 		}
 
-		int iconPos = scan(buffer, 0, ICON_NAME);
-		if (iconPos != -1)
-			buffer.replace(iconPos, iconPos + ICON_NAME.length(), iconName);
-		else {
-			replacePlistValue(buffer, ICON_KEY, iconName);
+		if (iconName.length() > 0) {
+			int iconPos = scan(buffer, 0, ICON_NAME);
+			if (iconPos != -1) {
+				buffer.replace(iconPos, iconPos + ICON_NAME.length(), iconName);
+			} else {
+				replacePlistValue(buffer, ICON_KEY, iconName);
+			}
 		}
 
 		File target = new File(targetRoot, "Info.plist"); //$NON-NLS-1$;
