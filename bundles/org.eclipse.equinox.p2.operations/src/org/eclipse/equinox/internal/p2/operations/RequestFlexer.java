@@ -301,7 +301,7 @@ public class RequestFlexer {
 
 	private Collection<IInstallableUnit> findAllVersionsAvailable(IInstallableUnit iu, IProgressMonitor monitor) {
 		Collection<IInstallableUnit> allVersions = new HashSet<IInstallableUnit>();
-		SubMonitor sub = SubMonitor.convert(monitor);
+		SubMonitor sub = SubMonitor.convert(monitor, 2);
 		allVersions.addAll(findIUsWithSameId(iu, sub.newChild(1)));
 		allVersions.addAll(findUpdates(iu, sub.newChild(1)));
 		return allVersions;
