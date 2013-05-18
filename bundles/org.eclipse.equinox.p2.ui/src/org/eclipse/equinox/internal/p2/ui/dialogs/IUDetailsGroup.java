@@ -67,7 +67,7 @@ public class IUDetailsGroup {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		detailsComposite.setLayout(layout);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		detailsComposite.setLayoutData(gd);
 
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);

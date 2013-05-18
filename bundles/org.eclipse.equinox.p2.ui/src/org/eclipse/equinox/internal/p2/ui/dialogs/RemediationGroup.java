@@ -187,6 +187,7 @@ public class RemediationGroup {
 
 		resultErrorComposite = new Composite(resultComposite, SWT.NONE);
 		resultErrorComposite.setLayout(new GridLayout());
+		resultErrorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		resultNotFoundComposite = new Composite(resultComposite, SWT.NONE);
 		resultNotFoundComposite.setLayout(new GridLayout());
