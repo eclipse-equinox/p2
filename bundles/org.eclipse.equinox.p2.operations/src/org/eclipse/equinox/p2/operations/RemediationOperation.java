@@ -187,7 +187,6 @@ public class RemediationOperation extends ProfileChangeOperation {
 
 	public ProvisioningJob getProvisioningJob(IProgressMonitor monitor) {
 		IStatus status = getResolutionResult();
-		//		planner.resolve();
 		if (status.getSeverity() != IStatus.CANCEL && status.getSeverity() != IStatus.ERROR) {
 			if (job.getProvisioningPlan() != null) {
 				ProfileModificationJob pJob = new ProfileModificationJob(getProvisioningJobName(), session, profileId, job.getProvisioningPlan(), job.getActualProvisioningContext());
@@ -212,9 +211,6 @@ public class RemediationOperation extends ProfileChangeOperation {
 		final ProfileChangeRequest[] requestHolder = new ProfileChangeRequest[1];
 		job = new RemediationResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassEvaluator(), noChangeRequest, new IRunnableWithProgress() {
 			public void run(IProgressMonitor mon) throws OperationCanceledException {
-				//Weird hack to get progress reporting to do something in the install wizard....
-				//				if (monitor != null)
-				//					mon = monitor;
 				SubMonitor sub = SubMonitor.convert(mon, 2);
 				// We only check for other jobs running if this job is *not* scheduled
 				if (job.getState() == Job.NONE && session.hasScheduledOperationsFor(profileId)) {
@@ -269,7 +265,6 @@ public class RemediationOperation extends ProfileChangeOperation {
 				found = false;
 			}
 		}
-
 	}
 
 	private void createNotAddedRemedyDetail(IInstallableUnit iu, Remedy remedy) {
