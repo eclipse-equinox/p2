@@ -22,6 +22,8 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -46,6 +48,7 @@ public class RemediationGroup {
 	private Remedy currentRemedy;
 
 	private TreeViewer treeViewer;
+	private TreeViewerComparator treeComparator;
 	protected IUElementListRoot input;
 	private StackLayout switchRemediationLayout;
 	Group detailsControl;
@@ -216,6 +219,7 @@ public class RemediationGroup {
 		nameColumn.getColumn().setText(ProvUIMessages.ProvUI_NameColumnTitle);
 		nameColumn.getColumn().setWidth(400);
 		nameColumn.getColumn().setMoveable(true);
+		nameColumn.getColumn().addSelectionListener(columnChangeListener(0));
 		nameColumn.setLabelProvider(new ColumnLabelProvider() {
 			public String getText(Object element) {
 				if (element instanceof RemedyElementCategory)
@@ -306,6 +310,7 @@ public class RemediationGroup {
 		TreeViewerColumn versionColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
 		versionColumn.getColumn().setText(ProvUIMessages.ProvUI_VersionColumnTitle);
 		versionColumn.getColumn().setWidth(200);
+		versionColumn.getColumn().addSelectionListener(columnChangeListener(1));
 		versionColumn.setLabelProvider(new ColumnLabelProvider() {
 			public String getText(Object element) {
 				if (element instanceof RemedyIUDetail) {
@@ -319,6 +324,7 @@ public class RemediationGroup {
 		TreeViewerColumn idColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
 		idColumn.getColumn().setText(ProvUIMessages.ProvUI_IdColumnTitle);
 		idColumn.getColumn().setWidth(200);
+		idColumn.getColumn().addSelectionListener(columnChangeListener(2));
 
 		idColumn.setLabelProvider(new ColumnLabelProvider() {
 			public String getText(Object element) {
@@ -330,6 +336,8 @@ public class RemediationGroup {
 			}
 		});
 
+		treeComparator = new TreeViewerComparator();
+		treeViewer.setComparator(treeComparator);
 		treeViewer.setContentProvider(new RemedyContentProvider());
 		treeViewer.setAutoExpandLevel(2);
 		iuDetailsGroup = new IUDetailsGroup(resultErrorComposite, treeViewer, 500, true);
@@ -419,4 +427,68 @@ public class RemediationGroup {
 	public String getMessage() {
 		return ProvUIMessages.InstallRemediationPage_Description;
 	}
+
+	class TreeViewerComparator extends ViewerComparator {
+		private int sortColumn = 0;
+		private int ascending = 1;
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public int compare(Viewer viewer1, Object e1, Object e2) {
+			if (!(e1 instanceof RemedyIUDetail && e2 instanceof RemedyIUDetail))
+				return 0;
+			IInstallableUnit iu1 = ((RemedyIUDetail) e1).getIu();
+			IInstallableUnit iu2 = ((RemedyIUDetail) e2).getIu();
+			if (iu1 != null && iu2 != null) {
+				if (viewer1 instanceof TreeViewer) {
+					TreeViewer theTreeViewer = (TreeViewer) viewer1;
+					ColumnLabelProvider labelProvider = (ColumnLabelProvider) theTreeViewer.getLabelProvider(sortColumn);
+					String e1p = labelProvider.getText(e1);
+					String e2p = labelProvider.getText(e2);
+					return ascending * getComparator().compare(e1p, e2p);
+				}
+				return 0;
+			}
+			return super.compare(viewer1, e1, e2);
+		}
+
+		public void setSortColumn(int sortColumn) {
+			this.sortColumn = sortColumn;
+		}
+
+		public int getSortColumn() {
+			return sortColumn;
+		}
+
+		public boolean isAscending() {
+			return ascending == 1 ? true : false;
+		}
+
+		public void setAscending(boolean asc) {
+			this.ascending = asc ? 1 : -1;
+		}
+	}
+
+	private SelectionAdapter columnChangeListener(final int index) {
+		return new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updateTableSorting(index);
+			}
+		};
+	}
+
+	private void updateTableSorting(int columnIndex) {
+		TreeViewerComparator comparator = (TreeViewerComparator) treeViewer.getComparator();
+		// toggle direction if it's the same column
+		if (columnIndex == treeComparator.getSortColumn()) {
+			comparator.setAscending(!treeComparator.isAscending());
+		}
+		comparator.setSortColumn(columnIndex);
+		treeViewer.getTree().setSortColumn(treeViewer.getTree().getColumn(columnIndex));
+		treeViewer.getTree().setSortDirection(comparator.isAscending() ? SWT.UP : SWT.DOWN);
+		treeViewer.refresh(false);
+		treeViewer.expandToLevel(2);
+	}
+
 }
