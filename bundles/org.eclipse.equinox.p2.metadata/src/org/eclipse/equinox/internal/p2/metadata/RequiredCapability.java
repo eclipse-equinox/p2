@@ -181,7 +181,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		if (matchExpression.getParameters().length == 0)
 			return matchExpression.toString();
 
-		if (matchExpression.getParameters().length < 3 || matchExpression.getParameters().length > 3) {
+		if (!isSimpleRequirement(matchExpression)) {
 			result.append(matchExpression.toString()).append(' ');
 			for (int i = 0; i < matchExpression.getParameters().length; i++) {
 				result.append(matchExpression.getParameters()[i]).append(' ');

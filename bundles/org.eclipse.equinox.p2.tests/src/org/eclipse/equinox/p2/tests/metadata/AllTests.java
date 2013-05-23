@@ -31,6 +31,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PersistNegation.class);
 		suite.addTestSuite(PersistFragment.class);
 		suite.addTestSuite(ProvidedCapabilityTest.class);
+		suite.addTestSuite(RequirementToString.class);
 		return suite;
 	}
 
