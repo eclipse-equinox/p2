@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.*;
 import org.eclipse.equinox.p2.tests.*;
 
-public class TestRequestFlexerProduct extends AbstractProvisioningTest {
+public class TestRequestFlexerProductWithMixedMarkup extends AbstractProvisioningTest {
 	public IInstallableUnit sdk1;
 
 	@IUDescription(content = "package: platform \n" + "singleton: true\n" + "version: 1 \n")
@@ -52,7 +52,7 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 		IRequirement[] reqPlatform1 = new IRequirement[1];
 		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "platform", new VersionRange("[1.0.0,1.0.0]"), null, false, false, true);
 		Properties p = new Properties();
-		p.setProperty(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
+		p.setProperty("lineUp", Boolean.TRUE.toString());
 		sdk1 = createIU("SDK", Version.create("1.0.0"), null, reqPlatform1, new IProvidedCapability[0], p, null, null, true);
 	}
 
@@ -60,7 +60,7 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 		IRequirement[] reqPlatform1 = new IRequirement[1];
 		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "platform", new VersionRange("[2.0.0,2.0.0]"), null, false, false, true);
 		Properties p = new Properties();
-		p.setProperty(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
+		p.setProperty("lineUp", Boolean.TRUE.toString());
 		IUpdateDescriptor update = MetadataFactory.createUpdateDescriptor("SDK", new VersionRange("[1.0.0,2.0.0)"), 0, "description");
 		sdk2 = createIU("SDK", Version.create("2.0.0"), null, reqPlatform1, new IProvidedCapability[0], p, null, null, true, update, null);
 	}
@@ -85,12 +85,6 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		getProfileRegistry().removeProfile(profile.getProfileId());
-	}
-
 	public void testProductRemovalIsDetected() {
 		RequestFlexer av = new RequestFlexer(planner);
 		av.setAllowPartialInstall(false);
@@ -104,6 +98,12 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 		assertNull(realRequest);
 	}
 
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		getProfileRegistry().removeProfile(profile.getProfileId());
+	}
+
 	public void testProductNewProduct() {
 		RequestFlexer av = new RequestFlexer(planner);
 		av.setAllowPartialInstall(false);
@@ -115,26 +115,6 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 
 		//In this case we can update the base, so we will find sdk2
 		assertTrue(realRequest.getAdditions().contains(egit2));
-		assertTrue(realRequest.getAdditions().contains(sdk2));
-	}
-
-	public void testProductNotAsRoot() {
-		RequestFlexer av = new RequestFlexer(planner);
-		av.setAllowPartialInstall(false);
-		av.setAllowDifferentVersion(false);
-		av.setAllowInstalledElementRemoval(true);
-		av.setAllowInstalledElementChange(true);
-		av.setProvisioningContext(context);
-
-		//Here we don't use the originalPRofileChangeRequest
-		IProfileChangeRequest specialRequest = planner.createChangeRequest(profile);
-		specialRequest.add(eppPackage);
-		specialRequest.setInstallableUnitInclusionRules(eppPackage, ProfileInclusionRules.createStrictInclusionRule(eppPackage));
-
-		IProfileChangeRequest realRequest = av.getChangeRequest(specialRequest, profile, new NullProgressMonitor());
-
-		//Check that we can update to something that is not flagged as product
-		assertTrue(realRequest.getAdditions().contains(eppPackage));
 		assertTrue(realRequest.getAdditions().contains(sdk2));
 	}
 }

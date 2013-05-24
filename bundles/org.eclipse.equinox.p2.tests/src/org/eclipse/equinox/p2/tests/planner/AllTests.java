@@ -29,6 +29,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AgentPlanTestInExternalInstanceForCohostedMode.class);
 		suite.addTestSuite(AllOptional.class);
 		suite.addTestSuite(AllOrbit.class);
+		suite.addTest(AllRequestFlexerTests.suite());
 		suite.addTestSuite(AnotherSingleton.class);
 		suite.addTestSuite(Bug207319.class);
 		suite.addTestSuite(Bug249605.class);

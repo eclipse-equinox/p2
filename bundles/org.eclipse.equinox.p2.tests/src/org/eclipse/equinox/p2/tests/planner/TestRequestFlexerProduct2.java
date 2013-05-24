@@ -16,9 +16,10 @@ import org.eclipse.equinox.internal.p2.operations.RequestFlexer;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.*;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.*;
 
-public class TestRequestFlexerProduct extends AbstractProvisioningTest {
+public class TestRequestFlexerProduct2 extends AbstractProvisioningTest {
 	public IInstallableUnit sdk1;
 
 	@IUDescription(content = "package: platform \n" + "singleton: true\n" + "version: 1 \n")
@@ -29,22 +30,17 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 	@IUDescription(content = "package: platform \n" + "singleton: true\n" + "version: 2 \n")
 	public IInstallableUnit platform2;
 
-	@IUDescription(content = "package: egit \n" + "singleton: true\n" + "version: 1 \n" + "depends: platform = 1")
-	public IInstallableUnit egit1;
-
-	@IUDescription(content = "package: egit \n" + "singleton: true\n" + "version: 2 \n" + "depends: platform = 2")
-	public IInstallableUnit egit2;
+	@IUDescription(content = "package: eppPackage \n" + "singleton: true\n" + "version: 1 \n" + "depends: SDK = 1")
+	public IInstallableUnit eppPackage1;
 
 	@IUDescription(content = "package: eppPackage \n" + "singleton: true\n" + "version: 2 \n" + "depends: SDK = 2")
-	public IInstallableUnit eppPackage;
+	public IInstallableUnit eppPackage2;
 
 	IProfile profile;
 
 	private IPlanner planner;
 
 	private IEngine engine;
-
-	private IProfileChangeRequest originalRequest;
 
 	private ProvisioningContext context;
 
@@ -73,16 +69,10 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 		IULoader.loadIUs(this);
 		setupSDK1();
 		setupSDK2();
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2, egit1, egit2, eppPackage});
+		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2, eppPackage1, eppPackage2});
 		planner = createPlanner();
 		engine = createEngine();
-		assertOK(installAsRoots(profile, new IInstallableUnit[] {sdk1}, true, planner, engine));
-
-		originalRequest = planner.createChangeRequest(profile);
-		originalRequest.add(egit2);
-		originalRequest.setInstallableUnitInclusionRules(egit2, ProfileInclusionRules.createStrictInclusionRule(egit2));
-		assertNotOK(planner.getProvisioningPlan(originalRequest, context, null).getStatus());
-
+		assertOK(installAsRoots(profile, new IInstallableUnit[] {eppPackage1}, true, planner, engine));
 	}
 
 	@Override
@@ -91,34 +81,7 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 		getProfileRegistry().removeProfile(profile.getProfileId());
 	}
 
-	public void testProductRemovalIsDetected() {
-		RequestFlexer av = new RequestFlexer(planner);
-		av.setAllowPartialInstall(false);
-		av.setAllowDifferentVersion(false);
-		av.setAllowInstalledElementRemoval(true);
-		av.setAllowInstalledElementChange(false);
-		av.setProvisioningContext(context);
-		IProfileChangeRequest realRequest = av.getChangeRequest(originalRequest, profile, new NullProgressMonitor());
-
-		//There is no solution because with the given criteria, it would remove the product
-		assertNull(realRequest);
-	}
-
-	public void testProductNewProduct() {
-		RequestFlexer av = new RequestFlexer(planner);
-		av.setAllowPartialInstall(false);
-		av.setAllowDifferentVersion(false);
-		av.setAllowInstalledElementRemoval(false);
-		av.setAllowInstalledElementChange(true);
-		av.setProvisioningContext(context);
-		IProfileChangeRequest realRequest = av.getChangeRequest(originalRequest, profile, new NullProgressMonitor());
-
-		//In this case we can update the base, so we will find sdk2
-		assertTrue(realRequest.getAdditions().contains(egit2));
-		assertTrue(realRequest.getAdditions().contains(sdk2));
-	}
-
-	public void testProductNotAsRoot() {
+	public void testReplaceNonRootProduct() {
 		RequestFlexer av = new RequestFlexer(planner);
 		av.setAllowPartialInstall(false);
 		av.setAllowDifferentVersion(false);
@@ -128,13 +91,15 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 
 		//Here we don't use the originalPRofileChangeRequest
 		IProfileChangeRequest specialRequest = planner.createChangeRequest(profile);
-		specialRequest.add(eppPackage);
-		specialRequest.setInstallableUnitInclusionRules(eppPackage, ProfileInclusionRules.createStrictInclusionRule(eppPackage));
+		specialRequest.add(eppPackage2);
+		specialRequest.setInstallableUnitInclusionRules(eppPackage2, ProfileInclusionRules.createStrictInclusionRule(eppPackage2));
 
 		IProfileChangeRequest realRequest = av.getChangeRequest(specialRequest, profile, new NullProgressMonitor());
 
 		//Check that we can update to something that is not flagged as product
-		assertTrue(realRequest.getAdditions().contains(eppPackage));
-		assertTrue(realRequest.getAdditions().contains(sdk2));
+		assertTrue(realRequest.getAdditions().contains(eppPackage2));
+
+		assertFalse(getPlanner(getAgent()).getProvisioningPlan(realRequest, context, new NullProgressMonitor()).getAdditions().query(QueryUtil.createIUQuery("SDK", Version.create("2.0.0")), new NullProgressMonitor()).isEmpty());
+
 	}
 }

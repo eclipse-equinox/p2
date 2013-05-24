@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
@@ -414,11 +413,22 @@ public class RequestFlexer {
 		if (!hasProduct())
 			return true;
 		//At this point we know we had a product installed and we want to make sure there is one in the resulting solution
-		return !intermediaryPlan.getFutureState().query(QueryUtil.createIUProductQuery(), new NullProgressMonitor()).isEmpty();
+		if (!intermediaryPlan.getFutureState().query(QueryUtil.createIUProductQuery(), new NullProgressMonitor()).isEmpty())
+			return true;
+		//Support for legacy identification of product using the lineUp.
+		if (!intermediaryPlan.getFutureState().query(QueryUtil.createIUPropertyQuery("lineUp", "true"), new NullProgressMonitor()).isEmpty()) //$NON-NLS-1$//$NON-NLS-2$
+			return true;
+		return false;
 	}
 
 	private boolean hasProduct() {
-		return !profile.available(new UserVisibleRootQuery(), new NullProgressMonitor()).query(QueryUtil.createIUPropertyQuery(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString()), new NullProgressMonitor()).isEmpty();
+		if (!profile.available(QueryUtil.createIUProductQuery(), new NullProgressMonitor()).isEmpty()) {
+			return true;
+		}
+		//Support for legacy identification of product using the lineUp.
+		if (!profile.available(QueryUtil.createIUPropertyQuery("lineUp", "true"), new NullProgressMonitor()).isEmpty()) //$NON-NLS-1$//$NON-NLS-2$
+			return true;
+		return false;
 	}
 
 }

@@ -12,15 +12,18 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import junit.framework.*;
 
-public class AllAnyVersionTests extends TestCase {
+public class AllRequestFlexerTests extends TestCase {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite(AllAnyVersionTests.class.getName());
+		TestSuite suite = new TestSuite(AllRequestFlexerTests.class.getName());
 		suite.addTestSuite(TestRequestFlexerIUProperties.class);
 		suite.addTestSuite(TestRequestFlexerOneInstalledOneBeingInstalled.class);
 		suite.addTestSuite(TestRequestFlexerOneInstalledReplacingIt.class);
 		suite.addTestSuite(TestRequestFlexerOneInstalledTwoBeingInstalled.class);
-		//		suite.addTestSuite(TestRequestFlexerProduct.class);
+		suite.addTestSuite(TestRequestFlexerProduct.class);
+		suite.addTestSuite(TestRequestFlexerProduct2.class);
+		suite.addTestSuite(TestRequestFlexerProductWithLegacyMarkup.class);
+		suite.addTestSuite(TestRequestFlexerProductWithMixedMarkup.class);
 		suite.addTestSuite(TestRequestFlexerRequestWithOptionalInstall.class);
 		suite.addTestSuite(TestRequestFlexerRequestWithRemoval.class);
 		suite.addTestSuite(TestRequestFlexerSharedInstall.class);
