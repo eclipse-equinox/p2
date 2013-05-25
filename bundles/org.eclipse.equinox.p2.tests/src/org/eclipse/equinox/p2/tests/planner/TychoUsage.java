@@ -31,58 +31,35 @@ public class TychoUsage extends AbstractProvisioningTest {
 		setupTopLevelIU();
 	}
 
-	public void testEquivalentP2Call() {
-		try {
-			loadMetadataRepository(URIUtil.fromString("http://download.eclipse.org/releases/indigo"));
-			profile = createProfile("TestProfile." + getName());
-			IProfileChangeRequest pcr = getPlanner(getAgent()).createChangeRequest(profile);
-			pcr.add(topLevelIU);
-			System.out.println(System.currentTimeMillis());
-			assertResolve(pcr, getPlanner(getAgent()));
-			System.out.println(System.currentTimeMillis());
-		} catch (ProvisionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OperationCanceledException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+	public void testEquivalentP2Call() throws ProvisionException, URISyntaxException {
+		loadMetadataRepository(URIUtil.fromString("http://download.eclipse.org/releases/indigo"));
+		profile = createProfile("TestProfile." + getName());
+		IProfileChangeRequest pcr = getPlanner(getAgent()).createChangeRequest(profile);
+		pcr.add(topLevelIU);
+		System.out.println(System.currentTimeMillis());
+		assertResolve(pcr, getPlanner(getAgent()));
+		System.out.println(System.currentTimeMillis());
 	}
 
-	public void testTychoUsage() {
-		try {
-			IMetadataRepository repo = loadMetadataRepository(URIUtil.fromString("http://download.eclipse.org/releases/indigo"));
-			IInstallableUnit newRoot1 = repo.query(QueryUtil.createIUQuery("org.eclipse.emf.sdk.feature.group", Version.create("2.7.2.v20120130-0943")), new NullProgressMonitor()).iterator().next();
-			Collection<IInstallableUnit> newRoots = new ArrayList<>();
-			newRoots.add(newRoot1);
+	public void testTychoUsage() throws ProvisionException, URISyntaxException {
+		IMetadataRepository repo = loadMetadataRepository(URIUtil.fromString("http://download.eclipse.org/releases/indigo"));
+		IInstallableUnit newRoot1 = repo.query(QueryUtil.createIUQuery("org.eclipse.emf.sdk.feature.group", Version.create("2.7.2.v20120130-0943")), new NullProgressMonitor()).iterator().next();
+		Collection<IInstallableUnit> newRoots = new ArrayList<IInstallableUnit>();
+		newRoots.add(newRoot1);
 
-			Map<String, String> context = new HashMap<String, String>();
-			context.put("osgi.ws", "win32");
-			context.put("osgi.os", "win32");
-			context.put("osgi.arch", "x86_64");
-			context.put("org.eclipse.update.install.features", "true");
+		Map<String, String> context = new HashMap<String, String>();
+		context.put("osgi.ws", "win32");
+		context.put("osgi.os", "win32");
+		context.put("osgi.arch", "x86_64");
+		context.put("org.eclipse.update.install.features", "true");
 
-			Slicer slicer = new Slicer(repo, context, false);
-			IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {topLevelIU}, new NullProgressMonitor());
+		Slicer slicer = new Slicer(repo, context, false);
+		IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {topLevelIU}, new NullProgressMonitor());
 
-			Projector p = new Projector(slice, context, new HashSet<IInstallableUnit>(), false);
-			p.encode(topLevelIU, new IInstallableUnit[0], new Collector<IInstallableUnit>(), newRoots, new NullProgressMonitor());
-			IStatus result = p.invokeSolver(new NullProgressMonitor());
-			assertTrue(result.isOK() || result.getSeverity() == IStatus.WARNING);
-			assertFalse(p.extractSolution().isEmpty());
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ProvisionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OperationCanceledException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Projector p = new Projector(slice, context, new HashSet<IInstallableUnit>(), false);
+		p.encode(topLevelIU, new IInstallableUnit[0], new Collector<IInstallableUnit>(), newRoots, new NullProgressMonitor());
+		IStatus result = p.invokeSolver(new NullProgressMonitor());
+		assertTrue(result.isOK() || result.getSeverity() == IStatus.WARNING);
+		assertFalse(p.extractSolution().isEmpty());
 	}
 }
