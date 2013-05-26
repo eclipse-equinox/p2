@@ -158,6 +158,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(TestFilteringOnAbsentProperty.class);
 		suite.addTestSuite(TopLevelFilterTest.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
+		suite.addTestSuite(TychoUsage.class);
 		suite.addTestSuite(UninstallEverything.class);
 		suite.addTestSuite(UpdateForTwoIUs.class);
 		suite.addTestSuite(UpdateQueryTest.class);

@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.7.1
+Created-By: 23.7-b01 (Oracle Corporation)
+Bundle-ManifestVersion: 2
+Bundle-Name: %bundleName
+Bundle-SymbolicName: org.sat4j.core
+Bundle-Version: 2.3.5.v20130525
+Export-Package: org.sat4j;version="2.3.5.v20130525",org.sat4j.core;ver
+ sion="2.3.5.v20130525",org.sat4j.minisat;version="2.3.5.v20130525",or
+ g.sat4j.minisat.constraints;version="2.3.5.v20130525",org.sat4j.minis
+ at.constraints.card;version="2.3.5.v20130525",org.sat4j.minisat.const
+ raints.cnf;version="2.3.5.v20130525",org.sat4j.minisat.core;version="
+ 2.3.5.v20130525",org.sat4j.minisat.learning;version="2.3.5.v20130525"
+ ,org.sat4j.minisat.orders;version="2.3.5.v20130525",org.sat4j.minisat
+ .restarts;version="2.3.5.v20130525",org.sat4j.opt;version="2.3.5.v201
+ 30525",org.sat4j.reader;version="2.3.5.v20130525",org.sat4j.specs;ver
+ sion="2.3.5.v20130525",org.sat4j.tools;version="2.3.5.v20130525",org.
+ sat4j.tools.encoding;version="2.3.5.v20130525",org.sat4j.tools.xplain
+ ;version="2.3.5.v20130525"
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Built-By: Daniel Le Berre
+Main-Class: org.sat4j.BasicLauncher
+Specification-Title: SAT4J
+Specification-Version: NA
+Specification-Vendor: Daniel Le Berre
+Implementation-Title: SAT4J
+Implementation-Version: 2.3.5.v20130525 
+Implementation-Vendor: CRIL CNRS UMR 8188 - Universite d'Artois
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+
