@@ -200,6 +200,9 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	}
 
 	protected void removeReallyReadOnly(File folder) {
+		if (!Platform.getOS().equals(Platform.OS_WIN32))
+			return;
+
 		try {
 			Path path = folder.toPath();
 			AclFileAttributeView view = Files.getFileAttributeView(path, AclFileAttributeView.class);
