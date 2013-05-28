@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -214,6 +214,8 @@ public class ProvisioningUI {
 	 * an in-memory repository reference to the wizard.
 	 * 
 	 * @return the wizard return code
+	 * @see RemediationOperation
+	 * @since 2.3
 	 */
 	public int openInstallWizard(Collection<IInstallableUnit> initialSelections, InstallOperation operation, RemediationOperation remediationOperation, LoadMetadataRepositoryJob job) {
 		if (operation == null) {
