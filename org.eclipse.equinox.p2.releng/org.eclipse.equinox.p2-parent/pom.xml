@@ -63,7 +63,7 @@
           of their respective execution environments and we force compilation against
           SYSTEM JRE libraries that are guaranteed to be java5+
           -->
-          <useJDK>SYSTEM</useJDK>
+          <useJDK>BREE</useJDK>
         </configuration>
       </plugin>
     </plugins>
