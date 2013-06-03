@@ -62,7 +62,7 @@ public class MigrationSupport {
 				return false;
 
 			reposToMigrate = ((IMetadataRepositoryManager) otherConfigAgent.getService(IMetadataRepositoryManager.SERVICE_NAME)).getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
-			reposToMigrate = Arrays.copyOf(reposToMigrate, reposToMigrate.length + 1);
+			reposToMigrate = copyOf(reposToMigrate, reposToMigrate.length + 1);
 			reposToMigrate[reposToMigrate.length - 1] = getURIForProfile(otherConfigAgent, previousProfile);
 		}
 
@@ -79,6 +79,13 @@ public class MigrationSupport {
 			rememberMigrationCompleted();
 		}
 		return true;
+	}
+
+	private static URI[] copyOf(URI[] original, int newLength) {
+		URI[] copy = new URI[newLength];
+		int copyCount = Math.min(original.length, newLength);
+		System.arraycopy(original, 0, copy, 0, copyCount);
+		return copy;
 	}
 
 	private URI getURIForProfile(IProvisioningAgent agent, IProfile profile) {
