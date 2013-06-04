@@ -1,4 +1,5 @@
 # To force a version qualifier update add the bug here
+Bug 409868 - pickup new build of ECF 
 Bug 403352 - Update all parent versions to match our build stream
 Bug 406851 - Consume new sat4j
 Bug 406845 - Update repository of ECF in parent pom
