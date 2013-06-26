@@ -4,14 +4,13 @@
 	Eclipse Distribution License v1.0 which accompanies this distribution, and 
 	is available at http://www.eclipse.org/org/documents/edl-v10.php Contributors: 
 	Igor Fedorenko - initial implementation -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>org.eclipse</groupId>
 		<artifactId>org.eclipse.equinox.p2-parent</artifactId>
-		<version>4.3.0-SNAPSHOT</version>
+		<version>4.4.0-SNAPSHOT</version>
 		<relativePath>../../org.eclipse.equinox.p2.releng/org.eclipse.equinox.p2-parent</relativePath>
 	</parent>
 
