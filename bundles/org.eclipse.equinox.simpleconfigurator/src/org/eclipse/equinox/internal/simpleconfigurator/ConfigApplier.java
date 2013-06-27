@@ -14,6 +14,10 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
+import org.osgi.framework.namespace.*;
+import org.osgi.framework.wiring.*;
+import org.osgi.resource.Namespace;
+import org.osgi.resource.Requirement;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 
@@ -24,6 +28,7 @@ class ConfigApplier {
 	private final BundleContext manipulatingContext;
 	private final PackageAdmin packageAdminService;
 	private final StartLevel startLevelService;
+	private final FrameworkWiring frameworkWiring;
 	private final boolean runningOnEquinox;
 	private final boolean inDevMode;
 
@@ -46,6 +51,8 @@ class ConfigApplier {
 		if (startLevelRef == null)
 			throw new IllegalStateException("No StartLevelService service is available."); //$NON-NLS-1$
 		startLevelService = (StartLevel) manipulatingContext.getService(startLevelRef);
+
+		frameworkWiring = (FrameworkWiring) manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
 	}
 
 	void install(URL url, boolean exclusiveMode) throws IOException {
@@ -94,18 +101,101 @@ class ConfigApplier {
 				toRefresh.addAll(uninstallBundles(toUninstall));
 		}
 		refreshPackages((Bundle[]) toRefresh.toArray(new Bundle[toRefresh.size()]), manipulatingContext);
-		if (toRefresh.size() > 0)
-			try {
-				manipulatingContext.getBundle().loadClass("org.eclipse.osgi.service.resolver.PlatformAdmin"); //$NON-NLS-1$
-				// now see if there are any currently resolved bundles with option imports which could be resolved or
-				// if there are fragments with additional constraints which conflict with an already resolved host
-				Bundle[] additionalRefresh = StateResolverUtils.getAdditionalRefresh(prevouslyResolved, manipulatingContext);
-				if (additionalRefresh.length > 0)
-					refreshPackages(additionalRefresh, manipulatingContext);
-			} catch (ClassNotFoundException cnfe) {
-				// do nothing; no resolver package available
-			}
+		if (toRefresh.size() > 0) {
+			Bundle[] additionalRefresh = getAdditionalRefresh(prevouslyResolved, toRefresh);
+			if (additionalRefresh.length > 0)
+				refreshPackages(additionalRefresh, manipulatingContext);
+		}
 		startBundles((Bundle[]) toStart.toArray(new Bundle[toStart.size()]));
+	}
+
+	private Bundle[] getAdditionalRefresh(Collection previouslyResolved, Collection toRefresh) {
+		// This is the luna equinox framework or a non-equinox framework.
+		// Use standard OSGi API.
+		final Set additionalRefresh = new HashSet();
+		final Set originalRefresh = new HashSet(toRefresh);
+		for (Iterator iToRefresh = toRefresh.iterator(); iToRefresh.hasNext();) {
+			Bundle bundle = (Bundle) iToRefresh.next();
+			BundleRevision revision = (BundleRevision) bundle.adapt(BundleRevision.class);
+			if (bundle.getState() == Bundle.INSTALLED && revision != null && (revision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
+				// this is an unresolved fragment; look to see if it has additional payload requirements
+				boolean foundPayLoadReq = false;
+				BundleRequirement hostReq = null;
+				Collection requirements = revision.getRequirements(null);
+				for (Iterator iReqs = requirements.iterator(); iReqs.hasNext();) {
+					BundleRequirement req = (BundleRequirement) iReqs.next();
+					if (HostNamespace.HOST_NAMESPACE.equals(req.getNamespace())) {
+						hostReq = req;
+					}
+					if (!HostNamespace.HOST_NAMESPACE.equals(req.getNamespace()) && !ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE.equals(req.getNamespace())) {
+						// found a payload requirement
+						foundPayLoadReq = true;
+					}
+				}
+				if (foundPayLoadReq) {
+					Collection candidates = frameworkWiring.findProviders(hostReq);
+					for (Iterator iCandidates = candidates.iterator(); iCandidates.hasNext();) {
+						BundleCapability candidate = (BundleCapability) iCandidates.next();
+						if (!originalRefresh.contains(candidate.getRevision().getBundle())) {
+							additionalRefresh.add(candidate.getRevision().getBundle());
+						}
+					}
+				}
+			}
+		}
+
+		for (Iterator iPreviouslyResolved = previouslyResolved.iterator(); iPreviouslyResolved.hasNext();) {
+			Bundle bundle = (Bundle) iPreviouslyResolved.next();
+			BundleRevision revision = (BundleRevision) bundle.adapt(BundleRevision.class);
+			BundleWiring wiring = revision == null ? null : revision.getWiring();
+			if (wiring != null) {
+				Collection reqs = revision.getDeclaredRequirements(null);
+				Set optionalReqs = new HashSet();
+				for (Iterator iReqs = reqs.iterator(); iReqs.hasNext();) {
+					BundleRequirement req = (BundleRequirement) iReqs.next();
+					String namespace = req.getNamespace();
+					// only do this for package and bundle namespaces
+					if (PackageNamespace.PACKAGE_NAMESPACE.equals(namespace) || BundleNamespace.BUNDLE_NAMESPACE.equals(namespace)) {
+						if (Namespace.RESOLUTION_OPTIONAL.equals(req.getDirectives().get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE))) {
+							optionalReqs.add(req);
+						}
+					}
+				}
+				if (!optionalReqs.isEmpty()) {
+					wiring = getFragmentWiring(wiring);
+					// check that all optional requirements are wired
+					Collection requiredWires = wiring.getRequiredWires(null);
+					for (Iterator iRequiredWires = requiredWires.iterator(); iRequiredWires.hasNext();) {
+						BundleWire requiredWire = (BundleWire) iRequiredWires.next();
+						optionalReqs.remove(requiredWire.getRequirement());
+					}
+					if (!optionalReqs.isEmpty()) {
+						// there are a number of optional requirements not wired
+						for (Iterator iOptionalReqs = optionalReqs.iterator(); iOptionalReqs.hasNext();) {
+							Collection candidates = frameworkWiring.findProviders((Requirement) iOptionalReqs.next());
+							if (!candidates.isEmpty()) {
+								additionalRefresh.add(wiring.getBundle());
+							}
+						}
+					}
+				}
+			}
+		}
+		return (Bundle[]) additionalRefresh.toArray(new Bundle[additionalRefresh.size()]);
+	}
+
+	private BundleWiring getFragmentWiring(BundleWiring wiring) {
+		if ((wiring.getRevision().getTypes() & BundleRevision.TYPE_FRAGMENT) == 0) {
+			// not a fragment
+			return wiring;
+		}
+		Collection hostWires = wiring.getRequiredWires(HostNamespace.HOST_NAMESPACE);
+		// just use the first host wiring
+		if (hostWires.isEmpty()) {
+			return wiring;
+		}
+		BundleWire hostWire = (BundleWire) hostWires.iterator().next();
+		return hostWire.getProviderWiring();
 	}
 
 	private Collection getResolvedBundles() {
