@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,6 +79,11 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 			File installarea = TestActivator.context.getDataFile(getName() + "/eclipse");
 			File configarea = new File(installarea, "configuration");
 			URL osgiBundle = osgiBundleLoc.toURI().toURL();
+			//if we have framework in workspace need to add the bin directory
+			URL osgiBundleDevPath = null;
+			if (!osgiBundle.getPath().endsWith(".jar")) {
+				osgiBundleDevPath = new URL(osgiBundle, "bin/");
+			}
 
 			Map frameworkProperties = new HashMap();
 			// note that any properties you do not want to be inherited from the hosting Equinox will need
@@ -96,7 +101,8 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 			frameworkProperties.put("org.eclipse.equinox.simpleconfigurator.configUrl", bundleInfo.toURL().toExternalForm());
 			frameworkProperties.put("osgi.dev", "bin/");
 
-			equinox = new EmbeddedEquinox(frameworkProperties, new String[] {}, new URL[] {osgiBundle});
+			URL[] osgiPath = osgiBundleDevPath == null ? new URL[] {osgiBundle} : new URL[] {osgiBundle, osgiBundleDevPath};
+			equinox = new EmbeddedEquinox(frameworkProperties, new String[] {}, osgiPath);
 			return equinox.startFramework();
 		} catch (MalformedURLException e) {
 			return null;
