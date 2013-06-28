@@ -1,0 +1,7 @@
+Manifest-Version: 1
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: directoryBased
+Bundle-Name: directoryBased
+Bundle-Version: 1.0.0
+Bundle-ClassPath: directoryBased.jar
+
