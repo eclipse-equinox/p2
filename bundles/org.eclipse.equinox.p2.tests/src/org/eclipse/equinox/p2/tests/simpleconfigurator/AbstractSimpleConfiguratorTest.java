@@ -50,7 +50,7 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 					found = true;
 			}
 			if (!found)
-				fail("Bundle should not be present:  " + jarName);
+				fail("Bundle should be present:  " + jarName);
 		}
 	}
 
