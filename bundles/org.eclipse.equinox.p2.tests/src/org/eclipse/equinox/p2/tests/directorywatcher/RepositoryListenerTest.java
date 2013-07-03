@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -152,8 +152,11 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 	/*
 	 * Test to ensure that we convert bundles with Eclipse 2.x-style plugin.xml files into 
 	 * proper OSGi manifest files so the bundle can be installed
+	 * This test has been commented out because support for non-OSGi bundles was 
+	 * removed. See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=411892.
+	 * 
 	 */
-	public void testPluginXMLConversion() {
+	public void _testPluginXMLConversion() {
 		// test plugin.xml in a JAR'd bundle
 		File oldBundleJAR = getTestData("0.1", "/testData/repositoryListener/oldBundleJAR.jar");
 		// test plugin.xml in a directory-based bundle
