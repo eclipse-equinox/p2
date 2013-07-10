@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2010 compeople AG and others.
+* Copyright (c) 2007, 2013 compeople AG and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.zip.ZipException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -77,6 +78,13 @@ public class SignatureVerifier extends ProcessingStep {
 			signedContent = verifierFactory.getSignedContent(inputFile);
 		} catch (GeneralSecurityException e) {
 			return new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, Messages.SignatureVerification_failedRead + inputFile, e);
+		} catch (ZipException e) {
+			// SignedContentFactory behavior changed to throw a ZipException if the
+			// file is not a valid zip file, before it would just return an empty unsigned content object.
+			// Here we return OK_STATUS just to keep previous behavior with the assumption that an error
+			// will be detected for the invalid artifact later.
+			// TODO is this valid?
+			return Status.OK_STATUS;
 		}
 		ArrayList<IStatus> allStatus = new ArrayList<IStatus>(0);
 		SignedContentEntry[] entries = signedContent.getSignedEntries();
