@@ -53,7 +53,7 @@ public class SignatureVerifier extends ProcessingStep {
 		BufferedInputStream resultStream = null;
 		try {
 			if (tempStream == null)
-				// hmmm, no one wrote to this stream so there is nothing to pass on
+				// no one wrote to this stream so there is nothing to pass on
 				return;
 			// Ok, so there is content, close the tempStream
 			tempStream.close();
@@ -83,7 +83,6 @@ public class SignatureVerifier extends ProcessingStep {
 			// file is not a valid zip file, before it would just return an empty unsigned content object.
 			// Here we return OK_STATUS just to keep previous behavior with the assumption that an error
 			// will be detected for the invalid artifact later.
-			// TODO is this valid?
 			return Status.OK_STATUS;
 		}
 		ArrayList<IStatus> allStatus = new ArrayList<IStatus>(0);
