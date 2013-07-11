@@ -1,26 +1,283 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.equinox.p2.operations" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter id="923795461">
+    <resource path="src/org/eclipse/equinox/internal/p2/operations/RequestFlexer.java" type="org.eclipse.equinox.internal.p2.operations.RequestFlexer">
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="640712815">
             <message_arguments>
-                <message_argument value="2.3.0"/>
-                <message_argument value="2.2.0"/>
+                <message_argument value="IPlanner"/>
+                <message_argument value="RequestFlexer"/>
+                <message_argument value="updatesFor(IInstallableUnit, ProvisioningContext, IProgressMonitor)"/>
             </message_arguments>
         </filter>
     </resource>
-    <resource path="META-INF/MANIFEST.MF" type="org.eclipse.equinox.p2.operations.RelaxedUpdateInstallOperation">
-        <filter id="305324134">
+    <resource path="src/org/eclipse/equinox/p2/operations/RemediationOperation.java" type="org.eclipse.equinox.p2.operations.RemediationOperation">
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
             <message_arguments>
-                <message_argument value="org.eclipse.equinox.p2.operations.RelaxedUpdateInstallOperation"/>
-                <message_argument value="org.eclipse.equinox.p2.operations_2.3.0"/>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="bestSolutionChangingTheRequest()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="bestSolutionChangingWhatIsInstalled()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="computeProfileChangeRequest(MultiStatus, IProgressMonitor)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="getCurrentRemedy()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="getOriginalRequest()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="getProvisioningJob(IProgressMonitor)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="getProvisioningJobName()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="getRemedies()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="getRemedyConfigs()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="getResolutionResult()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="getResolveJobName()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="setCurrentRemedy(Remedy)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338948223">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="RemediationOperation(ProvisioningSession, IProfileChangeRequest)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338948223">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemediationOperation"/>
+                <message_argument value="RemediationOperation(ProvisioningSession, IProfileChangeRequest, RemedyConfig[])"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="643842064">
+            <message_arguments>
+                <message_argument value="ProfileChangeRequest"/>
+                <message_argument value="RemediationOperation"/>
+                <message_argument value="getOriginalRequest()"/>
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/org/eclipse/equinox/p2/operations/ProfileChangeOperation.java" type="org.eclipse.equinox.p2.operations.ProfileChangeOperation">
-        <filter id="338792546">
+    <resource path="src/org/eclipse/equinox/p2/operations/Remedy.java" type="org.eclipse.equinox.p2.operations.Remedy">
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
             <message_arguments>
-                <message_argument value="org.eclipse.equinox.p2.operations.ProfileChangeOperation"/>
-                <message_argument value="getProfileChangeRequest()"/>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="addRemedyIUDetail(RemedyIUDetail)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="getBeingInstalledRelaxedWeight()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="getConfig()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="getInstallationRelaxedWeight()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="getIusDetails()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="getOriginalRequest()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="getRequest()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="setBeingInstalledRelaxedWeight(int)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="setConfig(RemedyConfig)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="setInstallationRelaxedWeight(int)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="setRequest(ProfileChangeRequest)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338948223">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="Remedy(IProfileChangeRequest)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="643842064">
+            <message_arguments>
+                <message_argument value="ProfileChangeRequest"/>
+                <message_argument value="Remedy"/>
+                <message_argument value="getRequest()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="643846161">
+            <message_arguments>
+                <message_argument value="ProfileChangeRequest"/>
+                <message_argument value="Remedy"/>
+                <message_argument value="setRequest(ProfileChangeRequest)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/operations/RemedyConfig.java" type="org.eclipse.equinox.p2.operations.RemedyConfig">
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyConfig"/>
+                <message_argument value="getAllRemedyConfigs()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyConfig"/>
+                <message_argument value="getCheckForUpdateRemedyConfigs()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338948223">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyConfig"/>
+                <message_argument value="RemedyConfig()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/operations/RemedyIUDetail.java" type="org.eclipse.equinox.p2.operations.RemedyIUDetail">
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="getBeingInstalledVersion()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="getInstalledVersion()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="getIu()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="getRequestedVersion()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="getStatus()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="setBeingInstalledVersion(Version)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="setInstalledVersion(Version)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="setRequestedVersion(Version)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338944126">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="setStatus(int)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="338948223">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyIUDetail"/>
+                <message_argument value="RemedyIUDetail(IInstallableUnit)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/operations/UpdateOperation.java" type="org.eclipse.equinox.p2.operations.UpdateOperation">
+        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="640712815">
+            <message_arguments>
+                <message_argument value="IPlanner"/>
+                <message_argument value="UpdateOperation"/>
+                <message_argument value="updatesFor(IInstallableUnit, ProvisioningContext, IProgressMonitor)"/>
             </message_arguments>
         </filter>
     </resource>
