@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -89,7 +89,7 @@ class ConfigApplier {
 			saveStateAsLast(url);
 		}
 
-		Collection prevouslyResolved = getResolvedBundles();
+		Set prevouslyResolved = getResolvedBundles();
 		Collection toRefresh = new ArrayList();
 		Collection toStart = new ArrayList();
 		if (exclusiveMode) {
@@ -109,7 +109,7 @@ class ConfigApplier {
 		startBundles((Bundle[]) toStart.toArray(new Bundle[toStart.size()]));
 	}
 
-	private Bundle[] getAdditionalRefresh(Collection previouslyResolved, Collection toRefresh) {
+	private Bundle[] getAdditionalRefresh(Set previouslyResolved, Collection toRefresh) {
 		// This is the luna equinox framework or a non-equinox framework.
 		// Use standard OSGi API.
 		final Set additionalRefresh = new HashSet();
@@ -162,7 +162,7 @@ class ConfigApplier {
 					}
 				}
 				if (!optionalReqs.isEmpty()) {
-					wiring = getFragmentWiring(wiring);
+					wiring = getHostWiring(wiring);
 					// check that all optional requirements are wired
 					Collection requiredWires = wiring.getRequiredWires(null);
 					for (Iterator iRequiredWires = requiredWires.iterator(); iRequiredWires.hasNext();) {
@@ -173,8 +173,20 @@ class ConfigApplier {
 						// there are a number of optional requirements not wired
 						for (Iterator iOptionalReqs = optionalReqs.iterator(); iOptionalReqs.hasNext();) {
 							Collection candidates = frameworkWiring.findProviders((Requirement) iOptionalReqs.next());
+							// Filter out candidates that were previously resolved or are currently not resolved.
+							// There is no need to refresh the resource if the candidate was previously available.
+							for (Iterator iCandidates = candidates.iterator(); iCandidates.hasNext();) {
+								BundleCapability candidate = (BundleCapability) iCandidates.next();
+								Bundle candidateBundle = candidate.getRevision().getBundle();
+								// The candidate is not from the original refresh set, but
+								// it could have just became resolved as a result of new bundles.
+								if (previouslyResolved.contains(candidateBundle) || candidateBundle.getState() == Bundle.INSTALLED) {
+									iCandidates.remove();
+								}
+							}
 							if (!candidates.isEmpty()) {
 								additionalRefresh.add(wiring.getBundle());
+								break;
 							}
 						}
 					}
@@ -184,7 +196,7 @@ class ConfigApplier {
 		return (Bundle[]) additionalRefresh.toArray(new Bundle[additionalRefresh.size()]);
 	}
 
-	private BundleWiring getFragmentWiring(BundleWiring wiring) {
+	private BundleWiring getHostWiring(BundleWiring wiring) {
 		if ((wiring.getRevision().getTypes() & BundleRevision.TYPE_FRAGMENT) == 0) {
 			// not a fragment
 			return wiring;
@@ -198,8 +210,8 @@ class ConfigApplier {
 		return hostWire.getProviderWiring();
 	}
 
-	private Collection getResolvedBundles() {
-		Collection resolved = new HashSet();
+	private Set getResolvedBundles() {
+		Set resolved = new HashSet();
 		Bundle[] allBundles = manipulatingContext.getBundles();
 		for (int i = 0; i < allBundles.length; i++)
 			if ((allBundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
