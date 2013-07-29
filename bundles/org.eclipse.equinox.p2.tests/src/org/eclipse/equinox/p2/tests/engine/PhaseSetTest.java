@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -118,13 +118,11 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				System.out.println(new Date() + " -- paused provisioning.");
 				setPause(true);
 				resume = new Job("resume") {
 					@Override
 					protected IStatus run(IProgressMonitor monitor1) {
 						pause.setPause(false);
-						System.out.println(new Date() + " -- will resume provisioning.");
 						if (!phaseSet.resume())
 							return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, "resume() failed.");
 						return Status.OK_STATUS;
@@ -156,10 +154,8 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 					// make sure to pause downloading after it has started
 					pauseJob.schedule();
 					canStart = false;
-					System.out.println(new Date() + " -- scheduled immediate pause job.");
 					return;
 				}
-				System.out.println(new Date() + " -- recive event " + o.getClass().getName());
 				if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent) {
 					latch.countDown();
 					pauseJob.cancel();
@@ -238,7 +234,6 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				pauseJob.setPause(false);
-				System.out.println(new Date() + " -- resume provisioning.");
 				if (!phaseSet.resume())
 					return new Status(IStatus.INFO, TestActivator.PI_PROV_TESTS, "resume() failed.");
 				if (count++ < threhold)
@@ -255,7 +250,6 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				System.out.println(new Date() + " -- paused provisioning.");
 				setPause(true);
 				if (resume == null)
 					resume = new ResumeJob("resume", this);
@@ -300,7 +294,6 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					System.out.println(new Date() + " -- paused provisioning.");
 					// wait seconds
 					try {
 						Thread.sleep(2000);
