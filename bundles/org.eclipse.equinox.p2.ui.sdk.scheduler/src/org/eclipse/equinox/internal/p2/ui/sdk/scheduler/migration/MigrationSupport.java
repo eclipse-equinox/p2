@@ -3,9 +3,11 @@
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     Ericsson AB - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault)
+ *     Ericsson AB (Hamdan Msheik) 
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
@@ -72,8 +74,9 @@ public class MigrationSupport {
 		if (previousProfile == null)
 			return false;
 
-		if (needsMigration(previousProfile, currentProfile)) {
-			openMigrationWizard(previousProfile, reposToMigrate);
+		Collection<IInstallableUnit> unitsToMigrate = findUnitstoMigrate(previousProfile, currentProfile);
+		if (!unitsToMigrate.isEmpty()) {
+			openMigrationWizard(previousProfile, unitsToMigrate, reposToMigrate);
 		} else {
 			//There is nothing to migrate, so we mark the migration complete
 			rememberMigrationCompleted();
@@ -144,7 +147,7 @@ public class MigrationSupport {
 	 * @param currentProfile is the current profile used by eclipse.
 	 * @return true if set difference between previousProfile units and currentProfile units not empty, otherwise false
 	 */
-	protected boolean needsMigration(IProfile previousProfile, IProfile currentProfile) {
+	protected Collection<IInstallableUnit> findUnitstoMigrate(IProfile previousProfile, IProfile currentProfile) {
 		//First, try the case of inclusion
 		Set<IInstallableUnit> previousProfileUnits = getUserRoots(previousProfile);
 		Set<IInstallableUnit> currentProfileUnits = currentProfile.available(new UserVisibleRootQuery(), null).toSet();
@@ -164,7 +167,7 @@ public class MigrationSupport {
 				previousProfileIterator.remove();
 		}
 
-		return !previousProfileUnits.isEmpty();
+		return previousProfileUnits;
 	}
 
 	private Set<IInstallableUnit> getUserRoots(IProfile previousProfile) {
@@ -175,11 +178,11 @@ public class MigrationSupport {
 		return userRoots;
 	}
 
-	protected void openMigrationWizard(final IProfile inputProfile, final URI[] reposToMigrate) {
+	protected void openMigrationWizard(final IProfile inputProfile, final Collection<IInstallableUnit> unitsToMigrate, final URI[] reposToMigrate) {
 		Display d = Display.getDefault();
 		d.asyncExec(new Runnable() {
 			public void run() {
-				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new ImportFromInstallationWizard_c(inputProfile, reposToMigrate, reposToMigrate != null));
+				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new MigrationWizard(inputProfile, unitsToMigrate, reposToMigrate, reposToMigrate != null));
 				migrateWizard.create();
 				migrateWizard.open();
 			}

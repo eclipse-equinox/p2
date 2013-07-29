@@ -1,10 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2009, 2013 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - Ongoing development
@@ -22,10 +22,11 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.ImportFromInstallationWizard_c;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.MigrationWizard;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.framework.internal.core.Constants;
@@ -37,7 +38,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
  * Application which verifies an install.
- * 
+ *
  * @since 1.0
  */
 public class VerifierApplication implements IApplication {
@@ -108,7 +109,7 @@ public class VerifierApplication implements IApplication {
 				if (DEFAULT_PROPERTIES_FILE.exists())
 					properties = readProperties(DEFAULT_PROPERTIES_FILE);
 			} catch (IOException e) {
-				// TODO 
+				// TODO
 				e.printStackTrace();
 			}
 		}
@@ -182,7 +183,7 @@ public class VerifierApplication implements IApplication {
 
 	/*
 	 * Check to ensure all of the bundles in the system are resolved.
-	 * 
+	 *
 	 * Copied and modified from EclipseStarter#logUnresolvedBundles.
 	 * This method prints out all the reasons while asking the resolver directly
 	 * will only print out the first reason.
@@ -216,7 +217,7 @@ public class VerifierApplication implements IApplication {
 			constraints.add(leafConstraints[i]);
 		}
 
-		// found some bundles with missing leaf constraints; log them first 
+		// found some bundles with missing leaf constraints; log them first
 		if (missing.size() > 0) {
 			for (Iterator iter = missing.keySet().iterator(); iter.hasNext();) {
 				BundleDescription description = (BundleDescription) iter.next();
@@ -262,7 +263,7 @@ public class VerifierApplication implements IApplication {
 	}
 
 	/*
-	 * Return a boolean value indicating whether or not the given resolver error should be 
+	 * Return a boolean value indicating whether or not the given resolver error should be
 	 * added to our results.
 	 */
 	private boolean shouldAdd(ResolverError error) {
@@ -342,7 +343,7 @@ public class VerifierApplication implements IApplication {
 		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
 
-		ImportFromInstallationWizard_c wizardPage = new ImportFromInstallationWizard_c(profile, new URI[0], false);
+		MigrationWizard wizardPage = new MigrationWizard(profile, Collections.<IInstallableUnit> emptyList(), new URI[0], false);
 		int cancelAnswer = Integer.parseInt(properties.getProperty("checkMigration.cancelAnswer"));
 		wizardPage.rememberCancellationDecision(cancelAnswer);
 	}
