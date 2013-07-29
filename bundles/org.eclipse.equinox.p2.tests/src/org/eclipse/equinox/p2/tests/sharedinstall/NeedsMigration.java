@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.MigrationSupport;
 import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -50,7 +51,7 @@ public class NeedsMigration extends AbstractProvisioningTest {
 		engine = createEngine();
 		scheduler = new MigrationSupport();
 		createTestMetdataRepository(new IInstallableUnit[] {sdk1, sdk2, egit1, egit2, cdt1, eppPackage});
-		needsMigrationMethod = scheduler.getClass().getDeclaredMethod("needsMigration", IProfile.class, IProfile.class);
+		needsMigrationMethod = scheduler.getClass().getDeclaredMethod("findUnitstoMigrate", IProfile.class, IProfile.class);
 		needsMigrationMethod.setAccessible(true);
 	}
 
@@ -179,7 +180,7 @@ public class NeedsMigration extends AbstractProvisioningTest {
 
 	private boolean needsMigration(IProfile previousUserProfile, IProfile currentBaseProfile) {
 		try {
-			return (Boolean) needsMigrationMethod.invoke(scheduler, previousUserProfile, currentBaseProfile);
+			return !((Collection) needsMigrationMethod.invoke(scheduler, previousUserProfile, currentBaseProfile)).isEmpty();
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalArgumentException e) {

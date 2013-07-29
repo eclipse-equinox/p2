@@ -10,15 +10,17 @@
 package org.eclipse.equinox.internal.p2.tests.verifier;
 
 import java.net.URI;
+import java.util.Collection;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.MigrationSupport;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public class MigrationWizardTestHelper extends MigrationSupport {
 	//Variable that keeps track if the wizard has been requested to open
 	public boolean wizardOpened = false;
 
 	@Override
-	protected void openMigrationWizard(IProfile inputProfile, URI[] reposToMigrate) {
+	protected void openMigrationWizard(final IProfile inputProfile, final Collection<IInstallableUnit> unitsToMigrate, final URI[] reposToMigrate) {
 		wizardOpened = true;
 	}
 

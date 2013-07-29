@@ -8,11 +8,14 @@
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
  *     Ericsson AB - Ongoing development
+ *     Ericsson AB (Pascal Rapicault)
+ *     Ericsson AB (Hamdan Msheik) 
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
 import java.net.URI;
 import java.util.*;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -33,28 +36,32 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 
-public class ImportFromInstallationWizard_c extends InstallWizard implements IImportWizard {
+public class MigrationWizard extends InstallWizard implements IImportWizard {
+
 	private IProfile toImportFrom;
+	Collection<IInstallableUnit> unitsToMigrate;
 	private URI[] reposToMigrate;
 	private List<URI> addedRepos = new ArrayList<URI>();
 	private boolean firstTime = false;
 
-	public ImportFromInstallationWizard_c() {
+	public MigrationWizard() {
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 	}
 
-	public ImportFromInstallationWizard_c(IProfile toImportFrom, URI[] reposToMigrate, boolean firstTime) {
+	public MigrationWizard(IProfile toImportFrom, Collection<IInstallableUnit> unitsToMigrate, URI[] reposToMigrate, boolean firstTime) {
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 		this.toImportFrom = toImportFrom;
+		this.unitsToMigrate = unitsToMigrate;
 		this.reposToMigrate = reposToMigrate;
 		this.firstTime = firstTime;
 		addRepos();
 	}
 
-	public ImportFromInstallationWizard_c(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
+	public MigrationWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
 		IDialogSettings workbenchSettings = ProvUIActivator.getDefault().getDialogSettings();
 		String sectionName = "MigrationWizard"; //$NON-NLS-1$
@@ -66,21 +73,21 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 	}
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		setWindowTitle(firstTime ? ProvUIMessages.ImportWizard_WINDOWTITLE_FIRSTRUN : ProvUIMessages.ImportWizard_WINDOWTITLE);
+		setWindowTitle(firstTime ? ProvUIMessages.MigrationWizard_WINDOWTITLE_FIRSTRUN : ProvUIMessages.MigrationWizard_WINDOWTITLE);
 		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(ProvUIActivator.PLUGIN_ID).getEntry("icons/install_wiz.gif"))); //$NON-NLS-1$
 		setNeedsProgressMonitor(true);
 	}
 
 	@Override
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		if (toImportFrom != null)
-			return new ImportFromInstallationPage_c(ui, this, toImportFrom, firstTime);
-		return new ImportFromInstallationPage_c(ui, this, firstTime);
+		if (unitsToMigrate != null)
+			return new MigrationPage(ui, this, toImportFrom, unitsToMigrate, firstTime);
+		return new MigrationPage(ui, this, firstTime);
 	}
 
 	@Override
 	protected ProvisioningContext getProvisioningContext() {
-		return ((ImportFromInstallationPage_c) mainPage).getProvisioningContext();
+		return ((MigrationPage) mainPage).getProvisioningContext();
 	}
 
 	@Override
@@ -144,8 +151,8 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 	}
 
 	public boolean performCancel() {
-		String[] buttons = new String[] {IDialogConstants.YES_LABEL, ProvUIMessages.ImportFromInstallationPag_LATER_BUTTON, IDialogConstants.NO_LABEL};
-		MessageDialog dialog = new MessageDialog(getShell(), ProvUIMessages.ImportFromInstallationPage_CONFIRMATION_TITLE, null, ProvUIMessages.ImportFromInstallationPage_CONFIRMATION_DIALOG, MessageDialog.QUESTION, buttons, 2);
+		String[] buttons = new String[] {IDialogConstants.YES_LABEL, ProvUIMessages.MigrationPage_LATER_BUTTON, IDialogConstants.NO_LABEL};
+		MessageDialog dialog = new MessageDialog(getShell(), ProvUIMessages.MigrationPage_CONFIRMATION_TITLE, null, ProvUIMessages.MigrationPage_CONFIRMATION_DIALOG, MessageDialog.QUESTION, buttons, 2);
 
 		return rememberCancellationDecision(dialog.open());
 	}
@@ -170,6 +177,18 @@ public class ImportFromInstallationWizard_c extends InstallWizard implements IIm
 				break;
 		}
 		return result;
+	}
+
+	public IWizardPage getNextPage(IWizardPage page) {
+		IWizardPage toReturn = page;
+
+		try {
+			toReturn = super.getNextPage(page);
+		} catch (OperationCanceledException oce) {
+			// swallow and stay on the same page
+		}
+
+		return toReturn;
 	}
 
 }

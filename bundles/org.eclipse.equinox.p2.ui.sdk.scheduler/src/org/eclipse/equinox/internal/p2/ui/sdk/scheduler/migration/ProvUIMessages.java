@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Ericsson AB - initial API and implementation
+ *     Ericsson AB (Pascal Rapicault)
+ *     Ericsson AB (Hamdan Msheik) 
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
@@ -27,14 +29,16 @@ public class ProvUIMessages extends NLS {
 	public static String AbstractPage_ButtonSelectAll;
 	public static String AbstractPage_ButtonDeselectAll;
 	public static String PAGE_NOINSTALLTION_ERROR;
-	public static String ImportFromInstallationPage_SELECT_COMPONENT;
-	public static String ImportFromInstallationPage_DIALOG_TITLE;
-	public static String ImportFromInstallationPage_DIALOG_TITLE_FIRSTRUN;
-	public static String ImportFromInstallationPage_DIALOG_DESCRIPTION;
-	public static String ImportFromInstallationPage_DIALOG_DESCRIPTION_FIRSTRUN;
-	public static String ImportWizard_WINDOWTITLE;
-	public static String ImportWizard_WINDOWTITLE_FIRSTRUN;
-	public static String ImportFromInstallationPage_CONFIRMATION_TITLE;
-	public static String ImportFromInstallationPage_CONFIRMATION_DIALOG;
-	public static String ImportFromInstallationPag_LATER_BUTTON;
+	public static String MigrationWizard_WINDOWTITLE;
+	public static String MigrationWizard_WINDOWTITLE_FIRSTRUN;
+	public static String MigrationPage_SELECT_COMPONENT;
+	public static String MigrationPage_DIALOG_TITLE;
+	public static String MigrationPage_DIALOG_TITLE_FIRSTRUN;
+	public static String MigrationPage_DIALOG_DESCRIPTION;
+	public static String MigrationPage_DIALOG_DESCRIPTION_FIRSTRUN;
+	public static String MigrationPage_CONFIRMATION_TITLE;
+	public static String MigrationPage_CONFIRMATION_DIALOG;
+	public static String MigrationPage_LATER_BUTTON;
+	public static String MigrationPage_UPDATE_TO_LATEST;
+
 }

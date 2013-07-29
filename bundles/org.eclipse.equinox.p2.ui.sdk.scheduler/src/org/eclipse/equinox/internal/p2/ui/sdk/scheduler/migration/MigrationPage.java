@@ -9,41 +9,52 @@
  *     WindRiver Corporation - initial API and implementation
  *     IBM Corporation - Ongoing development
  *     Ericsson AB (Pascal Rapicault) - Bug 387115 - Allow to export everything
- *     Ericsson AB (Hamdan Msheik) - Bug 398833
+ *     Ericsson AB (Hamdan Msheik) - Bug 398833, 402560
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.util.*;
-import org.eclipse.core.runtime.Platform;
+import java.util.List;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.core.runtime.preferences.*;
+import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatePlugin;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.progress.DeferredTreeContentManager;
 import org.eclipse.ui.progress.WorkbenchJob;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-public abstract class AbstractPage_c extends WizardPage implements Listener {
+public class MigrationPage extends WizardPage implements ISelectableIUsPage, Listener {
 
 	protected String currentMessage;
 	//	protected Button destinationBrowseButton;
@@ -52,12 +63,21 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 	protected boolean entryChanged = false;
 	protected static IProfileRegistry profileRegistry = null;
 	static IProvisioningAgent agent = null;
+	protected Button updateToLatest;
 
 	public static final String REMIND_ME_LATER = "remindMeToMigrateLater";
-	// dialog store id constants
-	//	private static final String STORE_DESTINATION_NAMES_ID = "P2ImportExportPage.STORE_DESTINATION_NAMES_ID";//$NON-NLS-1$
 
-	protected static final int COMBO_HISTORY_LENGTH = 5;
+	IProfile profile = null;
+
+	private ProvisioningOperationWizard wizard;
+	private ProvisioningUI ui;
+
+	protected IProvisioningAgent otherInstanceAgent = null;
+	private Collection<IInstallableUnit> unitsToMigrate;
+	private IProfile toImportFrom = null;
+	//	private File instancePath = null;
+	private URI[] metaURIs = null;
+	private URI[] artiURIs = null;
 
 	/**
 	 * {@link DelayedFilterCheckboxTree} has a timing bug to prevent restoring the check state,
@@ -210,12 +230,27 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 			profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 	}
 
-	public AbstractPage_c(String pageName) {
+	public MigrationPage(String pageName) {
 		super(pageName);
 	}
 
-	public AbstractPage_c(String pageName, String title, ImageDescriptor titleImage) {
-		super(pageName, title, titleImage);
+	public MigrationPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IProfile toImportFrom, Collection<IInstallableUnit> unitsToMigrate, boolean firstTime) {
+		super("MigrationPageInstace"); //$NON-NLS-1$
+		this.wizard = wizard;
+		this.ui = ui;
+		profile = getSelfProfile();
+		this.toImportFrom = toImportFrom;
+		this.unitsToMigrate = unitsToMigrate;
+		setTitle(firstTime ? ProvUIMessages.MigrationPage_DIALOG_TITLE_FIRSTRUN : ProvUIMessages.MigrationPage_DIALOG_TITLE);
+		setDescription(NLS.bind(ProvUIMessages.MigrationPage_DIALOG_DESCRIPTION, Platform.getProduct().getName()));
+	}
+
+	public MigrationPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, boolean firstTime) {
+		super("importfrominstancepage"); //$NON-NLS-1$
+		this.wizard = wizard;
+		this.ui = ui;
+		setTitle(firstTime ? ProvUIMessages.MigrationPage_DIALOG_TITLE_FIRSTRUN : ProvUIMessages.MigrationPage_DIALOG_TITLE);
+		setDescription(NLS.bind(ProvUIMessages.MigrationPage_DIALOG_DESCRIPTION, Platform.getProduct().getName()));
 	}
 
 	protected IProfile getSelfProfile() {
@@ -259,8 +294,6 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 		viewer.refresh(false);
 	}
 
-	protected abstract void createContents(Composite composite);
-
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 		//		initializeService();
@@ -283,86 +316,6 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 		//		giveFocusToDestination();
 		Dialog.applyDialogFont(composite);
 	}
-
-	//	protected void createDestinationGroup(Composite parent, boolean includeButton) {
-	//		Composite composite = new Composite(parent, SWT.BORDER);
-	//		GridLayout layout = new GridLayout();
-	//		layout.numColumns = 3;
-	//		composite.setLayout(layout);
-	//		composite.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
-	//
-	//		Label label = new Label(composite, SWT.NONE);
-	//		label.setText(getDestinationLabel());
-	//
-	//		destinationNameField = new Combo(composite, SWT.SINGLE | SWT.BORDER);
-	//		restoreWidgetValues();
-	//		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
-	//		destinationNameField.setLayoutData(data);
-	//		destinationNameField.addSelectionListener(new SelectionAdapter() {
-	//			public void widgetSelected(SelectionEvent e) {
-	//				handleDestinationChanged(getDestinationValue());
-	//			}
-	//		});
-	//		destinationNameField.addKeyListener(new KeyListener() {
-	//
-	//			/*
-	//			 * @see KeyListener.keyPressed
-	//			 */
-	//			public void keyPressed(KeyEvent e) {
-	//				if (e.character == SWT.CR) {
-	//					entryChanged = false;
-	//					handleDestinationChanged(getDestinationValue());
-	//				}
-	//			}
-	//
-	//			public void keyReleased(KeyEvent e) {
-	//				// do nothing
-	//			}
-	//		});
-	//		destinationNameField.addModifyListener(new ModifyListener() {
-	//			public void modifyText(ModifyEvent e) {
-	//				entryChanged = true;
-	//			}
-	//		});
-	//		destinationNameField.addFocusListener(new FocusListener() {
-	//			/*
-	//			 * @see FocusListener.focusGained(FocusEvent)
-	//			 */
-	//			public void focusGained(FocusEvent e) {
-	//				//Do nothing when getting focus
-	//			}
-	//
-	//			/*
-	//			 * @see FocusListener.focusLost(FocusEvent)
-	//			 */
-	//			public void focusLost(FocusEvent e) {
-	//				//Clear the flag to prevent constant update
-	//				if (entryChanged) {
-	//					entryChanged = false;
-	//					handleDestinationChanged(getDestinationValue());
-	//				}
-	//
-	//			}
-	//		});
-	//
-	//		destinationBrowseButton = new Button(composite, SWT.PUSH);
-	//		destinationBrowseButton.setText(Messages.Page_BUTTON_BROWSER);
-	//		destinationBrowseButton.addListener(SWT.Selection, this);
-	//		destinationBrowseButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-	//
-	//		if (includeButton) {
-	//			includeAllButton = new Button(composite, SWT.CHECK);
-	//			includeAllButton.setText(Messages.ExportPage_EntriesNotInRepo);
-	//			includeAllButton.setSelection(allowExportWithoutRepositoryReference());
-	//			GridData dataIncludeButton = new GridData();
-	//			dataIncludeButton.horizontalSpan = 3;
-	//			includeAllButton.setLayoutData(dataIncludeButton);
-	//		}
-	//	}
-	//
-	//	private boolean allowExportWithoutRepositoryReference() {
-	//		return Platform.getPreferencesService().getBoolean(Constants.Bundle_ID, Constants.PREF_IU_WITHOUT_REPO, false, new IScopeContext[] {DefaultScope.INSTANCE});
-	//	}
 
 	protected IUColumnConfig[] getColumnConfig() {
 		return new IUColumnConfig[] {new IUColumnConfig(org.eclipse.equinox.internal.p2.ui.ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH), new IUColumnConfig(org.eclipse.equinox.internal.p2.ui.ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH), new IUColumnConfig(org.eclipse.equinox.internal.p2.ui.ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
@@ -476,6 +429,21 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 		viewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		viewer.getControl().setSize(300, 200);
 		viewer.setInput(getInput());
+
+		viewer.getTree().addListener(SWT.Selection, new Listener() {
+
+			public void handleEvent(Event event) {
+				if (event.detail == SWT.CHECK) {
+					if (hasInstalled(ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class))) {
+						viewer.getTree().setRedraw(false);
+						((TreeItem) event.item).setChecked(false);
+						viewer.getTree().setRedraw(true);
+					}
+				}
+				updatePageCompletion();
+			}
+		});
+
 		Composite buttons = new Composite(group, SWT.NONE);
 		buttons.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 		buttons.setLayout(new RowLayout(SWT.HORIZONTAL));
@@ -509,6 +477,21 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 				updatePageCompletion();
 			}
 		});
+
+	}
+
+	protected void createAdditionOptions(Composite parent) {
+
+		Composite composite = new Composite(parent, SWT.BORDER);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		composite.setLayout(layout);
+		composite.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+
+		updateToLatest = new Button(composite, SWT.CHECK);
+		updateToLatest.setText(ProvUIMessages.MigrationPage_UPDATE_TO_LATEST);
+		updateToLatest.setSelection(loadCustomizedSetting());
+
 	}
 
 	protected PatternFilter getPatternFilter() {
@@ -516,12 +499,28 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 	}
 
 	protected ICheckStateProvider getViewerDefaultState() {
-		return null;
+		return new ICheckStateProvider() {
+
+			public boolean isGrayed(Object element) {
+				return false;
+			}
+
+			public boolean isChecked(Object element) {
+				if (profile != null) {
+					IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
+					IQueryResult<IInstallableUnit> collector = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), new NullProgressMonitor());
+					if (collector.isEmpty()) {
+						return true;
+					}
+				}
+				return false;
+			}
+		};
 	}
 
-	protected ITableLabelProvider getLabelProvider() {
-		return new IUDetailsLabelProvider(null, getColumnConfig(), null);
-	}
+	//	protected ITableLabelProvider getLabelProvider() {
+	//		return new IUDetailsLabelProvider(null, getColumnConfig(), null);
+	//	}
 
 	protected ITreeContentProvider getContentProvider() {
 		ProvElementContentProvider provider = new ProvElementContentProvider() {
@@ -558,62 +557,9 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 		return complete;
 	}
 
-	protected abstract void doFinish() throws Exception;
-
 	protected int getBrowseDialogStyle() {
 		return SWT.OPEN;
 	}
-
-	//	/**
-	//	 * returns the destination label
-	//	 * @return non null string
-	//	 */
-	//	protected abstract String getDestinationLabel();
-
-	//	/**
-	//	 * Answer the contents of self's destination specification widget
-	//	 *
-	//	 * @return java.lang.String
-	//	 */
-	//	protected String getDestinationValue() {
-	//		return destinationNameField.getText().trim();
-	//	}
-
-	/**
-	 * return the title of dialog
-	 * @return non null string
-	 */
-	protected abstract String getDialogTitle();
-
-	protected abstract Object getInput();
-
-	protected abstract String getInvalidDestinationMessage();
-
-	protected String getNoOptionsMessage() {
-		return ProvUIMessages.PAGE_NOINSTALLTION_ERROR;
-	}
-
-	//	protected abstract void giveFocusToDestination();
-
-	//	/**
-	//	 * Open an appropriate destination browser so that the user can specify a
-	//	 * source to import from
-	//	 */
-	//	protected void handleDestinationBrowseButtonPressed() {
-	//		FileDialog dialog = new FileDialog(getContainer().getShell(), getBrowseDialogStyle() | SWT.SHEET);
-	//		dialog.setText(getDialogTitle());
-	//		dialog.setFilterPath(getDestinationValue());
-	//		dialog.setFilterExtensions(new String[] {Messages.EXTENSION_p2F, Messages.EXTENSION_ALL});
-	//		dialog.setFilterNames(new String[] {Messages.EXTENSION_p2F_NAME, Messages.EXTENSION_ALL_NAME});
-	//		String selectedFileName = dialog.open();
-	//
-	//		if (selectedFileName != null) {
-	//			if (!selectedFileName.endsWith(Messages.EXTENSION_p2F.substring(1)))
-	//				selectedFileName += Messages.EXTENSION_p2F.substring(1);
-	//			setDestinationValue(selectedFileName);
-	//			handleDestinationChanged(selectedFileName);
-	//		}
-	//	}
 
 	//TODO remove the implementation of Listener
 	public void handleEvent(Event event) {
@@ -624,21 +570,6 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 		//		}
 		//		updatePageCompletion();
 	}
-
-	//	protected void handleDestinationChanged(String newDestination) {
-	//		// do nothing
-	//	}
-
-	//	protected void initializeService() {
-	//		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<P2ImportExport, P2ImportExport>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), P2ImportExport.class.getName(), null);
-	//		tracker.open();
-	//		importexportService = tracker.getService();
-	//		tracker.close();
-	//	}
-
-	//	protected void setDestinationValue(String selectedFileName) {
-	//		destinationNameField.setText(selectedFileName);
-	//	}
 
 	/**
 	 * Determine if the page is complete and update the page appropriately.
@@ -653,20 +584,6 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 		}
 	}
 
-	//	/**
-	//	 * Validate the destination group.
-	//	 * @return <code>true</code> if the group is valid. If
-	//	 * not set the error message and return <code>false</code>.
-	//	 */
-	//	protected boolean validateDestinationGroup() {
-	//		if (!validDestination()) {
-	//			currentMessage = getInvalidDestinationMessage();
-	//			return false;
-	//		}
-	//
-	//		return true;
-	//	}
-
 	protected boolean validateOptionsGroup() {
 		if (viewer == null || viewer.getCheckedElements().length > 0)
 			return true;
@@ -675,74 +592,304 @@ public abstract class AbstractPage_c extends WizardPage implements Listener {
 		return false;
 	}
 
-	//	protected boolean validDestination() {
-	//		if (this.destinationNameField == null)
-	//			return true;
-	//		File file = new File(getDestinationValue());
-	//		return !(file.getPath().length() <= 0 || file.isDirectory());
-	//	}
+	protected ProvisioningOperationWizard getProvisioningWizard() {
+		return wizard;
+	}
 
-	//	protected void saveWidgetValues() {
-	//		IDialogSettings settings = getDialogSettings();
-	//		if (settings != null) {
-	//			String[] directoryNames = settings.getArray(STORE_DESTINATION_NAMES_ID);
-	//			if (directoryNames == null) {
-	//				directoryNames = new String[0];
-	//			}
-	//
-	//			directoryNames = addToHistory(directoryNames, getDestinationValue());
-	//			settings.put(STORE_DESTINATION_NAMES_ID, directoryNames);
-	//		}
-	//	}
+	protected ProvisioningUI getProvisioningUI() {
+		return ui;
+	}
 
-	//	protected String[] addToHistory(String[] history, String newEntry) {
-	//		List<String> l = new ArrayList<String>(Arrays.asList(history));
-	//		addToHistory(l, newEntry);
-	//		String[] r = new String[l.size()];
-	//		l.toArray(r);
-	//		return r;
-	//	}
-	//
-	//	protected void addToHistory(List<String> history, String newEntry) {
-	//		history.remove(newEntry);
-	//		history.add(0, newEntry);
-	//
-	//		// since only one new item was added, we can be over the limit
-	//		// by at most one item
-	//		if (history.size() > COMBO_HISTORY_LENGTH) {
-	//			history.remove(COMBO_HISTORY_LENGTH);
-	//		}
-	//	}
+	public boolean hasInstalled(IInstallableUnit iu) {
+		IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), null);
+		return !results.isEmpty();
+	}
 
-	//	/**
-	//	 * Hook method for restoring widget values to the values that they held last
-	//	 * time this wizard was used to completion.
-	//	 */
-	//	protected void restoreWidgetValues() {
-	//
-	//		IDialogSettings settings = getDialogSettings();
-	//
-	//		if (settings != null) {
-	//			String[] directoryNames = settings.getArray(STORE_DESTINATION_NAMES_ID);
-	//			if (directoryNames != null) {
-	//				// destination
-	//				setDestinationValue(directoryNames[0]);
-	//				for (int i = 0; i < directoryNames.length; i++) {
-	//					addDestinationItem(directoryNames[i]);
-	//				}
-	//
-	//				setDestinationValue(""); //$NON-NLS-1$
-	//			}
-	//		}
-	//	}
+	public String getIUNameWithDetail(IInstallableUnit iu) {
+		IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), null);
+		String text = iu.getProperty(IProfile.PROP_NAME, null);
+		text = (text != null) ? text : iu.getId();
+		if (!results.isEmpty()) {
+			boolean hasHigherVersion = false;
+			boolean hasEqualVersion = false;
+			for (IInstallableUnit installedIU : results.toSet()) {
+				int compareValue = installedIU.getVersion().compareTo(iu.getVersion());
+				if (compareValue > 0) {
+					hasHigherVersion = true;
+					break;
+				} else if (compareValue == 0)
+					hasEqualVersion = true;
+			}
+			if (hasHigherVersion)
+				return NLS.bind(ProvUIMessages.AbstractImportPage_HigherVersionInstalled, text);
+			else if (hasEqualVersion)
+				return NLS.bind(ProvUIMessages.AbstractImportPage_SameVersionInstalled, text);
+		}
+		return text;
+	}
 
-	//	/**
-	//	 * Add the passed value to self's destination widget's history
-	//	 *
-	//	 * @param value
-	//	 *            java.lang.String
-	//	 */
-	//	protected void addDestinationItem(String value) {
-	//		destinationNameField.add(value);
-	//	}
+	protected void doFinish() throws Exception {
+		// do nothing
+	}
+
+	@Override
+	public boolean canFlipToNextPage() {
+		return isPageComplete();
+	}
+
+	protected void createContents(Composite composite) {
+		createInstallationTable(composite);
+		createAdditionOptions(composite);
+	}
+
+	protected String getDialogTitle() {
+		return ProvUIMessages.MigrationPage_DIALOG_TITLE;
+	}
+
+	protected Object getInput() {
+
+		IUElementListRoot root = new IUElementListRoot();
+		List<AvailableIUElement> elements = new ArrayList<AvailableIUElement>(unitsToMigrate.size());
+		for (IInstallableUnit unit : unitsToMigrate) {
+			elements.add(new AvailableIUElement(root, unit, toImportFrom.getProfileId(), false));
+		}
+		root.setChildren(elements.toArray());
+		return root;
+	}
+
+	protected String getInvalidDestinationMessage() {
+		return "";//ProvUIMessages.ImportFromInstallationPage_INVALID_DESTINATION; //$NON-NLS-1$
+	}
+
+	protected String getNoOptionsMessage() {
+		return ProvUIMessages.MigrationPage_SELECT_COMPONENT;
+	}
+
+	class ImportFromInstallationLabelProvider extends IUDetailsLabelProvider {
+		@Override
+		public String getColumnText(Object element, int columnIndex) {
+			String text = super.getColumnText(element, columnIndex);
+			// it's the order of label provider
+			if (columnIndex == 0) {
+				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
+				return getIUNameWithDetail(iu);
+			}
+			return text;
+		}
+
+		@Override
+		public Color getForeground(Object element) {
+			IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
+			if (hasInstalled(iu))
+				return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
+			return super.getForeground(element);
+		}
+	}
+
+	protected ITableLabelProvider getLabelProvider() {
+		return new ImportFromInstallationLabelProvider();
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		if (otherInstanceAgent != null) {
+			otherInstanceAgent.stop();
+			otherInstanceAgent = null;
+			toImportFrom = null;
+		}
+		cleanLocalRepository();
+	}
+
+	public void cleanLocalRepository() {
+		if (metaURIs != null && metaURIs.length > 0) {
+			IProvisioningAgent runningAgent = getProvisioningUI().getSession().getProvisioningAgent();
+			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) runningAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+			for (URI uri : metaURIs)
+				manager.removeRepository(uri);
+			IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) runningAgent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			for (URI uri : artiURIs)
+				artifactManager.removeRepository(uri);
+		}
+	}
+
+	// Both checkedElements and checkedElementsUpdates and the logic inside the getCheckedIUElements method
+	// are used to prevent unnecessary call to getUpdates method due to computational cost.
+	private Set checkedElements;
+	private Set checkedElementsUpdates;
+	private boolean getUpdatesCanceled;
+
+	public Object[] getCheckedIUElements() {
+
+		if (isUpdateToLatest()) {
+
+			Object[] latestUpdates = getLatestVersionOfCheckedElements();
+
+			// If the getUpdades operation is cancelled, then set checkedElements and checkedElementsUpdates to null to force the lookup for updates again. Thereafter throw OperationCanceledException.
+			if (getUpdatesCanceled) {
+
+				this.checkedElements = null;
+				this.checkedElementsUpdates = null;
+				throw new OperationCanceledException();
+			}
+			return latestUpdates;
+		}
+		return viewer.getCheckedElements();
+	}
+
+	private Object[] getLatestVersionOfCheckedElements() {
+
+		Object[] checkedArray = viewer.getCheckedElements();
+		if (this.checkedElements == null) {
+			// initialize checkedElements and checkedElementsUpdates for the first time
+			this.checkedElements = new HashSet(Arrays.asList(checkedArray));
+			this.checkedElementsUpdates = new HashSet(Arrays.asList(getUpdates(checkedArray)));
+
+		} else {
+			Set checkedElementsNow = new HashSet(Arrays.asList(checkedArray));
+			if (checkedElementsNow.size() != this.checkedElements.size() || (!checkedElementsNow.containsAll(checkedElements))) {
+				// only if the set of checkedElements has changed get the update for them
+				this.checkedElements = checkedElementsNow; //
+				this.checkedElementsUpdates = new HashSet(Arrays.asList(getUpdates(checkedArray)));
+			}
+		}
+
+		return this.checkedElementsUpdates.toArray();
+	}
+
+	public Object[] getSelectedIUElements() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setCheckedElements(Object[] elements) {
+		new UnsupportedOperationException();
+	}
+
+	// Look for update of the current selected installation units and replace the old ons with the updated version
+	private Object[] getUpdates(final Object[] checkedElements) {
+
+		final Collection<IInstallableUnit> toInstall = new ArrayList<IInstallableUnit>();
+
+		try {
+			getContainer().run(false, true, new IRunnableWithProgress() {
+
+				public void run(IProgressMonitor monitor) {
+					SubMonitor sub = SubMonitor.convert(monitor, checkedElements.length);
+					ProvisioningContext context = new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
+
+					for (Object iu : checkedElements) {
+
+						if (sub.isCanceled()) {
+							MigrationPage.this.getUpdatesCanceled = true;
+							toInstall.clear();
+							sub.done();
+							return;
+						}
+
+						if (iu instanceof AvailableIUElement) {
+							IInstallableUnit unit = ((AvailableIUElement) iu).getIU();
+							IuUpdateAndPatches updateAndPatches = filterToInstall(unit, updatesFor(unit, context, sub.newChild(1)));
+							if (updateAndPatches.update != null) {
+								toInstall.add(updateAndPatches.update);
+							} else {
+								toInstall.add(updateAndPatches.iu); // because it is not yet installed
+								toInstall.addAll(updateAndPatches.patches);
+							}
+
+						}
+
+						sub.worked(1);
+					}
+				}
+
+			});
+		} catch (InterruptedException e) {
+			// Nothing to report if thread was interrupted
+		} catch (InvocationTargetException e) {
+			ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
+		}
+
+		return toInstall.toArray();
+
+	}
+
+	public boolean isUpdateToLatest() {
+		return updateToLatest.getSelection();
+	}
+
+	public ProvisioningContext getProvisioningContext() {
+		ProvisioningContext context = new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
+		context.setArtifactRepositories(artiURIs);
+		context.setMetadataRepositories(metaURIs);
+		return context;
+	}
+
+	private static boolean hasHigherFidelity(IInstallableUnit iu, IInstallableUnit currentIU) {
+		if (Boolean.valueOf(currentIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue() && !Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue())
+			return true;
+		return false;
+	}
+
+	public Collection<IInstallableUnit> updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor) {
+		//		IPlanner planner = (IPlanner) getProvisioningUI().getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
+		//		return planner.updatesFor(toUpdate, context, monitor).toSet();
+
+		Map<String, IInstallableUnit> resultsMap = new HashMap<String, IInstallableUnit>();
+
+		SubMonitor sub = SubMonitor.convert(monitor, 1000);
+		IQueryable<IInstallableUnit> queryable = context.getMetadata(sub.newChild(500));
+		IQueryResult<IInstallableUnit> matches = queryable.query(new UpdateQuery(toUpdate), sub.newChild(500));
+		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
+			IInstallableUnit iu = it.next();
+			String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
+			IInstallableUnit currentIU = resultsMap.get(key);
+			if (currentIU == null || hasHigherFidelity(iu, currentIU))
+				resultsMap.put(key, iu);
+		}
+		sub.done();
+		return resultsMap.values();
+	}
+
+	class IuUpdateAndPatches {
+		public IInstallableUnit iu;
+		public IInstallableUnit update;
+		public Collection<IInstallableUnit> patches;
+
+		IuUpdateAndPatches(IInstallableUnit iu) {
+			this.iu = iu;
+			this.patches = new ArrayList<IInstallableUnit>();
+		}
+
+	}
+
+	/**
+	 *
+	 * @param iu original unit.
+	 * @param updates list of updates: patches or true updates.
+	 * @return a structure holding the original unit, its most recent update and any available patches.
+	 */
+	private IuUpdateAndPatches filterToInstall(IInstallableUnit iu, Collection<IInstallableUnit> updates) {
+
+		IuUpdateAndPatches updateAndPatches = new IuUpdateAndPatches(iu);
+
+		for (IInstallableUnit update : updates) {
+
+			if (QueryUtil.isPatch(update)) {
+				updateAndPatches.patches.add(update);
+			} else {
+				if (updateAndPatches.update == null || updateAndPatches.update.getVersion().compareTo(update.getVersion()) < 0) {
+					updateAndPatches.update = update;
+				}
+			}
+		}
+
+		return updateAndPatches;
+	}
+
+	public static boolean loadCustomizedSetting() {
+		IScopeContext[] contexts = new IScopeContext[] {InstanceScope.INSTANCE, DefaultScope.INSTANCE, BundleDefaultsScope.INSTANCE, ConfigurationScope.INSTANCE};
+		boolean updateToLatest = Platform.getPreferencesService().getBoolean(AutomaticUpdatePlugin.PLUGIN_ID, "updateToLatest", false, contexts);
+		return updateToLatest;
+	}
 }
