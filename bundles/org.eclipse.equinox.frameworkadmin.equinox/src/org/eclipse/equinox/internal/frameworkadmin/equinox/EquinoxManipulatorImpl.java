@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat, Inc - bug 305712
  *******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
@@ -284,9 +285,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			//			System.out.println("bundles[" + i + "]=" + bundles[i]);
 			try {
 				if (bundles[i].getBundleId() == 0) // SystemBundle
-					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders().get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), -1, true);
+					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders("").get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), -1, true); //$NON-NLS-1$
 				else {
-					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders().get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]));
+					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders("").get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i])); //$NON-NLS-1$
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
