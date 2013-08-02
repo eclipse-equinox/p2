@@ -5,7 +5,7 @@
 <unit id="org.eclipse.platform.sdk" version="0.0.0"/>
 <unit id="org.eclipse.core.tests.harness" version="0.0.0"/>
 <unit id="org.eclipse.test.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.3-M-builds"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.4-I-builds"/>
 </location>
 </locations>
 </target>
