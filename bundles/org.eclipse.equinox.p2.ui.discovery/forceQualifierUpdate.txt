@@ -1,2 +1,3 @@
 # To force a version qualifier update add the bug here
 Bug 403352 - Update all parent versions to match our build stream
+Bug 414457 - Comparator report indicates problem with org.eclipse.equinox.p2.ui.discovery
