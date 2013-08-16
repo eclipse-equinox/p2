@@ -33,7 +33,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.dialogs.*;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -63,13 +64,6 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 
 	public MigrationWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
-		IDialogSettings workbenchSettings = ProvUIActivator.getDefault().getDialogSettings();
-		String sectionName = "MigrationWizard"; //$NON-NLS-1$
-		IDialogSettings section = workbenchSettings.getSection(sectionName);
-		if (section == null) {
-			section = workbenchSettings.addNewSection(sectionName);
-		}
-		setDialogSettings(section);
 	}
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
