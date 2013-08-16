@@ -42,6 +42,7 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.*;
@@ -235,7 +236,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	}
 
 	public MigrationPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IProfile toImportFrom, Collection<IInstallableUnit> unitsToMigrate, boolean firstTime) {
-		super("MigrationPageInstace"); //$NON-NLS-1$
+		super("MigrationPageInstance"); //$NON-NLS-1$
 		this.wizard = wizard;
 		this.ui = ui;
 		profile = getSelfProfile();
@@ -270,6 +271,11 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 			column.getColumn().setText(titles[i]);
 			column.getColumn().setResizable(true);
 			column.getColumn().setMoveable(true);
+			if (titles[i].equals(ProvUIMessages.Column_Name)) {
+				column.getColumn().setWidth(300);
+			} else {
+				column.getColumn().setWidth(200);
+			}
 			if (ProvUIMessages.Column_Name.equals(titles[i]))
 				updateTableSorting(i);
 			final int columnIndex = i;
@@ -321,19 +327,36 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		return new IUColumnConfig[] {new IUColumnConfig(org.eclipse.equinox.internal.p2.ui.ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH), new IUColumnConfig(org.eclipse.equinox.internal.p2.ui.ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH), new IUColumnConfig(org.eclipse.equinox.internal.p2.ui.ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
 	}
 
+	protected void createContents(Composite composite) {
+		createInstallationTable(composite);
+		createAdditionOptions(composite);
+	}
+
 	protected void createInstallationTable(final Composite parent) {
-		Group group = new Group(parent, SWT.NONE);
-		GridData griddata = new GridData(GridData.FILL, GridData.FILL, true, true);
-		griddata.verticalSpan = griddata.horizontalSpan = 0;
-		group.setLayoutData(griddata);
-		group.setLayout(new GridLayout(1, false));
+
+		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
+		FillLayout fill = new FillLayout();
+		sashForm.setLayout(fill);
+		GridData data = new GridData(GridData.FILL_BOTH);
+		sashForm.setLayoutData(data);
+		Composite sashComposite = new Composite(sashForm, SWT.NONE);
+		GridLayout grid = new GridLayout();
+		grid.marginWidth = 0;
+		grid.marginHeight = 0;
+		sashComposite.setLayout(grid);
+
 		PatternFilter filter = getPatternFilter();
 		filter.setIncludeLeadingWildcard(true);
-		final ImportExportFilteredTree filteredTree = new ImportExportFilteredTree(group, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, true);
+		final ImportExportFilteredTree filteredTree = new ImportExportFilteredTree(sashComposite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, true);
 		viewer = (CheckboxTreeViewer) filteredTree.getViewer();
 		final Tree tree = viewer.getTree();
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(false);
+		GridData treeDataGrid = new GridData(GridData.FILL_BOTH);
+		treeDataGrid.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
+		treeDataGrid.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH);
+		tree.setLayoutData(treeDataGrid);
+
 		viewer.setComparator(new TreeViewerComparator());
 		viewer.setComparer(new ProvElementComparer());
 		createColumns(viewer);
@@ -427,7 +450,6 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 				}
 			});
 		viewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
-		viewer.getControl().setSize(300, 200);
 		viewer.setInput(getInput());
 
 		viewer.getTree().addListener(SWT.Selection, new Listener() {
@@ -444,7 +466,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 			}
 		});
 
-		Composite buttons = new Composite(group, SWT.NONE);
+		Composite buttons = new Composite(sashComposite, SWT.NONE);
 		buttons.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 		buttons.setLayout(new RowLayout(SWT.HORIZONTAL));
 		Button selectAll = new Button(buttons, SWT.PUSH);
@@ -635,11 +657,6 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	@Override
 	public boolean canFlipToNextPage() {
 		return isPageComplete();
-	}
-
-	protected void createContents(Composite composite) {
-		createInstallationTable(composite);
-		createAdditionOptions(composite);
 	}
 
 	protected String getDialogTitle() {
@@ -892,4 +909,5 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		boolean updateToLatest = Platform.getPreferencesService().getBoolean(AutomaticUpdatePlugin.PLUGIN_ID, "updateToLatest", false, contexts);
 		return updateToLatest;
 	}
+
 }

@@ -182,7 +182,7 @@ public class MigrationSupport {
 		Display d = Display.getDefault();
 		d.asyncExec(new Runnable() {
 			public void run() {
-				WizardDialog migrateWizard = new WizardDialog(getWorkbenchWindowShell(), new MigrationWizard(inputProfile, unitsToMigrate, reposToMigrate, reposToMigrate != null));
+				WizardDialog migrateWizard = new MigrationWizardDialog(getWorkbenchWindowShell(), new MigrationWizard(inputProfile, unitsToMigrate, reposToMigrate, reposToMigrate != null));
 				migrateWizard.create();
 				migrateWizard.open();
 			}
