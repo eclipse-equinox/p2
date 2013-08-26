@@ -25,6 +25,8 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>bundles/org.sat4j.core</module>
+    <module>bundles/org.sat4j.pb</module>
     <module>bundles/ie.wombat.jbdiff</module>
     <module>bundles/ie.wombat.jbdiff.test</module>
     <module>bundles/org.eclipse.equinox.frameworkadmin</module>
