@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 IBM Corporation and others.
+ *  Copyright (c) 2008, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
+ *     Red Hat,Inc. - filter installed softwares
  *******************************************************************************/
 
 package org.eclipse.equinox.p2.ui;
@@ -16,17 +17,22 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.actions.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.p2.ui.misc.StringMatcher;
+import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -60,6 +66,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	String profileId;
 	Button updateButton, uninstallButton, propertiesButton;
 	ProvisioningUI ui;
+	private Text filterText;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
@@ -89,6 +96,12 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
+
+		//Let users filter installed softwares
+		filterText = new Text(composite, SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL);
+		filterText.setLayoutData(GridDataFactory.fillDefaults().create());
+		filterText.setMessage(ProvUIMessages.InstalledSoftwarePage_Filter_Installed_Software);
+		filterText.setFocus();//Steal focus, consistent with org.eclipse.ui.internal.about.AboutPluginsPage
 
 		// Table of installed IU's
 		installedIUGroup = new InstalledIUGroup(getProvisioningUI(), composite, JFaceResources.getDialogFont(), profileId, getColumnConfig());
@@ -181,6 +194,17 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 
 		});
 
+		final IUPatternFilter searchFilter = new IUPatternFilter(getColumnConfig());
+		filterText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				if (filterText != null && !filterText.isDisposed()) {
+					searchFilter.setPattern(filterText.getText());
+					installedIUGroup.getStructuredViewer().refresh();
+				}
+			}
+		});
+		installedIUGroup.getStructuredViewer().addFilter(searchFilter);
+
 		updateEnablement();
 	}
 
@@ -270,4 +294,90 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		ui = value;
 	}
 
+	/**
+	 * Filters {@link InstalledIUElement}s from a viewer using a String pattern. 
+	 * Filtering is dependent on a given array of {@link IUColumnConfig}s :
+	 * <ul>
+	 * <li>if {@link IUColumnConfig.COLUMN_ID} is present, filters on the Installable Unit's id;</li>
+	 * <li>if {@link IUColumnConfig.COLUMN_NAME} is present, filters on the Installable Unit's  name;</li>
+	 * <li>if {@link IUColumnConfig.COLUMN_PROVIDER} is present, filters on the Installable Unit's provider;</li>
+	 * </ul>   
+	 * 
+	 * @since 2.3
+	 */
+	class IUPatternFilter extends ViewerFilter {
+
+		private StringMatcher matcher;
+
+		private boolean filterOnId;
+
+		private boolean filterOnName;
+
+		private boolean filterOnProvider;
+
+		public IUPatternFilter() {
+			this(null);
+		}
+
+		public IUPatternFilter(IUColumnConfig[] columnConfig) {
+			if (columnConfig == null) {
+				columnConfig = ProvUI.getIUColumnConfig();
+			}
+			for (IUColumnConfig colConfig : columnConfig) {
+				switch (colConfig.getColumnType()) {
+					case IUColumnConfig.COLUMN_ID :
+						filterOnId = true;
+						break;
+					case IUColumnConfig.COLUMN_NAME :
+						filterOnName = true;
+						break;
+					case IUColumnConfig.COLUMN_PROVIDER :
+						filterOnProvider = true;
+						break;
+					default :
+						break;
+				}
+				if (filterOnId && filterOnName && filterOnProvider) {
+					break;
+				}
+			}
+		}
+
+		public void setPattern(String searchPattern) {
+			if (searchPattern == null || searchPattern.length() == 0) {
+				this.matcher = null;
+			} else {
+				String pattern = "*" + searchPattern + "*"; //$NON-NLS-1$//$NON-NLS-2$
+				this.matcher = new StringMatcher(pattern, true, false);
+			}
+		}
+
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			if (matcher == null || !(filterOnName || filterOnId || filterOnProvider)) {
+				return true;
+			}
+
+			if (element instanceof InstalledIUElement) {
+				InstalledIUElement data = (InstalledIUElement) element;
+				IInstallableUnit iu = data.getIU();
+				boolean match = false;
+				if (iu != null) {
+					if (filterOnName) {
+						String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
+						match = matcher.match(name);
+					}
+					if (!match && filterOnId) {
+						match = matcher.match(iu.getId());
+					}
+					if (!match && filterOnProvider) {
+						String provider = iu.getProperty(IInstallableUnit.PROP_PROVIDER, null);
+						match = matcher.match(provider);
+					}
+				}
+				return match;
+			}
+			return true;
+		}
+	}
 }
