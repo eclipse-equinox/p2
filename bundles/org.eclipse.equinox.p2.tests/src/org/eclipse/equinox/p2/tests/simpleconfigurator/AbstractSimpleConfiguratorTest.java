@@ -147,8 +147,15 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 				value = mf.getMainAttributes().getValue(entry);
 				os.close();
 			} else {
-				JarFile bundleJar = new JarFile(bundleFile);
-				value = bundleJar.getManifest().getMainAttributes().getValue(entry);
+				JarFile bundleJar = null;
+				try {
+					bundleJar = new JarFile(bundleFile);
+					value = bundleJar.getManifest().getMainAttributes().getValue(entry);
+				} finally {
+					if (bundleJar != null) {
+						bundleJar.close();
+					}
+				}
 			}
 			if (value.indexOf(";") > -1) {
 				String[] valueElements = value.split(";");
