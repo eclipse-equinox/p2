@@ -85,7 +85,6 @@ public class Optimizer {
 			int minWidth = Math.min(width, keys[i].length);
 			for (int j = 0; j < minWidth; j++) {
 				IArtifactKey key = keys[i][j];
-				boolean isArchive = key.getClassifier().equals("plugin"); //$NON-NLS-1$
 				optimize(keys[i], key);
 			}
 		}
