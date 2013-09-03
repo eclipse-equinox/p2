@@ -104,7 +104,6 @@ public class OptimizationFunction {
 		maxWeight = maxWeight.multiply(POWER).add(BigInteger.ONE);
 
 		//Now we deal the optional IUs,
-		BigInteger optionalWeight = maxWeight.negate();
 		long countOptional = 1;
 		List<IInstallableUnit> requestedPatches = new ArrayList<IInstallableUnit>();
 		Collection<IRequirement> reqs = metaIu.getRequirements();
