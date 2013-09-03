@@ -37,9 +37,10 @@ public class EmbeddedEquinox {
 
 	public BundleContext startFramework() {
 		System.setProperty("osgi.framework.useSystemProperties", "false");
-		URLClassLoader frameworkLoader = null;
 		try {
-			frameworkLoader = new FrameworkClassLoader(frameworkClassPath, this.getClass().getClassLoader());
+			@SuppressWarnings("resource")
+			// For some reason when you close the framework loader, tests fail!
+			URLClassLoader frameworkLoader = new FrameworkClassLoader(frameworkClassPath, this.getClass().getClassLoader());
 			eclipseStarterClazz = frameworkLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
 
 			Method setInitialProperties = eclipseStarterClazz.getMethod("setInitialProperties", new Class[] {Map.class}); //$NON-NLS-1$
@@ -51,14 +52,6 @@ public class EmbeddedEquinox {
 			if (t instanceof RuntimeException)
 				throw (RuntimeException) t;
 			throw new RuntimeException(t);
-		} finally {
-			if (frameworkLoader != null) {
-				try {
-					frameworkLoader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 		return context;
 	}
