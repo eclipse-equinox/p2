@@ -105,7 +105,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			if (!oneInstalled) {
 				try {
 					Projector.AbstractVariable abs = new Projector.AbstractVariable("NEW"); //$NON-NLS-1$
-					dependencyHelper.or(FakeExplanation.getInstance(), abs, matches.toArray(IInstallableUnit.class));
+					dependencyHelper.or(FakeExplanation.getInstance(), abs, (Object[]) matches.toArray(IInstallableUnit.class));
 					weightedObjects.add(WeightedObject.newWO(abs, weight));
 				} catch (ContradictionException e) {
 					// should not happen
