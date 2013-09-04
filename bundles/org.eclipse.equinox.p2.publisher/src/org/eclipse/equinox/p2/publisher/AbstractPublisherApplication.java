@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,7 +105,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 					if (repoLocation.equals(new File(source)))
 						throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, URIUtil.toUnencodedString(artifactLocation)));
 				}
-				repo.removeAll();
+				repo.removeAll(new NullProgressMonitor());
 			}
 			publisherInfo.setArtifactRepository(repo);
 		} else if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
@@ -150,7 +150,10 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		}
 	}
 
-	@SuppressWarnings("unused")
+	/**
+	 * Process application arguments.
+	 * @throws URISyntaxException thrown by subclasses
+	 */
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
 		try {
 			if (arg.equalsIgnoreCase("-metadataRepository") || arg.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
