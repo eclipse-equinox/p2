@@ -54,18 +54,6 @@
           <executionEnvironment>J2SE-1.5</executionEnvironment>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-compiler-plugin</artifactId>
-        <configuration>
-          <!--
-          Many (all?) bundles use java 5 generics, do not compile against libraries
-          of their respective execution environments and we force compilation against
-          SYSTEM JRE libraries that are guaranteed to be java5+
-          -->
-          <useJDK>BREE</useJDK>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 
