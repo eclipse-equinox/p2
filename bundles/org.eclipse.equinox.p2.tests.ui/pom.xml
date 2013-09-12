@@ -33,7 +33,7 @@
 					<testSuite>org.eclipse.equinox.p2.tests.ui</testSuite>
 					<testClass>org.eclipse.equinox.p2.tests.ui.AutomatedTests
 					</testClass>
-					<argLine>-Xmx512m -XstartOnFirstThread</argLine>
+					<argLine>-Xmx512m</argLine>
 					<useUIHarness>true</useUIHarness>
 				</configuration>
 			</plugin>
