@@ -10,5 +10,10 @@
   <groupId>org.eclipse.equinox</groupId>
   <artifactId>org.eclipse.equinox.p2.tests.optimizers</artifactId>
   <version>1.0.100-SNAPSHOT</version>
-  <packaging>eclipse-plugin</packaging>
+  <packaging>eclipse-test-plugin</packaging>
+
+  <properties>
+    <testSuite>${project.artifactId}</testSuite>
+    <testClass>org.eclipse.equinox.p2.tests.optimizers.AutomatedTests</testClass>
+  </properties>
 </project>
