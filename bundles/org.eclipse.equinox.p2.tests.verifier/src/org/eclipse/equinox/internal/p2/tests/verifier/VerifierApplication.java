@@ -27,12 +27,15 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.osgi.service.resolver.*;
+import org.eclipse.osgi.report.resolution.ResolutionReport;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
-import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.framework.*;
+import org.osgi.framework.hooks.resolver.ResolverHook;
+import org.osgi.framework.hooks.resolver.ResolverHookFactory;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.framework.wiring.*;
+import org.osgi.resource.*;
 
 /**
  * Application which verifies an install.
@@ -163,22 +166,6 @@ public class VerifierApplication implements IApplication {
 		return true;
 	}
 
-	private List getAllBundles() {
-		PlatformAdmin platformAdmin = (PlatformAdmin) ServiceHelper.getService(Activator.getBundleContext(), PlatformAdmin.class.getName());
-		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(Activator.getBundleContext(), PackageAdmin.class.getName());
-		State state = platformAdmin.getState(false);
-		List result = new ArrayList();
-
-		BundleDescription[] bundles = state.getBundles();
-		for (int i = 0; i < bundles.length; i++) {
-			BundleDescription bundle = bundles[i];
-			Bundle[] versions = packageAdmin.getBundles(bundle.getSymbolicName(), bundle.getVersion().toString());
-			for (int j = 0; j < versions.length; j++)
-				result.add(versions[j]);
-		}
-		return result;
-	}
-
 	/*
 	 * Check to ensure all of the bundles in the system are resolved.
 	 *
@@ -188,89 +175,111 @@ public class VerifierApplication implements IApplication {
 	 */
 	private IStatus checkResolved() {
 		List allProblems = new ArrayList();
-		PlatformAdmin platformAdmin = (PlatformAdmin) ServiceHelper.getService(Activator.getBundleContext(), PlatformAdmin.class.getName());
-		State state = platformAdmin.getState(false);
-		StateHelper stateHelper = platformAdmin.getStateHelper();
 
+		List<Bundle> unresolved = new ArrayList();
+		for (Bundle b : Activator.getBundleContext().getBundles()) {
+			BundleRevision revision = b.adapt(BundleRevision.class);
+			if (revision != null && revision.getWiring() == null) {
+				unresolved.add(b);
+			}
+		}
+
+		ResolutionReport report = getResolutionReport(unresolved);
+		Map<Resource, List<ResolutionReport.Entry>> entries = report.getEntries();
+		Collection<Resource> unresolvedResources = new HashSet<Resource>(entries.keySet());
+		Collection<Resource> leafResources = new HashSet<Resource>();
+		for (Map.Entry<Resource, List<ResolutionReport.Entry>> resourceEntry : entries.entrySet()) {
+			for (ResolutionReport.Entry reportEntry : resourceEntry.getValue()) {
+				if (!reportEntry.getType().equals(ResolutionReport.Entry.Type.UNRESOLVED_PROVIDER)) {
+					leafResources.add(resourceEntry.getKey());
+					unresolvedResources.remove(resourceEntry.getKey());
+				}
+			}
+		}
 		// first lets look for missing leaf constraints (bug 114120)
-		VersionConstraint[] leafConstraints = stateHelper.getUnsatisfiedLeaves(state.getBundles());
-		// hash the missing leaf constraints by the declaring bundles
-		Map missing = new HashMap();
-		for (int i = 0; i < leafConstraints.length; i++) {
-			// only include non-optional and non-dynamic constraint leafs
-			if (leafConstraints[i] instanceof BundleSpecification && ((BundleSpecification) leafConstraints[i]).isOptional())
-				continue;
-			if (leafConstraints[i] instanceof ImportPackageSpecification) {
-				if (ImportPackageSpecification.RESOLUTION_OPTIONAL.equals(((ImportPackageSpecification) leafConstraints[i]).getDirective(Constants.RESOLUTION_DIRECTIVE)))
-					continue;
-				if (ImportPackageSpecification.RESOLUTION_DYNAMIC.equals(((ImportPackageSpecification) leafConstraints[i]).getDirective(Constants.RESOLUTION_DIRECTIVE)))
-					continue;
-			}
-			BundleDescription bundleDesc = leafConstraints[i].getBundle();
-			ArrayList constraints = (ArrayList) missing.get(bundleDesc);
-			if (constraints == null) {
-				constraints = new ArrayList();
-				missing.put(bundleDesc, constraints);
-			}
-			constraints.add(leafConstraints[i]);
+		for (Resource leafResource : leafResources) {
+			BundleRevision revision = (BundleRevision) leafResource;
+			String message = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED, revision.getBundle().getLocation()) + '\n';
+			message += report.getResolutionReportMessage(leafResource);
+			allProblems.add(createError(message));
+		}
+		// now report all others
+		for (Resource unresolvedResource : unresolvedResources) {
+			BundleRevision revision = (BundleRevision) unresolvedResource;
+			String message = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED, revision.getBundle().getLocation()) + '\n';
+			message += report.getResolutionReportMessage(unresolvedResource);
+			allProblems.add(createError(message));
 		}
 
-		// found some bundles with missing leaf constraints; log them first
-		if (missing.size() > 0) {
-			for (Iterator iter = missing.keySet().iterator(); iter.hasNext();) {
-				BundleDescription description = (BundleDescription) iter.next();
-				String generalMessage = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED, description.getLocation());
-				ArrayList constraints = (ArrayList) missing.get(description);
-				for (Iterator inner = constraints.iterator(); inner.hasNext();) {
-					String message = generalMessage + " Reason: " + MessageHelper.getResolutionFailureMessage((VersionConstraint) inner.next()); //$NON-NLS-1$
-					allProblems.add(createError(message));
-				}
-			}
-		}
-
-		// There may be some bundles unresolved for other reasons, causing the system to be unresolved
-		// log all unresolved constraints now
-		List allBundles = getAllBundles();
-		for (Iterator i = allBundles.iterator(); i.hasNext();) {
-			Bundle bundle = (Bundle) i.next();
-			if (bundle.getState() == Bundle.INSTALLED) {
-				String generalMessage = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED, bundle);
-				BundleDescription description = state.getBundle(bundle.getBundleId());
-				// for some reason, the state does not know about that bundle
-				if (description == null)
-					continue;
-				VersionConstraint[] unsatisfied = stateHelper.getUnsatisfiedConstraints(description);
-				if (unsatisfied.length > 0) {
-					// the bundle wasn't resolved due to some of its constraints were unsatisfiable
-					for (int j = 0; j < unsatisfied.length; j++)
-						allProblems.add(createError(generalMessage + " Reason: " + MessageHelper.getResolutionFailureMessage(unsatisfied[j]))); //$NON-NLS-1$
-				} else {
-					ResolverError[] resolverErrors = state.getResolverErrors(description);
-					for (int j = 0; j < resolverErrors.length; j++) {
-						if (shouldAdd(resolverErrors[j])) {
-							allProblems.add(createError(generalMessage + " Reason: " + resolverErrors[j].toString())); //$NON-NLS-1$
-						}
-					}
-				}
-			}
-		}
 		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.OK, "Problems checking resolved bundles.", null); //$NON-NLS-1$
 		for (Iterator iter = allProblems.iterator(); iter.hasNext();)
 			result.add((IStatus) iter.next());
 		return result;
 	}
 
-	/*
-	 * Return a boolean value indicating whether or not the given resolver error should be
-	 * added to our results.
-	 */
-	private boolean shouldAdd(ResolverError error) {
-		// ignore EE problems? default value is true
-		String prop = properties.getProperty("ignore.ee"); //$NON-NLS-1$
-		boolean ignoreEE = prop == null || Boolean.valueOf(prop).booleanValue();
-		if (ResolverError.MISSING_EXECUTION_ENVIRONMENT == error.getType() && ignoreEE)
-			return false;
-		return true;
+	private static ResolutionReport getResolutionReport(Collection<Bundle> bundles) {
+		BundleContext context = Activator.getBundleContext();
+		DiagReportListener reportListener = new DiagReportListener(bundles);
+		ServiceRegistration<ResolverHookFactory> hookReg = context.registerService(ResolverHookFactory.class, reportListener, null);
+		try {
+			Bundle systemBundle = context.getBundle(Constants.SYSTEM_BUNDLE_LOCATION);
+			FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
+			frameworkWiring.resolveBundles(bundles);
+			return reportListener.getReport();
+		} finally {
+			hookReg.unregister();
+		}
+	}
+
+	private static class DiagReportListener implements ResolverHookFactory {
+		private final Collection<BundleRevision> targetTriggers = new ArrayList<BundleRevision>();
+
+		public DiagReportListener(Collection<Bundle> bundles) {
+			for (Bundle bundle : bundles) {
+				BundleRevision revision = bundle.adapt(BundleRevision.class);
+				if (revision != null && revision.getWiring() == null) {
+					targetTriggers.add(revision);
+				}
+			}
+
+		}
+
+		volatile ResolutionReport report = null;
+
+		class DiagResolverHook implements ResolverHook, ResolutionReport.Listener {
+
+			public void handleResolutionReport(ResolutionReport handleReport) {
+				DiagReportListener.this.report = handleReport;
+			}
+
+			public void filterResolvable(Collection<BundleRevision> candidates) {
+				// nothing
+			}
+
+			public void filterSingletonCollisions(BundleCapability singleton, Collection<BundleCapability> collisionCandidates) {
+				// nothing
+			}
+
+			public void filterMatches(BundleRequirement requirement, Collection<BundleCapability> candidates) {
+				// nothing
+			}
+
+			public void end() {
+				// nothing
+			}
+
+		}
+
+		public ResolverHook begin(Collection<BundleRevision> triggers) {
+			if (triggers.containsAll(targetTriggers)) {
+				return new DiagResolverHook();
+			}
+			return null;
+		}
+
+		ResolutionReport getReport() {
+			return report;
+		}
 	}
 
 	/*
@@ -387,6 +396,29 @@ public class VerifierApplication implements IApplication {
 		return result;
 	}
 
+	private boolean containsBundle(final String bsn) {
+		FrameworkWiring fWiring = Activator.getBundleContext().getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
+		Collection<BundleCapability> existing = fWiring.findProviders(new Requirement() {
+
+			public String getNamespace() {
+				return IdentityNamespace.IDENTITY_NAMESPACE;
+			}
+
+			public Map<String, String> getDirectives() {
+				return Collections.singletonMap(Namespace.REQUIREMENT_FILTER_DIRECTIVE, "(" + IdentityNamespace.IDENTITY_NAMESPACE + "=" + bsn + ")");
+			}
+
+			public Map<String, Object> getAttributes() {
+				return Collections.EMPTY_MAP;
+			}
+
+			public Resource getResource() {
+				return null;
+			}
+		});
+		return !existing.isEmpty();
+	}
+
 	private IStatus checkPresenceOfBundles() {
 		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.ERROR, "Some bundles should not be there", null);
 		String expectedBundlesString = properties.getProperty("expectedBundleList");
@@ -401,12 +433,6 @@ public class VerifierApplication implements IApplication {
 		if (result.getChildren().length == 0)
 			return Status.OK_STATUS;
 		return result;
-	}
-
-	private boolean containsBundle(String bsn) {
-		PlatformAdmin platformAdmin = (PlatformAdmin) ServiceHelper.getService(Activator.getBundleContext(), PlatformAdmin.class.getName());
-		State state = platformAdmin.getState(false);
-		return state.getBundle(bsn, null) != null;
 	}
 
 	private IStatus hasProfileFlag() {
