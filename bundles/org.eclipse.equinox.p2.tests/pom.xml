@@ -20,9 +20,11 @@
 	<packaging>eclipse-test-plugin</packaging>
 
 	<properties>
-		<platform.archive.name>eclipse-indigo-platform.tar.gz</platform.archive.name>
 		<testSuite>${project.artifactId}</testSuite>
 		<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
+		<!-- despite best inentions I was not able to add automatiz detection here -->
+		<!-- Linux is default because Hudson runs those tests on Linux -->
+		<dropinsProduct>org.eclipse.equinox.p2.reconciler-linux.gtk.x86_64.tar.gz</dropinsProduct>
 	</properties>
 
 	<build>
@@ -39,8 +41,8 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
-					<appArgLine>-consoleLog</appArgLine>
+					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${project.build.directory}/../../org.eclipse.equinox.p2.tests.reconciler.product/target/products/${dropinsProduct} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
+					<appArgLine>-consoleLog -debug</appArgLine>
 					<bundleStartLevel>
 						<bundle>
 							<id>org.eclipse.equinox.ds</id>

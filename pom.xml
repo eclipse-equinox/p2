@@ -69,6 +69,7 @@
     <module>features/org.eclipse.equinox.p2.rcp.feature</module>
     <module>features/org.eclipse.equinox.p2.user.ui</module>
 
+    <module>bundles/org.eclipse.equinox.p2.tests.reconciler.product</module>
     <module>bundles/org.eclipse.equinox.p2.tests</module>
     <module>bundles/org.eclipse.equinox.p2.tests.discovery</module>
     <module>bundles/org.eclipse.equinox.p2.tests.ui</module>
