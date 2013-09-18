@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2013 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -145,6 +145,16 @@ public class TransportUtil {
 			}
 		}
 		return countFound == locations.size();
+	}
+
+	public static String getFileNameFor(String bundleUrl) {
+		if (bundleUrl.charAt(bundleUrl.length() - 1) == '/') {
+			bundleUrl = bundleUrl.substring(0, bundleUrl.length() - 1);
+		}
+		if (bundleUrl.lastIndexOf('/') != -1) {
+			bundleUrl = bundleUrl.substring(bundleUrl.lastIndexOf('/') + 1);
+		}
+		return bundleUrl.replaceAll("[^a-zA-Z0-9_\\.]", "_"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }

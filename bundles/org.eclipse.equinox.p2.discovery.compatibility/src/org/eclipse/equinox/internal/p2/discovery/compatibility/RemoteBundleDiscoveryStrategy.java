@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2013 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -193,8 +193,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 			String bundleUrl = entry.getLocation();
 			for (int attemptCount = 0; attemptCount < maxDiscoveryJarDownloadAttempts; ++attemptCount) {
 				try {
-					String lastPathElement = bundleUrl.lastIndexOf('/') == -1 ? bundleUrl : bundleUrl.substring(bundleUrl.lastIndexOf('/'));
-					File target = File.createTempFile(lastPathElement.replaceAll("^[a-zA-Z0-9_.]", "_") + "_", ".jar", temporaryStorage); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+					File target = File.createTempFile(TransportUtil.getFileNameFor(bundleUrl) + "_", ".jar", temporaryStorage); //$NON-NLS-1$ //$NON-NLS-2$
 
 					if (monitor.isCanceled()) {
 						break;
