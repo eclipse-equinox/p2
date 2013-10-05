@@ -20,7 +20,7 @@
    </license>
 
    <includes
-         id="org.eclipse.equinox.p2.discovery.feature.source"
+         id="org.eclipse.equinox.p2.discovery.feature"
          version="0.0.0"/>
 
    <plugin
@@ -686,6 +686,27 @@
 
    <plugin
          id="org.apache.httpcomponents.httpcore.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.discovery.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.discovery.compatibility.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.ui.discovery.source"
          download-size="0"
          install-size="0"
          version="0.0.0"
