@@ -61,7 +61,8 @@
             <command
                   commandId="org.eclipse.equinox.p2.ui.sdk.update"
             	  mnemonic="%Update.command.mnemonic"
-                  id="org.eclipse.equinox.p2.ui.sdk.update">
+                  id="org.eclipse.equinox.p2.ui.sdk.update"
+                  icon="icons/obj/iu_update_obj.gif">
             </command>
                         
       </menuContribution>
@@ -70,7 +71,8 @@
             <command
                   commandId="org.eclipse.equinox.p2.ui.sdk.install"
             	  mnemonic="%Install.command.mnemonic"
-                  id="org.eclipse.equinox.p2.ui.sdk.install">
+                  id="org.eclipse.equinox.p2.ui.sdk.install"
+                  icon="icons/obj/iu_obj.gif">
             </command>
                         
       </menuContribution>
