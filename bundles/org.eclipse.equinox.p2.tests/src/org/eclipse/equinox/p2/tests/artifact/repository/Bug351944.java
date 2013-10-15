@@ -14,8 +14,8 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import org.eclipse.core.filesystem.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -39,16 +39,13 @@ public class Bug351944 extends AbstractProvisioningTest {
 	 * it doesn't work on Windows to make a folder read-only then can't create
 	 * new file in it
 	 */
-	private void changeWritePermission(File target, boolean canWrite) throws CoreException {
+	private void changeWritePermission(File target, boolean canWrite) {
 		if (target.exists()) {
-			IFileStore fileStore = EFS.getLocalFileSystem().getStore(target.toURI());
-			IFileInfo fileInfo = fileStore.fetchInfo();
-			fileInfo.setAttribute(EFS.ATTRIBUTE_GROUP_WRITE, canWrite);
-			fileInfo.setAttribute(EFS.ATTRIBUTE_OWNER_WRITE, canWrite);
-			fileStore.putInfo(fileInfo, EFS.SET_ATTRIBUTES, new NullProgressMonitor());
+			target.setWritable(canWrite);
 			if (target.isDirectory()) {
-				for (File child : target.listFiles())
-					changeWritePermission(child, canWrite);
+				for (File child : target.listFiles()) {
+					child.setWritable(canWrite);
+				}
 			}
 		}
 	}
