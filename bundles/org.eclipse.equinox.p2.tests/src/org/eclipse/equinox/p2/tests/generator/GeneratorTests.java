@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.generator;
 
+import org.osgi.framework.Bundle;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Map;
@@ -84,18 +86,20 @@ public class GeneratorTests extends AbstractProvisioningTest {
 		int limit = 3;
 		for (int i = 0; i < limit; i++) {
 			BundleContext context = TestActivator.getContext();
-			File bundle = FileLocator.getBundleFile(context.getBundle(i));
-			if (!bundle.isFile()) {
+			Bundle bundle = context.getBundle(i);
+			File bundleFile = FileLocator.getBundleFile(bundle);
+			if (!bundleFile.isFile()) {
 				//only jars please
 				++limit;
 				continue;
 			}
-			copy("1.0 Populating input bundles.", bundle, new File(plugins, bundle.getName()));
+			// tycho surefire uses rather "-" instead of "_" (maven convention). PDE uses "_". We need to be P2 compatible.
+			copy("1.0 Populating input bundles.", bundleFile, new File(plugins, bundle.getSymbolicName() + "_" + bundle.getVersion() + ".jar" ));
 		}
 
 		String[] arguments = new String[] {"-metadataRepository", rootFolder.toURL().toExternalForm().toString(), "-artifactRepository", rootFolder.toURL().toExternalForm().toString(), "-source", rootFolder.getAbsolutePath(), "-publishArtifacts", "-noDefaultIUs"};
 		TestGeneratorApplication application = new TestGeneratorApplication();
-		application.go(arguments);
+		assertEquals(0, application.go(arguments));
 
 		assertTrue("2.0 - initial artifact repo existance", new File(rootFolder, "artifacts.xml").exists());
 		assertTrue("2.1 - initial artifact repo contents", plugins.listFiles().length > 0);
@@ -116,12 +120,12 @@ public class GeneratorTests extends AbstractProvisioningTest {
 
 		//with -updateSite
 		arguments = new String[] {"-metadataRepository", rootFolder.toURL().toExternalForm().toString(), "-artifactRepository", rootFolder.toURL().toExternalForm().toString(), "-updateSite", rootFolder.getAbsolutePath(), "-publishArtifacts", "-noDefaultIUs"};
-		application.go(arguments);
+		assertEquals(0, application.go(arguments));
 
 		assertTrue("4.0 - artifact repo existance", new File(rootFolder, "artifacts.xml").exists());
 		assertTrue("4.1 - artifact repo contents", plugins.listFiles().length > 0);
 
-		assertEquals(new File(rootFolder, "plugins").list().length, 3);
+		assertEquals(3, new File(rootFolder, "plugins").list().length);
 		delete(rootFolder);
 	}
 
