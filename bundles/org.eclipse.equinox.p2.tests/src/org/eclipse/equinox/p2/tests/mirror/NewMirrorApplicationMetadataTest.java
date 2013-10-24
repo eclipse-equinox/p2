@@ -562,7 +562,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 			fail("14.1", e);
 		} finally {
 			if (invalidDestRepository != null)
-				getArtifactRepositoryManager().removeRepository(invalidDestRepository);
+				getMetadataRepositoryManager().removeRepository(invalidDestRepository);
 		}
 	}
 

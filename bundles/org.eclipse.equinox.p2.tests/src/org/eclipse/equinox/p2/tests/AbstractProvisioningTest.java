@@ -985,7 +985,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/*
 	 * Look up and return a file handle to the given entry in the bundle.
 	 */
-	protected File getTestData(String message, String entry) {
+	public static File getTestData(String message, String entry) {
 		if (entry == null)
 			fail(message + " entry is null.");
 		URL base = TestActivator.getContext().getBundle().getEntry(entry);

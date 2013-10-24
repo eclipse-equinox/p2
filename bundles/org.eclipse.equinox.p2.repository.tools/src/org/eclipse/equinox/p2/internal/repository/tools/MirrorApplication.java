@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -218,6 +218,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	protected Mirroring getMirroring(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
 		// Obtain ArtifactKeys from IUs
 		IQueryResult<IInstallableUnit> ius = slice.query(QueryUtil.createIUAnyQuery(), monitor);
+		boolean iusSpecified = !ius.isEmpty(); // call before ius.iterator() to avoid bug 420318
 		ArrayList<IArtifactKey> keys = new ArrayList<IArtifactKey>();
 		for (Iterator<IInstallableUnit> iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
@@ -234,7 +235,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		mirror.setIncludePacked(includePacked);
 
 		// If IUs have been specified then only they should be mirrored, otherwise mirror everything.
-		if (keys.size() > 0)
+		if (iusSpecified)
 			mirror.setArtifactKeys(keys.toArray(new IArtifactKey[keys.size()]));
 
 		if (comparatorLog != null)
