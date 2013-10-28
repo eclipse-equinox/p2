@@ -18,7 +18,7 @@ import org.junit.rules.TemporaryFolder;
 import org.osgi.framework.*;
 
 /**
- * Provides {@link IProvisioningAgent} as tests. Use as JUnit 4 {@link Rule}.
+ * Provides {@link IProvisioningAgent} instances for tests. Use as JUnit 4 {@link Rule}.
  */
 public final class TestAgentProvider extends ExternalResource {
 	private final TemporaryFolder tempManager;
