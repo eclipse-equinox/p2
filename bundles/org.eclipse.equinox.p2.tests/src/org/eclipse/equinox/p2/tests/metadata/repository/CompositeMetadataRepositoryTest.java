@@ -588,7 +588,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testNonLocalRepo() {
 		PrintStream out = System.out;
 		try {
-			System.setOut(new PrintStream(new StringBufferStream()));
+			//			System.setOut(new PrintStream(new StringBufferStream()));
 			URI location = new URI("http://foo.org/in/memory");
 			URI childOne = new URI("http://foo.org/in/memory/one");
 			URI childTwo = new URI("http://foo.org/in/memory/two");

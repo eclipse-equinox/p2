@@ -52,6 +52,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		TestTimeoutDump.tearDown();
 		//repository location is not used by all tests
 		if (repositoryURI != null) {
 			getArtifactRepositoryManager().removeRepository(repositoryURI);
@@ -61,6 +62,11 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			delete(repositoryFile);
 			repositoryFile = null;
 		}
+	}
+
+	protected void setUp() throws Exception {
+		TestTimeoutDump.setUp(this, 60);
+		super.setUp();
 	}
 
 	public void testCompressedRepositoryCreation() {

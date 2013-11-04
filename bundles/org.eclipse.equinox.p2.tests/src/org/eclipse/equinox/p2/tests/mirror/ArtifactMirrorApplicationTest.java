@@ -48,6 +48,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
 	 */
 	protected void setUp() throws Exception {
+		TestTimeoutDump.setUp(this, 60);
 		super.setUp();
 		//load all the repositories
 		sourceRepoLocation = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space");
@@ -74,6 +75,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//delete the destination location (no left over files for the next test)
 		delete(destRepoLocation);
 		super.tearDown();
+		TestTimeoutDump.tearDown();
 	}
 
 	/**
