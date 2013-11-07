@@ -26,7 +26,6 @@ import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestTimeoutDump;
 import org.eclipse.osgi.util.NLS;
 
 /*
@@ -46,7 +45,6 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
 	 */
 	protected void setUp() throws Exception {
-		TestTimeoutDump.setUp(this, 60);
 		super.setUp();
 		//load all the repositories
 		sourceRepoLocation = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space");
@@ -75,7 +73,6 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 		//delete the destination location (no left over files for the next test)
 		delete(destRepoLocation);
 		super.tearDown();
-		TestTimeoutDump.tearDown();
 	}
 
 	/**
