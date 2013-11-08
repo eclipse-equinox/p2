@@ -41,21 +41,6 @@
     </repository>
   </repositories>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>target-platform-configuration</artifactId>
-        <configuration>
-          <!--
-             require at least J2SE-1.4 due to org.eclipse.equinox.security dependency
-             many bundles require J2SE-1.5 now.
-          -->
-          <executionEnvironment>J2SE-1.5</executionEnvironment>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 	<profiles>
 		<profile>

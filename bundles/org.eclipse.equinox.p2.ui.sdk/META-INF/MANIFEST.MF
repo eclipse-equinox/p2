@@ -27,6 +27,4 @@ Import-Package: javax.xml.parsers,
  org.xml.sax
 Service-Component: OSGI-INF/policy_component.xml, OSGI-INF/licenseManager_component.xml
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5,
- J2SE-1.4,
- CDC-1.1/Foundation-1.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

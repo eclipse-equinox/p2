@@ -11,9 +11,7 @@ Export-Package: org.eclipse.equinox.internal.p2.ui.admin;x-friends:="org.eclipse
  org.eclipse.equinox.internal.p2.ui.admin.preferences;x-internal:=true
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui
-Bundle-RequiredExecutionEnvironment: J2SE-1.5,
- J2SE-1.4,
- CDC-1.1/Foundation-1.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.ui,

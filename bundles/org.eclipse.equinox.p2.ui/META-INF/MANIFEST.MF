@@ -55,6 +55,4 @@ Import-Package: com.ibm.icu.text,
  org.xml.sax
 Service-Component: OSGI-INF/repositoryTracker_component.xml, OSGI-INF/serviceui.xml
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5,
- J2SE-1.4,
- CDC-1.1/Foundation-1.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

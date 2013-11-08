@@ -11,28 +11,4 @@
   <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
   <version>1.0.500-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
-
-  <profiles>
-    <profile>
-      <id>bree-libs</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.eclipse.tycho</groupId>
-            <artifactId>target-platform-configuration</artifactId>
-            <configuration>
-              <executionEnvironment>CDC-1.1/Foundation-1.1</executionEnvironment>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.eclipse.tycho</groupId>
-            <artifactId>tycho-compiler-plugin</artifactId>
-            <configuration>
-              <useJDK>BREE</useJDK>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

@@ -11,23 +11,4 @@
   <artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-compiler-plugin</artifactId>
-        <configuration>
-          <!--
-            matching apparently invalid Juno bundle
-            Minimal BREE according to META-INF/MENIFEST.MF should be J2SE-1.4,
-            yet Juno was compiled with class version 49.0, i.e. Java 5+
-            Reported as https://bugs.eclipse.org/bugs/show_bug.cgi?id=386186
-          -->
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

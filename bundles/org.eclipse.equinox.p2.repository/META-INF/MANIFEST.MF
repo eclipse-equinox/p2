@@ -36,11 +36,10 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;
  org.eclipse.equinox.p2.repository.spi;version="2.0.0"
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry;bundle-version="3.3.0"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5,
- J2SE-1.4,
- CDC-1.1/Foundation-1.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
-Import-Package: javax.xml.parsers,
+Import-Package: javax.crypto,
+ javax.xml.parsers,
  org.eclipse.core.runtime.jobs,
  org.eclipse.core.runtime.preferences;version="3.2.0",
  org.eclipse.equinox.internal.p2.core,

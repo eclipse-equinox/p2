@@ -7,9 +7,7 @@ Bundle-Activator: org.eclipse.equinox.internal.p2.console.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.console;x-friends:="org.eclipse.equinox.p2.director.app"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5,
- J2SE-1.4,
- CDC-1.1/Foundation-1.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.provisional.p2.director,
  org.eclipse.equinox.p2.core;version="[2.0.0,3.0.0)",

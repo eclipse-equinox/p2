@@ -31,14 +31,6 @@
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<configuration>
-					<executionEnvironment>JavaSE-1.7</executionEnvironment>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<configuration>
 					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${project.build.directory}/../../org.eclipse.equinox.p2.tests.reconciler.product/target/products/${dropinsProduct} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
