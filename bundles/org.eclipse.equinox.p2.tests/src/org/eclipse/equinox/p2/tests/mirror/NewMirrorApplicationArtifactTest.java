@@ -555,7 +555,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		URI invalidDestRepository = null;
 		try {
 			//Setup: create a URI pointing to an unmodifiable place
-			invalidDestRepository = new URI("http://foobar.com/abcdefg");
+			invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
 
 			//run the application with the modifiable destination
 			basicRunMirrorApplication("14.1", sourceRepoLocation.toURI(), invalidDestRepository, true, false);
@@ -583,7 +583,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 		try {
 			//Setup: create a URI pointing to an unmodifiable place
-			URI invalidDestRepository = new URI("http://foobar.com/abcdefg");
+			URI invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
 			basicRunMirrorApplication("15.1", invalidRepository.toURI(), invalidDestRepository, true, false);
 			//We expect the ProvisionException to be thrown
 			fail("15.0 ProvisionException not thrown");

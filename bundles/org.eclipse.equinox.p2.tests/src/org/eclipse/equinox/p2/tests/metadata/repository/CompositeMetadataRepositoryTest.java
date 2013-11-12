@@ -589,10 +589,10 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream()));
-			URI location = new URI("http://foo.org/in/memory");
-			URI childOne = new URI("http://foo.org/in/memory/one");
-			URI childTwo = new URI("http://foo.org/in/memory/two");
-			URI childThree = new URI("http://foo.org/in/memory/three");
+			URI location = new URI("http://eclipse.org/equinox/in/memory");
+			URI childOne = new URI("http://eclipse.org/equinox/in/memory/one");
+			URI childTwo = new URI("http://eclipse.org/equinox/in/memory/two");
+			URI childThree = new URI("http://eclipse.org/equinox/in/memory/three");
 			CompositeMetadataRepository repository = createRepository(location, "in memory test");
 			repository.addChild(childOne);
 			repository.addChild(childTwo);
@@ -659,7 +659,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream()));
-			URI location = new URI("http://foo.org/in/memory");
+			URI location = new URI("http://eclipse.org/equinox/in/memory");
 			URI one = new URI("one");
 			URI two = new URI("two");
 			CompositeMetadataRepository repository = createRepository(location, "in memory test");
