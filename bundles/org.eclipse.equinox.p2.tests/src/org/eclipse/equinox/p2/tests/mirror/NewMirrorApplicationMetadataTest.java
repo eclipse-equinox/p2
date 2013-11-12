@@ -554,7 +554,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 	public void testMetadataMirrorToInvalid() {
 		URI invalidDestRepository = null;
 		try {
-			invalidDestRepository = new URI("http://foobar.com/abcdefg");
+			invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
 			basicRunMirrorApplication("14.1", sourceRepoLocation.toURL(), invalidDestRepository.toURL(), true);
 			//we expect an illegal state exception to be thrown and should never get here
 			fail("14.0 IllegalStateExpection not thrown");
@@ -577,7 +577,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 		delete(invalidRepository);
 
 		try {
-			URI invalidDestRepository = new URI("http://foobar.com/abcdefg");
+			URI invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
 			basicRunMirrorApplication("15.1", invalidRepository.toURL(), invalidDestRepository.toURL(), true);
 			//we expect a provisioning exception to be thrown and should never get here
 			fail("15.0 ProvisionExpection not thrown");
