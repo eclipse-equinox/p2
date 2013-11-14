@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxLauncherCUAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings({"restriction", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class EquinoxLauncherCUActionTest extends ActionTest {
 
 	private static String a_ID = "iua.source"; //$NON-NLS-1$

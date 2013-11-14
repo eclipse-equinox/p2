@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
-@SuppressWarnings({"restriction", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class RootIUActionTest extends ActionTest {
 	private static final int CONTAINS_A = 1;
 	private static final int CONTAINS_B = 2;

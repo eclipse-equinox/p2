@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
-@SuppressWarnings({"restriction", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class AccumulateConfigDataActionTest extends ActionTest {
 
 	private static String EXECUTABLE_NAME = "run.exe"; //$NON-NLS-1$

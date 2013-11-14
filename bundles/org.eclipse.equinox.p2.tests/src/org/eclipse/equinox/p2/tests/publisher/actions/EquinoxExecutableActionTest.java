@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings({"restriction", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class EquinoxExecutableActionTest extends ActionTest {
 
 	private static final File MAC_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/macosx/"); //$NON-NLS-1$

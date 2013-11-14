@@ -28,7 +28,7 @@ import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.internal.matchers.TypeSafeMatcher;
 
-@SuppressWarnings({"cast", "restriction", "unchecked"})
+@SuppressWarnings({"cast", "unchecked"})
 public abstract class ActionTest extends AbstractProvisioningTest {
 	protected static final String COMMA_SEPARATOR = ","; //$NON-NLS-1$
 	protected static final String JAR = "jar";//$NON-NLS-1$

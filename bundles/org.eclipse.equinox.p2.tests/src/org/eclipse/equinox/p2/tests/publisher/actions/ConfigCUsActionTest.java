@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.*;
 
-@SuppressWarnings({"unchecked", "restriction"})
+@SuppressWarnings({"unchecked"})
 public class ConfigCUsActionTest extends ActionTest {
 	private static File configLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/level2/config.ini"); //$NON-NLS-1$
 	private static File executableLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/run.exe"); //$NON-NLS-1$
