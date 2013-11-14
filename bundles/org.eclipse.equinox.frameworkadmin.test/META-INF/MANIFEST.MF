@@ -12,5 +12,4 @@ Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.equinox.frameworkadmin.tests
-Bundle-ActivationPolicy: lazy
 Eclipse-BundleShape: dir
