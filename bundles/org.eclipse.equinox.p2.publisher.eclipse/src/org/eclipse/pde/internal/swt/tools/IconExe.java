@@ -37,19 +37,29 @@ public class IconExe {
 	* Note 1. Write access to the executable program is required. As a result, that
 	* program must not be currently running or edited elsewhere.
 	* 
-	* Note 2. The Eclipse 4.2 launcher requires an .ico file with the following 7 images (in any order).
+	* Note 2. The Eclipse 3.4 launcher requires an .ico file with the following 7 images (in any order).
+	* 1. 48x48, 32 bit (RGB / Alpha Channel)
+	* 2. 32x32, 32 bit (RGB / Alpha Channel)
+	* 3. 16x16, 32 bit (RGB / Alpha Channel)
+	* 4. 48x48, 8 bit (256 colors)
+	* 5. 32x32, 8 bit (256 colors)
+	* 6. 24x24, 8 bit (256 colors)
+	* 7. 16x16, 8 bit (256 colors)
+	*
+	* Note 3. The Eclipse 4.2 launcher requires an .ico file with the following 7 images (in any order).
 	* 1. 256x256, 32 bit (RGB / Alpha Channel)
 	* 2. 48x48, 32 bit (RGB / Alpha Channel)
 	* 3. 32x32, 32 bit (RGB / Alpha Channel)
 	* 4. 16x16, 32 bit (RGB / Alpha Channel)
 	* 5. 48x48, 8 bit (256 colors)
 	* 6. 32x32, 8 bit (256 colors)
-	* 7. 16x16, 8 bit (256 colors)	 
+	* 7. 16x16, 8 bit (256 colors)
+	*
 	* A user icon matching exactly the width/height/depth of an executable icon will be written
 	* to the executable and will replace that executable icon. If an executable icon
 	* does not match a user icon, it is silently left as is.
-	* 
-	* Note 3. This function modifies the content of the executable program and may cause
+	*
+	* Note 4. This function modifies the content of the executable program and may cause
 	* its corruption.
 	*/
 	public static void main(String[] args) throws Exception {
@@ -74,9 +84,15 @@ public class IconExe {
 		ImageData[] data = new ImageData[images.size()];
 		data = images.toArray(data);
 
-		int nMissing = unloadIcons(args[0], data);
-		if (nMissing != 0)
-			System.err.println("Error - " + nMissing + " icon(s) not replaced in " + args[0] + " using " + args[1]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		List<IconResInfo> unchangedIcons = unloadIcons(args[0], data);
+		if (unchangedIcons.size() != 0) {
+			System.err.println(String.format("[IconExe] Error - %d original icon(s) not replaced in %s:", unchangedIcons.size(), args[0])); //$NON-NLS-1$
+			for (IconResInfo icon : unchangedIcons) {
+				ImageData iconData = icon.data;
+				System.err.println(String.format("\t- %dx%d, %d bits, %d byte(s) @ %d", iconData.height, iconData.width, iconData.depth, icon.size, icon.offset)); //$NON-NLS-1$
+			}
+			System.err.println("[IconExe] For more details, see https://git.eclipse.org/c/equinox/rt.equinox.p2.git/tree/bundles/org.eclipse.equinox.p2.publisher.eclipse/src/org/eclipse/pde/internal/swt/tools/IconExe.java"); //$NON-NLS-1$
+		}
 	}
 
 	/* Implementation */
@@ -85,15 +101,24 @@ public class IconExe {
 	 * Retrieve the Desktop icons provided in the Windows executable program.
 	 * These icons are typically shown in various places of the Windows desktop.
 	 * 
-	 * Note 2. The Eclipse 4.2 launcher requires an .ico file with the following 7 images (in any order).
+	 * Note. The Eclipse 3.4 launcher returns the following 7 images (in any order).
+	 * 1. 48x48, 32 bit (RGB / Alpha Channel)
+	 * 2. 32x32, 32 bit (RGB / Alpha Channel)
+	 * 3. 16x16, 32 bit (RGB / Alpha Channel)
+	 * 4. 48x48, 8 bit (256 colors)
+	 * 5. 32x32, 8 bit (256 colors)
+	 * 6. 24x24, 8 bit (256 colors)
+	 * 7. 16x16, 8 bit (256 colors)
+	 *
+	 * Note 1. The Eclipse 4.2 launcher requires an .ico file with the following 7 images (in any order).
 	 * 1. 256x256, 32 bit (RGB / Alpha Channel)
 	 * 2. 48x48, 32 bit (RGB / Alpha Channel)
 	 * 3. 32x32, 32 bit (RGB / Alpha Channel)
 	 * 4. 16x16, 32 bit (RGB / Alpha Channel)
 	 * 5. 48x48, 8 bit (256 colors)
 	 * 6. 32x32, 8 bit (256 colors)
-	 * 7. 16x16, 8 bit (256 colors)	 
-	 * 
+	 * 7. 16x16, 8 bit (256 colors)
+	 *
 	 * @param program the Windows executable e.g c:/eclipse/eclipse.exe
 	 */
 	static ImageData[] loadIcons(String program) throws FileNotFoundException, IOException {
@@ -122,47 +147,58 @@ public class IconExe {
 	 * the number of icons to write. Finally, use loadIcons after this operation
 	 * to verify the icons have changed as expected.
 	 * 
-	 * Note 3. The Eclipse 4.2 launcher requires the following 7 images (in any order).
+	 * Note 3. The Eclipse 3.4 launcher requires the following 7 images (in any order).
+	 * 1. 48x48, 32 bit (RGB / Alpha Channel)
+	 * 2. 32x32, 32 bit (RGB / Alpha Channel)
+	 * 3. 16x16, 32 bit (RGB / Alpha Channel)
+	 * 4. 48x48, 8 bit (256 colors)
+	 * 5. 32x32, 8 bit (256 colors)
+	 * 6. 24x24, 8 bit (256 colors)
+	 * 7. 16x16, 8 bit (256 colors)
+	 *
+	 * Note 4. The Eclipse 4.2 launcher requires the following 7 images (in any order).
 	 * 1. 256x256, 32 bit (RGB / Alpha Channel)
 	 * 2. 48x48, 32 bit (RGB / Alpha Channel)
 	 * 3. 32x32, 32 bit (RGB / Alpha Channel)
 	 * 4. 16x16, 32 bit (RGB / Alpha Channel)
 	 * 5. 48x48, 8 bit (256 colors)
 	 * 6. 32x32, 8 bit (256 colors)
-	 * 7. 16x16, 8 bit (256 colors)	 
-	 * 
+	 * 7. 16x16, 8 bit (256 colors)
+	 *
 	 * Note 4. This function modifies the content of the executable program and may cause
 	 * its corruption. 
 	 * 
 	 * @param program the Windows executable e.g c:/eclipse/eclipse.exe
 	 * @param icons to write to the given executable
-	 * @return the number of icons from the original program that were not successfully replaced (0 if success)
+	 * @return the list of icons from the original program that were not successfully replaced (empty if success)
 	 */
-	static int unloadIcons(String program, ImageData[] icons) throws FileNotFoundException, IOException {
+	static List<IconResInfo> unloadIcons(String program, ImageData[] icons) throws FileNotFoundException, IOException {
 		RandomAccessFile raf = new RandomAccessFile(program, "rw"); //$NON-NLS-1$
 		IconExe iconExe = new IconExe();
-		IconResInfo[] iconInfo = iconExe.getIcons(raf);
+		List<IconResInfo> iconInfo = new ArrayList<IconExe.IconResInfo>(Arrays.asList(iconExe.getIcons(raf)));
 		// Display an error if  no icons found in target executable.
-		if (iconInfo.length == 0) {
+		if (iconInfo.isEmpty()) {
 			System.err.println("Warning - no icons detected in \"" + program + "\"."); //$NON-NLS-1$ //$NON-NLS-2$
 			raf.close();
-			return 0;
+			return Collections.emptyList();
 		}
-		int cnt = 0;
-		for (int i = 0; i < iconInfo.length; i++) {
-			for (int j = 0; j < icons.length; j++) {
-				if (icons[j] == null)
+		Iterator<IconResInfo> originalIconsIterator = iconInfo.iterator();
+		while (originalIconsIterator.hasNext()) {
+			IconResInfo iconToReplace = originalIconsIterator.next();
+			for (ImageData iconToWrite : Arrays.asList(icons)) {
+				if (iconToWrite == null)
 					continue;
-				if (iconInfo[i].data.width == icons[j].width && iconInfo[i].data.height == icons[j].height && iconInfo[i].data.depth == icons[j].depth) {
-					raf.seek(iconInfo[i].offset);
-					unloadIcon(raf, icons[j]);
-					cnt++;
+
+				if (iconToReplace.data.width == iconToWrite.width && iconToReplace.data.height == iconToWrite.height && iconToReplace.data.depth == iconToWrite.depth) {
+					raf.seek(iconToReplace.offset);
+					unloadIcon(raf, iconToWrite);
+					originalIconsIterator.remove();
 					break;
 				}
 			}
 		}
 		raf.close();
-		return iconInfo.length - cnt;
+		return iconInfo;
 	}
 
 	public static final String VERSION = "20050124"; //$NON-NLS-1$
