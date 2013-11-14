@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import junit.framework.Assert;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.junit.Assert;
 
 /**
  * @since 1.0

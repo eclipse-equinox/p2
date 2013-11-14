@@ -12,11 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.net.URI;
 import java.util.*;
-import junit.framework.Assert;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.AvailableIUWrapper;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -25,6 +22,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.MockQueryable;
+import org.junit.Assert;
 
 /**
  * Tests for {@link AvailableIUWrapper}.

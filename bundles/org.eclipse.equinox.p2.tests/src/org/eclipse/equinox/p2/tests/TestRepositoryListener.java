@@ -12,9 +12,9 @@ package org.eclipse.equinox.p2.tests;
 
 import java.net.URI;
 import java.util.EventObject;
-import junit.framework.Assert;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.junit.Assert;
 
 /**
  * A provisioning event listener used for testing purposes. If a location is provided,

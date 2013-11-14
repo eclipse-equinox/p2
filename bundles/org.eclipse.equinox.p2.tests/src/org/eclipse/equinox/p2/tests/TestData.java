@@ -15,9 +15,9 @@ import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import junit.framework.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.junit.Assert;
 
 /**
  * <code>TestData</code> helps with handling of test data.

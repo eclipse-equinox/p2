@@ -11,9 +11,9 @@
 package org.eclipse.equinox.p2.tests.updatechecker;
 
 import java.util.Arrays;
-import junit.framework.Assert;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
+import org.junit.Assert;
 
 /**
  * Test implementation of {@link IUpdateListener}.

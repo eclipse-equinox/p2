@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import junit.framework.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -23,6 +22,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
+import org.junit.Assert;
 
 /**
  * A simple metadata repository used for testing purposes.  All metadata

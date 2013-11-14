@@ -15,7 +15,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
@@ -30,6 +29,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.junit.Assert;
 
 /**
  * A simple artifact repository implementation used for testing purposes.
@@ -215,7 +215,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		return true;
 	}
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor ) {
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException("Method is not implemented by this repository");
 	}
 

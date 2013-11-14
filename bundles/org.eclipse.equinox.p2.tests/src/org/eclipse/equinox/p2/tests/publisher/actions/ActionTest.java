@@ -14,7 +14,6 @@ import static org.junit.Assert.assertThat;
 
 import java.io.*;
 import java.util.*;
-import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
@@ -26,6 +25,7 @@ import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.Assert;
 import org.junit.internal.matchers.TypeSafeMatcher;
 
 @SuppressWarnings({"cast", "restriction", "unchecked"})
