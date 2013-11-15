@@ -122,8 +122,8 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 			return defaultValue;
 		List<IEclipsePreferences> nodes = new ArrayList<IEclipsePreferences>();
 		// todo we should look in the instance scope as well but have to be careful that the instance location has been set
-		nodes.add(new ConfigurationScope().getNode(GCActivator.ID));
-		nodes.add(new DefaultScope().getNode(GCActivator.ID));
+		nodes.add(ConfigurationScope.INSTANCE.getNode(GCActivator.ID));
+		nodes.add(DefaultScope.INSTANCE.getNode(GCActivator.ID));
 		return Boolean.valueOf(prefService.get(key, Boolean.toString(defaultValue), nodes.toArray(new Preferences[nodes.size()]))).booleanValue();
 	}
 

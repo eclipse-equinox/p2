@@ -121,7 +121,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 
 	protected void performDefaults() {
 		super.performDefaults();
-		Preferences pref = new DefaultScope().getNode(ProvSDKUIActivator.PLUGIN_ID);
+		Preferences pref = DefaultScope.INSTANCE.getNode(ProvSDKUIActivator.PLUGIN_ID);
 		showLatestRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, false));
 		showAllRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, false));
 		String openWizard = pref.get(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, ""); //$NON-NLS-1$

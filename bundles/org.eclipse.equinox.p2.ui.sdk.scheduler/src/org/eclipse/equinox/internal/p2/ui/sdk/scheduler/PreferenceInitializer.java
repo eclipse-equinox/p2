@@ -41,7 +41,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		try {
 			if (pref.keys().length == 0) {
 				// migrate preferences from instance scope to profile scope
-				Preferences oldPref = new InstanceScope().getNode(AutomaticUpdatePlugin.PLUGIN_ID);
+				Preferences oldPref = InstanceScope.INSTANCE.getNode(AutomaticUpdatePlugin.PLUGIN_ID);
 				String[] keys = oldPref.keys();
 				for (int i = 0; i < keys.length; i++)
 					pref.put(keys[i], oldPref.get(keys[i], "")); //$NON-NLS-1$
@@ -163,7 +163,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
 	public void initializeDefaultPreferences() {
 		// initialize the default scope
-		Preferences node = new DefaultScope().getNode(AutomaticUpdatePlugin.PLUGIN_ID);
+		Preferences node = DefaultScope.INSTANCE.getNode(AutomaticUpdatePlugin.PLUGIN_ID);
 		node.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, false);
 		node.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
 		node.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false);
