@@ -229,7 +229,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 			protected void handleRootAttributes(Attributes attributes) {
 			}
 
-			public void startElement(String name, Attributes attributes) throws SAXException {
+			public void startElement(String name, Attributes attributes) {
 				if (PROFILES_ELEMENT.equals(name)) {
 					if (profilesHandler == null) {
 						profilesHandler = new ProfilesHandler(this, attributes);

@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.ui.operations;
 import java.util.ArrayList;
 import java.util.HashSet;
 import org.eclipse.equinox.internal.p2.operations.SearchForUpdatesResolutionJob;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
@@ -51,7 +50,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		getPolicy().setShowLatestVersionsOnly(false);
 	}
 
-	public void testChooseUpdateOverPatch() throws ProvisionException {
+	public void testChooseUpdateOverPatch() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
@@ -65,7 +64,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		assertTrue("1.3", request.getRemovals().iterator().next().equals(a1));
 	}
 
-	public void testForcePatchOverUpdate() throws ProvisionException {
+	public void testForcePatchOverUpdate() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
@@ -89,7 +88,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		assertTrue("1.2", request.getRemovals().size() == 0);
 	}
 
-	public void testRecognizePatchIsInstalled() throws ProvisionException {
+	public void testRecognizePatchIsInstalled() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
 		install(firstPatchForA1, true, false);
@@ -106,7 +105,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		assertEquals("1.2", 2, op.getPossibleUpdates().length);
 	}
 
-	public void testChooseNotTheNewest() throws ProvisionException {
+	public void testChooseNotTheNewest() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
@@ -132,7 +131,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		assertEquals("1.2", 3, op.getPossibleUpdates().length);
 	}
 
-	public void testChooseLatestPatches() throws ProvisionException {
+	public void testChooseLatestPatches() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1});
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
@@ -150,7 +149,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		assertEquals("1.2", 3, op.getPossibleUpdates().length);
 	}
 
-	public void testLatestHasDifferentId() throws ProvisionException {
+	public void testLatestHasDifferentId() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1, a120WithDifferentId, a130, a140WithDifferentId});
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
@@ -166,7 +165,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	}
 
 	// bug 300445
-	public void testRemoveSelectionAfterResolve() throws ProvisionException {
+	public void testRemoveSelectionAfterResolve() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a130, b1, b12});
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
@@ -183,7 +182,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	}
 
 	// bug 290858
-	public void testSearchForUpdatesInJob() throws ProvisionException {
+	public void testSearchForUpdatesInJob() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a130, b1, b12});
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();

@@ -49,7 +49,7 @@ public class InstallWizard extends WizardWithLicenses {
 	}
 
 	protected ResolutionResultsWizardPage createResolutionPage() {
-		return new InstallWizardPage(ui, this, root, (InstallOperation) operation);
+		return new InstallWizardPage(ui, this, root, operation);
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {

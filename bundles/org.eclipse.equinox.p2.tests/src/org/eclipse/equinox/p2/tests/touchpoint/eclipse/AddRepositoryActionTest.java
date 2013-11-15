@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
@@ -220,7 +219,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//perform the update and install an ordinary bundle
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
-		IInstallableUnit bundle = (IInstallableUnit) repo.query(QueryUtil.createIUQuery("aBundle"), getMonitor()).iterator().next();
+		IInstallableUnit bundle = repo.query(QueryUtil.createIUQuery("aBundle"), getMonitor()).iterator().next();
 		request = new ProfileChangeRequest(profile);
 		final IInstallableUnit[] newIUs = new IInstallableUnit[] {newIU, bundle};
 		request.addInstallableUnits(newIUs);

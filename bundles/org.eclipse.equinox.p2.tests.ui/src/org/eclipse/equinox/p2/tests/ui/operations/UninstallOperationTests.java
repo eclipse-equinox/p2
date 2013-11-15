@@ -11,9 +11,7 @@
 package org.eclipse.equinox.p2.tests.ui.operations;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashSet;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
@@ -27,7 +25,7 @@ import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
  * using the operation API.
  */
 public class UninstallOperationTests extends AbstractProvisioningUITest {
-	public void testUninstallContactsNoRepositories() throws ProvisionException, URISyntaxException {
+	public void testUninstallContactsNoRepositories() {
 
 		HashSet<IInstallableUnit> ius = new HashSet<IInstallableUnit>();
 		ius.add(top1);

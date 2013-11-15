@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.*;
@@ -62,7 +61,7 @@ public class NonMinimalState2 extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits((IInstallableUnit[]) getMetadataRepositoryManager().query(QueryUtil.createIUQuery("org.mortbay.jetty.server"), null).toArray(IInstallableUnit.class));
+		request.addInstallableUnits(getMetadataRepositoryManager().query(QueryUtil.createIUQuery("org.mortbay.jetty.server"), null).toArray(IInstallableUnit.class));
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 

@@ -622,7 +622,7 @@ public class UpdateSite {
 	 * Load and return the bundles that are referenced by this update site. Note this
 	 * requires downloading and parsing the feature manifest locally.
 	 */
-	private BundleDescription[] loadBundlesFromSite(IProgressMonitor monitor) throws ProvisionException {
+	private BundleDescription[] loadBundlesFromSite(IProgressMonitor monitor) {
 		SiteBundle[] siteBundles = site.getBundles();
 		Map<String, BundleDescription> tmpBundleCache = new HashMap<String, BundleDescription>(siteBundles.length);
 

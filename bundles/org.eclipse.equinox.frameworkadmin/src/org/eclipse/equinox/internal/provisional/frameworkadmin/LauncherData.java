@@ -216,6 +216,7 @@ public class LauncherData {
 			this.addProgramArg(args[i]);
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Class:" + this.getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$

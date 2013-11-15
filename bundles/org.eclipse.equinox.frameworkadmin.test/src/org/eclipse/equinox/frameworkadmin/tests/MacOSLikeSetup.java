@@ -10,7 +10,6 @@ package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
@@ -24,7 +23,7 @@ public class MacOSLikeSetup extends FwkAdminAndSimpleConfiguratorTest {
 		super(name);
 	}
 
-	public void testMacOSSetup() throws FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
+	public void testMacOSSetup() throws FrameworkAdminRuntimeException, IOException, BundleException {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 

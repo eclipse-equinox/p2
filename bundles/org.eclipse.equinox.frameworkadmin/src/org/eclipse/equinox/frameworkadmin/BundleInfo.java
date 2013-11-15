@@ -251,6 +251,7 @@ public class BundleInfo {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("BundleInfo("); //$NON-NLS-1$
@@ -283,6 +284,7 @@ public class BundleInfo {
 		return buffer.toString();
 	}
 
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -291,6 +293,7 @@ public class BundleInfo {
 		return result;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

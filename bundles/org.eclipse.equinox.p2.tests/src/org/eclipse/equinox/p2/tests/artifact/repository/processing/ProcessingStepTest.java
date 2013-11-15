@@ -67,7 +67,7 @@ public class ProcessingStepTest extends TestCase {
 	public void testFlush() throws IOException {
 		OutputStream destination = new OutputStream() {
 
-			public void write(int b) throws IOException {
+			public void write(int b) {
 			}
 
 			public void flush() {
@@ -82,7 +82,7 @@ public class ProcessingStepTest extends TestCase {
 	public void testCloseSimpleOutputStreamAsDestination() throws IOException {
 		OutputStream destination = new OutputStream() {
 
-			public void write(int b) throws IOException {
+			public void write(int b) {
 			}
 
 			public void close() {

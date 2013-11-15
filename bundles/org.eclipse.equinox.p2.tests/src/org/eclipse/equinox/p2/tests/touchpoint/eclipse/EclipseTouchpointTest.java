@@ -218,7 +218,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		getArtifactRepositoryManager().addRepository(site);
 
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
-		IInstallableUnit iu = (IInstallableUnit) repo.query(QueryUtil.createIUQuery("test.bundle"), getMonitor()).iterator().next();
+		IInstallableUnit iu = repo.query(QueryUtil.createIUQuery("test.bundle"), getMonitor()).iterator().next();
 		assertNotNull(iu);
 		profile = createProfile("test", profileProperties);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

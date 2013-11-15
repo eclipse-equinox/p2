@@ -58,7 +58,7 @@ public class FileReaderTest extends AbstractTestServerClientCase {
 	/**
 	 * Tests a successful read.
 	 */
-	public void testRead() throws URISyntaxException, CoreException, IOException {
+	public void testRead() throws URISyntaxException {
 		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI(getBaseURL() + "/public/index.html");
 		OutputStream target = new ByteArrayOutputStream();

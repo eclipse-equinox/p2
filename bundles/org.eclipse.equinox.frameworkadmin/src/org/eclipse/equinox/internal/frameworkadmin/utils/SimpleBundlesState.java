@@ -218,7 +218,7 @@ public class SimpleBundlesState implements BundlesState {
 		this.bundleInfosList.clear();
 		LauncherData launcherData = manipulator.getLauncherData();
 		ConfigData configData = manipulator.getConfigData();
-		File fwJar = getFwJar(launcherData);;
+		File fwJar = getFwJar(launcherData);
 
 		if (fwJar == null)
 			throw new IllegalStateException("launcherData.getLauncherConfigFile() == null && fwJar is not set.");

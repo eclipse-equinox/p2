@@ -46,7 +46,7 @@ public class TranslationSupport {
 	private final Map<String, SoftReference<IQueryResult<IInstallableUnit>>> localeCollectorCache = new HashMap<String, SoftReference<IQueryResult<IInstallableUnit>>>(2);
 
 	private LocaleProvider localeProvider;
-	private boolean loggedMissingSource = false;;
+	private boolean loggedMissingSource = false;
 
 	public synchronized static TranslationSupport getInstance() {
 		if (instance == null)

@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -44,7 +43,7 @@ public class Bug252682 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		IInstallableUnit p2Feature = (IInstallableUnit) profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.p2.user.ui.feature.group"), new NullProgressMonitor()).iterator().next();
+		IInstallableUnit p2Feature = profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.p2.user.ui.feature.group"), new NullProgressMonitor()).iterator().next();
 		System.out.println(p2Feature);
 		IQueryResult c = profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.p2.core.patch"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));

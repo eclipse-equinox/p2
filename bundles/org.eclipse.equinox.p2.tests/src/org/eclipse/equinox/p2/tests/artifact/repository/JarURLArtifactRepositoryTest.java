@@ -44,7 +44,7 @@ public class JarURLArtifactRepositoryTest extends TestCase {
 		manager = null;
 	}
 
-	public void testJarURLRepository() throws ProvisionException, URISyntaxException {
+	public void testJarURLRepository() throws ProvisionException {
 		URL engineJar = TestActivator.getContext().getBundle().getEntry("/testData/enginerepo.jar");
 		URI jarRepoLocation = null;
 		try {

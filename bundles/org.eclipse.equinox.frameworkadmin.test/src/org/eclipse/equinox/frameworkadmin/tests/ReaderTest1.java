@@ -12,7 +12,6 @@ package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.BundleException;
 
@@ -25,7 +24,7 @@ public class ReaderTest1 extends AbstractFwkAdminTest {
 	}
 
 
-	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
+	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
 		startSimpleConfiguratorManipulator();
 
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();

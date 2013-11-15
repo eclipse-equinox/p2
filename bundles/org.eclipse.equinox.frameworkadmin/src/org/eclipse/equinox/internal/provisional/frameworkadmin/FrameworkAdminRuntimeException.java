@@ -36,7 +36,7 @@ public class FrameworkAdminRuntimeException extends RuntimeException {
 	public FrameworkAdminRuntimeException(String message, Throwable cause, String reason) {
 		super(message);
 		this.reason = reason;
-		this.cause  = cause;
+		this.cause = cause;
 	}
 
 	/**
@@ -52,6 +52,7 @@ public class FrameworkAdminRuntimeException extends RuntimeException {
 		return reason;
 	}
 
+	@Override
 	public Throwable getCause() {
 		return cause;
 	}

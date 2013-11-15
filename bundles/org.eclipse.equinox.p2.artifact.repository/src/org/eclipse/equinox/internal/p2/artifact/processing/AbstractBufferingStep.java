@@ -81,7 +81,7 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 	protected void cleanupTempFiles() {
 	}
 
-	private void cleanupWorkDir() throws IOException {
+	private void cleanupWorkDir() {
 		if (workDir != null) {
 			FileUtils.deleteAll(workDir);
 			// TODO try twice since there seems to be some cases where the dir is not 

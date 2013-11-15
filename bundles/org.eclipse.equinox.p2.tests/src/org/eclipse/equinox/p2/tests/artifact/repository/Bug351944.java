@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -57,7 +56,7 @@ public class Bug351944 extends AbstractProvisioningTest {
 		delete(artifactRepoFile);
 	}
 
-	public void testSimpleRepositoryPerformanceOnLoadReadonlyLocalRepository() throws ProvisionException, URISyntaxException {
+	public void testSimpleRepositoryPerformanceOnLoadReadonlyLocalRepository() throws ProvisionException {
 		if (!Platform.OS_WIN32.equals(Platform.getOS())) {
 			final URI testRepo = artifactRepoFile.toURI();
 			IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();

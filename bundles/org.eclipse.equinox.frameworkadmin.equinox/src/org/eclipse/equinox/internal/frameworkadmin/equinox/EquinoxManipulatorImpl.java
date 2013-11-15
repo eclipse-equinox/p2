@@ -285,9 +285,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			//			System.out.println("bundles[" + i + "]=" + bundles[i]);
 			try {
 				if (bundles[i].getBundleId() == 0) // SystemBundle
-					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders("").get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), -1, true); //$NON-NLS-1$
+					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), bundles[i].getHeaders("").get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), -1, true); //$NON-NLS-1$
 				else {
-					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders("").get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i])); //$NON-NLS-1$
+					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), bundles[i].getHeaders("").get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i])); //$NON-NLS-1$
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

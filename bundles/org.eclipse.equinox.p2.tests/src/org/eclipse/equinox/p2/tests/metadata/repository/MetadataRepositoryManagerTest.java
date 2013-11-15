@@ -556,7 +556,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertEquals(1, loadRepository.query(QueryUtil.createIUAnyQuery(), null).toSet().size());
 	}
 
-	public void testUnreadableFailingFilter() throws ProvisionException {
+	public void testUnreadableFailingFilter() {
 		File site = getTestData("unreadable", "/testData/metadataRepo/badFilter/unreadable");
 		PrintStream out = System.out;
 		try {

@@ -257,7 +257,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testProfileLockingNested() throws IOException {
+	public void testProfileLockingNested() {
 		File testData = getTestData("0.1", "testData/engineTest/SimpleRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);

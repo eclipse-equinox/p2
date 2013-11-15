@@ -95,7 +95,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 									operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent), new ArrayList<IInstallableUnit>()) {
 										protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 											monitor.done();
-										};
+										}
 
 										public IStatus getResolutionResult() {
 											if (sub.isCanceled())

@@ -173,7 +173,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		if (withConfigFlag)
 			args = new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"};
 		else
-			args = new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"};;
+			args = new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"};
 
 		assertEquals(0, runEclipse("Running verifier", output, args));
 	}

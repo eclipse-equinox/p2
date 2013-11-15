@@ -133,6 +133,7 @@ public class ConfigData {
 		initialBundleStartLevel = startLevel;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Class:" + getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$

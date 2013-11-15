@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.ui.query;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.eclipse.equinox.internal.p2.ui.model.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.operations.InstallOperation;
@@ -45,7 +44,7 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		testRepo = createTestMetdataRepository(new IInstallableUnit[] {category, nestedCategory, a, b, c});
 	}
 
-	public void testNestedCategories() throws ProvisionException {
+	public void testNestedCategories() {
 		MetadataRepositoryElement element = new MetadataRepositoryElement(null, testRepo.getLocation(), true);
 		Object[] children = element.getChildren(element);
 		assertEquals("1.1", 1, children.length); // the nested category should get removed from the list
@@ -64,7 +63,7 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		assertTrue("1.3", foundNestedCategory);
 	}
 
-	public void testInstallDrilldown() throws ProvisionException {
+	public void testInstallDrilldown() {
 		IUElementListRoot root = new IUElementListRoot();
 		AvailableIUElement element = new AvailableIUElement(root, a, TESTPROFILE, getPolicy().getShowDrilldownRequirements());
 		root.setChildren(new Object[] {element});
