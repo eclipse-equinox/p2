@@ -11,9 +11,7 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import org.eclipse.core.runtime.IStatus;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.*;
 
 public class StatusMatchers {
 

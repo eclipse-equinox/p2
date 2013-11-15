@@ -14,10 +14,8 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import static org.easymock.EasyMock.*;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.*;
 import java.util.*;

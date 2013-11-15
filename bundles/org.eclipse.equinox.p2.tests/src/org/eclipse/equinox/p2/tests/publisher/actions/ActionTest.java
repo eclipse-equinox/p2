@@ -23,10 +23,8 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 import org.junit.Assert;
-import org.junit.internal.matchers.TypeSafeMatcher;
 
 @SuppressWarnings({"cast", "unchecked"})
 public abstract class ActionTest extends AbstractProvisioningTest {
