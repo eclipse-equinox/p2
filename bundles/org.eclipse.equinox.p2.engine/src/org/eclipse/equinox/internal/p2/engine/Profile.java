@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.index.*;
@@ -149,7 +148,7 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	 */
 	public List<String> getSubProfileIds() {
 		if (subProfileIds == null)
-			return CollectionUtils.emptyList();
+			return Collections.<String> emptyList();
 		return Collections.unmodifiableList(subProfileIds);
 	}
 

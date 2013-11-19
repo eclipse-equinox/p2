@@ -18,7 +18,6 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -187,7 +186,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		String expression = siteIU.getQueryExpression();
 		Object[] params = siteIU.getQueryParams();
 		if (id == null && (type == null || expression == null))
-			return CollectionUtils.emptyList();
+			return Collections.<IInstallableUnit> emptyList();
 		IQuery<IInstallableUnit> query = null;
 		if (id != null) {
 			VersionRange vRange = new VersionRange(range);
@@ -197,7 +196,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		} else if (type.equals("match")) //$NON-NLS-1$
 			query = QueryUtil.createMatchQuery(expression, params);
 		if (query == null)
-			return CollectionUtils.emptyList();
+			return Collections.<IInstallableUnit> emptyList();
 		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
 		if (queryResult.isEmpty())
 			queryResult = publisherInfo.getMetadataRepository().query(query, null);
@@ -531,13 +530,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		String categoryId = buildCategoryId(category.getName());
 		cat.setId(categoryId);
 		if (categoryVersion == null)
-			cat.setVersion(Version.createOSGi(1, 0, 0, versionSuffixGenerator.generateSuffix(childrenIUs, CollectionUtils.<IVersionedId> emptyList())));
+			cat.setVersion(Version.createOSGi(1, 0, 0, versionSuffixGenerator.generateSuffix(childrenIUs, Collections.<IVersionedId> emptyList())));
 		else {
 			if (categoryVersion.isOSGiCompatible()) {
 				org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(categoryVersion);
 				String qualifier = osgiVersion.getQualifier();
 				if (qualifier.endsWith(QUALIFIER)) {
-					String suffix = versionSuffixGenerator.generateSuffix(childrenIUs, CollectionUtils.<IVersionedId> emptyList());
+					String suffix = versionSuffixGenerator.generateSuffix(childrenIUs, Collections.<IVersionedId> emptyList());
 					qualifier = qualifier.substring(0, qualifier.length() - 9) + suffix;
 					categoryVersion = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor(), osgiVersion.getMicro(), qualifier);
 				}

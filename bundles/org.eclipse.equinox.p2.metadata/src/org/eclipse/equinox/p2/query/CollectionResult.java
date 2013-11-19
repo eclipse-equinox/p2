@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.query;
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 
 /**
  * This class allows to adapt java collections to a p2 a query result  and as such something queryable  
@@ -23,7 +22,7 @@ public class CollectionResult<T> implements IQueryResult<T> {
 	private final Collection<T> collection;
 
 	public CollectionResult(Collection<T> collection) {
-		this.collection = collection == null ? CollectionUtils.<T> emptySet() : collection;
+		this.collection = collection == null ? Collections.<T> emptySet() : collection;
 	}
 
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {

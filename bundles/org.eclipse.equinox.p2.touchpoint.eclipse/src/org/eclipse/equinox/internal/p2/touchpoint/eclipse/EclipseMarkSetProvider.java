@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.garbagecollector.MarkSet;
 import org.eclipse.equinox.internal.p2.garbagecollector.MarkSetProvider;
 import org.eclipse.equinox.internal.p2.update.*;
@@ -65,7 +64,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 
 	private List<Feature> getAllFeatures(Configuration cfg) {
 		if (cfg == null)
-			return CollectionUtils.emptyList();
+			return Collections.<Feature> emptyList();
 		List<Site> sites = cfg.getSites();
 		ArrayList<Feature> result = new ArrayList<Feature>();
 		for (Site object : sites) {

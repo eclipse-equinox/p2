@@ -13,7 +13,6 @@
 package org.eclipse.equinox.p2.repository.artifact;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.*;
@@ -41,7 +40,7 @@ public final class ArtifactDescriptorQuery extends ExpressionMatchQuery<IArtifac
 				properties.put(IArtifactDescriptor.FORMAT, format);
 			}
 		} else if (properties == null)
-			properties = CollectionUtils.emptyMap();
+			properties = Collections.<String, String> emptyMap();
 
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		return factory.<IArtifactDescriptor> matchExpression(descriptorMatch, id, range, properties);

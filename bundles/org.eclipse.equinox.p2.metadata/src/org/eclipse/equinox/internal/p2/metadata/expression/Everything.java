@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import java.util.Collection;
-import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import java.util.*;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
@@ -24,7 +22,7 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 	private final Class<? extends T> elementClass;
 
 	public Everything(Class<? extends T> elementClass, Collection<T> collection) {
-		super(RepeatableIterator.<T> create(collection == null ? CollectionUtils.<T> emptyList() : collection));
+		super(RepeatableIterator.<T> create(collection == null ? Collections.<T> emptyList() : collection));
 		this.elementClass = elementClass;
 	}
 

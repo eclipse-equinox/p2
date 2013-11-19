@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.publisher;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -101,7 +102,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	private static Map<String, String> loadAdviceMap(IPath basePath, IPath adviceFilePath) {
 		File location = basePath.toFile();
 		if (location == null || !location.exists())
-			return CollectionUtils.emptyMap();
+			return Collections.<String, String> emptyMap();
 
 		ZipFile jar = null;
 		InputStream stream = null;
@@ -109,13 +110,13 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 			if (location.isDirectory()) {
 				File adviceFile = new File(location, adviceFilePath.toString());
 				if (!adviceFile.isFile())
-					return CollectionUtils.emptyMap();
+					return Collections.<String, String> emptyMap();
 				stream = new BufferedInputStream(new FileInputStream(adviceFile));
 			} else if (location.isFile()) {
 				jar = new ZipFile(location);
 				ZipEntry entry = jar.getEntry(adviceFilePath.toString());
 				if (entry == null)
-					return CollectionUtils.emptyMap();
+					return Collections.<String, String> emptyMap();
 
 				stream = new BufferedInputStream(jar.getInputStream(entry));
 			}
@@ -124,7 +125,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 			String message = "An error occured while reading advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + "."; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
-			return CollectionUtils.emptyMap();
+			return Collections.<String, String> emptyMap();
 		} finally {
 			if (stream != null)
 				try {

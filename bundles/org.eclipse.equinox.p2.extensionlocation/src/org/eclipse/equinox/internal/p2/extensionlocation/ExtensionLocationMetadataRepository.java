@@ -16,7 +16,6 @@ import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -88,7 +87,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
 	 */
 	public Collection<IRepositoryReference> getReferences() {
-		return CollectionUtils.emptyList();
+		return Collections.emptyList();
 	}
 
 	/* (non-Javadoc)

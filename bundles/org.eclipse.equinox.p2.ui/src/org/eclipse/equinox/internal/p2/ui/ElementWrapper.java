@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.query.Collector;
 
 /**
@@ -40,7 +39,7 @@ public abstract class ElementWrapper {
 	 * Gets the collection where the elements are being stored.
 	 */
 	protected Collection<?> getCollection() {
-		return collection == null ? CollectionUtils.emptyList() : collection;
+		return collection == null ? Collections.emptyList() : collection;
 	}
 
 	/**

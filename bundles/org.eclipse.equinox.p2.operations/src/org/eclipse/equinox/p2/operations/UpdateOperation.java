@@ -14,7 +14,6 @@ package org.eclipse.equinox.p2.operations;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -294,7 +293,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	private Collection<IInstallableUnit> getInstalledIUs() {
 		IProfile profile = session.getProfileRegistry().getProfile(profileId);
 		if (profile == null)
-			return CollectionUtils.emptyList();
+			return Collections.<IInstallableUnit> emptyList();
 		IQuery<IInstallableUnit> query = new UserVisibleRootQuery();
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
 		return queryResult.toUnmodifiableSet();

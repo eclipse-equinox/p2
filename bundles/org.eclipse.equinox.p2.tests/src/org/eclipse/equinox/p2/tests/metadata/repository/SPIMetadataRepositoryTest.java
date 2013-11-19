@@ -18,7 +18,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
@@ -317,7 +316,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		public List<IRequirement> getMetaRequirements() {
-			return CollectionUtils.emptyList();
+			return Collections.<IRequirement> emptyList();
 		}
 
 		public String getProperty(String key, String locale) {

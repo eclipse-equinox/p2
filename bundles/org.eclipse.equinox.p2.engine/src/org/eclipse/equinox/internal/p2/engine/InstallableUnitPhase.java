@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
@@ -109,7 +108,7 @@ public abstract class InstallableUnitPhase extends Phase {
 		Collection<ITouchpointData> data = unit.getTouchpointData();
 		int dataSize = data.size();
 		if (dataSize == 0)
-			return CollectionUtils.emptyList();
+			return Collections.<ITouchpointInstruction> emptyList();
 
 		ArrayList<ITouchpointInstruction> matches = new ArrayList<ITouchpointInstruction>(dataSize);
 		for (ITouchpointData td : data) {

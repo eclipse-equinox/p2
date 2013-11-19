@@ -11,7 +11,6 @@ package org.eclipse.equinox.p2.query;
 
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.internal.p2.metadata.index.CompoundIndex;
@@ -107,7 +106,7 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 
 	public Iterator<T> everything() {
 		if (queryables.length == 0)
-			return CollectionUtils.<T> emptySet().iterator();
+			return Collections.<T> emptySet().iterator();
 
 		if (queryables.length == 1)
 			return getIteratorFromQueryable(queryables[0]);
@@ -150,7 +149,7 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 		}
 
 		Iterator<T> getCapturedIterator() {
-			return capturedIterator == null ? CollectionUtils.<T> emptySet().iterator() : capturedIterator;
+			return capturedIterator == null ? Collections.<T> emptySet().iterator() : capturedIterator;
 		}
 	}
 

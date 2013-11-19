@@ -16,7 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -123,7 +124,7 @@ public class UpdateChecker implements IUpdateChecker {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<IInstallableUnit>();
 		if (profile == null)
-			return CollectionUtils.emptyList();
+			return Collections.<IInstallableUnit> emptyList();
 		ProvisioningContext context = new ProvisioningContext(agent);
 		context.setMetadataRepositories(getAvailableRepositories());
 		if (query == null)

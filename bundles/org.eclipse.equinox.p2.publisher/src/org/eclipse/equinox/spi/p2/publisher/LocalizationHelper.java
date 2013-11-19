@@ -147,7 +147,7 @@ public final class LocalizationHelper {
 				}
 			} catch (FileNotFoundException e) {
 				// if there is no messages file then just return;
-				return CollectionUtils.emptyMap();
+				return Collections.<String, String> emptyMap();
 			}
 			return CollectionUtils.loadProperties(propertyStream);
 		} finally {

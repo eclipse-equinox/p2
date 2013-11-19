@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.director.Projector.AbstractVariable;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.*;
@@ -43,11 +42,11 @@ public class OptimizationFunction {
 
 		Set<IInstallableUnit> transitiveClosure; //The transitive closure of the IUs we are adding (this also means updating)
 		if (newRoots.isEmpty()) {
-			transitiveClosure = CollectionUtils.emptySet();
+			transitiveClosure = Collections.<IInstallableUnit> emptySet();
 		} else {
 			IQueryable<IInstallableUnit> queryable = new Slicer(picker, selectionContext, false).slice(newRoots.toArray(new IInstallableUnit[newRoots.size()]), new NullProgressMonitor());
 			if (queryable == null) {
-				transitiveClosure = CollectionUtils.emptySet();
+				transitiveClosure = Collections.<IInstallableUnit> emptySet();
 			} else {
 				transitiveClosure = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet();
 			}

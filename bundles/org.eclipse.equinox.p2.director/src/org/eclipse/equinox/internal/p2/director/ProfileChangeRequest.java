@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -168,7 +167,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 
 	public Collection<IInstallableUnit> getRemovals() {
 		if (iusToRemove == null)
-			return CollectionUtils.emptyList();
+			return Collections.<IInstallableUnit> emptyList();
 		return Collections.unmodifiableList(iusToRemove);
 	}
 
@@ -177,7 +176,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	 */
 	public Collection<IInstallableUnit> getAdditions() {
 		if (iusToAdd == null)
-			return CollectionUtils.emptyList();
+			return Collections.<IInstallableUnit> emptyList();
 		return Collections.unmodifiableList(iusToAdd);
 	}
 
@@ -191,14 +190,14 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	// map of key value pairs
 	public Map<String, String> getPropertiesToAdd() {
 		if (propertiesToAdd == null)
-			return CollectionUtils.emptyMap();
+			return Collections.<String, String> emptyMap();
 		return propertiesToAdd;
 	}
 
 	// map of iu->list of property keys to be removed for an iu	
 	public Map<IInstallableUnit, List<String>> getInstallableUnitProfilePropertiesToRemove() {
 		if (iuPropertiesToRemove == null)
-			return CollectionUtils.emptyMap();
+			return Collections.<IInstallableUnit, List<String>> emptyMap();
 		return iuPropertiesToRemove;
 	}
 
@@ -206,7 +205,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	// map iu->map of key->value pairs for properties to be added for an iu
 	public Map<IInstallableUnit, Map<String, String>> getInstallableUnitProfilePropertiesToAdd() {
 		if (iuPropertiesToAdd == null)
-			return CollectionUtils.emptyMap();
+			return Collections.<IInstallableUnit, Map<String, String>> emptyMap();
 		return iuPropertiesToAdd;
 	}
 

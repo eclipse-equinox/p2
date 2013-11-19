@@ -69,11 +69,11 @@ public class KeyIndex extends Index<IArtifactKey> {
 				}
 			}
 			if (collector == null)
-				collector = CollectionUtils.emptySet();
+				collector = Collections.<IArtifactKey> emptySet();
 		} else {
 			Object v = artifactMap.get(queriedKeys);
 			if (v == null)
-				collector = CollectionUtils.emptySet();
+				collector = Collections.<IArtifactKey> emptySet();
 			else if (v instanceof IArtifactKey)
 				collector = Collections.singleton((IArtifactKey) v);
 			else

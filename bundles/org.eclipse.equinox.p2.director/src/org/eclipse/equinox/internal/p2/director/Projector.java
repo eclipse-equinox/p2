@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.director.Explanation.NotInstallableRoot;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
@@ -147,7 +146,7 @@ public class Projector {
 			} finally {
 				//must never have a null result, because caller is waiting on result to be non-null
 				if (explanation == null)
-					explanation = CollectionUtils.emptySet();
+					explanation = Collections.<Explanation> emptySet();
 			}
 			synchronized (this) {
 				ExplanationJob.this.notify();
@@ -812,7 +811,7 @@ public class Projector {
 		IRequirement req = patch.getLifeCycle();
 		if (req == null)
 			return;
-		expandRequirement(req, iu, CollectionUtils.<AbstractVariable> emptyList(), isRootIu);
+		expandRequirement(req, iu, Collections.<AbstractVariable> emptyList(), isRootIu);
 	}
 
 	private void missingRequirement(IInstallableUnit iu, IRequirement req) throws ContradictionException {

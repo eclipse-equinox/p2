@@ -162,7 +162,7 @@ public class IUMap implements Cloneable {
 	public Collection<IInstallableUnit> getUnits(String id) {
 		Object bucket = units.get(id);
 		if (bucket == null)
-			return CollectionUtils.emptyList();
+			return Collections.<IInstallableUnit> emptyList();
 		return bucket.getClass().isArray() ? CollectionUtils.unmodifiableList((IInstallableUnit[]) bucket) : Collections.<IInstallableUnit> singletonList((IInstallableUnit) bucket);
 	}
 

@@ -16,7 +16,6 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.update.*;
@@ -140,7 +139,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 
 	public Collection<IMetadataRepository> getMetadataRepositories() {
 		if (configRepositories == null)
-			return CollectionUtils.emptySet();
+			return Collections.<IMetadataRepository> emptySet();
 		return configRepositories;
 	}
 

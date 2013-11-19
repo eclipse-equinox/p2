@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.util.*;
 import org.apache.tools.ant.types.DataType;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -150,7 +149,7 @@ public class IUDescription extends DataType {
 
 	private Map<String, String> processQueryAttributes(String attributes) {
 		if (attributes == null || attributes.length() == 0)
-			return CollectionUtils.emptyMap();
+			return Collections.<String, String> emptyMap();
 
 		Map<String, String> result = new HashMap<String, String>();
 		int start = 0;

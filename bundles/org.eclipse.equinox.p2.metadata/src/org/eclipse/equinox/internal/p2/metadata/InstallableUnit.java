@@ -131,7 +131,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	}
 
 	public Collection<IInstallableUnitFragment> getFragments() {
-		return CollectionUtils.emptyList();
+		return Collections.<IInstallableUnitFragment> emptyList();
 	}
 
 	public String getId() {

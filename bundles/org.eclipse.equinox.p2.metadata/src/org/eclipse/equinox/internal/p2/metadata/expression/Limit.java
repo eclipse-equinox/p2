@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import java.util.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
 /**
@@ -68,7 +66,7 @@ final class Limit extends Binary {
 			limit = ((Integer) rval).intValue();
 		if (limit < 0)
 			throw new IllegalArgumentException("limit expression did not evalutate to a positive integer"); //$NON-NLS-1$
-		return limit == 0 ? CollectionUtils.emptySet().iterator() : new CountingIterator<Object>(lhs.evaluateAsIterator(context), limit);
+		return limit == 0 ? Collections.emptySet().iterator() : new CountingIterator<Object>(lhs.evaluateAsIterator(context), limit);
 	}
 
 	public int getExpressionType() {

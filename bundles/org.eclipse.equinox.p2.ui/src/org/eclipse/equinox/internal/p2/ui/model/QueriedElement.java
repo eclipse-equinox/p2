@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
@@ -96,7 +95,7 @@ public abstract class QueriedElement extends ProvElement {
 	}
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
-		cachedChildren = CollectionUtils.emptyList();
+		cachedChildren = Collections.emptyList();
 		QueryProvider provider = new QueryProvider(getProvisioningUI());
 		ElementQueryDescriptor queryDescriptor = provider.getQueryDescriptor(this);
 		if (queryDescriptor == null)

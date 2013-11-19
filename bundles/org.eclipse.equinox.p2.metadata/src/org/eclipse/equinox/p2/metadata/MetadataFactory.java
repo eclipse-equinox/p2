@@ -15,7 +15,6 @@ package org.eclipse.equinox.p2.metadata;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 
@@ -374,7 +373,7 @@ public final class MetadataFactory {
 	/**
 	 * Singleton touchpoint data for a touchpoint with no instructions.
 	 */
-	private static final ITouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(CollectionUtils.<String, ITouchpointInstruction> emptyMap());
+	private static final ITouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(Collections.<String, ITouchpointInstruction> emptyMap());
 
 	private static ITouchpointType[] typeCache = new ITouchpointType[5];
 

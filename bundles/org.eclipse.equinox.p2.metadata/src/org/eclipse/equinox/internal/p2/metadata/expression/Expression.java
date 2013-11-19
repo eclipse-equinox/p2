@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
@@ -342,7 +341,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		}
 
 		List<String> getMembers() {
-			return members == null ? CollectionUtils.<String> emptyList() : members;
+			return members == null ? Collections.<String> emptyList() : members;
 		}
 	}
 

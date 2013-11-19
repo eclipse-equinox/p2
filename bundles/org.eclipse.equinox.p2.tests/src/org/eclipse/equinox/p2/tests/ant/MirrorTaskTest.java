@@ -18,7 +18,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.Messages;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -361,7 +360,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		runAntTask();
 
-		PermissiveSlicer slicer = new PermissiveSlicer(repo, CollectionUtils.<String, String> emptyMap(), true, false, true, false, false);
+		PermissiveSlicer slicer = new PermissiveSlicer(repo, Collections.<String, String> emptyMap(), true, false, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 
 		assertEquals("Different number of IUs", queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getIUCount(destinationRepo));

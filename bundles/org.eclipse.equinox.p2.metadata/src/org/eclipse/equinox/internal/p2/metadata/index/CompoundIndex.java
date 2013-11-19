@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.metadata.index;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
@@ -39,7 +38,7 @@ public class CompoundIndex<T> implements IIndex<T> {
 			}
 		}
 		if (result == null)
-			result = CollectionUtils.emptySet();
+			result = Collections.emptySet();
 		return result.iterator();
 	}
 }

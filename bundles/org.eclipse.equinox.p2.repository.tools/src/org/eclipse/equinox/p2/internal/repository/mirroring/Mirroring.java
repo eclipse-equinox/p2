@@ -15,7 +15,6 @@ package org.eclipse.equinox.p2.internal.repository.mirroring;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
@@ -41,7 +40,7 @@ public class Mirroring {
 	private boolean validate = false;
 	private IArtifactComparator comparator;
 	private IQuery<IArtifactDescriptor> compareExclusionQuery = null;
-	private Set<IArtifactDescriptor> compareExclusions = CollectionUtils.<IArtifactDescriptor> emptySet();
+	private Set<IArtifactDescriptor> compareExclusions = Collections.<IArtifactDescriptor> emptySet();
 	private String comparatorID;
 	private List<IArtifactKey> keysToMirror;
 	private IArtifactMirrorLog comparatorLog;

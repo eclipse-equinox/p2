@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
 import java.util.Map.Entry;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 import org.osgi.framework.ServiceReference;
 
@@ -119,7 +118,7 @@ public abstract class MemberProvider implements IMemberProvider {
 		}
 	}
 
-	private static final MemberProvider emptyProvider = create(CollectionUtils.emptyMap(), false);
+	private static final MemberProvider emptyProvider = create(Collections.emptyMap(), false);
 
 	/**
 	 * Create a new member provider on the given value. The value can be an instance of a {@link Map}, {@link Dictionary},

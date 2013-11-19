@@ -166,47 +166,13 @@ public class CollectionUtils {
 	}
 
 	/**
-	 * The emptyList() method was introduced in Java 1.5 so we need this here to be able to
-	 * down compile to 1.4.
-	 * @param <T> The type of the elements
-	 * @return An empty list
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> List<T> emptyList() {
-		return Collections.EMPTY_LIST;
-	}
-
-	/**
-	 * The emptySet() method was introduced in Java 1.5 so we need this here to be able to
-	 * down compile to 1.4.
-	 * @param <T> The type of the elements
-	 * @return An empty set
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> Set<T> emptySet() {
-		return Collections.EMPTY_SET;
-	}
-
-	/**
-	 * The emptyMap() method was introduced in Java 1.5 so we need this here to be able to
-	 * down compile to 1.4.
-	 * @param <K> The type of the map keys
-	 * @param <V> The type of the map values
-	 * @return An empty set
-	 */
-	@SuppressWarnings("unchecked")
-	public static <K, V> Map<K, V> emptyMap() {
-		return Collections.EMPTY_MAP;
-	}
-
-	/**
 	 * Returns an unmodifiable list that is backed by the <code>array</code>.
 	 * @param <T> The list element type
 	 * @param array The array of elements
 	 * @return The unmodifiable list
 	 */
 	public static <T> List<T> unmodifiableList(T[] array) {
-		return array == null || array.length == 0 ? CollectionUtils.<T> emptyList() : new UnmodifiableArrayList<T>(array);
+		return array == null || array.length == 0 ? Collections.<T> emptyList() : new UnmodifiableArrayList<T>(array);
 	}
 
 	/**
@@ -229,7 +195,7 @@ public class CollectionUtils {
 	 */
 	public static Map<String, String> toMap(Properties properties) {
 		if (properties == null || properties.isEmpty())
-			return emptyMap();
+			return Collections.<String, String> emptyMap();
 
 		Map<String, String> props = new HashMap<String, String>(properties.size());
 		putAll(properties, props);

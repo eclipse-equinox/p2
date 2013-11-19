@@ -15,7 +15,6 @@ import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.Messages;
 
 /**
@@ -107,7 +106,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * @return an iterator of the collected objects.
 	 */
 	public Iterator<T> iterator() {
-		return collected == null ? CollectionUtils.<T> emptyList().iterator() : collected.iterator();
+		return collected == null ? Collections.<T> emptyList().iterator() : collected.iterator();
 	}
 
 	/**

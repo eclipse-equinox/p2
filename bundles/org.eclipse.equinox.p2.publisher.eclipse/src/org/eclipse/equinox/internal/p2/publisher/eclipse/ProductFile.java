@@ -21,7 +21,8 @@ import java.util.Map.Entry;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
@@ -288,7 +289,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * @return A List<BundleInfo>
 	 */
 	public List<BundleInfo> getBundleInfos() {
-		return bundleInfos != null ? bundleInfos : CollectionUtils.<BundleInfo> emptyList();
+		return bundleInfos != null ? bundleInfos : Collections.<BundleInfo> emptyList();
 	}
 
 	/**

@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.metadata.index;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -200,7 +199,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 		if (queriedKeys == Boolean.FALSE) {
 			// It has been determined that the expression has no chance
 			// to succeed regardless of input
-			matchingIUs = CollectionUtils.<IInstallableUnit> emptySet();
+			matchingIUs = Collections.<IInstallableUnit> emptySet();
 		} else if (queriedKeys instanceof Collection<?>) {
 			matchingIUs = new HashSet<IInstallableUnit>();
 			for (Object key : (Collection<Object>) queriedKeys)
@@ -208,7 +207,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 		} else {
 			Object v = capabilityMap.get(queriedKeys);
 			if (v == null)
-				matchingIUs = CollectionUtils.<IInstallableUnit> emptySet();
+				matchingIUs = Collections.<IInstallableUnit> emptySet();
 			else if (v instanceof IInstallableUnit)
 				matchingIUs = Collections.singleton((IInstallableUnit) v);
 			else

@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
@@ -50,7 +49,7 @@ public class InstructionParser {
 
 	private Map<String, ActionEntry> parseImportAttribute(String importAttribute) {
 		if (importAttribute == null)
-			return CollectionUtils.emptyMap();
+			return Collections.<String, ActionEntry> emptyMap();
 
 		Map<String, ActionEntry> result = new HashMap<String, ActionEntry>();
 		StringTokenizer tokenizer = new StringTokenizer(importAttribute, ","); //$NON-NLS-1$
@@ -83,7 +82,7 @@ public class InstructionParser {
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
 		if (nameValuePairs.length() == 0)
-			return new ParameterizedProvisioningAction(action, CollectionUtils.<String, String> emptyMap(), statement);
+			return new ParameterizedProvisioningAction(action, Collections.<String, String> emptyMap(), statement);
 
 		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ","); //$NON-NLS-1$
 		Map<String, String> parameters = new HashMap<String, String>();

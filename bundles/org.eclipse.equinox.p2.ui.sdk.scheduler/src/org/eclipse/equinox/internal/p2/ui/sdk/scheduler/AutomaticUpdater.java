@@ -16,7 +16,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
@@ -360,7 +359,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	public Collection<IInstallableUnit> getInstalledIUs() {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		if (profile == null)
-			return CollectionUtils.emptyList();
+			return Collections.<IInstallableUnit> emptyList();
 		IQuery<IInstallableUnit> query = new UserVisibleRootQuery();
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
 		return queryResult.toUnmodifiableSet();

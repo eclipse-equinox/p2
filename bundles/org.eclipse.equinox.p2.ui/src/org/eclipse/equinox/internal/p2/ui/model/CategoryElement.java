@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -104,7 +102,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 
 	public Collection<IRequirement> getRequirements() {
 		if (ius == null || ius.isEmpty())
-			return CollectionUtils.emptyList();
+			return Collections.<IRequirement> emptyList();
 		if (requirements == null) {
 			if (ius.size() == 1)
 				requirements = getIU().getRequirements();

@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
@@ -38,7 +37,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 	public Collection<IInstallableUnitFragment> getFragments() {
 		int fcount = fragments.length;
 		if (fcount == 0)
-			return CollectionUtils.emptyList();
+			return Collections.<IInstallableUnitFragment> emptyList();
 
 		ArrayList<IInstallableUnitFragment> result = new ArrayList<IInstallableUnitFragment>(fcount);
 		result.addAll(Arrays.asList(fragments));

@@ -404,7 +404,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (currentInstructions == null) {
 			if (advice == null || advice.isEmpty())
 				return;
-			currentInstructions = CollectionUtils.emptyMap();
+			currentInstructions = Collections.emptyMap();
 		}
 
 		ITouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);

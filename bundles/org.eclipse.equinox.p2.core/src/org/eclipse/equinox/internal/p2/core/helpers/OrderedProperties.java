@@ -109,7 +109,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 	}
 
 	public Set<Map.Entry<String, String>> entrySet() {
-		return propertyMap != null ? propertyMap.entrySet() : CollectionUtils.<Map.Entry<String, String>> emptySet();
+		return propertyMap != null ? propertyMap.entrySet() : Collections.<Map.Entry<String, String>> emptySet();
 	}
 
 	public String get(Object key) {
@@ -117,7 +117,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 	}
 
 	public Set<String> keySet() {
-		return propertyMap != null ? propertyMap.keySet() : CollectionUtils.<String> emptySet();
+		return propertyMap != null ? propertyMap.keySet() : Collections.<String> emptySet();
 	}
 
 	public void putAll(Map<? extends String, ? extends String> arg0) {
@@ -130,7 +130,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 	}
 
 	public Collection<String> values() {
-		return propertyMap != null ? propertyMap.values() : CollectionUtils.<String> emptyList();
+		return propertyMap != null ? propertyMap.values() : Collections.<String> emptyList();
 	}
 
 	public boolean equals(Object o) {

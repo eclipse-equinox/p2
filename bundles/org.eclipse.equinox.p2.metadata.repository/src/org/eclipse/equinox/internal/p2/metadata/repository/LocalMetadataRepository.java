@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.index.*;
@@ -197,7 +196,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 
 	private synchronized List<IRepositoryReference> createRepositoriesSnapshot() {
 		if (repositories.isEmpty())
-			return CollectionUtils.emptyList();
+			return Collections.<IRepositoryReference> emptyList();
 		return new ArrayList<IRepositoryReference>(repositories);
 	}
 
