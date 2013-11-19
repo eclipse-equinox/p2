@@ -60,18 +60,13 @@ public class SimpleConfiguratorManipulatorUtils {
 	 */
 	public static void writeConfiguration(BundleInfo[] simpleInfos, OutputStream stream) throws IOException {
 		// sort by symbolic name
-		Arrays.sort(simpleInfos, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				if (o1 instanceof BundleInfo && o2 instanceof BundleInfo) {
-					BundleInfo b1 = (BundleInfo) o1;
-					BundleInfo b2 = (BundleInfo) o2;
-					int bsnComparison = b1.getSymbolicName().compareTo(b2.getSymbolicName());
-					if (bsnComparison != 0)
-						return bsnComparison;
-					// prefer latest version, see https://bugs.eclipse.org/363590
-					return new Version(b2.getVersion()).compareTo(new Version(b1.getVersion()));
-				}
-				return 0;
+		Arrays.sort(simpleInfos, new Comparator<BundleInfo>() {
+			public int compare(BundleInfo b1, BundleInfo b2) {
+				int bsnComparison = b1.getSymbolicName().compareTo(b2.getSymbolicName());
+				if (bsnComparison != 0)
+					return bsnComparison;
+				// prefer latest version, see https://bugs.eclipse.org/363590
+				return new Version(b2.getVersion()).compareTo(new Version(b1.getVersion()));
 			}
 		});
 
