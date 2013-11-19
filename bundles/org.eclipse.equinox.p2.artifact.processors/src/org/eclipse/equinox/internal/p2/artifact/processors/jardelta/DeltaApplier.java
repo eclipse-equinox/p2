@@ -22,7 +22,7 @@ public class DeltaApplier {
 	private File destination;
 	private ZipFile baseJar;
 	private ZipFile deltaJar;
-	private Set baseEntries;
+	private Set<String> baseEntries;
 	private ZipFile manifestJar;
 
 	public DeltaApplier(File base, File delta, File destination) {
@@ -46,8 +46,8 @@ public class DeltaApplier {
 		// start out assuming that all the base entries will be moved over.  
 		baseEntries = getEntries(baseJar);
 		// remove from the base all the entries that appear in the delta
-		for (Enumeration e = deltaJar.entries(); e.hasMoreElements();) {
-			ZipEntry entry = ((ZipEntry) e.nextElement());
+		for (Enumeration<? extends ZipEntry> e = deltaJar.entries(); e.hasMoreElements();) {
+			ZipEntry entry = e.nextElement();
 			checkForManifest(entry, deltaJar);
 			String name = entry.getName();
 			if (name.endsWith(DELETE_SUFFIX)) {
@@ -69,13 +69,13 @@ public class DeltaApplier {
 				if (manifestJar != null)
 					writeEntry(result, manifestJar.getEntry(MANIFEST_ENTRY_NAME), manifestJar, true);
 				// write out the things we know are staying from the base JAR
-				for (Iterator i = baseEntries.iterator(); i.hasNext();) {
-					ZipEntry entry = baseJar.getEntry((String) i.next());
+				for (Iterator<String> i = baseEntries.iterator(); i.hasNext();) {
+					ZipEntry entry = baseJar.getEntry(i.next());
 					writeEntry(result, entry, baseJar, false);
 				}
 				// write out the changes/additions from the delta.
-				for (Enumeration e = deltaJar.entries(); e.hasMoreElements();) {
-					ZipEntry entry = (ZipEntry) e.nextElement();
+				for (Enumeration<? extends ZipEntry> e = deltaJar.entries(); e.hasMoreElements();) {
+					ZipEntry entry = e.nextElement();
 					if (!entry.getName().endsWith(DELETE_SUFFIX))
 						writeEntry(result, entry, deltaJar, false);
 				}
@@ -160,10 +160,10 @@ public class DeltaApplier {
 			}
 	}
 
-	private Set getEntries(ZipFile jar) {
-		HashSet result = new HashSet(jar.size());
-		for (Enumeration e = jar.entries(); e.hasMoreElements();) {
-			ZipEntry entry = (ZipEntry) e.nextElement();
+	private Set<String> getEntries(ZipFile jar) {
+		HashSet<String> result = new HashSet<String>(jar.size());
+		for (Enumeration<? extends ZipEntry> e = jar.entries(); e.hasMoreElements();) {
+			ZipEntry entry = e.nextElement();
 			checkForManifest(entry, jar);
 			result.add(entry.getName());
 		}
