@@ -56,6 +56,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	public void testDiscoverOne() {
 		// copy feature and bundle to dropins and reconcile
 		assertInitialized();
+		System.out.println(">>> testDiscoverOne " + output);
 		File featureFile = getTestData("2.0", "testData/reconciler/features/myFeature_1.0.0");
 		add("2.2", "dropins/features", featureFile);
 		File bundleFile = getTestData("2.3", "testData/reconciler/plugins/myBundle_1.0.0.jar");
@@ -87,10 +88,13 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 */
 	public void testSiteEnabled() {
 		assertInitialized();
+		System.out.println(">>> testSiteEnabled " + output);
 		File temp = getTempFolder();
+		System.out.println(" temp folder location = " + temp);
 		toRemove.add(temp);
 		Configuration configuration = getConfiguration();
 		String siteLocation = new File(temp, "eclipse").toURI().toString();
+		System.out.println(" site location = " + siteLocation);
 
 		File source = getTestData("2.0", "testData/reconciler/ext.jar");
 		copy("2.1", source, temp);
@@ -141,9 +145,11 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 */
 	public void test_247095() {
 		assertInitialized();
+		System.out.println(">>> test_247095 " + output);
 		Configuration configuration = getConfiguration();
 		File temp = getTempFolder();
 		toRemove.add(temp);
+		System.out.println(" temp=" + temp);
 		String siteLocation = null;
 		siteLocation = new File(temp, "eclipse").toURI().toString();
 

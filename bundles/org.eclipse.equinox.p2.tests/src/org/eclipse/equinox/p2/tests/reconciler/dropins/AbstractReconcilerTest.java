@@ -315,7 +315,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	protected File getBundlesInfo() {
-		return new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+		File file = new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+		System.out.println(">>> getBundlesInfo = " + file);
+		return file;
 	}
 
 	public boolean isInBundlesInfo(String bundleId, String version) throws IOException {
@@ -441,9 +443,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			return;
 		for (Iterator iter = toRemove.iterator(); iter.hasNext();) {
 			File next = (File) iter.next();
-			delete(next);
+			if (!delete(next)) {
+				System.out.println("deleting failed!!! " + next);
+			}
 		}
 		output = null;
+		System.out.println(">>> removing " + toRemove);
 		toRemove.clear();
 	}
 
@@ -453,6 +458,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	public Configuration getConfiguration() {
 		File configLocation = new File(output, "eclipse/configuration/org.eclipse.update/platform.xml");
 		File installLocation = new File(output, "eclipse");
+		System.out.println(">>> getConfiguration");
+		System.out.println(" configLocation = " + configLocation);
+		System.out.println(" installLocation = " + installLocation);
 		return loadConfiguration(configLocation, installLocation);
 	}
 
@@ -489,8 +497,10 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * has a url matching the given location.
 	 */
 	public boolean removeSite(Configuration configuration, String location) {
+		System.out.println("remove site=" + location);
 		IPath path = new Path(location);
 		List sites = configuration.getSites();
+		System.out.println("sites=" + sites);
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site tempSite = (Site) iter.next();
 			String siteURL = tempSite.getUrl();

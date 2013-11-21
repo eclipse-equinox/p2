@@ -607,11 +607,22 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (!file.exists())
 			return true;
 		if (file.isDirectory()) {
+			file.setWritable(true);
+			file.setReadable(true);
+			file.setExecutable(true);
 			File[] children = file.listFiles();
-			for (int i = 0; i < children.length; i++)
-				delete(children[i]);
+			for (int i = 0; i < children.length; i++) {
+				if (!delete(children[i])) {
+					System.out.println(">> deleting failed" + children[i]);
+				}
+			}
 		}
-		return file.delete();
+		if (!file.delete()) {
+			file.setWritable(true);
+			file.setReadable(true);
+			file.delete();
+		}
+		return !file.exists();
 	}
 
 	/**
