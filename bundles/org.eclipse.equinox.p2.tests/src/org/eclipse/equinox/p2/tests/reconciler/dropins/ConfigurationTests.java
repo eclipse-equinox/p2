@@ -11,6 +11,8 @@
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -85,12 +87,12 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * Test discovering a site in a platform.xml file and installing the bundles from it.
 	 * Then change the site to be disabled and then re-reconcile.
 	 */
-	public void testSiteEnabled() {
+	public void testSiteEnabled() throws IOException, URISyntaxException {
 		assertInitialized();
 		File temp = getTempFolder();
 		toRemove.add(temp);
 		Configuration configuration = getConfiguration();
-		String siteLocation = new File(temp, "eclipse").toURI().toString();
+		String siteLocation = new File(temp, "eclipse").getCanonicalFile().toURI().toString();
 
 		File source = getTestData("2.0", "testData/reconciler/ext.jar");
 		copy("2.1", source, temp);
@@ -139,13 +141,13 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * a sub-element of the site. When the feature and its plug-ins are removed
 	 * from the site we need to ensure the plug-ins are removed from the install.
 	 */
-	public void test_247095() {
+	public void test_247095() throws IOException, URISyntaxException {
 		assertInitialized();
 		Configuration configuration = getConfiguration();
 		File temp = getTempFolder();
 		toRemove.add(temp);
 		String siteLocation = null;
-		siteLocation = new File(temp, "eclipse").toURI().toString();
+		siteLocation = new File(temp, "eclipse").getCanonicalFile().toURI().toString();
 
 		// copy the data to the temp folder
 		File source = getTestData("1.0", "testData/reconciler/247095");
@@ -195,13 +197,13 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * Same but delete the files from disk. (other test cases doesn't delete the files... simulates
 	 * the use of a shared bundle pool)
 	 */
-	public void test_247095b() {
+	public void test_247095b() throws IOException, URISyntaxException {
 		assertInitialized();
 		Configuration configuration = getConfiguration();
 		File temp = getTempFolder();
 		toRemove.add(temp);
 		String siteLocation = null;
-		siteLocation = new File(temp, "eclipse").toURI().toString();
+		siteLocation = new File(temp, "eclipse").getCanonicalFile().toURI().toString();
 
 		// copy the data to the temp folder
 		File source = getTestData("1.0", "testData/reconciler/247095");
@@ -255,13 +257,13 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * features, we were always adding the features to the excludes list and
 	 * therefore they were never installed.
 	 */
-	public void test_249607() {
+	public void test_249607() throws IOException, URISyntaxException {
 		assertInitialized();
 		Configuration configuration = getConfiguration();
 		File temp = getTempFolder();
 		toRemove.add(temp);
 		String siteLocation = null;
-		siteLocation = new File(temp, "eclipse").toURI().toString();
+		siteLocation = new File(temp, "eclipse").getCanonicalFile().toURI().toString();
 
 		// copy the data to the temp folder
 		File source = getTestData("1.0", "testData/reconciler/247095");
@@ -296,12 +298,12 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * Add a site to the platform.xml, reconcile, ensure its contents are installed, remove the site,
 	 * reconcile, ensure the contents are uninstalled.
 	 */
-	public void test_249898() {
+	public void test_249898() throws IOException, URISyntaxException {
 		assertInitialized();
 		Configuration configuration = getConfiguration();
 		File temp = getTempFolder();
 		toRemove.add(temp);
-		String siteLocation = new File(temp, "eclipse").toURI().toString();
+		String siteLocation = new File(temp, "eclipse").getCanonicalFile().toURI().toString();
 
 		// copy the data to the temp folder
 		File source = getTestData("1.0", "testData/reconciler/247095");
@@ -334,12 +336,12 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	/*
 	 * Test extension locations that have both JAR'd bundles and directory-based bundles.
 	 */
-	public void test_232094a() {
+	public void test_232094a() throws IOException {
 		assertInitialized();
 		internal_test_232094(getTestData("1.0", "testData/reconciler/ext.dir"));
 	}
 
-	public void test_232094b() {
+	public void test_232094b() throws IOException {
 		assertInitialized();
 		internal_test_232094(getTestData("1.0", "testData/reconciler/ext.jar"));
 	}
@@ -349,14 +351,14 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * by the user putting a .link file in the links/ folder. Then they delete the link file
 	 * and the features and plug-ins should be uninstalled.
 	 */
-	private void internal_test_232094(File source) {
+	private void internal_test_232094(File source) throws IOException {
 		File temp = getTempFolder();
 		toRemove.add(temp);
 		// copy the data to an extension location
 		copy("1.1", source, temp);
 
 		// create the file in the links/ folder
-		createLinkFile("2.0", "myLink", temp.getAbsolutePath());
+		createLinkFile("2.0", "myLink", temp.getCanonicalFile().getAbsolutePath());
 
 		// reconcile
 		reconcile("3.0");
@@ -395,7 +397,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * Add a new site to the platform.xml file which points to a location that contains
 	 * a p2 repository. (content.jar and artifacts.jar + bundles)
 	 */
-	public void test_p2Site() {
+	public void test_p2Site() throws IOException, URISyntaxException {
 		assertInitialized();
 
 		// initial reconciliation to create platform.xml
