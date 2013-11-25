@@ -497,15 +497,19 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * has a url matching the given location.
 	 */
 	public boolean removeSite(Configuration configuration, String location) {
-		System.out.println("remove site=" + location);
+		System.out.println("remove site location = " + location);
 		IPath path = new Path(location);
 		List sites = configuration.getSites();
-		System.out.println("sites=" + sites);
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site tempSite = (Site) iter.next();
 			String siteURL = tempSite.getUrl();
-			if (path.equals(new Path(siteURL)))
-				return configuration.removeSite(tempSite);
+			if (path.equals(new Path(siteURL))) {
+				System.out.println("Match " + siteURL);
+				boolean result = configuration.removeSite(tempSite);
+				System.out.println("removed " + result);
+				return result;
+			}
+			System.out.println("No match " + siteURL);
 		}
 		return false;
 	}
