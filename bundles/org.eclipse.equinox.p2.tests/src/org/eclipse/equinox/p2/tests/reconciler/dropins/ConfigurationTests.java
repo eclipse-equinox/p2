@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -87,7 +88,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * Test discovering a site in a platform.xml file and installing the bundles from it.
 	 * Then change the site to be disabled and then re-reconcile.
 	 */
-	public void testSiteEnabled() throws IOException {
+	public void testSiteEnabled() throws IOException, URISyntaxException {
 		assertInitialized();
 		System.out.println(">>> testSiteEnabled " + output);
 		File temp = getTempFolder();
@@ -144,7 +145,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * a sub-element of the site. When the feature and its plug-ins are removed
 	 * from the site we need to ensure the plug-ins are removed from the install.
 	 */
-	public void test_247095() throws IOException {
+	public void test_247095() throws IOException, URISyntaxException {
 		assertInitialized();
 		System.out.println(">>> test_247095 " + output);
 		Configuration configuration = getConfiguration();
@@ -202,7 +203,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * Same but delete the files from disk. (other test cases doesn't delete the files... simulates
 	 * the use of a shared bundle pool)
 	 */
-	public void test_247095b() throws IOException {
+	public void test_247095b() throws IOException, URISyntaxException {
 		assertInitialized();
 		Configuration configuration = getConfiguration();
 		File temp = getTempFolder();
@@ -262,7 +263,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * features, we were always adding the features to the excludes list and
 	 * therefore they were never installed.
 	 */
-	public void test_249607() throws IOException {
+	public void test_249607() throws IOException, URISyntaxException {
 		assertInitialized();
 		Configuration configuration = getConfiguration();
 		File temp = getTempFolder();
@@ -303,7 +304,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * Add a site to the platform.xml, reconcile, ensure its contents are installed, remove the site,
 	 * reconcile, ensure the contents are uninstalled.
 	 */
-	public void test_249898() throws IOException {
+	public void test_249898() throws IOException, URISyntaxException {
 		assertInitialized();
 		Configuration configuration = getConfiguration();
 		File temp = getTempFolder();
@@ -402,7 +403,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 * Add a new site to the platform.xml file which points to a location that contains
 	 * a p2 repository. (content.jar and artifacts.jar + bundles)
 	 */
-	public void test_p2Site() {
+	public void test_p2Site() throws IOException, URISyntaxException {
 		assertInitialized();
 
 		// initial reconciliation to create platform.xml

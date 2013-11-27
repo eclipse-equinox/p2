@@ -12,8 +12,7 @@
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
@@ -496,14 +495,15 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Iterate over the sites in the given configuration and remove the one which
 	 * has a url matching the given location.
 	 */
-	public boolean removeSite(Configuration configuration, String location) {
+	public boolean removeSite(Configuration configuration, String location) throws IOException, URISyntaxException {
 		System.out.println("remove site location = " + location);
-		IPath path = new Path(location);
+		File left = new File(new URI(location)).getCanonicalFile();
 		List sites = configuration.getSites();
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site tempSite = (Site) iter.next();
 			String siteURL = tempSite.getUrl();
-			if (path.equals(new Path(siteURL))) {
+			File right = new File(new URI(siteURL)).getCanonicalFile();
+			if (left.equals(right)) {
 				System.out.println("Match " + siteURL);
 				boolean result = configuration.removeSite(tempSite);
 				System.out.println("removed " + result);
