@@ -314,9 +314,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	protected File getBundlesInfo() {
-		File file = new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
-		System.out.println(">>> getBundlesInfo = " + file);
-		return file;
+		return new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
 	}
 
 	public boolean isInBundlesInfo(String bundleId, String version) throws IOException {
@@ -442,12 +440,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			return;
 		for (Iterator iter = toRemove.iterator(); iter.hasNext();) {
 			File next = (File) iter.next();
-			if (!delete(next)) {
-				System.out.println("deleting failed!!! " + next);
-			}
+			delete(next);
 		}
 		output = null;
-		System.out.println(">>> removing " + toRemove);
 		toRemove.clear();
 	}
 
@@ -457,9 +452,6 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	public Configuration getConfiguration() {
 		File configLocation = new File(output, "eclipse/configuration/org.eclipse.update/platform.xml");
 		File installLocation = new File(output, "eclipse");
-		System.out.println(">>> getConfiguration");
-		System.out.println(" configLocation = " + configLocation);
-		System.out.println(" installLocation = " + installLocation);
 		return loadConfiguration(configLocation, installLocation);
 	}
 
@@ -496,7 +488,6 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * has a url matching the given location.
 	 */
 	public boolean removeSite(Configuration configuration, String location) throws IOException, URISyntaxException {
-		System.out.println("remove site location = " + location);
 		File left = new File(new URI(location)).getCanonicalFile();
 		List sites = configuration.getSites();
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
@@ -504,12 +495,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			String siteURL = tempSite.getUrl();
 			File right = new File(new URI(siteURL)).getCanonicalFile();
 			if (left.equals(right)) {
-				System.out.println("Match " + siteURL);
-				boolean result = configuration.removeSite(tempSite);
-				System.out.println("removed " + result);
-				return result;
+				return configuration.removeSite(tempSite);
 			}
-			System.out.println("No match " + siteURL);
 		}
 		return false;
 	}

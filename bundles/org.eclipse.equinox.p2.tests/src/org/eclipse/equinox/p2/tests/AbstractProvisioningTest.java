@@ -611,11 +611,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			file.setReadable(true);
 			file.setExecutable(true);
 			File[] children = file.listFiles();
-			for (int i = 0; i < children.length; i++) {
-				if (!delete(children[i])) {
-					System.out.println(">> deleting failed" + children[i]);
-				}
-			}
+			for (int i = 0; i < children.length; i++)
+				delete(children[i]);
 		}
 		if (!file.delete()) {
 			file.setWritable(true);
