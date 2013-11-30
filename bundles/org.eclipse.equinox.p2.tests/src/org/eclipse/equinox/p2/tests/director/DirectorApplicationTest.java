@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertThat;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -79,6 +82,13 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private String[] getSingleRepoArgs(String message, File metadataRepo, File artifactRepo, File destinationRepo, String installIU, String parameter) {
 		return new String[] {"-metadataRepository", URIUtil.toUnencodedString(metadataRepo.toURI()), "-artifactRepository", URIUtil.toUnencodedString(artifactRepo.toURI()), "-installIU", installIU, "-destination", URIUtil.toUnencodedString(destinationRepo.toURI()), "-profile", "PlatformSDKProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", destinationRepo.getAbsolutePath(), "-roaming", parameter};
+	}
+
+	/**
+	 * creates the director app arguments with list arguments
+	 */
+	private String[] getSingleRepoArgsForListing(String message, File metadataRepo, File artifactRepo, String listArgument, String iuToList, String listFormatArgument, String formatString) {
+		return new String[] {"-metadataRepository", URIUtil.toUnencodedString(metadataRepo.toURI()), "-artifactRepository", URIUtil.toUnencodedString(artifactRepo.toURI()), listArgument, iuToList, listFormatArgument, formatString};
 	}
 
 	/**
@@ -693,6 +703,42 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		assertTrue(plugin1.exists());
 		File plugin2 = new File(plugins, "ccc_1.0.0");
 		assertTrue(plugin2.exists());
+	}
+
+	public void testListFormatMissingListArgument() throws Exception {
+		//Setup: get repositories
+		File artifactRepo = getTestData("testListFormatMissingListArgument", "/testData/testRepos/updateSite");
+		File metadataRepo = getTestData("testListFormatMissingListArgument", "/testData/testRepos/updateSite");
+
+		//Setup: create the args
+		String[] args = getSingleRepoArgsForListing("testListFormatMissingListArgument", metadataRepo, artifactRepo, "", "", "-listFormat", "%i=%v,%d");
+
+		StringBuffer buffer = runDirectorApp("testListFormatMissingListArgument", args);
+		assertThat(buffer.toString(), containsString("-listFormat requires"));
+	}
+
+	public void testListFormat() throws Exception {
+		//Setup: get repositories
+		File artifactRepo = getTestData("testListFormat", "/testData/testRepos/updateSite");
+		File metadataRepo = getTestData("testListFormat", "/testData/testRepos/updateSite");
+
+		//Setup: create the args
+		String[] args = getSingleRepoArgsForListing("testListFormat", metadataRepo, artifactRepo, "-list", "", "-listFormat", "${id}_${version},${id},${org.eclipse.equinox.p2.name}");
+
+		StringBuffer buffer = runDirectorApp("testListFormat", args);
+		assertThat(buffer.toString(), containsString("org.eclipse.ui.examples.job_3.0.0,org.eclipse.ui.examples.job,Progress Examples Plug-in"));
+	}
+
+	public void testListNoExplicitFormat() throws Exception {
+		//Setup: get repositories
+		File artifactRepo = getTestData("testListNoExplicitFormat", "/testData/testRepos/updateSite");
+		File metadataRepo = getTestData("testListNoExplicitFormat", "/testData/testRepos/updateSite");
+
+		//Setup: create the args
+		String[] args = getSingleRepoArgsForListing("testListNoExplicitFormat", metadataRepo, artifactRepo, "-list", "", "", "");
+
+		StringBuffer buffer = runDirectorApp("testListNoExplicitFormat", args);
+		assertThat(buffer.toString(), containsString("org.eclipse.ui.examples.job=3.0.0"));
 	}
 
 	/**

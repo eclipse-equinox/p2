@@ -22,6 +22,8 @@ public class Messages extends NLS {
 	public static String Application_NoManager;
 
 	public static String Application_NoRepositories;
+
+	public static String ArgRequiresOtherArgs;
 	public static String Bad_format;
 	public static String Cant_change_roaming;
 	public static String destination_commandline;
@@ -41,6 +43,8 @@ public class Messages extends NLS {
 	public static String Help_List_all_IUs_found_in_repos;
 	public static String Help_List_installed_roots;
 	public static String Help_lt_comma_separated_list_gt;
+
+	public static String Help_lt_list_format_gt;
 	public static String Help_lb_lt_comma_separated_list_gt_rb;
 	public static String Help_lt_name_gt;
 	public static String Help_lt_path_gt;
@@ -62,6 +66,8 @@ public class Messages extends NLS {
 	public static String Help_Defines_a_tag_for_provisioning_session;
 	public static String Help_List_Tags;
 	public static String Help_Download_Only;
+
+	public static String Help_formats_the_IU_list;
 
 	public static String Ignored_repo;
 	public static String Installing;

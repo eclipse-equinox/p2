@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007-2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *     Sonatype, Inc. - ongoing development
  *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  *     Red Hat, Inc. - support repositories passed via fragments (see bug 378329).
+ *     SAP AG - list formatting (bug 423538)
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
@@ -91,7 +92,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private static class CommandLineOption {
-		private final String[] identifiers;
+		final String[] identifiers;
 		private final String optionSyntaxString;
 		private final String helpString;
 
@@ -127,6 +128,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private static final CommandLineOption OPTION_HELP = new CommandLineOption(new String[] {"-help", "-h", "-?"}, null, Messages.Help_Prints_this_command_line_help); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final CommandLineOption OPTION_LIST = new CommandLineOption(new String[] {"-list", "-l"}, Messages.Help_lb_lt_comma_separated_list_gt_rb, Messages.Help_List_all_IUs_found_in_repos); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final CommandLineOption OPTION_LIST_FORMAT = new CommandLineOption(new String[] {"-listFormat", "-lf"}, Messages.Help_lt_list_format_gt, Messages.Help_formats_the_IU_list); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final CommandLineOption OPTION_LIST_INSTALLED = new CommandLineOption(new String[] {"-listInstalledRoots", "-lir"}, null, Messages.Help_List_installed_roots); //$NON-NLS-1$ //$NON-NLS-2$	
 	private static final CommandLineOption OPTION_INSTALL_IU = new CommandLineOption(new String[] {"-installIU", "-installIUs", "-i"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Installs_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final CommandLineOption OPTION_UNINSTALL_IU = new CommandLineOption(new String[] {"-uninstallIU", "-uninstallIUs", "-u"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Uninstalls_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -251,6 +253,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private boolean printIUList = false;
 	private boolean printRootIUList = false;
 	private boolean printTags = false;
+	private IUListFormatter listFormat;
 
 	private String revertToPreviousState = NOTHING_TO_REVERT_TO;
 	private static String NOTHING_TO_REVERT_TO = "-1"; //$NON-NLS-1$
@@ -755,9 +758,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 
 		Collections.sort(allRoots);
-		for (IInstallableUnit iu : allRoots) {
-			System.out.println(iu.getId() + '=' + iu.getVersion());
-		}
+
+		String formattedString = listFormat.format(allRoots);
+		System.out.println(formattedString);
 	}
 
 	private void performProvisioningActions() throws CoreException {
@@ -859,6 +862,12 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 					parseIUsArgument(rootsToList, optionalArgument);
 					i++;
 				}
+				continue;
+			}
+
+			if (OPTION_LIST_FORMAT.isOption(opt)) {
+				String formatString = getRequiredArgument(args, ++i);
+				listFormat = new IUListFormatter(formatString);
 				continue;
 			}
 
@@ -1016,12 +1025,23 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				}
 				continue;
 			}
-			throw new ProvisionException(NLS.bind(Messages.unknown_option_0, opt));
+
+			if (opt != null && opt.length() > 0)
+				throw new ProvisionException(NLS.bind(Messages.unknown_option_0, opt));
 		}
 
-		if (!printHelpInfo && !printIUList && !printRootIUList && !printTags && !purgeRegistry && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty() && revertToPreviousState == NOTHING_TO_REVERT_TO) {
+		if (listFormat != null && !printIUList && !printRootIUList) {
+			throw new ProvisionException(NLS.bind(Messages.ArgRequiresOtherArgs, //
+					new String[] {OPTION_LIST_FORMAT.identifiers[0], OPTION_LIST.identifiers[0], OPTION_LIST_INSTALLED.identifiers[0]}));
+		}
+
+		else if (!printHelpInfo && !printIUList && !printRootIUList && !printTags && !purgeRegistry && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty() && revertToPreviousState == NOTHING_TO_REVERT_TO) {
 			printMessage(Messages.Help_Missing_argument);
 			printHelpInfo = true;
+		}
+
+		if (listFormat == null) {
+			listFormat = new IUListFormatter("${id}=${version}"); //$NON-NLS-1$
 		}
 	}
 
@@ -1238,7 +1258,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private void performHelpInfo() {
-		CommandLineOption[] allOptions = new CommandLineOption[] {OPTION_HELP, OPTION_LIST, OPTION_LIST_INSTALLED, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_REVERT, OPTION_DESTINATION, OPTION_DOWNLOAD_ONLY, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES, OPTION_VERIFY_ONLY, OPTION_TAG, OPTION_LIST_TAGS, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED, OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_IU_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS, OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES};
+		CommandLineOption[] allOptions = new CommandLineOption[] {OPTION_HELP, OPTION_LIST, OPTION_LIST_INSTALLED, OPTION_LIST_FORMAT, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_REVERT, OPTION_DESTINATION, OPTION_DOWNLOAD_ONLY, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES, OPTION_VERIFY_ONLY, OPTION_TAG, OPTION_LIST_TAGS, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED, OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_IU_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS, OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES};
 		for (int i = 0; i < allOptions.length; ++i) {
 			allOptions[i].appendHelp(System.out);
 		}
