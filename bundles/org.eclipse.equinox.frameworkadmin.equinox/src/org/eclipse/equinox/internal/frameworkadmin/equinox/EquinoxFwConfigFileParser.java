@@ -26,7 +26,7 @@ import org.osgi.framework.Constants;
 import org.osgi.service.log.LogService;
 
 public class EquinoxFwConfigFileParser {
-	private static final Set KNOWN_PROPERTIES = new HashSet(Arrays.asList(new String[] {EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_FW_EXTENSIONS, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL}));
+	private static final Set<String> KNOWN_PROPERTIES = new HashSet<String>(Arrays.asList(new String[] {EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_FW_EXTENSIONS, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL}));
 	private static final String CONFIG_DIR = "@config.dir/"; //$NON-NLS-1$
 	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
@@ -114,7 +114,7 @@ public class EquinoxFwConfigFileParser {
 		if (value == null || value.length() == 0)
 			return null;
 
-		List bundles = new ArrayList();
+		List<BundleInfo> bundles = new ArrayList<BundleInfo>();
 		String[] bInfoStrings = Utils.getTokens(value, ","); //$NON-NLS-1$
 		for (int i = 0; i < bInfoStrings.length; i++) {
 			String entry = bInfoStrings[i].trim();
@@ -152,7 +152,7 @@ public class EquinoxFwConfigFileParser {
 			//Fallback case, we use the location as a string
 			bundles.add(new BundleInfo(location, null, null, startLevel, markedAsStarted));
 		}
-		return (BundleInfo[]) bundles.toArray(new BundleInfo[bundles.size()]);
+		return bundles.toArray(new BundleInfo[bundles.size()]);
 	}
 
 	private void writeBundlesList(File fwJar, Properties props, BundleInfo[] bundles) {
@@ -240,7 +240,7 @@ public class EquinoxFwConfigFileParser {
 		readInitialStartLeve(configData, props);
 		readDefaultStartLevel(configData, props);
 
-		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			if (KNOWN_PROPERTIES.contains(key))
 				continue;
@@ -527,7 +527,7 @@ public class EquinoxFwConfigFileParser {
 		Properties sharedConfigProperties = getSharedConfiguration(ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData), configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
 		if (sharedConfigProperties == null)
 			return;
-		Enumeration keys = configProps.propertyNames();
+		Enumeration<?> keys = configProps.propertyNames();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
 			String sharedValue = sharedConfigProperties.getProperty(key);
@@ -564,7 +564,7 @@ public class EquinoxFwConfigFileParser {
 		if (bundles == null || sharedBundles == null || bundles.length != sharedBundles.length)
 			return false;
 
-		List compareList = new ArrayList(Arrays.asList(bundles));
+		List<BundleInfo> compareList = new ArrayList<BundleInfo>(Arrays.asList(bundles));
 		compareList.removeAll(Arrays.asList(sharedBundles));
 		return compareList.isEmpty();
 	}

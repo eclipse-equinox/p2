@@ -18,6 +18,7 @@ import org.osgi.util.tracker.ServiceTracker;
 /**
  * Utility class with static methods for logging to LogService, if available 
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class Log {
 	static private ServiceTracker logTracker;
 	static private boolean useLog = false;
@@ -40,14 +41,14 @@ public class Log {
 
 	public static void log(int level, Object obj, String method, String message, Throwable e) {
 		LogService logService = null;
-		String msg = "";
+		String msg = ""; //$NON-NLS-1$
 		if (method == null) {
 			if (obj != null)
-				msg = "(" + obj.getClass().getName() + ")";
+				msg = "(" + obj.getClass().getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (obj == null)
-			msg = "[" + method + "]" + message;
+			msg = "[" + method + "]" + message; //$NON-NLS-1$ //$NON-NLS-2$
 		else
-			msg = "[" + method + "](" + obj.getClass().getName() + ")";
+			msg = "[" + method + "](" + obj.getClass().getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		msg += message;
 		if (logTracker != null)
 			logService = (LogService) logTracker.getService();
@@ -57,17 +58,17 @@ public class Log {
 		} else {
 			String levelSt = null;
 			if (level == LogService.LOG_DEBUG)
-				levelSt = "DEBUG";
+				levelSt = "DEBUG"; //$NON-NLS-1$
 			else if (level == LogService.LOG_INFO)
-				levelSt = "INFO";
+				levelSt = "INFO"; //$NON-NLS-1$
 			else if (level == LogService.LOG_WARNING)
-				levelSt = "WARNING";
+				levelSt = "WARNING"; //$NON-NLS-1$
 			else if (level == LogService.LOG_ERROR) {
-				levelSt = "ERROR";
+				levelSt = "ERROR"; //$NON-NLS-1$
 				useLog = true;
 			}
 			if (useLog) {
-				System.err.println("[" + levelSt + "]" + msg);
+				System.err.println("[" + levelSt + "]" + msg); //$NON-NLS-1$ //$NON-NLS-2$
 				if (e != null)
 					e.printStackTrace();
 			}

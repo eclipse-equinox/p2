@@ -26,7 +26,7 @@ import org.osgi.service.log.LogService;
 public class ParserUtils {
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 
-	public static File getOSGiInstallArea(List programArgs, Properties properties, LauncherData launcherData) {
+	public static File getOSGiInstallArea(List<String> programArgs, Properties properties, LauncherData launcherData) {
 		if (launcherData == null)
 			return null;
 
@@ -66,7 +66,7 @@ public class ParserUtils {
 		return null;
 	}
 
-	public static URI getFrameworkJar(List lines, URI launcherFolder) {
+	public static URI getFrameworkJar(List<String> lines, URI launcherFolder) {
 		String fwk = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_FW, lines);
 		if (fwk == null) {
 			//Search the file system using the default location
@@ -84,7 +84,7 @@ public class ParserUtils {
 	}
 
 	//This method should only be used to determine the osgi install area when reading the eclipse.ini
-	public static File getOSGiInstallArea(List args, Properties properties, URI base) {
+	public static File getOSGiInstallArea(List<String> args, Properties properties, URI base) {
 		if (args == null)
 			return null;
 		String install = getValueForArgument(EquinoxConstants.OPTION_INSTALL, args);
@@ -128,28 +128,28 @@ public class ParserUtils {
 		return parentFolder.toFile();
 	}
 
-	public static boolean isArgumentSet(String arg, List args) {
+	public static boolean isArgumentSet(String arg, List<String> args) {
 		if (arg == null || args == null)
 			return false;
 		for (int i = 0; i < args.size(); i++) {
 			if (args.get(i) == null)
 				continue;
-			if (((String) args.get(i)).equalsIgnoreCase(arg)) {
+			if ((args.get(i)).equalsIgnoreCase(arg)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public static String getValueForArgument(String arg, List args) {
+	public static String getValueForArgument(String arg, List<String> args) {
 		if (arg == null || args == null)
 			return null;
 		for (int i = 0; i < args.size(); i++) {
 			if (args.get(i) == null)
 				continue;
-			if (((String) args.get(i)).equalsIgnoreCase(arg)) {
+			if ((args.get(i)).equalsIgnoreCase(arg)) {
 				if (i + 1 < args.size()) {
-					String value = (String) args.get(i + 1);
+					String value = args.get(i + 1);
 					if (value != null && value.length() > 0 && value.charAt(0) != '-')
 						return value;
 				}
@@ -158,17 +158,17 @@ public class ParserUtils {
 		return null;
 	}
 
-	public static boolean setValueForArgument(String arg, String value, List args) {
+	public static boolean setValueForArgument(String arg, String value, List<String> args) {
 		if (arg == null || args == null)
 			return false;
 
 		for (int i = 0; i < args.size(); i++) {
 			if (args.get(i) == null)
 				continue;
-			String currentArg = ((String) args.get(i)).trim();
+			String currentArg = (args.get(i)).trim();
 			if (currentArg.equalsIgnoreCase(arg)) {
 				if (i + 1 < args.size()) {
-					String nextArg = (String) args.get(i + 1);
+					String nextArg = args.get(i + 1);
 					if (nextArg == null || nextArg.charAt(0) != '-') {
 						args.set(i + 1, value);
 					} else {
@@ -186,16 +186,16 @@ public class ParserUtils {
 		return true;
 	}
 
-	public static boolean removeArgument(String arg, List args) {
+	public static boolean removeArgument(String arg, List<String> args) {
 		if (arg == null || args == null)
 			return false;
 		for (int i = 0; i < args.size(); i++) {
 			if (args.get(i) == null)
 				continue;
-			String currentArg = ((String) args.get(i)).trim();
+			String currentArg = (args.get(i)).trim();
 			if (currentArg.equalsIgnoreCase(arg)) {
 				args.set(i, null);
-				while (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(0) != '-') {
+				while (i + 1 < args.size() && args.get(i + 1) != null && (args.get(i + 1)).charAt(0) != '-') {
 					args.set(i + 1, null);
 					i++;
 				}

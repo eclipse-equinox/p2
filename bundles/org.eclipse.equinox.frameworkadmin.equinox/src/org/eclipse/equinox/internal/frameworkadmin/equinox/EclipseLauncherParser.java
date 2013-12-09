@@ -29,7 +29,7 @@ public class EclipseLauncherParser {
 	public static final String MACOSX_BUNDLED = "macosx-bundled"; //$NON-NLS-1$
 
 	//this figures out the location of the data area on partial data read from the <eclipse>.ini
-	private URI getOSGiInstallArea(List lines, URI base, LauncherData launcherData) {
+	private URI getOSGiInstallArea(List<String> lines, URI base, LauncherData launcherData) {
 		//does the eclipse.ini say anything for osgi.install.area?
 		File osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, null, base);
 		if (osgiInstallArea == null) {
@@ -41,7 +41,7 @@ public class EclipseLauncherParser {
 		return null;
 	}
 
-	private void setInstall(List lines, LauncherData launcherData, File launcherFolder) {
+	private void setInstall(List<String> lines, LauncherData launcherData, File launcherFolder) {
 		if (launcherData.getFwConfigLocation() == null || launcherData.getFwJar() == null) {
 			ParserUtils.removeArgument(EquinoxConstants.OPTION_INSTALL, lines);
 			return;
@@ -62,7 +62,7 @@ public class EclipseLauncherParser {
 		if (!launcherConfigFile.exists())
 			return;
 
-		List lines = FileUtils.loadFile(launcherConfigFile);
+		List<String> lines = FileUtils.loadFile(launcherConfigFile);
 
 		URI launcherFolder = launcherData.getLauncher().getParentFile().toURI();
 		getStartup(lines, launcherFolder);
@@ -83,7 +83,7 @@ public class EclipseLauncherParser {
 		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, launcherConfigFile.getAbsolutePath()));
 	}
 
-	private void getFrameworkJar(List lines, URI launcherFolder, LauncherData launcherData) {
+	private void getFrameworkJar(List<String> lines, URI launcherFolder, LauncherData launcherData) {
 		File fwJar = launcherData.getFwJar();
 		if (fwJar != null)
 			return;
@@ -92,14 +92,14 @@ public class EclipseLauncherParser {
 			launcherData.setFwJar(URIUtil.toFile(location));
 	}
 
-	private void getPersistentDataLocation(List lines, URI osgiInstallArea, URI configArea, LauncherData launcherData) {
+	private void getPersistentDataLocation(List<String> lines, URI osgiInstallArea, URI configArea, LauncherData launcherData) {
 		//TODO The setting of the -clean could only do properly once config.ini has been read
 		if (launcherData.getFwPersistentDataLocation() == null) {
 			launcherData.setFwPersistentDataLocation(URIUtil.toFile(configArea), ParserUtils.isArgumentSet(EquinoxConstants.OPTION_CLEAN, lines));
 		}
 	}
 
-	private void getVM(List lines, URI launcherFolder, LauncherData launcherData) {
+	private void getVM(List<String> lines, URI launcherFolder, LauncherData launcherData) {
 		String vm = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines);
 		if (vm == null)
 			return;
@@ -115,7 +115,7 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private void setVM(List lines, File vm, URI launcherFolder) {
+	private void setVM(List<String> lines, File vm, URI launcherFolder) {
 		if (vm == null) {
 			if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines) != null)
 				return;
@@ -140,11 +140,11 @@ public class EclipseLauncherParser {
 		ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, FileUtils.toPath(vmRelativePath).replace('\\', '/'), lines);
 	}
 
-	private void getJVMArgs(List lines, LauncherData launcherData) {
-		ArrayList vmargs = new ArrayList(lines.size());
+	private void getJVMArgs(List<String> lines, LauncherData launcherData) {
+		ArrayList<String> vmargs = new ArrayList<String>(lines.size());
 		boolean foundVmArgs = false;
-		for (Iterator iterator = lines.iterator(); iterator.hasNext();) {
-			String line = (String) iterator.next();
+		for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
+			String line = iterator.next();
 			if (!foundVmArgs) {
 				if (EquinoxConstants.OPTION_VMARGS.equals(line))
 					foundVmArgs = true;
@@ -154,10 +154,10 @@ public class EclipseLauncherParser {
 		}
 
 		launcherData.setJvmArgs(null);
-		launcherData.setJvmArgs((String[]) vmargs.toArray(new String[vmargs.size()]));
+		launcherData.setJvmArgs(vmargs.toArray(new String[vmargs.size()]));
 	}
 
-	private void setJVMArgs(List lines, LauncherData launcherData) {
+	private void setJVMArgs(List<String> lines, LauncherData launcherData) {
 		ParserUtils.removeArgument(EquinoxConstants.OPTION_VMARGS, lines);
 		if (launcherData.getJvmArgs() == null || launcherData.getJvmArgs().length == 0)
 			return;
@@ -168,19 +168,19 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private void getProgramArgs(List lines, LauncherData launcherData) {
-		ArrayList args = new ArrayList(lines.size());
-		for (Iterator iterator = lines.iterator(); iterator.hasNext();) {
-			String line = (String) iterator.next();
+	private void getProgramArgs(List<String> lines, LauncherData launcherData) {
+		ArrayList<String> args = new ArrayList<String>(lines.size());
+		for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
+			String line = iterator.next();
 			if (EquinoxConstants.OPTION_VMARGS.equals(line))
 				break;
 			args.add(line);
 		}
 		launcherData.setProgramArgs(null);
-		launcherData.setProgramArgs((String[]) args.toArray(new String[args.size()]));
+		launcherData.setProgramArgs(args.toArray(new String[args.size()]));
 	}
 
-	private URI getLauncherLibrary(List lines, URI launcherFolder) {
+	private URI getLauncherLibrary(List<String> lines, URI launcherFolder) {
 		String launcherLibrary = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, lines);
 		if (launcherLibrary == null)
 			return null;
@@ -195,7 +195,7 @@ public class EclipseLauncherParser {
 		return result;
 	}
 
-	private void setLauncherLibrary(List lines, URI launcherFolder) {
+	private void setLauncherLibrary(List<String> lines, URI launcherFolder) {
 		String launcherLibrary = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, lines);
 		if (launcherLibrary == null)
 			return;
@@ -209,7 +209,7 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private URI getConfigurationLocation(List lines, URI osgiInstallArea, LauncherData data) {
+	private URI getConfigurationLocation(List<String> lines, URI osgiInstallArea, LauncherData data) {
 		String configuration = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines);
 		if (configuration == null)
 			try {
@@ -230,7 +230,7 @@ public class EclipseLauncherParser {
 		return result;
 	}
 
-	private void setConfigurationLocation(List lines, URI osgiInstallArea, LauncherData data) {
+	private void setConfigurationLocation(List<String> lines, URI osgiInstallArea, LauncherData data) {
 		String result = FileUtils.toPath(URIUtil.makeRelative(data.getFwConfigLocation().toURI(), osgiInstallArea));
 		//We don't write the default
 		if (CONFIGURATION_FOLDER.equals(result)) {
@@ -245,7 +245,7 @@ public class EclipseLauncherParser {
 		return;
 	}
 
-	private URI getStartup(List lines, URI launcherFolder) {
+	private URI getStartup(List<String> lines, URI launcherFolder) {
 		String startup = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_STARTUP, lines);
 		if (startup == null)
 			return null;
@@ -261,7 +261,7 @@ public class EclipseLauncherParser {
 		return result;
 	}
 
-	private void setStartup(List lines, URI launcherFolder) {
+	private void setStartup(List<String> lines, URI launcherFolder) {
 		String startup = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_STARTUP, lines);
 		if (startup == null)
 			return;
@@ -285,7 +285,7 @@ public class EclipseLauncherParser {
 		}
 		//Tweak all the values to make them relative
 		File launcherFolder = launcherData.getLauncher().getParentFile();
-		List newlines = new ArrayList();
+		List<String> newlines = new ArrayList<String>();
 		newlines.addAll(Arrays.asList(launcherData.getProgramArgs()));
 
 		setStartup(newlines, launcherFolder.toURI());
@@ -300,7 +300,7 @@ public class EclipseLauncherParser {
 
 		//We are done, let's update the program args in the launcher data
 		launcherData.setProgramArgs(null);
-		launcherData.setProgramArgs((String[]) newlines.toArray(new String[newlines.size()]));
+		launcherData.setProgramArgs(newlines.toArray(new String[newlines.size()]));
 
 		//append jvm args
 		setJVMArgs(newlines, launcherData);
@@ -320,7 +320,7 @@ public class EclipseLauncherParser {
 			try {
 				bw = new BufferedWriter(new FileWriter(launcherConfigFile));
 				for (int j = 0; j < newlines.size(); j++) {
-					String arg = (String) newlines.get(j);
+					String arg = newlines.get(j);
 					if (arg == null)
 						continue;
 					bw.write(arg);

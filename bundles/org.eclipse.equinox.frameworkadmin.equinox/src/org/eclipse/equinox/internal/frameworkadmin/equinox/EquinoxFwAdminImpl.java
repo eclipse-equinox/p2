@@ -102,8 +102,8 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 		if (!"Eclipse".equals(fwVendor)) //$NON-NLS-1$
 			return false;
 		//TODO decide if this version can be supported by this bundle.
-		Dictionary header = context.getBundle(0).getHeaders();
-		String versionSt = (String) header.get(Constants.BUNDLE_VERSION);
+		Dictionary<String, String> header = context.getBundle(0).getHeaders();
+		String versionSt = header.get(Constants.BUNDLE_VERSION);
 		Version version = new Version(versionSt);
 		int value = version.compareTo(new Version(EquinoxConstants.FW_VERSION));
 		if (value > 0) {

@@ -202,19 +202,19 @@ public class FileUtils {
 		if (url.startsWith(FILE_PROTOCOL)) {
 			return URIUtil.fromString(new File(url.substring(FILE_PROTOCOL.length())).isAbsolute() ? url : url.substring(FILE_PROTOCOL.length()));
 		}
-		throw new URISyntaxException(url, "Not a file url");
+		throw new URISyntaxException(url, "Not a file url"); //$NON-NLS-1$
 	}
 
 	/**
 	 * Loads an ini file, returning a list of all non-blank lines in the file.
 	 */
-	public static List loadFile(File file) throws IOException {
+	public static List<String> loadFile(File file) throws IOException {
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader(file));
 
 			String line;
-			List list = new ArrayList();
+			List<String> list = new ArrayList<String>();
 			while ((line = br.readLine()) != null) {
 				//skip whitespace
 				if (line.trim().length() > 0)

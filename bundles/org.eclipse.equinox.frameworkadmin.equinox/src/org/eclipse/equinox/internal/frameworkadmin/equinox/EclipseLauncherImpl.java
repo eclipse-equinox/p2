@@ -62,7 +62,7 @@ public class EclipseLauncherImpl {
 		Utils.checkAbsoluteFile(launcherData.getFwJar(), "fwJar"); //$NON-NLS-1$
 		Utils.checkAbsoluteDir(cwd, "cwd"); //$NON-NLS-1$
 
-		List cmdList = new LinkedList();
+		List<String> cmdList = new LinkedList<String>();
 		if (launcherData.getJvm() != null)
 			cmdList.add(launcherData.getJvm().getAbsolutePath());
 		else

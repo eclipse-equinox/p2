@@ -102,6 +102,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	BundleContext context = null;
 	private Properties platformProperties = new Properties();
 
+	@SuppressWarnings("rawtypes")
 	ServiceTracker cmTracker;
 	int trackingCount = -1;
 	private final PlatformAdmin platformAdmin;
@@ -113,6 +114,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	EquinoxFwAdminImpl fwAdmin = null;
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin, PlatformAdmin admin, StartLevel slService, boolean runtime) {
 		this.context = context;
 		this.fwAdmin = fwAdmin;
@@ -171,6 +173,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 *
 	 * @see Location
 	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private File getRunningConfigurationLocation() {
 		ServiceTracker tracker = null;
 		Filter filter = null;
@@ -277,7 +280,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		}
 		// 2. Create a Manipulator object fully initialized to the current running fw.
 
-		ServiceReference reference = context.getServiceReference(StartLevel.class.getName());
+		ServiceReference<?> reference = context.getServiceReference(StartLevel.class.getName());
 		StartLevel startLevel = (StartLevel) context.getService(reference);
 		Bundle[] bundles = context.getBundles();
 		BundleInfo[] bInfos = new BundleInfo[bundles.length];
@@ -298,7 +301,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 		// copy system properties to ConfigData
 		Properties props = System.getProperties();
-		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			String value = props.getProperty(key);
 			if (toBeEliminated(key))
@@ -443,12 +446,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * 4. set the object that corresponds to the chosen ConfiguratorBundle.
 	 *
 	 */
+	@SuppressWarnings("unchecked")
 	private ConfiguratorManipulator setConfiguratorManipulator() {
 		if (context == null) {
 			this.configuratorManipulator = this.fwAdmin.getConfiguratorManipulator();
 			return null;
 		}
-		ServiceReference[] references = cmTracker.getServiceReferences();
+		ServiceReference<?>[] references = cmTracker.getServiceReferences();
 		if (references == null)
 			return null;
 

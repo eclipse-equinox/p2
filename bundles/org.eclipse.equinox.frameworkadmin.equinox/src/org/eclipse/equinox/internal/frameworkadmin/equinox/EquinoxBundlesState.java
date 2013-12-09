@@ -32,6 +32,7 @@ public class EquinoxBundlesState implements BundlesState {
 	// this internally to be x86_64.
 	private static final String INTERNAL_AMD64 = "amd64"; //$NON-NLS-1$
 	private static final String INTERNAL_ARCH_I386 = "i386"; //$NON-NLS-1$
+	@SuppressWarnings("deprecation")
 	public static final String[] PROPS = {"osgi.os", "osgi.ws", "osgi.nl", "osgi.arch", Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode", Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "osgi.resolveOptional", "osgi.genericAliases"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 
 	static boolean checkFullySupported() {
@@ -159,11 +160,12 @@ public class EquinoxBundlesState implements BundlesState {
 	// "osgi.os", "osgi.ws", "osgi.nl", "osgi.arch",
 	// Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode",
 	// Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "osgi.resolveOptional"
+	@SuppressWarnings("deprecation")
 	private Properties setDefaultPlatformProperties() {
 		Properties platformProperties = new Properties();
 		// set default value
 
-		ServiceReference environmentRef = context.getServiceReference(EnvironmentInfo.class);
+		ServiceReference<?> environmentRef = context.getServiceReference(EnvironmentInfo.class);
 		EnvironmentInfo environment = environmentRef == null ? null : (EnvironmentInfo) context.getService(environmentRef);
 		if (environment != null) {
 			try {
@@ -209,15 +211,15 @@ public class EquinoxBundlesState implements BundlesState {
 	State state = null;
 
 	/**
-	 * Map of String->BundleDescription, where the key is the bundle location.
+	 * Map of URI->BundleDescription, where the key is the bundle location.
 	 */
-	private HashMap locationStateIndex = new HashMap();
+	private HashMap<URI, BundleDescription> locationStateIndex = new HashMap<URI, BundleDescription>();
 
 	/**
 	 * Map of String->BundleDescription, where the key is the bundle name
 	 * and version as defined by the {@link #getKey(BundleDescription)} method.
 	 */
-	private HashMap nameVersionStateIndex = new HashMap();
+	private HashMap<String, BundleDescription> nameVersionStateIndex = new HashMap<String, BundleDescription>();
 	private final PlatformAdmin platformAdmin;
 
 	/**
@@ -307,7 +309,7 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @throws IllegalArgumentException
 	 * @throws FrameworkAdminRuntimeException
 	 */
-	private boolean composeState(BundleInfo[] bInfos, Dictionary props, File fwPersistentDataLocation) throws IllegalArgumentException, FrameworkAdminRuntimeException {
+	private boolean composeState(BundleInfo[] bInfos, Dictionary<Object, Object> props, File fwPersistentDataLocation) throws IllegalArgumentException, FrameworkAdminRuntimeException {
 		BundleInfo[] infos = manipulator.getConfigData().getBundles();
 		this.manipulator.getConfigData().setBundles(null);
 		SimpleBundlesState.checkAvailability(fwAdmin);
@@ -411,7 +413,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 	public BundleInfo[] convertState(BundleDescription[] bundles) {
 		BundleInfo[] originalBInfos = manipulator.getConfigData().getBundles();
-		Map bundleInfoMap = new HashMap();
+		Map<URI, BundleInfo> bundleInfoMap = new HashMap<URI, BundleInfo>();
 		for (int i = 0; i < originalBInfos.length; i++) {
 			bundleInfoMap.put(originalBInfos[i].getLocation(), originalBInfos[i]);
 		}
@@ -436,7 +438,7 @@ public class EquinoxBundlesState implements BundlesState {
 				throw new IllegalStateException("BundleDescription conversion problem" + e.getMessage()); //$NON-NLS-1$ //TODO path_fun
 			}
 			String fragmentHost = null;
-			BundleInfo original = (BundleInfo) bundleInfoMap.get(location);
+			BundleInfo original = bundleInfoMap.get(location);
 			if (original != null) {
 				markedAsStarted = original.isMarkedAsStarted();
 				sl = getStartLevel(original.getStartLevel());
@@ -457,7 +459,7 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	public BundleInfo[] getPrerequisteBundles(BundleInfo bInfo) {
-		Set set = new HashSet();
+		Set<BundleDescription> set = new HashSet<BundleDescription>();
 		URI realLocation = bInfo.getLocation();
 		BundleDescription bundle = getBundleByLocation(realLocation);
 		ImportPackageSpecification[] imports = bundle.getImportPackages();
@@ -550,15 +552,15 @@ public class EquinoxBundlesState implements BundlesState {
 		if (getBundleByLocation(realLocation) != null)
 			return;
 
-		Dictionary manifest = Utils.getOSGiManifest(realLocation);
+		Dictionary<String, String> manifest = Utils.getOSGiManifest(realLocation);
 		if (manifest == null)
 			return;
 
-		String newSymbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
+		String newSymbolicName = manifest.get(Constants.BUNDLE_SYMBOLICNAME);
 		int position = newSymbolicName.indexOf(";"); //$NON-NLS-1$
 		if (position >= 0)
 			newSymbolicName = newSymbolicName.substring(0, position).trim();
-		String newVersion = (String) manifest.get(Constants.BUNDLE_VERSION);
+		String newVersion = manifest.get(Constants.BUNDLE_VERSION);
 
 		if (getBundleByNameVersion(newSymbolicName, newVersion) != null)
 			return;
@@ -603,11 +605,12 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @param state
 	 */
 	private void setPlatformProperties(State state) {
-		Dictionary platformProperties = state.getPlatformProperties()[0];
+		@SuppressWarnings("unchecked")
+		Dictionary<String, String> platformProperties = state.getPlatformProperties()[0];
 		platfromProperties.clear();
 		if (platformProperties != null) {
-			for (Enumeration enumeration = platformProperties.keys(); enumeration.hasMoreElements();) {
-				String key = (String) enumeration.nextElement();
+			for (Enumeration<String> enumeration = platformProperties.keys(); enumeration.hasMoreElements();) {
+				String key = enumeration.nextElement();
 				Object value = platformProperties.get(key);
 				platfromProperties.setProperty(key, (String) value);
 			}
@@ -620,12 +623,12 @@ public class EquinoxBundlesState implements BundlesState {
 	 * set platfromProperties required to compose state object into
 	 * platformProperties of this state.
 	 * 
-	 * @param props
+	 * @param props2
 	 */
-	private void setPlatformPropertiesToState(Dictionary props) {
+	private void setPlatformPropertiesToState(Dictionary<Object, Object> props) {
 		Properties platformProperties = setDefaultPlatformProperties();
 
-		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			for (int i = 0; i < PROPS.length; i++) {
 				if (key.equals(PROPS[i])) {
@@ -657,10 +660,12 @@ public class EquinoxBundlesState implements BundlesState {
 			sb.append("\n"); //$NON-NLS-1$
 		}
 		sb.append("PlatformProperties:\n"); //$NON-NLS-1$
+		@SuppressWarnings("rawtypes")
 		Dictionary[] dics = state.getPlatformProperties();
 		for (int i = 0; i < dics.length; i++) {
-			for (Enumeration enumeration = dics[i].keys(); enumeration.hasMoreElements();) {
-				String key = (String) enumeration.nextElement();
+			for (@SuppressWarnings("unchecked")
+			Enumeration<String> enumeration = dics[i].keys(); enumeration.hasMoreElements();) {
+				String key = enumeration.nextElement();
 				String value = (String) dics[i].get(key);
 				sb.append(" (" + key + "," + value + ")\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
@@ -679,7 +684,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 		if (id != DEFAULT_TIMESTAMP) {
 			try {
-				Dictionary manifest = Utils.getOSGiManifest(bInfo.getLocation());
+				Dictionary<String, String> manifest = Utils.getOSGiManifest(bInfo.getLocation());
 				if (manifest == null) {
 					Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", NLS.bind(Messages.exception_bundleManifest, bInfo.getLocation())); //$NON-NLS-1$
 					return;
@@ -696,11 +701,11 @@ public class EquinoxBundlesState implements BundlesState {
 	private BundleDescription getBundleByLocation(URI location) {
 		if (location == null)
 			return null;
-		return (BundleDescription) locationStateIndex.get(location);
+		return locationStateIndex.get(location);
 	}
 
 	private BundleDescription getBundleByNameVersion(String bundleSymbolicName, String bundleVersion) {
-		return (BundleDescription) nameVersionStateIndex.get(bundleSymbolicName + ";" + bundleVersion); //$NON-NLS-1$
+		return nameVersionStateIndex.get(bundleSymbolicName + ";" + bundleVersion); //$NON-NLS-1$
 	}
 
 	/**
