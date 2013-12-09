@@ -60,6 +60,7 @@ public class DirectoryParser {
 		return contentHandler.directory;
 	}
 
+	@SuppressWarnings("unused")
 	private class DirectoryContentHandler implements ContentHandler {
 
 		Directory directory;
@@ -68,6 +69,9 @@ public class DirectoryParser {
 			// ignore
 		}
 
+		/**
+		 * @throws SAXException  
+		 */
 		public void endDocument() throws SAXException {
 			// ignore
 		}

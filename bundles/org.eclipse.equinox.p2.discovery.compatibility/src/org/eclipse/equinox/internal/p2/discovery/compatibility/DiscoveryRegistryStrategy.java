@@ -155,6 +155,7 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 				try {
 					jar.close();
 				} catch (Exception e) {
+					// ignore
 				}
 			}
 			jars.clear();

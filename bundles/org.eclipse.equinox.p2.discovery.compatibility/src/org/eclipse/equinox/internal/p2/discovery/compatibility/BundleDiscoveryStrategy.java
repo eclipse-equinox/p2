@@ -28,6 +28,7 @@ public class BundleDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		// constructor
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void performDiscovery(IProgressMonitor monitor) throws CoreException {
 		if (items == null || categories == null) {
