@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
  *     Red Hat, Inc. - support for remediation page
+ *     Ericsson (AB) - bug 409073
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -305,7 +306,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		planChanged();
 	}
 
-	boolean shouldRemediate(IStatus status) {
+	public boolean shouldRemediate(IStatus status) {
 		if (status == null)
 			return true;
 		if (status.getSeverity() != IStatus.ERROR)

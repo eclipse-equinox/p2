@@ -8,6 +8,7 @@
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
  *     IBM Corporation - Ongoing development
+ *     Ericsson (AB) - bug 409073
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
@@ -70,6 +71,10 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 		return ((ImportPage) mainPage).getProvisioningContext();
 	}
 
+	public void recomputePlan(IRunnableContext runnableContext) {
+		recomputePlan(runnableContext, true);
+	}
+
 	/**
 	 * Recompute the provisioning plan based on the items in the IUElementListRoot and the given provisioning context.
 	 * Report progress using the specified runnable context.  This method may be called before the page is created.
@@ -77,7 +82,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 	 * @param runnableContext
 	 */
 	@Override
-	public void recomputePlan(IRunnableContext runnableContext) {
+	public void recomputePlan(IRunnableContext runnableContext, final boolean withRemediation) {
 		if (((ImportPage) mainPage).hasUnloadedRepo()) {
 			try {
 				runnableContext.run(true, true, new IRunnableWithProgress() {
@@ -113,6 +118,14 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 							throw new InterruptedException();
 						if (operation.resolveModal(sub.newChild(200)).getSeverity() == IStatus.CANCEL)
 							throw new InterruptedException();
+						else {
+							if (withRemediation) {
+								IStatus status = operation.getResolutionResult();
+								if (remediationPage != null && shouldRemediate(status)) {
+									computeRemediationOperation(operation, ui, monitor);
+								}
+							}
+						}
 						Display.getDefault().asyncExec(new Runnable() {
 
 							public void run() {
@@ -132,7 +145,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 				unableToResolve(null);
 			}
 		} else
-			super.recomputePlan(runnableContext);
+			super.recomputePlan(runnableContext, withRemediation);
 	}
 
 	void unableToResolve(String message) {
