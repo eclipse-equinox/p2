@@ -36,6 +36,7 @@ import org.eclipse.ui.internal.browser.WorkbenchBrowserSupport;
  * @author Mik Kersten
  * @author Steffen Pingel
  */
+@SuppressWarnings("restriction")
 public class WorkbenchUtil {
 
 	/**

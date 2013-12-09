@@ -24,16 +24,17 @@ import org.eclipse.ui.internal.misc.StringMatcher;
  * @see org.eclipse.ui.dialogs.FilteredTree
  * @since 3.2
  */
+@SuppressWarnings("restriction")
 public class PatternFilter extends ViewerFilter {
 	/*
 	 * Cache of filtered elements in the tree
 	 */
-	private final Map cache = new HashMap();
+	private final Map<Object, Object> cache = new HashMap<Object, Object>();
 
 	/*
 	 * Maps parent elements to TRUE or FALSE
 	 */
-	private final Map foundAnyCache = new HashMap();
+	private final Map<Object, Boolean> foundAnyCache = new HashMap<Object, Boolean>();
 
 	private boolean useCache = false;
 
@@ -69,7 +70,7 @@ public class PatternFilter extends ViewerFilter {
 
 		Object[] filtered = (Object[]) cache.get(parent);
 		if (filtered == null) {
-			Boolean foundAny = (Boolean) foundAnyCache.get(parent);
+			Boolean foundAny = foundAnyCache.get(parent);
 			if (foundAny != null && !foundAny.booleanValue()) {
 				filtered = EMPTY;
 			} else {
@@ -103,7 +104,7 @@ public class PatternFilter extends ViewerFilter {
 		if (filtered != null) {
 			return filtered.length > 0;
 		}
-		Boolean foundAny = (Boolean) foundAnyCache.get(parent);
+		Boolean foundAny = foundAnyCache.get(parent);
 		if (foundAny == null) {
 			foundAny = computeAnyVisible(viewer, elements) ? Boolean.TRUE : Boolean.FALSE;
 			foundAnyCache.put(parent, foundAny);
@@ -273,7 +274,7 @@ public class PatternFilter extends ViewerFilter {
 	 * @return an array of words
 	 */
 	private String[] getWords(String text) {
-		List words = new ArrayList();
+		List<String> words = new ArrayList<String>();
 		// Break the text up into words, separating based on whitespace and
 		// common punctuation.
 		// Previously used String.split(..., "\\W"), where "\W" is a regular
@@ -297,7 +298,7 @@ public class PatternFilter extends ViewerFilter {
 			}
 			i = j;
 		}
-		return (String[]) words.toArray(new String[words.size()]);
+		return words.toArray(new String[words.size()]);
 	}
 
 	/**

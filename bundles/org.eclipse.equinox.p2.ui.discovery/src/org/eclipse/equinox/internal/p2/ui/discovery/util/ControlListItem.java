@@ -28,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
  * 
  * @author Steffen Pingel
  */
+@SuppressWarnings("restriction")
 public abstract class ControlListItem<T> extends Composite {
 
 	static String DARK_COLOR_KEY = "org.eclipse.mylyn.commons.ui.ControlListItem.DARK_COLOR"; //$NON-NLS-1$

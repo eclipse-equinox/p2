@@ -76,7 +76,6 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		}
 	}
 
-	@SuppressWarnings("restriction")
 	private void connectCategories() {
 		for (CatalogCategory category : categories) {
 			if (category.getData() instanceof IInstallableUnit) {

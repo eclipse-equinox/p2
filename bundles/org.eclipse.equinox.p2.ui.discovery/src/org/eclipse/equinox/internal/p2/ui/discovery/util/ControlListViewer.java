@@ -56,11 +56,11 @@ public abstract class ControlListViewer extends StructuredViewer {
 		//scrolled.setShowFocusedControl(true);
 
 		control = new Composite(scrolled, SWT.NONE) {
-//			@Override
-//			public boolean setFocus() {
-//				forceFocus();
-//				return true;
-//			}
+			//			@Override
+			//			public boolean setFocus() {
+			//				forceFocus();
+			//				return true;
+			//			}
 
 			@Override
 			public void setVisible(boolean visible) {
@@ -115,7 +115,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 						if (children.length > 0) {
 							boolean selected = false;
 							for (int i = 0; i < children.length; i++) {
-								ControlListItem item = (ControlListItem) children[i];
+								ControlListItem<?> item = (ControlListItem<?>) children[i];
 								if (item.isSelected()) {
 									selected = true;
 									if (i > 0) {
@@ -135,7 +135,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 						if (children.length > 0) {
 							boolean selected = false;
 							for (int i = 0; i < children.length; i++) {
-								ControlListItem item = (ControlListItem) children[i];
+								ControlListItem<?> item = (ControlListItem<?>) children[i];
 								if (item.isSelected()) {
 									selected = true;
 									if (i < children.length - 1) {
@@ -202,11 +202,11 @@ public abstract class ControlListViewer extends StructuredViewer {
 
 		// Update with the new elements to prevent flash
 		for (Control element : existingChildren) {
-			((ControlListItem) element).dispose();
+			((ControlListItem<?>) element).dispose();
 		}
 
 		for (int i = 0; i < infos.length; i++) {
-			ControlListItem item = createNewItem(infos[i]);
+			ControlListItem<?> item = createNewItem(infos[i]);
 			item.updateColors(i);
 		}
 
@@ -214,7 +214,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		doUpdateContent();
 	}
 
-	private void updateSize(Control control) {
+	private void updateSize(@SuppressWarnings("hiding") Control control) {
 		if (control == null) {
 			return;
 		}
@@ -240,8 +240,8 @@ public abstract class ControlListViewer extends StructuredViewer {
 	 * @param element
 	 * @return ControlListItem
 	 */
-	private ControlListItem createNewItem(Object element) {
-		final ControlListItem item = doCreateItem(control, element);
+	private ControlListItem<?> createNewItem(Object element) {
+		final ControlListItem<?> item = doCreateItem(control, element);
 		//		item.getChildren()[0].addPaintListener(new PaintListener() {
 		//			public void paintControl(PaintEvent e) {
 		//				if (hasFocus && item.isSelected()) {
@@ -292,22 +292,22 @@ public abstract class ControlListViewer extends StructuredViewer {
 		return item;
 	}
 
-	protected abstract ControlListItem doCreateItem(Composite parent, Object element);
+	protected abstract ControlListItem<?> doCreateItem(Composite parent, Object element);
 
 	@Override
-	protected ControlListItem doFindInputItem(Object element) {
+	protected ControlListItem<?> doFindInputItem(Object element) {
 		return null;
 	}
 
 	@Override
-	protected ControlListItem doFindItem(Object element) {
+	protected ControlListItem<?> doFindItem(Object element) {
 		Control[] children = control.getChildren();
 		for (Control child : children) {
 			if (child.isDisposed() || child.getData() == null) {
 				continue;
 			}
 			if (child.getData().equals(element)) {
-				return (ControlListItem) child;
+				return (ControlListItem<?>) child;
 			}
 		}
 		return null;
@@ -332,7 +332,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		Control[] children = control.getChildren();
 		ArrayList<Object> selection = new ArrayList<Object>(children.length);
 		for (Control child : children) {
-			ControlListItem item = (ControlListItem) child;
+			ControlListItem<?> item = (ControlListItem<?>) child;
 			if (item.isSelected() && item.getData() != null) {
 				selection.add(item.getData());
 			}
@@ -341,6 +341,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 	}
 
 	protected void handleOpen() {
+		@SuppressWarnings("hiding")
 		Control control = getControl();
 		if (control != null && !control.isDisposed()) {
 			ISelection selection = getSelection();
@@ -370,7 +371,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 			add(new Object[] {element});
 			return;
 		}
-		((ControlListItem) widget).refresh();
+		((ControlListItem<?>) widget).refresh();
 
 		updateSize(control);
 	}
@@ -386,7 +387,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 
 		Control[] existingChildren = control.getChildren();
 		for (int i = 0; i < existingChildren.length; i++) {
-			ControlListItem item = (ControlListItem) existingChildren[i];
+			ControlListItem<?> item = (ControlListItem<?>) existingChildren[i];
 			item.updateColors(i);
 		}
 		control.layout(true);
@@ -475,7 +476,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		}
 
 		for (int i = 0; i < infos.length; i++) {
-			ControlListItem item = createNewItem(infos[i]);
+			ControlListItem<?> item = createNewItem(infos[i]);
 			item.updateColors(i);
 		}
 
@@ -491,7 +492,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		int top = scrolled.getOrigin().y;
 		int bottom = top + scrolled.getParent().getBounds().height;
 		for (Control element : children) {
-			ControlListItem item = (ControlListItem) element;
+			ControlListItem<?> item = (ControlListItem<?>) element;
 			item.setDisplayed(top, bottom);
 		}
 	}

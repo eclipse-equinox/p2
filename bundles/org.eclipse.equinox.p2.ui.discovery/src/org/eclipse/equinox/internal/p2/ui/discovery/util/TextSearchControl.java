@@ -31,6 +31,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 /**
  * @author Shawn Minto
  */
+@SuppressWarnings("restriction")
 public class TextSearchControl extends Composite {
 
 	private static final String FIND_TEXT_MEMENTO_ELEMENT = "text"; //$NON-NLS-1$
@@ -88,7 +89,6 @@ public class TextSearchControl extends Composite {
 
 	private static Boolean useNativeSearchField;
 
-	@SuppressWarnings("restriction")
 	public TextSearchControl(Composite parent, boolean automaticFind) {
 		super(parent, getCompositeStyle(automaticFind, parent));
 		this.automaticFind = automaticFind;

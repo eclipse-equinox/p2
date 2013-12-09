@@ -23,7 +23,8 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.equinox.p2.repository.tools,
    org.eclipse.equinox.p2.reconciler.dropins,
    org.eclipse.equinox.p2.repository,
-   org.eclipse.equinox.p2.publisher.eclipse",
+   org.eclipse.equinox.p2.publisher.eclipse,
+   org.eclipse.equinox.p2.ui.discovery",
  org.eclipse.equinox.internal.p2.metadata.expression;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.directorywatcher,
