@@ -40,17 +40,17 @@ import org.osgi.framework.*;
  */
 public class Activator implements BundleActivator {
 	public final static boolean DEBUG = false;
-	private ServiceRegistration configuratorRegistration;
-	private ServiceRegistration commandRegistration;
+	private ServiceRegistration<?> configuratorRegistration;
+	private ServiceRegistration<?> commandRegistration;
 
 	public void start(BundleContext context) throws Exception {
 		SimpleConfiguratorImpl bundleConfigurator = new SimpleConfiguratorImpl(context, context.getBundle());
 		bundleConfigurator.applyConfiguration();
 
-		Dictionary props = new Hashtable();
+		Dictionary<String, String> props = new Hashtable<String, String>();
 		props.put(Constants.SERVICE_VENDOR, "Eclipse"); //$NON-NLS-1$
 		props.put(Constants.SERVICE_PID, SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME);
-		ServiceFactory configurationFactory = new SimpleConfiguratorFactory(context);
+		ServiceFactory<?> configurationFactory = new SimpleConfiguratorFactory(context);
 		configuratorRegistration = context.registerService(Configurator.class.getName(), configurationFactory, props);
 
 		try {

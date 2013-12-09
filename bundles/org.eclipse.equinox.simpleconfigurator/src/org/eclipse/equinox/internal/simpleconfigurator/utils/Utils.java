@@ -57,7 +57,7 @@ public class Utils {
 		return;
 	}
 
-	public static BundleInfo[] getBundleInfosFromList(List list) {
+	public static BundleInfo[] getBundleInfosFromList(List<BundleInfo> list) {
 		if (list == null)
 			return new BundleInfo[0];
 		BundleInfo[] ret = new BundleInfo[list.size()];
@@ -96,10 +96,10 @@ public class Utils {
 			msg = "[" + method + "](" + obj.getClass().getName() + ")";
 		msg += message;
 
-//		if (LogService logService = Activator.getLogService();
-//		if (logService != null) {
-//			logService.log(level, msg, e);
-//		} else {
+		//		if (LogService logService = Activator.getLogService();
+		//		if (logService != null) {
+		//			logService.log(level, msg, e);
+		//		} else {
 		String levelSt = null;
 		if (level == 1)
 			levelSt = "DEBUG";
@@ -109,13 +109,13 @@ public class Utils {
 			levelSt = "WARNING";
 		else if (level == 4) {
 			levelSt = "ERROR";
-//				useLog = true;
+			//				useLog = true;
 		}
-//			if (useLog) {
+		//			if (useLog) {
 		System.err.println("[" + levelSt + "]" + msg);
 		if (e != null)
 			e.printStackTrace();
-//			}
+		//			}
 	}
 
 	public static URL buildURL(String spec) throws MalformedURLException {

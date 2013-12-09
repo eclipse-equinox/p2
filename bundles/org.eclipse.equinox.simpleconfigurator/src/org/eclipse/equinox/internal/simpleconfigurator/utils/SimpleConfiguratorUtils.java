@@ -26,14 +26,14 @@ public class SimpleConfiguratorUtils {
 	private static final String COMMA = ",";
 	private static final String ENCODED_COMMA = "%2C";
 
-	public static List readConfiguration(URL url, URI base) throws IOException {
+	public static List<BundleInfo> readConfiguration(URL url, URI base) throws IOException {
 		InputStream stream = null;
 		try {
 			stream = url.openStream();
 		} catch (IOException e) {
 			// if the exception is a FNF we return an empty bundle list
 			if (e instanceof FileNotFoundException)
-				return Collections.EMPTY_LIST;
+				return Collections.emptyList();
 			throw e;
 		}
 
@@ -52,8 +52,8 @@ public class SimpleConfiguratorUtils {
 	 * @return List of {@link BundleInfo}
 	 * @throws IOException
 	 */
-	public static List readConfiguration(InputStream stream, URI base) throws IOException {
-		List bundles = new ArrayList();
+	public static List<BundleInfo> readConfiguration(InputStream stream, URI base) throws IOException {
+		List<BundleInfo> bundles = new ArrayList<BundleInfo>();
 
 		BufferedInputStream bufferedStream = new BufferedInputStream(stream);
 		String encoding = determineEncoding(bufferedStream);

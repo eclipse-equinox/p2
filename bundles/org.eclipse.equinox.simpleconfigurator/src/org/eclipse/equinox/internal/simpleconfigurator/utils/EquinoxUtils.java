@@ -42,6 +42,7 @@ public class EquinoxUtils {
 		} catch (InvalidSyntaxException e) {
 			// should not happen
 		}
+		@SuppressWarnings({"rawtypes", "unchecked"})
 		ServiceTracker configLocationTracker = new ServiceTracker(context, filter, null);
 		configLocationTracker.open();
 		try {
@@ -51,6 +52,7 @@ public class EquinoxUtils {
 		}
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public static URI getInstallLocationURI(BundleContext context) {
 		try {
 			ServiceReference[] references = context.getServiceReferences(Location.class.getName(), Location.INSTALL_FILTER);
@@ -76,6 +78,7 @@ public class EquinoxUtils {
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static ServiceRegistration registerConsoleCommands(BundleContext context) {
 		return context.registerService(CommandProvider.class.getName(), new ConfiguratorCommandProvider(context), null);
 	}

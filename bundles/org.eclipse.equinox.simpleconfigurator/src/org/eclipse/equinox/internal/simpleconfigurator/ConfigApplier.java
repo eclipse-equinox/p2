@@ -42,12 +42,12 @@ class ConfigApplier {
 		inDevMode = manipulatingContext.getProperty(PROP_DEVMODE) != null;
 		baseLocation = runningOnEquinox ? EquinoxUtils.getInstallLocationURI(context) : null;
 
-		ServiceReference packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class.getName());
+		ServiceReference<?> packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class.getName());
 		if (packageAdminRef == null)
 			throw new IllegalStateException("No PackageAdmin service is available."); //$NON-NLS-1$
 		packageAdminService = (PackageAdmin) manipulatingContext.getService(packageAdminRef);
 
-		ServiceReference startLevelRef = manipulatingContext.getServiceReference(StartLevel.class.getName());
+		ServiceReference<?> startLevelRef = manipulatingContext.getServiceReference(StartLevel.class.getName());
 		if (startLevelRef == null)
 			throw new IllegalStateException("No StartLevelService service is available."); //$NON-NLS-1$
 		startLevelService = (StartLevel) manipulatingContext.getService(startLevelRef);
@@ -56,7 +56,7 @@ class ConfigApplier {
 	}
 
 	void install(URL url, boolean exclusiveMode) throws IOException {
-		List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url, baseLocation);
+		List<BundleInfo> bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url, baseLocation);
 		if (Activator.DEBUG)
 			System.out.println("applyConfiguration() bundleInfoList.size()=" + bundleInfoList.size());
 		if (bundleInfoList.size() == 0)
@@ -79,19 +79,19 @@ class ConfigApplier {
 			}
 		}
 
-		HashSet toUninstall = null;
+		HashSet<BundleInfo> toUninstall = null;
 		if (!exclusiveMode) {
 			BundleInfo[] lastInstalledBundles = getLastState();
 			if (lastInstalledBundles != null) {
-				toUninstall = new HashSet(Arrays.asList(lastInstalledBundles));
+				toUninstall = new HashSet<BundleInfo>(Arrays.asList(lastInstalledBundles));
 				toUninstall.removeAll(Arrays.asList(expectedState));
 			}
 			saveStateAsLast(url);
 		}
 
-		Set prevouslyResolved = getResolvedBundles();
-		Collection toRefresh = new ArrayList();
-		Collection toStart = new ArrayList();
+		Set<Bundle> prevouslyResolved = getResolvedBundles();
+		Collection<Bundle> toRefresh = new ArrayList<Bundle>();
+		Collection<Bundle> toStart = new ArrayList<Bundle>();
 		if (exclusiveMode) {
 			toRefresh.addAll(installBundles(expectedState, toStart));
 			toRefresh.addAll(uninstallBundles(expectedState, packageAdminService));
@@ -109,20 +109,20 @@ class ConfigApplier {
 		startBundles((Bundle[]) toStart.toArray(new Bundle[toStart.size()]));
 	}
 
-	private Bundle[] getAdditionalRefresh(Set previouslyResolved, Collection toRefresh) {
+	private Bundle[] getAdditionalRefresh(Set<Bundle> previouslyResolved, Collection<Bundle> toRefresh) {
 		// This is the luna equinox framework or a non-equinox framework.
 		// Use standard OSGi API.
-		final Set additionalRefresh = new HashSet();
-		final Set originalRefresh = new HashSet(toRefresh);
-		for (Iterator iToRefresh = toRefresh.iterator(); iToRefresh.hasNext();) {
+		final Set<Bundle> additionalRefresh = new HashSet<Bundle>();
+		final Set<Bundle> originalRefresh = new HashSet<Bundle>(toRefresh);
+		for (Iterator<Bundle> iToRefresh = toRefresh.iterator(); iToRefresh.hasNext();) {
 			Bundle bundle = (Bundle) iToRefresh.next();
 			BundleRevision revision = (BundleRevision) bundle.adapt(BundleRevision.class);
 			if (bundle.getState() == Bundle.INSTALLED && revision != null && (revision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
 				// this is an unresolved fragment; look to see if it has additional payload requirements
 				boolean foundPayLoadReq = false;
 				BundleRequirement hostReq = null;
-				Collection requirements = revision.getRequirements(null);
-				for (Iterator iReqs = requirements.iterator(); iReqs.hasNext();) {
+				Collection<Requirement> requirements = revision.getRequirements(null);
+				for (Iterator<Requirement> iReqs = requirements.iterator(); iReqs.hasNext();) {
 					BundleRequirement req = (BundleRequirement) iReqs.next();
 					if (HostNamespace.HOST_NAMESPACE.equals(req.getNamespace())) {
 						hostReq = req;
@@ -133,9 +133,9 @@ class ConfigApplier {
 					}
 				}
 				if (foundPayLoadReq) {
-					Collection candidates = frameworkWiring.findProviders(hostReq);
-					for (Iterator iCandidates = candidates.iterator(); iCandidates.hasNext();) {
-						BundleCapability candidate = (BundleCapability) iCandidates.next();
+					Collection<BundleCapability> candidates = frameworkWiring.findProviders(hostReq);
+					for (Iterator<BundleCapability> iCandidates = candidates.iterator(); iCandidates.hasNext();) {
+						BundleCapability candidate = iCandidates.next();
 						if (!originalRefresh.contains(candidate.getRevision().getBundle())) {
 							additionalRefresh.add(candidate.getRevision().getBundle());
 						}
@@ -144,14 +144,14 @@ class ConfigApplier {
 			}
 		}
 
-		for (Iterator iPreviouslyResolved = previouslyResolved.iterator(); iPreviouslyResolved.hasNext();) {
-			Bundle bundle = (Bundle) iPreviouslyResolved.next();
+		for (Iterator<Bundle> iPreviouslyResolved = previouslyResolved.iterator(); iPreviouslyResolved.hasNext();) {
+			Bundle bundle = iPreviouslyResolved.next();
 			BundleRevision revision = (BundleRevision) bundle.adapt(BundleRevision.class);
 			BundleWiring wiring = revision == null ? null : revision.getWiring();
 			if (wiring != null) {
-				Collection reqs = revision.getDeclaredRequirements(null);
-				Set optionalReqs = new HashSet();
-				for (Iterator iReqs = reqs.iterator(); iReqs.hasNext();) {
+				Collection<BundleRequirement> reqs = revision.getDeclaredRequirements(null);
+				Set<BundleRequirement> optionalReqs = new HashSet<BundleRequirement>();
+				for (Iterator<BundleRequirement> iReqs = reqs.iterator(); iReqs.hasNext();) {
 					BundleRequirement req = (BundleRequirement) iReqs.next();
 					String namespace = req.getNamespace();
 					// only do this for package and bundle namespaces
@@ -164,19 +164,19 @@ class ConfigApplier {
 				if (!optionalReqs.isEmpty()) {
 					wiring = getHostWiring(wiring);
 					// check that all optional requirements are wired
-					Collection requiredWires = wiring.getRequiredWires(null);
-					for (Iterator iRequiredWires = requiredWires.iterator(); iRequiredWires.hasNext();) {
-						BundleWire requiredWire = (BundleWire) iRequiredWires.next();
+					Collection<BundleWire> requiredWires = wiring.getRequiredWires(null);
+					for (Iterator<BundleWire> iRequiredWires = requiredWires.iterator(); iRequiredWires.hasNext();) {
+						BundleWire requiredWire = iRequiredWires.next();
 						optionalReqs.remove(requiredWire.getRequirement());
 					}
 					if (!optionalReqs.isEmpty()) {
 						// there are a number of optional requirements not wired
-						for (Iterator iOptionalReqs = optionalReqs.iterator(); iOptionalReqs.hasNext();) {
-							Collection candidates = frameworkWiring.findProviders((Requirement) iOptionalReqs.next());
+						for (Iterator<BundleRequirement> iOptionalReqs = optionalReqs.iterator(); iOptionalReqs.hasNext();) {
+							Collection<BundleCapability> candidates = frameworkWiring.findProviders(iOptionalReqs.next());
 							// Filter out candidates that were previously resolved or are currently not resolved.
 							// There is no need to refresh the resource if the candidate was previously available.
-							for (Iterator iCandidates = candidates.iterator(); iCandidates.hasNext();) {
-								BundleCapability candidate = (BundleCapability) iCandidates.next();
+							for (Iterator<BundleCapability> iCandidates = candidates.iterator(); iCandidates.hasNext();) {
+								BundleCapability candidate = iCandidates.next();
 								Bundle candidateBundle = candidate.getRevision().getBundle();
 								// The candidate is not from the original refresh set, but
 								// it could have just became resolved as a result of new bundles.
@@ -201,7 +201,7 @@ class ConfigApplier {
 			// not a fragment
 			return wiring;
 		}
-		Collection hostWires = wiring.getRequiredWires(HostNamespace.HOST_NAMESPACE);
+		Collection<BundleWire> hostWires = wiring.getRequiredWires(HostNamespace.HOST_NAMESPACE);
 		// just use the first host wiring
 		if (hostWires.isEmpty()) {
 			return wiring;
@@ -210,8 +210,8 @@ class ConfigApplier {
 		return hostWire.getProviderWiring();
 	}
 
-	private Set getResolvedBundles() {
-		Set resolved = new HashSet();
+	private Set<Bundle> getResolvedBundles() {
+		Set<Bundle> resolved = new HashSet<Bundle>();
 		Bundle[] allBundles = manipulatingContext.getBundles();
 		for (int i = 0; i < allBundles.length; i++)
 			if ((allBundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
@@ -219,10 +219,10 @@ class ConfigApplier {
 		return resolved;
 	}
 
-	private Collection uninstallBundles(HashSet toUninstall) {
-		Collection removedBundles = new ArrayList(toUninstall.size());
-		for (Iterator iterator = toUninstall.iterator(); iterator.hasNext();) {
-			BundleInfo current = (BundleInfo) iterator.next();
+	private Collection<Bundle> uninstallBundles(HashSet<BundleInfo> toUninstall) {
+		Collection<Bundle> removedBundles = new ArrayList<Bundle>(toUninstall.size());
+		for (Iterator<BundleInfo> iterator = toUninstall.iterator(); iterator.hasNext();) {
+			BundleInfo current = iterator.next();
 			Bundle[] matchingBundles = packageAdminService.getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
 			for (int j = 0; matchingBundles != null && j < matchingBundles.length; j++) {
 				try {
@@ -272,8 +272,8 @@ class ConfigApplier {
 		}
 	}
 
-	private ArrayList installBundles(BundleInfo[] finalList, Collection toStart) {
-		ArrayList toRefresh = new ArrayList();
+	private ArrayList<Bundle> installBundles(BundleInfo[] finalList, Collection<Bundle> toStart) {
+		ArrayList<Bundle> toRefresh = new ArrayList<Bundle>();
 
 		String useReferenceProperty = manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE);
 		boolean useReference = useReferenceProperty == null ? runningOnEquinox : Boolean.valueOf(useReferenceProperty).booleanValue();
@@ -442,11 +442,11 @@ class ConfigApplier {
 	 * @param packageAdmin package admin service.
 	 * @return Collection HashSet of bundles finally installed.
 	 */
-	private Collection uninstallBundles(BundleInfo[] finalList, PackageAdmin packageAdmin) {
+	private Collection<Bundle> uninstallBundles(BundleInfo[] finalList, PackageAdmin packageAdmin) {
 		Bundle[] allBundles = manipulatingContext.getBundles();
 
 		//Build a set with all the bundles from the system
-		Set removedBundles = new HashSet(allBundles.length);
+		Set<Bundle> removedBundles = new HashSet<Bundle>(allBundles.length);
 		//		configurator.setPrerequisiteBundles(allBundles);
 		for (int i = 0; i < allBundles.length; i++) {
 			if (allBundles[i].getBundleId() == 0)
@@ -464,9 +464,9 @@ class ConfigApplier {
 			}
 		}
 
-		for (Iterator iter = removedBundles.iterator(); iter.hasNext();) {
+		for (Iterator<Bundle> iter = removedBundles.iterator(); iter.hasNext();) {
 			try {
-				Bundle bundle = ((Bundle) iter.next());
+				Bundle bundle = iter.next();
 				if (bundle.getLocation().startsWith("initial@")) {
 					if (Activator.DEBUG)
 						System.out.println("Simple configurator thinks a bundle installed by the boot strap should be uninstalled:" + bundle.getSymbolicName() + '(' + bundle.getLocation() + ':' + bundle.getBundleId() + ')'); //$NON-NLS-1$

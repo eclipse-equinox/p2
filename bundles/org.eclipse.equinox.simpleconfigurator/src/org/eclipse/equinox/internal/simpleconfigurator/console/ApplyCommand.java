@@ -36,6 +36,7 @@ public class ApplyCommand {
 	 * Runs the apply console command
 	 */
 	public void run() {
+		@SuppressWarnings({"rawtypes", "unchecked"})
 		ServiceTracker tracker = new ServiceTracker(context, Configurator.class.getName(), null);
 		tracker.open();
 		Configurator configurator = (Configurator) tracker.getService();
@@ -45,7 +46,7 @@ public class ApplyCommand {
 					configurator.applyConfiguration(configURL);
 				else
 					configurator.applyConfiguration();
-				
+
 				if (configurator.getUrlInUse() == null)
 					interpreter.println("Config URL not set.");
 			} catch (IOException e) {

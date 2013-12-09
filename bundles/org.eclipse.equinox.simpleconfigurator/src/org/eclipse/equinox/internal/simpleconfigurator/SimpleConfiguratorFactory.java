@@ -12,18 +12,18 @@ package org.eclipse.equinox.internal.simpleconfigurator;
 
 import org.osgi.framework.*;
 
-public class SimpleConfiguratorFactory implements ServiceFactory {
+public class SimpleConfiguratorFactory implements ServiceFactory<Object> {
 	private BundleContext context;
 
 	public SimpleConfiguratorFactory(BundleContext context) {
 		this.context = context;
 	}
 
-	public Object getService(Bundle bundle, ServiceRegistration registration) {
+	public Object getService(Bundle bundle, ServiceRegistration<Object> registration) {
 		return new SimpleConfiguratorImpl(context, bundle);
 	}
 
-	public void ungetService(Bundle bundle, ServiceRegistration registration, Object service) {
+	public void ungetService(Bundle bundle, ServiceRegistration<Object> registration, Object service) {
 		// nothing to do
 	}
 }
