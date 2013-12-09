@@ -732,7 +732,9 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 	// Both checkedElements and checkedElementsUpdates and the logic inside the getCheckedIUElements method
 	// are used to prevent unnecessary call to getUpdates method due to computational cost.
+	@SuppressWarnings("rawtypes")
 	private Set checkedElements;
+	@SuppressWarnings("rawtypes")
 	private Set checkedElementsUpdates;
 	private boolean getUpdatesCanceled;
 
@@ -754,6 +756,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		return viewer.getCheckedElements();
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private Object[] getLatestVersionOfCheckedElements() {
 
 		Object[] checkedArray = viewer.getCheckedElements();
@@ -784,6 +787,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	}
 
 	// Look for update of the current selected installation units and replace the old ons with the updated version
+	@SuppressWarnings("hiding")
 	private Object[] getUpdates(final Object[] checkedElements) {
 
 		final Collection<IInstallableUnit> toInstall = new ArrayList<IInstallableUnit>();
