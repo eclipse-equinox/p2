@@ -40,7 +40,7 @@ public class Activator implements BundleActivator {
 	public static PluginConverter acquirePluginConverter() {
 		if (bundleContext == null)
 			return null;
-		ServiceReference reference = bundleContext.getServiceReference(PluginConverter.class.getName());
+		ServiceReference<?> reference = bundleContext.getServiceReference(PluginConverter.class.getName());
 		if (reference == null)
 			return null;
 		PluginConverter result = (PluginConverter) bundleContext.getService(reference);

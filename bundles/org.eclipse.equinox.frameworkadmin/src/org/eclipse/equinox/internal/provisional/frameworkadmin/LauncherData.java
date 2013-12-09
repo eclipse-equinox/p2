@@ -25,8 +25,8 @@ import java.util.*;
 public class LauncherData {
 	private File fwPersistentDataLocation = null;
 	private File jvm = null;
-	private List jvmArgs = new LinkedList();
-	private List programArgs = new LinkedList();
+	private List<String> jvmArgs = new LinkedList<String>();
+	private List<String> programArgs = new LinkedList<String>();
 
 	private boolean clean;
 	private File fwConfigLocation;
@@ -152,7 +152,7 @@ public class LauncherData {
 
 		programArgs.remove(index);
 		while (index < programArgs.size()) {
-			String next = (String) programArgs.get(index);
+			String next = programArgs.get(index);
 			if (next.charAt(0) == '-')
 				return;
 			programArgs.remove(index);
@@ -231,7 +231,7 @@ public class LauncherData {
 		else {
 			sb.append("jvmArgs=\n"); //$NON-NLS-1$
 			int i = 0;
-			for (Iterator iterator = jvmArgs.iterator(); iterator.hasNext(); iterator.next())
+			for (Iterator<String> iterator = jvmArgs.iterator(); iterator.hasNext(); iterator.next())
 				sb.append("\tjvmArgs[" + i++ + "]=" + iterator + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 		}
@@ -240,7 +240,7 @@ public class LauncherData {
 		else {
 			sb.append("programArgs=\n"); //$NON-NLS-1$
 			int i = 0;
-			for (Iterator iterator = programArgs.iterator(); iterator.hasNext(); iterator.next())
+			for (Iterator<String> iterator = programArgs.iterator(); iterator.hasNext(); iterator.next())
 				sb.append("\tprogramArgs[" + i++ + "]=" + iterator + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		sb.append("fwConfigLocation=" + this.fwConfigLocation + "\n"); //$NON-NLS-1$ //$NON-NLS-2$

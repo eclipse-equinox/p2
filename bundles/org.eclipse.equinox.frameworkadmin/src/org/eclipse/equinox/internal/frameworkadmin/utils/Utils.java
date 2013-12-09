@@ -46,7 +46,7 @@ public class Utils {
 			//			printoutProperties(System.out, "to", to);
 			//			printoutProperties(System.out, "from", from);
 
-			for (Enumeration enumeration = from.keys(); enumeration.hasMoreElements();) {
+			for (Enumeration<Object> enumeration = from.keys(); enumeration.hasMoreElements();) {
 				String key = (String) enumeration.nextElement();
 				to.setProperty(key, from.getProperty(key));
 			}
@@ -56,7 +56,7 @@ public class Utils {
 	}
 
 	//Return a dictionary representing a manifest. The data may result from plugin.xml conversion  
-	private static Dictionary basicLoadManifest(File bundleLocation) {
+	private static Dictionary<String, String> basicLoadManifest(File bundleLocation) {
 		InputStream manifestStream = null;
 		ZipFile jarFile = null;
 		try {
@@ -82,7 +82,7 @@ public class Utils {
 				return convertPluginManifest(bundleLocation, true);
 
 			try {
-				Map manifest = ManifestElement.parseBundleManifest(manifestStream, null);
+				Map<String, String> manifest = ManifestElement.parseBundleManifest(manifestStream, null);
 				// add this check to handle the case were we read a non-OSGi manifest
 				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null)
 					return convertPluginManifest(bundleLocation, true);
@@ -110,43 +110,43 @@ public class Utils {
 
 	public static void checkAbsoluteDir(File file, String dirName) throws IllegalArgumentException {
 		if (file == null)
-			throw new IllegalArgumentException(dirName + " is null");
+			throw new IllegalArgumentException(dirName + " is null"); //$NON-NLS-1$
 		if (!file.isAbsolute())
-			throw new IllegalArgumentException(dirName + " is not absolute path. file=" + file.getAbsolutePath());
+			throw new IllegalArgumentException(dirName + " is not absolute path. file=" + file.getAbsolutePath()); //$NON-NLS-1$
 		if (!file.isDirectory())
-			throw new IllegalArgumentException(dirName + " is not directory. file=" + file.getAbsolutePath());
+			throw new IllegalArgumentException(dirName + " is not directory. file=" + file.getAbsolutePath()); //$NON-NLS-1$
 	}
 
 	public static void checkAbsoluteFile(File file, String dirName) {//throws ManipulatorException {
 		if (file == null)
-			throw new IllegalArgumentException(dirName + " is null");
+			throw new IllegalArgumentException(dirName + " is null"); //$NON-NLS-1$
 		if (!file.isAbsolute())
-			throw new IllegalArgumentException(dirName + " is not absolute path. file=" + file.getAbsolutePath());
+			throw new IllegalArgumentException(dirName + " is not absolute path. file=" + file.getAbsolutePath()); //$NON-NLS-1$
 		if (file.isDirectory())
-			throw new IllegalArgumentException(dirName + " is not file but directory");
+			throw new IllegalArgumentException(dirName + " is not file but directory"); //$NON-NLS-1$
 	}
 
 	public static URL checkFullUrl(URL url, String urlName) throws IllegalArgumentException {//throws ManipulatorException {
 		if (url == null)
-			throw new IllegalArgumentException(urlName + " is null");
+			throw new IllegalArgumentException(urlName + " is null"); //$NON-NLS-1$
 		if (!url.getProtocol().endsWith("file")) //$NON-NLS-1$
 			return url;
 		File file = new File(url.getFile());
 		if (!file.isAbsolute())
-			throw new IllegalArgumentException(urlName + "(" + url + ") does not have absolute path");
+			throw new IllegalArgumentException(urlName + "(" + url + ") does not have absolute path"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (file.getAbsolutePath().startsWith(PATH_SEP))
 			return url;
 		try {
 			return getUrl("file", null, PATH_SEP + file.getAbsolutePath()); //$NON-NLS-1$
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(urlName + "(" + "file:" + PATH_SEP + file.getAbsolutePath() + ") is not fully quallified");
+			throw new IllegalArgumentException(urlName + "(" + "file:" + PATH_SEP + file.getAbsolutePath() + ") is not fully quallified"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
 
 	/*
 	 * Copied from BundleDescriptionFactory in the metadata generator.
 	 */
-	private static Dictionary convertPluginManifest(File bundleLocation, boolean logConversionException) {
+	private static Dictionary<String, String> convertPluginManifest(File bundleLocation, boolean logConversionException) {
 		PluginConverter converter;
 		try {
 			converter = org.eclipse.equinox.internal.frameworkadmin.utils.Activator.acquirePluginConverter();
@@ -162,7 +162,7 @@ public class Utils {
 			if (!new File(bundleLocation, PLUGIN_MANIFEST).exists() && !new File(bundleLocation, FRAGMENT_MANIFEST).exists())
 				return null;
 			if (logConversionException) {
-				IStatus status = new Status(IStatus.WARNING, "org.eclipse.equinox.frameworkadmin", 0, "Error converting bundle manifest.", convertException);
+				IStatus status = new Status(IStatus.WARNING, "org.eclipse.equinox.frameworkadmin", 0, "Error converting bundle manifest.", convertException); //$NON-NLS-1$ //$NON-NLS-2$
 				System.out.println(status);
 				//TODO Need to find a way to get a logging service to log
 			}
@@ -179,7 +179,7 @@ public class Utils {
 		return parent.mkdirs();
 	}
 
-	public static BundleInfo[] getBundleInfosFromList(List list) {
+	public static BundleInfo[] getBundleInfosFromList(List<BundleInfo> list) {
 		if (list == null)
 			return new BundleInfo[0];
 		BundleInfo[] ret = new BundleInfo[list.size()];
@@ -189,7 +189,7 @@ public class Utils {
 
 	public static String[] getClauses(String header) {
 		StringTokenizer token = new StringTokenizer(header, ","); //$NON-NLS-1$
-		List list = new LinkedList();
+		List<String> list = new LinkedList<String>();
 		while (token.hasMoreTokens()) {
 			list.add(token.nextToken());
 		}
@@ -203,13 +203,13 @@ public class Utils {
 	}
 
 	public static String getManifestMainAttributes(URI location, String name) {
-		Dictionary manifest = Utils.getOSGiManifest(location);
+		Dictionary<String, String> manifest = Utils.getOSGiManifest(location);
 		if (manifest == null)
-			throw new RuntimeException("Unable to locate bundle manifest: " + location);
-		return (String) manifest.get(name);
+			throw new RuntimeException("Unable to locate bundle manifest: " + location); //$NON-NLS-1$
+		return manifest.get(name);
 	}
 
-	public static Dictionary getOSGiManifest(URI location) {
+	public static Dictionary<String, String> getOSGiManifest(URI location) {
 		if (location == null)
 			return null;
 		// if we have a file-based URL that doesn't end in ".jar" then...
@@ -226,7 +226,7 @@ public class Utils {
 				if (entry == null)
 					return null;
 
-				Map manifest = ManifestElement.parseBundleManifest(jar.getInputStream(entry), null);
+				Map<String, String> manifest = ManifestElement.parseBundleManifest(jar.getInputStream(entry), null);
 				// if we have a JAR'd bundle that has a non-OSGi manifest file (like
 				// the ones produced by Ant, then try and convert the plugin.xml
 				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null) {
@@ -244,8 +244,8 @@ public class Utils {
 				jar.close();
 			}
 		} catch (IOException e) {
-			if (System.getProperty("osgi.debug") != null) {
-				System.err.println("location=" + location);
+			if (System.getProperty("osgi.debug") != null) { //$NON-NLS-1$
+				System.err.println("location=" + location); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 		}
@@ -255,8 +255,8 @@ public class Utils {
 	public static String getPathFromClause(String clause) {
 		if (clause == null)
 			return null;
-		if (clause.indexOf(";") != -1)
-			clause = clause.substring(0, clause.indexOf(";"));
+		if (clause.indexOf(";") != -1) //$NON-NLS-1$
+			clause = clause.substring(0, clause.indexOf(";")); //$NON-NLS-1$
 		return clause.trim();
 	}
 
@@ -276,7 +276,7 @@ public class Utils {
 
 		StringBuffer sb = new StringBuffer();
 		for (int i = index + 1; i < fromTokens.length; i++)
-			sb.append(".." + PATH_SEP);
+			sb.append(".." + PATH_SEP); //$NON-NLS-1$
 
 		for (int i = index + 1; i < targetTokens.length; i++)
 			if (i != targetTokens.length - 1)
@@ -313,7 +313,7 @@ public class Utils {
 	public static String[] getTokens(String msg, String delim, boolean returnDelims) {
 		StringTokenizer targetST = new StringTokenizer(msg, delim, returnDelims);
 		String[] tokens = new String[targetST.countTokens()];
-		ArrayList list = new ArrayList(targetST.countTokens());
+		ArrayList<String> list = new ArrayList<String>(targetST.countTokens());
 		while (targetST.hasMoreTokens()) {
 			list.add(targetST.nextToken());
 		}
@@ -322,12 +322,12 @@ public class Utils {
 	}
 
 	public static URL getUrl(String protocol, String host, String file) throws MalformedURLException {// throws ManipulatorException {
-		file = Utils.replaceAll(file, File.separator, "/");
+		file = Utils.replaceAll(file, File.separator, "/"); //$NON-NLS-1$
 		return new URL(protocol, host, file);
 	}
 
 	public static URL getUrlInFull(String path, URL from) throws MalformedURLException {//throws ManipulatorException {
-		Utils.checkFullUrl(from, "from");
+		Utils.checkFullUrl(from, "from"); //$NON-NLS-1$
 		path = Utils.replaceAll(path, File.separator, "/"); //$NON-NLS-1$
 		//System.out.println("from.toExternalForm()=" + from.toExternalForm());
 		String fromSt = Utils.removeLastCh(from.toExternalForm(), '/');
@@ -339,11 +339,11 @@ public class Utils {
 		return new URL(fromSt + "/" + path); //$NON-NLS-1$
 	}
 
-	private static Properties manifestToProperties(Map d) {
-		Iterator iter = d.keySet().iterator();
-		Properties result = new Properties();
+	private static Dictionary<String, String> manifestToProperties(Map<String, String> d) {
+		Iterator<String> iter = d.keySet().iterator();
+		Dictionary<String, String> result = new Hashtable<String, String>();
 		while (iter.hasNext()) {
-			String key = (String) iter.next();
+			String key = iter.next();
 			result.put(key, d.get(key));
 		}
 		return result;
@@ -358,14 +358,14 @@ public class Utils {
 	 */
 	public static void printoutProperties(PrintStream ps, String name, Properties props) {
 		if (props == null || props.size() == 0) {
-			ps.println("Props(" + name + ") is empty");
+			ps.println("Props(" + name + ") is empty"); //$NON-NLS-1$ //$NON-NLS-2$
 			return;
 		}
-		ps.println("Props(" + name + ")=");
-		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+		ps.println("Props(" + name + ")="); //$NON-NLS-1$ //$NON-NLS-2$
+		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
-			ps.print("\tkey=" + key);
-			ps.println("\tvalue=" + props.getProperty(key));
+			ps.print("\tkey=" + key); //$NON-NLS-1$
+			ps.println("\tvalue=" + props.getProperty(key)); //$NON-NLS-1$
 		}
 	}
 
@@ -394,26 +394,26 @@ public class Utils {
 	 * @return sorted array of BundleInfos
 	 */
 	public static BundleInfo[] sortBundleInfos(BundleInfo[] bInfos, int initialBSL) {
-		SortedMap bslToList = new TreeMap();
+		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<Integer, List<BundleInfo>>();
 		for (int i = 0; i < bInfos.length; i++) {
 			Integer sL = new Integer(bInfos[i].getStartLevel());
 			if (sL.intValue() == BundleInfo.NO_LEVEL)
 				sL = new Integer(initialBSL);
-			List list = (List) bslToList.get(sL);
+			List<BundleInfo> list = bslToList.get(sL);
 			if (list == null) {
-				list = new LinkedList();
+				list = new LinkedList<BundleInfo>();
 				bslToList.put(sL, list);
 			}
 			list.add(bInfos[i]);
 		}
 
 		// bslToList is sorted by the key (StartLevel).
-		List bundleInfoList = new LinkedList();
-		for (Iterator ite = bslToList.keySet().iterator(); ite.hasNext();) {
-			Integer sL = (Integer) ite.next();
-			List list = (List) bslToList.get(sL);
-			for (Iterator ite2 = list.iterator(); ite2.hasNext();) {
-				BundleInfo bInfo = (BundleInfo) ite2.next();
+		List<BundleInfo> bundleInfoList = new LinkedList<BundleInfo>();
+		for (Iterator<Integer> ite = bslToList.keySet().iterator(); ite.hasNext();) {
+			Integer sL = ite.next();
+			List<BundleInfo> list = bslToList.get(sL);
+			for (Iterator<BundleInfo> ite2 = list.iterator(); ite2.hasNext();) {
+				BundleInfo bInfo = ite2.next();
 				bundleInfoList.add(bInfo);
 			}
 		}
@@ -428,13 +428,13 @@ public class Utils {
 	 */
 	public static String toStringProperties(String name, Properties props) {
 		if (props == null || props.size() == 0) {
-			return "Props(" + name + ") is empty\n";
+			return "Props(" + name + ") is empty\n"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		StringBuffer sb = new StringBuffer();
-		sb.append("Props(" + name + ") is \n");
-		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+		sb.append("Props(" + name + ") is \n"); //$NON-NLS-1$ //$NON-NLS-2$
+		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
-			sb.append("\tkey=" + key + "\tvalue=" + props.getProperty(key) + "\n");
+			sb.append("\tkey=" + key + "\tvalue=" + props.getProperty(key) + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return sb.toString();
 	}

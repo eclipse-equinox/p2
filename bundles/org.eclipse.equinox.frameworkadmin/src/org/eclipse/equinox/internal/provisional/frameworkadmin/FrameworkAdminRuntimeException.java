@@ -14,8 +14,8 @@ package org.eclipse.equinox.internal.provisional.frameworkadmin;
 public class FrameworkAdminRuntimeException extends RuntimeException {
 
 	private static final long serialVersionUID = -2292498677000772317L;
-	public static final String FRAMEWORKADMIN_UNAVAILABLE = "FrameworkAdmin service created this object is not available any more";
-	public static final String UNSUPPORTED_OPERATION = "This implementation doesn't support this method.";
+	public static final String FRAMEWORKADMIN_UNAVAILABLE = "FrameworkAdmin service created this object is not available any more"; //$NON-NLS-1$
+	public static final String UNSUPPORTED_OPERATION = "This implementation doesn't support this method."; //$NON-NLS-1$
 
 	private final String reason;
 	private Throwable cause;

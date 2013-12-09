@@ -38,7 +38,7 @@ public class SimpleBundlesState implements BundlesState {
 	 */
 	public static void checkAvailability(FrameworkAdmin fwAdmin) throws FrameworkAdminRuntimeException {
 		if (!fwAdmin.isActive())
-			throw new FrameworkAdminRuntimeException("FrameworkAdmin creates this object is no more available.", FrameworkAdminRuntimeException.FRAMEWORKADMIN_UNAVAILABLE);
+			throw new FrameworkAdminRuntimeException("FrameworkAdmin creates this object is no more available.", FrameworkAdminRuntimeException.FRAMEWORKADMIN_UNAVAILABLE); //$NON-NLS-1$
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class SimpleBundlesState implements BundlesState {
 	private final String systemBundleName;
 
 	private final String systemBundleVendor;
-	List bundleInfosList = new LinkedList();
+	List<BundleInfo> bundleInfosList = new LinkedList<BundleInfo>();
 
 	FrameworkAdmin fwAdmin = null;
 
@@ -110,7 +110,7 @@ public class SimpleBundlesState implements BundlesState {
 
 	public BundleInfo[] getExpectedState() throws FrameworkAdminRuntimeException {
 		if (!fwAdmin.isActive())
-			throw new FrameworkAdminRuntimeException("FrameworkAdmin creates this object is no more available.", FrameworkAdminRuntimeException.FRAMEWORKADMIN_UNAVAILABLE);
+			throw new FrameworkAdminRuntimeException("FrameworkAdmin creates this object is no more available.", FrameworkAdminRuntimeException.FRAMEWORKADMIN_UNAVAILABLE); //$NON-NLS-1$
 		return Utils.getBundleInfosFromList(this.bundleInfosList);
 	}
 
@@ -126,21 +126,21 @@ public class SimpleBundlesState implements BundlesState {
 			return new BundleInfo[] {this.getSystemBundle()};
 
 		String[] clauses = Utils.getClauses(requiredBundles);
-		List list = new LinkedList();
+		List<String> list = new LinkedList<String>();
 		for (int i = 0; i < clauses.length; i++)
 			list.add(Utils.getPathFromClause(clauses[i]));
 
-		List ret = new LinkedList();
+		List<BundleInfo> ret = new LinkedList<BundleInfo>();
 		ret.add(this.getSystemBundle());
-		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
-			BundleInfo currentBInfo = (BundleInfo) ite.next();
+		for (Iterator<BundleInfo> ite = this.bundleInfosList.iterator(); ite.hasNext();) {
+			BundleInfo currentBInfo = ite.next();
 			URI currentLocation = currentBInfo.getLocation();
 			String currentSymbolicName = Utils.getManifestMainAttributes(currentLocation, Constants.BUNDLE_SYMBOLICNAME);
 			if (currentSymbolicName == null)
 				continue;
 			currentSymbolicName = Utils.getPathFromClause(currentSymbolicName);
-			for (Iterator ite2 = list.iterator(); ite2.hasNext();) {
-				String symbolicName = (String) ite2.next();
+			for (Iterator<String> ite2 = list.iterator(); ite2.hasNext();) {
+				String symbolicName = ite2.next();
 				if (symbolicName.equals(currentSymbolicName)) {
 					ret.add(currentBInfo);
 					break;
@@ -152,8 +152,8 @@ public class SimpleBundlesState implements BundlesState {
 
 	public BundleInfo getSystemBundle() {
 		if (this.systemBundleSymbolicName == null) {
-			for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
-				BundleInfo bInfo = (BundleInfo) ite.next();
+			for (Iterator<BundleInfo> ite = this.bundleInfosList.iterator(); ite.hasNext();) {
+				BundleInfo bInfo = ite.next();
 				//			if (bInfo.getStartLevel() != 1)
 				//				return null;;
 				URI location = bInfo.getLocation();
@@ -166,8 +166,8 @@ public class SimpleBundlesState implements BundlesState {
 			}
 			return null;
 		}
-		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
-			BundleInfo bInfo = (BundleInfo) ite.next();
+		for (Iterator<BundleInfo> ite = this.bundleInfosList.iterator(); ite.hasNext();) {
+			BundleInfo bInfo = ite.next();
 			URI location = bInfo.getLocation();
 			String symbolicName = Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME);
 			symbolicName = Utils.getPathFromClause(symbolicName);
@@ -177,14 +177,16 @@ public class SimpleBundlesState implements BundlesState {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public BundleInfo[] getSystemFragmentedBundles() {
 		BundleInfo systemBInfo = this.getSystemBundle();
 		if (systemBInfo == null)
 			return NULL_BUNDLEINFOS;
 
+		@SuppressWarnings("rawtypes")
 		List list = new LinkedList();
-		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
-			BundleInfo bInfo = (BundleInfo) ite.next();
+		for (Iterator<BundleInfo> ite = this.bundleInfosList.iterator(); ite.hasNext();) {
+			BundleInfo bInfo = ite.next();
 			URI location = bInfo.getLocation();
 			String manifestVersion = Utils.getManifestMainAttributes(location, Constants.BUNDLE_MANIFESTVERSION);
 			if (manifestVersion == null)
@@ -211,7 +213,7 @@ public class SimpleBundlesState implements BundlesState {
 	}
 
 	public String[] getUnsatisfiedConstraints(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
-		throw new FrameworkAdminRuntimeException("getUnsatisfiedConstraints(BundleInfo bInfo) is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION);
+		throw new FrameworkAdminRuntimeException("getUnsatisfiedConstraints(BundleInfo bInfo) is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION); //$NON-NLS-1$
 	}
 
 	private void initialize() {
@@ -221,7 +223,7 @@ public class SimpleBundlesState implements BundlesState {
 		File fwJar = getFwJar(launcherData);
 
 		if (fwJar == null)
-			throw new IllegalStateException("launcherData.getLauncherConfigFile() == null && fwJar is not set.");
+			throw new IllegalStateException("launcherData.getLauncherConfigFile() == null && fwJar is not set."); //$NON-NLS-1$
 		// No fw persistent data location is taken into consideration.
 
 		BundleInfo[] bInfos = configData.getBundles();
@@ -238,25 +240,25 @@ public class SimpleBundlesState implements BundlesState {
 	public void installBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 
 		URI newLocation = bInfo.getLocation();
-		Dictionary newManifest = Utils.getOSGiManifest(newLocation);
+		Dictionary<String, String> newManifest = Utils.getOSGiManifest(newLocation);
 		if (newManifest == null) {
 			// TODO log something here
 			return;
 		}
-		String newSymbolicName = (String) newManifest.get(Constants.BUNDLE_SYMBOLICNAME);
-		String newVersion = (String) newManifest.get(Constants.BUNDLE_VERSION);
+		String newSymbolicName = newManifest.get(Constants.BUNDLE_SYMBOLICNAME);
+		String newVersion = newManifest.get(Constants.BUNDLE_VERSION);
 		//System.out.println("> currentInstalledBundles.length=" + currentInstalledBundles.length);
 		boolean found = false;
-		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
-			BundleInfo currentBInfo = (BundleInfo) ite.next();
+		for (Iterator<BundleInfo> ite = this.bundleInfosList.iterator(); ite.hasNext();) {
+			BundleInfo currentBInfo = ite.next();
 			URI location = currentBInfo.getLocation();
 			if (newLocation.equals(location)) {
 				found = true;
 				break;
 			}
-			Dictionary manifest = Utils.getOSGiManifest(location);
-			String symbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
-			String version = (String) manifest.get(Constants.BUNDLE_VERSION);
+			Dictionary<String, String> manifest = Utils.getOSGiManifest(location);
+			String symbolicName = manifest.get(Constants.BUNDLE_SYMBOLICNAME);
+			String version = manifest.get(Constants.BUNDLE_VERSION);
 			if (newSymbolicName != null && newVersion != null)
 				if (newSymbolicName.equals(symbolicName) && newVersion.equals(version)) {
 					found = true;
@@ -300,23 +302,23 @@ public class SimpleBundlesState implements BundlesState {
 	}
 
 	public boolean isResolved() throws FrameworkAdminRuntimeException {
-		throw new FrameworkAdminRuntimeException("isResolved() is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION);
+		throw new FrameworkAdminRuntimeException("isResolved() is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION); //$NON-NLS-1$
 	}
 
 	public boolean isResolved(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
-		throw new FrameworkAdminRuntimeException("isResolved(BundleInfo bInfo) is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION);
+		throw new FrameworkAdminRuntimeException("isResolved(BundleInfo bInfo) is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION); //$NON-NLS-1$
 	}
 
 	public void resolve(boolean increment) throws FrameworkAdminRuntimeException {
-		throw new FrameworkAdminRuntimeException("resolve(boolean increment) is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION);
+		throw new FrameworkAdminRuntimeException("resolve(boolean increment) is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION); //$NON-NLS-1$
 	}
 
 	public void uninstallBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		URI targetLocation = bInfo.getLocation();
 		int index = -1;
-		for (Iterator ite = this.bundleInfosList.iterator(); ite.hasNext();) {
+		for (Iterator<BundleInfo> ite = this.bundleInfosList.iterator(); ite.hasNext();) {
 			index++;
-			BundleInfo currentBInfo = (BundleInfo) ite.next();
+			BundleInfo currentBInfo = ite.next();
 			URI location = currentBInfo.getLocation();
 			if (targetLocation.equals(location)) {
 				break;

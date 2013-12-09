@@ -30,7 +30,7 @@ public class ConfigData {
 	private int beginningFwStartLevel = BundleInfo.NO_LEVEL;
 	private int initialBundleStartLevel = BundleInfo.NO_LEVEL;
 	// List of BundleInfo
-	private LinkedHashSet bundlesList = new LinkedHashSet();
+	private LinkedHashSet<BundleInfo> bundlesList = new LinkedHashSet<BundleInfo>();
 
 	private Properties properties = new Properties();
 
@@ -149,7 +149,7 @@ public class ConfigData {
 		else {
 			sb.append("bundlesList=\n"); //$NON-NLS-1$
 			int i = 0;
-			for (Iterator iter = bundlesList.iterator(); iter.hasNext();) {
+			for (Iterator<BundleInfo> iter = bundlesList.iterator(); iter.hasNext();) {
 				sb.append("\tbundlesList[" + i + "]=" + iter.next().toString() + "\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 				i++;
 			}
@@ -164,7 +164,7 @@ public class ConfigData {
 	private static void setPropsStrings(StringBuffer sb, Properties props) {
 		if (props.size() > 0) {
 			sb.append("\n"); //$NON-NLS-1$
-			for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+			for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
 				String key = (String) enumeration.nextElement();
 				String value = props.getProperty(key);
 				if (value == null || value.equals("")) //$NON-NLS-1$
