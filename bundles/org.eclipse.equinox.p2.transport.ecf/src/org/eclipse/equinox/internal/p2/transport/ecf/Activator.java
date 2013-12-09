@@ -24,6 +24,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * This activator has helper methods to get file transfer service tracker, and
  * for making sure required ECF bundles are started.
  */
+@SuppressWarnings("restriction")
 public class Activator implements BundleActivator {
 
 	public static final String ID = "org.eclipse.equinox.p2.transport.ecf"; //$NON-NLS-1$
