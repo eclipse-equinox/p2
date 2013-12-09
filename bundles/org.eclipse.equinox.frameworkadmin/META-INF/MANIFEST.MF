@@ -12,7 +12,8 @@ Export-Package: org.eclipse.equinox.frameworkadmin;version="2.0.0",
  org.eclipse.equinox.internal.frameworkadmin.utils;
   x-friends:="org.eclipse.equinox.frameworkadmin.equinox,
    org.eclipse.equinox.p2.publisher,
-   org.eclipse.equinox.simpleconfigurator.manipulator",
+   org.eclipse.equinox.simpleconfigurator.manipulator,
+   org.eclipse.equinox.p2.publisher.eclipse",
  org.eclipse.equinox.internal.provisional.configuratormanipulator;x-friends:="org.eclipse.equinox.frameworkadmin.equinox,org.eclipse.equinox.simpleconfigurator.manipulator",
  org.eclipse.equinox.internal.provisional.frameworkadmin;
   x-friends:="org.eclipse.equinox.frameworkadmin.equinox,
@@ -20,7 +21,8 @@ Export-Package: org.eclipse.equinox.frameworkadmin;version="2.0.0",
    org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.simpleconfigurator.manipulator,
    org.eclipse.pde.core,
-   org.eclipse.pde.ui"
+   org.eclipse.pde.ui,
+   org.eclipse.equinox.p2.publisher.eclipse"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"
 Bundle-ActivationPolicy: lazy

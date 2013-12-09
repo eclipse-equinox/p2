@@ -60,6 +60,7 @@ import org.osgi.framework.Constants;
  * <li>{@link ITouchpointAdvice}</li>
  * </ul>
  */
+@SuppressWarnings("restriction")
 public class BundlesAction extends AbstractPublisherAction {
 
 	/**
@@ -663,6 +664,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * @return the same result as {@link Headers#parseManifest(InputStream)}, but with a modifiable {@link Headers} instance
 	 */
+	@SuppressWarnings("restriction")
 	private static Headers<String, String> parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(InputStream manifestStream) throws IOException, BundleException {
 		return (Headers<String, String>) ManifestElement.parseBundleManifest(manifestStream, new Headers<String, String>(10));
 	}
