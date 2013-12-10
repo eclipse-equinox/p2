@@ -98,7 +98,9 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return iu.getId();
 	}
 
-	@SuppressWarnings("rawtypes")
+	// don't suppress this warning as it will cause build-time warning
+	// see bug 423628. This should be possible to fix once
+	// the entire hierarchy adopts generics
 	public Object getAdapter(Class adapter) {
 		if (adapter == IInstallableUnit.class)
 			return iu;

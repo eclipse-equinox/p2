@@ -28,7 +28,6 @@ import org.eclipse.osgi.util.NLS;
  * A class to manage discovery cache files. Creating the cache files will place
  * the file in the plugin state location in a cache directory.
  */
-@SuppressWarnings("restriction")
 public class CacheManager {
 
 	private static final String PREFIX = "discovery"; //$NON-NLS-1$

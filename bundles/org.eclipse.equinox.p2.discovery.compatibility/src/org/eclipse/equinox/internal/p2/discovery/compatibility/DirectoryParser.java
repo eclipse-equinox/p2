@@ -60,34 +60,48 @@ public class DirectoryParser {
 		return contentHandler.directory;
 	}
 
-	@SuppressWarnings("unused")
 	private class DirectoryContentHandler implements ContentHandler {
 
 		Directory directory;
 
+		/**
+		 * @throws SAXException - required by contract, not really thrown 
+		 */
 		public void characters(char[] ch, int start, int length) throws SAXException {
 			// ignore
 		}
 
 		/**
-		 * @throws SAXException  
+		 * @throws SAXException - required by contract, not really thrown 
 		 */
 		public void endDocument() throws SAXException {
 			// ignore
 		}
 
+		/**
+		 * @throws SAXException - required by contract, not really thrown 
+		 */
 		public void endElement(String uri, String localName, String qName) throws SAXException {
 			// ignore
 		}
 
+		/**
+		 * @throws SAXException - required by contract, not really thrown 
+		 */
 		public void endPrefixMapping(String prefix) throws SAXException {
 			// ignore
 		}
 
+		/**
+		 * @throws SAXException - required by contract, not really thrown 
+		 */
 		public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
 			// ignore
 		}
 
+		/**
+		 * @throws SAXException - required by contract, not really thrown 
+		 */
 		public void processingInstruction(String target, String data) throws SAXException {
 			// ignore
 		}
@@ -96,10 +110,16 @@ public class DirectoryParser {
 			// ignore
 		}
 
+		/**
+		 * @throws SAXException - required by contract, not really thrown 
+		 */
 		public void skippedEntity(String name) throws SAXException {
 			// ignore
 		}
 
+		/**
+		 * @throws SAXException - required by contract, not really thrown 
+		 */
 		public void startDocument() throws SAXException {
 			// ignore
 		}
@@ -126,6 +146,9 @@ public class DirectoryParser {
 			throw new SAXException(NLS.bind(Messages.DirectoryParser_unexpected_element, localName));
 		}
 
+		/**
+		 * @throws SAXException - required by contract, not really thrown 
+		 */
 		public void startPrefixMapping(String prefix, String uri) throws SAXException {
 			// ignore
 		}

@@ -324,7 +324,8 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return setProperty(key, value, new NullProgressMonitor());
 	}
 
-	@SuppressWarnings("rawtypes")
+	// don't suppress the warning as it will cause warnings in the official build
+	// see bug 423628. Entire hierarchy should be refactored to use generics.
 	public Object getAdapter(Class adapter) {
 		return innerRepo.getAdapter(adapter);
 	}

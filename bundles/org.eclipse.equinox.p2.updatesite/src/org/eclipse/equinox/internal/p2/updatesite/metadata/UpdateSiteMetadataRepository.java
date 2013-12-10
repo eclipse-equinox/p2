@@ -184,7 +184,9 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	@SuppressWarnings("rawtypes")
+	// don't disable this warning because it will cause build-time warning.
+	// see bug 423628.
+	// fix once the entire hierarchy adopts generics.
 	public Object getAdapter(Class adapter) {
 		return delegate.getAdapter(adapter);
 	}

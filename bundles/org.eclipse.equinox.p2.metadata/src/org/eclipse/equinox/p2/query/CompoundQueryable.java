@@ -52,8 +52,9 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 	 * 
 	 * @param queryables The collection of queryables to be combined
 	 */
-	@SuppressWarnings("unchecked")
 	CompoundQueryable(Collection<? extends IQueryable<T>> queryables) {
+		// don't suppress the warning as it will cause warnings in the official build
+		// see bug 423628. Write this without unchecked conversion.
 		this(queryables.toArray(new IQueryable[queryables.size()]));
 	}
 

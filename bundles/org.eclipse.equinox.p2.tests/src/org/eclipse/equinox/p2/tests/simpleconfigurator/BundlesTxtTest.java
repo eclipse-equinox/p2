@@ -16,8 +16,10 @@ import org.eclipse.equinox.p2.tests.TestData;
 import org.osgi.framework.BundleContext;
 
 public class BundlesTxtTest extends AbstractSimpleConfiguratorTest {
-	@SuppressWarnings("hiding")
-	private static String BUNDLE_JAR_DIRECTORY = "simpleConfiguratorTest/bundlesTxt";
+
+	{
+		BUNDLE_JAR_DIRECTORY = "simpleConfiguratorTest/bundlesTxt";
+	}
 
 	private File[] jars = null;
 	private File bundleInfo = null;

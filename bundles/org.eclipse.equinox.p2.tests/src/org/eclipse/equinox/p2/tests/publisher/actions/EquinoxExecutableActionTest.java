@@ -102,38 +102,36 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		debug("Completed EquinoxExecutableActionTest " + idBase + " test."); //$NON-NLS-1$ //$NON-NLS-2$		
 	}
 
-	@SuppressWarnings("hiding")
-	private void verifyResults(String idBase, String configSpec) {
+	private void verifyResults(String idBase, String confSpec) {
 		ArrayList iuList = new ArrayList(publisherResult.getIUs(null, IPublisherResult.ROOT));
-		verifyExecIU(iuList, idBase, configSpec);
-		verifyEclipseIU(iuList, idBase, configSpec);
-		verifyCU(iuList, idBase, configSpec);
-		if (configSpec.contains("macosx"))
+		verifyExecIU(iuList, idBase, confSpec);
+		verifyEclipseIU(iuList, idBase, confSpec);
+		verifyCU(iuList, idBase, confSpec);
+		if (confSpec.contains("macosx"))
 			assertTrue(iuList.size() == 4);
 		else
 			assertTrue(iuList.size() == 3);
 	}
 
-	@SuppressWarnings("hiding")
-	private void verifyCU(ArrayList iuList, String idBase, String configSpec) {
-		String[] config = AbstractPublisherAction.parseConfigSpec(configSpec);
-		String ws = config[0];
-		String os = config[1];
-		String arch = config[2];
+	private void verifyCU(ArrayList iuList, String idBase, String confSpec) {
+		String[] config = AbstractPublisherAction.parseConfigSpec(confSpec);
+		String _ws = config[0];
+		String _os = config[1];
+		String _arch = config[2];
 		for (int i = 0; i < iuList.size(); i++) {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
-			if (possibleEclipse.getId().equals(flavorArg + idBase + ".executable." + configSpec)) {//$NON-NLS-1$ 
+			if (possibleEclipse.getId().equals(flavorArg + idBase + ".executable." + confSpec)) {//$NON-NLS-1$ 
 				IInstallableUnitFragment fragment = (IInstallableUnitFragment) iuList.get(i);
 				Collection<IProvidedCapability> providedCapability = fragment.getProvidedCapabilities();
-				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
+				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + confSpec, version); //$NON-NLS-1$ 
 				assertTrue(providedCapability.size() == 1);
 				Collection<IRequirement> requiredCapability = fragment.getHost();
-				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
+				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
 				assertTrue(requiredCapability.size() == 1);
 
-				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.ws=" + ws + ")") != -1);
-				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.os=" + os + ")") != -1);
-				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.arch=" + arch + ")") != -1);
+				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.ws=" + _ws + ")") != -1);
+				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.os=" + _os + ")") != -1);
+				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.arch=" + _arch + ")") != -1);
 				assertTrue(fragment.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$ //$NON-NLS-2$
 				return;//pass
 			}
@@ -141,14 +139,13 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		fail();
 	}
 
-	@SuppressWarnings("hiding")
-	private void verifyEclipseIU(ArrayList iuList, String idBase, String configSpec) {
+	private void verifyEclipseIU(ArrayList iuList, String idBase, String confSpec) {
 		for (int i = 0; i < iuList.size(); i++) {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
-			if (possibleEclipse.getId().equals((idBase + ".executable." + configSpec + "." + EXECUTABLE_NAME))) { //$NON-NLS-1$//$NON-NLS-2$
+			if (possibleEclipse.getId().equals((idBase + ".executable." + confSpec + "." + EXECUTABLE_NAME))) { //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(possibleEclipse.getVersion().equals(version));
 				Collection<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
-				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec + "." + EXECUTABLE_NAME, version); //$NON-NLS-1$ //$NON-NLS-2$ 
+				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec + "." + EXECUTABLE_NAME, version); //$NON-NLS-1$ //$NON-NLS-2$ 
 				assertTrue(providedCapability.size() == 1);
 				Collection<IRequirement> req = possibleEclipse.getRequirements();
 				assertTrue(req.size() == 0);
@@ -158,28 +155,27 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		fail();
 	}
 
-	@SuppressWarnings("hiding")
-	private void verifyExecIU(ArrayList iuList, String idBase, String configSpec) {
-		String[] config = AbstractPublisherAction.parseConfigSpec(configSpec);
-		String ws = config[0];
-		String os = config[1];
-		String arch = config[2];
+	private void verifyExecIU(ArrayList iuList, String idBase, String confSpec) {
+		String[] config = AbstractPublisherAction.parseConfigSpec(confSpec);
+		String _ws = config[0];
+		String _os = config[1];
+		String _arch = config[2];
 		for (int i = 0; i < iuList.size(); i++) {
 			IInstallableUnit possibleExec = (IInstallableUnit) iuList.get(i);
-			if (possibleExec.getId().equals(idBase + ".executable." + configSpec)) { //$NON-NLS-1$
+			if (possibleExec.getId().equals(idBase + ".executable." + confSpec)) { //$NON-NLS-1$
 				//keep checking
-				assertTrue(possibleExec.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+				assertTrue(possibleExec.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=" + _ws + ")(osgi.os=" + _os + ")(osgi.arch=" + _arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 				IArtifactKey eKey = possibleExec.getArtifacts().iterator().next();
 				assertTrue(eKey.getClassifier().equals("binary")); //$NON-NLS-1$
-				assertTrue(eKey.getId().equals(idBase + ".executable." + configSpec)); //$NON-NLS-1$
+				assertTrue(eKey.getId().equals(idBase + ".executable." + confSpec)); //$NON-NLS-1$
 				assertTrue(eKey.getVersion().equals(version));
 				Collection<IProvidedCapability> providedCapabilities = possibleExec.getProvidedCapabilities();
-				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
+				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec, version); //$NON-NLS-1$ 
 				verifyProvidedCapability(providedCapabilities, flavorArg + idBase, idBase + ".executable", version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.size() == 2);
 
 				Collection<IRequirement> requiredCapability = possibleExec.getRequirements();
-				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? configSpec.substring(0, configSpec.lastIndexOf(".")) : configSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? confSpec.substring(0, confSpec.lastIndexOf(".")) : confSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				assertTrue(requiredCapability.size() == 1);
 
 				try {

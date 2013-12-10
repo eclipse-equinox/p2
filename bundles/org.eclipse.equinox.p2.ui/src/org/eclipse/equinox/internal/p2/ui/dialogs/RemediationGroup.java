@@ -432,7 +432,6 @@ public class RemediationGroup {
 		private int sortColumn = 0;
 		private int ascending = 1;
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public int compare(Viewer viewer1, Object e1, Object e2) {
 			if (!(e1 instanceof RemedyIUDetail && e2 instanceof RemedyIUDetail))
@@ -445,6 +444,9 @@ public class RemediationGroup {
 					ColumnLabelProvider labelProvider = (ColumnLabelProvider) theTreeViewer.getLabelProvider(sortColumn);
 					String e1p = labelProvider.getText(e1);
 					String e2p = labelProvider.getText(e2);
+					// don't suppress this warning as it will cause build-time warning
+					// see bug 423628. This should be possible to fix once
+					// SWT/JFace adopts generics
 					return ascending * getComparator().compare(e1p, e2p);
 				}
 				return 0;

@@ -694,7 +694,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return mirrors.getMirrorLocation(baseLocation, monitor);
 	}
 
-	@SuppressWarnings("rawtypes")
+	// don't suppress the warning as it will cause warnings in the official build
+	// see bug 423628. Entire hierarchy should be refactored to use generics.
 	public Object getAdapter(Class adapter) {
 		// if we are adapting to file or writable repositories then make sure we have a file location
 		if (adapter == IFileArtifactRepository.class)

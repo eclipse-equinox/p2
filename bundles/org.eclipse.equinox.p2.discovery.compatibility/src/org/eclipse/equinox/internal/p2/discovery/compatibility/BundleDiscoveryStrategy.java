@@ -28,7 +28,10 @@ public class BundleDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		// constructor
 	}
 
-	@SuppressWarnings("unused")
+	/**
+	 * @throws CoreException - this exception is not actually thrown by the implementation,
+	 * but is required by super contract.
+	 */
 	@Override
 	public void performDiscovery(IProgressMonitor monitor) throws CoreException {
 		if (items == null || categories == null) {

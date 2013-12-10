@@ -167,13 +167,17 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 						ITableLabelProvider tableProvider = (ITableLabelProvider) baseLabel;
 						String e1p = tableProvider.getColumnText(e1, getSortColumn());
 						String e2p = tableProvider.getColumnText(e2, getSortColumn());
-						@SuppressWarnings("unchecked")
+						// don't suppress this warning as it will cause build-time warning
+						// see bug 423628. This should be possible to fix once
+						// SWT/JFace adopts generics
 						int result = getComparator().compare(e1p, e2p);
 						// Secondary column sort
 						if (result == 0) {
 							e1p = tableProvider.getColumnText(e1, lastSortColumn);
 							e2p = tableProvider.getColumnText(e2, lastSortColumn);
-							@SuppressWarnings("unchecked")
+							// don't suppress this warning as it will cause build-time warning
+							// see bug 423628. This should be possible to fix once
+							// SWT/JFace adopts generics
 							int result2 = getComparator().compare(e1p, e2p);
 							return lastAscending ? result2 : (-1) * result2;
 						}
@@ -787,8 +791,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	}
 
 	// Look for update of the current selected installation units and replace the old ons with the updated version
-	@SuppressWarnings("hiding")
-	private Object[] getUpdates(final Object[] checkedElements) {
+	private Object[] getUpdates(final Object[] _checkedElements) {
 
 		final Collection<IInstallableUnit> toInstall = new ArrayList<IInstallableUnit>();
 
@@ -796,10 +799,10 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 			getContainer().run(false, true, new IRunnableWithProgress() {
 
 				public void run(IProgressMonitor monitor) {
-					SubMonitor sub = SubMonitor.convert(monitor, checkedElements.length);
+					SubMonitor sub = SubMonitor.convert(monitor, _checkedElements.length);
 					ProvisioningContext context = new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
 
-					for (Object iu : checkedElements) {
+					for (Object iu : _checkedElements) {
 
 						if (sub.isCanceled()) {
 							MigrationPage.this.getUpdatesCanceled = true;

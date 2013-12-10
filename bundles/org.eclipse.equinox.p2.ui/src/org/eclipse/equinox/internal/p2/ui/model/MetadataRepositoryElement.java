@@ -52,7 +52,9 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		this.isEnabled = isEnabled;
 	}
 
-	@SuppressWarnings("rawtypes")
+	// don't suppress this warning as it will cause build-time warning
+	// see bug 423628. This should be possible to fix once
+	// the entire hierarchy adopts generics
 	public Object getAdapter(Class adapter) {
 		if (adapter == IMetadataRepository.class)
 			return getQueryable();

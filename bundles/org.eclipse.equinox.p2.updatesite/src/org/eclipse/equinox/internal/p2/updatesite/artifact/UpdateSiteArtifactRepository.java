@@ -13,7 +13,8 @@ package org.eclipse.equinox.internal.p2.updatesite.artifact;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -72,7 +73,7 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		return delegate.getArtifacts(requests, monitor);
 	}
-	
+
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		// TODO Auto-generated method stub
 		return null;
@@ -187,7 +188,9 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	@SuppressWarnings("rawtypes")
+	// don't disable this warning because it will cause build-time warning.
+	// see bug 423628.
+	// fix once the entire hierarchy adopts generics.
 	public Object getAdapter(Class adapter) {
 		return delegate.getAdapter(adapter);
 	}

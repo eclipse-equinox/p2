@@ -54,8 +54,9 @@ public class QueryUtil {
 	 * 
 	 * @param queryables The collection of queryables to be combined
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> IQueryable<T> compoundQueryable(Collection<? extends IQueryable<T>> queryables) {
+		// don't suppress the warning as it will cause warnings in the official build
+		// see bug 423628. Write this without unchecked conversion.
 		return new CompoundQueryable<T>(queryables.toArray(new IQueryable[queryables.size()]));
 	}
 

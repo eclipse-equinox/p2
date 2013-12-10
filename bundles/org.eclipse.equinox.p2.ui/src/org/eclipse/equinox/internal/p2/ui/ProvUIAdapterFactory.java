@@ -27,7 +27,10 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 public class ProvUIAdapterFactory implements IAdapterFactory {
 	private static final Class<?>[] CLASSES = new Class[] {IInstallableUnit.class, IProfile.class, IRepository.class, IMetadataRepository.class, IArtifactRepository.class};
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	// don't suppress this warning as it will cause build-time warning
+	// see bug 423628. This should be possible to fix once
+	// the entire hierarchy adopts generics
+	@SuppressWarnings("unchecked")
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		return ProvUI.getAdapter(adaptableObject, adapterType);
 	}

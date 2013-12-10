@@ -155,13 +155,17 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 						ITableLabelProvider tableProvider = (ITableLabelProvider) baseLabel;
 						String e1p = tableProvider.getColumnText(e1, getSortColumn());
 						String e2p = tableProvider.getColumnText(e2, getSortColumn());
-						@SuppressWarnings("unchecked")
+						// don't suppress this warning as it will cause build-time warning
+						// see bug 423628. This should be possible to fix once
+						// SWT/JFace adopt generics
 						int result = getComparator().compare(e1p, e2p);
 						// Secondary column sort
 						if (result == 0) {
 							e1p = tableProvider.getColumnText(e1, lastSortColumn);
 							e2p = tableProvider.getColumnText(e2, lastSortColumn);
-							@SuppressWarnings("unchecked")
+							// don't suppress this warning as it will cause build-time warning
+							// see bug 423628. This should be possible to fix once
+							// SWT/JFace adopt generics
 							int result2 = getComparator().compare(e1p, e2p);
 							return lastAscending ? result2 : (-1) * result2;
 						}

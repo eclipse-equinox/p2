@@ -57,7 +57,9 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 		return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG).format(new Date(timestamp));
 	}
 
-	@SuppressWarnings("rawtypes")
+	// don't suppress this warning as it will cause build-time warning
+	// see bug 423628. This should be possible to fix once
+	// the entire hierarchy adopts generics
 	public Object getAdapter(Class adapter) {
 		if (adapter == IProfile.class)
 			return getProfileSnapshot(new NullProgressMonitor());

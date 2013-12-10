@@ -36,7 +36,9 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		this.parent = parent;
 	}
 
-	@SuppressWarnings("rawtypes")
+	// don't suppress this warning as it will cause build-time warning
+	// see bug 423628. This should be possible to fix once
+	// the entire hierarchy adopts generics
 	public Object getAdapter(Class adapter) {
 		if (adapter == IWorkbenchAdapter.class)
 			return this;

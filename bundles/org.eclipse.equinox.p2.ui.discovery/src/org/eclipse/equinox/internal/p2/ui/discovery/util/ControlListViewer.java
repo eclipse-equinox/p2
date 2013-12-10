@@ -214,13 +214,13 @@ public abstract class ControlListViewer extends StructuredViewer {
 		doUpdateContent();
 	}
 
-	private void updateSize(@SuppressWarnings("hiding") Control control) {
-		if (control == null) {
+	private void updateSize(Control c) {
+		if (c == null) {
 			return;
 		}
 		// XXX need a small offset in case the list has a scroll bar
-		Point size = control.computeSize(scrolled.getClientArea().width - 20, SWT.DEFAULT, true);
-		control.setSize(size);
+		Point size = c.computeSize(scrolled.getClientArea().width - 20, SWT.DEFAULT, true);
+		c.setSize(size);
 		scrolled.setMinSize(size);
 	}
 
@@ -341,9 +341,8 @@ public abstract class ControlListViewer extends StructuredViewer {
 	}
 
 	protected void handleOpen() {
-		@SuppressWarnings("hiding")
-		Control control = getControl();
-		if (control != null && !control.isDisposed()) {
+		Control c = getControl();
+		if (c != null && !c.isDisposed()) {
 			ISelection selection = getSelection();
 			fireOpen(new OpenEvent(this, selection));
 		}
@@ -415,14 +414,17 @@ public abstract class ControlListViewer extends StructuredViewer {
 		}
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"rawtypes"})
 	@Override
 	protected void setSelectionToWidget(List list, boolean reveal) {
 		if (list != null) {
+			//see bug 423628. This should be suppressed as:
+			//1. it will cause warning at build time.
+			//2. should be possible to fix once swt/jface enables generics for good.
 			HashSet<Object> elements = new HashSet<Object>(list);
 			Control[] children = control.getChildren();
-			for (Control control : children) {
-				ControlListItem child = (ControlListItem) control;
+			for (Control c : children) {
+				ControlListItem child = (ControlListItem) c;
 				boolean selected = elements.contains(child.getData());
 				if (selected != child.isSelected()) {
 					child.setSelected(selected);
@@ -434,8 +436,8 @@ public abstract class ControlListViewer extends StructuredViewer {
 			}
 		} else {
 			Control[] children = control.getChildren();
-			for (Control control : children) {
-				ControlListItem child = (ControlListItem) control;
+			for (Control c : children) {
+				ControlListItem child = (ControlListItem) c;
 				if (child.isSelected()) {
 					child.setSelected(false);
 				}

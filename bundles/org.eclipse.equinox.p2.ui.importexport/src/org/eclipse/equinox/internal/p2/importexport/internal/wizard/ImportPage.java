@@ -438,7 +438,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 					}
 					if (sub2.isCanceled())
 						throw new InterruptedException();
-					@SuppressWarnings("unchecked")
+					// don't suppress this warning as it will cause build-time warning
+					// see bug 423628. Find a way to change the code to not produce
+					// the warning.
 					Set<IInstallableUnit> result = new CompoundQueryable<IInstallableUnit>(repos.toArray(new IRepository[repos.size()])).query(QueryUtil.createIUQuery(feature.getIU().getId(), new VersionRange(feature.getIU().getVersion(), true, null, false)), sub2.newChild(100)).toSet();
 					List<IUDetail> existingFeatures = new ArrayList<IUDetail>(result.size());
 					for (IInstallableUnit iu : result) {

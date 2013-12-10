@@ -721,7 +721,6 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		delete(destinationRepo);
 	}
 
-	@SuppressWarnings("unused")
 	private final class DummyCertificate extends Certificate {
 		DummyCertificate(String type) {
 			super(type);

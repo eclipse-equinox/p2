@@ -248,6 +248,7 @@ public class Catalog {
 	/**
 	 * eliminate any connectors whose {@link CatalogItem#getPlatformFilter() platform filters} don't match
 	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void filterDescriptors() {
 		for (CatalogItem connector : new ArrayList<CatalogItem>(items)) {
 			if (connector.getPlatformFilter() != null && connector.getPlatformFilter().trim().length() > 0) {

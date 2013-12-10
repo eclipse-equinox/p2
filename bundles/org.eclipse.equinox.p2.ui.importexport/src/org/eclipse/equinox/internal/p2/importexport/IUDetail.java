@@ -15,7 +15,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
-public class IUDetail implements IAdaptable{
+public class IUDetail implements IAdaptable {
 
 	private final IInstallableUnit iu;
 	private final List<URI> referredRepo;
@@ -33,7 +33,10 @@ public class IUDetail implements IAdaptable{
 		return referredRepo;
 	}
 
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+	// don't suppress this warning as it will cause build-time warning
+	// see bug 423628. This should be possible to fix once
+	// the entire hierarchy starts using generics
+	public Object getAdapter(Class adapter) {
 		if (IInstallableUnit.class.equals(adapter))
 			return iu;
 		return null;
@@ -44,7 +47,7 @@ public class IUDetail implements IAdaptable{
 		if (this == obj)
 			return true;
 		if (obj instanceof IUDetail) {
-			if (iu.equals(((IUDetail)obj).getIU()))
+			if (iu.equals(((IUDetail) obj).getIU()))
 				return true;
 		}
 		return false;

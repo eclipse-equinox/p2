@@ -325,8 +325,8 @@ public class CatalogViewer extends FilteredViewer {
 
 	@Override
 	protected StructuredViewer doCreateViewer(Composite container) {
-		@SuppressWarnings("hiding")
-		StructuredViewer viewer = new ControlListViewer(container, SWT.BORDER) {
+
+		StructuredViewer _viewer = new ControlListViewer(container, SWT.BORDER) {
 			@Override
 			protected ControlListItem<?> doCreateItem(Composite parent, Object element) {
 				return doCreateViewerItem(parent, element);
@@ -334,14 +334,14 @@ public class CatalogViewer extends FilteredViewer {
 		};
 		contentProvider = doCreateContentProvider();
 		contentProvider.setHasCategories(isShowCategories());
-		viewer.setContentProvider(contentProvider);
-		viewer.setSorter(new ViewerSorter() {
+		_viewer.setContentProvider(contentProvider);
+		_viewer.setSorter(new ViewerSorter() {
 			CatalogCategoryComparator categoryComparator = new CatalogCategoryComparator();
 
 			CatalogItemComparator itemComparator = new CatalogItemComparator();
 
 			@Override
-			public int compare(@SuppressWarnings("hiding") Viewer viewer, Object o1, Object o2) {
+			public int compare(Viewer v, Object o1, Object o2) {
 				CatalogCategory cat1 = getCategory(o1);
 				CatalogCategory cat2 = getCategory(o2);
 
@@ -363,7 +363,7 @@ public class CatalogViewer extends FilteredViewer {
 					if (cat1 == cat2 && o1 instanceof CatalogItem && o2 instanceof CatalogItem) {
 						return itemComparator.compare((CatalogItem) o1, (CatalogItem) o2);
 					}
-					return super.compare(viewer, o1, o2);
+					return super.compare(v, o1, o2);
 				}
 				return i;
 			}
@@ -388,15 +388,15 @@ public class CatalogViewer extends FilteredViewer {
 		});
 
 		resources = new DiscoveryResources(container.getDisplay());
-		viewer.getControl().addDisposeListener(new DisposeListener() {
+		_viewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				resources.dispose();
 				if (catalog != null)
 					catalog.dispose();
 			}
 		});
-		viewer.addFilter(new Filter());
-		return viewer;
+		_viewer.addFilter(new Filter());
+		return _viewer;
 	}
 
 	protected CatalogContentProvider doCreateContentProvider() {
