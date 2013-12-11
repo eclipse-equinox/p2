@@ -623,7 +623,7 @@ public class EquinoxBundlesState implements BundlesState {
 	 * set platfromProperties required to compose state object into
 	 * platformProperties of this state.
 	 * 
-	 * @param props2
+	 * @param props
 	 */
 	private void setPlatformPropertiesToState(Dictionary<Object, Object> props) {
 		Properties platformProperties = setDefaultPlatformProperties();
