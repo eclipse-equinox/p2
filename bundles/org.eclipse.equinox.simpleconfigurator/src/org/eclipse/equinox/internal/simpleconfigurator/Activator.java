@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
+ * read .info files from many locations
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator;
 
@@ -40,6 +42,16 @@ import org.osgi.framework.*;
  */
 public class Activator implements BundleActivator {
 	public final static boolean DEBUG = false;
+
+	/**
+	 * If this property is set to true, simpleconfigurator will attempt to read 
+	 * multiple *.info files.
+	 * 
+	 * This field is writable only for test purposes.
+	 */
+	public static String EXTENSIONS = System.getProperty("p2.fragments");
+	public static boolean EXTENDED = (EXTENSIONS != null);
+
 	private ServiceRegistration<?> configuratorRegistration;
 	private ServiceRegistration<?> commandRegistration;
 

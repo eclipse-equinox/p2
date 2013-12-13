@@ -12,29 +12,40 @@
 package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
 import java.io.File;
-import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.osgi.framework.BundleContext;
 
-public class BundlesTxtTest extends AbstractSimpleConfiguratorTest {
+public class BundlesTxtTestExtendedConfigured extends BundlesTxtTestExtended {
 
-	{
-		BUNDLE_JAR_DIRECTORY = "simpleConfiguratorTest/bundlesTxt";
-	}
+	private File testData;
 
-	protected File[] jars = null;
-	protected File bundleInfo = null;
-
-	protected void setUp() throws Exception {
+	@Override
+	public void setUp() throws Exception {
 		super.setUp();
-
-		jars = getBundleJars(TestData.getFile(BUNDLE_JAR_DIRECTORY, ""));
-		// Create a bundles.info containing all the jars passed
-		bundleInfo = createBundlesTxt(jars);
+		//subdir extension will be loaded
+		testData = getTempFolder();
+		copy("preparing testData", getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorTest"), testData);
+		Activator.EXTENSIONS = testData.toString();
+		System.setProperty("p2.fragments", Activator.EXTENSIONS);
+		readOnly(testData, true);
 	}
 
+	@Override
 	public void testBundlesTxt() throws Exception {
 		BundleContext equinoxContext = startFramework(bundleInfo, null);
 		assertJarsInstalled(jars, equinoxContext.getBundles());
-		assertEquals(jars.length + 2, equinoxContext.getBundles().length);
+		/**
+		 * 3 = one extension + osgi + simpleconfigurator
+		 */
+		assertEquals(jars.length + 3, equinoxContext.getBundles().length);
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		Activator.EXTENSIONS = null;
+		readOnly(testData, false);
+		testData.delete();
+		super.tearDown();
+		System.setProperty("p2.fragments", "");
 	}
 }

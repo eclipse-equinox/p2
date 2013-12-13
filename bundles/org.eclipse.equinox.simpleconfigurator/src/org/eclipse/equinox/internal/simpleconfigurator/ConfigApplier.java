@@ -4,13 +4,15 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ *     IBM Corporation - initial API and implementation
+ *     Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
+ * read .info files from many locations
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
@@ -244,8 +246,17 @@ class ConfigApplier {
 		try {
 			try {
 				destinationStream = new FileOutputStream(lastBundlesTxt);
-				sourceStream = url.openStream();
-				SimpleConfiguratorUtils.transferStreams(sourceStream, destinationStream);
+				ArrayList<File> sourcesLocation = SimpleConfiguratorUtils.getInfoFiles();
+				List<InputStream> sourceStreams = new ArrayList<InputStream>(sourcesLocation.size() + 1);
+				sourceStreams.add(url.openStream());
+				if (Activator.EXTENDED) {
+					for (int i = 0; i < sourcesLocation.size(); i++) {
+						sourceStreams.add(new FileInputStream(sourcesLocation.get(i)));
+					}
+				}
+				SimpleConfiguratorUtils.transferStreams(sourceStreams, destinationStream);
+			} catch (URISyntaxException e) {
+				// nothing, was discovered when starting framework
 			} finally {
 				if (destinationStream != null)
 					destinationStream.close();

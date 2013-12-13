@@ -7,7 +7,9 @@
  * 
  *  Contributors:
  *      IBM Corporation - initial API and implementation
- *      Ericsson AB (Pascal Rapicault) - Bug 397216 -[Shared] Better shared configuration change discovery 
+ *      Ericsson AB (Pascal Rapicault) - Bug 397216 -[Shared] Better shared configuration change discovery
+ *      Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
+ * read .info files from many locations 
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator;
 
@@ -47,6 +49,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 	private static final long NO_TIMESTAMP = -1;
 	public static final String BASE_TIMESTAMP_FILE_BUNDLESINFO = ".baseBundlesInfoTimestamp"; //$NON-NLS-1$
 	public static final String KEY_BUNDLESINFO_TIMESTAMP = "bundlesInfoTimestamp";
+	public static final String KEY_EXT_TIMESTAMP = "extTimestamp";
 	public static final String PROP_IGNORE_USER_CONFIGURATION = "eclipse.ignoreUserConfiguration"; //$NON-NLS-1$
 
 	public SimpleConfiguratorImpl(BundleContext context, Bundle bundle) {
@@ -127,10 +130,10 @@ public class SimpleConfiguratorImpl implements Configurator {
 			if (Boolean.TRUE.toString().equals(System.getProperty(PROP_IGNORE_USER_CONFIGURATION)))
 				return sharedConfig.toURL();
 
-			long sharedBundlesInfoTimestamp = getCurrentBundlesInfoBaseTimestamp(sharedConfig);
-			long lastKnownBaseTimestamp = getLastKnownBundlesInfoBaseTimestamp(userConfig.getParentFile());
+			long[] sharedBundlesInfoTimestamp = getCurrentBundlesInfoBaseTimestamp(sharedConfig);
+			long[] lastKnownBaseTimestamp = getLastKnownBundlesInfoBaseTimestamp(userConfig.getParentFile());
 
-			if (lastKnownBaseTimestamp == sharedBundlesInfoTimestamp || lastKnownBaseTimestamp == NO_TIMESTAMP) {
+			if ((lastKnownBaseTimestamp[0] == sharedBundlesInfoTimestamp[0] && lastKnownBaseTimestamp[1] == sharedBundlesInfoTimestamp[1]) || lastKnownBaseTimestamp[0] == NO_TIMESTAMP) {
 				return userConfig.toURL();
 			} else {
 				System.setProperty(PROP_IGNORE_USER_CONFIGURATION, Boolean.TRUE.toString());
@@ -140,10 +143,11 @@ public class SimpleConfiguratorImpl implements Configurator {
 		return null;
 	}
 
-	private long getLastKnownBundlesInfoBaseTimestamp(File configFolder) {
+	private long[] getLastKnownBundlesInfoBaseTimestamp(File configFolder) {
+		long[] result = new long[] {NO_TIMESTAMP, NO_TIMESTAMP};
 		File storedSharedTimestamp = new File(configFolder, BASE_TIMESTAMP_FILE_BUNDLESINFO);
 		if (!storedSharedTimestamp.exists())
-			return NO_TIMESTAMP;
+			return result;
 
 		Properties p = new Properties();
 		InputStream is = null;
@@ -152,21 +156,26 @@ public class SimpleConfiguratorImpl implements Configurator {
 				is = new BufferedInputStream(new FileInputStream(storedSharedTimestamp));
 				p.load(is);
 				if (p.get(KEY_BUNDLESINFO_TIMESTAMP) != null) {
-					return Long.valueOf((String) p.get(KEY_BUNDLESINFO_TIMESTAMP)).longValue();
+					result[0] = Long.valueOf((String) p.get(KEY_BUNDLESINFO_TIMESTAMP)).longValue();
+				}
+				if (p.get(KEY_EXT_TIMESTAMP) != null) {
+					result[1] = Long.valueOf((String) p.get(KEY_EXT_TIMESTAMP)).longValue();
 				}
 			} finally {
 				is.close();
 			}
 		} catch (IOException e) {
-			return NO_TIMESTAMP;
+			return result;
 		}
-		return NO_TIMESTAMP;
+		return result;
 	}
 
-	private long getCurrentBundlesInfoBaseTimestamp(File sharedBundlesInfo) {
+	public static long[] getCurrentBundlesInfoBaseTimestamp(File sharedBundlesInfo) {
 		if (!sharedBundlesInfo.exists())
-			return NO_TIMESTAMP;
-		return sharedBundlesInfo.lastModified();
+			return new long[] {NO_TIMESTAMP, NO_TIMESTAMP};
+		long lastModified = sharedBundlesInfo.lastModified();
+		long extLastModified = SimpleConfiguratorUtils.getExtendedTimeStamp();
+		return new long[] {lastModified, extLastModified};
 	}
 
 	public void applyConfiguration(URL url) throws IOException {

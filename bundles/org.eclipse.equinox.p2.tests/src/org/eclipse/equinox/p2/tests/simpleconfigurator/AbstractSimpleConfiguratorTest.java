@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Red Hat, Inc. - tests
+ *     Red Hat, Inc. - fragment support
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
@@ -70,13 +70,14 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	protected BundleContext startFramework(File bundleInfo, File[] additionalBundle) {
 		try {
 			File simpleConfiguratorBundle = getLocation("org.eclipse.equinox.simpleconfigurator");
 			File osgiBundleLoc = getLocation("org.eclipse.osgi");
 
 			// for test purposes create an install.area and configuration.area located in the local bundle data area.
-			File installarea = TestActivator.context.getDataFile(getName() + "/eclipse");
+			File installarea = TestActivator.context.getDataFile(getName() + "/" + System.currentTimeMillis() + "/eclipse");
 			File configarea = new File(installarea, "configuration");
 			URL osgiBundle = osgiBundleLoc.toURI().toURL();
 			//if we have framework in workspace need to add the bin directory
@@ -187,5 +188,14 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 			}
 		};
 		return directory.listFiles(bundleFilter);
+	}
+
+	public void readOnly(File f, boolean readonly) {
+		if (f.isDirectory()) {
+			for (File f2 : f.listFiles()) {
+				readOnly(f2, readonly);
+			}
+		}
+		f.setWritable(!readonly);
 	}
 }

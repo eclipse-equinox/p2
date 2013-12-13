@@ -8,6 +8,10 @@
  * 
  * Ericsson AB (Pascal Rapicault) - Bug 397216 -[Shared] Better shared
  * configuration change discovery
+ * 
+ * Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
+ * read .info files from many locations
+ * 
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
@@ -412,6 +416,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 		Properties timestampToPersist = new Properties();
 		timestampToPersist.put(SimpleConfiguratorImpl.KEY_BUNDLESINFO_TIMESTAMP, Long.toString(sharedBundlesInfo.lastModified()));
+		timestampToPersist.put(SimpleConfiguratorImpl.KEY_EXT_TIMESTAMP, Long.toString(SimpleConfiguratorUtils.getExtendedTimeStamp()));
 		OutputStream os = null;
 		try {
 			try {
@@ -577,8 +582,10 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 	private boolean hasBaseChanged(URI installArea, File outputFolder) {
 		String rememberedTimestamp;
+		String extensionTimestsamp;
 		try {
 			rememberedTimestamp = (String) loadProperties(new File(outputFolder, SimpleConfiguratorImpl.BASE_TIMESTAMP_FILE_BUNDLESINFO)).get(SimpleConfiguratorImpl.KEY_BUNDLESINFO_TIMESTAMP);
+			extensionTimestsamp = (String) loadProperties(new File(outputFolder, SimpleConfiguratorImpl.BASE_TIMESTAMP_FILE_BUNDLESINFO)).get(SimpleConfiguratorImpl.KEY_EXT_TIMESTAMP);
 		} catch (IOException e) {
 			return false;
 		}
@@ -588,7 +595,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		File sharedBundlesInfo = new File(URIUtil.append(installArea, SHARED_BUNDLES_INFO));
 		if (!sharedBundlesInfo.exists())
 			return true;
-		return !String.valueOf(sharedBundlesInfo.lastModified()).equals(rememberedTimestamp);
+		return !(String.valueOf(sharedBundlesInfo.lastModified()).equals(rememberedTimestamp) && String.valueOf(SimpleConfiguratorUtils.getExtendedTimeStamp()).equals(extensionTimestsamp));
 	}
 
 	private boolean isSharedInstallSetup(File installArea, File outputFile) {

@@ -1,20 +1,26 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ * 		IBM Corporation - initial API and implementation
+ * 		Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
+ * read .info files from many locations
  ******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.osgi.framework.Version;
 
 public class SimpleConfiguratorUtils {
 
+	private static final String LINK_KEY = "link";
+	private static final String LINK_FILE_EXTENSION = ".link";
 	private static final String UNC_PREFIX = "//";
 	private static final String VERSION_PREFIX = "#version=";
 	public static final String ENCODING_UTF8 = "#encoding=UTF-8";
@@ -26,7 +32,149 @@ public class SimpleConfiguratorUtils {
 	private static final String COMMA = ",";
 	private static final String ENCODED_COMMA = "%2C";
 
+	private static final Set<File> reportedExtensions = Collections.synchronizedSet(new HashSet<File>(0));
+
 	public static List<BundleInfo> readConfiguration(URL url, URI base) throws IOException {
+		List<BundleInfo> result = new ArrayList<BundleInfo>();
+
+		//old behaviour
+		result.addAll(readConfigurationFromFile(url, base));
+
+		if (!Activator.EXTENDED) {
+			return result;
+		}
+		readExtendedConfigurationFiles(result);
+		//dedup - some bundles may be listed more than once
+		removeDuplicates(result);
+		return result;
+	}
+
+	public static void removeDuplicates(List<BundleInfo> result) {
+		if (result.size() > 1) {
+			int index = 0;
+			while (index < result.size()) {
+				String aSymbolicName = result.get(index).getSymbolicName();
+				String aVersion = result.get(index).getVersion();
+
+				for (int i = index + 1; i < result.size();) {
+					String bSymbolicName = result.get(i).getSymbolicName();
+					String bVersion = result.get(i).getVersion();
+					if (aSymbolicName.equals(bSymbolicName) && aVersion.equals(bVersion)) {
+						result.remove(i);
+					} else {
+						i++;
+					}
+				}
+
+				index++;
+			}
+		}
+	}
+
+	public static void readExtendedConfigurationFiles(List<BundleInfo> result) throws IOException, FileNotFoundException, MalformedURLException {
+		//extended behaviour
+		List<File> files;
+		try {
+			files = getInfoFiles();
+			for (File info : files) {
+				List<BundleInfo> list = readConfigurationFromFile(info.toURL(), info.getParentFile().toURI());
+				// extensions are relative to extension root, not to the framework
+				// it is necessary to replace relative locations with absolute ones
+				for (int i = 0; i < list.size(); i++) {
+					BundleInfo singleInfo = list.get(i);
+					if (singleInfo.getBaseLocation() != null) {
+						singleInfo = new BundleInfo(singleInfo.getSymbolicName(), singleInfo.getVersion(), singleInfo.getBaseLocation().resolve(singleInfo.getLocation()), singleInfo.getStartLevel(), singleInfo.isMarkedAsStarted());
+						list.remove(i);
+						list.add(i, singleInfo);
+					}
+				}
+				if (Activator.DEBUG) {
+					System.out.println("List of bundles to be loaded from " + info.toURL());
+					for (BundleInfo b : list) {
+						System.out.println(b.getSymbolicName() + "_" + b.getVersion());
+					}
+				}
+				result.addAll(list);
+			}
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Couldn't parse simpleconfigurator extensions", e);
+		}
+	}
+
+	public static ArrayList<File> getInfoFiles() throws IOException, FileNotFoundException, URISyntaxException {
+		ArrayList<File> files = new ArrayList<File>(1);
+
+		if (Activator.EXTENSIONS != null) {
+			//configured simpleconfigurator extensions location
+			String stringExtenionLocation = Activator.EXTENSIONS;
+			String[] locationToCheck = stringExtenionLocation.split(",");
+			for (String location : locationToCheck) {
+				files.addAll(getInfoFilesFromLocation(location));
+			}
+		}
+		return files;
+	}
+
+	private static ArrayList<File> getInfoFilesFromLocation(String locationToCheck) throws IOException, FileNotFoundException, URISyntaxException {
+		ArrayList<File> result = new ArrayList<File>(1);
+
+		File extensionsLocation = new File(locationToCheck);
+
+		if (extensionsLocation.exists() && extensionsLocation.isDirectory()) {
+			//extension location contains extensions
+			File[] extensions = extensionsLocation.listFiles();
+			for (File extension : extensions) {
+				if (extension.isFile() && extension.getName().endsWith(LINK_FILE_EXTENSION)) {
+					Properties link = new Properties();
+					link.load(new FileInputStream(extension));
+					String newInfoName = link.getProperty(LINK_KEY);
+					URI newInfoURI = new URI(newInfoName);
+					File newInfoFile = null;
+					if (newInfoURI.isAbsolute()) {
+						newInfoFile = new File(newInfoName);
+					} else {
+						newInfoFile = new File(extension.getParentFile(), newInfoName);
+					}
+					if (newInfoFile.exists()) {
+						extension = newInfoFile.getParentFile();
+					}
+				}
+
+				if (extension.isDirectory()) {
+					if (extension.canWrite()) {
+						synchronized (reportedExtensions) {
+							if (!reportedExtensions.contains(extension)) {
+								reportedExtensions.add(extension);
+								System.err.println("Fragment directory should be read only " + extension);
+							}
+						}
+						continue;
+					}
+					File[] listFiles = extension.listFiles();
+					// new magic - multiple info files, f.e.
+					//   egit.info (git feature)
+					//   cdt.link (properties file containing link=path) to other info file
+					for (File file : listFiles) {
+						//if it is a info file - load it
+						if (file.getName().endsWith(".info")) {
+							result.add(file);
+						}
+						// if it is a link - dereference it
+					}
+				} else if (Activator.DEBUG) {
+					synchronized (reportedExtensions) {
+						if (!reportedExtensions.contains(extension)) {
+							reportedExtensions.add(extension);
+							System.out.println("Unrecognized fragment " + extension);
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	private static List<BundleInfo> readConfigurationFromFile(URL url, URI base) throws IOException {
 		InputStream stream = null;
 		try {
 			stream = url.openStream();
@@ -183,23 +331,28 @@ public class SimpleConfiguratorUtils {
 		}
 	}
 
-	public static void transferStreams(InputStream source, OutputStream destination) throws IOException {
-		source = new BufferedInputStream(source);
+	public static void transferStreams(List<InputStream> sources, OutputStream destination) throws IOException {
 		destination = new BufferedOutputStream(destination);
 		try {
-			byte[] buffer = new byte[8192];
-			while (true) {
-				int bytesRead = -1;
-				if ((bytesRead = source.read(buffer)) == -1)
-					break;
-				destination.write(buffer, 0, bytesRead);
+			for (int i = 0; i < sources.size(); i++) {
+				InputStream source = new BufferedInputStream(sources.get(i));
+				try {
+					byte[] buffer = new byte[8192];
+					while (true) {
+						int bytesRead = -1;
+						if ((bytesRead = source.read(buffer)) == -1)
+							break;
+						destination.write(buffer, 0, bytesRead);
+					}
+				} finally {
+					try {
+						source.close();
+					} catch (IOException e) {
+						// ignore
+					}
+				}
 			}
 		} finally {
-			try {
-				source.close();
-			} catch (IOException e) {
-				// ignore
-			}
 			try {
 				destination.close();
 			} catch (IOException e) {
@@ -235,5 +388,37 @@ public class SimpleConfiguratorUtils {
 		if (useReference && bundleLocation.startsWith(FILE_PREFIX))
 			bundleLocation = REFERENCE_PREFIX + bundleLocation;
 		return bundleLocation;
+	}
+
+	public static long getExtendedTimeStamp() {
+		long regularTimestamp = -1;
+		if (Activator.EXTENDED) {
+			try {
+				ArrayList<File> infoFiles = SimpleConfiguratorUtils.getInfoFiles();
+				for (File f : infoFiles) {
+					long infoFileLastModified = f.lastModified();
+					// pick latest modified always
+					if (infoFileLastModified > regularTimestamp) {
+						regularTimestamp = infoFileLastModified;
+					}
+				}
+			} catch (FileNotFoundException e) {
+				if (Activator.DEBUG) {
+					e.printStackTrace();
+				}
+			} catch (IOException e) {
+				if (Activator.DEBUG) {
+					e.printStackTrace();
+				}
+			} catch (URISyntaxException e) {
+				if (Activator.DEBUG) {
+					e.printStackTrace();
+				}
+			}
+			if (Activator.DEBUG) {
+				System.out.println("Fragments timestamp: " + regularTimestamp);
+			}
+		}
+		return regularTimestamp;
 	}
 }

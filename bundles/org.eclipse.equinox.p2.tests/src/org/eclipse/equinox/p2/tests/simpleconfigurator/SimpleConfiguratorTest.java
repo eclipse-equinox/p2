@@ -7,6 +7,7 @@
  * Contributors: 
  *      Red Hat, Inc. - initial API and implementation
  *      Ericsson AB - ongoing development
+ *      Red Hat, Inc. - fragment support
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
@@ -19,12 +20,12 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 
-	private URL relativeURL;
-	private File userConfiguration;
-	private File masterConfguration;
-	private URL[] sharedConfiguration = new URL[2];
-	private URL[] localConfiguration = new URL[1];
-	private SimpleConfiguratorImpl configurator;
+	protected URL relativeURL;
+	protected File userConfiguration;
+	protected File masterConfguration;
+	protected URL[] sharedConfiguration = new URL[2];
+	protected URL[] localConfiguration = new URL[1];
+	protected SimpleConfiguratorImpl configurator;
 
 	public void setUp() throws Exception {
 		relativeURL = new URL("file://bundles.info");
@@ -48,7 +49,7 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 		return new SimpleConfiguratorImpl(null, null);
 	}
 
-	private void storeTimestamp(long timestamp) throws IOException {
+	protected void storeTimestamp(long timestamp) throws IOException {
 		File f = new File(userConfiguration.getParent(), SimpleConfiguratorImpl.BASE_TIMESTAMP_FILE_BUNDLESINFO);
 		Properties p = new Properties();
 		p.put(SimpleConfiguratorImpl.KEY_BUNDLESINFO_TIMESTAMP, "" + timestamp);
@@ -62,7 +63,7 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	private void assertIsPropertySet(boolean set) {
+	protected void assertIsPropertySet(boolean set) {
 		assertEquals(set, Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(SimpleConfiguratorImpl.PROP_IGNORE_USER_CONFIGURATION)));
 	}
 
@@ -95,7 +96,8 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 		assertIsPropertySet(true);
 	}
 
-	//master not modified -> pick user
+	//master not modified -> extension configured
+	//on adding extension master must be selected in order to create new profile with extensions!
 	public void testSharedConfigurationMasterUnmodified() throws IOException {
 		storeTimestamp(new File(masterConfguration, relativeURL.getFile()).lastModified());
 		assertEquals(sharedConfiguration[0], configurator.chooseConfigurationURL(relativeURL, sharedConfiguration));
