@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2012 IBM Corporation and others.
+ *  Copyright (c) 2008, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat, Inc. - fragments support added.
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
@@ -19,9 +20,9 @@ import org.eclipse.equinox.internal.p2.updatesite.Activator;
 
 public class SharedInstallTests extends AbstractReconcilerTest {
 
-	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
-	private static File readOnlyBase;
-	private static File userBase;
+	protected static final boolean WINDOWS = java.io.File.separatorChar == '\\';
+	protected static File readOnlyBase;
+	protected static File userBase;
 
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
@@ -39,7 +40,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		super(name);
 	}
 
-	public static void reconcileReadOnly(String message) {
+	public void reconcileReadOnly(String message) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
@@ -67,13 +68,13 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		}
 	}
 
-	private static void cleanupReadOnlyInstall() {
+	protected static void cleanupReadOnlyInstall() {
 		delete(userBase);
 		setReadOnly(readOnlyBase, false);
 		assertTrue("0.7", readOnlyBase.canWrite());
 	}
 
-	private static void setupReadOnlyInstall() {
+	protected void setupReadOnlyInstall() {
 		readOnlyBase = new File(output, "eclipse");
 		assertTrue(readOnlyBase.canWrite());
 		setReadOnly(readOnlyBase, true);

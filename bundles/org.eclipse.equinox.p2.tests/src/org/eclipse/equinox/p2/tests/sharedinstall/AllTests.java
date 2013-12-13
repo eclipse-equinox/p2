@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *     Ericsson AB - initial API and implementation
+ *     Red Hat, Inc. - fragments support
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
@@ -22,6 +23,8 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTest(BaseChange.suite());
+		suite.addTest(BaseChangeExtendedConfigured.suite());
+		suite.addTest(BaseChangeExtendedConflicts.suite());
 		suite.addTest(BaseChangeWithoutUserChange.suite());
 		suite.addTest(Cancellation.suite());
 		suite.addTest(DoubleBaseChange.suite());

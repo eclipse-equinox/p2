@@ -8,6 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - Ongoing development
+ *     Red Hat, Inc. - Fragment support added.
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
@@ -43,7 +44,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	private static Properties archiveAndRepositoryProperties = null;
 
 	private String propertyToPlatformArchive;
-	private boolean debug = false;
+	protected boolean debug = false;
 
 	static {
 		loadPlatformZipPropertiesFromFile();
@@ -610,6 +611,10 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * not expect 13 to be returned.
 	 */
 	protected int runEclipse(String message, File location, String[] args) {
+		return runEclipse(message, location, args, null);
+	}
+
+	protected int runEclipse(String message, File location, String[] args, File extensions) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
@@ -635,7 +640,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		this.debug = on;
 	}
 
-	private void parseExitdata(String message) {
+	protected void parseExitdata(String message) {
 		// if the exit data contains a message telling us the location of the log file, then get it
 		String data = TestActivator.getContext().getProperty("eclipse.exitdata");
 		if (data == null)

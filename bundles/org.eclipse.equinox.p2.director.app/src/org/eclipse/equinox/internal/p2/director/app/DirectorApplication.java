@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *     EclipseSource - ongoing development
  *     Sonatype, Inc. - ongoing development
  *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
+ *     Red Hat, Inc. - support repositories passed via fragments (see bug 378329).
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
@@ -25,6 +26,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
@@ -566,6 +568,20 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (!anyValid)
 			//all repositories failed to load
 			throw new ProvisionException(Messages.Application_NoRepositories);
+
+		if (!EngineActivator.EXTENDED)
+			return;
+
+		File[] extensions = EngineActivator.getExtensionsDirectories();
+
+		for (File f : extensions) {
+			metadataManager.addRepository(f.toURI());
+			metadataManager.setRepositoryProperty(f.toURI(), EngineActivator.P2_FRAGMENT_PROPERTY, Boolean.TRUE.toString());
+			metadataRepositoryLocations.add(f.toURI());
+			artifactManager.addRepository(f.toURI());
+			artifactManager.setRepositoryProperty(f.toURI(), EngineActivator.P2_FRAGMENT_PROPERTY, Boolean.TRUE.toString());
+			artifactRepositoryLocations.add(f.toURI());
+		}
 	}
 
 	private void initializeServices() throws CoreException {

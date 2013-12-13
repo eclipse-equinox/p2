@@ -8,17 +8,19 @@
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Ericsson AB - Bug 400011 - [shared] Cleanup the SurrogateProfileHandler code
+ *      Red Hat, Inc. - fragments support added.
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.io.File;
+import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.URIUtil;
+import java.util.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.engine.ProfileParser.ProfileHandler;
+import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry.Parser;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -26,6 +28,9 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
@@ -156,25 +161,112 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 				return profile;
 		}
 
-		final IProfile profile = registry.getProfile(id, currentTimestamp);
+		final Profile profile = (Profile) registry.getProfile(id, currentTimestamp);
 		if (profile != null)
 			cachedProfile = new SoftReference<IProfile>(profile);
+
+		if (!EngineActivator.EXTENDED) {
+			return profile;
+		}
+
+		setUpRepos();
 		return profile;
+	}
+
+	/**
+	 * Removes repositories from fragments locations as they might be obsolete and adds them back.
+	 */
+	private void setUpRepos() {
+		//clean old junk
+		IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		URI[] knownRepositories = metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
+		for (URI uri : knownRepositories) {
+			if ("true".equals(metaManager.getRepositoryProperty(uri, EngineActivator.P2_FRAGMENT_PROPERTY))) { //$NON-NLS-1$
+				metaManager.removeRepository(uri);
+			}
+		}
+
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		knownRepositories = artifactManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
+		for (URI uri : knownRepositories) {
+			if ("true".equals(artifactManager.getRepositoryProperty(uri, EngineActivator.P2_FRAGMENT_PROPERTY))) { //$NON-NLS-1$
+				artifactManager.removeRepository(uri);
+			}
+		}
+
+		File[] fragments = EngineActivator.getExtensionsDirectories();
+		for (File f : fragments) {
+			metaManager.addRepository(f.toURI());
+			metaManager.setRepositoryProperty(f.toURI(), EngineActivator.P2_FRAGMENT_PROPERTY, Boolean.TRUE.toString());
+			artifactManager.addRepository(f.toURI());
+			artifactManager.setRepositoryProperty(f.toURI(), EngineActivator.P2_FRAGMENT_PROPERTY, Boolean.TRUE.toString());
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#createProfile(java.lang.String)
 	 */
 	public IProfile createProfile(String id) {
-		final IProfile sharedProfile = getSharedProfile(id);
+		final Profile sharedProfile = (Profile) getSharedProfile(id);
 		if (sharedProfile == null)
 			return null;
+
+		if (!EngineActivator.EXTENDED) {
+			Profile userProfile = new Profile(agent, id, null, sharedProfile.getProperties());
+			userProfile.setProperty(PROP_SURROGATE, Boolean.TRUE.toString());
+			userProfile.setSurrogateProfileHandler(this);
+			updateProperties(sharedProfile, userProfile);
+			addSharedProfileBaseIUs(sharedProfile, userProfile);
+
+			return userProfile;
+		}
+
+		File[] extensionLocations = EngineActivator.getExtensionsDirectories();
+		Set<IInstallableUnit> added = new HashSet<IInstallableUnit>();
+		for (File extension : extensionLocations) {
+			if (extension.isDirectory()) {
+				File[] listFiles = extension.listFiles(new FileFilter() {
+
+					public boolean accept(File pathname) {
+						if (pathname.getName().endsWith(".profile")) { //$NON-NLS-1$
+							return true;
+						}
+						return false;
+					}
+				});
+				for (File profileFile : listFiles) {
+					Parser extensionParser = profileRegistry.new Parser(EngineActivator.getContext(), EngineActivator.ID);
+					try {
+						extensionParser.parse(profileFile);
+						//there is only one profile as we read only one
+						String key = extensionParser.getProfileHandlers().keySet().iterator().next();
+
+						ProfileHandler extensionHandler = extensionParser.getProfileHandlers().get(key);
+						IInstallableUnit[] installableUnits = extensionHandler.getInstallableUnits();
+						for (IInstallableUnit unit : installableUnits) {
+							if (!added.contains(unit)) {
+								added.add(unit);
+								sharedProfile.addInstallableUnit(unit);
+							}
+							Map<String, String> iuProperties = extensionHandler.getIUProperties(unit);
+							if (iuProperties != null && !iuProperties.isEmpty()) {
+								sharedProfile.addInstallableUnitProperties(unit, iuProperties);
+							}
+						}
+					} catch (IOException e) {
+						LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.SurrogateProfileHandler_1, profileFile), e));
+					}
+				}
+				continue;
+			}
+		}
 
 		Profile userProfile = new Profile(agent, id, null, sharedProfile.getProperties());
 		userProfile.setProperty(PROP_SURROGATE, Boolean.TRUE.toString());
 		userProfile.setSurrogateProfileHandler(this);
 		updateProperties(sharedProfile, userProfile);
 		addSharedProfileBaseIUs(sharedProfile, userProfile);
+
 		return userProfile;
 	}
 

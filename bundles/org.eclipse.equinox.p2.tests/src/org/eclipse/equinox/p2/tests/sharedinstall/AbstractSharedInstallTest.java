@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *     Ericsson AB - initial API and implementation
+ *     Red Hat, Inc. - fragments support
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
@@ -103,6 +104,16 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		runEclipse("Installing in user", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group,Verifier.feature.group", "-repository", getTestRepo()});
 	}
 
+	@Override
+	protected void tearDown() throws Exception {
+		if (readOnlyBase != null && readOnlyBase.exists()) {
+			setReadOnly(readOnlyBase, false);
+		}
+		delete(readOnlyBase);
+		delete(userBase);
+		super.tearDown();
+	}
+
 	protected void installFeature1InUser() {
 		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group", "-repository", getTestRepo()});
 	}
@@ -161,7 +172,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		realExecuteVerifier(verificationProperties, false);
 	}
 
-	private void realExecuteVerifier(Properties verificationProperties, boolean withConfigFlag) {
+	protected void realExecuteVerifier(Properties verificationProperties, boolean withConfigFlag) {
 		File verifierConfig = new File(getTempFolder(), "verification.properties");
 		try {
 			writeProperties(verifierConfig, verificationProperties);
@@ -231,6 +242,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 
 	public static void setupReadOnlyInstall() {
 		readOnlyBase = new File(output, "eclipse");
+		readOnlyBase.mkdirs();
 		assertTrue(readOnlyBase.canWrite());
 		setReadOnly(readOnlyBase, true);
 		userBase = new File(output, "user");

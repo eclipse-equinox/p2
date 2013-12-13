@@ -7,6 +7,7 @@
  * Contributors: 
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - ongoing development
+ *     Red Hat, Inc. - fragments support added.
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -262,6 +263,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 					//Now that we created a new profile. Tag it, override the property and register the timestamp in the agent registry for pickup by other  
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_NEW);
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + getBaseTimestamp(profile.getProfileId()), getBaseTimestamp(id));
+					//fragments support - remeber the property
+					internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + getExtTimeStamp(), getExtTimeStamp());
 					agent.registerService(SERVICE_SHARED_INSTALL_NEW_TIMESTAMP, Long.toString(profile.getTimestamp()));
 				} else {
 					//This is the first time we create the shared profile. Tag it as such and also remember the timestamp of the base
@@ -269,10 +272,27 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 					String baseTimestamp = getBaseTimestamp(id);
 					if (baseTimestamp != null)
 						internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + baseTimestamp, baseTimestamp);
+					String extTimestamp = getExtTimeStamp();
+					internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + extTimestamp, extTimestamp);
 				}
 			}
 		}
 		return profile;
+	}
+
+	// get timestamp of fragments (extensions)
+	private String getExtTimeStamp() {
+		long result = -1;
+		if (!EngineActivator.EXTENDED) {
+			return Long.toString(result);
+		}
+		File[] extensions = EngineActivator.getExtensionsDirectories();
+		for (File extension : extensions) {
+			if (extension.lastModified() > result) {
+				result = extension.lastModified();
+			}
+		}
+		return Long.toString(result);
 	}
 
 	private boolean ignoreExistingProfile(IProfile profile) {
@@ -280,10 +300,17 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			return false;
 
 		String baseTimestamp = getBaseTimestamp(profile.getProfileId());
-		if (baseTimestamp == null)
+		String extTimestamp = getExtTimeStamp();
+		if (baseTimestamp == null) {
 			return false;
+		}
 
-		if (internalGetProfileStateProperties(profile, SIMPLE_PROFILE_REGISTRY_INTERNAL + baseTimestamp, false).size() != 0)
+		boolean extensionOK = true;
+		if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile)) {
+			extensionOK = (internalGetProfileStateProperties(profile, SIMPLE_PROFILE_REGISTRY_INTERNAL + extTimestamp, false).size() != 0);
+		}
+
+		if ((internalGetProfileStateProperties(profile, SIMPLE_PROFILE_REGISTRY_INTERNAL + baseTimestamp, false).size() != 0) && extensionOK)
 			return false;
 
 		return true;
@@ -670,6 +697,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 */
 	class Parser extends ProfileParser {
 		private final Map<String, ProfileHandler> profileHandlers = new HashMap<String, ProfileHandler>();
+
+		public Map<String, ProfileHandler> getProfileHandlers() {
+			return Collections.unmodifiableMap(profileHandlers);
+		}
 
 		public Parser(BundleContext context, String bundleId) {
 			super(context, bundleId);

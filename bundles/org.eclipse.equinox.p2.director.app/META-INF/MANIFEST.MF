@@ -13,6 +13,7 @@ Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.app,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.director,
+ org.eclipse.equinox.internal.p2.engine,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,
  org.eclipse.equinox.internal.provisional.p2.director,
  org.eclipse.equinox.internal.provisional.p2.repository,

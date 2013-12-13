@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat, Inc. - Fragment support added.
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
@@ -26,6 +27,8 @@ public class AllTests extends TestCase {
 		suite.addTest(ConfigurationTests.suite());
 		suite.addTest(FeaturePatchTest.suite());
 		suite.addTest(SharedInstallTests.suite());
+		suite.addTest(SharedInstallTestsProfileSpoofEnabled.suite());
+		suite.addTest(SharedInstallTestsProfileSpoofEnabledConfigured.suite());
 		suite.addTest(Bug362692.suite());
 		return suite;
 	}

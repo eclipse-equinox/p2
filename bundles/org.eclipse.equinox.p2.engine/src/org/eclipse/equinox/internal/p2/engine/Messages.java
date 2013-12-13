@@ -36,6 +36,12 @@ public class Messages extends NLS {
 	public static String download_artifact;
 	public static String download_no_repository;
 	public static String Engine_Operation_Canceled_By_User;
+
+	public static String EngineActivator_0;
+
+	public static String EngineActivator_1;
+
+	public static String EngineActivator_3;
 	public static String error_parsing_profile;
 	public static String error_persisting_profile;
 	public static String forced_action_execute_error;
@@ -106,6 +112,8 @@ public class Messages extends NLS {
 	public static String SimpleProfileRegistry_States_Error_Reading_File;
 	public static String SimpleProfileRegistry_States_Error_Writing_File;
 	public static String SimpleProfileRegistry_state_not_found;
+
+	public static String SurrogateProfileHandler_1;
 
 	public static String thread_not_owner;
 	public static String touchpoint_commit_error;
