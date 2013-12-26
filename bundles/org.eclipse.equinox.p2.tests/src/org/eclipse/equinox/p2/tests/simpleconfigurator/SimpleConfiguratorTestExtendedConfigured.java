@@ -13,8 +13,10 @@ package org.eclipse.equinox.p2.tests.simpleconfigurator;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 public class SimpleConfiguratorTestExtendedConfigured extends SimpleConfiguratorTestExtended {
 
@@ -37,14 +39,22 @@ public class SimpleConfiguratorTestExtendedConfigured extends SimpleConfigurator
 		ext3Info = new File(ext3Parent, "ext3.info");
 		ext3Info.createNewFile();
 		ext1Info.setLastModified(System.currentTimeMillis() + 1000);
-		ext1Parent.setWritable(false);
+		if (Platform.getOS().equals(Platform.OS_WIN32)) {
+			AbstractSharedInstallTest.reallyReadOnly(ext1Parent);
+		} else {
+			ext1Parent.setWritable(false);
+		}
 		ext3Info.setLastModified(System.currentTimeMillis() + 1000);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		Activator.EXTENSIONS = null;
-		ext1Parent.setWritable(true);
+		if (Platform.getOS().equals(Platform.OS_WIN32)) {
+			AbstractSharedInstallTest.removeReallyReadOnly(ext1Parent);
+		} else {
+			ext1Parent.setWritable(true);
+		}
 		super.tearDown();
 	}
 

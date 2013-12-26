@@ -193,7 +193,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		realExecuteVerifier(verificationProperties, true);
 	}
 
-	protected void reallyReadOnly(File folder) {
+	public static void reallyReadOnly(File folder) {
 		if (!Platform.getOS().equals(Platform.OS_WIN32))
 			return;
 
@@ -210,7 +210,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		}
 	}
 
-	protected void removeReallyReadOnly(File folder) {
+	public static void removeReallyReadOnly(File folder) {
 		if (!Platform.getOS().equals(Platform.OS_WIN32))
 			return;
 
