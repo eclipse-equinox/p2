@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
 import java.io.File;
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 import org.osgi.framework.BundleContext;
 
 public class BundlesTxtTestExtendedConfigured extends BundlesTxtTestExtended {
@@ -27,7 +28,7 @@ public class BundlesTxtTestExtendedConfigured extends BundlesTxtTestExtended {
 		copy("preparing testData", getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorTest"), testData);
 		Activator.EXTENSIONS = testData.toString();
 		System.setProperty("p2.fragments", Activator.EXTENSIONS);
-		readOnly(testData, true);
+		AbstractSharedInstallTest.setReadOnly(testData, true);
 	}
 
 	@Override
@@ -43,7 +44,7 @@ public class BundlesTxtTestExtendedConfigured extends BundlesTxtTestExtended {
 	@Override
 	protected void tearDown() throws Exception {
 		Activator.EXTENSIONS = null;
-		readOnly(testData, false);
+		AbstractSharedInstallTest.setReadOnly(testData, false);
 		testData.delete();
 		super.tearDown();
 		System.setProperty("p2.fragments", "");

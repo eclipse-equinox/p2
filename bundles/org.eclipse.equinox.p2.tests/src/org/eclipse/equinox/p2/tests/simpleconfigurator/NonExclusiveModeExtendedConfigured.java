@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
 import java.io.File;
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 public class NonExclusiveModeExtendedConfigured extends NonExclusiveModeExtended {
 
@@ -24,13 +25,13 @@ public class NonExclusiveModeExtendedConfigured extends NonExclusiveModeExtended
 		testData = getTempFolder();
 		copy("preparing testData", getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorExtendedTest/extensions"), testData);
 		Activator.EXTENSIONS = testData.toString();
-		readOnly(testData, true);
+		AbstractSharedInstallTest.setReadOnly(testData, true);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		Activator.EXTENSIONS = null;
-		readOnly(testData, false);
+		AbstractSharedInstallTest.setReadOnly(testData, false);
 		testData.delete();
 		super.tearDown();
 	}

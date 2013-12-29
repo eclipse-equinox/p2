@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfiguratorUtilsExtendedTest {
 
@@ -31,26 +32,16 @@ public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfigu
 		testData = getTempFolder();
 		copy("preparing readonly data", getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorExtendedTest"), testData);
 		testData = new File(testData, "extensions");
-		readonly(testData.getParentFile(), true);
+		AbstractSharedInstallTest.setReadOnly(testData.getParentFile(), true);
 		Activator.EXTENSIONS = testData.toString();
 
 		mainBundlesInfo = getTestData("simpleconfigurator extensions - main bundles.info", "testData/simpleConfiguratorExtendedTest/main/bundles.info");
 	}
 
-	private void readonly(File f, boolean readonly) {
-		if (f.isDirectory()) {
-			for (File subfile : f.listFiles()) {
-				subfile.setWritable(!readonly);
-				readonly(subfile, readonly);
-			}
-			f.setWritable(!readonly);
-		}
-	}
-
 	@Override
 	protected void tearDown() throws Exception {
 		Activator.EXTENSIONS = null;
-		readonly(testData.getParentFile(), false);
+		AbstractSharedInstallTest.setReadOnly(testData.getParentFile(), false);
 		testData.getParentFile().delete();
 		super.tearDown();
 	}
@@ -62,9 +53,11 @@ public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfigu
 		assertNotNull("Bundle from the main list not loaded", a);
 		assertEquals("Path not resolved properly for the main bundles.info", new File(mainBundlesInfo.getParentFile(), "plugins/a_1.0.0.jar").toURI(), getLocation(a));
 
-		BundleInfo b = getBundle("b", readConfiguration);
-		assertNotNull("Bundle from the main list not loaded", b);
-		assertEquals("Path not resolved properly for the main bundles.info", new File("/b_1.0.0.jar").toURI(), getLocation(b));
+		if (!AbstractSharedInstallTest.WINDOWS) {
+			BundleInfo b = getBundle("b", readConfiguration);
+			assertNotNull("Bundle from the main list not loaded", b);
+			assertEquals("Path not resolved properly for the main bundles.info", new File("/b_1.0.0.jar").toURI(), getLocation(b));
+		}
 
 		//check false positive
 		BundleInfo x = getBundle("x", readConfiguration);
@@ -74,17 +67,21 @@ public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfigu
 		assertNotNull("Bundle from the direct extension not loaded", g);
 		assertEquals("Path not resolved properly from direct extension", new File(testData, "extension1/plugins/g_1.0.0.jar").toURI(), getLocation(g));
 
-		BundleInfo h = getBundle("h", readConfiguration);
-		assertNotNull("Bundle from the direct extension not loaded", h);
-		assertEquals("Path not resolved properly from direct extension", new File("/h_1.0.0.jar").toURI(), getLocation(h));
+		if (!AbstractSharedInstallTest.WINDOWS) {
+			BundleInfo h = getBundle("h", readConfiguration);
+			assertNotNull("Bundle from the direct extension not loaded", h);
+			assertEquals("Path not resolved properly from direct extension", new File("/h_1.0.0.jar").toURI(), getLocation(h));
+		}
 
 		BundleInfo m = getBundle("m", readConfiguration);
 		assertNotNull("Bundle from the linked extension not loaded", m);
 		assertEquals("Path not resolved properly from linked extension", new File(testData.getParentFile(), "extension2/m_1.0.0.jar").toURI(), getLocation(m));
 
-		BundleInfo n = getBundle("n", readConfiguration);
-		assertNotNull("Bundle from the linked extension not loaded", n);
-		assertEquals("Path not resolved properly from linked extension", new File("/n_1.0.0.jar").toURI(), getLocation(n));
+		if (!AbstractSharedInstallTest.WINDOWS) {
+			BundleInfo n = getBundle("n", readConfiguration);
+			assertNotNull("Bundle from the linked extension not loaded", n);
+			assertEquals("Path not resolved properly from linked extension", new File("/n_1.0.0.jar").toURI(), getLocation(n));
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -96,9 +93,11 @@ public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfigu
 		assertNotNull("Bundle from the main list not loaded", a);
 		assertEquals("Path not resolved properly for the main bundles.info", new File(mainBundlesInfo.getParentFile(), "plugins/a_1.0.0.jar").toURI(), getLocation(a));
 
-		BundleInfo b = getBundle("b", readConfiguration);
-		assertNotNull("Bundle from the main list not loaded", b);
-		assertEquals("Path not resolved properly for the main bundles.info", new File("/b_1.0.0.jar").toURI(), getLocation(b));
+		if (!AbstractSharedInstallTest.WINDOWS) { //test use linux absolute paths
+			BundleInfo b = getBundle("b", readConfiguration);
+			assertNotNull("Bundle from the main list not loaded", b);
+			assertEquals("Path not resolved properly for the main bundles.info", new File("/b_1.0.0.jar").toURI(), getLocation(b));
+		}
 
 		//check false positive
 		BundleInfo x = getBundle("x", readConfiguration);
@@ -108,21 +107,21 @@ public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfigu
 		assertNotNull("Bundle from the direct extension not loaded", g);
 		assertEquals("Path not resolved properly from direct extension", new File(testData, "extension1/plugins/g_1.0.0.jar").toURI(), getLocation(g));
 
-		BundleInfo h = getBundle("h", readConfiguration);
-		assertNotNull("Bundle from the direct extension not loaded", h);
-		assertEquals("Path not resolved properly from direct extension", new File("/h_1.0.0.jar").toURI(), getLocation(h));
+		if (!AbstractSharedInstallTest.WINDOWS) { //test use linux absolute paths
+			BundleInfo h = getBundle("h", readConfiguration);
+			assertNotNull("Bundle from the direct extension not loaded", h);
+			assertEquals("Path not resolved properly from direct extension", new File("/h_1.0.0.jar").toURI(), getLocation(h));
+		}
 
 		BundleInfo m = getBundle("m", readConfiguration);
 		assertNotNull("Bundle from the linked extension not loaded", m);
 		assertEquals("Path not resolved properly from linked extension", new File(testData.getParentFile(), "extension2/m_1.0.0.jar").toURI(), getLocation(m));
 
-		BundleInfo n = getBundle("n", readConfiguration);
-		assertNotNull("Bundle from the linked extension not loaded", n);
-		assertEquals("Path not resolved properly from linked extension", new File("/n_1.0.0.jar").toURI(), getLocation(n));
-
-		BundleInfo aBundle = getBundle("aBundle", readConfiguration);
-		assertNotNull("Bundle from the linked extension not loaded", aBundle);
-		assertEquals("Path not resolved properly from linked extension", new File("/n_1.0.0.jar").toURI(), getLocation(n));
+		if (!AbstractSharedInstallTest.WINDOWS) { //test use linux absolute paths
+			BundleInfo n = getBundle("n", readConfiguration);
+			assertNotNull("Bundle from the linked extension not loaded", n);
+			assertEquals("Path not resolved properly from linked extension", new File("/n_1.0.0.jar").toURI(), getLocation(n));
+		}
 	}
 
 	//on adding extension master must be selected in order to create new profile with extensions!

@@ -21,6 +21,7 @@ import junit.framework.*;
  * -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=c:/tmp/eclipse-platform-3.4-win32.zip
  */
 public class AllTests extends TestCase {
+
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTest(BasicTests.suite());

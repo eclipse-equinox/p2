@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 public class SimpleConfiguratorTestExtendedConfigured extends SimpleConfiguratorTestExtended {
 
@@ -37,14 +38,14 @@ public class SimpleConfiguratorTestExtendedConfigured extends SimpleConfigurator
 		ext3Info = new File(ext3Parent, "ext3.info");
 		ext3Info.createNewFile();
 		ext1Info.setLastModified(System.currentTimeMillis() + 1000);
-		ext1Parent.setWritable(false);
+		AbstractSharedInstallTest.setReadOnly(ext1Parent, true);
 		ext3Info.setLastModified(System.currentTimeMillis() + 1000);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		Activator.EXTENSIONS = null;
-		ext1Parent.setWritable(true);
+		AbstractSharedInstallTest.setReadOnly(ext1Parent, false);
 		super.tearDown();
 	}
 

@@ -16,6 +16,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInstallTestsProfileSpoofEnabled {
 
@@ -132,9 +133,11 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 
 			// remove the bundle from the dropins and reconcile
 			setReadOnly(readOnlyBase, false);
+			AbstractSharedInstallTest.removeReallyReadOnly(readOnlyBase);
 			assertTrue("0.7", readOnlyBase.canWrite());
 			remove("1.0", "dropins", "myBundle_1.0.0.jar");
 			setReadOnly(readOnlyBase, true);
+			AbstractSharedInstallTest.reallyReadOnly(readOnlyBase);
 
 			reconcileReadOnly("0.21", extensions, false);
 
@@ -152,9 +155,11 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			// only dropin change (or any other p2 operations) causes p2 to write a
 			// new, up-to-date bundles.info
 			setReadOnly(readOnlyBase, false);
+			AbstractSharedInstallTest.removeReallyReadOnly(readOnlyBase);
 			assertTrue("0.7", readOnlyBase.canWrite());
 			add("0.211", "dropins", jar);
 			setReadOnly(readOnlyBase, true);
+			AbstractSharedInstallTest.reallyReadOnly(readOnlyBase);
 
 			//no extension - new bundles.info should be written
 			reconcileReadOnly("0.22", null, false);

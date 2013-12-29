@@ -189,13 +189,4 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 		};
 		return directory.listFiles(bundleFilter);
 	}
-
-	public void readOnly(File f, boolean readonly) {
-		if (f.isDirectory()) {
-			for (File f2 : f.listFiles()) {
-				readOnly(f2, readonly);
-			}
-		}
-		f.setWritable(!readonly);
-	}
 }
