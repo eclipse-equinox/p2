@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.embeddedequinox.EmbeddedEquinox;
-import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 import org.osgi.framework.*;
 
 public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisioningTest {
@@ -193,19 +192,10 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 
 	public void readOnly(File f, boolean readonly) {
 		if (f.isDirectory()) {
-			if (Platform.getOS().equals(Platform.OS_WIN32)) {
-				if (readonly) {
-					AbstractSharedInstallTest.reallyReadOnly(f);
-				} else {
-					AbstractSharedInstallTest.removeReallyReadOnly(f);
-				}
-				return;
+			for (File f2 : f.listFiles()) {
+				readOnly(f2, readonly);
 			}
-			for (File subfile : f.listFiles()) {
-				subfile.setWritable(!readonly);
-				readOnly(subfile, readonly);
-			}
-			f.setWritable(!readonly);
 		}
+		f.setWritable(!readonly);
 	}
 }

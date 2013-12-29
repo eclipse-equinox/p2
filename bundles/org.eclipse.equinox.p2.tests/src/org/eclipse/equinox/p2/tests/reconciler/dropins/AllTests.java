@@ -21,9 +21,6 @@ import junit.framework.*;
  * -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=c:/tmp/eclipse-platform-3.4-win32.zip
  */
 public class AllTests extends TestCase {
-
-	protected static final boolean WINDOWS = java.io.File.separatorChar == '\\';
-
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTest(BasicTests.suite());
@@ -31,8 +28,7 @@ public class AllTests extends TestCase {
 		suite.addTest(FeaturePatchTest.suite());
 		suite.addTest(SharedInstallTests.suite());
 		suite.addTest(SharedInstallTestsProfileSpoofEnabled.suite());
-		if (!WINDOWS) //comment out until I will be able to debug win
-			suite.addTest(SharedInstallTestsProfileSpoofEnabledConfigured.suite());
+		suite.addTest(SharedInstallTestsProfileSpoofEnabledConfigured.suite());
 		suite.addTest(Bug362692.suite());
 		return suite;
 	}
