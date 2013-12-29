@@ -1,8 +1,0 @@
-eclipse.preferences.version=1
-repositories/file\:_C\:_rt.equinox.p2_bundles_org.eclipse.equinox.p2.tests_testData_synchronizeOperation_repo/enabled=true
-repositories/file\:_C\:_rt.equinox.p2_bundles_org.eclipse.equinox.p2.tests_testData_synchronizeOperation_repo/isSystem=false
-repositories/file\:_C\:_rt.equinox.p2_bundles_org.eclipse.equinox.p2.tests_testData_synchronizeOperation_repo/name=Update Site
-repositories/file\:_C\:_rt.equinox.p2_bundles_org.eclipse.equinox.p2.tests_testData_synchronizeOperation_repo/suffix=content.xml
-repositories/file\:_C\:_rt.equinox.p2_bundles_org.eclipse.equinox.p2.tests_testData_synchronizeOperation_repo/type=org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository
-repositories/file\:_C\:_rt.equinox.p2_bundles_org.eclipse.equinox.p2.tests_testData_synchronizeOperation_repo/uri=file\:/C\:/rt.equinox.p2/bundles/org.eclipse.equinox.p2.tests/testData/synchronizeOperation/repo/
-repositories/file\:_C\:_rt.equinox.p2_bundles_org.eclipse.equinox.p2.tests_testData_synchronizeOperation_repo/version=1.0.0
