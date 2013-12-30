@@ -39,12 +39,14 @@ public class SimpleConfiguratorTestExtendedConfigured extends SimpleConfigurator
 		ext3Info.createNewFile();
 		ext1Info.setLastModified(System.currentTimeMillis() + 1000);
 		AbstractSharedInstallTest.setReadOnly(ext1Parent, true);
+		AbstractSharedInstallTest.reallyReadOnly(ext1Parent);
 		ext3Info.setLastModified(System.currentTimeMillis() + 1000);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		Activator.EXTENSIONS = null;
+		AbstractSharedInstallTest.removeReallyReadOnly(ext1Parent);
 		AbstractSharedInstallTest.setReadOnly(ext1Parent, false);
 		super.tearDown();
 	}

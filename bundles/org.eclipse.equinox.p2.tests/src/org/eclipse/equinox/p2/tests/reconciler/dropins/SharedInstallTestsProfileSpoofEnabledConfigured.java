@@ -73,10 +73,12 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		extensions = getTempFolder();
 		copy("", getTestData("", "testData/reconciler/extensions/ext1"), extensions);
 		setReadOnly(extensions, true);
+		AbstractSharedInstallTest.reallyReadOnly(extensions);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
+		AbstractSharedInstallTest.removeReallyReadOnly(extensions);
 		setReadOnly(extensions, false);
 		extensions.delete();
 		super.tearDown();
