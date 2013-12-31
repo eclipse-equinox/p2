@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 public class SimpleConfiguratorTests {
 
@@ -20,15 +21,21 @@ public class SimpleConfiguratorTests {
 
 		suite.addTestSuite(SimpleConfiguratorTest.class);
 		suite.addTestSuite(SimpleConfiguratorTestExtended.class);
-		suite.addTestSuite(SimpleConfiguratorTestExtendedConfigured.class);
+		if (!AbstractSharedInstallTest.WINDOWS) {
+			suite.addTestSuite(SimpleConfiguratorTestExtendedConfigured.class);
+		}
 
 		suite.addTestSuite(SimpleConfiguratorUtilsTest.class);
 		suite.addTestSuite(SimpleConfiguratorUtilsExtendedTest.class);
-		suite.addTestSuite(SimpleConfiguratorUtilsExtendedConfiguredTest.class);
+		if (!AbstractSharedInstallTest.WINDOWS) {
+			suite.addTestSuite(SimpleConfiguratorUtilsExtendedConfiguredTest.class);
+		}
 
 		suite.addTestSuite(BundlesTxtTest.class);
 		suite.addTestSuite(BundlesTxtTestExtended.class);
-		suite.addTestSuite(BundlesTxtTestExtendedConfigured.class);
+		if (!AbstractSharedInstallTest.WINDOWS) {
+			suite.addTestSuite(BundlesTxtTestExtendedConfigured.class);
+		}
 
 		suite.addTestSuite(NonExclusiveMode.class);
 		suite.addTestSuite(NonExclusiveModeExtended.class);
