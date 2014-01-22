@@ -155,8 +155,34 @@ public class PreviousConfigurationFinder {
 		if (match == null)
 			match = findMostRelevantConfigurationFromProductId(potentialConfigurations, runningConfiguration);
 		if (match == null)
+			match = findSpecifiedConfiguration(searchRoot);
+		if (match == null)
 			return null;
 		return AgentFromInstall.createAgentFrom(AutomaticUpdatePlugin.getDefault().getAgentProvider(), null, new File(match.getConfig(), "configuration"), null); //$NON-NLS-1$
+
+	}
+
+	public ConfigurationDescriptor findSpecifiedConfiguration(File searchRoot) {
+		final String prefixesAsString = System.getProperty("p2.forcedMigrationLocation"); //$NON-NLS-1$
+		if (prefixesAsString == null)
+			return null;
+
+		String[] prefixes = prefixesAsString.split(","); //$NON-NLS-1$
+		for (String prefix : prefixes) {
+			final String p = prefix;
+			File[] match = searchRoot.listFiles(new FileFilter() {
+				public boolean accept(File candidate) {
+					if (!candidate.isDirectory())
+						return false;
+					if (currentConfig.equals(candidate))
+						return false;
+					return candidate.getName().contains(p);
+				}
+			});
+			if (match.length != 0)
+				return new ConfigurationDescriptor("unknown", new Identifier("0.0.0"), "unknown", "unknown", match[0]);     //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		}
+		return null;
 	}
 
 	private ConfigurationDescriptor getConfigdataFromProductFile(File installFolder) {
