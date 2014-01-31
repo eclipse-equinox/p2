@@ -102,9 +102,21 @@ public interface IProductDescriptor {
 	public String getVMArguments(String os);
 
 	/**
+	 * Returns the VM arguments for this product for a given OS and architecture 
+	 * combination.
+	 */
+	public String getVMArguments(String os, String arch);
+
+	/**
 	 * Returns the program arguments for this product for a given OS.
 	 */
 	public String getProgramArguments(String os);
+
+	/**
+	 * Returns the program arguments for this product for a given OS and 
+	 * architecture combination.
+	 */
+	public String getProgramArguments(String os, String arch);
 
 	/**
 	 * Returns the properties for a product file.

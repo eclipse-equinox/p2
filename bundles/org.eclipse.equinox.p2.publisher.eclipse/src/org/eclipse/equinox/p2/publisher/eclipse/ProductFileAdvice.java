@@ -31,17 +31,19 @@ import org.eclipse.equinox.p2.publisher.actions.ILicenseAdvice;
 public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice, IExecutableAdvice, IConfigAdvice, IBrandingAdvice {
 	private final static String OSGI_SPLASH_PATH = "osgi.splashPath"; //$NON-NLS-1$
 	private final static String SPLASH_PREFIX = "platform:/base/plugins/"; //$NON-NLS-1$
-	private IProductDescriptor product;
-	private String configSpec;
+	private final IProductDescriptor product;
+	private final String configSpec;
 	private String ws;
 	private String os;
 	private String arch;
 	private ConfigData configData = null;
 
+	@Override
 	protected String getId() {
 		return product.getId();
 	}
 
+	@Override
 	protected Version getVersion() {
 		return Version.parseVersion(product.getVersion());
 	}
@@ -76,7 +78,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	 * Returns the program arguments for this product.  
 	 */
 	public String[] getProgramArguments() {
-		String line = product.getProgramArguments(os);
+		String line = product.getProgramArguments(os, arch);
 		return AbstractPublisherAction.getArrayFromString(line, " "); //$NON-NLS-1$
 	}
 
@@ -84,7 +86,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	 * Returns the VM arguments for this product.
 	 */
 	public String[] getVMArguments() {
-		String line = product.getVMArguments(os);
+		String line = product.getVMArguments(os, arch);
 		return AbstractPublisherAction.getArrayFromString(line, " "); //$NON-NLS-1$
 	}
 
@@ -261,10 +263,12 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		return product.getSplashLocation();
 	}
 
+	@Override
 	protected String getConfigSpec() {
 		return configSpec;
 	}
 
+	@Override
 	protected boolean matchConfig(String spec, boolean includeDefault) {
 		if (spec != null) {
 			String targetWS = AbstractPublisherAction.parseConfigSpec(spec)[0];

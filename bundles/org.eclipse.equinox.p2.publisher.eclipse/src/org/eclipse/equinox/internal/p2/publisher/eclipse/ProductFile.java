@@ -87,6 +87,15 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String OS_SOLARIS = "solaris";//$NON-NLS-1$
 	private static final String OS_MACOSX = "macosx";//$NON-NLS-1$
 
+	// These must match Platform constant values
+	private static final String ARCH_X86 = "x86"; //$NON-NLS-1$
+	private static final String ARCH_X86_64 = "x86_64"; //$NON-NLS-1$
+	private static final String ARCH_PPC = "ppc"; //$NON-NLS-1$
+	private static final String ARCH_IA_64 = "ia64"; //$NON-NLS-1$
+	private static final String ARCH_IA_64_32 = "ia64_32"; //$NON-NLS-1$
+	private static final String ARCH_PA_RISC = "PA_RISC"; //$NON-NLS-1$
+	private static final String ARCH_SPARC = "sparc"; //$NON-NLS-1$
+
 	//element names
 	private static final String EL_FEATURES = "features"; //$NON-NLS-1$
 	private static final String EL_FEATURE = "feature"; //$NON-NLS-1$
@@ -102,6 +111,13 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String EL_LICENSE = "license"; //$NON-NLS-1$
 	private static final String EL_URL = "url"; //$NON-NLS-1$
 	private static final String EL_TEXT = "text"; //$NON-NLS-1$
+	private static final String EL_ARCH_X86 = "argsX86"; //$NON-NLS-1$
+	private static final String EL_ARCH_X86_64 = "argsX86_64"; //$NON-NLS-1$
+	private static final String EL_ARCH_PPC = "argsPPC"; //$NON-NLS-1$
+	private static final String EL_ARCH_IA_64 = "argsIA_64"; //$NON-NLS-1$
+	private static final String EL_ARCH_IA_64_32 = "argsIA_64_32"; //$NON-NLS-1$
+	private static final String EL_ARCH_PA_RISC = "argsPA_RISC"; //$NON-NLS-1$
+	private static final String EL_ARCH_SPARC = "argsSPARC"; //$NON-NLS-1$
 
 	//These constants form a small state machine to parse the .product file
 	private static final int STATE_START = 0;
@@ -125,12 +141,21 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final int STATE_LICENSE = 18;
 	private static final int STATE_LICENSE_URL = 19;
 	private static final int STATE_LICENSE_TEXT = 20;
+	private static final int STATE_ARCH_X86 = 21;
+	private static final int STATE_ARCH_X86_64 = 22;
+	private static final int STATE_ARCH_PPC = 23;
+	private static final int STATE_ARCH_IA_64 = 24;
+	private static final int STATE_ARCH_IA_64_32 = 25;
+	private static final int STATE_ARCH_PA_RISC = 26;
+	private static final int STATE_ARCH_SPARC = 27;
 
 	private static final String PI_PDEBUILD = "org.eclipse.pde.build"; //$NON-NLS-1$
 	private final static int EXCEPTION_PRODUCT_FORMAT = 23;
 	private final static int EXCEPTION_PRODUCT_FILE = 24;
 
 	private int state = STATE_START;
+	private int outerState = STATE_START;
+	private String platformKeyPrefix = null;
 
 	private SAXParser parser;
 	private String launcherName = null;
@@ -428,6 +453,16 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * the default VM arguments
 	 */
 	public String getVMArguments(String os) {
+		return getVMArguments(os, null);
+	}
+
+	/**
+	 * Returns the VM arguments for a specific platform and architecture
+	 * combination. If the empty string is used for the architecture, this
+	 * returns the default arguments for the platform.  If the empty string is
+	 * used for the OS, this returns the default VM arguments.
+	 */
+	public String getVMArguments(String os, String arch) {
 		os = os == null ? "" : os; //$NON-NLS-1$
 		String key = null;
 		if (os.equals(OS_WIN32)) {
@@ -440,14 +475,55 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			key = VM_ARGS_SOLARIS;
 		}
 
-		String prefix = launcherArgs.getProperty(VM_ARGS);
-		String platform = null, args = null;
-		if (key != null)
+		arch = arch == null ? "" : arch; //$NON-NLS-1$
+		String archKey = null;
+		if (arch.equals(ARCH_X86)) {
+			archKey = EL_ARCH_X86;
+		} else if (arch.equals(ARCH_X86_64)) {
+			archKey = EL_ARCH_X86_64;
+		} else if (arch.equals(ARCH_PPC)) {
+			archKey = EL_ARCH_PPC;
+		} else if (arch.equals(ARCH_IA_64)) {
+			archKey = EL_ARCH_IA_64;
+		} else if (arch.equals(ARCH_IA_64_32)) {
+			archKey = EL_ARCH_IA_64_32;
+		} else if (arch.equals(ARCH_PA_RISC)) {
+			archKey = EL_ARCH_PA_RISC;
+		} else if (arch.equals(ARCH_SPARC)) {
+			archKey = EL_ARCH_SPARC;
+		}
+
+		String platformArchKey = null;
+		String defaults = launcherArgs.getProperty(VM_ARGS);
+		// architecture arguments independent of platform should be part
+		// of the defaults.
+		if (archKey != null) {
+			String archOnAllPlatforms = launcherArgs.getProperty(VM_ARGS + "." + archKey); //$NON-NLS-1$
+			if (archOnAllPlatforms != null && archOnAllPlatforms.length() > 0) {
+				defaults = defaults + " " + archOnAllPlatforms; //$NON-NLS-1$
+			}
+		}
+		String platform = null, platformAndArch = null, args = null;
+		if (key != null) {
+			// a platform with no arch specified
 			platform = launcherArgs.getProperty(key);
-		if (prefix != null)
-			args = platform != null ? prefix + " " + platform : prefix; //$NON-NLS-1$
-		else
-			args = platform != null ? platform : ""; //$NON-NLS-1$
+			// platform + arch
+			if (archKey != null) {
+				platformArchKey = key + "." + archKey; //$NON-NLS-1$
+				platformAndArch = launcherArgs.getProperty(platformArchKey);
+			}
+		}
+		if (defaults != null) {
+			if (platform != null)
+				args = platformAndArch != null ? defaults + " " + platform + " " + platformAndArch : defaults + " " + platform; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			else
+				args = defaults;
+		} else {
+			if (platform != null)
+				args = platformAndArch != null ? platform + " " + platformAndArch : platform; //$NON-NLS-1$
+			else
+				args = platformAndArch != null ? platformAndArch : ""; //$NON-NLS-1$
+		}
 		return normalize(args);
 	}
 
@@ -457,6 +533,15 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * the default program arguments
 	 */
 	public String getProgramArguments(String os) {
+		return getProgramArguments(os, null);
+	}
+
+	/**
+	 * Returns the program arguments for a specific platform.
+	 * If the empty string is used for the OS, this returns
+	 * the default program arguments
+	 */
+	public String getProgramArguments(String os, String arch) {
 		os = os == null ? "" : os; //$NON-NLS-1$
 		String key = null;
 		if (os.equals(OS_WIN32)) {
@@ -469,14 +554,55 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			key = PROGRAM_ARGS_SOLARIS;
 		}
 
-		String prefix = launcherArgs.getProperty(PROGRAM_ARGS);
-		String platform = null, args = null;
-		if (key != null)
+		arch = arch == null ? "" : arch; //$NON-NLS-1$
+		String archKey = null;
+		if (arch.equals(ARCH_X86)) {
+			archKey = EL_ARCH_X86;
+		} else if (arch.equals(ARCH_X86_64)) {
+			archKey = EL_ARCH_X86_64;
+		} else if (arch.equals(ARCH_PPC)) {
+			archKey = EL_ARCH_PPC;
+		} else if (arch.equals(ARCH_IA_64)) {
+			archKey = EL_ARCH_IA_64;
+		} else if (arch.equals(ARCH_IA_64_32)) {
+			archKey = EL_ARCH_IA_64_32;
+		} else if (arch.equals(ARCH_PA_RISC)) {
+			archKey = EL_ARCH_PA_RISC;
+		} else if (arch.equals(ARCH_SPARC)) {
+			archKey = EL_ARCH_SPARC;
+		}
+
+		String platformArchKey = null;
+		String defaults = launcherArgs.getProperty(PROGRAM_ARGS);
+		// architecture arguments independent of platform should be part
+		// of the defaults.
+		if (archKey != null) {
+			String archOnAllPlatforms = launcherArgs.getProperty(PROGRAM_ARGS + "." + archKey); //$NON-NLS-1$
+			if (archOnAllPlatforms != null && archOnAllPlatforms.length() > 0) {
+				defaults = defaults + " " + archOnAllPlatforms; //$NON-NLS-1$
+			}
+		}
+		String platform = null, platformAndArch = null, args = null;
+		if (key != null) {
+			// a platform with no arch specified
 			platform = launcherArgs.getProperty(key);
-		if (prefix != null)
-			args = platform != null ? prefix + " " + platform : prefix; //$NON-NLS-1$
-		else
-			args = platform != null ? platform : ""; //$NON-NLS-1$
+			// platform + arch
+			if (archKey != null) {
+				platformArchKey = key + "." + archKey; //$NON-NLS-1$
+				platformAndArch = launcherArgs.getProperty(platformArchKey);
+			}
+		}
+		if (defaults != null) {
+			if (platform != null)
+				args = platformAndArch != null ? defaults + " " + platform + " " + platformAndArch : defaults + " " + platform; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			else
+				args = defaults;
+		} else {
+			if (platform != null)
+				args = platformAndArch != null ? platform + " " + platformAndArch : platform; //$NON-NLS-1$
+			else
+				args = platformAndArch != null ? platformAndArch : ""; //$NON-NLS-1$
+		}
 		return normalize(args);
 	}
 
@@ -565,6 +691,59 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				}
 				break;
 
+			// For all argument states.  Set a platform key prefix representing 
+			// the outer state (platform) of the launcher arguments and then 
+			// set the state of the inner state (architecture).
+			case STATE_PROGRAM_ARGS :
+				platformKeyPrefix = PROGRAM_ARGS;
+				setArchState(localName);
+				break;
+
+			case STATE_PROGRAM_ARGS_LINUX :
+				platformKeyPrefix = PROGRAM_ARGS_LINUX;
+				setArchState(localName);
+				break;
+
+			case STATE_PROGRAM_ARGS_MAC :
+				platformKeyPrefix = PROGRAM_ARGS_MAC;
+				setArchState(localName);
+				break;
+
+			case STATE_PROGRAM_ARGS_SOLARIS :
+				platformKeyPrefix = PROGRAM_ARGS_SOLARIS;
+				setArchState(localName);
+				break;
+
+			case STATE_PROGRAM_ARGS_WIN :
+				platformKeyPrefix = PROGRAM_ARGS_WIN;
+				setArchState(localName);
+				break;
+
+			case STATE_VM_ARGS :
+				platformKeyPrefix = VM_ARGS;
+				setArchState(localName);
+				break;
+
+			case STATE_VM_ARGS_LINUX :
+				platformKeyPrefix = VM_ARGS_LINUX;
+				setArchState(localName);
+				break;
+
+			case STATE_VM_ARGS_MAC :
+				platformKeyPrefix = VM_ARGS_MAC;
+				setArchState(localName);
+				break;
+
+			case STATE_VM_ARGS_SOLARIS :
+				platformKeyPrefix = VM_ARGS_SOLARIS;
+				setArchState(localName);
+				break;
+
+			case STATE_VM_ARGS_WIN :
+				platformKeyPrefix = VM_ARGS_WIN;
+				setArchState(localName);
+				break;
+
 			case STATE_PLUGINS :
 				if (EL_PLUGIN.equals(localName)) {
 					processPlugin(attributes);
@@ -592,6 +771,25 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 					processPropertyConfiguration(attributes);
 				}
 				break;
+		}
+	}
+
+	private void setArchState(String archName) {
+		outerState = state;
+		if (EL_ARCH_X86.equals(archName)) {
+			state = STATE_ARCH_X86;
+		} else if (EL_ARCH_X86_64.equals(archName)) {
+			state = STATE_ARCH_X86_64;
+		} else if (EL_ARCH_PPC.equals(archName)) {
+			state = STATE_ARCH_PPC;
+		} else if (EL_ARCH_IA_64.equals(archName)) {
+			state = STATE_ARCH_IA_64;
+		} else if (EL_ARCH_IA_64_32.equals(archName)) {
+			state = STATE_ARCH_IA_64_32;
+		} else if (EL_ARCH_PA_RISC.equals(archName)) {
+			state = STATE_ARCH_PA_RISC;
+		} else if (EL_ARCH_SPARC.equals(archName)) {
+			state = STATE_ARCH_SPARC;
 		}
 	}
 
@@ -675,6 +873,16 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				state = STATE_LICENSE;
 				break;
 
+			case STATE_ARCH_X86 :
+			case STATE_ARCH_X86_64 :
+			case STATE_ARCH_PPC :
+			case STATE_ARCH_IA_64 :
+			case STATE_ARCH_IA_64_32 :
+			case STATE_ARCH_PA_RISC :
+			case STATE_ARCH_SPARC :
+				state = outerState;
+				break;
+
 			case STATE_CONFIG_INI :
 				if (EL_CONFIG_INI.equals(localName))
 					state = STATE_PRODUCT;
@@ -688,34 +896,55 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	public void characters(char[] ch, int start, int length) {
 		switch (state) {
 			case STATE_PROGRAM_ARGS :
-				addLaunchArgumentToMap(PROGRAM_ARGS, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(PROGRAM_ARGS, String.valueOf(ch, start, length).trim());
 				break;
 			case STATE_PROGRAM_ARGS_LINUX :
-				addLaunchArgumentToMap(PROGRAM_ARGS_LINUX, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(PROGRAM_ARGS_LINUX, String.valueOf(ch, start, length).trim());
 				break;
 			case STATE_PROGRAM_ARGS_MAC :
-				addLaunchArgumentToMap(PROGRAM_ARGS_MAC, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(PROGRAM_ARGS_MAC, String.valueOf(ch, start, length).trim());
 				break;
 			case STATE_PROGRAM_ARGS_SOLARIS :
-				addLaunchArgumentToMap(PROGRAM_ARGS_SOLARIS, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(PROGRAM_ARGS_SOLARIS, String.valueOf(ch, start, length).trim());
 				break;
 			case STATE_PROGRAM_ARGS_WIN :
-				addLaunchArgumentToMap(PROGRAM_ARGS_WIN, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(PROGRAM_ARGS_WIN, String.valueOf(ch, start, length).trim());
 				break;
 			case STATE_VM_ARGS :
-				addLaunchArgumentToMap(VM_ARGS, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(VM_ARGS, String.valueOf(ch, start, length).trim());
 				break;
 			case STATE_VM_ARGS_LINUX :
-				addLaunchArgumentToMap(VM_ARGS_LINUX, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(VM_ARGS_LINUX, String.valueOf(ch, start, length).trim());
 				break;
 			case STATE_VM_ARGS_MAC :
-				addLaunchArgumentToMap(VM_ARGS_MAC, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(VM_ARGS_MAC, String.valueOf(ch, start, length).trim());
 				break;
 			case STATE_VM_ARGS_SOLARIS :
-				addLaunchArgumentToMap(VM_ARGS_SOLARIS, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(VM_ARGS_SOLARIS, String.valueOf(ch, start, length).trim());
 				break;
 			case STATE_VM_ARGS_WIN :
-				addLaunchArgumentToMap(VM_ARGS_WIN, String.valueOf(ch, start, length));
+				addLaunchArgumentToMap(VM_ARGS_WIN, String.valueOf(ch, start, length).trim());
+				break;
+			case STATE_ARCH_X86 :
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_X86, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				break;
+			case STATE_ARCH_X86_64 :
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_X86_64, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				break;
+			case STATE_ARCH_PPC :
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_PPC, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				break;
+			case STATE_ARCH_IA_64 :
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_IA_64, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				break;
+			case STATE_ARCH_IA_64_32 :
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_IA_64_32, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				break;
+			case STATE_ARCH_PA_RISC :
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_PA_RISC, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				break;
+			case STATE_ARCH_SPARC :
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_SPARC, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
 				break;
 			case STATE_CONFIG_INI :
 				if (platformConfigPath != null)
@@ -738,7 +967,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 		String oldValue = launcherArgs.getProperty(key);
 		if (oldValue != null)
-			launcherArgs.setProperty(key, oldValue + value);
+			launcherArgs.setProperty(key, oldValue + " " + value); //$NON-NLS-1$
 		else
 			launcherArgs.setProperty(key, value);
 	}
