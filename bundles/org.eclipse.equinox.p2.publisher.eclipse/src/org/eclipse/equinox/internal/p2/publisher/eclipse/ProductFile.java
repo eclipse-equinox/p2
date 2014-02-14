@@ -896,55 +896,55 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	public void characters(char[] ch, int start, int length) {
 		switch (state) {
 			case STATE_PROGRAM_ARGS :
-				addLaunchArgumentToMap(PROGRAM_ARGS, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(PROGRAM_ARGS, String.valueOf(ch, start, length));
 				break;
 			case STATE_PROGRAM_ARGS_LINUX :
-				addLaunchArgumentToMap(PROGRAM_ARGS_LINUX, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(PROGRAM_ARGS_LINUX, String.valueOf(ch, start, length));
 				break;
 			case STATE_PROGRAM_ARGS_MAC :
-				addLaunchArgumentToMap(PROGRAM_ARGS_MAC, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(PROGRAM_ARGS_MAC, String.valueOf(ch, start, length));
 				break;
 			case STATE_PROGRAM_ARGS_SOLARIS :
-				addLaunchArgumentToMap(PROGRAM_ARGS_SOLARIS, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(PROGRAM_ARGS_SOLARIS, String.valueOf(ch, start, length));
 				break;
 			case STATE_PROGRAM_ARGS_WIN :
-				addLaunchArgumentToMap(PROGRAM_ARGS_WIN, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(PROGRAM_ARGS_WIN, String.valueOf(ch, start, length));
 				break;
 			case STATE_VM_ARGS :
-				addLaunchArgumentToMap(VM_ARGS, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(VM_ARGS, String.valueOf(ch, start, length));
 				break;
 			case STATE_VM_ARGS_LINUX :
-				addLaunchArgumentToMap(VM_ARGS_LINUX, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(VM_ARGS_LINUX, String.valueOf(ch, start, length));
 				break;
 			case STATE_VM_ARGS_MAC :
-				addLaunchArgumentToMap(VM_ARGS_MAC, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(VM_ARGS_MAC, String.valueOf(ch, start, length));
 				break;
 			case STATE_VM_ARGS_SOLARIS :
-				addLaunchArgumentToMap(VM_ARGS_SOLARIS, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(VM_ARGS_SOLARIS, String.valueOf(ch, start, length));
 				break;
 			case STATE_VM_ARGS_WIN :
-				addLaunchArgumentToMap(VM_ARGS_WIN, String.valueOf(ch, start, length).trim());
+				addLaunchArgumentToMap(VM_ARGS_WIN, String.valueOf(ch, start, length));
 				break;
 			case STATE_ARCH_X86 :
-				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_X86, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_X86, String.valueOf(ch, start, length)); //$NON-NLS-1$
 				break;
 			case STATE_ARCH_X86_64 :
-				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_X86_64, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_X86_64, String.valueOf(ch, start, length)); //$NON-NLS-1$
 				break;
 			case STATE_ARCH_PPC :
-				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_PPC, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_PPC, String.valueOf(ch, start, length)); //$NON-NLS-1$
 				break;
 			case STATE_ARCH_IA_64 :
-				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_IA_64, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_IA_64, String.valueOf(ch, start, length)); //$NON-NLS-1$
 				break;
 			case STATE_ARCH_IA_64_32 :
-				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_IA_64_32, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_IA_64_32, String.valueOf(ch, start, length)); //$NON-NLS-1$
 				break;
 			case STATE_ARCH_PA_RISC :
-				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_PA_RISC, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_PA_RISC, String.valueOf(ch, start, length)); //$NON-NLS-1$
 				break;
 			case STATE_ARCH_SPARC :
-				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_SPARC, String.valueOf(ch, start, length).trim()); //$NON-NLS-1$
+				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_SPARC, String.valueOf(ch, start, length)); //$NON-NLS-1$
 				break;
 			case STATE_CONFIG_INI :
 				if (platformConfigPath != null)
@@ -967,7 +967,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 		String oldValue = launcherArgs.getProperty(key);
 		if (oldValue != null)
-			launcherArgs.setProperty(key, oldValue + " " + value); //$NON-NLS-1$
+			launcherArgs.setProperty(key, oldValue + value);
 		else
 			launcherArgs.setProperty(key, value);
 	}
