@@ -71,9 +71,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		setDescription(ProvUIMessages.AvailableIUsPage_Description);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
-	 */
+	@Override
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 		this.display = parent.getDisplay();
@@ -105,8 +103,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// Now the available group 
 		// If repositories are visible, we want to default to showing no repos.  Otherwise all.
 		int filterConstant = AvailableIUGroup.AVAILABLE_NONE;
-		if (!getPolicy().getRepositoriesVisible())
+		if (!getPolicy().getRepositoriesVisible()) {
 			filterConstant = AvailableIUGroup.AVAILABLE_ALL;
+		}
 		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH + 15);
 		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
 
@@ -117,6 +116,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// events and the check mark events.  Must be done after buttons 
 		// are created so that the buttons can register and receive their selection notifications before us.
 		availableIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				updateDetails();
 				iuDetailsGroup.enablePropertyLink(availableIUGroup.getSelectedIUElements().length == 1);
@@ -124,6 +124,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		});
 
 		availableIUGroup.getCheckboxTreeViewer().addCheckStateListener(new ICheckStateListener() {
+			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				updateSelection();
 			}
@@ -160,6 +161,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		initializeWidgetState();
 		setControl(composite);
 		composite.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				removeProvisioningListeners();
 			}
@@ -183,6 +185,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		selectAll.setText(ProvUIMessages.SelectableIUsPage_Select_All);
 		setButtonLayoutData(selectAll);
 		selectAll.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				setAllChecked(true);
 			}
@@ -192,6 +195,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		deselectAll.setText(ProvUIMessages.SelectableIUsPage_Deselect_All);
 		setButtonLayoutData(deselectAll);
 		deselectAll.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				setAllChecked(false);
 			}
@@ -231,11 +235,13 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		showLatestVersionsCheckbox = new Button(parent, SWT.CHECK);
 		showLatestVersionsCheckbox.setText(ProvUIMessages.AvailableIUsPage_ShowLatestVersions);
 		showLatestVersionsCheckbox.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
 			}
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
@@ -245,11 +251,13 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		hideInstalledCheckbox = new Button(parent, SWT.CHECK);
 		hideInstalledCheckbox.setText(ProvUIMessages.AvailableIUsPage_HideInstalledItems);
 		hideInstalledCheckbox.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
 			}
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
@@ -259,11 +267,13 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		useCategoriesCheckbox = new Button(parent, SWT.CHECK);
 		useCategoriesCheckbox.setText(ProvUIMessages.AvailableIUsPage_GroupByCategory);
 		useCategoriesCheckbox.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
 			}
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
@@ -273,6 +283,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalIndent = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
 		installLink = createLink(parent, new Action() {
+			@Override
 			public void runWithEvent(Event event) {
 				ProvUI.openInstallationDialog(event);
 			}
@@ -282,11 +293,13 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		filterOnEnvCheckBox = new Button(parent, SWT.CHECK);
 		filterOnEnvCheckBox.setText(ProvUIMessages.AvailableIUsPage_FilterOnEnvCheckBox);
 		filterOnEnvCheckBox.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
 			}
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
@@ -309,6 +322,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (getPolicy().getRepositoriesVisible()) {
 			repoSelector = new RepositorySelectionGroup(getProvisioningUI(), getContainer(), parent, queryContext);
 			repoSelector.addRepositorySelectionListener(new IRepositorySelectionListener() {
+				@Override
 				public void repositorySelectionChanged(int repoChoice, URI repoLocation) {
 					repoComboSelectionChanged(repoChoice, repoLocation);
 				}
@@ -320,10 +334,12 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			// operation as complete and then resignal the start when done.
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=277265#c38
 			repoSelector.setRepositoryManipulationHook(new IRepositoryManipulationHook() {
+				@Override
 				public void preManipulateRepositories() {
 					getProvisioningUI().signalRepositoryOperationComplete(null, false);
 				}
 
+				@Override
 				public void postManipulateRepositories() {
 					getProvisioningUI().signalRepositoryOperationStart();
 				}
@@ -344,9 +360,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	void updateSelection() {
 		int count = availableIUGroup.getCheckedLeafIUs().length;
 		setPageComplete(count > 0);
-		if (count == 0)
+		if (count == 0) {
 			selectionCount.setText(""); //$NON-NLS-1$
-		else {
+		} else {
 			String message = count == 1 ? ProvUIMessages.AvailableIUsPage_SingleSelectionCount : ProvUIMessages.AvailableIUsPage_MultipleSelectionCount;
 			selectionCount.setText(NLS.bind(message, Integer.toString(count)));
 		}
@@ -356,10 +372,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	void updateQueryContext() {
 		queryContext.setShowLatestVersionsOnly(showLatestVersionsCheckbox.getSelection());
 		queryContext.setHideAlreadyInstalled(hideInstalledCheckbox.getSelection());
-		if (useCategoriesCheckbox.getSelection())
+		if (useCategoriesCheckbox.getSelection()) {
 			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
-		else
+		} else {
 			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		}
 		queryContext.setFilterOnEnv(filterOnEnvCheckBox.getSelection());
 	}
 
@@ -368,6 +385,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		link.setText(text);
 
 		link.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				IAction linkAction = getLinkAction(event.widget);
 				if (linkAction != null) {
@@ -403,17 +421,20 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		useCategoriesCheckbox.setSelection(queryContext.shouldGroupByCategories());
 		filterOnEnvCheckBox.setSelection(queryContext.getFilterOnEnv());
 		availableIUGroup.updateAvailableViewState();
-		if (initialSelections != null)
+		if (initialSelections != null) {
 			availableIUGroup.setChecked(initialSelections);
+		}
 
 		// Focus should go on site combo unless it's not there.  In that case, go to the filter text.
 		Control focusControl = null;
-		if (repoSelector != null)
+		if (repoSelector != null) {
 			focusControl = repoSelector.getDefaultFocusControl();
-		else
+		} else {
 			focusControl = availableIUGroup.getDefaultFocusControl();
-		if (focusControl != null)
+		}
+		if (focusControl != null) {
 			focusControl.setFocus();
+		}
 		updateDetails();
 		iuDetailsGroup.enablePropertyLink(availableIUGroup.getSelectedIUElements().length == 1);
 		updateSelection();
@@ -449,26 +470,31 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (section != null) {
 			// View by...
 			try {
-				if (section.get(AVAILABLE_VIEW_TYPE) != null)
+				if (section.get(AVAILABLE_VIEW_TYPE) != null) {
 					queryContext.setViewType(section.getInt(AVAILABLE_VIEW_TYPE));
+				}
 			} catch (NumberFormatException e) {
 				// Ignore if there actually was a value that didn't parse.  
 			}
 			// We no longer (in 3.5) show a view by site, so ignore any older dialog setting that
 			// instructs us to do this.
-			if (queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO)
+			if (queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO) {
 				queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
+			}
 
 			// Show latest versions
-			if (section.get(SHOW_LATEST_VERSIONS_ONLY) != null)
+			if (section.get(SHOW_LATEST_VERSIONS_ONLY) != null) {
 				queryContext.setShowLatestVersionsOnly(section.getBoolean(SHOW_LATEST_VERSIONS_ONLY));
+			}
 
 			// Hide installed content
-			if (section.get(HIDE_INSTALLED_IUS) != null)
+			if (section.get(HIDE_INSTALLED_IUS) != null) {
 				queryContext.setHideAlreadyInstalled(section.getBoolean(HIDE_INSTALLED_IUS));
+			}
 
-			if (section.get(FILTER_ON_ENV) != null)
+			if (section.get(FILTER_ON_ENV) != null) {
 				queryContext.setFilterOnEnv(section.getBoolean(FILTER_ON_ENV));
+			}
 		}
 	}
 
@@ -477,10 +503,12 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
 		if (section != null) {
 			try {
-				if (section.get(NAME_COLUMN_WIDTH) != null)
+				if (section.get(NAME_COLUMN_WIDTH) != null) {
 					nameColumn.setWidthInPixels(section.getInt(NAME_COLUMN_WIDTH));
-				if (section.get(VERSION_COLUMN_WIDTH) != null)
+				}
+				if (section.get(VERSION_COLUMN_WIDTH) != null) {
 					versionColumn.setWidthInPixels(section.getInt(VERSION_COLUMN_WIDTH));
+				}
 			} catch (NumberFormatException e) {
 				// Ignore if there actually was a value that didn't parse.  
 			}
@@ -507,9 +535,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		return ILayoutConstants.IUS_TO_DETAILS_WEIGHTS;
 	}
 
+	@Override
 	public void saveBoundsRelatedSettings() {
-		if (getShell().isDisposed())
+		if (getShell().isDisposed()) {
 			return;
+		}
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
 		if (section == null) {
@@ -518,8 +548,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		section.put(AVAILABLE_VIEW_TYPE, queryContext.getViewType());
 		section.put(SHOW_LATEST_VERSIONS_ONLY, showLatestVersionsCheckbox.getSelection());
 		section.put(HIDE_INSTALLED_IUS, hideInstalledCheckbox.getSelection());
-		if (resolveAllCheckbox != null)
+		if (resolveAllCheckbox != null) {
 			section.put(RESOLVE_ALL, resolveAllCheckbox.getSelection());
+		}
 		section.put(FILTER_ON_ENV, filterOnEnvCheckBox.getSelection());
 
 		TreeColumn col = availableIUGroup.getCheckboxTreeViewer().getTree().getColumn(0);
@@ -552,10 +583,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 				result.append(description);
 			} else {
 				String name = selected.get(0).getProperty(IInstallableUnit.PROP_NAME, null);
-				if (name != null)
+				if (name != null) {
 					result.append(name);
-				else
+				} else {
 					result.append(selected.get(0).getId());
+				}
 				result.append(" "); //$NON-NLS-1$
 				result.append(selected.get(0).getVersion().toString());
 			}
@@ -585,24 +617,18 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	 * Overridden so that we don't call getNextPage().
 	 * We use getNextPage() to start resolving the install so
 	 * we only want to do that when the next button is pressed.
-	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.WizardPage#canFlipToNextPage()
 	 */
+	@Override
 	public boolean canFlipToNextPage() {
 		return isPageComplete();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage#getCheckedIUElements()
-	 */
+	@Override
 	public Object[] getCheckedIUElements() {
 		return availableIUGroup.getCheckedLeafIUs();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage#getSelectedIUElements()
-	 */
+	@Override
 	public Object[] getSelectedIUElements() {
 		return availableIUGroup.getSelectedIUElements();
 	}
@@ -614,11 +640,13 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	 * 
 	 * @param elements
 	 */
+	@Override
 	public void setCheckedElements(Object[] elements) {
-		if (availableIUGroup == null)
+		if (availableIUGroup == null) {
 			initialSelections = elements;
-		else
+		} else {
 			availableIUGroup.setChecked(elements);
+		}
 	}
 
 	void addViewerProvisioningListeners() {
@@ -626,14 +654,17 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// according to installation changes.  We want to be very selective about refreshing,
 		// because the viewer has its own listeners installed.
 		profileListener = new StructuredViewerProvisioningListener(getClass().getName(), availableIUGroup.getStructuredViewer(), ProvUIProvisioningListener.PROV_EVENT_PROFILE, getProvisioningUI().getOperationRunner()) {
+			@Override
 			protected void profileAdded(String id) {
 				// do nothing
 			}
 
+			@Override
 			protected void profileRemoved(String id) {
 				// do nothing
 			}
 
+			@Override
 			protected void profileChanged(String id) {
 				if (id.equals(getProfileId())) {
 					safeRefresh();
@@ -651,6 +682,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 	}
 
+	@Override
 	protected String getClipboardText(Control control) {
 		// The default label provider constructor uses the default column config.
 		// since we passed the default column config to the available iu group,
@@ -665,8 +697,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 		// Consult the checkbox to see if we should resolve against everything,
 		// or use the combo to determine what to do.
-		if (resolveAllCheckbox.getSelection())
+		if (resolveAllCheckbox.getSelection()) {
 			return new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
+		}
 		// Use the contents of the combo to determine the context
 		return repoSelector.getProvisioningContext();
 	}
