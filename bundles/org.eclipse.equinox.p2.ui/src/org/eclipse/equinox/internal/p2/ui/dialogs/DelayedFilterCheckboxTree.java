@@ -34,7 +34,7 @@ import org.eclipse.ui.progress.WorkbenchJob;
  */
 public class DelayedFilterCheckboxTree extends FilteredTree {
 
-	private static final long FILTER_DELAY = 400;
+	private static final long FILTER_DELAY = 800;
 
 	public static final Object ALL_ITEMS_HACK = new Object();
 
