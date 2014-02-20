@@ -317,8 +317,8 @@ public class SimplePlanner implements IPlanner {
 
 			Map<String, String> newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
 
-			List<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(profileChangeRequest.getAdditions());
-			extraIUs.addAll(profileChangeRequest.getRemovals());
+			List<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(unresolve(profileChangeRequest.getAdditions()));
+			extraIUs.addAll(unresolve(profileChangeRequest.getRemovals()));
 			if (context == null || context.getProperty(INCLUDE_PROFILE_IUS) == null || context.getProperty(INCLUDE_PROFILE_IUS).equalsIgnoreCase(Boolean.TRUE.toString())) {
 				Iterator<IInstallableUnit> itor = profile.available(QueryUtil.createIUAnyQuery(), null).iterator();
 				while (itor.hasNext())
@@ -335,11 +335,11 @@ public class SimplePlanner implements IPlanner {
 				return plan;
 			}
 			@SuppressWarnings("unchecked")
-			final IQueryable<IInstallableUnit>[] queryables = new IQueryable[] {slice, new QueryableArray(profileChangeRequest.getAdditions().toArray(new IInstallableUnit[profileChangeRequest.getAdditions().size()]))};
+			final IQueryable<IInstallableUnit>[] queryables = new IQueryable[] {slice, new QueryableArray(unresolve(profileChangeRequest.getAdditions()).toArray(new IInstallableUnit[profileChangeRequest.getAdditions().size()]))};
 			slice = new CompoundQueryable<IInstallableUnit>(queryables);
 			Projector projector = new Projector(slice, newSelectionContext, slicer.getNonGreedyIUs(), satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			projector.setUserDefined(profileChangeRequest.getPropertiesToAdd().containsKey("_internal_user_defined_"));
-			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profile, profileChangeRequest.getAdditions(), sub.newChild(ExpandWork / 4));
+			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profile, unresolve(profileChangeRequest.getAdditions()), sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (s.getSeverity() == IStatus.CANCEL) {
 				IProvisioningPlan plan = engine.createPlan(profile, context);
@@ -376,6 +376,14 @@ public class SimplePlanner implements IPlanner {
 		} finally {
 			sub.done();
 		}
+	}
+
+	private ArrayList<IInstallableUnit> unresolve(Collection<IInstallableUnit> toUnresolve) {
+		ArrayList<IInstallableUnit> result = new ArrayList<IInstallableUnit>(toUnresolve.size());
+		for (IInstallableUnit iu : toUnresolve) {
+			result.add(iu.unresolved());
+		}
+		return result;
 	}
 
 	public IProvisioningPlan getProvisioningPlan(IProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
