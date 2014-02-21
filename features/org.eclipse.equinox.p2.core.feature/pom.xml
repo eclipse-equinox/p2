@@ -37,6 +37,18 @@
               <goal>source-feature</goal>
             </goals>
             <configuration>
+              <plugins>
+                <plugin id="org.eclipse.ecf.filetransfer.source" versionRange="0.0.0"/>
+                <plugin id="org.eclipse.ecf.identity.source" versionRange="0.0.0"/>
+                <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient4.source" versionRange="0.0.0"/>
+                <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient4.ssl.source" versionRange="0.0.0"/>
+                <plugin id="org.eclipse.ecf.provider.filetransfer.source" versionRange="0.0.0"/>
+                <plugin id="org.eclipse.ecf.provider.filetransfer.ssl.source" versionRange="0.0.0"/>
+                <plugin id="org.eclipse.ecf.source" versionRange="0.0.0"/>
+                <plugin id="org.eclipse.ecf.ssl.source" versionRange="0.0.0"/>
+                <plugin id="org.apache.httpcomponents.httpclient.source" versionRange="0.0.0"/>
+                <plugin id="org.apache.httpcomponents.httpcore.source" versionRange="0.0.0"/>
+              </plugins>
               <excludes>
                 <plugin id="org.sat4j.core"/>
                 <plugin id="org.sat4j.pb"/>
