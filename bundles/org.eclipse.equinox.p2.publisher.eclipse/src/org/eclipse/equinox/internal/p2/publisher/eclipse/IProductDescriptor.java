@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2014 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,6 +8,7 @@
  *   Code 9 - initial API and implementation
  *   EclipseSource - ongoing development
  *   SAP AG - ongoing development
+ *   Rapicorp - additional features
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
@@ -122,6 +123,14 @@ public interface IProductDescriptor {
 	 * Returns the properties for a product file.
 	 */
 	public Map<String, String> getConfigurationProperties();
+
+	/**
+	 * Returns the properties for this product file for a given OS and
+	 * architecture combination. If the os and/or arch are not specified,
+	 * then only those properties defined without os and/or arch filtering
+	 * will be returned.
+	 */
+	public Map<String, String> getConfigurationProperties(String os, String arch);
 
 	/**
 	 * Returns a list of icons for this product for a given OS.

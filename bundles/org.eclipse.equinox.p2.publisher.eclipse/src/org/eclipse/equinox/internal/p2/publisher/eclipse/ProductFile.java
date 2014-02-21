@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *     EclipseSource - ongoing development
  *     Felix Riegger (SAP AG) - consolidation of publishers for PDE formats (bug 331974)
  *     SAP AG - ongoing development
+ *     Rapicorp - additional features
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
@@ -52,6 +53,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	protected static final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_UID = "uid"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_CONTENT_TYPE = "type"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_OS = "os"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_ARCH = "arch"; //$NON-NLS-1$
 
 	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
 	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
@@ -179,6 +182,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private final File location;
 	private List<BundleInfo> bundleInfos;
 	private Map<String, String> properties;
+	private HashMap<String, HashMap<String, String>> filteredProperties;
 	private boolean includeLaunchers = true;
 	private String licenseURL;
 	private String licenseText = null;
@@ -270,7 +274,52 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * are located in the <configurations> block of the file
 	 */
 	public Map<String, String> getConfigurationProperties() {
+		return getConfigurationProperties(null, null);
+	}
+
+	/**
+	 * Returns the properties found in .product file that are valid
+	 * for the specified platform os and architecture.  If there is no
+	 * platform os and/or architecture specified, return only the properties
+	 * that are not filtered by the unspecified os and/or arch. 
+	 * Properties are located in the <configurations> block of the file
+	 */
+	public Map<String, String> getConfigurationProperties(String os, String arch) {
+		// add all generic properties
 		Map<String, String> result = properties != null ? properties : new HashMap<String, String>();
+		// add any properties filtered on os and/or arch
+		if (filteredProperties != null) {
+			String[] filteredKeys = new String[3]; // ".arch", "os.", "os.arch"
+			if (os == null) {
+				// only arch is specified. Provide properties defined for
+				// all os and a specific architecture
+				if (arch != null && arch.length() > 0) {
+					filteredKeys[0] = "." + arch; //$NON-NLS-1$
+				}
+			} else {
+				if (arch == null) {
+					// only os is specified. Provide properties defined for 
+					// specific os and all architectures.
+					filteredKeys[1] = os + "."; //$NON-NLS-1$
+				} else {
+					// os and arch specified. Provide properties defined for
+					// the os, for the arch, and for both
+					filteredKeys[0] = "." + arch; //$NON-NLS-1$
+					filteredKeys[1] = os + "."; //$NON-NLS-1$
+					filteredKeys[2] = os + "." + arch; //$NON-NLS-1$
+				}
+			}
+			for (int i = 0; i < filteredKeys.length; i++) {
+				if (filteredKeys[i] != null) {
+					// copy all mappings that are filtered for this os and/or arch
+					HashMap<String, String> innerMap = filteredProperties.get(filteredKeys[i]);
+					if (innerMap != null) {
+						result.putAll(innerMap);
+					}
+				}
+
+			}
+		}
 		if (application != null && !result.containsKey(PROPERTY_ECLIPSE_APPLICATION))
 			result.put(PROPERTY_ECLIPSE_APPLICATION, application);
 		if (id != null && !result.containsKey(PROPERTY_ECLIPSE_PRODUCT))
@@ -801,13 +850,33 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private void processPropertyConfiguration(Attributes attributes) {
 		String name = attributes.getValue(ATTRIBUTE_NAME);
 		String value = attributes.getValue(ATTRIBUTE_VALUE);
+		String os = attributes.getValue(ATTRIBUTE_OS);
+		if (os == null)
+			os = ""; //$NON-NLS-1$
+		String arch = attributes.getValue(ATTRIBUTE_ARCH);
+		if (arch == null)
+			arch = ""; //$NON-NLS-1$
+		String propOSArchKey = os + "." + arch; //$NON-NLS-1$
 		if (name == null)
 			return;
 		if (value == null)
 			value = ""; //$NON-NLS-1$
-		if (properties == null)
-			properties = new HashMap<String, String>();
-		properties.put(name, value);
+		if (propOSArchKey.length() <= 1) {
+			// this is a generic property for all platforms and arch
+			if (properties == null)
+				properties = new HashMap<String, String>();
+			properties.put(name, value);
+		} else {
+			// store the property in the filtered map, keyed by "os.arch"
+			if (filteredProperties == null)
+				filteredProperties = new HashMap<String, HashMap<String, String>>();
+			HashMap<String, String> filteredMap = filteredProperties.get(propOSArchKey);
+			if (filteredMap == null) {
+				filteredMap = new HashMap<String, String>();
+				filteredProperties.put(propOSArchKey, filteredMap);
+			}
+			filteredMap.put(name, value);
+		}
 	}
 
 	private void processPluginConfiguration(Attributes attributes) {
