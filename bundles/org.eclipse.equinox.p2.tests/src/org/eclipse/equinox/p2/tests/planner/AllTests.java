@@ -136,6 +136,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PatchTestUsingNegativeRequirement.class);
 		suite.addTestSuite(PermissiveSlicerTest.class);
 		suite.addTestSuite(PP2ShouldFailToInstall.class);
+		suite.addTestSuite(ResolvedIUInPCR.class);
 		//		suite.addTestSuite(ProvisioningPlanQueryTest.class); disabled, see bug 313812 
 		suite.addTestSuite(SDKPatchingTest1.class);
 		suite.addTestSuite(SDKPatchingTest2.class);

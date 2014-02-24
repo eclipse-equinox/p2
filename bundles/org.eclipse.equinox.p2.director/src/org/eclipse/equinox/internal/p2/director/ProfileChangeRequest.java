@@ -80,7 +80,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	public void add(IInstallableUnit toInstall) {
 		if (iusToAdd == null)
 			iusToAdd = new ArrayList<IInstallableUnit>();
-		iusToAdd.add(toInstall);
+		iusToAdd.add(toInstall.unresolved());
 	}
 
 	/* (non-Javadoc)
@@ -102,7 +102,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	public void remove(IInstallableUnit toUninstall) {
 		if (iusToRemove == null)
 			iusToRemove = new ArrayList<IInstallableUnit>();
-		iusToRemove.add(toUninstall);
+		iusToRemove.add(toUninstall.unresolved());
 	}
 
 	public void removeInstallableUnits(IInstallableUnit[] toUninstall) {
@@ -142,6 +142,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	public void setInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value) {
 		if (iuPropertiesToAdd == null)
 			iuPropertiesToAdd = new HashMap<IInstallableUnit, Map<String, String>>();
+		iu = iu.unresolved();
 		Map<String, String> properties = iuPropertiesToAdd.get(iu);
 		if (properties == null) {
 			properties = new HashMap<String, String>();
@@ -156,6 +157,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	public void removeInstallableUnitProfileProperty(IInstallableUnit iu, String key) {
 		if (iuPropertiesToRemove == null)
 			iuPropertiesToRemove = new HashMap<IInstallableUnit, List<String>>();
+		iu = iu.unresolved();
 		List<String> keys = iuPropertiesToRemove.get(iu);
 		if (keys == null) {
 			keys = new ArrayList<String>();
@@ -213,14 +215,14 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#setInstallableUnitInclusionRules(org.eclipse.equinox.p2.metadata.IInstallableUnit, java.lang.String)
 	 */
 	public void setInstallableUnitInclusionRules(IInstallableUnit iu, String value) {
-		setInstallableUnitProfileProperty(iu, SimplePlanner.INCLUSION_RULES, value);
+		setInstallableUnitProfileProperty(iu.unresolved(), SimplePlanner.INCLUSION_RULES, value);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#removeInstallableUnitInclusionRules(org.eclipse.equinox.p2.metadata.IInstallableUnit)
 	 */
 	public void removeInstallableUnitInclusionRules(IInstallableUnit iu) {
-		removeInstallableUnitProfileProperty(iu, SimplePlanner.INCLUSION_RULES);
+		removeInstallableUnitProfileProperty(iu.unresolved(), SimplePlanner.INCLUSION_RULES);
 	}
 
 	@SuppressWarnings("unchecked")
