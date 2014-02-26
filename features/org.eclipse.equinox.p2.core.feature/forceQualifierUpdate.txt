@@ -8,3 +8,4 @@ Bug 407389 - Source features are partially broken
 Bug 406845 - Update repository of ECF in parent pom (new update)
 Bug 423196 - Filetransfer update for Luna M5: httpcomponents 4.2.5/4.2.6
 Bug 419647 - React to ECF feature restructuring
+Bug 419647 - React to ECF feature restructuring
