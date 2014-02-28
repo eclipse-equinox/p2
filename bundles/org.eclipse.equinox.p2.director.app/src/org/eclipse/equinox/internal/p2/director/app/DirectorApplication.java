@@ -284,7 +284,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private boolean targetAgentIsSelfAndUp = false;
 	private boolean noArtifactRepositorySpecified = false;
 
-	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs, Collection<IInstallableUnit> uninstalls) {
+	protected ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs, Collection<IInstallableUnit> uninstalls) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, installs);
 		markRoots(request, uninstalls);
