@@ -42,6 +42,11 @@
             name="%Install.command"
             id="org.eclipse.equinox.p2.ui.sdk.install">
       </command>
+      <command
+            defaultHandler="org.eclipse.ui.internal.about.InstallationHandler"
+            id="org.eclipse.equinox.p2.ui.sdk.installationDetails"
+            name="%InstallationDetails.command">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -75,6 +80,15 @@
                   icon="icons/obj/iu_obj.gif">
             </command>
                         
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:help?after=org.eclipse.equinox.p2.ui.sdk.install">
+         <command
+               commandId="org.eclipse.equinox.p2.ui.sdk.installationDetails"
+               icon="icons/obj/profile_obj.gif"
+               id="org.eclipse.equinox.p2.ui.sdk.installationDetails"
+               mnemonic="%InstallationDetails.command.mnemonic">
+         </command>
       </menuContribution>
    </extension>
 
