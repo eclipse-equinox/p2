@@ -12,16 +12,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.io.*;
+import java.io.File;
 import java.lang.ref.SoftReference;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.ProfileParser.ProfileHandler;
-import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry.Parser;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -30,6 +29,7 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
@@ -224,40 +224,36 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		File[] extensionLocations = EngineActivator.getExtensionsDirectories();
 		Set<IInstallableUnit> added = new HashSet<IInstallableUnit>();
 		for (File extension : extensionLocations) {
-			if (extension.isDirectory()) {
-				File[] listFiles = extension.listFiles(new FileFilter() {
-
-					public boolean accept(File pathname) {
-						if (pathname.getName().endsWith(".profile")) { //$NON-NLS-1$
-							return true;
+			try {
+				IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+				IMetadataRepository repo = metaManager.loadRepository(extension.toURI(), new NullProgressMonitor());
+				Set<IInstallableUnit> installableUnits = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toUnmodifiableSet();
+				for (IInstallableUnit unit : installableUnits) {
+					Collection<IProvidedCapability> capabilities = unit.getProvidedCapabilities();
+					boolean featureOrBundle = false;
+					for (IProvidedCapability cap : capabilities) {
+						if ("org.eclipse.equinox.p2.eclipse.type".equals(cap.getNamespace())) { //$NON-NLS-1$
+							if ("bundle".equals(cap.getName()) //$NON-NLS-1$
+									|| "source".equals(cap.getName()) //$NON-NLS-1$
+									|| "feature".equals(cap.getName())) { //$NON-NLS-1$
+								featureOrBundle = true;
+							}
+						} else if (Boolean.TRUE.equals(unit.getProperties().get("org.eclipse.equinox.p2.type.group"))) { //$NON-NLS-1$
+							featureOrBundle = true;
 						}
-						return false;
 					}
-				});
-				for (File profileFile : listFiles) {
-					Parser extensionParser = profileRegistry.new Parser(EngineActivator.getContext(), EngineActivator.ID);
-					try {
-						extensionParser.parse(profileFile);
-						//there is only one profile as we read only one
-						String key = extensionParser.getProfileHandlers().keySet().iterator().next();
+					if (featureOrBundle && !added.contains(unit)) {
+						added.add(unit);
+						sharedProfile.addInstallableUnit(unit);
+					}
 
-						ProfileHandler extensionHandler = extensionParser.getProfileHandlers().get(key);
-						IInstallableUnit[] installableUnits = extensionHandler.getInstallableUnits();
-						for (IInstallableUnit unit : installableUnits) {
-							if (!added.contains(unit)) {
-								added.add(unit);
-								sharedProfile.addInstallableUnit(unit);
-							}
-							Map<String, String> iuProperties = extensionHandler.getIUProperties(unit);
-							if (iuProperties != null && !iuProperties.isEmpty()) {
-								sharedProfile.addInstallableUnitProperties(unit, iuProperties);
-							}
-						}
-					} catch (IOException e) {
-						LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.SurrogateProfileHandler_1, profileFile), e));
+					Map<String, String> iuProperties = unit.getProperties();
+					if (iuProperties != null && !iuProperties.isEmpty()) {
+						sharedProfile.addInstallableUnitProperties(unit, iuProperties);
 					}
 				}
-				continue;
+			} catch (ProvisionException e) {
+				LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.SurrogateProfileHandler_1, extension), e));
 			}
 		}
 
