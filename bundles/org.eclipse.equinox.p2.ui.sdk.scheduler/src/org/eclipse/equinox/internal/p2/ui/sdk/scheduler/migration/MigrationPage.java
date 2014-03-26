@@ -9,7 +9,7 @@
  *     WindRiver Corporation - initial API and implementation
  *     IBM Corporation - Ongoing development
  *     Ericsson AB (Pascal Rapicault) - Bug 387115 - Allow to export everything
- *     Ericsson AB (Hamdan Msheik) - Bug 398833, 402560
+ *     Ericsson AB (Hamdan Msheik) - Bug 398833, 402560, 427195
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
@@ -75,6 +75,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 	protected IProvisioningAgent otherInstanceAgent = null;
 	private Collection<IInstallableUnit> unitsToMigrate;
+	private Set<IInstallableUnit> selectedUnitsToMigrate; // selected units to be migrated, initially contains all units not installed in current profile.
 	private IProfile toImportFrom = null;
 	//	private File instancePath = null;
 	private URI[] metaURIs = null;
@@ -277,11 +278,11 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 			column.getColumn().setMoveable(true);
 			if (titles[i].equals(ProvUIMessages.Column_Name)) {
 				column.getColumn().setWidth(300);
+				updateTableSorting(i);
 			} else {
 				column.getColumn().setWidth(200);
 			}
-			if (ProvUIMessages.Column_Name.equals(titles[i]))
-				updateTableSorting(i);
+
 			final int columnIndex = i;
 			column.getColumn().addSelectionListener(new SelectionAdapter() {
 				@Override
@@ -404,7 +405,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 			}
 		});
 		parent.addControlListener(new ControlAdapter() {
-			private final int[] columnRate = new int[] {6, 2, 2};
+			private final int[] columnRate = new int[] {4, 2, 2};
 
 			@Override
 			public void controlResized(ControlEvent e) {
@@ -444,6 +445,9 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 				}
 			}
 		});
+
+		selectedUnitsToMigrate = identifyUnitsToBeMigrated();
+
 		ICheckStateProvider provider = getViewerDefaultState();
 		if (provider != null)
 			viewer.setCheckStateProvider(provider);
@@ -457,13 +461,14 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		viewer.setInput(getInput());
 
 		viewer.getTree().addListener(SWT.Selection, new Listener() {
-
 			public void handleEvent(Event event) {
-				if (event.detail == SWT.CHECK) {
-					if (hasInstalled(ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class))) {
-						viewer.getTree().setRedraw(false);
-						((TreeItem) event.item).setChecked(false);
-						viewer.getTree().setRedraw(true);
+				if (event.item instanceof TreeItem && event.detail == SWT.CHECK) {
+					TreeItem treeItem = (TreeItem) event.item;
+					IInstallableUnit iu = ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class);
+					if (treeItem.getChecked()) {
+						selectedUnitsToMigrate.add(iu);
+					} else {
+						selectedUnitsToMigrate.remove(iu);
 					}
 				}
 				updatePageCompletion();
@@ -498,12 +503,36 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				for (TreeItem item : viewer.getTree().getItems()) {
+					if (item.getChecked()) {
+						item.setChecked(false);
+						Event event = new Event();
+						event.widget = item.getParent();
+						event.detail = SWT.CHECK;
+						event.item = item;
+						event.type = SWT.Selection;
+						viewer.getTree().notifyListeners(SWT.Selection, event);
+					}
 					viewer.setSubtreeChecked(item.getData(), false);
 				}
 				updatePageCompletion();
 			}
 		});
 
+	}
+
+	private Set<IInstallableUnit> identifyUnitsToBeMigrated() {
+
+		Set<IInstallableUnit> ius = new HashSet<IInstallableUnit>();
+		if (profile != null) {
+			for (IInstallableUnit iu : unitsToMigrate) {
+				IQueryResult<IInstallableUnit> collector = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), new NullProgressMonitor());
+				if (collector.isEmpty()) {
+					ius.add(iu);
+				}
+			}
+		}
+
+		return ius;
 	}
 
 	protected void createAdditionOptions(Composite parent) {
@@ -532,21 +561,14 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 			}
 
 			public boolean isChecked(Object element) {
-				if (profile != null) {
-					IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
-					IQueryResult<IInstallableUnit> collector = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), new NullProgressMonitor());
-					if (collector.isEmpty()) {
-						return true;
-					}
+				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
+				if (selectedUnitsToMigrate.contains(iu)) {
+					return true;
 				}
 				return false;
 			}
 		};
 	}
-
-	//	protected ITableLabelProvider getLabelProvider() {
-	//		return new IUDetailsLabelProvider(null, getColumnConfig(), null);
-	//	}
 
 	protected ITreeContentProvider getContentProvider() {
 		ProvElementContentProvider provider = new ProvElementContentProvider() {
@@ -604,8 +626,6 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		boolean pageComplete = determinePageCompletion();
 		setPageComplete(pageComplete);
 		if (pageComplete) {
-			//			if (this instanceof AbstractImportPage_c)
-			//				saveWidgetValues();
 			setMessage(null);
 		}
 	}
