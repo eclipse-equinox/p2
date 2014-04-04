@@ -32,7 +32,11 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 	public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
 		try {
 			Object[] children = fetchChildren(o, monitor);
-
+			for (Object child : children) {
+				if (child instanceof CategoryElement) {
+					((CategoryElement) child).fetchChildren(child, monitor);
+				}
+			}
 			if (!monitor.isCanceled()) {
 				collector.add(children, monitor);
 			}
@@ -40,7 +44,6 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 			// Nothing to do
 		}
 		collector.done();
-
 	}
 
 	public ISchedulingRule getRule(Object object) {
