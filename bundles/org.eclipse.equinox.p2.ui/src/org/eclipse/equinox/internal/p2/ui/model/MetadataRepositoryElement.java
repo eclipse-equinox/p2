@@ -37,6 +37,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	URI location;
 	boolean isEnabled;
 	String name;
+	Object[] cache;
 
 	public MetadataRepositoryElement(Object parent, URI location, boolean isEnabled) {
 		this(parent, null, null, location, isEnabled);
@@ -64,6 +65,9 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	}
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+		if (cache != null)
+			return cache;
+
 		SubMonitor sub = SubMonitor.convert(monitor, 200);
 		// Ensure the repository is loaded using the monitor, so we respond to cancelation.
 		// Otherwise, a non-loaded repository could be loaded in the query provider without a monitor.
@@ -71,12 +75,13 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		try {
 			getMetadataRepository(sub.newChild(100));
 			//only invoke super if we successfully loaded the repository
-			return super.fetchChildren(o, sub.newChild(100));
+			cache = super.fetchChildren(o, sub.newChild(100));
 		} catch (ProvisionException e) {
 			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e);
 			// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=276784
-			return new Object[] {new EmptyElementExplanation(this, IStatus.ERROR, e.getLocalizedMessage(), "")}; //$NON-NLS-1$
+			cache = new Object[] {new EmptyElementExplanation(this, IStatus.ERROR, e.getLocalizedMessage(), "")}; //$NON-NLS-1$
 		}
+		return cache;
 	}
 
 	protected String getImageId(Object obj) {

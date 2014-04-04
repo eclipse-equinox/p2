@@ -26,6 +26,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 
 	private ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(1);
 	private Collection<IRequirement> requirements;
+	private Object[] cache = null;
 
 	public CategoryElement(Object parent, IInstallableUnit iu) {
 		super(parent);
@@ -117,6 +118,13 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 			}
 		}
 		return requirements;
+	}
+
+	@Override
+	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+		if (cache == null)
+			cache = super.fetchChildren(o, monitor);
+		return cache;
 	}
 
 	/* (non-Javadoc)
