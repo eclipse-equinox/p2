@@ -14,8 +14,7 @@ package org.eclipse.equinox.internal.p2.ui.viewers;
 import java.util.HashMap;
 import java.util.HashSet;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
-import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -109,12 +108,13 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 			// We rely on the assumption that the queryable is the most expensive
 			// thing to get vs. the query itself being expensive.
 			// (loading a repo vs. querying a repo afterward)
+			if (manager != null && !synchronous && (element instanceof MetadataRepositoryElement || element instanceof MetadataRepositories)) {
+				if (element.getCachedChildren().length == 0)
+					return manager.getChildren(element);
+				return element.getChildren(element);
+			}
 			if (element.hasQueryable())
 				return element.getChildren(element);
-
-			if (manager != null && !synchronous) {
-				return manager.getChildren(parent);
-			}
 		}
 		return super.getChildren(parent);
 	}

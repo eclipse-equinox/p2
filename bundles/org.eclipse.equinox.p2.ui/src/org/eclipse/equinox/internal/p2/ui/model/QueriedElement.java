@@ -34,7 +34,8 @@ public abstract class QueriedElement extends ProvElement {
 	// that want to eliminate duplicates from the parent hierarchy.
 	// This cache is *not* used as a general purpose child cache.
 	private Collection<?> cachedChildren;
-
+	private static final Object[] EMPTY= new Object[0];
+	
 	protected QueriedElement(Object parent) {
 		super(parent);
 	}
@@ -158,6 +159,8 @@ public abstract class QueriedElement extends ProvElement {
 	}
 
 	public Object[] getCachedChildren() {
+		if (cachedChildren == null)
+			return EMPTY;
 		return cachedChildren.toArray();
 	}
 
