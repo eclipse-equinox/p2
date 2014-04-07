@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Ericsson AB - initial API and implementation
+ *     Ericsson AB (Hamdan Msheik) - bug- 432167
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -22,7 +23,7 @@ public class PreviousConfigurationFinder {
 
 	private static final Pattern path = Pattern.compile("(.+?)_{1}?([0-9\\.]+)_{1}?(\\d+)(_*?([^_].*)|$)"); //$NON-NLS-1$
 
-	public static class Identifier {
+	public static class Identifier implements Comparable<Identifier> {
 		private static final String DELIM = ". _-"; //$NON-NLS-1$
 		private int major, minor, service;
 
@@ -95,6 +96,29 @@ public class PreviousConfigurationFinder {
 		public String toString() {
 			return "" + major + '.' + minor + '.' + service; //$NON-NLS-1$
 		}
+
+		public int compareTo(Identifier o) {
+
+			if (o != null) {
+				if (major < o.major) {
+					return -1;
+				} else if (major > o.major) {
+					return 1;
+				} else if (minor < o.minor) {
+					return -1;
+				} else if (minor > o.minor) {
+					return 1;
+				} else if (service < o.service) {
+					return -1;
+				} else if (service > o.service) {
+					return 1;
+				} else {
+					return 0;
+				}
+			}
+
+			return 1;
+		}
 	}
 
 	public static class ConfigurationDescriptor {
@@ -131,6 +155,32 @@ public class PreviousConfigurationFinder {
 		public String getPlatformConfig() {
 			return os_ws_arch;
 		}
+	}
+
+	public static class ConfigurationDescriptorComparator implements Comparator<ConfigurationDescriptor> {
+
+		// compare ConfigurationDescriptor according to their versions and when equals according to their lastModified field
+		public int compare(ConfigurationDescriptor o1, ConfigurationDescriptor o2) {
+			int result = -1;
+			if (o1 != null && o2 != null) {
+				if (o1.getVersion().compareTo(o2.getVersion()) != 0) {
+					result = o1.getVersion().compareTo(o2.getVersion());
+				} else {
+					if (o1.getConfig().lastModified() > o2.getConfig().lastModified()) {
+						result = 1;
+					} else if (o1.getConfig().lastModified() < o2.getConfig().lastModified()) {
+						result = -1;
+					} else
+						result = 0;
+				}
+			} else if (o1 == null) {
+				result = -1;
+			} else if (o2 == null) {
+				result = 1;
+			}
+			return result;
+		}
+
 	}
 
 	private File currentConfig;
@@ -180,7 +230,7 @@ public class PreviousConfigurationFinder {
 				}
 			});
 			if (match.length != 0)
-				return new ConfigurationDescriptor("unknown", new Identifier("0.0.0"), "unknown", "unknown", match[0]);     //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+				return new ConfigurationDescriptor("unknown", new Identifier("0.0.0"), "unknown", "unknown", match[0]); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 		}
 		return null;
 	}
@@ -232,35 +282,31 @@ public class PreviousConfigurationFinder {
 	//Out of a set of configuration, find the one with the most similar product info.
 	public ConfigurationDescriptor findMostRelevantConfigurationFromProductId(List<ConfigurationDescriptor> configurations, ConfigurationDescriptor configToMatch) {
 		ConfigurationDescriptor bestMatch = null;
-		int numberOfcriteriaMet = 0;
+
+		List<ConfigurationDescriptor> candidates = new ArrayList<ConfigurationDescriptor>();
+		List<ConfigurationDescriptor> candidatesWithUnkonwArchitecture = new ArrayList<ConfigurationDescriptor>();
 		for (ConfigurationDescriptor candidate : configurations) {
-			int criteriaMet = 0;
-			if (!configToMatch.getProductId().equals(candidate.getProductId()))
-				continue;
-
-			if (configToMatch.getPlatformConfig().equals(candidate.getPlatformConfig()))
-				criteriaMet++;
-
-			if (configToMatch.getVersion().isGreaterEqualTo(candidate.getVersion())) {
-				//We have a match
-				criteriaMet++;
-			}
-			if (criteriaMet == 0)
-				continue;
-			if (criteriaMet > numberOfcriteriaMet) {
-				bestMatch = candidate;
-				numberOfcriteriaMet = criteriaMet;
-			} else if (criteriaMet == numberOfcriteriaMet) {
-				if (bestMatch.getVersion().equals(candidate.getVersion())) {
-					if (bestMatch.getConfig().lastModified() < candidate.getConfig().lastModified()) {
-						bestMatch = candidate;
-					}
-				} else {
-					if (candidate.getVersion().isGreaterEqualTo(bestMatch.getVersion()))
-						bestMatch = candidate;
+			if (configToMatch.getProductId().equals(candidate.getProductId()) && configToMatch.getVersion().isGreaterEqualTo(candidate.getVersion())) {
+				if (configToMatch.getPlatformConfig().equals(candidate.getPlatformConfig())) {
+					candidates.add(candidate);
+				} else { //candidate.getPlatformConfig() returns null in legacy installation prior to 4.x.x releases
+					candidatesWithUnkonwArchitecture.add(candidate);
 				}
 			}
 		}
+
+		if (!candidates.isEmpty()) {
+			Collections.sort(candidates, new ConfigurationDescriptorComparator());
+			bestMatch = candidates.get(candidates.size() - 1);
+		}
+
+		if (bestMatch == null) {
+			if (!candidatesWithUnkonwArchitecture.isEmpty()) {
+				Collections.sort(candidatesWithUnkonwArchitecture, new ConfigurationDescriptorComparator());
+				bestMatch = candidatesWithUnkonwArchitecture.get(candidatesWithUnkonwArchitecture.size() - 1);
+			}
+		}
+
 		return bestMatch;
 	}
 

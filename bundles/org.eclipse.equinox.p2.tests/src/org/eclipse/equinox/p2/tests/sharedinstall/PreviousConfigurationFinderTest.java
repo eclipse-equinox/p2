@@ -106,4 +106,30 @@ public class PreviousConfigurationFinderTest extends AbstractProvisioningTest {
 		assertNull(match.getPlatformConfig());
 
 	}
+
+	public void testNoMatchFromSucceedingVersion() throws Exception {
+		File configFolder = getTestData("sameProduct", "testData/previousConfigurationFinder/testSuccedingVersion/noMatch");
+		List<ConfigurationDescriptor> configs = new PreviousConfigurationFinder(configFolder).readPreviousConfigurations(configFolder);
+		ConfigurationDescriptor match = new PreviousConfigurationFinder(configFolder).findMostRelevantConfigurationFromProductId(configs, referenceConfiguration);
+		assertNull(match);
+	}
+
+	public void testMatchFromPreceedingVersionWithDifferentPaltform() throws Exception {
+		File configFolder = getTestData("sameProduct", "testData/previousConfigurationFinder/testSuccedingVersion/matchFromSuccedingAndPreccedingWithDifferentPlatfrom");
+		List<ConfigurationDescriptor> configs = new PreviousConfigurationFinder(configFolder).readPreviousConfigurations(configFolder);
+		ConfigurationDescriptor match = new PreviousConfigurationFinder(configFolder).findMostRelevantConfigurationFromProductId(configs, referenceConfiguration);
+		assertNotNull(match);
+		assertEquals(new Identifier(3, 8, 0), match.getVersion());
+		assertEquals("linux-gtk-x86_64", match.getPlatformConfig());
+	}
+
+	public void testMatchFromPreceedingVersionWithNullPaltform() throws Exception {
+		File configFolder = getTestData("sameProduct", "testData/previousConfigurationFinder/testSuccedingVersion/matchFromSuccedingAndPreccedingWithNullPlatfrom");
+		List<ConfigurationDescriptor> configs = new PreviousConfigurationFinder(configFolder).readPreviousConfigurations(configFolder);
+		ConfigurationDescriptor match = new PreviousConfigurationFinder(configFolder).findMostRelevantConfigurationFromProductId(configs, referenceConfiguration);
+		assertNotNull(match);
+		assertEquals(new Identifier(3, 8, 0), match.getVersion());
+		assertNull(match.getPlatformConfig());
+	}
+
 }
