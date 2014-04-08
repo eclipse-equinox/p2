@@ -9,56 +9,24 @@
  * 	Cloudsmith Inc - initial API and implementation
  * 	IBM Corporation - ongoing development
  *  Sonatype Inc - ongoing development
+ *  Ericsson AB. - Bug 407940 - [transport] Initial connection happens in current thread
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.Date;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.filetransfer.FileTransferJob;
-import org.eclipse.ecf.filetransfer.IFileRangeSpecification;
-import org.eclipse.ecf.filetransfer.IFileTransferListener;
-import org.eclipse.ecf.filetransfer.IFileTransferPausable;
-import org.eclipse.ecf.filetransfer.IIncomingFileTransfer;
-import org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.ecf.filetransfer.UserCancelledException;
-import org.eclipse.ecf.filetransfer.events.IFileTransferConnectStartEvent;
-import org.eclipse.ecf.filetransfer.events.IFileTransferEvent;
-import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferEvent;
-import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveDataEvent;
-import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveDoneEvent;
-import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceivePausedEvent;
-import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveResumedEvent;
-import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEvent;
-import org.eclipse.ecf.filetransfer.identity.FileCreateException;
-import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
+import org.eclipse.ecf.filetransfer.*;
+import org.eclipse.ecf.filetransfer.events.*;
+import org.eclipse.ecf.filetransfer.identity.*;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
-import org.eclipse.equinox.internal.p2.repository.FileInfo;
-import org.eclipse.equinox.internal.p2.repository.JREHttpClientRequiredException;
+import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Messages;
-import org.eclipse.equinox.internal.p2.repository.ProgressStatistics;
-import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTracing;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
 
@@ -105,7 +73,6 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	private boolean isPause = false;
 	private boolean hasPaused = false;
 	private IFileTransferPausable pasuable = null;
-
 
 	/**
 	 * Create a new FileReader that will retry failed connection attempts and sleep some amount of time between each
@@ -167,6 +134,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		if (event instanceof IFileTransferConnectStartEvent) {
 			// keep the connect event to be able to cancel the transfer
 			connectEvent = (IFileTransferConnectStartEvent) event;
+			connectEvent.connectUsingJob(((IFileTransferConnectStartEvent) event).prepareConnectJob(null));
 			cancelJob = new CancelHandler();
 			//schedule with a delay to avoid the overhead of an extra job on a fast connection
 			cancelJob.schedule(500);
@@ -236,7 +204,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				exception = ((IIncomingFileTransferReceiveDoneEvent) event).getException();
 			onDone(((IIncomingFileTransferReceiveDoneEvent) event).getSource());
 		} else if (event instanceof IIncomingFileTransferReceivePausedEvent) {
-			this.hasPaused  = true;
+			this.hasPaused = true;
 		} else if (event instanceof IIncomingFileTransferReceiveResumedEvent) {
 			//we no longer need the cancel handler because we are about to resume the transfer job
 			if (cancelJob != null)
@@ -253,8 +221,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	private synchronized void pauseIfPossible(IIncomingFileTransfer source) {
 		if (isPaused() && !hasPaused) {
-			pasuable  = (IFileTransferPausable) source
-					.getAdapter(IFileTransferPausable.class);
+			pasuable = (IFileTransferPausable) source.getAdapter(IFileTransferPausable.class);
 			if (pasuable != null)
 				pasuable.pause();
 		}
@@ -352,7 +319,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {
-			sendRetrieveRequest(uri, anOutputStream, (startPos != -1 ? new DownloadRange(startPos) : null), false, monitor);			
+			sendRetrieveRequest(uri, anOutputStream, (startPos != -1 ? new DownloadRange(startPos) : null), false, monitor);
 			Job.getJobManager().join(this, new SuppressBlockedMonitor(monitor, 0));
 			waitPaused(uri, anOutputStream, startPos, monitor);
 			if (monitor.isCanceled() && connectEvent != null)
@@ -375,14 +342,14 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			monitor.done();
 		}
 	}
-	
+
 	protected void waitPaused(URI uri, OutputStream anOutputStream, long startPos, IProgressMonitor monitor) throws AuthenticationFailedException, JREHttpClientRequiredException, FileNotFoundException, CoreException, OperationCanceledException, InterruptedException {
 		if (hasPaused) {
 			while (hasPaused) {
 				Thread.sleep(1000);
 				if (monitor.isCanceled())
 					throw new OperationCanceledException();
-			}	
+			}
 			Job.getJobManager().join(this, new SuppressBlockedMonitor(monitor, 0));
 			waitPaused(uri, anOutputStream, startPos, monitor);
 		}
@@ -395,7 +362,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		if (factory == null) {
 			throw RepositoryStatusHelper.fromMessage(Messages.ecf_configuration_error);
 		}
-				
+
 		IRetrieveFileTransferContainerAdapter adapter = factory.newInstance();
 		adapter.setConnectContextForAuthentication(connectContext);
 
@@ -432,16 +399,16 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				break;
 		}
 	}
-	
+
 	public synchronized boolean pause() {
-		this.isPause  = true;
+		this.isPause = true;
 		return true;
 	}
-	
-	public boolean isPaused() {		
+
+	public boolean isPaused() {
 		return this.isPause;
 	}
-	
+
 	public synchronized boolean resume() {
 		this.isPause = false;
 		if (this.pasuable != null) {
