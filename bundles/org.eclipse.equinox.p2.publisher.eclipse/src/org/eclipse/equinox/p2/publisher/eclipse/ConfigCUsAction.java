@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2014 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   Rapicorp - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -21,6 +22,8 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
@@ -255,6 +258,15 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 					parameters.put("propValue", ""); //$NON-NLS-1$//$NON-NLS-2$
 					unconfigurationData += TouchpointInstruction.encodeAction("setProgramProperty", parameters); //$NON-NLS-1$
 				}
+			}
+			for (IRepositoryReference repo : advice.getUpdateRepositories()) {
+				Map<String, String> parameters = new LinkedHashMap<String, String>();
+				parameters.put("type", Integer.toString(repo.getType())); //$NON-NLS-1$
+				parameters.put("location", repo.getLocation().toString()); //$NON-NLS-1$
+				parameters.put("enabled", Boolean.toString((repo.getOptions() & IRepository.ENABLED) == IRepository.ENABLED)); //$NON-NLS-1$
+				configurationData += TouchpointInstruction.encodeAction("addRepository", parameters); //$NON-NLS-1$
+				parameters.remove("enabled"); //$NON-NLS-1$
+				unconfigurationData += TouchpointInstruction.encodeAction("removeRepository", parameters);//$NON-NLS-1$
 			}
 		}
 		return new String[] {configurationData, unconfigurationData};

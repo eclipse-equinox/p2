@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 
 /**
  * Represents a product file.  
@@ -162,5 +163,11 @@ public interface IProductDescriptor {
 	 * Returns the license text for this product
 	 */
 	public String getLicenseText();
+
+	/**
+	 * Returns a List<IRepositoryReference> for each update repository used by the product.
+	 * @return A List<IRepositoryReference>
+	 */
+	public List<IRepositoryReference> getRepositoryEntries();
 
 }

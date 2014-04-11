@@ -17,6 +17,8 @@
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.xml.parsers.*;
@@ -27,6 +29,9 @@ import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.pde.internal.publishing.Activator;
@@ -55,6 +60,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String ATTRIBUTE_CONTENT_TYPE = "type"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_OS = "os"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_ARCH = "arch"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_ENABLED = "enabled"; //$NON-NLS-1$
 
 	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
 	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
@@ -121,6 +127,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String EL_ARCH_IA_64_32 = "argsIA_64_32"; //$NON-NLS-1$
 	private static final String EL_ARCH_PA_RISC = "argsPA_RISC"; //$NON-NLS-1$
 	private static final String EL_ARCH_SPARC = "argsSPARC"; //$NON-NLS-1$
+	private static final String EL_REPOSITORIES = "repositories"; //$NON-NLS-1$
+	private static final String EL_REPOSITORY = "repository"; //$NON-NLS-1$
 
 	//These constants form a small state machine to parse the .product file
 	private static final int STATE_START = 0;
@@ -151,6 +159,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final int STATE_ARCH_IA_64_32 = 25;
 	private static final int STATE_ARCH_PA_RISC = 26;
 	private static final int STATE_ARCH_SPARC = 27;
+	private static final int STATE_REPOSITORIES = 28;
 
 	private static final String PI_PDEBUILD = "org.eclipse.pde.build"; //$NON-NLS-1$
 	private final static int EXCEPTION_PRODUCT_FORMAT = 23;
@@ -187,6 +196,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private String licenseURL;
 	private String licenseText = null;
 	private String currentOS;
+	private final List<IRepositoryReference> repositories = new ArrayList<IRepositoryReference>();
 
 	private static String normalize(String text) {
 		if (text == null || text.trim().length() == 0)
@@ -663,6 +673,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return licenseURL;
 	}
 
+	public List<IRepositoryReference> getRepositoryEntries() {
+		return repositories;
+	}
+
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
 		switch (state) {
@@ -692,6 +706,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 					state = STATE_CONFIGURATIONS;
 				} else if (EL_LICENSE.equals(localName)) {
 					state = STATE_LICENSE;
+				} else if (EL_REPOSITORIES.equals(localName)) {
+					state = STATE_REPOSITORIES;
 				}
 				break;
 
@@ -799,6 +815,12 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				}
 				break;
 
+			case STATE_REPOSITORIES :
+				if (EL_REPOSITORY.equals(localName)) {
+					processRepositoryInformation(attributes);
+				}
+				break;
+
 			case STATE_LICENSE :
 				if (EL_URL.equals(localName)) {
 					state = STATE_LICENSE_URL;
@@ -897,6 +919,19 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		bundleInfos.add(info);
 	}
 
+	private void processRepositoryInformation(Attributes attributes) {
+		try {
+			URI uri = URIUtil.fromString(attributes.getValue(ATTRIBUTE_LOCATION));
+			boolean enabled = Boolean.parseBoolean(attributes.getValue(ATTRIBUTE_ENABLED));
+			// First add a metadata repository
+			repositories.add(new RepositoryReference(uri, null, IRepository.TYPE_METADATA, enabled ? IRepository.ENABLED : IRepository.NONE));
+			// Now a colocated artifact repository
+			repositories.add(new RepositoryReference(uri, null, IRepository.TYPE_ARTIFACT, enabled ? IRepository.ENABLED : IRepository.NONE));
+		} catch (URISyntaxException e) {
+			// ignore malformed URI's. These should have already been caught by the UI
+		}
+	}
+
 	@Override
 	public void endElement(String uri, String localName, String qName) {
 		switch (state) {
@@ -958,6 +993,12 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				else
 					processConfigIniPlatform(localName, false);
 				break;
+
+			case STATE_REPOSITORIES :
+				if (EL_REPOSITORIES.equals(localName))
+					state = STATE_PRODUCT;
+				break;
+
 		}
 	}
 
@@ -1026,7 +1067,6 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				if (licenseText != null)
 					licenseText += String.valueOf(ch, start, length);
 				break;
-
 		}
 	}
 

@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.actions.ILicenseAdvice;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 
 /**
  * Provide advice derived from the .product file.  The product can give some info on 
@@ -157,6 +158,13 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		return product.getLicenseText();
 	}
 
+	/**
+	 * Returns the update repositories for this product
+	 */
+	public List<IRepositoryReference> getUpdateRepositories() {
+		return product.getRepositoryEntries();
+	}
+
 	private ConfigData getConfigData() {
 		DataLoader loader = createDataLoader();
 		ConfigData result;
@@ -167,7 +175,6 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 
 		addProductFileBundles(result); // these are the bundles specified in the <plugins/> tag
 		addProductFileConfigBundles(result); // these are the bundles specified in the <configurations> tag in the product file
-
 		if (product.getProductId() != null)
 			result.setProperty("eclipse.product", product.getProductId()); //$NON-NLS-1$
 		if (product.getApplication() != null)
