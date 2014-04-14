@@ -10,12 +10,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import java.util.*;
+import java.util.Map;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
-import org.eclipse.equinox.p2.repository.IRepositoryReference;
 
 public class ConfigAdvice extends AbstractAdvice implements IConfigAdvice {
 
@@ -38,11 +37,6 @@ public class ConfigAdvice extends AbstractAdvice implements IConfigAdvice {
 
 	public Map<String, String> getProperties() {
 		return CollectionUtils.toMap(data.getProperties());
-	}
-
-	public List<IRepositoryReference> getUpdateRepositories() {
-		// The config data does not carry repository info so we return an empty list
-		return new ArrayList<IRepositoryReference>();
 	}
 
 }

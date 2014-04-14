@@ -259,14 +259,16 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 					unconfigurationData += TouchpointInstruction.encodeAction("setProgramProperty", parameters); //$NON-NLS-1$
 				}
 			}
-			for (IRepositoryReference repo : advice.getUpdateRepositories()) {
-				Map<String, String> parameters = new LinkedHashMap<String, String>();
-				parameters.put("type", Integer.toString(repo.getType())); //$NON-NLS-1$
-				parameters.put("location", repo.getLocation().toString()); //$NON-NLS-1$
-				parameters.put("enabled", Boolean.toString((repo.getOptions() & IRepository.ENABLED) == IRepository.ENABLED)); //$NON-NLS-1$
-				configurationData += TouchpointInstruction.encodeAction("addRepository", parameters); //$NON-NLS-1$
-				parameters.remove("enabled"); //$NON-NLS-1$
-				unconfigurationData += TouchpointInstruction.encodeAction("removeRepository", parameters);//$NON-NLS-1$
+			if (advice instanceof ProductFileAdvice) {
+				for (IRepositoryReference repo : ((ProductFileAdvice) advice).getUpdateRepositories()) {
+					Map<String, String> parameters = new LinkedHashMap<String, String>();
+					parameters.put("type", Integer.toString(repo.getType())); //$NON-NLS-1$
+					parameters.put("location", repo.getLocation().toString()); //$NON-NLS-1$
+					parameters.put("enabled", Boolean.toString((repo.getOptions() & IRepository.ENABLED) == IRepository.ENABLED)); //$NON-NLS-1$
+					configurationData += TouchpointInstruction.encodeAction("addRepository", parameters); //$NON-NLS-1$
+					parameters.remove("enabled"); //$NON-NLS-1$
+					unconfigurationData += TouchpointInstruction.encodeAction("removeRepository", parameters);//$NON-NLS-1$
+				}
 			}
 		}
 		return new String[] {configurationData, unconfigurationData};

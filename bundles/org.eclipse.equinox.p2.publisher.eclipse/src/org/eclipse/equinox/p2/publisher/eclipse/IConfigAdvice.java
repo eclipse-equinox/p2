@@ -10,11 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import java.util.List;
 import java.util.Map;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
-import org.eclipse.equinox.p2.repository.IRepositoryReference;
 
 public interface IConfigAdvice extends IPublisherAdvice {
 
@@ -22,5 +20,4 @@ public interface IConfigAdvice extends IPublisherAdvice {
 
 	public Map<String, String> getProperties();
 
-	public List<IRepositoryReference> getUpdateRepositories();
 }
