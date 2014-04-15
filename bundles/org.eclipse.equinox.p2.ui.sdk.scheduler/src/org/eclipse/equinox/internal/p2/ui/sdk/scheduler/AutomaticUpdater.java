@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
+ *     Christian Georgi <christian.georgi@sap.com> - Bug 432887 - Setting to show update wizard w/o notification popup
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -97,6 +98,8 @@ public class AutomaticUpdater implements IUpdateListener {
 		validateIusToUpdate();
 		alreadyDownloaded = false;
 
+		final boolean showUpdateWizard = getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_UPDATE_WIZARD);
+
 		// Create an update operation to reflect the new updates that are available.
 		operation = new UpdateOperation(getSession(), iusWithUpdates);
 		operation.setProfileId(event.getProfileId());
@@ -127,7 +130,7 @@ public class AutomaticUpdater implements IUpdateListener {
 						alreadyDownloaded = true;
 						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 							public void run() {
-								notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup);
+								notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup, showUpdateWizard);
 							}
 						});
 					} else if (jobStatus.getSeverity() != IStatus.CANCEL) {
@@ -139,7 +142,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		} else {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				public void run() {
-					notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup);
+					notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup, showUpdateWizard);
 				}
 			});
 		}
@@ -263,12 +266,16 @@ public class AutomaticUpdater implements IUpdateListener {
 		}
 	}
 
-	void notifyUserOfUpdates(boolean isValid, boolean showPopup) {
+	void notifyUserOfUpdates(boolean isValid, boolean showPopup, boolean showUpdateWizard) {
 		if (updateAffordance == null)
 			createUpdateAffordance();
 		if (isValid) {
-			if (showPopup)
-				openUpdatePopup();
+			if (showPopup) {
+				if (showUpdateWizard)
+					launchUpdate();
+				else
+					openUpdatePopup();
+			}
 			updateAffordance.setTooltip(AutomaticUpdateMessages.AutomaticUpdater_ClickToReviewUpdates);
 			updateAffordance.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE)));
 		} else {

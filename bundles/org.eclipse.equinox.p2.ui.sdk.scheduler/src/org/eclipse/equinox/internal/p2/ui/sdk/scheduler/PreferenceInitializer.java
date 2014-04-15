@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Johannes Michler <orgler@gmail.com> - Bug 321568 -  [ui] Preference for automatic-update-reminder doesn't work in multilanguage-environments
+ *     Christian Georgi <christian.georgi@sap.com> - Bug 432887 - Setting to show update wizard w/o notification popup
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -169,5 +170,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		node.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false);
 		node.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
 		node.put(PreferenceConstants.PREF_REMIND_ELAPSED, PreferenceConstants.PREF_REMIND_30Minutes);
+		node.putBoolean(PreferenceConstants.PREF_SHOW_UPDATE_WIZARD, false);
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2014 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,12 +8,14 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Johannes Michler <orgler@gmail.com> - Bug 321568 -  [ui] Preference for automatic-update-reminder doesn't work in multilanguage-environments
+ *     Christian Georgi <christian.georgi@sap.com> - Bug 432887 - Setting to show update wizard w/o notification popup
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.osgi.util.NLS;
@@ -34,6 +36,7 @@ import org.eclipse.ui.*;
 public class AutomaticUpdatesPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
 	private Button enabledCheck;
+	private Button showUpdateWizard;
 	private Button onStartupRadio, onScheduleRadio;
 	private Combo dayCombo;
 	private Label atLabel;
@@ -177,7 +180,12 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd = new GridData();
 		gd.widthHint = 200;
 		gd.horizontalIndent = 30;
+		gd.horizontalSpan = 3;
 		remindElapseCombo.setLayoutData(gd);
+
+		showUpdateWizard = new Button(remindGroup, SWT.CHECK);
+		showUpdateWizard.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_directlyShowUpdateWizard);
+		GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(showUpdateWizard);
 
 		initialize();
 
@@ -211,6 +219,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		remindElapseCombo.setText(AutomaticUpdatesPopup.getElapsedTimeString(pref.getString(PreferenceConstants.PREF_REMIND_ELAPSED)));
 		searchOnlyRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		searchAndDownloadRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
+		showUpdateWizard.setSelection(pref.getBoolean(PreferenceConstants.PREF_SHOW_UPDATE_WIZARD));
 
 		pageChanged();
 	}
@@ -237,6 +246,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		remindScheduleRadio.setEnabled(master);
 		remindOnceRadio.setEnabled(master);
 		remindElapseCombo.setEnabled(master && remindScheduleRadio.getSelection());
+		showUpdateWizard.setEnabled(master);
 	}
 
 	protected void performDefaults() {
@@ -256,6 +266,9 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 		searchOnlyRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		searchAndDownloadRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
+
+		showUpdateWizard.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_SHOW_UPDATE_WIZARD));
+
 		pageChanged();
 	}
 
@@ -281,6 +294,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		pref.setValue(AutomaticUpdateScheduler.P_HOUR, hourCombo.getText());
 
 		pref.setValue(PreferenceConstants.PREF_DOWNLOAD_ONLY, searchAndDownloadRadio.getSelection());
+
+		pref.setValue(PreferenceConstants.PREF_SHOW_UPDATE_WIZARD, showUpdateWizard.getSelection());
 
 		AutomaticUpdatePlugin.getDefault().savePreferences();
 		AutomaticUpdatePlugin.getDefault().getScheduler().rescheduleUpdate();

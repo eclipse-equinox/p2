@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Christian Georgi <christian.georgi@sap.com> - Bug 432887 - Setting to show update wizard w/o notification popup
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
@@ -71,6 +72,7 @@ public class AutomaticUpdateMessages extends NLS {
 	public static String AutomaticUpdatesPreferencePage_UpdateSchedule;
 	public static String AutomaticUpdatesPreferencePage_findOnStart;
 	public static String AutomaticUpdatesPreferencePage_findOnSchedule;
+	public static String AutomaticUpdatesPreferencePage_directlyShowUpdateWizard;
 	public static String AutomaticUpdatesPreferencePage_downloadOptions;
 	public static String AutomaticUpdatesPreferencePage_searchAndNotify;
 	public static String AutomaticUpdatesPreferencePage_downloadAndNotify;
