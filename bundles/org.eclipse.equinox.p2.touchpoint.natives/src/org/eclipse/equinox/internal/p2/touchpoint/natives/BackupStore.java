@@ -15,6 +15,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.natives;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -92,6 +93,8 @@ import org.eclipse.osgi.util.NLS;
  */
 public class BackupStore implements IBackupStore {
 
+	private static final String BACKUP_FILE_EXTENSION = ".p2bu"; //$NON-NLS-1$
+
 	/**
 	 * The name to use for a directory that represents leading separator (i.e. "/" or "\").
 	 */
@@ -137,6 +140,8 @@ public class BackupStore implements IBackupStore {
 	 */
 	private boolean closed;
 
+	private Map<String, String> renamedInPlace = new HashMap<String, String>();
+
 	/**
 	 * Generates a BackupStore with a default prefix of ".p2bu" for backup directory and
 	 * probe file. 
@@ -144,7 +149,7 @@ public class BackupStore implements IBackupStore {
 	 * - see {@link #genUnique()} for more info.
 	 */
 	public BackupStore() {
-		this(null, ".p2bu"); //$NON-NLS-1$
+		this(null, BACKUP_FILE_EXTENSION);
 	}
 
 	/**
@@ -253,12 +258,12 @@ public class BackupStore implements IBackupStore {
 	 * @param buFile destination backup file to move to; should not exist and must be a directory
 	 * @throws IOException if the backup operation fails
 	 */
-	private void moveToBackup(File file, File buFile) throws IOException {
+	protected void moveToBackup(File file, File buFile) throws IOException {
 		// make sure all of the directories exist / gets created
 		buFile.getParentFile().mkdirs();
 		if (buFile.getParentFile().exists() && !buFile.getParentFile().isDirectory())
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_file_directory_mismatch, buFile.getParentFile().getAbsolutePath()));
-		if (file.renameTo(buFile)) {
+		if (moveToBackupStore(file, buFile)) {
 			backupCounter++;
 			return;
 		}
@@ -266,12 +271,44 @@ public class BackupStore implements IBackupStore {
 		// that source is locked "in use" on a windows machine. The copy will work across volumes,
 		// but the locked file will fail on the subsequent delete.
 		//
-		Util.copyStream(new FileInputStream(file), true, new FileOutputStream(buFile), true);
-		backupCounter++;
-
-		// need to remove the backed up file
-		if (!file.delete())
+		// Rename in place
+		if (isEclipseExe(file))
+			renameInPlace(file);
+		else {
+			Util.copyStream(new FileInputStream(file), true, new FileOutputStream(buFile), true);
+			backupCounter++;
+		}
+		if (file.exists() && !file.delete())
 			throw new IOException(NLS.bind(Messages.BackupStore_can_not_delete_after_copy_0, file));
+	}
+
+	private boolean isEclipseExe(File file) {
+		return file.getName().equals("eclipse.exe") || file.getName().equals("Eclipse.exe"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	protected boolean moveToBackupStore(File file, File buFile) {
+		if (file.renameTo(buFile)) {
+			// if the original file still exists, we have a problem.
+			if (file.exists()) {
+				// If the renamed work, but the file still exists, remove the backup
+				// and return false
+				if (buFile.exists())
+					buFile.delete();
+			} else {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected void renameInPlace(File file) {
+		String newName = file.getAbsolutePath() + getTimeStamp() + BACKUP_FILE_EXTENSION;
+		renamedInPlace.put(file.getAbsolutePath(), newName);
+		file.renameTo(new File(newName));
+	}
+
+	protected String getTimeStamp() {
+		return "-" + new Date().getTime(); //$NON-NLS-1$
 	}
 
 	private File getBackupFile(File file) {
@@ -646,6 +683,15 @@ public class BackupStore implements IBackupStore {
 			}
 			// then perform a recursive restore
 			restore(target, bu, unrestorable);
+		}
+		restoreRenamedFiles(unrestorable);
+	}
+
+	private void restoreRenamedFiles(Set<File> unrestorable) {
+		for (Entry<String, String> entry : renamedInPlace.entrySet()) {
+			File bu = new File(entry.getValue());
+			if (!bu.renameTo(new File(entry.getKey())))
+				unrestorable.add(bu);
 		}
 	}
 
