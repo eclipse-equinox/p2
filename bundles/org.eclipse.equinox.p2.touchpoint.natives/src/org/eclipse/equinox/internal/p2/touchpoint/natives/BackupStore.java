@@ -283,7 +283,7 @@ public class BackupStore implements IBackupStore {
 	}
 
 	private boolean isEclipseExe(File file) {
-		return file.getName().equals("eclipse.exe") || file.getName().equals("Eclipse.exe"); //$NON-NLS-1$ //$NON-NLS-2$
+		return file.getName().equalsIgnoreCase("eclipse.exe") || file.getName().equalsIgnoreCase("eclipsec.exe"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	protected boolean moveToBackupStore(File file, File buFile) {
