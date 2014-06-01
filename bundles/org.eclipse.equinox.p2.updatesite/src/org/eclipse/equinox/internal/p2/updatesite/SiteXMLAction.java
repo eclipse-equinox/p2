@@ -401,6 +401,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			publisherInfo.getMetadataRepository().addReferences(refs);
 		}
 
+		//publish repository references from category file
+		IRepositoryReference[] refs = site.getRepositoryReferences();
+		if (refs != null) {
+			ArrayList<IRepositoryReference> toAdd = new ArrayList<IRepositoryReference>(Arrays.asList(refs));
+			publisherInfo.getMetadataRepository().addReferences(toAdd);
+		}
+
 		File siteFile = URIUtil.toFile(updateSite.getLocation());
 		if (siteFile != null && siteFile.exists()) {
 			File siteParent = siteFile.getParentFile();

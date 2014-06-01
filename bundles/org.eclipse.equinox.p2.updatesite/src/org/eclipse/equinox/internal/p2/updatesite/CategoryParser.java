@@ -14,12 +14,15 @@ package org.eclipse.equinox.internal.p2.updatesite;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.osgi.util.NLS;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
@@ -43,6 +46,7 @@ public class CategoryParser extends DefaultHandler {
 	private static final String QUERY = "query"; //$NON-NLS-1$
 	private static final String EXPRESSION = "expression"; //$NON-NLS-1$
 	private static final String PARAM = "param"; //$NON-NLS-1$
+	private static final String REPOSITORY_REF = "repository-reference"; //$NON-NLS-1$
 
 	private static final int STATE_ARCHIVE = 3;
 	private static final int STATE_CATEGORY = 4;
@@ -58,6 +62,7 @@ public class CategoryParser extends DefaultHandler {
 	private static final int STATE_PARAM = 10;
 	private static final int STATE_QUERY = 11;
 	private static final int STATE_SITE = 1;
+	private static final int STATE_REPOSITORY_REF = 13;
 
 	private boolean DESCRIPTION_SITE_ALREADY_SEEN = false;
 	// Current object stack (used to hold the current object we are
@@ -235,6 +240,11 @@ public class CategoryParser extends DefaultHandler {
 				objectStack.pop();
 				break;
 
+			case STATE_REPOSITORY_REF :
+				stateStack.pop();
+				// do not pop object as we did not push the reference
+				break;
+
 			case STATE_DESCRIPTION_SITE :
 				stateStack.pop();
 				text = ""; //$NON-NLS-1$
@@ -379,6 +389,9 @@ public class CategoryParser extends DefaultHandler {
 			case STATE_DESCRIPTION_SITE :
 				return "Description / Site"; //$NON-NLS-1$
 
+			case STATE_REPOSITORY_REF :
+				return "Repository Reference"; //$NON-NLS-1$
+
 			default :
 				return Messages.DefaultSiteParser_UnknownState;
 		}
@@ -456,6 +469,9 @@ public class CategoryParser extends DefaultHandler {
 		} else if (elementName.equals(CATEGORY_DEF)) {
 			stateStack.push(new Integer(STATE_CATEGORY_DEF));
 			processCategoryDef(attributes);
+		} else if (elementName.equals(REPOSITORY_REF)) {
+			stateStack.push(new Integer(STATE_REPOSITORY_REF));
+			processRepositoryReference(attributes);
 		} else
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
 	}
@@ -607,6 +623,34 @@ public class CategoryParser extends DefaultHandler {
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
 			debug("End processing CategoryDef: name:" + name + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/*
+	 * process repository reference info
+	 */
+	private void processRepositoryReference(Attributes attributes) {
+		String location = attributes.getValue("location"); //$NON-NLS-1$
+		String nickname = attributes.getValue("name"); //$NON-NLS-1$
+		URI uri;
+		try {
+			uri = URIUtil.fromString(location);
+			boolean enabled = Boolean.parseBoolean(attributes.getValue("enabled")); //$NON-NLS-1$
+			// First add a metadata repository
+			RepositoryReference metadata = new RepositoryReference(uri, nickname, IRepository.TYPE_METADATA, enabled ? IRepository.ENABLED : IRepository.NONE);
+			// Now a colocated artifact repository
+			RepositoryReference artifact = new RepositoryReference(uri, nickname, IRepository.TYPE_ARTIFACT, enabled ? IRepository.ENABLED : IRepository.NONE);
+
+			SiteModel site = (SiteModel) objectStack.peek();
+			site.addRepositoryReference(metadata);
+			site.addRepositoryReference(artifact);
+			// we do not push the references onto the object stack as we do not go deeper, and
+			// references are not SiteModel objects.
+		} catch (URISyntaxException e) {
+			// UI should have already caught this
+		}
+
+		if (Tracing.DEBUG_GENERATOR_PARSING)
+			debug("End processing Repository Reference: location:" + location); //$NON-NLS-1$
 	}
 
 	/*

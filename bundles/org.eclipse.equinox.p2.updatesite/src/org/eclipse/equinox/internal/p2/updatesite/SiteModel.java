@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * A model of an update site.
@@ -43,6 +44,7 @@ public class SiteModel {
 	private String digestURIString;
 	private List<String> messageKeys;
 	private Map<Locale, Map<String, String>> localizations;
+	private List<RepositoryReference> repositoryReferences;
 
 	/**
 	 * Creates an uninitialized site model object.
@@ -113,6 +115,17 @@ public class SiteModel {
 		if (this.ius == null)
 			this.ius = new ArrayList<SiteIU>();
 		this.ius.add(iu);
+	}
+
+	/**
+	 * Adds a repository reference to the site
+	 * 
+	 * @param ref repository reference
+	 */
+	public void addRepositoryReference(RepositoryReference ref) {
+		if (this.repositoryReferences == null)
+			this.repositoryReferences = new ArrayList<RepositoryReference>();
+		this.repositoryReferences.add(ref);
 	}
 
 	/**
@@ -194,6 +207,17 @@ public class SiteModel {
 		if (ius == null || ius.size() == 0)
 			return new SiteIU[0];
 		return ius.toArray(new SiteIU[0]);
+	}
+
+	/**
+	 * Returns an array of repository references for this site.
+	 * 
+	 * @return an array of repository references, or an empty array.
+	 */
+	public RepositoryReference[] getRepositoryReferences() {
+		if (repositoryReferences == null || repositoryReferences.size() == 0)
+			return new RepositoryReference[0];
+		return repositoryReferences.toArray(new RepositoryReference[repositoryReferences.size()]);
 	}
 
 	/**
