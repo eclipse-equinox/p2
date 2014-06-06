@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.internal.repository.mirroring;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -46,6 +47,7 @@ public class Mirroring {
 	private IArtifactMirrorLog comparatorLog;
 	private Transport transport;
 	private boolean includePacked = true;
+	private boolean mirrorProperties = false;
 
 	private IArtifactComparator getComparator() {
 		if (comparator == null)
@@ -77,6 +79,10 @@ public class Mirroring {
 
 	public void setValidate(boolean validate) {
 		this.validate = validate;
+	}
+
+	public void setMirrorProperties(boolean properties) {
+		this.mirrorProperties = properties;
 	}
 
 	public MultiStatus run(boolean failOnError, boolean verbose) {
@@ -111,6 +117,23 @@ public class Mirroring {
 					return multiStatus;
 			}
 		}
+
+		// mirror the source repository's properties unless they are already set up
+		// in the destination repository
+		if (mirrorProperties) {
+			IArtifactRepository toCopyFrom = source;
+			if (toCopyFrom instanceof CompositeArtifactRepository) {
+				List<IArtifactRepository> children = ((CompositeArtifactRepository) toCopyFrom).getLoadedChildren();
+				if (children.size() > 0)
+					toCopyFrom = children.get(0);
+			}
+			Map<String, String> sourceProperties = toCopyFrom.getProperties();
+			for (String key : sourceProperties.keySet()) {
+				if (!destination.getProperties().containsKey(key))
+					destination.setProperty(key, sourceProperties.get(key));
+			}
+		}
+
 		if (validate) {
 			// Simple validation of the mirror
 			IStatus validation = validateMirror(verbose);

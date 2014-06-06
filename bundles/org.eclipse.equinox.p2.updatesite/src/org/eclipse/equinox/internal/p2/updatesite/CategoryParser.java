@@ -47,6 +47,7 @@ public class CategoryParser extends DefaultHandler {
 	private static final String EXPRESSION = "expression"; //$NON-NLS-1$
 	private static final String PARAM = "param"; //$NON-NLS-1$
 	private static final String REPOSITORY_REF = "repository-reference"; //$NON-NLS-1$
+	private static final String STATS_URI = "stats"; //$NON-NLS-1$
 
 	private static final int STATE_ARCHIVE = 3;
 	private static final int STATE_CATEGORY = 4;
@@ -63,6 +64,7 @@ public class CategoryParser extends DefaultHandler {
 	private static final int STATE_QUERY = 11;
 	private static final int STATE_SITE = 1;
 	private static final int STATE_REPOSITORY_REF = 13;
+	private static final int STATE_STATS = 14;
 
 	private boolean DESCRIPTION_SITE_ALREADY_SEEN = false;
 	// Current object stack (used to hold the current object we are
@@ -245,6 +247,11 @@ public class CategoryParser extends DefaultHandler {
 				// do not pop object as we did not push the reference
 				break;
 
+			case STATE_STATS :
+				stateStack.pop();
+				// do not pop object stack because we didn't push anything
+				break;
+
 			case STATE_DESCRIPTION_SITE :
 				stateStack.pop();
 				text = ""; //$NON-NLS-1$
@@ -392,6 +399,9 @@ public class CategoryParser extends DefaultHandler {
 			case STATE_REPOSITORY_REF :
 				return "Repository Reference"; //$NON-NLS-1$
 
+			case STATE_STATS :
+				return "Stats Repository"; //$NON-NLS-1$
+
 			default :
 				return Messages.DefaultSiteParser_UnknownState;
 		}
@@ -472,6 +482,20 @@ public class CategoryParser extends DefaultHandler {
 		} else if (elementName.equals(REPOSITORY_REF)) {
 			stateStack.push(new Integer(STATE_REPOSITORY_REF));
 			processRepositoryReference(attributes);
+		} else if (elementName.equals(STATS_URI)) {
+			stateStack.push(new Integer(STATE_STATS));
+			processStatsInfo(attributes);
+		} else
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+	}
+
+	private void handleStatsState(String elementName, Attributes attributes) {
+		if (elementName.equals(FEATURE)) {
+			stateStack.push(STATE_FEATURE);
+			processStatsFeature(attributes);
+		} else if (elementName.equals(BUNDLE)) {
+			stateStack.push(STATE_BUNDLE);
+			processStatsBundle(attributes);
 		} else
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
 	}
@@ -648,9 +672,80 @@ public class CategoryParser extends DefaultHandler {
 		} catch (URISyntaxException e) {
 			// UI should have already caught this
 		}
+	}
+
+	/*
+	 * process stats top level element
+	 */
+	private void processStatsInfo(Attributes attributes) {
+		String location = attributes.getValue("location"); //$NON-NLS-1$
+		try {
+			// One final validation but UI should have already done this.
+			URIUtil.fromString(location);
+			SiteModel site = (SiteModel) objectStack.peek();
+			site.setStatsURIString(location);
+		} catch (URISyntaxException e) {
+			// Ignore if not valid.
+		}
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
 			debug("End processing Repository Reference: location:" + location); //$NON-NLS-1$
+	}
+
+	/*
+	 * process stats feature artifact
+	 */
+	private void processStatsFeature(Attributes attributes) {
+		SiteFeature feature = new SiteFeature();
+
+		// identifier and version
+		String id = attributes.getValue("id"); //$NON-NLS-1$
+		String ver = attributes.getValue("version"); //$NON-NLS-1$
+
+		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
+
+		// We need to have id and version, or the url, or both.
+		if (noId)
+			internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState())}))); //$NON-NLS-1$
+
+		feature.setFeatureIdentifier(id);
+		feature.setFeatureVersion(ver);
+
+		SiteModel site = (SiteModel) objectStack.peek();
+		site.addStatsFeature(feature);
+		objectStack.push(feature);
+		feature.setSiteModel(site);
+
+		if (Tracing.DEBUG_GENERATOR_PARSING)
+			debug("End Processing Stats Feature Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$	}
+	}
+
+	/*
+	 * process stats bundle artifact info
+	 */
+	private void processStatsBundle(Attributes attributes) {
+		SiteBundle bundle = new SiteBundle();
+
+		// identifier and version
+		String id = attributes.getValue("id"); //$NON-NLS-1$
+		String ver = attributes.getValue("version"); //$NON-NLS-1$
+
+		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
+
+		// We need to have id and version, or the url, or both.
+		if (noId)
+			internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState())}))); //$NON-NLS-1$
+
+		bundle.setBundleIdentifier(id);
+		bundle.setBundleVersion(ver);
+
+		SiteModel site = (SiteModel) objectStack.peek();
+		site.addStatsBundle(bundle);
+		objectStack.push(bundle);
+		bundle.setSiteModel(site);
+
+		if (Tracing.DEBUG_GENERATOR_PARSING)
+			debug("End Processing Stats Bundle Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/*
@@ -855,6 +950,10 @@ public class CategoryParser extends DefaultHandler {
 
 			case STATE_DESCRIPTION_CATEGORY_DEF :
 				handleSiteState(localName, attributes);
+				break;
+
+			case STATE_STATS :
+				handleStatsState(localName, attributes);
 				break;
 
 			default :

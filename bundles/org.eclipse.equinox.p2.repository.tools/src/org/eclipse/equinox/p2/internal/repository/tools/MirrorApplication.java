@@ -51,6 +51,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private String metadataOrArtifacts = null;
 	private String[] rootIUs = null;
 	private boolean includePacked = true;
+	private boolean mirrorProperties = false;
 
 	private File mirrorLogFile; // file to log mirror output to (optional)
 	private File comparatorLogFile; // file to comparator output to (optional)
@@ -130,6 +131,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 				validate = true;
 			else if (args[i].equalsIgnoreCase("-references")) //$NON-NLS-1$
 				mirrorReferences = true;
+			else if (args[i].equalsIgnoreCase("-properties")) //$NON-NLS-1$
+				mirrorProperties = true;
 
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 
@@ -233,6 +236,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		mirror.setCompareExclusions(compareExclusions);
 		mirror.setTransport((Transport) agent.getService(Transport.SERVICE_NAME));
 		mirror.setIncludePacked(includePacked);
+		mirror.setMirrorProperties(mirrorProperties);
 
 		// If IUs have been specified then only they should be mirrored, otherwise mirror everything.
 		if (iusSpecified)
@@ -463,5 +467,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	public void setIncludePacked(boolean includePacked) {
 		this.includePacked = includePacked;
+	}
+
+	public void setMirrorProperties(boolean mirrorProperties) {
+		this.mirrorProperties = mirrorProperties;
 	}
 }

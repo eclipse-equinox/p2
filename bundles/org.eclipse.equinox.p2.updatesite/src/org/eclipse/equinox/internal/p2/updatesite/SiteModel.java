@@ -38,6 +38,7 @@ public class SiteModel {
 	private URI locationURI;
 	private String locationURIString;
 	private String mirrorsURIString;
+	private String statsURIString;
 	private boolean supportsPack200;
 	private String type;
 	private URLEntry[] associateSites;
@@ -45,6 +46,8 @@ public class SiteModel {
 	private List<String> messageKeys;
 	private Map<Locale, Map<String, String>> localizations;
 	private List<RepositoryReference> repositoryReferences;
+	private List<SiteFeature> statsFeatures;
+	private List<SiteBundle> statsBundles;
 
 	/**
 	 * Creates an uninitialized site model object.
@@ -104,6 +107,28 @@ public class SiteModel {
 		if (this.bundles == null)
 			this.bundles = new ArrayList<SiteBundle>();
 		this.bundles.add(bundleReference);
+	}
+
+	/**
+	 * Adds a feature reference model to site stats artifacts.
+	 * 
+	 * @param featureReference feature reference model
+	 */
+	public void addStatsFeature(SiteFeature featureReference) {
+		if (this.statsFeatures == null)
+			this.statsFeatures = new ArrayList<SiteFeature>();
+		this.statsFeatures.add(featureReference);
+	}
+
+	/**
+	 * Adds a bundle reference model to site stats artifacts
+	 * 
+	 * @param bundleReference bundle reference model
+	 */
+	public void addStatsBundle(SiteBundle bundleReference) {
+		if (this.statsBundles == null)
+			this.statsBundles = new ArrayList<SiteBundle>();
+		this.statsBundles.add(bundleReference);
 	}
 
 	/**
@@ -199,6 +224,28 @@ public class SiteModel {
 	}
 
 	/**
+	 * Returns an array of feature reference models for stats on this site.
+	 * 
+	 * @return an array of feature reference models, or an empty array.
+	 */
+	public SiteFeature[] getStatsFeatures() {
+		if (statsFeatures == null || statsFeatures.size() == 0)
+			return new SiteFeature[0];
+		return statsFeatures.toArray(new SiteFeature[0]);
+	}
+
+	/**
+	 * Returns an array of bundle reference models for stats on this site.
+	 * 
+	 * @return an array of bundle reference models, or an empty array.
+	 */
+	public SiteBundle[] getStatsBundles() {
+		if (statsBundles == null || statsBundles.size() == 0)
+			return new SiteBundle[0];
+		return statsBundles.toArray(new SiteBundle[0]);
+	}
+
+	/**
 	 * Returns an array of IU models on this site.
 	 * 
 	 * @return an array of IU models, or an empty array.
@@ -218,6 +265,15 @@ public class SiteModel {
 		if (repositoryReferences == null || repositoryReferences.size() == 0)
 			return new RepositoryReference[0];
 		return repositoryReferences.toArray(new RepositoryReference[repositoryReferences.size()]);
+	}
+
+	/**
+	 * Returns the URI of the stats repository that tracks downloads.
+	 * 
+	 * @return a String representation of the stats URI.
+	 */
+	public String getStatsURI() {
+		return statsURIString;
 	}
 
 	/**
@@ -377,6 +433,15 @@ public class SiteModel {
 
 	public String getDigestURIString() {
 		return digestURIString;
+	}
+
+	/**
+	 * Sets the URI of the stats repository used to track downloads. 
+	 * 
+	 * @param statsURI a String describing the stats URI
+	 */
+	public void setStatsURIString(String statsURI) {
+		this.statsURIString = statsURI;
 	}
 
 }

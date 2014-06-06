@@ -26,10 +26,12 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.publisher.*;
-import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
+import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -40,6 +42,8 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
  */
 public class SiteXMLAction extends AbstractPublisherAction {
 	static final private String QUALIFIER = "qualifier"; //$NON-NLS-1$
+	static final private String P_STATS_URI = "p2.statsURI"; //$NON-NLS-1$
+	static final private String P_STATS_MARKER = "download.stats"; //$NON-NLS-1$
 	private static final VersionSuffixGenerator versionSuffixGenerator = new VersionSuffixGenerator();
 	protected UpdateSite updateSite;
 	private SiteCategory defaultCategory;
@@ -99,7 +103,57 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		}
 		initialize();
 		initializeRepoFromSite(publisherInfo);
-		return generateCategories(publisherInfo, results, monitor);
+		IStatus markingStats = markStatsArtifacts(publisherInfo, results, monitor);
+		if (markingStats.isOK()) {
+			return generateCategories(publisherInfo, results, monitor);
+		}
+		return markingStats;
+	}
+
+	private IStatus markStatsArtifacts(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+		SiteModel site = updateSite.getSite();
+		// process all features listed and mark artifacts
+		SiteFeature[] features = site.getStatsFeatures();
+		if (features != null) {
+			for (SiteFeature feature : features) {
+				if (monitor.isCanceled())
+					return Status.CANCEL_STATUS;
+				Collection<IInstallableUnit> ius = getFeatureIU(feature, publisherInfo, results);
+				if (ius != null) {
+					for (IInstallableUnit iu : ius) {
+						IArtifactKey key = FeaturesAction.createFeatureArtifactKey(feature.getFeatureIdentifier(), iu.getVersion().toString());
+						IArtifactDescriptor[] descriptors = publisherInfo.getArtifactRepository().getArtifactDescriptors(key);
+						if (descriptors.length > 0 && descriptors[0] instanceof ArtifactDescriptor) {
+							HashMap<String, String> map = new HashMap<String, String>();
+							map.put(P_STATS_MARKER, feature.getFeatureIdentifier());
+							((ArtifactDescriptor) descriptors[0]).addProperties(map);
+						}
+					}
+				}
+			}
+		}
+		SiteBundle[] bundles = site.getStatsBundles();
+		if (bundles != null) {
+			for (SiteBundle bundle : bundles) {
+				if (monitor.isCanceled())
+					return Status.CANCEL_STATUS;
+				Collection<IInstallableUnit> ius = getBundleIU(bundle, publisherInfo, results);
+				if (ius != null) {
+					for (IInstallableUnit iu : ius) {
+						IArtifactKey key = BundlesAction.createBundleArtifactKey(iu.getId(), iu.getVersion().toString());
+						IArtifactDescriptor[] descriptors = publisherInfo.getArtifactRepository().getArtifactDescriptors(key);
+						if (descriptors.length > 0 && descriptors[0] instanceof ArtifactDescriptor) {
+							HashMap<String, String> map = new HashMap<String, String>();
+							map.put(P_STATS_MARKER, iu.getId());
+							((ArtifactDescriptor) descriptors[0]).addProperties(map);
+						}
+					}
+				}
+			}
+		}
+		// Process all ius that should be marked for download stat tracking
+		return Status.OK_STATUS;
+
 	}
 
 	private IStatus generateCategories(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
@@ -406,6 +460,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (refs != null) {
 			ArrayList<IRepositoryReference> toAdd = new ArrayList<IRepositoryReference>(Arrays.asList(refs));
 			publisherInfo.getMetadataRepository().addReferences(toAdd);
+		}
+
+		// publish download stats URL from category file
+		String statsURI = site.getStatsURI();
+		if (statsURI != null && statsURI.length() > 0) {
+			if (publisherInfo.getArtifactRepository() != null)
+				publisherInfo.getArtifactRepository().setProperty(P_STATS_URI, statsURI);
 		}
 
 		File siteFile = URIUtil.toFile(updateSite.getLocation());

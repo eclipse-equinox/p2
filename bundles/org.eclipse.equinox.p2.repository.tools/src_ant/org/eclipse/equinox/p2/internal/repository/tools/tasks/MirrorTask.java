@@ -141,4 +141,8 @@ public class MirrorTask extends AbstractRepositoryTask {
 	public void setReferences(boolean value) {
 		((MirrorApplication) application).setReferences(value);
 	}
+
+	public void setMirrorProperties(boolean value) {
+		((MirrorApplication) application).setMirrorProperties(value);
+	}
 }
