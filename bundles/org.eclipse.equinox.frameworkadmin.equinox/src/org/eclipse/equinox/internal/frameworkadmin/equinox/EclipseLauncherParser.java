@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
+ *     Christian Georgi - Relativize VM path https://bugs.eclipse.org/bugs/437680
  *******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
@@ -24,7 +25,7 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.log.LogService;
 
 public class EclipseLauncherParser {
-	private static final String MAC_OS_APP_FOLDER = ".app/Contents/MacOS"; //$NON-NLS-1$
+	public static final String MAC_OS_APP_FOLDER = ".app/Contents/MacOS"; //$NON-NLS-1$
 	private static final String CONFIGURATION_FOLDER = "configuration"; //$NON-NLS-1$
 	public static final String MACOSX_BUNDLED = "macosx-bundled"; //$NON-NLS-1$
 
@@ -115,7 +116,7 @@ public class EclipseLauncherParser {
 		}
 	}
 
-	private void setVM(List<String> lines, File vm, URI launcherFolder) {
+	private void setVM(List<String> lines, File vm, URI launcherFolder, File installHome) {
 		if (vm == null) {
 			if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines) != null)
 				return;
@@ -126,7 +127,20 @@ public class EclipseLauncherParser {
 
 		URI vmRelativePath = null;
 		if (vm.isAbsolute()) {
-			vmRelativePath = launcherFolder.relativize(vm.toURI());
+			// Bug 437680: Correctly relativize on MacOS
+			// Example:         (traditional layout)                     (bundled layout)
+			//   Install home:  install/                                 Eclipse.app/
+			//   Launcher:        Eclipse.app/Contents/MacOS/              Contents/MacOS/
+			//   VM:              jre/                                     jre/
+			//   Result:        ../../../jre                             ../../jre
+			URI vmRelativePathToHome = installHome.toURI().relativize(vm.toURI());
+			if (vmRelativePathToHome.isAbsolute()) {
+				// VM is not below the install root -> use absolute path
+				vmRelativePath = vmRelativePathToHome;
+			} else {
+				// make VM path relative to launcher folder (which is different to the install root in MacOS installs)
+				vmRelativePath = URIUtil.makeRelative(vm.toURI(), launcherFolder);
+			}
 		} else {
 			//For relative files, File#toURI will create an absolute URI by resolving against the current working directory, we don't want that
 			String path = vm.getPath().replace('\\', '/');
@@ -296,7 +310,7 @@ public class EclipseLauncherParser {
 		setConfigurationLocation(newlines, osgiInstallArea.toURI(), launcherData);
 		setLauncherLibrary(newlines, launcherFolder.toURI());
 		//		setFrameworkJar(newlines, launcherData.getFwJar());
-		setVM(newlines, launcherData.getJvm(), launcherFolder.toURI());
+		setVM(newlines, launcherData.getJvm(), launcherFolder.toURI(), launcherData.getHome());
 
 		//We are done, let's update the program args in the launcher data
 		launcherData.setProgramArgs(null);

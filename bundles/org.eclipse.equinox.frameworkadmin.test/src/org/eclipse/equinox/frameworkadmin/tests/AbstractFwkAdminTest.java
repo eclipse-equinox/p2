@@ -26,7 +26,7 @@ import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
 public abstract class AbstractFwkAdminTest extends TestCase {
-	private ServiceTracker fwAdminTracker;
+	private ServiceTracker<Object, FrameworkAdmin> fwAdminTracker;
 	private File testFolder;
 
 	public AbstractFwkAdminTest(String name) {
@@ -88,14 +88,14 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			Filter filter;
 			try {
 				filter = Activator.getContext().createFilter(filterFwAdmin);
-				fwAdminTracker = new ServiceTracker(Activator.getContext(), filter, null);
+				fwAdminTracker = new ServiceTracker<Object, FrameworkAdmin>(Activator.getContext(), filter, null);
 				fwAdminTracker.open();
 			} catch (InvalidSyntaxException e) {
 				// never happens
 				e.printStackTrace();
 			}
 		}
-		return (FrameworkAdmin) fwAdminTracker.getService();
+		return fwAdminTracker.getService();
 	}
 
 	protected File getTestFolder(String name) {
@@ -117,6 +117,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		return testFolder;
 	}
 
+	@Override
 	protected void runTest() throws Throwable {
 		super.runTest();
 
@@ -127,6 +128,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		}
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (fwAdminTracker != null) {
@@ -154,16 +156,28 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 	}
 
 	public void assertNotContent(File file, String search) {
+		assertNotContent(null, file, search);
+	}
+
+	public void assertNotContent(String message, File file, String search) {
 		if (!file.exists())
 			fail("File: " + file.toString() + " can't be found.");
 		try {
 			BufferedReader reader = null;
 			try {
+				String failure = null;
+				StringBuilder fileContent = new StringBuilder();
 				reader = new BufferedReader(new FileReader(file));
 				while (reader.ready()) {
 					String line = reader.readLine();
-					if (line.indexOf(search) >= 0)
-						fail("The string: " + search + " was not expected in this file: " + file.getAbsolutePath());
+					fileContent.append(line).append('\n');
+					if (line.indexOf(search) >= 0 && failure == null) {
+						failure = "The string: " + search + " was not expected in file '" + file.getAbsolutePath() + "'";
+					}
+				}
+				if (failure != null) {
+					// dump whole file content
+					fail((message != null ? message : failure) + "\n" + fileContent);
 				}
 			} finally {
 				if (reader != null)
@@ -177,7 +191,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 	}
 
 	public void assertIniFileNotContain(File file, String argument, String value) {
-		List args = null;
+		List<String> args = null;
 		try {
 			args = FileUtils.loadFile(file);
 		} catch (IOException e) {
@@ -243,19 +257,22 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		}
 	}
 
-	public void assertContent(File file, String search) {
-		assertContents(file, new String [] { search } );
+	public void assertContent(File file, String... search) {
+		assertContent(null, file, search);
 	}
-	public void assertContents(File file, String [] lines) {
+
+	public void assertContent(String message, File file, String... lines) {
 		if (!file.exists())
 			fail("File: " + file.toString() + " can't be found.");
 		int idx = 0;
+		StringBuilder fileContent = new StringBuilder();
 		try {
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new FileReader(file));
 				while (reader.ready()) {
 					String line = reader.readLine();
+					fileContent.append(line).append('\n');
 					if (line.indexOf(lines[idx]) >= 0) {
 						if(++idx >= lines.length)
 							return;
@@ -270,7 +287,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		} catch (IOException e) {
 			fail("String: " + lines[idx] + " not found in " + file.getAbsolutePath());
 		}
-		fail("String:" + lines[idx] + " not found");
+		fail("String: " + lines[idx] + " not found in\n" + fileContent);
 	}
 
 	public void startSimpleConfiguratorManipulator() {

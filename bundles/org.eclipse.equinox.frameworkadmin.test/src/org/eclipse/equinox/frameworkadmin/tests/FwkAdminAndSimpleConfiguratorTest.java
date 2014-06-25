@@ -12,27 +12,34 @@ package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.File;
 import java.io.IOException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.EclipseLauncherParser;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.osgi.service.environment.Constants;
 import org.osgi.framework.BundleException;
 
 public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdminTest {
 	private File installFolder;
 	private File configurationFolder;
 	private String launcherName;
+	private IPath launcherPath;
 
 	public FwkAdminAndSimpleConfiguratorTest(String name) {
 		super(name);
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		startSimpleConfiguratorManipulator();
 	}
 
 	protected Manipulator getNewManipulator(String workArea) throws FrameworkAdminRuntimeException, IOException, BundleException {
+		return getNewManipulator(workArea, null);
+	}
+
+	protected Manipulator getNewManipulator(String workArea, String os) throws FrameworkAdminRuntimeException, IOException, BundleException {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
@@ -40,9 +47,14 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 		configurationFolder = new File(installFolder, "configuration");
 		launcherName = "eclipse";
 
+		boolean isMacOS = Constants.OS_MACOSX.equals(os) || EclipseLauncherParser.MACOSX_BUNDLED.equals(os);
+		launcherPath = isMacOS ? new Path("Eclipse" + EclipseLauncherParser.MAC_OS_APP_FOLDER).append(launcherName) : new Path(launcherName);
+
 		LauncherData launcherData = manipulator.getLauncherData();
+		launcherData.setHome(installFolder);
 		launcherData.setFwConfigLocation(configurationFolder);
-		launcherData.setLauncher(new File(installFolder, launcherName));
+		launcherData.setLauncher(new File(installFolder, launcherPath.toOSString()));
+		launcherData.setOS(os);
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
@@ -52,7 +64,11 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 	}
 
 	protected Manipulator createMinimalConfiguration(String workArea) throws Exception {
-		Manipulator manipulator = getNewManipulator(workArea);
+		return createMinimalConfiguration(workArea, null);
+	}
+
+	protected Manipulator createMinimalConfiguration(String workArea, String os) throws Exception {
+		Manipulator manipulator = getNewManipulator(workArea, os);
 
 		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
 		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true);
@@ -70,6 +86,7 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 		return manipulator;
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (installFolder != null)
@@ -78,6 +95,11 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 
 	public File getInstallFolder() {
 		return installFolder;
+	}
+
+	public File getLauncherConfigFile() {
+		File launcherDir = new File(getInstallFolder(), launcherPath.toOSString()).getParentFile();
+		return new File(launcherDir, getLauncherName() + ".ini");
 	}
 
 	public File getConfigurationFolder() {

@@ -13,16 +13,20 @@ package org.eclipse.equinox.frameworkadmin.tests;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.EclipseLauncherParser;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.eclipse.osgi.service.environment.Constants;
 
 public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
+
 	private Manipulator m;
 
 	public TestVMArg(String name) {
 		super(name);
 	}
 
+	@Override
 	protected void setUp() throws  Exception {
 		super.setUp();
 		m = createMinimalConfiguration(TestEclipseDataArea.class.getName());
@@ -33,33 +37,60 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 		File jreLocation = new File(m.getLauncherData().getLauncher().getParentFile(), "jre");
 		m.getLauncherData().setJvm(jreLocation);
 		m.save(false);
-		assertNotContent(new File(getInstallFolder(), "eclipse.ini"), jreLocation.getAbsolutePath());
-		assertContent(new File(getInstallFolder(), "eclipse.ini"), "jre");
+		assertNotContent(getLauncherConfigFile(), jreLocation.getAbsolutePath());
+		assertContent(getLauncherConfigFile(), "jre");
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), "-vm");
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), "jre");
 		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "file:");
 		m.load();
 		assertEquals(jreLocation, m.getLauncherData().getJvm());
-		
+
 		m.getLauncherData().setJvm(null);
 		m.save(false);
 		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "-vm");
 		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "jre");
 	}
 	
+	public void testVMInsideInstall_MacOS() throws Exception {
+		m = createMinimalConfiguration(TestEclipseDataArea.class.getName(), Constants.OS_MACOSX);
+		final String expectedRelativePath = "../../../jre";
+
+		File jreLocation = new File(m.getLauncherData().getLauncher().getParentFile(), expectedRelativePath);
+		m.getLauncherData().setJvm(jreLocation);
+		m.save(false);
+
+		File launcherConfigFile = getLauncherConfigFile();
+		assertNotContent("No absolute JRE path must be present in " + launcherConfigFile, launcherConfigFile, jreLocation.getAbsolutePath());
+		assertContent("Relative JRE path must be present in " + launcherConfigFile, launcherConfigFile, expectedRelativePath);
+	}
+
+	public void testVMInsideInstall_MacOS_BundledLayout() throws Exception {
+		m = createMinimalConfiguration(TestEclipseDataArea.class.getName(), EclipseLauncherParser.MACOSX_BUNDLED);
+		// note the difference the traditional layout: one segment less
+		final String expectedRelativePath = "../../jre";
+
+		File jreLocation = new File(m.getLauncherData().getLauncher().getParentFile(), expectedRelativePath);
+		m.getLauncherData().setJvm(jreLocation);
+		m.save(false);
+
+		File launcherConfigFile = getLauncherConfigFile();
+		assertNotContent("No absolute JRE path must be present in " + launcherConfigFile, launcherConfigFile, jreLocation.getAbsolutePath());
+		assertContent("Relative JRE path must be present in " + launcherConfigFile, launcherConfigFile, expectedRelativePath);
+	}
+
 	public void testVMOutsideInstall() throws FrameworkAdminRuntimeException, IOException {
 		//Test VM path in the install folder
 		File jreLocation = new File(m.getLauncherData().getLauncher().getParentFile(), "../../jre").getCanonicalFile();
 		m.getLauncherData().setJvm(jreLocation);
 		m.save(false);
-		assertContent(new File(getInstallFolder(), "eclipse.ini"), jreLocation.getAbsolutePath().replace('\\','/'));
+		assertContent(getLauncherConfigFile(), jreLocation.getAbsolutePath().replace('\\','/'));
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), "-vm");
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), "jre");
 		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "file:");
 		m.load();
 		assertEquals(jreLocation, m.getLauncherData().getJvm());
 	}
-	
+
 	public void test269502() throws FrameworkAdminRuntimeException, IOException {
 		//Test VM path in the install folder
 		String winPath = "c:/ibm5sr3/bin";
@@ -68,13 +99,30 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 		File jreLocation =  new File(chosenPath);
 		m.getLauncherData().setJvm(jreLocation);
 		m.save(false);
-		assertContent(new File(getInstallFolder(), "eclipse.ini"), chosenPath);
+		assertContent(getLauncherConfigFile(), chosenPath);
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), "-vm");
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), chosenPath);
 		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "file:");
 		m.load();
 		assertEquals(jreLocation, m.getLauncherData().getJvm());
 	}
+
+	public void test269502_MacOS() throws Exception {
+		m = createMinimalConfiguration(TestEclipseDataArea.class.getName(), Constants.OS_MACOSX);
+
+		//Test VM path in the install folder
+		String chosenPath = "/Users/Pascal/ibm5sr3/bin";
+		File jreLocation =  new File(chosenPath);
+		m.getLauncherData().setJvm(jreLocation);
+		m.save(false);
+		assertContent(getLauncherConfigFile(), chosenPath);
+		assertContent(m.getLauncherData().getLauncherConfigLocation(), "-vm");
+		assertContent(m.getLauncherData().getLauncherConfigLocation(), chosenPath);
+		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "file:");
+		m.load();
+		assertEquals(jreLocation, m.getLauncherData().getJvm());
+	}
+
 	/**
 	 * But 282303: 
 	 * Have -vm ../jre as program arguments.
@@ -84,9 +132,9 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 	 * @throws IOException
 	 */
 	public void test282303() throws FrameworkAdminRuntimeException, IOException {
-		assertNotContent(new File(getInstallFolder(), "eclipse.ini"), "-vm");
-		assertNotContent(new File(getInstallFolder(), "eclipse.ini"), "../mylocation");		
-		assertNotContent(new File(getInstallFolder(), "eclipse.ini"), "-otherarg");		
+		assertNotContent(getLauncherConfigFile(), "-vm");
+		assertNotContent(getLauncherConfigFile(), "../mylocation");
+		assertNotContent(getLauncherConfigFile(), "-otherarg");
 		m.getLauncherData().addProgramArg("-vm");
 		m.getLauncherData().addProgramArg("../mylocation");
 		m.getLauncherData().addProgramArg("-otherarg");

@@ -97,7 +97,7 @@ public class ManipulatorTests extends AbstractFwkAdminTest {
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.save(false);
 
-		assertContents(ini, new String[] {"-foo", "bar", "-console", "-vmargs", "-Xmx256m", "-Xms64m"});
+		assertContent(ini, "-foo", "bar", "-console", "-vmargs", "-Xmx256m", "-Xms64m");
 	}
 	
 }
