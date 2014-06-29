@@ -31,6 +31,7 @@ import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
@@ -111,10 +112,11 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	private IStatus markStatsArtifacts(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+		IArtifactRepository artifactRepo = publisherInfo.getArtifactRepository();
 		SiteModel site = updateSite.getSite();
 		// process all features listed and mark artifacts
 		SiteFeature[] features = site.getStatsFeatures();
-		if (features != null) {
+		if (features != null && artifactRepo != null) {
 			for (SiteFeature feature : features) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
@@ -122,7 +124,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				if (ius != null) {
 					for (IInstallableUnit iu : ius) {
 						IArtifactKey key = FeaturesAction.createFeatureArtifactKey(feature.getFeatureIdentifier(), iu.getVersion().toString());
-						IArtifactDescriptor[] descriptors = publisherInfo.getArtifactRepository().getArtifactDescriptors(key);
+						IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(key);
 						if (descriptors.length > 0 && descriptors[0] instanceof ArtifactDescriptor) {
 							HashMap<String, String> map = new HashMap<String, String>();
 							map.put(P_STATS_MARKER, feature.getFeatureIdentifier());
@@ -132,8 +134,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				}
 			}
 		}
+		// process all bundles listed and mark artifacts
 		SiteBundle[] bundles = site.getStatsBundles();
-		if (bundles != null) {
+		if (bundles != null && artifactRepo != null) {
 			for (SiteBundle bundle : bundles) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
@@ -141,7 +144,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				if (ius != null) {
 					for (IInstallableUnit iu : ius) {
 						IArtifactKey key = BundlesAction.createBundleArtifactKey(iu.getId(), iu.getVersion().toString());
-						IArtifactDescriptor[] descriptors = publisherInfo.getArtifactRepository().getArtifactDescriptors(key);
+						IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(key);
 						if (descriptors.length > 0 && descriptors[0] instanceof ArtifactDescriptor) {
 							HashMap<String, String> map = new HashMap<String, String>();
 							map.put(P_STATS_MARKER, iu.getId());
@@ -151,7 +154,12 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				}
 			}
 		}
-		// Process all ius that should be marked for download stat tracking
+		// If there was no artifact repository available and stats were to be tracked, issue
+		// a warning.
+		boolean markingBundles = bundles != null && bundles.length > 0;
+		boolean markingFeatures = features != null && features.length > 0;
+		if (artifactRepo == null && (markingBundles || markingFeatures))
+			return new Status(IStatus.WARNING, Activator.ID, "Artifact repository was not specified so stats properties could not be published."); //$NON-NLS-1$
 		return Status.OK_STATUS;
 
 	}
