@@ -68,6 +68,10 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		return operands.toArray(new Operand[operands.size()]);
 	}
 
+	public boolean isEmpty() {
+		return operands.isEmpty();
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getRemovals()
 	 */

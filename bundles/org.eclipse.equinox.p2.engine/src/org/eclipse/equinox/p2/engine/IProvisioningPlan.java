@@ -91,6 +91,13 @@ public interface IProvisioningPlan {
 	public IStatus getStatus();
 
 	/**
+	 * Returns <code>true</code> if the plan contains no operations, <code>false</code> otherwise.
+	 *
+	 * @return <code>true</code> if the plan contains no operations, <code>false</code> otherwise.
+	 */
+	public boolean isEmpty();
+
+	/**
 	 * Adds an installable unit to the plan. This will cause the given installable unit
 	 * to be installed into the profile when this plan is executed by the engine. 
 	 * <p>
