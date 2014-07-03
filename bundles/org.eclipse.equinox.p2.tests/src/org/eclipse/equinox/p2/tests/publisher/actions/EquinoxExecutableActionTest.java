@@ -64,6 +64,9 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 		expectedExecutablesContents = new String[] {"Info.plist", "MacOS/" + EXECUTABLE_NAME, "MacOS/" + EXECUTABLE_NAME + ".ini", "Resources/" + icon.getName()};
 		testExecutableAction("macCocoa", "macosx", macConfigCocoa, MAC_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
+
+		// cleanup
+		icon.delete();
 	}
 
 	public void testWin() throws Exception {
@@ -73,6 +76,9 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		// FIXME: is there any way to test that the .ico has been replaced?
 		expectedExecutablesContents = new String[] {EXECUTABLE_NAME + ".exe"};
 		testExecutableAction("win", "win32", winConfig, WIN_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
+
+		// cleanup
+		icon.delete();
 	}
 
 	public void testLinux() throws Exception {
@@ -81,6 +87,9 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 		expectedExecutablesContents = new String[] {EXECUTABLE_NAME, "icon.xpm"};
 		testExecutableAction("linux", "linux", linuxConfig, LINUX_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
+
+		// cleanup
+		icon.delete();
 	}
 
 	private void testExecutableAction(String idBase, final String osArg, String config, File exec, File icon) {
@@ -198,6 +207,9 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		} finally {
 			zip.close();
 		}
+
+		// cleanup
+		file.delete();
 	}
 
 	/** 

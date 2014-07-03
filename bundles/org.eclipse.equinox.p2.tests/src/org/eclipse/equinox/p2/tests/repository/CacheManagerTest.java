@@ -85,6 +85,7 @@ public class CacheManagerTest extends TestCase {
 
 	private URI createRepistory() throws IOException {
 		File repository = File.createTempFile("remoteFile", ""); //$NON-NLS-1$//$NON-NLS-2$
+		repository.deleteOnExit();
 		assertTrue(repository.delete());
 		assertTrue(repository.mkdirs());
 		IPath contentXmlPath = new Path(repository.getAbsolutePath()).append("content.xml"); //$NON-NLS-1$

@@ -64,5 +64,8 @@ public class RmdirActionTest extends AbstractProvisioningTest {
 		assertTrue(testFolder.exists());
 		if (store != null)
 			store.discard();
+
+		// cleanup
+		testFolder.delete();
 	}
 }

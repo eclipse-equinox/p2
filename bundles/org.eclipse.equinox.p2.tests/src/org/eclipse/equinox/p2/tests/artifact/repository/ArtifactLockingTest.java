@@ -47,6 +47,7 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	@Override
 	protected void tearDown() throws Exception {
 		System.setProperty(Activator.ENABLE_ARTIFACT_LOCKING, "" + lockingValue);
+		targetLocation.delete();
 		super.tearDown();
 	}
 
