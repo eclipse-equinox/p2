@@ -22,19 +22,18 @@ import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 public class JREAction extends AbstractPublisherAction {
 	private static final String DEFAULT_JRE_NAME = "a.jre"; //$NON-NLS-1$
 	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion("1.6"); //$NON-NLS-1$
-	private static final String DEFAULT_PROFILE = "JavaSE-1.6"; //$NON-NLS-1$
+	private static final String DEFAULT_PROFILE = "/profiles/JavaSE-1.6.profile"; //$NON-NLS-1$
 	private static final String PROFILE_LOCATION = "jre.action.profile.location"; //$NON-NLS-1$
 	private static final String PROFILE_NAME = "osgi.java.profile.name"; //$NON-NLS-1$
 	private static final String PROFILE_TARGET_VERSION = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
@@ -317,16 +316,10 @@ public class JREAction extends AbstractPublisherAction {
 			profileProperties = loadProfile(javaProfile);
 		}
 		if (profileProperties == null) {
-			String profileFile = (environment != null ? environment : DEFAULT_PROFILE).replace('/', '_') + ".profile"; //$NON-NLS-1$
-			URL profileURL = getResouceFromSystemBundle(profileFile);
+			String entry = environment != null ? "/profiles/" + environment.replace('/', '_') + ".profile" : DEFAULT_PROFILE; //$NON-NLS-1$ //$NON-NLS-2$
+			URL profileURL = Activator.getContext().getBundle().getEntry(entry);
 			profileProperties = loadProfile(profileURL);
 		}
-	}
-
-	private static URL getResouceFromSystemBundle(String entry) {
-		// get resource from system bundle which is typically on the Java boot classpath
-		ClassLoader loader = FrameworkUtil.class.getClassLoader();
-		return loader == null ? ClassLoader.getSystemResource(entry) : loader.getResource(entry);
 	}
 
 	private Map<String, String> loadProfile(File profileFile) {
