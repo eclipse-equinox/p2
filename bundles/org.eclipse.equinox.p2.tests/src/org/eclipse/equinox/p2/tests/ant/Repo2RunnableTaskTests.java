@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2013 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,10 +7,11 @@
  * 
  *  Contributors:
  *      IBM Corporation - initial API and implementation
+ *      Red Hat, Inc. - fragments support added.
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ant;
 
-import java.io.File;
+import java.io.*;
 import java.net.URI;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -51,6 +52,22 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		runAntTask();
 		assertEquals("Number of artifact keys differs", getArtifactKeyCount(source), getArtifactKeyCount(destination));
 		assertTrue("Unexpected format", expectedFormat(destination));
+	}
+
+	public void testRepo2RunnableFragments() throws IOException {
+		createRepo2RunnableTaskElementFragments(TYPE_BOTH);
+
+		runAntTask();
+		assertEquals("Number of artifact keys differs", getArtifactKeyCount(source), getArtifactKeyCount(destination));
+		assertTrue("Unexpected format", expectedFormat(destination));
+		File f = new File(destination);
+		assertTrue("Missing content.jar", new File(f, "content.jar").exists());
+		assertTrue("Missing artifacts.jar", new File(f, "artifacts.jar").exists());
+		assertTrue("Missing fragment.info", new File(f, "fragment.info").exists());
+		BufferedReader br = new BufferedReader(new FileReader(new File(f, "fragment.info")));
+		while (br.ready())
+			System.out.println(br.readLine());
+		br.close();
 	}
 
 	/*
@@ -155,6 +172,22 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		sourceElement.addElement(getRepositoryElement(source, type));
 		task.addElement(sourceElement);
 
+		return task;
+	}
+
+	protected AntTaskElement createRepo2RunnableTaskElementFragments(String type) {
+		AntTaskElement task = createRepo2RunnableTaskElement();
+		task.addElement(getRepositoryElement(destination, type));
+
+		AntTaskElement sourceElement = new AntTaskElement("source");
+		sourceElement.addElement(getRepositoryElement(source, type));
+		task.addElement(sourceElement);
+
+		//		AntTaskElement fragmentsElement = new AntTaskElement("createFragments");
+		//		fragmentsElement.a
+		//		task.addElement(fragmentsElement);
+
+		task.addAttribute("createFragments", "true");
 		return task;
 	}
 }

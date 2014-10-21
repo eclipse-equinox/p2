@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat, Inc. - fragment creation
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
@@ -33,6 +34,7 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 
 	private boolean failOnError = true;
 	private boolean flagAsRunnable = false;
+	private boolean createFragments = false;
 
 	/*
 	 * Constructor for the class. Create a new instance of the application
@@ -55,6 +57,7 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 				throw new BuildException(Messages.exception_needIUsOrNonEmptyRepo);
 			application.setSourceIUs(ius);
 			((Repo2Runnable) application).setFlagAsRunnable(flagAsRunnable);
+			((Repo2Runnable) application).setCreateFragments(createFragments);
 			IStatus result = application.run(null);
 			if (failOnError && result.matches(IStatus.ERROR))
 				throw new ProvisionException(result);
@@ -73,5 +76,9 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 
 	public void setFlagAsRunnable(boolean runnable) {
 		this.flagAsRunnable = runnable;
+	}
+
+	public void setCreateFragments(boolean fragments) {
+		this.createFragments = fragments;
 	}
 }

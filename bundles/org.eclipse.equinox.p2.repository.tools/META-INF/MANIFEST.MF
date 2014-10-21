@@ -16,6 +16,7 @@ Require-Bundle: org.eclipse.equinox.common;bundle-version="3.3.0", org.eclipse.e
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.app;version="1.0.0",
+ org.eclipse.equinox.frameworkadmin;version="2.0.0",
  org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.artifact.repository.simple,
  org.eclipse.equinox.internal.p2.core.helpers,
@@ -41,5 +42,6 @@ Import-Package: org.eclipse.equinox.app;version="1.0.0",
  org.eclipse.equinox.p2.repository.artifact;version="[2.3.0,3.0.0)",
  org.eclipse.equinox.p2.repository.artifact.spi;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.repository.metadata;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.simpleconfigurator.manipulator;version="2.0.0",
  org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.4.0"

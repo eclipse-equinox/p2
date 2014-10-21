@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 IBM Corporation and others.
+ * Copyright (c) 2009, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,27 +8,31 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
+ *     Red Hat, Inc. - fragment creation
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 
 /**
  * The transformer takes an existing p2 repository (local or remote), iterates over 
@@ -44,6 +48,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	private static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
 	private static final String PARM_PROFILE = "profile"; //$NON-NLS-1$
 
+	private boolean createFragments;
 	private boolean flagAsRunnable = false;
 
 	protected class CollectNativesAction extends ProvisioningAction {
@@ -149,11 +154,56 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 
 			setRunnableProperty(destinationArtifactRepository);
 			// return the resulting status
+
+			if (createFragments) {
+				File parentDir = new File(destinationArtifactRepository.getLocation().toString().substring(5));
+				File pluginsDir = new File(parentDir, "plugins");
+				File fragmentInfo = new File(parentDir, "fragment.info");
+				HashSet<BundleInfo> bundles = new HashSet<BundleInfo>();
+				try {
+					for (Iterator<IInstallableUnit> iterator = processedIUs.iterator(); iterator.hasNext();) {
+						IInstallableUnit unit = iterator.next();
+						if (unit.getId().equals("a.jre"))
+							continue;
+						Collection<IProvidedCapability> providedCapabilities = unit.getProvidedCapabilities();
+						for (IProvidedCapability cap : providedCapabilities) {
+							if ("org.eclipse.equinox.p2.eclipse.type".equals(cap.getNamespace())) {
+								if ("bundle".equals(cap.getName())) {
+									File candidate = new File(pluginsDir, unit.getId() + "_" + unit.getVersion());
+									if (candidate.exists()) {
+										bundles.add(new BundleInfo(unit.getId(), unit.getVersion().toString(), candidate.toURI(), 4, false));
+									}
+									candidate = new File(pluginsDir, unit.getId() + "_" + unit.getVersion() + ".jar");
+									if (candidate.exists()) {
+										bundles.add(new BundleInfo(unit.getId(), unit.getVersion().toString(), candidate.toURI(), 4, false));
+									}
+									break;
+								}
+							}
+						}
+					}
+					SimpleConfiguratorManipulator simpleManipulator = (SimpleConfiguratorManipulator) ServiceHelper.getService(Activator.getBundleContext(), SimpleConfiguratorManipulator.class.getName());
+					simpleManipulator.saveConfiguration(bundles.toArray(new BundleInfo[0]), fragmentInfo, parentDir.toURI());
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			return result;
 		} finally {
 			// cleanup by removing the temporary profile and unloading the repos which were new
 			removeProfile(profile);
 			finalizeRepositories();
+		}
+	}
+
+	static class Writer extends ProfileWriter {
+
+		public Writer(OutputStream output) throws IOException {
+			super(output, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(PROFILE_TARGET, ProfileXMLConstants.CURRENT_VERSION)});
 		}
 	}
 
@@ -261,9 +311,10 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			return;
 		for (int i = 0; i < args.length; i++) {
 			String option = args[i];
-			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
-				continue;
-			String arg = args[++i];
+			String arg = null;
+			if (i != args.length - 1 && !args[i + 1].startsWith("-")) { //$NON-NLS-1$
+				arg = args[++i];
+			}
 
 			if (option.equalsIgnoreCase("-source")) { //$NON-NLS-1$
 				RepositoryDescriptor source = new RepositoryDescriptor();
@@ -279,6 +330,10 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 
 			if (option.equalsIgnoreCase("-flagAsRunnable")) { //$NON-NLS-1$
 				setFlagAsRunnable(true);
+			}
+
+			if (option.equalsIgnoreCase("-createFragments")) { //$NON-NLS-1$
+				setCreateFragments(true);
 			}
 		}
 	}
@@ -305,5 +360,10 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	 */
 	public void stop() {
 		// nothing to do
+	}
+
+	public void setCreateFragments(boolean createFragments) {
+		this.createFragments = createFragments;
+
 	}
 }
