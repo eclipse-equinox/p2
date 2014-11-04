@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2012 IBM Corporation and others.
+ *  Copyright (c) 2008, 2014 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Rapicorp, Inc. - add support for information dialog
  *******************************************************************************/
 package org.eclipse.equinox.p2.core;
 
@@ -142,4 +143,13 @@ public abstract class UIServices {
 	 * unsigned content. 
 	 */
 	public abstract TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail);
+
+	/**
+	 * Opens an information dialog
+	 * @param title - the title of the dialog
+	 * @param text - the text shown in the dialog
+	 */
+	public void showInformationMessage(String title, String text) {
+		System.out.println(text);
+	}
 }

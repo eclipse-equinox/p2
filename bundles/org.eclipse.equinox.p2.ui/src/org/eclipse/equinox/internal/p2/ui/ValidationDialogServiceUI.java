@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2012 IBM Corporation and others.
+ *  Copyright (c) 2008, 2014 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Rapicorp, Inc. - add support for information dialog
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
@@ -18,8 +19,7 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
@@ -160,7 +160,6 @@ public class ValidationDialogServiceUI extends UIServices {
 	}
 
 	public AuthenticationInfo getUsernamePassword(final String location, final AuthenticationInfo previousInfo) {
-
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		if (!suppressAuthentication() && !isHeadless()) {
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
@@ -184,6 +183,18 @@ public class ValidationDialogServiceUI extends UIServices {
 			});
 		}
 		return result[0];
+	}
+
+	public void showInformationMessage(final String title, final String text) {
+		if (isHeadless()) {
+			super.showInformationMessage(title, text);
+			return;
+		}
+		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				MessageDialog.openInformation(ProvUI.getDefaultParentShell(), title, text);
+			}
+		});
 	}
 
 	private boolean isHeadless() {
