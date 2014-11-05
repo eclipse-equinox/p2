@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Rapicorp, Inc - prompt to install debian package
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
@@ -51,9 +52,16 @@ public class Messages extends NLS {
 	public static String copy_failed;
 	public static String failed_backup_restore;
 	public static String backup_file_failed;
+	public static String Cannot_Check_Package;
+	public static String Cannot_Find_status;
 	public static String Error_list_children_0;
+	public static String Incorrect_Command;
 	public static String link_failed;
 	public static String mkdir_failed;
+	public static String PromptForNative_InstallText;
+	public static String PromptForNative_IntroText;
+	public static String PromptForNative_Version;
+	public static String PromptForNative_DialogTitle;
 	public static String rmdir_failed;
 	public static String Util_Invalid_Zip_File_Format;
 	public static String Util_Error_Unzipping;

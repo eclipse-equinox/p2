@@ -1,0 +1,1 @@
+installPrefix=sudo apt-get install
