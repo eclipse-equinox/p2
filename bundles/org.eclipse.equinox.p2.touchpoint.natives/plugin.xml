@@ -121,4 +121,16 @@
           version="1.0.0">
     </action>
  </extension>
+ <extension
+       id="nativePackageExtractor"
+       point="org.eclipse.core.runtime.applications">
+    <application
+          cardinality="singleton-global"
+          thread="main"
+          visible="true">
+       <run
+             class="org.eclipse.equinox.internal.p2.touchpoint.natives.NativePackageExtractionApplication">
+       </run>
+    </application>
+ </extension>
 </plugin>

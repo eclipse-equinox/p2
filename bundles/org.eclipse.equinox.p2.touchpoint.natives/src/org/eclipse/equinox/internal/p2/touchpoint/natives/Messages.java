@@ -58,6 +58,10 @@ public class Messages extends NLS {
 	public static String Incorrect_Command;
 	public static String link_failed;
 	public static String mkdir_failed;
+	public static String NativePackageExtractionApplication_FolderNotFound;
+	public static String NativePackageExtractionApplication_MissingParameters;
+	public static String NativePackageExtractionApplication_PersistencePb;
+	public static String NativePackageExtractionApplication_MissingValue;
 	public static String PromptForNative_InstallText;
 	public static String PromptForNative_IntroText;
 	public static String PromptForNative_Version;
