@@ -166,7 +166,7 @@ public class NativePackageExtractionApplication implements IApplication {
 						Map<String, String> parsedInstructions = parseInstruction(tokenizer.nextToken());
 						if (parsedInstructions != null && parsedInstructions.get(_ACTION_ID).endsWith(CheckAndPromptNativePackage.ID)) {
 							if ("debian".equals(parsedInstructions.get(ActionConstants.PARM_LINUX_DISTRO))) { //$NON-NLS-1$
-								depends += formatAsDependsEntry(parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_NAME), parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_VERSION), parsedInstructions.get(ActionConstants.PACKAGE_VERSION_CONSTRAINT)) + ';';
+								depends += formatAsDependsEntry(parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_NAME), parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_VERSION), parsedInstructions.get(ActionConstants.PACKAGE_VERSION_CONSTRAINT)) + ',';
 							}
 						}
 					}
