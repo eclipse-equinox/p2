@@ -177,7 +177,7 @@ public class NativePackageExtractionApplication implements IApplication {
 		}
 		//pre-prend a comma, and remove the last one
 		if (depends.length() > 0)
-			depends += ',' + depends.substring(0, depends.length() - 1);
+			depends = ',' + depends.substring(0, depends.length() - 1);
 
 		extractedData.put(PROP_DEPENDS, depends);
 	}
