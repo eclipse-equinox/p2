@@ -123,32 +123,34 @@ public class NativePackageExtractionApplication implements IApplication {
 	}
 
 	private void collectLauncherName(IProfile p) {
-		extractedData.put(PROP_LAUNCHER_NAME, p.getProperty("eclipse.touchpoint.launcherName")); //$NON-NLS-1$
+		String launcherName = p.getProperty("eclipse.touchpoint.launcherName"); //$NON-NLS-1$
+		if (launcherName == null)
+			launcherName = ""; //$NON-NLS-1$
+		extractedData.put(PROP_LAUNCHER_NAME, launcherName);
 	}
 
 	private void collectArchitecture(IProfile p) {
 		String environments = p.getProperty(IProfile.PROP_ENVIRONMENTS);
-		if (environments == null)
-			return;
+		if (environments != null) {
+			for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
+				String entry = tokenizer.nextToken();
+				int i = entry.indexOf('=');
+				String key = entry.substring(0, i).trim();
+				String value = entry.substring(i + 1).trim();
+				if (!key.equals("osgi.arch")) //$NON-NLS-1$
+					continue;
 
-		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
-			String entry = tokenizer.nextToken();
-			int i = entry.indexOf('=');
-			String key = entry.substring(0, i).trim();
-			String value = entry.substring(i + 1).trim();
-			if (!key.equals("osgi.arch")) //$NON-NLS-1$
-				continue;
-
-			if ("x86_64".equals(value)) { //$NON-NLS-1$
-				extractedData.put(PROP_ARCH, "amd64"); //$NON-NLS-1$
-				return;
-			}
-			if ("x86".equals(value)) { //$NON-NLS-1$
-				extractedData.put(PROP_ARCH, "x86"); //$NON-NLS-1$
-				return;
+				if ("x86_64".equals(value)) { //$NON-NLS-1$
+					extractedData.put(PROP_ARCH, "amd64"); //$NON-NLS-1$
+					return;
+				}
+				if ("x86".equals(value)) { //$NON-NLS-1$
+					extractedData.put(PROP_ARCH, "x86"); //$NON-NLS-1$
+					return;
+				}
 			}
 		}
-
+		extractedData.put(PROP_ARCH, ""); //$NON-NLS-1$
 	}
 
 	private void collectDebianDependencies(IProfile p) {
@@ -173,6 +175,10 @@ public class NativePackageExtractionApplication implements IApplication {
 				}
 			}
 		}
+		//pre-prend a comma, and remove the last one
+		if (depends.length() > 0)
+			depends += ',' + depends.substring(0, depends.length() - 1);
+
 		extractedData.put(PROP_DEPENDS, depends);
 	}
 
