@@ -1,1 +1,6 @@
 installPrefix=sudo apt-get install
+ge=>\=
+gt=>
+le=<\=
+lt=<
+eq=\=

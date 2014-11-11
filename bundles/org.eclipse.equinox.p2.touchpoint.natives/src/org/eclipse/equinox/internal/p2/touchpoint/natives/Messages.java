@@ -64,7 +64,6 @@ public class Messages extends NLS {
 	public static String NativePackageExtractionApplication_MissingValue;
 	public static String PromptForNative_InstallText;
 	public static String PromptForNative_IntroText;
-	public static String PromptForNative_Version;
 	public static String PromptForNative_DialogTitle;
 	public static String rmdir_failed;
 	public static String Util_Invalid_Zip_File_Format;

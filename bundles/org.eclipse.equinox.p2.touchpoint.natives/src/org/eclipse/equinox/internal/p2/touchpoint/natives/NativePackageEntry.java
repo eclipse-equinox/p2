@@ -13,10 +13,20 @@ package org.eclipse.equinox.internal.p2.touchpoint.natives;
 public class NativePackageEntry {
 	public String name;
 	public String version;
+	public String comparator;
 
-	public NativePackageEntry(String name, String version) {
+	public String getComparator() {
+		return comparator;
+	}
+
+	public void setComparator(String comparator) {
+		this.comparator = comparator;
+	}
+
+	public NativePackageEntry(String name, String version, String comparator) {
 		this.name = name;
 		this.version = version;
+		this.comparator = comparator;
 	}
 
 	public String getName() {

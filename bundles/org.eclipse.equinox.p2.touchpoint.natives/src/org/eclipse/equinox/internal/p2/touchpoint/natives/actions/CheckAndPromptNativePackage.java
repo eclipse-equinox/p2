@@ -31,10 +31,11 @@ public class CheckAndPromptNativePackage extends ProvisioningAction {
 		String distro = (String) parameters.get(ActionConstants.PARM_LINUX_DISTRO);
 		String packageName = (String) parameters.get(ActionConstants.PARM_LINUX_PACKAGE_NAME);
 		String packageVersion = (String) parameters.get(ActionConstants.PARM_LINUX_PACKAGE_VERSION);
+		String versionComparator = (String) parameters.get(ActionConstants.PARM_LINUX_VERSION_COMPARATOR);
 
-		if (distro == null || packageName == null || packageVersion == null)
+		if (distro == null || packageName == null || (versionComparator != null && packageVersion == null))
 			return new Status(IStatus.ERROR, Activator.ID, Messages.Incorrect_Command);
-
+		
 		distro = distro.toLowerCase();
 
 		//If we are not running the distro we are provisioning, do nothing and return
@@ -51,14 +52,20 @@ public class CheckAndPromptNativePackage extends ProvisioningAction {
 			cmd.add(SHELL);
 			cmd.add(scriptToExecute.getAbsolutePath());
 			cmd.add(packageName);
-			cmd.add(packageVersion);
+			if (packageVersion != null) {
+				if (versionComparator == null)
+					versionComparator = "ge"; //$NON-NLS-1$
+
+				cmd.add(versionComparator);
+				cmd.add(packageVersion);
+			}
 			int exitValue = new ProcessBuilder(cmd).start().waitFor();
 			switch (exitValue) {
 				case 0 :
 					return Status.OK_STATUS;
 				case 1 :
 				case 2 :
-					((NativeTouchpoint) getTouchpoint()).addPackageToInstall(new NativePackageEntry(packageName, packageVersion));
+					((NativeTouchpoint) getTouchpoint()).addPackageToInstall(new NativePackageEntry(packageName, packageVersion, versionComparator));
 					((NativeTouchpoint) getTouchpoint()).setDistro(distro);
 					return Status.OK_STATUS;
 			}

@@ -34,7 +34,7 @@ public class NativePackageExtractionApplication implements IApplication {
 	private static final String PROP_DEPENDS = "depends"; //$NON-NLS-1$
 
 	//Internal constants
-	private static final String DEFAULT_VERSION_CONSTRAINT = ">="; //$NON-NLS-1$
+	private static final String DEFAULT_VERSION_CONSTRAINT = "ge"; //$NON-NLS-1$
 	private static final String _ACTION_ID = "_action_id_"; //$NON-NLS-1$
 	private static final String PROP_P2_PROFILE = "eclipse.p2.profile"; //$NON-NLS-1$
 	private static final Integer EXIT_ERROR = new Integer(13);
@@ -54,12 +54,15 @@ public class NativePackageExtractionApplication implements IApplication {
 	//Data collected by the application
 	private Properties extractedData = new Properties();
 
+	private Properties installCommandsProperties = new Properties();
+
 	private boolean stackTrace = false;
 
 	public Object start(IApplicationContext context) throws Exception {
 		try {
 			processArguments((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 			initializeServices();
+			NativeTouchpoint.loadInstallCommandsProperties(installCommandsProperties, "debian"); //$NON-NLS-1$
 			collectData();
 			persistInformation();
 		} catch (CoreException e) {
@@ -168,7 +171,7 @@ public class NativePackageExtractionApplication implements IApplication {
 						Map<String, String> parsedInstructions = parseInstruction(tokenizer.nextToken());
 						if (parsedInstructions != null && parsedInstructions.get(_ACTION_ID).endsWith(CheckAndPromptNativePackage.ID)) {
 							if ("debian".equals(parsedInstructions.get(ActionConstants.PARM_LINUX_DISTRO))) { //$NON-NLS-1$
-								depends += formatAsDependsEntry(parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_NAME), parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_VERSION), parsedInstructions.get(ActionConstants.PACKAGE_VERSION_CONSTRAINT)) + ',';
+								depends += formatAsDependsEntry(parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_NAME), parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_VERSION), parsedInstructions.get(ActionConstants.PARM_LINUX_VERSION_COMPARATOR)) + ',';
 							}
 						}
 					}
@@ -182,14 +185,18 @@ public class NativePackageExtractionApplication implements IApplication {
 		extractedData.put(PROP_DEPENDS, depends);
 	}
 
-	private String formatAsDependsEntry(String packageId, String version, String versionConstraint) {
+	private String formatAsDependsEntry(String packageId, String version, String versionComparator) {
 		String result = packageId;
-		if (versionConstraint == null)
-			versionConstraint = DEFAULT_VERSION_CONSTRAINT;
+		if (versionComparator == null)
+			versionComparator = DEFAULT_VERSION_CONSTRAINT;
 		if (version != null) {
-			result += '(' + versionConstraint + ' ' + version + ')';
+			result += '(' + getUserFriendlyComparator(versionComparator) + ' ' + version + ')';
 		}
 		return result;
+	}
+
+	private String getUserFriendlyComparator(String comparator) {
+		return installCommandsProperties.getProperty(comparator, ""); //$NON-NLS-1$
 	}
 
 	//Code copied from the InstructionParser class

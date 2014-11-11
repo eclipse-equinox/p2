@@ -37,5 +37,5 @@ public class ActionConstants {
 	public static final String PARM_LINUX_DISTRO = "distro"; //$NON-NLS-1$
 	public static final String PARM_LINUX_PACKAGE_NAME = "package"; //$NON-NLS-1$
 	public static final String PARM_LINUX_PACKAGE_VERSION = "version"; //$NON-NLS-1$
-	public static final String PACKAGE_VERSION_CONSTRAINT = "constraint"; //$NON-NLS-1$
+	public static final String PARM_LINUX_VERSION_COMPARATOR = "comparator"; //$NON-NLS-1$
 }

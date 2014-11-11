@@ -36,6 +36,7 @@ public class NativeTouchpoint extends Touchpoint {
 	private static Map<IProfile, IBackupStore> backups = new WeakHashMap<IProfile, IBackupStore>();
 
 	private List<NativePackageEntry> packagesToInstall = new ArrayList<NativePackageEntry>();
+	private Properties installCommandsProperties = new Properties();
 
 	private IProvisioningAgent agent;
 	private String distro;
@@ -83,30 +84,46 @@ public class NativeTouchpoint extends Touchpoint {
 	private void promptForNativePackage() {
 		if (packagesToInstall.size() == 0)
 			return;
+		loadInstallCommandsProperties(installCommandsProperties, distro);
 		UIServices serviceUI = (UIServices) agent.getService(UIServices.SERVICE_NAME);
 		String text = Messages.PromptForNative_IntroText;
 		for (NativePackageEntry nativePackageEntry : packagesToInstall) {
-			text += "\t" + nativePackageEntry.name + Messages.PromptForNative_Version + nativePackageEntry.version + "\n"; //$NON-NLS-1$//$NON-NLS-2$
+			text += "\t" + nativePackageEntry.name + ' ' + formatVersion(nativePackageEntry) + "\n"; //$NON-NLS-1$//$NON-NLS-2$
 		}
 		text += Messages.PromptForNative_InstallText + createCommand();
 		serviceUI.showInformationMessage(Messages.PromptForNative_DialogTitle, text);
 	}
 
-	private String getInstallCommad() {
-		File f = getFileFromBundle(distro, INSTALL_COMMANDS);
+	private String formatVersion(NativePackageEntry entry) {
+		if (entry.getVersion() == null)
+			return null;
+		return getUserFriendlyComparator(entry.comparator) + ' ' + entry.version + ' ';
+	}
 
+	private String getUserFriendlyComparator(String comparator) {
+		return installCommandsProperties.getProperty(comparator, ""); //$NON-NLS-1$
+	}
+
+	public static void loadInstallCommandsProperties(Properties properties, String distro) {
+		File f = getFileFromBundle(distro, INSTALL_COMMANDS);
 		if (f == null)
-			return ""; //$NON-NLS-1$
+			return;
 
 		try {
 			InputStream is = new BufferedInputStream(new FileInputStream(f));
-			Properties properties = new Properties();
-			properties.load(is);
-			return properties.getProperty(INSTALL_PREFIX, ""); //$NON-NLS-1$
+			try {
+				properties.load(is);
+			} finally {
+				if (is != null)
+					is.close();
+			}
 		} catch (IOException e) {
 			//fallthrough to return empty string
 		}
-		return ""; //$NON-NLS-1$
+	}
+
+	private String getInstallCommad() {
+		return installCommandsProperties.getProperty(INSTALL_PREFIX, ""); //$NON-NLS-1$
 	}
 
 	private String createCommand() {
