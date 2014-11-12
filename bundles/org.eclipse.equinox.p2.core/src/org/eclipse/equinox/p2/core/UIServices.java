@@ -148,6 +148,7 @@ public abstract class UIServices {
 	 * Opens an information dialog
 	 * @param title - the title of the dialog
 	 * @param text - the text shown in the dialog
+	 * @since 2.4
 	 */
 	public void showInformationMessage(String title, String text) {
 		System.out.println(text);
