@@ -30,15 +30,6 @@
 		</ant>
 	</target>
 
-	<!-- This target runs the performance test suites. Any actions that need to happen after all -->
-	<!-- the tests have been run should go here. -->
-	<target name="performance" depends="init,performance-suite,cleanup">
-		<ant target="collect" antfile="${library-file}" dir="${eclipse-home}">
-			<property name="includes" value="org*.xml" />
-			<property name="output-file" value="${plugin-name}.xml" />
-		</ant>
-	</target>
-
 	<target name="p2Tests" depends="init,cleanup">
 		<ant target="ui-test" antfile="${library-file}" dir="${eclipse-home}">
 			<property name="data-dir" value="${p2ui_location}" />
@@ -50,10 +41,4 @@
 	<!-- This target defines the tests that need to be run. -->
 	<target name="suite" depends="p2Tests" />
 
-	<!-- This target defines the performance tests that need to be run. -->
-	<target name="performance-suite" depends="p2PerformanceTests" />
-
-	<target name="p2PerformanceTests">
-		<!-- TODO -->
-	</target>
 </project>
