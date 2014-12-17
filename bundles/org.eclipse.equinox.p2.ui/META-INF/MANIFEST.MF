@@ -21,7 +21,7 @@ Export-Package: org.eclipse.equinox.internal.p2.ui;
    org.eclipse.equinox.p2.ui.sdk.scheduler,
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.ui.importexport",
- org.eclipse.equinox.internal.p2.ui.misc,
+ org.eclipse.equinox.internal.p2.ui.misc;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.model;
   x-friends:="org.eclipse.equinox.internal.p2.ui.analysis,
    org.eclipse.equinox.p2.ui.admin,
