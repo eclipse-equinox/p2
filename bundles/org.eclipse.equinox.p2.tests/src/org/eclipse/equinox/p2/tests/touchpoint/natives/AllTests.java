@@ -30,6 +30,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(CopyActionTest.class);
 		suite.addTestSuite(RemoveActionTest.class);
 		suite.addTestSuite(BackupStoreTest.class);
+		suite.addTest(new JUnit4TestAdapter(CheckAndPromptNativePackageWindowsRegistryTest.class));
 		return suite;
 	}
 }

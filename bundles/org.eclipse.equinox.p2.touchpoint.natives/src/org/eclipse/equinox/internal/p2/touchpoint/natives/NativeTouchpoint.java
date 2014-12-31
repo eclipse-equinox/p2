@@ -87,11 +87,28 @@ public class NativeTouchpoint extends Touchpoint {
 		loadInstallCommandsProperties(installCommandsProperties, distro);
 		UIServices serviceUI = (UIServices) agent.getService(UIServices.SERVICE_NAME);
 		String text = Messages.PromptForNative_IntroText;
+		String downloadLinks = ""; //$NON-NLS-1$
+		List<NativePackageEntry> entriesWithoutDownloadLink = new ArrayList<NativePackageEntry>(packagesToInstall.size());
 		for (NativePackageEntry nativePackageEntry : packagesToInstall) {
-			text += "\t" + nativePackageEntry.name + ' ' + formatVersion(nativePackageEntry) + "\n"; //$NON-NLS-1$//$NON-NLS-2$
+			text += '\t' + nativePackageEntry.name + ' ' + formatVersion(nativePackageEntry) + '\n';
+			if (nativePackageEntry.getDownloadLink() != null) {
+				downloadLinks += "    <a>" + nativePackageEntry.getDownloadLink() + "</a>\n"; //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				entriesWithoutDownloadLink.add(nativePackageEntry);
+			}
 		}
-		text += Messages.PromptForNative_InstallText + createCommand();
-		serviceUI.showInformationMessage(Messages.PromptForNative_DialogTitle, text);
+
+		String installCommands = createCommand(entriesWithoutDownloadLink);
+		if (installCommands != null) {
+			text += Messages.PromptForNative_InstallText + installCommands;
+		}
+
+		String downloadText = null;
+		if (downloadLinks.length() > 0) {
+			downloadText = "You can download those from the following locations:\n" + downloadLinks;
+		}
+
+		serviceUI.showInformationMessage(Messages.PromptForNative_DialogTitle, text, downloadText);
 	}
 
 	private String formatVersion(NativePackageEntry entry) {
@@ -101,6 +118,8 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	private String getUserFriendlyComparator(String comparator) {
+		if (comparator == null)
+			return ""; //$NON-NLS-1$
 		return installCommandsProperties.getProperty(comparator, ""); //$NON-NLS-1$
 	}
 
@@ -126,9 +145,11 @@ public class NativeTouchpoint extends Touchpoint {
 		return installCommandsProperties.getProperty(INSTALL_PREFIX, ""); //$NON-NLS-1$
 	}
 
-	private String createCommand() {
+	private String createCommand(List<NativePackageEntry> packageEntries) {
+		if (packageEntries.isEmpty())
+			return null;
 		String text = getInstallCommad() + ' ';
-		for (NativePackageEntry nativePackageEntry : packagesToInstall) {
+		for (NativePackageEntry nativePackageEntry : packageEntries) {
 			text += nativePackageEntry.name + " "; //$NON-NLS-1$
 		}
 		return text;
@@ -136,6 +157,10 @@ public class NativeTouchpoint extends Touchpoint {
 
 	public void addPackageToInstall(NativePackageEntry entry) {
 		packagesToInstall.add(entry);
+	}
+
+	public List<NativePackageEntry> getPackagesToInstall() {
+		return Collections.unmodifiableList(packagesToInstall);
 	}
 
 	public void setDistro(String distro) {

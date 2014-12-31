@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import java.net.URL;
 import java.security.cert.Certificate;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
@@ -23,8 +24,11 @@ import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 
 /**
@@ -33,6 +37,37 @@ import org.eclipse.ui.PlatformUI;
 
  */
 public class ValidationDialogServiceUI extends UIServices {
+
+	static final class MessageDialogWithLink extends MessageDialog {
+		private final String linkText;
+
+		MessageDialogWithLink(Shell parentShell, String dialogTitle, Image dialogTitleImage, String dialogMessage, int dialogImageType, String[] dialogButtonLabels, int defaultIndex, String linkText) {
+			super(parentShell, dialogTitle, dialogTitleImage, dialogMessage, dialogImageType, dialogButtonLabels, defaultIndex);
+			this.linkText = linkText;
+		}
+
+		protected Control createCustomArea(Composite parent) {
+			if (linkText == null)
+				return super.createCustomArea(parent);
+
+			Link link = new Link(parent, SWT.NONE);
+			link.setText(linkText);
+			link.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					try {
+						URL url = new URL(e.text);
+						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(url);
+					} catch (Exception x) {
+						ProvUIActivator.getDefault().getLog().log(//
+								new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, x.getMessage(), x));
+					}
+				}
+			});
+			return link;
+		}
+	}
+
 	/**
 	 * Subclassed to add a cancel button to the error dialog.
 	 */
@@ -185,14 +220,15 @@ public class ValidationDialogServiceUI extends UIServices {
 		return result[0];
 	}
 
-	public void showInformationMessage(final String title, final String text) {
+	public void showInformationMessage(final String title, final String text, final String linkText) {
 		if (isHeadless()) {
-			super.showInformationMessage(title, text);
+			super.showInformationMessage(title, text, linkText);
 			return;
 		}
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 			public void run() {
-				MessageDialog.openInformation(ProvUI.getDefaultParentShell(), title, text);
+				MessageDialog dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), title, null, text, MessageDialog.INFORMATION, new String[] {IDialogConstants.OK_LABEL}, 0, linkText);
+				dialog.open();
 			}
 		});
 	}
@@ -203,4 +239,5 @@ public class ValidationDialogServiceUI extends UIServices {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291049
 		return !PlatformUI.isWorkbenchRunning();
 	}
+
 }

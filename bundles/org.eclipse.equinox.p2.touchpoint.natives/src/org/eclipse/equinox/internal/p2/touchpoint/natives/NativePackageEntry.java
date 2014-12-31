@@ -14,6 +14,7 @@ public class NativePackageEntry {
 	public String name;
 	public String version;
 	public String comparator;
+	public String downloadLink;
 
 	public String getComparator() {
 		return comparator;
@@ -44,4 +45,18 @@ public class NativePackageEntry {
 	public void setVersion(String version) {
 		this.version = version;
 	}
+
+	public String getDownloadLink() {
+		return downloadLink;
+	}
+
+	public void setDownloadLink(String downloadLink) {
+		this.downloadLink = downloadLink;
+	}
+
+	@Override
+	public String toString() {
+		return name + ' ' + version;
+	}
+
 }

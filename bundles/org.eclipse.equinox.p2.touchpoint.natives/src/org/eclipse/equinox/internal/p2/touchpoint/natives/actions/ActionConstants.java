@@ -34,8 +34,12 @@ public class ActionConstants {
 	public static final String PARM_COPY_OVERWRITE = "overwrite"; //$NON-NLS-1$
 	public static final String PARM_OPTIONS = "options"; //$NON-NLS-1$
 	public static final String PARM_ABSOLUTE_FILES = "absoluteFiles"; //$NON-NLS-1$
+	public static final String PARM_DOWNLOAD_LINK = "downloadLink"; //$NON-NLS-1$
 	public static final String PARM_LINUX_DISTRO = "distro"; //$NON-NLS-1$
 	public static final String PARM_LINUX_PACKAGE_NAME = "package"; //$NON-NLS-1$
 	public static final String PARM_LINUX_PACKAGE_VERSION = "version"; //$NON-NLS-1$
 	public static final String PARM_LINUX_VERSION_COMPARATOR = "comparator"; //$NON-NLS-1$
+	public static final String PARM_WINDOWS_REGISTRY_KEY = "key"; //$NON-NLS-1$
+	public static final String PARM_WINDOWS_REGISTRY_ATTRIBUTE_NAME = "attributeName"; //$NON-NLS-1$
+	public static final String PARM_WINDOWS_REGISTRY_ATTRIBUTE_VALUE = "attributeValue"; //$NON-NLS-1$
 }

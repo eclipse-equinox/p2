@@ -148,9 +148,10 @@ public abstract class UIServices {
 	 * Opens an information dialog
 	 * @param title - the title of the dialog
 	 * @param text - the text shown in the dialog
+	 * @param linkText - an optional text to be rendered as hyperlink
 	 * @since 2.4
 	 */
-	public void showInformationMessage(String title, String text) {
+	public void showInformationMessage(String title, String text, String linkText) {
 		System.out.println(text);
 	}
 }

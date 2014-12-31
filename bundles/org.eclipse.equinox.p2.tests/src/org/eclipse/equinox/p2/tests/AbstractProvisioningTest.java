@@ -47,6 +47,9 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
@@ -112,7 +115,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		assertTrue(message, !result.isOK());
 	}
 
-	protected static void assertOK(IStatus status) {
+	public static void assertOK(IStatus status) {
 		assertOK("The status should have been OK.", status);
 	}
 
@@ -816,7 +819,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * already exists.  The returned profile will be removed automatically
 	 * in the tearDown method.
 	 */
-	protected IProfile createProfile(String name, Map properties) {
+	public IProfile createProfile(String name, Map properties) {
 		//remove any existing profile with the same name
 		IProfileRegistry profileRegistry = getProfileRegistry();
 		profileRegistry.removeProfile(name);
@@ -1747,4 +1750,26 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, null);
 		assertOK(plan.getStatus());
 	}
+
+	/**
+	 * Exposes {@link AbstractProvisioningTest}'s helper methods as JUnit {@link TestRule}.
+	 * To be used by JUnit4 tests which must not extend {@link TestCase}.
+	 */
+	public static final class ProvisioningTestRuleAdapter extends AbstractProvisioningTest implements TestRule {
+
+		public Statement apply(final Statement base, Description description) {
+			return new Statement() {
+				@Override
+				public void evaluate() throws Throwable {
+					setUp();
+					try {
+						base.evaluate();
+					} finally {
+						tearDown();
+					}
+				}
+			};
+		}
+	}
+
 }
