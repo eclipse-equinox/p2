@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.dialogs.PropertyDialog;
@@ -29,7 +27,23 @@ public class IUPropertyPagesTest extends AbstractProvisioningUITest {
 	private static final String COPYRIGHT = "org.eclipse.equinox.p2.ui.sdk.IUCopyrightPropertyPage";
 	private static final String LICENSE = "org.eclipse.equinox.p2.ui.sdk.IULicensePropertyPage";
 
+	private static boolean initialized;
+
+	public static void init() {
+		if (!initialized) {
+			// workaround for bug 456940
+			try {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			} catch (Exception e) {
+				System.err.println("Bug 456940: First invocation of getActiveWorkbenchWindow() threw an Exception:");
+				e.printStackTrace();
+			}
+			initialized = true;
+		}
+	}
+
 	public void testGeneralPage() throws URISyntaxException {
+		init();
 		PropertyDialog dialog = PropertyDialog.createDialogOn(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), GENERAL, getIU());
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -41,6 +55,7 @@ public class IUPropertyPagesTest extends AbstractProvisioningUITest {
 	}
 
 	public void testCopyrightPage() throws URISyntaxException {
+		init();
 		PropertyDialog dialog = PropertyDialog.createDialogOn(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), COPYRIGHT, getIU());
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -52,6 +67,7 @@ public class IUPropertyPagesTest extends AbstractProvisioningUITest {
 	}
 
 	public void testLicensePage() throws URISyntaxException {
+		init();
 		PropertyDialog dialog = PropertyDialog.createDialogOn(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), LICENSE, getIU());
 		dialog.setBlockOnOpen(false);
 		dialog.open();

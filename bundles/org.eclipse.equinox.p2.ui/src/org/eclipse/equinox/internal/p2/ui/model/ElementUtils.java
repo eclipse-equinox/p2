@@ -24,7 +24,6 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * Utility methods for manipulating model elements.
@@ -34,7 +33,7 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class ElementUtils {
 
-	public static void updateRepositoryUsingElements(final ProvisioningUI ui, final MetadataRepositoryElement[] elements, final Shell shell) {
+	public static void updateRepositoryUsingElements(final ProvisioningUI ui, final MetadataRepositoryElement[] elements) {
 		ui.signalRepositoryOperationStart();
 		IMetadataRepositoryManager metaManager = ProvUI.getMetadataRepositoryManager(ui.getSession());
 		IArtifactRepositoryManager artManager = ProvUI.getArtifactRepositoryManager(ui.getSession());

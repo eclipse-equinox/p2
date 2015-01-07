@@ -543,7 +543,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	 */
 	public boolean performOk() {
 		if (changed)
-			ElementUtils.updateRepositoryUsingElements(ui, getElements(), getShell());
+			ElementUtils.updateRepositoryUsingElements(ui, getElements());
 		originalNameCache.clear();
 		originalURICache.clear();
 		return super.performOk();

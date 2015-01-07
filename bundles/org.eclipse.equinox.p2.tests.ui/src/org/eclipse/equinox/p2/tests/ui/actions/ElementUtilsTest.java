@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * @since 3.5
@@ -86,7 +85,7 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		// We expect uri3 to get removed (as if it had been removed from a pref page)
 		// System repos shouldn't be touched
 
-		ElementUtils.updateRepositoryUsingElements(getProvisioningUI(), elements, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+		ElementUtils.updateRepositoryUsingElements(getProvisioningUI(), elements);
 
 		URI[] enabled = getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		URI[] disabled = getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED);
