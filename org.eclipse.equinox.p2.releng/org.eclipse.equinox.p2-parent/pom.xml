@@ -56,39 +56,6 @@
 				<osgi.ws>cocoa</osgi.ws>
 			</properties>
 		</profile>
-		<profile>
-			<id>partial-build</id>
-			<activation>
-				<property>
-					<name>eclipse-sdk-repo.url</name>
-				</property>
-			</activation>
-			<repositories>
-				<repository>
-					<id>eclipse-snapshots</id>
-					<url>http://repo.eclipse.org/content/repositories/eclipse-snapshots/</url>
-				</repository>
-			</repositories>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.eclipse.tycho</groupId>
-							<artifactId>tycho-surefire-plugin</artifactId>
-							<configuration>
-								<dependencies>
-									<dependency>
-										<type>eclipse-plugin</type>
-										<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
-										<version>0.0.0</version>
-									</dependency>
-								</dependencies>
-								<testFailureIgnore>true</testFailureIgnore>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
-		</profile>
 	</profiles>
+
 </project>
