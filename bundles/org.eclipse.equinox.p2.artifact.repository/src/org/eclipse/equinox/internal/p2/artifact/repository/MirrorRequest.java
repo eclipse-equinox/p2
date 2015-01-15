@@ -10,6 +10,7 @@
  *  	Compeople AG (Stefan Liebig) - various ongoing maintenance
  *   	Genuitec LLC - various bug fixes
  *      Sonatype, Inc. - transport split
+ *      Yatta Solutions GmbH - bug 457619
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -93,6 +94,20 @@ public class MirrorRequest extends ArtifactRequest {
 			this.targetRepositoryProperties.putAll(targetRepositoryProperties);
 		}
 		this.downloadStatsParamters = statsParameters;
+	}
+
+	@Override
+	protected void setSourceRepository(IArtifactRepository value)
+	{
+		if (value != getSourceRepository())
+		{
+			// This refreshes the descriptor from the new repository as it might be different.
+			// If a MirrorRequest fails for a local repository the descriptor might indicate a "folder based" artifact
+			// which causes the MirrorRequest to fail again with a remote repository if the descriptor is not fetched again.
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=457619
+			descriptor = null;
+		}
+		super.setSourceRepository(value);
 	}
 
 	public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
