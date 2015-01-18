@@ -684,7 +684,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		//TODO BE CAREFUL SINCE WE ARE MODIFYING THE SELF PROFILE
 		int type = event.getRepositoryType();
 		URI location = event.getRepositoryLocation();
-		if (IRepository.TYPE_ARTIFACT == type) {
+		if (IRepository.TYPE_ARTIFACT == type && artifactReposForRemoval != null) {
 			for (int i = 0; i < artifactReposForRemoval.length; i++) {
 				if (artifactReposForRemoval[i] != null && URIUtil.sameURI(artifactReposForRemoval[i], (location))) {
 					artifactReposForRemoval[i] = null;
