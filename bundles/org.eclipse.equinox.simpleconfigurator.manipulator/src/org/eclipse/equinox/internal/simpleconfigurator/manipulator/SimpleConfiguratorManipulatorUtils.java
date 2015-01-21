@@ -24,7 +24,7 @@ public class SimpleConfiguratorManipulatorUtils {
 	private static final String VERSION_PREFIX = "#version="; //$NON-NLS-1$
 	private static final String VERSION_1 = "1"; //$NON-NLS-1$
 	private static final Version OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION = new Version("1.0.100.v20081206"); //$NON-NLS-1$
-	private static final Version DEFAULT_ENCODING_CONFIGURATOR_VERSION = new Version("2.0.0.v20100329"); //$NON-NLS-1$
+	private static final Version DEFAULT_ENCODING_CONFIGURATOR_VERSION = new Version("1.0.200.v20100503"); //$NON-NLS-1$ 3.6, after bug 289644
 
 	public static void writeConfiguration(BundleInfo[] simpleInfos, File outputFile) throws IOException {
 		if (!Utils.createParentDir(outputFile)) {
@@ -78,7 +78,7 @@ public class SimpleConfiguratorManipulatorUtils {
 				Version version = new Version(simpleInfos[i].getVersion());
 				if (version.compareTo(OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION) < 0)
 					oldStyle = true;
-				if (version.compareTo(DEFAULT_ENCODING_CONFIGURATOR_VERSION) <= 0)
+				if (version.compareTo(DEFAULT_ENCODING_CONFIGURATOR_VERSION) < 0)
 					utf8 = false;
 				break;
 			}
