@@ -207,6 +207,11 @@ public class MirrorRequest extends ArtifactRequest {
 		do {
 			lastResult = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
 			allResults.add(lastResult);
+			if (lastResult.getException() instanceof Error)
+			{
+				// Error is more severe than Exception - e.g. an OutOfMemoryError should not be ignored and might hinder further processing
+				throw (Error) lastResult.getException();
+			}
 		} while (lastResult.getSeverity() == IStatus.ERROR && lastResult.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);
 		IProvisioningEventBus bus = (IProvisioningEventBus) source.getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
 		if (bus != null)
@@ -262,6 +267,7 @@ public class MirrorRequest extends ArtifactRequest {
 		}
 
 		IStatus status = null;
+		Throwable priorException = null;
 		// Do the actual transfer
 		try {
 			status = getArtifact(sourceDescriptor, destination, monitor);
@@ -271,13 +277,24 @@ public class MirrorRequest extends ArtifactRequest {
 				Throwable e = root != null ? root.getException() : null;
 				((IStateful) destination).setStatus(new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status, destStatus}, status.getMessage(), e));
 			}
+		} catch (RuntimeException e)
+		{
+			priorException = e;
+			throw e;
+		} catch (Error e) {
+			priorException = e;
+			throw e;
 		} finally {
 			try {
 				destination.close();
 			} catch (IOException e) {
-				if (status != null && status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY)
-					return new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status}, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
-				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+				if (priorException == null) // don't mask a formerly thrown Exception/Error
+				{
+					if (status != null && status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY)
+						return new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status}, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+					return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+				}
+				// otherwise it is already thrown
 			}
 		}
 		return status;
