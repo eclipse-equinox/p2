@@ -694,7 +694,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			// either found or not found. either way, we're done here
 			return;
 		}
-		if (IRepository.TYPE_METADATA == type) {
+		if (IRepository.TYPE_METADATA == type && metadataReposForRemoval != null) {
 			for (int i = 0; i < metadataReposForRemoval.length; i++) {
 				if (metadataReposForRemoval[i] != null && URIUtil.sameURI(metadataReposForRemoval[i], (location))) {
 					metadataReposForRemoval[i] = null;
