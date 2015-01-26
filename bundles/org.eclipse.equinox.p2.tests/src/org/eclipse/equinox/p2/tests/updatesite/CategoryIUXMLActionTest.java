@@ -68,6 +68,11 @@ public class CategoryIUXMLActionTest extends AbstractProvisioningTest {
 		doCategoryNotSetTest();
 	}
 
+	public void testIUCategoryCreation07() throws Exception {
+		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		assertEquals("1.0", 1, queryResultSize(result));
+	}
+
 	private void doCategorySetTest() {
 		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));

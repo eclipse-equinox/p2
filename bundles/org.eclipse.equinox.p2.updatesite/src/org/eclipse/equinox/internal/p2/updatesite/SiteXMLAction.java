@@ -214,31 +214,52 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	private void addSiteIUsToCategories(Map<SiteCategory, Set<IInstallableUnit>> categoriesToIUs, IPublisherInfo publisherInfo, IPublisherResult results) {
-		if (updateSite == null)
-			return;
+		Map<SiteIU, Set<SiteCategory>> iusToCategories = getIUToCategoryMappings(publisherInfo);
 		SiteModel site = updateSite.getSite();
 		if (site == null)
 			return;
 		SiteIU[] siteIUs = site.getIUs();
 		for (SiteIU siteIU : siteIUs) {
-			String[] categoryNames = siteIU.getCategoryNames();
-			if (categoryNames.length == 0)
-				continue;
 			Collection<IInstallableUnit> ius = getIUs(siteIU, publisherInfo, results);
-			if (ius.size() == 0)
+			if (ius == null)
 				continue;
-			for (String categoryName : categoryNames) {
-				SiteCategory category = site.getCategory(categoryName);
-				if (category == null)
-					continue;
-				Set<IInstallableUnit> categoryIUs = categoriesToIUs.get(category);
-				if (categoryIUs == null) {
-					categoryIUs = new HashSet<IInstallableUnit>();
-					categoriesToIUs.put(category, categoryIUs);
+			Set<SiteCategory> categories = iusToCategories.get(siteIU);
+			// if there are no categories for this feature then add it to the default category.
+			if (categories == null || categories.isEmpty())
+				categories = defaultCategorySet;
+			for (SiteCategory category : categories) {
+				Set<IInstallableUnit> iusInCategory = categoriesToIUs.get(category);
+				if (iusInCategory == null) {
+					iusInCategory = new HashSet<IInstallableUnit>();
+					categoriesToIUs.put(category, iusInCategory);
 				}
-				categoryIUs.addAll(ius);
+				iusInCategory.addAll(ius);
 			}
 		}
+	}
+
+	private Map<SiteIU, Set<SiteCategory>> getIUToCategoryMappings(IPublisherInfo publisherInfo) {
+		HashMap<SiteIU, Set<SiteCategory>> mappings = new HashMap<SiteIU, Set<SiteCategory>>();
+		if (updateSite == null)
+			return mappings;
+		SiteModel site = updateSite.getSite();
+		if (site == null)
+			return mappings;
+
+		SiteIU[] ius = site.getIUs();
+		for (int i = 0; i < ius.length; i++) {
+			//add a mapping for each category this feature belongs to
+			String[] categoryNames = ius[i].getCategoryNames();
+			Set<SiteCategory> categories = new HashSet<SiteCategory>();
+			mappings.put(ius[i], categories);
+			for (int j = 0; j < categoryNames.length; j++) {
+				SiteCategory category = site.getCategory(categoryNames[j]);
+				if (category != null)
+					categories.add(category);
+			}
+		}
+		return mappings;
+
 	}
 
 	private Collection<IInstallableUnit> getIUs(SiteIU siteIU, IPublisherInfo publisherInfo, IPublisherResult results) {
