@@ -61,6 +61,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String ATTRIBUTE_OS = "os"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_ARCH = "arch"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_ENABLED = "enabled"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_FEATURE_INSTALL_MODE = "installMode"; //$NON-NLS-1$
 
 	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
 	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
@@ -183,6 +184,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	protected List<FeatureEntry> plugins = new ArrayList<FeatureEntry>();
 	protected List<FeatureEntry> fragments = new ArrayList<FeatureEntry>();
 	private final List<FeatureEntry> features = new ArrayList<FeatureEntry>();
+	private final List<FeatureEntry> rootFeatures = new ArrayList<FeatureEntry>();
 	private String splashLocation = null;
 	private String productName = null;
 	private String application = null;
@@ -393,10 +395,21 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * Returns a List<VersionedName> of features that constitute this product.
 	 */
 	public List<IVersionedId> getFeatures() {
+		return getFeatures(INCLUDED_FEATURES);
+	}
+
+	public List<IVersionedId> getFeatures(int options) {
 		List<IVersionedId> result = new LinkedList<IVersionedId>();
 
-		for (FeatureEntry feature : features) {
-			result.add(new VersionedId(feature.getId(), feature.getVersion()));
+		if ((options & INCLUDED_FEATURES) != 0) {
+			for (FeatureEntry feature : features) {
+				result.add(new VersionedId(feature.getId(), feature.getVersion()));
+			}
+		}
+		if ((options & ROOT_FEATURES) != 0) {
+			for (FeatureEntry feature : rootFeatures) {
+				result.add(new VersionedId(feature.getId(), feature.getVersion()));
+			}
 		}
 
 		return result;
@@ -1099,9 +1112,16 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private void processFeature(Attributes attributes) {
 		String featureId = attributes.getValue(ATTRIBUTE_ID);
 		String featureVersion = attributes.getValue(ATTRIBUTE_VERSION);
+		FeatureInstallMode installMode = FeatureInstallMode.parse(attributes.getValue(ATTRIBUTE_FEATURE_INSTALL_MODE));
 		FeatureEntry featureEntry = new FeatureEntry(featureId, featureVersion != null ? featureVersion : GENERIC_VERSION_NUMBER, false);
 
-		features.add(featureEntry);
+		switch (installMode) {
+			case ROOT :
+				rootFeatures.add(featureEntry);
+				break;
+			default :
+				features.add(featureEntry);
+		}
 	}
 
 	private void processProduct(Attributes attributes) {

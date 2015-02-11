@@ -22,6 +22,7 @@ public class Messages extends NLS {
 	public static String exception_featureParse;
 	public static String exception_productParse;
 	public static String exception_invalidProductContentType;
+	public static String exception_invalidFeatureInstallMode;
 
 	// feature parsing
 	public static String feature_parse_invalidIdOrVersion;

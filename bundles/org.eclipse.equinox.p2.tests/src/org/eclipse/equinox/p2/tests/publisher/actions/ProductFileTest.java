@@ -9,13 +9,18 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import static org.eclipse.equinox.p2.tests.AdditionalCoreMatchers.hasSize;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
-import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.TestData;
 
 /**
@@ -28,6 +33,7 @@ public class ProductFileTest extends TestCase {
 	ProductFile noLauncherFlag = null;
 	ProductFile falseLauncherFlag = null;
 	ProductFile trueLauncherFlag = null;
+	ProductFile rootFeaturesProduct;
 
 	String configFile = "/org.eclipse.equinox.p2.tests/testData/ProductActionTest/productWithConfig/config.ini";
 	private String uidProductFileLocation;
@@ -41,6 +47,7 @@ public class ProductFileTest extends TestCase {
 		productFile = new ProductFile(productFileLocation);
 		uidProductFileLocation = TestData.getFile("ProductActionTest/productWithConfig", "uidproduct.product").toString();
 		uidProductFile = new ProductFile(uidProductFileLocation);
+		rootFeaturesProduct = new ProductFile(TestData.getFile("ProductActionTest", "rootFeatures.product").toString());
 	}
 
 	/**
@@ -110,6 +117,24 @@ public class ProductFileTest extends TestCase {
 		assertEquals("1.0", 1, features.size());
 		assertEquals("1.1", "org.eclipse.rcp", ((IVersionedId) features.get(0)).getId());
 		assertEquals("1.2", Version.create("3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t"), ((IVersionedId) features.get(0)).getVersion());
+	}
+
+	public void testGetRootFeatures() {
+		List<IVersionedId> features = rootFeaturesProduct.getFeatures(IProductDescriptor.ROOT_FEATURES);
+		assertThat(features, hasItem(new VersionedId("org.eclipse.help", "2.0.102.v20140128")));
+		assertThat(features, hasItem(new VersionedId("org.eclipse.egit", "0.0.0")));
+		assertThat(features, hasSize(2));
+	}
+
+	public void testGetIncludedFeatures() {
+		List<IVersionedId> features = rootFeaturesProduct.getFeatures(IProductDescriptor.INCLUDED_FEATURES);
+		assertThat(features, hasItem(new VersionedId("org.eclipse.rcp", "4.4.0.v20140128")));
+		assertThat(features, hasItem(new VersionedId("org.eclipse.e4.rcp", "0.0.0")));
+		assertThat(features, hasSize(2));
+	}
+
+	public void testGetFeaturesOnlyReturnsIncludedFeatures() {
+		assertThat(rootFeaturesProduct.getFeatures(), is(rootFeaturesProduct.getFeatures(IProductDescriptor.INCLUDED_FEATURES)));
 	}
 
 	/**

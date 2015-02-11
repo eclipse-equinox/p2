@@ -29,6 +29,15 @@ import org.eclipse.equinox.p2.repository.IRepositoryReference;
 public interface IProductDescriptor {
 
 	/**
+	 * Flag for {@link #getFeatures(int)} to obtain the features included in the product.
+	 */
+	int INCLUDED_FEATURES = 0x1;
+	/**
+	 * Flag for {@link #getFeatures(int)} to obtain the features to be installed as separately updatable roots. 
+	 */
+	int ROOT_FEATURES = 0x2;
+
+	/**
 	 * Gets the name of the launcher.
 	 */
 	public String getLauncherName();
@@ -48,10 +57,19 @@ public interface IProductDescriptor {
 	public List<IVersionedId> getFragments();
 
 	/**
-	 * Returns the features listed in the product. Note: These features are only part of 
+	 * Returns the features listed in the product. Same as <code>getFeatures(INCLUDED_FEATURES)</code>. Note: These features are only part of 
 	 * the product if {@link #useFeatures()} returns <code>true</code>.
 	 */
 	public List<IVersionedId> getFeatures();
+
+	/**
+	 * Returns the features listed in the product. Note: These features are only part of 
+	 * the product if {@link #useFeatures()} returns <code>true</code>.
+	 * @param options bitmask to indicate what kind of features to return.
+	 * @see #INCLUDED_FEATURES 
+	 * @see #ROOT_FEATURES 
+	 */
+	public List<IVersionedId> getFeatures(int options);
 
 	/**
 	 * Returns the path to the config.ini file as specified in the .product file.
