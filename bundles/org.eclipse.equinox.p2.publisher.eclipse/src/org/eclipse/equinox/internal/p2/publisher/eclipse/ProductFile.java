@@ -361,6 +361,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return result;
 	}
 
+	public boolean hasBundles(boolean includeFragments) {
+		// implement directly; don't call the potentially overridden getBundles
+		return !plugins.isEmpty() || (includeFragments && !fragments.isEmpty());
+	}
+
 	private List<FeatureEntry> getBundleEntries(boolean includeFragments) {
 		List<FeatureEntry> result = new LinkedList<FeatureEntry>();
 		result.addAll(plugins);
@@ -396,6 +401,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 */
 	public List<IVersionedId> getFeatures() {
 		return getFeatures(INCLUDED_FEATURES);
+	}
+
+	public boolean hasFeatures() {
+		// implement directly; don't call the potentially overridden getFeatures
+		return !features.isEmpty();
 	}
 
 	public List<IVersionedId> getFeatures(int options) {

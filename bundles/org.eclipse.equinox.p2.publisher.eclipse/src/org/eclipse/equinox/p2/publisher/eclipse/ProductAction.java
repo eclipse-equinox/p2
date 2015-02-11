@@ -136,14 +136,14 @@ public class ProductAction extends AbstractPublisherAction {
 			case FEATURES : // include features only
 				list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$
 
-				if (!product.getBundles(true).isEmpty()) {
+				if (product.hasBundles(true)) {
 					finalStatus.add(new Status(IStatus.INFO, Activator.ID, Messages.bundlesInProductFileIgnored));
 				}
 				break;
 			case BUNDLES : // include bundles only
 				list = versionElements(listElements(product.getBundles(true), null), IInstallableUnit.NAMESPACE_IU_ID);
 
-				if (!product.getFeatures().isEmpty()) {
+				if (product.hasFeatures()) {
 					finalStatus.add(new Status(IStatus.INFO, Activator.ID, Messages.featuresInProductFileIgnored));
 				}
 				break;

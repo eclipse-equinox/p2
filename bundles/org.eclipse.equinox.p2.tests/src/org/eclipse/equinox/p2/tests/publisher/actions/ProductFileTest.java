@@ -137,6 +137,27 @@ public class ProductFileTest extends TestCase {
 		assertThat(rootFeaturesProduct.getFeatures(), is(rootFeaturesProduct.getFeatures(IProductDescriptor.INCLUDED_FEATURES)));
 	}
 
+	public void testHasFeatures() throws Exception {
+		ProductFile featuresOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyFeatures.product").toString());
+		assertThat(featuresOnly.hasFeatures(), is(true));
+		assertThat(featuresOnly.hasBundles(false), is(false));
+		assertThat(featuresOnly.hasBundles(true), is(false));
+	}
+
+	public void testHasBundles() throws Exception {
+		ProductFile bundlesOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyBundles.product").toString());
+		assertThat(bundlesOnly.hasFeatures(), is(false));
+		assertThat(bundlesOnly.hasBundles(false), is(true));
+		assertThat(bundlesOnly.hasBundles(true), is(true));
+	}
+
+	public void testHasFragments() throws Exception {
+		ProductFile bundlesOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyFragments.product").toString());
+		assertThat(bundlesOnly.hasFeatures(), is(false));
+		assertThat(bundlesOnly.hasBundles(false), is(false));
+		assertThat(bundlesOnly.hasBundles(true), is(true));
+	}
+
 	/**
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getIcons(java.lang.String)}.
 	 */

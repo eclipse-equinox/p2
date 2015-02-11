@@ -51,6 +51,11 @@ public interface IProductDescriptor {
 	public List<IVersionedId> getBundles(boolean includeFragments);
 
 	/**
+	 * Returns <code>true</code> when <code>getBundles(includeFragments)</code> returns a non-empty list.
+	 */
+	public boolean hasBundles(boolean includeFragments);
+
+	/**
 	 * Returns the fragments listed in the product.
 	 * @see #useFeatures()
 	 */
@@ -61,6 +66,11 @@ public interface IProductDescriptor {
 	 * the product if {@link #useFeatures()} returns <code>true</code>.
 	 */
 	public List<IVersionedId> getFeatures();
+
+	/**
+	 * Returns <code>true</code> when <code>getFeatures()</code> returns a non-empty list.
+	 */
+	public boolean hasFeatures();
 
 	/**
 	 * Returns the features listed in the product. Note: These features are only part of 
