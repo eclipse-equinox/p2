@@ -27,7 +27,8 @@ import org.osgi.service.log.LogService;
 public class EclipseLauncherParser {
 	public static final String MAC_OS_APP_FOLDER = ".app/Contents/MacOS"; //$NON-NLS-1$
 	private static final String CONFIGURATION_FOLDER = "configuration"; //$NON-NLS-1$
-	public static final String MACOSX_BUNDLED = "macosx-bundled"; //$NON-NLS-1$
+
+	//	public static final String MACOSX_BUNDLED = "macosx-bundled"; //$NON-NLS-1$
 
 	//this figures out the location of the data area on partial data read from the <eclipse>.ini
 	private URI getOSGiInstallArea(List<String> lines, URI base, LauncherData launcherData) {
@@ -48,12 +49,12 @@ public class EclipseLauncherParser {
 			return;
 		}
 		String launcherString = launcherFolder.getAbsolutePath().replace('\\', '/');
-		if (launcherString.endsWith(MAC_OS_APP_FOLDER)) {
-			//We can do 3 calls to getParentFile without checking because
-			launcherFolder = launcherFolder.getParentFile().getParentFile();
-			if (!launcherData.getOS().endsWith(MACOSX_BUNDLED))
-				launcherFolder = launcherFolder.getParentFile();
-		}
+		//		if (launcherString.endsWith(MAC_OS_APP_FOLDER)) {
+		//			//We can do 3 calls to getParentFile without checking because
+		//			launcherFolder = launcherFolder.getParentFile().getParentFile();
+		//			if (!launcherData.getOS().endsWith(MACOSX_BUNDLED))
+		//				launcherFolder = launcherFolder.getParentFile();
+		//		}
 		if (!ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()).equals(launcherFolder)) {
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, launcherFolder.getAbsolutePath().replace('\\', '/'), lines);
 		}

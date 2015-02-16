@@ -93,7 +93,10 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		int dotLocation = launcherName.lastIndexOf('.');
 		if (dotLocation != -1)
 			launcherName = launcherName.substring(0, dotLocation);
-		File result = new File(launcher.getParentFile(), launcherName + EquinoxConstants.INI_EXTENSION);
+		File launcherFolder = launcher.getParentFile();
+		if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(launcherData.getOS()))
+			launcherFolder = new File(launcherData.getFwConfigLocation(), "../");
+		File result = new File(launcherFolder, launcherName + EquinoxConstants.INI_EXTENSION);
 		return result;
 	}
 

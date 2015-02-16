@@ -197,16 +197,16 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	private Map<String, String> computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
 		Map<String, String> touchpointData = new HashMap<String, String>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-		if (org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED.equals(os)) {
+		//		if (org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED.equals(os)) {
+		//			String execName = execDescriptor.getExecutableName();
+		//			String appName = guessMacAppName(execName);
+		//			configurationData = "unzip(source:@artifact, target:${installFolder}, path:" + appName + ".app);"; //$NON-NLS-1$ //$NON-NLS-2$
+		//			configurationData += " chmod(targetDir:${installFolder}/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$			
+		//		} else
+		if (Constants.OS_MACOSX.equals(os)) {
 			String execName = execDescriptor.getExecutableName();
 			String appName = guessMacAppName(execName);
-			configurationData = "unzip(source:@artifact, target:${installFolder}, path:" + appName + ".app);"; //$NON-NLS-1$ //$NON-NLS-2$
-			configurationData += " chmod(targetDir:${installFolder}/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$			
-		} else if (Constants.OS_MACOSX.equals(os)) {
-			String execName = execDescriptor.getExecutableName();
-			String appName = guessMacAppName(execName);
-			configurationData += " chmod(targetDir:${installFolder}/" + appName + ".app/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			configurationData += " ln(targetDir:${installFolder}, linkTarget:" + appName + ".app/Contents/MacOS/" + execName + ", linkName:" + execName + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			configurationData += " chmod(targetDir:${installFolder}/../MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		} else if (!Constants.OS_WIN32.equals(os)) {
 			// We are on linux/unix.  by default set all of the files to be executable.
 			File[] fileList = execDescriptor.getFiles();
