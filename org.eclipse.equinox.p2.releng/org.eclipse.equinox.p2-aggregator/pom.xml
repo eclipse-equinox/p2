@@ -49,7 +49,6 @@
 		<module>../../bundles/org.eclipse.equinox.p2.metadata.repository</module>
 		<module>../../bundles/org.eclipse.equinox.p2.operations</module>
 		<module>../../bundles/org.eclipse.equinox.p2.publisher</module>
-		<module>../../bundles/org.eclipse.equinox.p2.ql</module>
 		<module>../../bundles/org.eclipse.equinox.p2.reconciler.dropins</module>
 		<module>../../bundles/org.eclipse.equinox.p2.repository</module>
 		<module>../../bundles/org.eclipse.equinox.p2.repository.tools</module>
