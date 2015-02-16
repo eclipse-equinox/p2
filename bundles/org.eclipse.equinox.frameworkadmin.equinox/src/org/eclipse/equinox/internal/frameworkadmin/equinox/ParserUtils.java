@@ -48,19 +48,19 @@ public class ParserUtils {
 
 		File launcherFile = launcherData.getLauncher();
 		if (launcherFile != null) {
-			if (Constants.OS_MACOSX.equals(launcherData.getOS())) { //
+			if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
 				//the equinox launcher will look 3 levels up on the mac when going from executable to launcher.jar
 				//see org.eclipse.equinox.executable/library/eclipse.c : findStartupJar();
 				IPath launcherPath = new Path(launcherFile.getAbsolutePath());
-				if (launcherPath.segmentCount() > 1) {
+				if (launcherPath.segmentCount() > 4) {
 					//removing "Eclipse.app/Contents/MacOS/eclipse"
-					launcherPath = launcherPath.removeLastSegments(1).append("Eclipse"); //$NON-NLS-1$
+					launcherPath = launcherPath.removeLastSegments(4);
 					return launcherPath.toFile();
 				}
 			}
-			//			if (EclipseLauncherParser.MACOSX_BUNDLED.equals(launcherData.getOS())) {
-			//				Log.log(LogService.LOG_WARNING, "Problem figuring out the osgi install area. The bundled mode of macosx requires a -startup argument to be specified."); //$NON-NLS-1$
-			//			}
+			if (EclipseLauncherParser.MACOSX_BUNDLED.equals(launcherData.getOS())) {
+				Log.log(LogService.LOG_WARNING, "Problem figuring out the osgi install area. The bundled mode of macosx requires a -startup argument to be specified."); //$NON-NLS-1$
+			}
 			return launcherFile.getParentFile();
 		}
 		return null;

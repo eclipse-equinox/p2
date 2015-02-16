@@ -1,4 +1,0 @@
-#version=1
-org.eclipse.equinox.simpleconfigurator,0.1.0.200710172125,plugins/org.eclipse.equinox.simpleconfigurator.jar,1,true
-org.eclipse.osgi,3.3.1.R33x_v20070828,plugins/org.eclipse.osgi.jar,-1,true
-org.eclipse.equinox.launcher,1.0.200.v20081124-1800,plugins/org.eclipse.equinox.launcher.jar,4,false

@@ -68,6 +68,7 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 				"org.eclipse.equinox.p2.metadata", //
 				"org.eclipse.equinox.p2.metadata.repository", //
 				"org.eclipse.equinox.p2.publisher", //
+				"org.eclipse.equinox.p2.ql", //
 				"org.eclipse.equinox.p2.reconciler.dropins", //
 				"org.eclipse.equinox.p2.repository", //
 				"org.eclipse.equinox.p2.touchpoint.eclipse", //

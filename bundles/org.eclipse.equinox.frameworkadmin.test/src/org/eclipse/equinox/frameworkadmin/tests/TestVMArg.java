@@ -64,19 +64,19 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 		assertContent("Relative JRE path must be present in " + launcherConfigFile, launcherConfigFile, expectedRelativePath);
 	}
 
-//	public void testVMInsideInstall_MacOS_BundledLayout() throws Exception {
-//		m = createMinimalConfiguration(TestEclipseDataArea.class.getName(), EclipseLauncherParser.MACOSX_BUNDLED);
-//		// note the difference the traditional layout: one segment less
-//		final String expectedRelativePath = "../../jre";
-//
-//		File jreLocation = new File(m.getLauncherData().getLauncher().getParentFile(), expectedRelativePath);
-//		m.getLauncherData().setJvm(jreLocation);
-//		m.save(false);
-//
-//		File launcherConfigFile = getLauncherConfigFile();
-//		assertNotContent("No absolute JRE path must be present in " + launcherConfigFile, launcherConfigFile, jreLocation.getAbsolutePath());
-//		assertContent("Relative JRE path must be present in " + launcherConfigFile, launcherConfigFile, expectedRelativePath);
-//	}
+	public void testVMInsideInstall_MacOS_BundledLayout() throws Exception {
+		m = createMinimalConfiguration(TestEclipseDataArea.class.getName(), EclipseLauncherParser.MACOSX_BUNDLED);
+		// note the difference the traditional layout: one segment less
+		final String expectedRelativePath = "../../jre";
+
+		File jreLocation = new File(m.getLauncherData().getLauncher().getParentFile(), expectedRelativePath);
+		m.getLauncherData().setJvm(jreLocation);
+		m.save(false);
+
+		File launcherConfigFile = getLauncherConfigFile();
+		assertNotContent("No absolute JRE path must be present in " + launcherConfigFile, launcherConfigFile, jreLocation.getAbsolutePath());
+		assertContent("Relative JRE path must be present in " + launcherConfigFile, launcherConfigFile, expectedRelativePath);
+	}
 
 	public void testVMOutsideInstall() throws FrameworkAdminRuntimeException, IOException {
 		//Test VM path in the install folder
