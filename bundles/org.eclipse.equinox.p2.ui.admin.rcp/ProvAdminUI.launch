@@ -198,7 +198,6 @@
 <mapEntry key="org.eclipse.core.resources/build/needbuildstack" value="false"/>
 <mapEntry key="org.eclipse.ui/debug/swtdebug" value="false"/>
 <mapEntry key="org.eclipse.core.resources/save/syncinfo" value="false"/>
-<mapEntry key="org.eclipse.team.cvs.ssh/debug" value="false"/>
 <mapEntry key="org.eclipse.core.resources/build/failure" value="false"/>
 <mapEntry key="org.eclipse.team.core/debug" value="false"/>
 <mapEntry key="org.eclipse.jdt.core/debug/builder" value="false"/>
@@ -240,7 +239,6 @@
 <mapEntry key="org.eclipse.jdt.core/debug/cpresolution" value="false"/>
 <mapEntry key="org.eclipse.help/debug/search" value="false"/>
 <mapEntry key="org.eclipse.help.ui/debug/embeddedBrowser" value="false"/>
-<mapEntry key="org.eclipse.team.cvs.ssh/ssh_protocol" value="false"/>
 <mapEntry key="org.eclipse.core.resources/build/stacktrace" value="false"/>
 <mapEntry key="org.eclipse.ui/perf/part.create" value="800"/>
 <mapEntry key="org.eclipse.ui.intro/trace/logInfo" value="true"/>
