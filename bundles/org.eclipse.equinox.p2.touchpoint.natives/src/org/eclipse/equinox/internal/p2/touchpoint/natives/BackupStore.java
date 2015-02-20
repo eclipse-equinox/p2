@@ -283,6 +283,12 @@ public class BackupStore implements IBackupStore {
 	}
 
 	private boolean isEclipseExe(File file) {
+		String launcher = System.getProperty("eclipse.launcher"); //$NON-NLS-1$
+		if (launcher != null) {
+			String base = new File(launcher).getName();
+			if (file.getName().equalsIgnoreCase(base))
+				return true;
+		}
 		return file.getName().equalsIgnoreCase("eclipse.exe") || file.getName().equalsIgnoreCase("eclipsec.exe"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
