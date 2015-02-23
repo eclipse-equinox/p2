@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
@@ -188,10 +189,7 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	// don't disable this warning because it will cause build-time warning.
-	// see bug 423628.
-	// fix once the entire hierarchy adopts generics.
-	public Object getAdapter(Class adapter) {
+	public <T> T getAdapter(Class<T> adapter) {
 		return delegate.getAdapter(adapter);
 	}
 

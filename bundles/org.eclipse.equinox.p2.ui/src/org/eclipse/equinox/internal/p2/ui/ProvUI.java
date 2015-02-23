@@ -142,7 +142,7 @@ public class ProvUI {
 			return (T) object;
 		if (object instanceof IAdaptable)
 			// Ideally, we would use Class.cast here but it was introduced in Java 1.5
-			return (T) ((IAdaptable) object).getAdapter(adapterType);
+			return ((IAdaptable) object).getAdapter(adapterType);
 		return null;
 	}
 

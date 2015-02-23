@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,13 +7,15 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 
 /**
@@ -48,12 +50,10 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 		return iu.getId();
 	}
 
-	// don't suppress this warning as it will cause build-time warning
-	// see bug 423628. This should be possible to fix once
-	// the entire hierarchy adopts generics
-	public Object getAdapter(Class adapter) {
+	@SuppressWarnings("unchecked")
+	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IInstallableUnit.class)
-			return iu;
+			return (T) iu;
 		return super.getAdapter(adapter);
 	}
 

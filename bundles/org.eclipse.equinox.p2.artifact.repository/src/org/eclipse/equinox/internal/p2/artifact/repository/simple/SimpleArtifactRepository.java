@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *  Cloudsmith Inc. - query indexes
  *  Sonatype Inc - ongoing development
  *  EclipseSource - file locking and ongoing development
+ *  Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
@@ -220,13 +221,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
 	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
-	static final private String[][] PACKED_MAPPING_RULES = { {"(& (classifier=osgi.bundle) (format=packed))", "${repoUrl}/plugins/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] PACKED_MAPPING_RULES = {{"(& (classifier=osgi.bundle) (format=packed))", "${repoUrl}/plugins/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
 			{"(& (classifier=org.eclipse.update.feature) (format=packed))", "${repoUrl}/features/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
 
-	static final private String[][] DEFAULT_MAPPING_RULES = { {"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] DEFAULT_MAPPING_RULES = {{"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
 			{"(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
@@ -694,9 +695,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return mirrors.getMirrorLocation(baseLocation, monitor);
 	}
 
-	// don't suppress the warning as it will cause warnings in the official build
-	// see bug 423628. Entire hierarchy should be refactored to use generics.
-	public Object getAdapter(Class adapter) {
+	public <T> T getAdapter(Class<T> adapter) {
 		// if we are adapting to file or writable repositories then make sure we have a file location
 		if (adapter == IFileArtifactRepository.class)
 			if (!isLocal())

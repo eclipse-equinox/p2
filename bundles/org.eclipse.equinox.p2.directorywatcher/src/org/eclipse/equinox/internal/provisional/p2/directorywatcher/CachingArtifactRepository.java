@@ -1,11 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2015 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
@@ -324,9 +325,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return setProperty(key, value, new NullProgressMonitor());
 	}
 
-	// don't suppress the warning as it will cause warnings in the official build
-	// see bug 423628. Entire hierarchy should be refactored to use generics.
-	public Object getAdapter(Class adapter) {
+	public <T> T getAdapter(Class<T> adapter) {
 		return innerRepo.getAdapter(adapter);
 	}
 

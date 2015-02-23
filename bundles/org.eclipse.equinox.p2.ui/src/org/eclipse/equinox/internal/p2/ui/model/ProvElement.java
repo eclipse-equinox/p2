@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
@@ -36,14 +37,12 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		this.parent = parent;
 	}
 
-	// don't suppress this warning as it will cause build-time warning
-	// see bug 423628. This should be possible to fix once
-	// the entire hierarchy adopts generics
-	public Object getAdapter(Class adapter) {
+	@SuppressWarnings("unchecked")
+	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IWorkbenchAdapter.class)
-			return this;
+			return (T) this;
 		if ((adapter == IDeferredWorkbenchAdapter.class) && this instanceof IDeferredWorkbenchAdapter)
-			return this;
+			return (T) this;
 		return null;
 	}
 

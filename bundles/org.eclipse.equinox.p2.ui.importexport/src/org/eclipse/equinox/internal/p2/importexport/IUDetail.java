@@ -33,12 +33,10 @@ public class IUDetail implements IAdaptable {
 		return referredRepo;
 	}
 
-	// don't suppress this warning as it will cause build-time warning
-	// see bug 423628. This should be possible to fix once
-	// the entire hierarchy starts using generics
-	public Object getAdapter(Class adapter) {
+	@SuppressWarnings("unchecked")
+	public <T> T getAdapter(Class<T> adapter) {
 		if (IInstallableUnit.class.equals(adapter))
-			return iu;
+			return (T) iu;
 		return null;
 	}
 
