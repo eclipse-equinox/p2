@@ -1,10 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2009, 2015 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -34,7 +36,7 @@ public class ProfileLock {
 	}
 
 	private static Location createLockLocation(File parent) {
-		Location anyLoc = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName());
+		Location anyLoc = ServiceHelper.getService(EngineActivator.getContext(), Location.class);
 		try {
 			final URL url = parent.toURL();
 			Location location = anyLoc.createLocation(null, url, false);

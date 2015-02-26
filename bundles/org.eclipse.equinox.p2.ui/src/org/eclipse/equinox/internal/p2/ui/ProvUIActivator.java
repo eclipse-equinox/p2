@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2013 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
- *     Red Hat, Inc. - support for remediation page
+ *     Red Hat, Inc. - support for remediation page, Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
@@ -142,9 +142,9 @@ public class ProvUIActivator extends AbstractUIPlugin {
 			Tracing.debug("Falling back to default provisioning UI"); //$NON-NLS-1$
 
 		if (ui == null) {
-			IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+			IProvisioningAgent agent = ServiceHelper.getService(getContext(), IProvisioningAgent.class);
 			session = new ProvisioningSession(agent);
-			Policy policy = (Policy) ServiceHelper.getService(ProvUIActivator.getContext(), Policy.class.getName());
+			Policy policy = ServiceHelper.getService(ProvUIActivator.getContext(), Policy.class);
 			if (policy == null)
 				policy = new Policy();
 			ui = new ProvisioningUI(session, IProfileRegistry.SELF, policy);

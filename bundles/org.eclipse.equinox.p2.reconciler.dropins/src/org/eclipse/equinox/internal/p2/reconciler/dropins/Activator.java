@@ -1,11 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
  * IBM Corporation - initial implementation and ideas 
+ * Red Hat Inc. - Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
@@ -83,7 +84,7 @@ public class Activator implements BundleActivator {
 	}
 
 	private static IProvisioningAgent getAgent() {
-		return (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+		return ServiceHelper.getService(getContext(), IProvisioningAgent.class);
 	}
 
 	/**
@@ -562,7 +563,7 @@ public class Activator implements BundleActivator {
 	 * it is unavailable.
 	 */
 	public static File getConfigurationLocation() {
-		Location configurationLocation = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
+		Location configurationLocation = ServiceHelper.getService(getContext(), Location.class, Location.CONFIGURATION_FILTER);
 		if (configurationLocation == null || !configurationLocation.isSet())
 			return null;
 		URL url = configurationLocation.getURL();
@@ -576,7 +577,7 @@ public class Activator implements BundleActivator {
 	 * it is unavailable.
 	 */
 	public static File getParentConfigurationLocation() {
-		Location configurationLocation = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
+		Location configurationLocation = ServiceHelper.getService(getContext(), Location.class, Location.CONFIGURATION_FILTER);
 		if (configurationLocation == null || !configurationLocation.isSet())
 			return null;
 
@@ -594,7 +595,7 @@ public class Activator implements BundleActivator {
 	 * Do a look-up and return the OSGi install area if it is set.
 	 */
 	public static URL getOSGiInstallArea() {
-		Location location = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		Location location = ServiceHelper.getService(Activator.getContext(), Location.class, Location.INSTALL_FILTER);
 		if (location == null)
 			return null;
 		if (!location.isSet())
@@ -633,7 +634,7 @@ public class Activator implements BundleActivator {
 	 * null if it is unavailable.
 	 */
 	public static File getEclipseHome() {
-		Location eclipseHome = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
+		Location eclipseHome = ServiceHelper.getService(getContext(), Location.class, Location.ECLIPSE_HOME_FILTER);
 		if (eclipseHome == null || !eclipseHome.isSet())
 			return null;
 		URL url = eclipseHome.getURL();

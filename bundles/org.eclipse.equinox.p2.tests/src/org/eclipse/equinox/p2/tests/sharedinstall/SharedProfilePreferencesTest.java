@@ -1,7 +1,5 @@
-package org.eclipse.equinox.p2.tests.sharedinstall;
-
 /*******************************************************************************
- * Copyright (c) 2012 Ericsson and others.
+ * Copyright (c) 2012, 2015 Ericsson and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +7,10 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
  *
  * Contributors:
  *     Pascal Rapicault (Ericsson) - Initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
+package org.eclipse.equinox.p2.tests.sharedinstall;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,13 +51,13 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString() + '/');
 		System.setProperty("eclipse.p2.profile", "epp.package.java");
 		System.setProperty("eclipse.p2.data.area", "@config.dir/../p2");
-		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
+		IPreferencesService prefService = ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class);
 		prefService.getRootNode().node("/profile/").removeNode();
 		p2Core.start();
 	}
 
 	public void testCountReposInSharedInstallPreferences() {
-		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
+		IPreferencesService prefService = ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class);
 		assertNotNull(prefService);
 		try {
 			URI defaultLocation = adjustTrailingSlash(URIUtil.makeAbsolute(URIUtil.fromString(TestActivator.getContext().getProperty("osgi.configuration.area") + "/../p2/"), new URI(".")), true);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype and others.
+ *  Copyright (c) 2010, 2015 Sonatype and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  *  Contributors:
  *     Sonatype - initial API and implementation
  *     IBM - ongoing development
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
@@ -23,7 +24,7 @@ import org.eclipse.equinox.p2.tests.*;
 public class RepositorManagerDifferentAgentTest extends AbstractProvisioningTest {
 
 	public void testLoadRepo() throws ProvisionException, IOException {
-		IProvisioningAgentProvider agentProvider = (IProvisioningAgentProvider) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgentProvider.SERVICE_NAME);
+		IProvisioningAgentProvider agentProvider = ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgentProvider.class);
 		File testLocation = TestData.getFile("ProfilePreferencesTest", "DifferentAgent");
 		IProvisioningAgent agent = agentProvider.createAgent(testLocation.toURI());
 		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);

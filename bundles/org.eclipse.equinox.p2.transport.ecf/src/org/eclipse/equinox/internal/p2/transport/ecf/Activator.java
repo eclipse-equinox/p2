@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2015 Cloudsmith Inc and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  * 	Cloudsmith Inc - initial API and implementation
  * 	IBM Corporation - ongoing development
  * 	Genuitec - Bug 291926
+ *  Red Hat Inc. - Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
@@ -146,7 +147,7 @@ public class Activator implements BundleActivator {
 	}
 
 	private boolean startBundle(String bundleId) {
-		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(Activator.getContext(), PackageAdmin.class.getName());
+		PackageAdmin packageAdmin = ServiceHelper.getService(Activator.getContext(), PackageAdmin.class);
 		if (packageAdmin == null)
 			return false;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2013 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Ericsson AB - Bug 400011 - [shared] Cleanup the SurrogateProfileHandler code
- *      Red Hat, Inc. - fragments support added.
+ *      Red Hat, Inc. - fragments support added., Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -54,7 +54,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
 		IQuery<IInstallableUnit> rootIUQuery = QueryUtil.createMatchQuery( //
-				"profileProperties[$0] == 'true' || (touchpointType != null && touchpointType.id == $1)",//$NON-NLS-1$
+				"profileProperties[$0] == 'true' || (touchpointType != null && touchpointType.id == $1)", //$NON-NLS-1$
 				IProfile.PROP_PROFILE_ROOT_IU, NATIVE_TOUCHPOINT_TYPE);
 		IQueryResult<IInstallableUnit> rootIUs = sharedProfile.query(rootIUQuery, null);
 		for (Iterator<IInstallableUnit> iterator = rootIUs.iterator(); iterator.hasNext();) {
@@ -96,7 +96,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void updateProperties(final IProfile sharedProfile, Profile userProfile) {
-		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		Location installLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.INSTALL_FILTER);
 		File installFolder = new File(installLocation.getURL().getPath());
 
 		if (Boolean.valueOf(sharedProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue()) {
@@ -109,7 +109,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 				userProfile.setProperty(IProfile.PROP_SHARED_CACHE, cache);
 		}
 
-		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
+		Location configurationLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.CONFIGURATION_FILTER);
 		File configurationFolder = new File(configurationLocation.getURL().getPath());
 		userProfile.setProperty(IProfile.PROP_CONFIGURATION_FOLDER, configurationFolder.getAbsolutePath());
 

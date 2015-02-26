@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010, 2011 IBM Corporation and others.
+ *  Copyright (c) 2010, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.publisher.compatibility;
@@ -46,7 +47,7 @@ public class GeneratorApplication implements IApplication {
 	protected Object launchApplication(Map<String, Object> applicationMap) {
 		String applicationId = (String) applicationMap.get(APP_ID);
 		String filter = "(service.pid=" + applicationId + ")"; //$NON-NLS-1$//$NON-NLS-2$
-		ApplicationDescriptor descriptor = (ApplicationDescriptor) ServiceHelper.getService(Activator.getContext(), ApplicationDescriptor.class.getName(), filter);
+		ApplicationDescriptor descriptor = ServiceHelper.getService(Activator.getContext(), ApplicationDescriptor.class, filter);
 		try {
 			ApplicationHandle handle = descriptor.launch(applicationMap);
 			return handle.getExitValue(0);

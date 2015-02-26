@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 Ericsson and others.
+ * Copyright (c) 2012, 2015 Ericsson and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Pascal Rapicault (Ericsson) - Initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
@@ -47,7 +48,7 @@ public class SharedProfilePreferencesTestWithDataInUser extends AbstractProvisio
 		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString() + '/');
 		System.setProperty("eclipse.p2.profile", "epp.package.java");
 		System.setProperty("eclipse.p2.data.area", "@config.dir/../p2");
-		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
+		IPreferencesService prefService = ServiceHelper.getService(Activator.getContext(), IPreferencesService.class);
 		prefService.getRootNode().node("/profile/").removeNode();
 		p2Core.start();
 

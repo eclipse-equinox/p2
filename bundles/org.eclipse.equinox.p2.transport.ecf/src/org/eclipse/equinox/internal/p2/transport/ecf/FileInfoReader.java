@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010, IBM Corporation, and others.
+ * Copyright (c) 2009, 2015, IBM Corporation, and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -7,6 +7,7 @@
  * Contributors:
  * 	IBM Corporation - initial implementation
  * 	Cloudsmith Inc - modified API, and implementation
+ *  Red Hat Inc. - Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
@@ -22,11 +23,9 @@ import org.eclipse.ecf.filetransfer.events.IRemoteFileSystemBrowseEvent;
 import org.eclipse.ecf.filetransfer.events.IRemoteFileSystemEvent;
 import org.eclipse.ecf.filetransfer.identity.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Activator;
-import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
-import org.eclipse.equinox.internal.p2.repository.JREHttpClientRequiredException;
 import org.eclipse.equinox.internal.p2.repository.Messages;
-import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -168,7 +167,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 			throw RepositoryStatusHelper.fromMessage(Messages.ecf_configuration_error);
 		}
 
-		IRemoteFileSystemBrowserContainerAdapter adapter = (IRemoteFileSystemBrowserContainerAdapter) container.getAdapter(IRemoteFileSystemBrowserContainerAdapter.class);
+		IRemoteFileSystemBrowserContainerAdapter adapter = container.getAdapter(IRemoteFileSystemBrowserContainerAdapter.class);
 		if (adapter == null) {
 			throw RepositoryStatusHelper.fromMessage(Messages.ecf_configuration_error);
 		}

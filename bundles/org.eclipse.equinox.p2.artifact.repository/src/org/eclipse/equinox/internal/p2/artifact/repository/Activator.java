@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -73,7 +74,7 @@ public class Activator implements BundleActivator {
 		if (locationCache.containsKey(repositoryLocation)) {
 			return locationCache.get(repositoryLocation);
 		}
-		Location anyLoc = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName());
+		Location anyLoc = ServiceHelper.getService(Activator.getContext(), Location.class);
 		File repositoryFile = URIUtil.toFile(repositoryLocation);
 		Location location = anyLoc.createLocation(null, getLockFile(repositoryLocation).toURL(), isReadOnly(repositoryFile));
 		location.set(getLockFile(repositoryLocation).toURL(), false);

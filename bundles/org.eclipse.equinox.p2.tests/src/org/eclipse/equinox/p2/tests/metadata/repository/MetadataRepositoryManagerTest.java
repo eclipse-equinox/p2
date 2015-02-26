@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
@@ -342,7 +343,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testMetadataCachingLocalRepo() throws ProvisionException {
 		File repoLocation = getTempLocation();
-		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.SERVICE_NAME);
+		IAgentLocation agentLocation = ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.class);
 		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
 		File dataAreaFile = URIUtil.toFile(dataArea);
 		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
@@ -364,7 +365,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI repoLocation = new URI("http://download.eclipse.org/eclipse/updates/3.4milestones/");
 		if (!repoAvailable(repoLocation))
 			return;
-		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.SERVICE_NAME);
+		IAgentLocation agentLocation = ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.class);
 		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
 		File dataAreaFile = URIUtil.toFile(dataArea);
 		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -9,6 +9,7 @@
  * 	Band XI - add more commands
  *		Composent, Inc. - command additions
  *      SAP - bug fixes
+ *      Red Hat Inc. - Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
@@ -80,7 +81,7 @@ public class ProvCommandProvider implements CommandProvider {
 		if (ProvisioningHelper.addMetadataRepository(agent, repoURI) == null) {
 			interpreter.println("Unable to add metadata repository: " + repoURI);
 		} else // add artifact repo at same URL
-		if (ProvisioningHelper.addArtifactRepository(agent, repoURI) == null) {
+			if (ProvisioningHelper.addArtifactRepository(agent, repoURI) == null) {
 			interpreter.println("Unable to add artifact repository: " + repoURI);
 		}
 	}
@@ -364,7 +365,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Repository has no artifacts");
 			return;
 		}
-		IFileArtifactRepository fileRepo = (IFileArtifactRepository) repo.getAdapter(IFileArtifactRepository.class);
+		IFileArtifactRepository fileRepo = repo.getAdapter(IFileArtifactRepository.class);
 		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = iterator.next();
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
@@ -759,10 +760,11 @@ public class ProvCommandProvider implements CommandProvider {
 
 	private void initializeCommandGroups() {
 		commandGroups = new LinkedHashMap<String, String[]>();
-		commandGroups.put(Messages.Console_help_repository_header, new String[] {"provaddrepo", "provdelrepo", "provaddmetadatarepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				"provdelmetadatarepo", "provaddartifactrepo", "provdelartifactrepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				"provlg", "provlr", "provlar", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				"provliu", "provlquery"}); //$NON-NLS-1$ //$NON-NLS-2$
+		commandGroups.put(Messages.Console_help_repository_header,
+				new String[] {"provaddrepo", "provdelrepo", "provaddmetadatarepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						"provdelmetadatarepo", "provaddartifactrepo", "provdelartifactrepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						"provlg", "provlr", "provlar", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						"provliu", "provlquery"}); //$NON-NLS-1$ //$NON-NLS-2$
 
 		commandGroups.put(Messages.Console_help_profile_registry_header, new String[] {"provaddprofile", "provdelprofile", //$NON-NLS-1$ //$NON-NLS-2$
 				"provlp", "provlgp", "provlpts", "provlpquery"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

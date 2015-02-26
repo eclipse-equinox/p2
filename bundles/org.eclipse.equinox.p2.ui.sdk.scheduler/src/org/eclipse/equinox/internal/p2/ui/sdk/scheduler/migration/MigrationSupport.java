@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Ericsson AB and others. All rights reserved. This
+ * Copyright (c) 2013, 2015 Ericsson AB and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,7 +7,8 @@
  * Contributors:
  *     Ericsson AB - initial API and implementation
  *     Ericsson AB (Pascal Rapicault)
- *     Ericsson AB (Hamdan Msheik) 
+ *     Ericsson AB (Hamdan Msheik)
+ *     Red Hat Inc. - Bug 460967 
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
@@ -97,7 +98,7 @@ public class MigrationSupport {
 	}
 
 	private File getInstallFolder() {
-		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		Location configurationLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.INSTALL_FILTER);
 		return new File(configurationLocation.getURL().getPath());
 	}
 
@@ -110,7 +111,7 @@ public class MigrationSupport {
 	}
 
 	private File getConfigurationLocation() {
-		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
+		Location configurationLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.CONFIGURATION_FILTER);
 		File configurationFolder = new File(configurationLocation.getURL().getPath());
 		return configurationFolder;
 	}

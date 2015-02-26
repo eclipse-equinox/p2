@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010, Cloudsmith Inc.
+ * Copyright (c) 2006, 2015, Cloudsmith Inc.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
  * such license is available at www.eclipse.org.
+ * 
+ * Contributors:
+ *     Cloudsmith Inc. - Initial API and implementation.
+ *     Red Hat Inc. - Bug 460967
  ******************************************************************************/
 
 package org.eclipse.equinox.p2.tests.metadata.repository;
@@ -34,7 +38,7 @@ public class ServerBasedTestCase extends TestCase {
 
 	protected static IProvisioningAgent getAgent() {
 		//get the global agent for the currently running system
-		return (IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
+		return ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.class);
 	}
 
 	protected void basicRun(TestResult result) {

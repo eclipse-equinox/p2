@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2015 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
@@ -119,7 +120,7 @@ public class StyledErrorDialog extends MessageDialog {
 						if ("pref".equals(uri.getScheme())) { //$NON-NLS-1$
 							Map<String, String> para = new HashMap<String, String>();
 							para.put(IWorkbenchCommandConstants.WINDOW_PREFERENCES_PARM_PAGEID, uri.getAuthority());
-							Command prefCommand = ((ICommandService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ICommandService.class)).getCommand(IWorkbenchCommandConstants.WINDOW_PREFERENCES);
+							Command prefCommand = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ICommandService.class).getCommand(IWorkbenchCommandConstants.WINDOW_PREFERENCES);
 							prefCommand.executeWithChecks(new ExecutionEvent(prefCommand, para, null, null));
 						}
 					} catch (ExecutionException e) {

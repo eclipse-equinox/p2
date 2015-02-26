@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
@@ -41,15 +42,15 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ((IProvisioningAgent) ServiceHelper.getService(context, IProvisioningAgent.SERVICE_NAME)).getService(IArtifactRepositoryManager.SERVICE_NAME);
+		return (IArtifactRepositoryManager) ServiceHelper.getService(context, IProvisioningAgent.class).getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	public static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) ((IProvisioningAgent) ServiceHelper.getService(context, IProvisioningAgent.SERVICE_NAME)).getService(IMetadataRepositoryManager.SERVICE_NAME);
+		return (IMetadataRepositoryManager) ServiceHelper.getService(context, IProvisioningAgent.class).getService(IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 	public static URI getDefaultRepositoryLocation(Object object, String repositoryName) {
-		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(context, PackageAdmin.class.getName());
+		PackageAdmin packageAdmin = ServiceHelper.getService(context, PackageAdmin.class);
 		Bundle bundle = packageAdmin.getBundle(object.getClass());
 		BundleContext context = bundle.getBundleContext();
 		File base = context.getDataFile(""); //$NON-NLS-1$

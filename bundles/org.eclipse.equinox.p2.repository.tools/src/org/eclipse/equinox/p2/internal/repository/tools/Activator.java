@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
@@ -69,7 +70,7 @@ public class Activator implements BundleActivator {
 	 * Return the provisioning agent. Throw an exception if it cannot be obtained.
 	 */
 	public static IProvisioningAgent getAgent() throws ProvisionException {
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getBundleContext(), IProvisioningAgent.SERVICE_NAME);
+		IProvisioningAgent agent = ServiceHelper.getService(getBundleContext(), IProvisioningAgent.class);
 		if (agent == null)
 			throw new ProvisionException(Messages.no_provisioning_agent);
 		return agent;

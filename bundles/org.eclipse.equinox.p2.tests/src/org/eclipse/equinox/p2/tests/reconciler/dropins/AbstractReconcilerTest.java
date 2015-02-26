@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2013 IBM Corporation and others.
+ *  Copyright (c) 2008, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - Ongoing development
- *     Red Hat, Inc. - Fragment support added.
+ *     Red Hat, Inc. - Fragment support added. Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
@@ -158,7 +158,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Helper method to return the install location. Return null if it is unavailable.
 	 */
 	public static File getInstallLocation() {
-		Location installLocation = (Location) ServiceHelper.getService(TestActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		Location installLocation = ServiceHelper.getService(TestActivator.getContext(), Location.class, Location.INSTALL_FILTER);
 		if (installLocation == null || !installLocation.isSet())
 			return null;
 		URL url = installLocation.getURL();
@@ -701,7 +701,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
 	public int runDirectorToInstall(String message, File installFolder, String sourceRepo, String iuToInstall) {
 		String[] command = new String[] {//
-		"-application", "org.eclipse.equinox.p2.director", //
+				"-application", "org.eclipse.equinox.p2.director", //
 				"-repository", sourceRepo, "-installIU", iuToInstall, //
 				"-destination", installFolder.getAbsolutePath(), //
 				"-bundlepool", installFolder.getAbsolutePath(), //

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 IBM Corporation and others.
+ * Copyright (c) 2008, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - (Pascal Rapicault)
  *     Ericsson AB   (Hamdan Msheik) - Bug 398833
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -71,7 +72,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	 */
 	public AutomaticUpdateScheduler() {
 		AutomaticUpdatePlugin.getDefault().setScheduler(this);
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
 		checker = (IUpdateChecker) agent.getService(IUpdateChecker.SERVICE_NAME);
 		if (checker == null) {
 			// Something did not initialize properly
@@ -83,7 +84,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	public void earlyStartup() {
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
 		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile currentProfile = registry.getProfile(profileId);
 		if (currentProfile != null && new MigrationSupport().performMigration(agent, registry, currentProfile))
@@ -105,7 +106,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault().getPreferenceStore();
 		if (!pref.getBoolean(PreferenceConstants.PREF_GC_ON_STARTUP))
 			return;
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
 		GarbageCollector collector = (GarbageCollector) agent.getService(GarbageCollector.SERVICE_NAME);
 		if (collector == null)
 			return;

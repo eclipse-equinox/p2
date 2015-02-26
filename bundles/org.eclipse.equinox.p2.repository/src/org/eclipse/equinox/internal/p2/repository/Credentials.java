@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 IBM Corporation and others.
+ * Copyright (c) 2009, 2015 IBM Corporation and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -8,6 +8,7 @@
  * 	IBM Corporation - Initial API and implementation
  *  Cloudsmith Inc - Implementation
  *  Sonatype Inc - Ongoing development
+ *  Red Hat Inc. - Bug 460967
  ******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.repository;
@@ -218,7 +219,7 @@ public class Credentials {
 						throw new LoginCanceledException();
 					return latest == null ? lastUsed : latest; // keep client failing on the latest known
 				}
-				IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.SERVICE_NAME);
+				IProvisioningAgent agent = ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.class);
 				UIServices adminUIService = (UIServices) agent.getService(UIServices.SERVICE_NAME);
 
 				if (adminUIService != null)

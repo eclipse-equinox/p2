@@ -1,11 +1,12 @@
 /******************************************************************************* 
-* Copyright (c) 2009-2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2015 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   Red Hat Inc. - Bug 460967
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
@@ -33,7 +34,7 @@ public class RepositoryAnalyzerApplication implements IApplication {
 
 		long start = System.currentTimeMillis();
 		processArguments((String[]) context.getArguments().get("application.args"));
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getBundleContext(), IProvisioningAgent.SERVICE_NAME);
+		IProvisioningAgent agent = ServiceHelper.getService(Activator.getBundleContext(), IProvisioningAgent.class);
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		IMetadataRepository repository = manager.loadRepository(uri, new NullProgressMonitor());
 		RepositoryAnalyzer repositoryAnalyzer = new RepositoryAnalyzer(new IMetadataRepository[] {repository});

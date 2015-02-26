@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2015 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,7 +7,8 @@
  * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
- *   SAP AG - make optional dependencies non-greedy by default; allow setting greedy through directive (bug 247099) 
+ *   SAP AG - make optional dependencies non-greedy by default; allow setting greedy through directive (bug 247099)
+ *   Red Hat Inc. - Bug 460967 
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -132,7 +133,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		Version hostVersion = Version.parseVersion(configInfo.getVersion());
 		VersionRange range = hostVersion == Version.emptyVersion ? VersionRange.emptyRange : new VersionRange(hostVersion, true, Version.MAX_VERSION, true);
 		cu.setHost(new IRequirement[] { //
-		MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, hostId, range, null, false, false, true), //
+				MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, hostId, range, null, false, false, true), //
 				MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
@@ -510,7 +511,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private static PluginConverter acquirePluginConverter() {
-		return (PluginConverter) ServiceHelper.getService(Activator.getContext(), PluginConverter.class.getName());
+		return ServiceHelper.getService(Activator.getContext(), PluginConverter.class);
 	}
 
 	private static Dictionary<String, String> convertPluginManifest(File bundleLocation, boolean logConversionException) {

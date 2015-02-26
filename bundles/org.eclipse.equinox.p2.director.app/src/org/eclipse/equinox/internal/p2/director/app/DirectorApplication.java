@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2014 IBM Corporation and others.
+ * Copyright (c) 2007-2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
  *     EclipseSource - ongoing development
  *     Sonatype, Inc. - ongoing development
  *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
- *     Red Hat, Inc. - support repositories passed via fragments (see bug 378329).
+ *     Red Hat, Inc. - support repositories passed via fragments (see bug 378329).Bug 460967
  *     SAP AG - list formatting (bug 423538)
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
@@ -722,7 +722,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private void logFailure(IStatus status) {
 		if (log == null) {
-			FrameworkLog frameworkLog = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+			FrameworkLog frameworkLog = ServiceHelper.getService(Activator.getContext(), FrameworkLog.class);
 			if (frameworkLog != null)
 				System.err.println("Application failed, log file location: " + frameworkLog.getFile()); //$NON-NLS-1$
 		}
@@ -846,7 +846,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 
 		// Set platform environment defaults
-		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+		EnvironmentInfo info = ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class);
 		os = info.getOS();
 		ws = info.getWS();
 		nl = info.getNL();
@@ -1185,7 +1185,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	 * Sets a system property, using the EnvironmentInfo service if possible.
 	 */
 	private void setSystemProperty(String key, String value) {
-		EnvironmentInfo env = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+		EnvironmentInfo env = ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class);
 		if (env != null) {
 			env.setProperty(key, value);
 		} else {

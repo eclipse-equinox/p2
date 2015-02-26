@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 Cloudsmith Inc.
+ * Copyright (c) 2006, 2015 Cloudsmith Inc.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  * 	IBM Corporation - ongoing development
  *  Sonatype Inc - ongoing development
  *  Ericsson AB. - Bug 407940 - [transport] Initial connection happens in current thread
+ *  Red Hat Inc. - Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
@@ -221,7 +222,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	private synchronized void pauseIfPossible(IIncomingFileTransfer source) {
 		if (isPaused() && !hasPaused) {
-			pasuable = (IFileTransferPausable) source.getAdapter(IFileTransferPausable.class);
+			pasuable = source.getAdapter(IFileTransferPausable.class);
 			if (pasuable != null)
 				pasuable.pause();
 		}

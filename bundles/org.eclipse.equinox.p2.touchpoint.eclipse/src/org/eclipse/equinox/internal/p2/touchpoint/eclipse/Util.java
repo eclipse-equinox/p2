@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *     Code 9 - ongoing development
  *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
  *     Ericsson AB (Pascal Rapicault) - Support to reuse bundles in place
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
@@ -236,7 +237,7 @@ public class Util {
 	 * Do a look-up and return the OSGi install area if it is set.
 	 */
 	public static URL getOSGiInstallArea() {
-		Location location = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		Location location = ServiceHelper.getService(Activator.getContext(), Location.class, Location.INSTALL_FILTER);
 		if (location == null)
 			return null;
 		if (!location.isSet())
@@ -249,7 +250,7 @@ public class Util {
 	 * null if it is unavailable.
 	 */
 	public static File getEclipseHome() {
-		Location eclipseHome = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
+		Location eclipseHome = ServiceHelper.getService(Activator.getContext(), Location.class, Location.ECLIPSE_HOME_FILTER);
 		if (eclipseHome == null || !eclipseHome.isSet())
 			return null;
 		URL url = eclipseHome.getURL();
@@ -289,7 +290,7 @@ public class Util {
 	 */
 	private static String getLauncherName(String name, String os, File installFolder) {
 		if (os == null) {
-			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+			EnvironmentInfo info = ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class);
 			if (info == null)
 				return null;
 			os = info.getOS();

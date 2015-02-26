@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 IBM Corporation and others.
+ * Copyright (c) 2009, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - Ongoing development
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.tests.verifier;
 
@@ -64,7 +65,7 @@ public class VerifierApplication implements IApplication {
 		String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
 
-		agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getBundleContext(), IProvisioningAgent.SERVICE_NAME);
+		agent = ServiceHelper.getService(Activator.getBundleContext(), IProvisioningAgent.class);
 
 		IStatus result = verify();
 		if (!result.isOK()) {

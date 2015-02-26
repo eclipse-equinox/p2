@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 Cloudsmith and others.
+ *  Copyright (c) 2009, 2015 Cloudsmith and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *      Cloudsmith - initial API and implementation
+ *      Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.testserver.helper;
 
@@ -42,7 +43,7 @@ public class AbstractTestServerClientCase extends TestCase {
 
 	protected static IProvisioningAgent getAgent() {
 		//get the global agent for the currently running system
-		return (IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
+		return ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.class);
 	}
 
 	protected void basicRun(TestResult result) {

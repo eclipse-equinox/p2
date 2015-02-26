@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 IBM Corporation and others.
+ * Copyright (c) 2009, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
+ *     Red Hat Inc. - Bug 460967
  ******************************************************************************/
 
 package org.eclipse.equinox.p2.ui;
@@ -105,7 +106,7 @@ public class ProvisioningUI {
 	 * to be remembered.
 	 */
 	public LicenseManager getLicenseManager() {
-		return (LicenseManager) ServiceHelper.getService(ProvUIActivator.getContext(), LicenseManager.class.getName());
+		return ServiceHelper.getService(ProvUIActivator.getContext(), LicenseManager.class);
 	}
 
 	/**

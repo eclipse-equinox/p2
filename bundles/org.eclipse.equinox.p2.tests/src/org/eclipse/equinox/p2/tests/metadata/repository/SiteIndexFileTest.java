@@ -1,11 +1,12 @@
 /******************************************************************************* 
-* Copyright (c) 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2010, 2015 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   Red Hat Inc. - Bug 460967
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
@@ -33,7 +34,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 
 	class VisibleMetadataRepositoryManager extends MetadataRepositoryManager {
 		public VisibleMetadataRepositoryManager() {
-			super((IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME));
+			super(ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.class));
 		}
 
 		public String[] sortSuffixes(String[] suffixes, URI location, String[] preferredOrder) {

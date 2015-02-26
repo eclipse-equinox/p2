@@ -1,11 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2015 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   Red Hat Inc. - Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
@@ -88,7 +89,7 @@ public class DataLoader {
 		if (value != null) {
 			try {
 				//config.ini uses simpleconfigurator, read the bundles.info and replace the bundle infos
-				SimpleConfiguratorManipulator simpleManipulator = (SimpleConfiguratorManipulator) ServiceHelper.getService(Activator.getContext(), SimpleConfiguratorManipulator.class.getName());
+				SimpleConfiguratorManipulator simpleManipulator = ServiceHelper.getService(Activator.getContext(), SimpleConfiguratorManipulator.class);
 				//input stream will be buffered and closed for us
 				BundleInfo[] bundleInfos = simpleManipulator.loadConfiguration(new URL(value).openStream(), null);
 				data.setBundles(bundleInfos);
@@ -125,6 +126,6 @@ public class DataLoader {
 	}
 
 	private FrameworkAdmin getFrameworkAdmin() {
-		return (FrameworkAdmin) ServiceHelper.getService(Activator.getContext(), FrameworkAdmin.class.getName(), frameworkAdminFillter);
+		return ServiceHelper.getService(Activator.getContext(), FrameworkAdmin.class, frameworkAdminFillter);
 	}
 }

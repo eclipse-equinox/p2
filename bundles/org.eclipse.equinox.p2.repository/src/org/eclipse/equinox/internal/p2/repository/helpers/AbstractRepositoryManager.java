@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 IBM Corporation and others.
+ * Copyright (c) 2008, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Wind River - fix for bug 299227
  *     Sonatype, Inc. - transport split
- *     Red Hat,Inc. - fix for bug 249133
+ *     Red Hat,Inc. - fixes for bugs 249133, 460967
  *     Ericsson AB (Pascal Rapicault) - reading preferences from base in shared install
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository.helpers;
@@ -494,7 +494,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	Preferences getPreferences() {
 		if (agentLocation == null)
 			return null;
-		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
+		IPreferencesService prefService = ServiceHelper.getService(Activator.getContext(), IPreferencesService.class);
 		if (prefService == null)
 			return null;
 		try {
@@ -509,7 +509,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	Preferences getSharedPreferences() {
 		if (agentLocation == null)
 			return null;
-		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
+		IPreferencesService prefService = ServiceHelper.getService(Activator.getContext(), IPreferencesService.class);
 		if (prefService == null)
 			return null;
 		try {

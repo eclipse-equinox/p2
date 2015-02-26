@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Cloudsmith - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers;
 
@@ -18,7 +19,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 public abstract class OptimizerApplication implements IApplication {
 
 	public static IProvisioningAgent getAgent() {
-		return (IProvisioningAgent) ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.SERVICE_NAME);
+		return ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.class);
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() {

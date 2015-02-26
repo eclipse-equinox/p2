@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,7 +7,7 @@
  * Contributors: 
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - ongoing development
- *     Red Hat, Inc. - fragments support added.
+ *     Red Hat, Inc. - fragments support added, Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -154,7 +154,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	private boolean updateRoamingProfile(Profile selfProfile) {
 		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
 			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateRoamingProfile"); //$NON-NLS-1$
-		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		Location installLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.INSTALL_FILTER);
 		File location = new File(installLocation.getURL().getPath());
 		boolean changed = false;
 		if (!location.equals(new File(selfProfile.getProperty(IProfile.PROP_INSTALL_FOLDER)))) {

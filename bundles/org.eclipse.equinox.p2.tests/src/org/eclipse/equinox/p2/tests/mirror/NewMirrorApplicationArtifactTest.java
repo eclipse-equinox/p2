@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2012 IBM Corporation and others.
+ *  Copyright (c) 2008, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
@@ -1301,7 +1302,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	//for Bug 259112
 	public void testErrorLoggingNoVerbose() {
 		//initialize log file
-		FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+		FrameworkLog log = ServiceHelper.getService(Activator.getContext(), FrameworkLog.class);
 		assertNotNull("Assert log file is not null", log);
 		assertTrue("Clearing log file", log.getFile().delete());
 
@@ -1346,7 +1347,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	//for Bug 259112
 	public void testErrorLoggingWithVerbose() {
 		//initialize log file
-		FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+		FrameworkLog log = ServiceHelper.getService(Activator.getContext(), FrameworkLog.class);
 		assertNotNull("Assert log file is not null", log);
 		assertTrue("Clearing log file", log.getFile().exists() && log.getFile().delete());
 

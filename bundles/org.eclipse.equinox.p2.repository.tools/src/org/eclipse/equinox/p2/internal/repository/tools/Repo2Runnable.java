@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 IBM Corporation and others.
+ * Copyright (c) 2009, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
- *     Red Hat, Inc. - fragment creation
+ *     Red Hat, Inc. - fragment creation, Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
@@ -182,7 +182,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 							}
 						}
 					}
-					SimpleConfiguratorManipulator simpleManipulator = (SimpleConfiguratorManipulator) ServiceHelper.getService(Activator.getBundleContext(), SimpleConfiguratorManipulator.class.getName());
+					SimpleConfiguratorManipulator simpleManipulator = ServiceHelper.getService(Activator.getBundleContext(), SimpleConfiguratorManipulator.class);
 					simpleManipulator.saveConfiguration(bundles.toArray(new BundleInfo[0]), fragmentInfo, parentDir.toURI());
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
@@ -23,7 +24,7 @@ public class TestActivator implements BundleActivator {
 	public static final String PI_PROV_TESTS = "org.eclipse.equinox.p2.test";
 	public static BundleContext context;
 	private static PackageAdmin packageAdmin = null;
-	private static ServiceReference packageAdminRef = null;
+	private static ServiceReference<PackageAdmin> packageAdminRef = null;
 	public static String TEST_DATA_PATH = "testData"; //$NON-NLS-1$
 
 	public static BundleContext getContext() {
@@ -34,14 +35,14 @@ public class TestActivator implements BundleActivator {
 	 * Return a file handle to the framework log file, or null if it is not available.
 	 */
 	public static File getLogFile() {
-		FrameworkLog log = (FrameworkLog) ServiceHelper.getService(context, FrameworkLog.class.getName());
+		FrameworkLog log = ServiceHelper.getService(context, FrameworkLog.class);
 		return log == null ? null : log.getFile();
 	}
 
 	public void start(BundleContext context) throws Exception {
 		TestActivator.context = context;
-		packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
-		packageAdmin = (PackageAdmin) context.getService(packageAdminRef);
+		packageAdminRef = context.getServiceReference(PackageAdmin.class);
+		packageAdmin = context.getService(packageAdminRef);
 
 		//This is a hack because the junit plugin launch config do not allow to start bundles
 		AbstractProvisioningTest.startBundle(getBundle("org.eclipse.equinox.frameworkadmin.equinox"));

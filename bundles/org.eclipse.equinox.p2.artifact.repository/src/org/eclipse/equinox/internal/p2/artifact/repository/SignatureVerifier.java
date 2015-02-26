@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2013 compeople AG and others.
+* Copyright (c) 2007, 2015 compeople AG and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 * Contributors:
 * 	compeople AG (Stefan Liebig) - initial API and implementation
 *  IBM - continuing development
+*  Red Hat Inc. - Bug 460967
 *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -72,7 +73,7 @@ public class SignatureVerifier extends ProcessingStep {
 	}
 
 	private IStatus verifyContent() throws IOException {
-		SignedContentFactory verifierFactory = (SignedContentFactory) ServiceHelper.getService(Activator.getContext(), SignedContentFactory.class.getName());
+		SignedContentFactory verifierFactory = ServiceHelper.getService(Activator.getContext(), SignedContentFactory.class);
 		SignedContent signedContent;
 		try {
 			signedContent = verifierFactory.getSignedContent(inputFile);

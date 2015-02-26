@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *     Felix Riegger (SAP AG) - consolidation of publishers for PDE formats (bug 331974)
  *     SAP AG - ongoing development
  *     Rapicorp - additional features
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
@@ -1192,7 +1193,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		File iconFile = new File(value);
 		if (!iconFile.isFile()) {
 			//workspace
-			Location instanceLocation = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTANCE_FILTER);
+			Location instanceLocation = ServiceHelper.getService(Activator.getContext(), Location.class, Location.INSTANCE_FILTER);
 			if (instanceLocation != null && instanceLocation.getURL() != null) {
 				File workspace = URLUtil.toFile(instanceLocation.getURL());
 				if (workspace != null)
