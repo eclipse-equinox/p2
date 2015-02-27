@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 Cloudsmith and others.
+ *  Copyright (c) 2009, 2015 Cloudsmith and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *      Cloudsmith - initial API and implementation
+ *      Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.testserver.helper;
 
@@ -34,7 +35,7 @@ public class TestServerController {
 	static UIServices hookedAuthDialog;
 	private static ServiceRegistration certificateUIRegistration;
 	private static int setUpCounter = 0;
-	private static ServiceReference packageAdminRef;
+	private static ServiceReference<PackageAdmin> packageAdminRef;
 
 	private static Bundle getBundle(PackageAdmin packageAdmin, String symbolicName) {
 		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
@@ -75,8 +76,8 @@ public class TestServerController {
 
 	public static void oneTimeSetUp() throws Exception {
 		BundleContext context = TestActivator.getContext();
-		packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
-		PackageAdmin pkgAdmin = (PackageAdmin) context.getService(packageAdminRef);
+		packageAdminRef = context.getServiceReference(PackageAdmin.class);
+		PackageAdmin pkgAdmin = context.getService(packageAdminRef);
 
 		// Make sure these are not running
 		stopTransient(pkgAdmin, BUNDLE_EQUINOX_HTTP);
@@ -102,7 +103,7 @@ public class TestServerController {
 	public static void oneTimeTearDown() throws Exception {
 		BundleContext context = TestActivator.getContext();
 		certificateUIRegistration.unregister();
-		PackageAdmin pkgAdmin = (PackageAdmin) context.getService(packageAdminRef);
+		PackageAdmin pkgAdmin = context.getService(packageAdminRef);
 		stopTransient(pkgAdmin, BUNDLE_TESTSERVER);
 		stopTransient(pkgAdmin, BUNDLE_EQUINOX_HTTP);
 		context.ungetService(packageAdminRef);

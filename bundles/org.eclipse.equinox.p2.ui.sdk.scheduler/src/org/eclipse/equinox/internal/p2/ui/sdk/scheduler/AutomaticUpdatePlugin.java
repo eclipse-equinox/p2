@@ -123,10 +123,10 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	public IProvisioningEventBus getProvisioningEventBus() {
-		ServiceReference<?> busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
+		ServiceReference<IProvisioningEventBus> busReference = context.getServiceReference(IProvisioningEventBus.class);
 		if (busReference == null)
 			return null;
-		return (IProvisioningEventBus) context.getService(busReference);
+		return context.getService(busReference);
 	}
 
 	/*
@@ -146,10 +146,10 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	public IAgentLocation getAgentLocation() {
-		ServiceReference<?> ref = getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		ServiceReference<IAgentLocation> ref = getContext().getServiceReference(IAgentLocation.class);
 		if (ref == null)
 			return null;
-		IAgentLocation location = (IAgentLocation) getContext().getService(ref);
+		IAgentLocation location = getContext().getService(ref);
 		getContext().ungetService(ref);
 		return location;
 	}
@@ -184,10 +184,10 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	public IProvisioningAgentProvider getAgentProvider() {
-		ServiceReference<?> ref = getContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		ServiceReference<IProvisioningAgentProvider> ref = getContext().getServiceReference(IProvisioningAgentProvider.class);
 		if (ref == null)
 			return null;
-		IProvisioningAgentProvider agentProvider = (IProvisioningAgentProvider) getContext().getService(ref);
+		IProvisioningAgentProvider agentProvider = getContext().getService(ref);
 		getContext().ungetService(ref);
 		return agentProvider;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
@@ -158,10 +159,10 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	private IAgentLocation getAgentLocation() {
-		ServiceReference<?> ref = getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		ServiceReference<IAgentLocation> ref = getContext().getServiceReference(IAgentLocation.class);
 		if (ref == null)
 			return null;
-		IAgentLocation location = (IAgentLocation) getContext().getService(ref);
+		IAgentLocation location = getContext().getService(ref);
 		getContext().ungetService(ref);
 		return location;
 	}

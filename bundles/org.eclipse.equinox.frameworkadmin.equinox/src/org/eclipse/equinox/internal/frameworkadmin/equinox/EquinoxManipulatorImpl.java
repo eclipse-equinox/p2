@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Red Hat, Inc - bug 305712
+ *     Red Hat, Inc - bug 305712, bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.equinox;
 
@@ -283,8 +283,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		}
 		// 2. Create a Manipulator object fully initialized to the current running fw.
 
-		ServiceReference<?> reference = context.getServiceReference(StartLevel.class.getName());
-		StartLevel startLevel = (StartLevel) context.getService(reference);
+		ServiceReference<StartLevel> reference = context.getServiceReference(StartLevel.class);
+		StartLevel startLevel = context.getService(reference);
 		Bundle[] bundles = context.getBundles();
 		BundleInfo[] bInfos = new BundleInfo[bundles.length];
 		for (int i = 0; i < bundles.length; i++) {

@@ -34,7 +34,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 public class ProvUIActivator extends AbstractUIPlugin {
 	private static BundleContext context;
 	private static PackageAdmin packageAdmin = null;
-	private static ServiceReference<?> packageAdminRef = null;
+	private static ServiceReference<PackageAdmin> packageAdminRef = null;
 	private static ProvUIActivator plugin;
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
 
@@ -83,8 +83,8 @@ public class ProvUIActivator extends AbstractUIPlugin {
 
 		plugin = this;
 		ProvUIActivator.context = bundleContext;
-		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
-		packageAdmin = (PackageAdmin) bundleContext.getService(packageAdminRef);
+		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class);
+		packageAdmin = bundleContext.getService(packageAdminRef);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {

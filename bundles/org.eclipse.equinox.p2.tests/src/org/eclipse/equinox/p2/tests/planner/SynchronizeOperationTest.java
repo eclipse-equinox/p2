@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011 Sonatype, Inc. and others.
+ *  Copyright (c) 2011, 2015 Sonatype, Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *     IBM Corporation - Ongoing development
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
@@ -34,8 +35,8 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 
 	//Directly test the operation
 	public void testSyncOperation() throws ProvisionException {
-		ServiceReference providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class.getName());
-		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) TestActivator.context.getService(providerRef);
+		ServiceReference<IProvisioningAgentProvider> providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = TestActivator.context.getService(providerRef);
 
 		URI p2location = getTestData("p2 location", "testData/synchronizeOperation/p2").toURI();
 		URI repoLocation = getTestData("p2 location", "testData/synchronizeOperation/repo").toURI();
@@ -54,8 +55,8 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 
 	//Test a copy of the helper code
 	public void testCopyOfHelper() throws ProvisionException {
-		ServiceReference providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class.getName());
-		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) TestActivator.context.getService(providerRef);
+		ServiceReference<IProvisioningAgentProvider> providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = TestActivator.context.getService(providerRef);
 
 		URI p2location = getTestData("p2 location", "testData/synchronizeOperation/p2").toURI();
 		URI repoLocation = getTestData("p2 location", "testData/synchronizeOperation/repo").toURI();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
+ * Copyright (c) 2010, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
@@ -33,8 +34,8 @@ public class ProvisioningAgentTest extends AbstractProvisioningTest {
 		URI p2location = getTempFolder().toURI();
 		String PROFILE_ID = "testMultipleAgents";
 
-		ServiceReference providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class.getName());
-		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) TestActivator.context.getService(providerRef);
+		ServiceReference<IProvisioningAgentProvider> providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = TestActivator.context.getService(providerRef);
 
 		IProvisioningAgent firstAgent = provider.createAgent(p2location);
 		IProfileRegistry firstProfileRegistry = (IProfileRegistry) firstAgent.getService(IProfileRegistry.SERVICE_NAME);

@@ -47,8 +47,8 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 	private IProvisioningAgent end2endAgent = null;
 
 	protected void setUp() throws Exception {
-		ServiceReference sr = TestActivator.context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
-		IProvisioningAgentProvider agentFactory = (IProvisioningAgentProvider) TestActivator.context.getService(sr);
+		ServiceReference<IProvisioningAgentProvider> sr = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider agentFactory = TestActivator.context.getService(sr);
 		end2endAgent = agentFactory.createAgent(getTempFolder().toURI());
 		metadataRepoManager = (IMetadataRepositoryManager) end2endAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		artifactRepoManager = (IArtifactRepositoryManager) end2endAgent.getService(IArtifactRepositoryManager.SERVICE_NAME);

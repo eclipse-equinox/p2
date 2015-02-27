@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
+ *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
@@ -63,10 +64,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	}
 
 	private static IAgentLocation getDefaultAgentLocation() {
-		ServiceReference<?> reference = ProvSDKUIActivator.getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		ServiceReference<IAgentLocation> reference = ProvSDKUIActivator.getContext().getServiceReference(IAgentLocation.class);
 		if (reference == null)
 			return null;
-		IAgentLocation result = (IAgentLocation) ProvSDKUIActivator.getContext().getService(reference);
+		IAgentLocation result = ProvSDKUIActivator.getContext().getService(reference);
 		ProvSDKUIActivator.getContext().ungetService(reference);
 		return result;
 	}

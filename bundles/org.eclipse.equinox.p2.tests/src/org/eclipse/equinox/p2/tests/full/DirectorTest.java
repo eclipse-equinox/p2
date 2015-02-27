@@ -37,11 +37,11 @@ import org.osgi.framework.ServiceReference;
 public class DirectorTest extends AbstractProvisioningTest {
 
 	public void testInstallIU() {
-		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.SERVICE_NAME);
+		ServiceReference<IDirector> sr = TestActivator.context.getServiceReference(IDirector.class);
 		if (sr == null) {
 			throw new RuntimeException("Director service not available");
 		}
-		IDirector director = (IDirector) TestActivator.context.getService(sr);
+		IDirector director = TestActivator.context.getService(sr);
 		if (director == null) {
 			throw new RuntimeException("Director could not be loaded");
 		}

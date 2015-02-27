@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,7 +7,7 @@
  * Contributors: 
  *     IBM Corporation - initial API and implementation
  *     Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
- * read .info files from many locations
+ * read .info files from many locations, Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator;
 
@@ -44,15 +44,15 @@ class ConfigApplier {
 		inDevMode = manipulatingContext.getProperty(PROP_DEVMODE) != null;
 		baseLocation = runningOnEquinox ? EquinoxUtils.getInstallLocationURI(context) : null;
 
-		ServiceReference<?> packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class.getName());
+		ServiceReference<PackageAdmin> packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class);
 		if (packageAdminRef == null)
 			throw new IllegalStateException("No PackageAdmin service is available."); //$NON-NLS-1$
-		packageAdminService = (PackageAdmin) manipulatingContext.getService(packageAdminRef);
+		packageAdminService = manipulatingContext.getService(packageAdminRef);
 
-		ServiceReference<?> startLevelRef = manipulatingContext.getServiceReference(StartLevel.class.getName());
+		ServiceReference<StartLevel> startLevelRef = manipulatingContext.getServiceReference(StartLevel.class);
 		if (startLevelRef == null)
 			throw new IllegalStateException("No StartLevelService service is available."); //$NON-NLS-1$
-		startLevelService = (StartLevel) manipulatingContext.getService(startLevelRef);
+		startLevelService = manipulatingContext.getService(startLevelRef);
 
 		frameworkWiring = (FrameworkWiring) manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
 	}
