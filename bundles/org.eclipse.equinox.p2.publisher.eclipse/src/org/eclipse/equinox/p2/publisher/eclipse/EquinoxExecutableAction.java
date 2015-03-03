@@ -15,7 +15,6 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.BrandingIron;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.p2.metadata.*;
@@ -158,10 +157,6 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String os = config[1];
 		Map<String, String> touchpointData = computeInstallActions(execDescriptor, os);
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		if (Constants.OS_MACOSX.equals(os)) {
-			result.addIU(createBundledMacIU(execDescriptor), IPublisherResult.ROOT);
-			cu.setFilter(InstallableUnit.parseFilter("(& (!(macosx-bundled=*)) " + createLDAPString(configSpec) + ")")); //$NON-NLS-1$ //$NON-NLS-2$
-		}
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
 
@@ -182,32 +177,13 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		return cu;
 	}
 
-	private IInstallableUnit createBundledMacIU(ExecutablesDescriptor execDescriptor) {
-		InstallableUnitFragmentDescription cu = createSkeletonExecutableCU(execDescriptor);
-		String baseId = createCUIdString(idBase, TYPE, flavor, configSpec);
-		String id = baseId + "-bundled"; //$NON-NLS-1$
-		cu.setId(id);
-		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(baseId, version), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, version)});
-		cu.setFilter(InstallableUnit.parseFilter("(&(macosx-bundled=true)" + createLDAPString(configSpec) + ")")); //$NON-NLS-1$//$NON-NLS-2$
-		Map<String, String> touchpointData = computeInstallActions(execDescriptor, org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED);
-		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		return MetadataFactory.createInstallableUnit(cu);
-	}
-
 	private Map<String, String> computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
+		if (Constants.OS_MACOSX.equals(os))
+			return computeMacInstallActions(execDescriptor);
+
 		Map<String, String> touchpointData = new HashMap<String, String>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-		if (org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED.equals(os)) {
-			String execName = execDescriptor.getExecutableName();
-			String appName = guessMacAppName(execName);
-			configurationData = "unzip(source:@artifact, target:${installFolder}, path:" + appName + ".app);"; //$NON-NLS-1$ //$NON-NLS-2$
-			configurationData += " chmod(targetDir:${installFolder}/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$			
-		} else if (Constants.OS_MACOSX.equals(os)) {
-			String execName = execDescriptor.getExecutableName();
-			String appName = guessMacAppName(execName);
-			configurationData += " chmod(targetDir:${installFolder}/" + appName + ".app/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			configurationData += " ln(targetDir:${installFolder}, linkTarget:" + appName + ".app/Contents/MacOS/" + execName + ", linkName:" + execName + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		} else if (!Constants.OS_WIN32.equals(os)) {
+		if (!Constants.OS_WIN32.equals(os)) {
 			// We are on linux/unix.  by default set all of the files to be executable.
 			File[] fileList = execDescriptor.getFiles();
 			for (int i = 0; i < fileList.length; i++)
@@ -215,6 +191,17 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
+		return touchpointData;
+	}
+
+	private Map<String, String> computeMacInstallActions(ExecutablesDescriptor execDescriptor) {
+		Map<String, String> touchpointData = new HashMap<String, String>();
+		String configurationData = "unzip(source:@artifact, target:${installFolder}/../);"; //$NON-NLS-1$
+		String execName = execDescriptor.getExecutableName();
+		configurationData += " chmod(targetDir:${installFolder}/../MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		touchpointData.put("install", configurationData); //$NON-NLS-1$
+		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder}/../);"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		return touchpointData;
 	}

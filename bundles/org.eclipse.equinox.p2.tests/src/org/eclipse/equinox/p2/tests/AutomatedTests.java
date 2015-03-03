@@ -23,6 +23,7 @@ import junit.framework.*;
 public class AutomatedTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
+		suite.addTest(org.eclipse.equinox.p2.tests.publisher.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.frameworkadmin.tests.AllTests.suite());
 
 		suite.addTest(org.eclipse.equinox.p2.tests.ant.AllTests.suite());
@@ -46,7 +47,6 @@ public class AutomatedTests extends TestCase {
 		suite.addTest(org.eclipse.equinox.p2.tests.omniVersion.AllTests.suite());
 		//org.eclipse.equinox.p2.tests.perf -- Executed as part of the 
 		suite.addTest(org.eclipse.equinox.p2.tests.planner.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.publisher.AllTests.suite());
 		//org.eclipse.equinox.p2.tests.publisher.actions -- The tests found in this package are invoked from the publisher package 
 		suite.addTest(org.eclipse.equinox.p2.tests.ql.AllTests.suite());
 		//org.eclipse.equinox.p2.tests.reconciler.dropins -- Off sequence

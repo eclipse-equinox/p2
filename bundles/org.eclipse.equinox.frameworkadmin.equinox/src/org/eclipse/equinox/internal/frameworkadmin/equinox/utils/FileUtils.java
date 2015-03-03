@@ -15,12 +15,12 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.*;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.osgi.service.environment.Constants;
 import org.osgi.framework.Version;
-import org.osgi.service.log.LogService;
 
 public class FileUtils {
 	private static String FILE_SCHEME = "file"; //$NON-NLS-1$
@@ -76,12 +76,10 @@ public class FileUtils {
 			File launcherDir = null;
 			if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
 				IPath launcherPath = new Path(launcherData.getLauncher().getAbsolutePath());
-				if (launcherPath.segmentCount() > 4) {
-					launcherPath = launcherPath.removeLastSegments(4);
+				if (launcherPath.segmentCount() > 2) {
+					launcherPath = launcherPath.removeLastSegments(2).append("Eclipse");
 					launcherDir = launcherPath.toFile();
 				}
-			} else if (EclipseLauncherParser.MACOSX_BUNDLED.equals(launcherData.getOS())) {
-				Log.log(LogService.LOG_WARNING, "Problem figuring out the osgi install area. The bundled mode of macosx requires a -startup argument to be specified."); //$NON-NLS-1$
 			} else
 				launcherDir = launcherData.getLauncher().getParentFile();
 			pluginsDir = new File(launcherDir, EquinoxConstants.PLUGINS_DIR);

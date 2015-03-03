@@ -21,13 +21,12 @@ import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
+import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.log.LogService;
 
 public class EclipseLauncherParser {
-	public static final String MAC_OS_APP_FOLDER = ".app/Contents/MacOS"; //$NON-NLS-1$
 	private static final String CONFIGURATION_FOLDER = "configuration"; //$NON-NLS-1$
-	public static final String MACOSX_BUNDLED = "macosx-bundled"; //$NON-NLS-1$
 
 	//this figures out the location of the data area on partial data read from the <eclipse>.ini
 	private URI getOSGiInstallArea(List<String> lines, URI base, LauncherData launcherData) {
@@ -47,14 +46,11 @@ public class EclipseLauncherParser {
 			ParserUtils.removeArgument(EquinoxConstants.OPTION_INSTALL, lines);
 			return;
 		}
-		String launcherString = launcherFolder.getAbsolutePath().replace('\\', '/');
-		if (launcherString.endsWith(MAC_OS_APP_FOLDER)) {
-			//We can do 3 calls to getParentFile without checking because
-			launcherFolder = launcherFolder.getParentFile().getParentFile();
-			if (!launcherData.getOS().endsWith(MACOSX_BUNDLED))
-				launcherFolder = launcherFolder.getParentFile();
-		}
-		if (!ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()).equals(launcherFolder)) {
+		if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
+			if (!new File(ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()), "../MacOS").equals(launcherFolder)) {
+				ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, launcherFolder.getAbsolutePath().replace('\\', '/'), lines);
+			}
+		} else if (!ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()).equals(launcherFolder)) {
 			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, launcherFolder.getAbsolutePath().replace('\\', '/'), lines);
 		}
 	}

@@ -16,7 +16,6 @@ import java.net.*;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
@@ -79,21 +78,15 @@ public class PlatformConfigurationWrapper {
 				//the equinox launcher will look 3 levels up on the mac when going from executable to launcher.jar
 				//see org.eclipse.equinox.executable/library/eclipse.c : findStartupJar();
 				IPath launcherPath = new Path(launcherFile.getAbsolutePath());
-				if (launcherPath.segmentCount() > 4) {
+				if (launcherPath.segmentCount() > 2) {
 					//removing "Eclipse.app/Contents/MacOS/eclipse"
-					launcherPath = launcherPath.removeLastSegments(4);
+					launcherPath = launcherPath.removeLastSegments(2);
 					try {
 						return launcherPath.toFile().toURI().toURL();
 					} catch (MalformedURLException e) {
 						// ignore - shouldn't happen
 					}
 				}
-			}
-			if (org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED.equals(launcherData.getOS())) {
-				//We are in a situation where the launcher path is not set in the launcher file. 
-				//The laid out installation is not going to work because the macos launcher looks 3 levels up for the launcher jars (see previous if).
-				//Log this fact and move on. Though we should probably fail.
-				LogHelper.log(Util.createError(Messages.invalid_macox_bundled_setup));
 			}
 			try {
 				return launcherFile.getParentFile().toURI().toURL();

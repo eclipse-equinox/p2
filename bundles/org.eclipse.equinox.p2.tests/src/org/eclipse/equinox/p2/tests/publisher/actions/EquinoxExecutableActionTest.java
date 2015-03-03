@@ -40,7 +40,6 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private static final File WIN_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/win/"); //$NON-NLS-1$
 	private final String EXECUTABLE_NAME = "LauncherName"; //$NON-NLS-1$
 	private Collection<IBrandingAdvice> brandingAdvice = new LinkedList<IBrandingAdvice>();
-	private String macConfig = "carbon.macosx.ppc"; //$NON-NLS-1$
 	private String macConfigCocoa = "cocoa.macosx.x86"; //$NON-NLS-1$
 	private String winConfig = "win32.win32.x86"; //$NON-NLS-1$
 	private String linuxConfig = "linux.gtk.x86"; //$NON-NLS-1$
@@ -59,19 +58,11 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		artifactRepository = new TestArtifactRepository(getAgent());
 	}
 
-	public void testMacCarbon() throws Exception {
-		File icon = File.createTempFile(EXECUTABLE_NAME, ".icns");
-		FileUtils.copyStream(new FileInputStream(new File(MAC_EXEC, "eclipse.app/Contents/Resources/eclipse.icns")), true, new FileOutputStream(icon), true);
-
-		expectedExecutablesContents = new String[] {EXECUTABLE_NAME + ".app", EXECUTABLE_NAME + ".app/Contents/Info.plist", EXECUTABLE_NAME + ".app/Contents/MacOS/" + EXECUTABLE_NAME, EXECUTABLE_NAME + ".app/Contents/MacOS/" + EXECUTABLE_NAME + ".ini", EXECUTABLE_NAME + ".app/Contents/Resources/" + icon.getName()};
-		testExecutableAction("mac", "macosx", macConfig, MAC_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
-	}
-
 	public void testMacCocoa() throws Exception {
 		File icon = File.createTempFile(EXECUTABLE_NAME, ".icns");
 		FileUtils.copyStream(new FileInputStream(new File(MAC_EXEC, "eclipse.app/Contents/Resources/eclipse.icns")), true, new FileOutputStream(icon), true);
 
-		expectedExecutablesContents = new String[] {EXECUTABLE_NAME + ".app", EXECUTABLE_NAME + ".app/Contents/Info.plist", EXECUTABLE_NAME + ".app/Contents/MacOS/" + EXECUTABLE_NAME, EXECUTABLE_NAME + ".app/Contents/MacOS/" + EXECUTABLE_NAME + ".ini", EXECUTABLE_NAME + ".app/Contents/Resources/" + icon.getName()};
+		expectedExecutablesContents = new String[] {"Info.plist", "MacOS/" + EXECUTABLE_NAME, "MacOS/" + EXECUTABLE_NAME + ".ini", "Resources/" + icon.getName()};
 		testExecutableAction("macCocoa", "macosx", macConfigCocoa, MAC_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
@@ -104,13 +95,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	private void verifyResults(String idBase, String confSpec) {
 		ArrayList iuList = new ArrayList(publisherResult.getIUs(null, IPublisherResult.ROOT));
-		verifyExecIU(iuList, idBase, confSpec);
 		verifyEclipseIU(iuList, idBase, confSpec);
 		verifyCU(iuList, idBase, confSpec);
-		if (confSpec.contains("macosx"))
-			assertTrue(iuList.size() == 4);
-		else
-			assertTrue(iuList.size() == 3);
+		verifyExecIU(iuList, idBase, confSpec);
+		assertTrue(iuList.size() == 3);
 	}
 
 	private void verifyCU(ArrayList iuList, String idBase, String confSpec) {
@@ -205,8 +193,8 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			for (String path : expectedExecutablesContents) {
 				assertNotNull("executable zip missing " + path, zip.getEntry(path));
 			}
-
-			checkInfoPlist(zip);
+			if (key.getId().contains("macosx"))
+				checkInfoPlist(zip);
 		} finally {
 			zip.close();
 		}
@@ -222,13 +210,12 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		boolean found = false;
 		for (Enumeration<? extends ZipEntry> iter = zip.entries(); !found && iter.hasMoreElements();) {
 			candidate = iter.nextElement();
-			found = candidate.getName().endsWith(".app/Contents/Info.plist");
+			found = candidate.getName().endsWith("Info.plist");
 		}
-		if (!found) {
-			return;
-		}
+		assertTrue(found);
 		try {
 			String contents = readContentsAndClose(zip.getInputStream(candidate));
+			System.out.println("INFO.PLIST.CONTENT IS----> " + contents);
 			assertEquals(id, getPlistStringValue(contents, "CFBundleIdentifier"));
 			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleExecutable"));
 			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleName"));

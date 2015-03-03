@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.EclipseLauncherParser;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.service.environment.Constants;
 import org.osgi.framework.BundleException;
@@ -47,8 +46,8 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 		configurationFolder = new File(installFolder, "configuration");
 		launcherName = "eclipse";
 
-		boolean isMacOS = Constants.OS_MACOSX.equals(os) || EclipseLauncherParser.MACOSX_BUNDLED.equals(os);
-		launcherPath = isMacOS ? new Path("Eclipse" + EclipseLauncherParser.MAC_OS_APP_FOLDER).append(launcherName) : new Path(launcherName);
+		boolean isMacOS = Constants.OS_MACOSX.equals(os);
+		launcherPath = isMacOS ? new Path("../").append(launcherName) : new Path(launcherName);
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setHome(installFolder);

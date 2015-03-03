@@ -12,6 +12,8 @@
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.*;
+import java.util.List;
+import javax.xml.transform.TransformerException;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.pde.internal.publishing.Utils;
 import org.eclipse.pde.internal.swt.tools.IconExe;
@@ -20,18 +22,6 @@ import org.eclipse.pde.internal.swt.tools.IconExe;
  *
  */
 public class BrandingIron {
-	private static final String MARKER_NAME = "%EXECUTABLE_NAME%"; //$NON-NLS-1$
-	private static final String BUNDLE_NAME = "%BUNDLE_NAME%"; //$NON-NLS-1$
-	private static final String ICON_NAME = "%ICON_NAME%"; //$NON-NLS-1$
-	private static final String MARKER_KEY = "<key>CFBundleExecutable</key>"; //$NON-NLS-1$
-	private static final String BUNDLE_KEY = "<key>CFBundleName</key>"; //$NON-NLS-1$
-	private static final String BUNDLE_ID_KEY = "<key>CFBundleIdentifier</key>"; //$NON-NLS-1$
-	private static final String BUNDLE_INFO_KEY = "<key>CFBundleGetInfoString</key>"; //$NON-NLS-1$
-	private static final String BUNDLE_VERSION_KEY = "<key>CFBundleVersion</key>"; //$NON-NLS-1$
-	private static final String BUNDLE_SHORT_VERSION_KEY = "<key>CFBundleShortVersionString</key>"; //$NON-NLS-1$
-	private static final String ICON_KEY = "<key>CFBundleIconFile</key>"; //$NON-NLS-1$
-	private static final String STRING_START = "<string>"; //$NON-NLS-1$
-	private static final String STRING_END = "</string>"; //$NON-NLS-1$
 	private static final String XDOC_ICON = "-Xdock:icon=../Resources/Eclipse.icns"; //$NON-NLS-1$
 	private static final String XDOC_ICON_PREFIX = "-Xdock:icon=../Resources/"; //$NON-NLS-1$
 
@@ -186,7 +176,7 @@ public class BrandingIron {
 		//Initialize the target folders
 		File root = descriptor.getLocation();
 
-		File target = new File(root, applicationName + ".app/Contents"); //$NON-NLS-1$
+		File target = root;
 		target.mkdirs();
 		new File(target, "MacOS").mkdirs(); //$NON-NLS-1$
 		new File(target, "Resources").mkdirs(); //$NON-NLS-1$
@@ -505,29 +495,21 @@ public class BrandingIron {
 
 	private void modifyInfoPListFile(ExecutablesDescriptor descriptor, File initialRoot, File targetRoot, String iconName) {
 		File infoPList = new File(initialRoot, "Info.plist"); //$NON-NLS-1$
-		StringBuffer buffer;
+		InfoPListEditor infoPListEditor = null;
 		try {
-			buffer = readFile(infoPList);
+			infoPListEditor = InfoPListEditor.loadPListEditor(infoPList);
 		} catch (IOException e) {
-			System.out.println("Impossible to brand info.plist file"); //$NON-NLS-1$
+			System.out.println("Impossible to create info.plist editor for " + infoPList.getAbsolutePath() + ". Caused by " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return;
 		}
-		int exePos = scan(buffer, 0, MARKER_NAME);
-		if (exePos != -1)
-			buffer.replace(exePos, exePos + MARKER_NAME.length(), name);
-		else {
-			replacePlistValue(buffer, MARKER_KEY, name);
-		}
 
-		int bundlePos = scan(buffer, 0, BUNDLE_NAME);
-		if (bundlePos != -1)
-			buffer.replace(bundlePos, bundlePos + BUNDLE_NAME.length(), name);
-		else {
-			replacePlistValue(buffer, BUNDLE_KEY, name);
-		}
+		//Deal with error case
+		infoPListEditor.setKey(InfoPListEditor.MARKER_KEY, name);
+		infoPListEditor.setKey(InfoPListEditor.BUNDLE_KEY, name);
+		infoPListEditor.setKey(InfoPListEditor.BUNDLE_ID_KEY, id);
+		if (description != null)
+			infoPListEditor.setKey(InfoPListEditor.BUNDLE_INFO_KEY, description);
 
-		replacePlistValue(buffer, BUNDLE_ID_KEY, id);
-		replacePlistValue(buffer, BUNDLE_INFO_KEY, description);
 		if (version != null) {
 			// CFBundleShortVersionString is to be 3 segments only
 			// http://developer.apple.com/library/mac/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html#//apple_ref/doc/uid/20001431-111349
@@ -536,28 +518,21 @@ public class BrandingIron {
 			sv.append(version.getSegmentCount() > 1 ? version.getSegment(1).toString() : "0"); //$NON-NLS-1$
 			sv.append('.');
 			sv.append(version.getSegmentCount() > 2 ? version.getSegment(2).toString() : "0"); //$NON-NLS-1$
-			replacePlistValue(buffer, BUNDLE_VERSION_KEY, version.toString());
-			replacePlistValue(buffer, BUNDLE_SHORT_VERSION_KEY, sv.toString());
+			infoPListEditor.setKey(InfoPListEditor.BUNDLE_VERSION_KEY, version.toString());
+			infoPListEditor.setKey(InfoPListEditor.BUNDLE_SHORT_VERSION_KEY, sv.toString());
 		}
 
 		if (iconName.length() > 0) {
-			int iconPos = scan(buffer, 0, ICON_NAME);
-			if (iconPos != -1) {
-				buffer.replace(iconPos, iconPos + ICON_NAME.length(), iconName);
-			} else {
-				replacePlistValue(buffer, ICON_KEY, iconName);
-			}
+			infoPListEditor.setKey(InfoPListEditor.ICON_KEY, iconName);
 		}
 
+		insertLauncherIni(infoPListEditor, descriptor.getExecutableName());
 		File target = new File(targetRoot, "Info.plist"); //$NON-NLS-1$;
 		try {
 			target.getParentFile().mkdirs();
-			transferStreams(new ByteArrayInputStream(buffer.toString().getBytes()), new FileOutputStream(target));
-		} catch (FileNotFoundException e) {
-			System.out.println("Impossible to brand info.plist file"); //$NON-NLS-1$
-			return;
-		} catch (IOException e) {
-			System.out.println("Impossible to brand info.plist file"); //$NON-NLS-1$
+			infoPListEditor.save(target);
+		} catch (TransformerException e) {
+			System.out.println("Impossible to save info.plist file " + target.getAbsolutePath()); //$NON-NLS-1$
 			return;
 		}
 		try {
@@ -569,18 +544,17 @@ public class BrandingIron {
 		descriptor.replace(infoPList, target);
 	}
 
-	private void replacePlistValue(StringBuffer buffer, String key, String value) {
-		if (value == null) {
-			return;
+	private void insertLauncherIni(InfoPListEditor infoPListEditor, String launcher) {
+		final String LAUNCHER_INI = "--launcher.ini"; //$NON-NLS-1$
+		List<String> args = infoPListEditor.getEclipseArguments();
+		int match = args.indexOf(LAUNCHER_INI);
+		if (match != -1) {
+			args.remove(LAUNCHER_INI);
+			args.remove(match + 1);
 		}
-		int exePos = scan(buffer, 0, key);
-		if (exePos != -1) {
-			int start = scan(buffer, exePos + key.length(), STRING_START);
-			int end = scan(buffer, start + STRING_START.length(), STRING_END);
-			if (start > -1 && end > start) {
-				buffer.replace(start + STRING_START.length(), end, value);
-			}
-		}
+		args.add(LAUNCHER_INI);
+		args.add("$APP_PACKAGE/Contents/Eclipse/" + launcher + ".ini"); //$NON-NLS-1$//$NON-NLS-2$
+		infoPListEditor.setEclipseArguments(args);
 	}
 
 	private int scan(StringBuffer buf, int start, String targetName) {

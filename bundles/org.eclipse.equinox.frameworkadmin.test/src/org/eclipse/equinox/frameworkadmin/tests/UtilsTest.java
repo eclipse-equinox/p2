@@ -11,6 +11,7 @@
 package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.File;
+import java.net.URI;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.osgi.service.environment.Constants;
@@ -53,14 +54,15 @@ public class UtilsTest extends AbstractFwkAdminTest {
 	}
 	
 	public void testMacRealLocation() throws Exception {
-		File installFolder = Activator.getContext().getDataFile("280007");
+		File installFolder = Activator.getContext().getDataFile("280007/Eclipse.app/Contents/Eclipse/");
 
 		File plugins = new File(installFolder, "plugins");
 		File foo = new File(plugins, "org.foo_1.2.3.abc");
 		foo.mkdirs();
 
-		Manipulator manipulator = getFrameworkManipulator(new File(installFolder, "configuration"), new File(installFolder, "Eclipse.app/Contents/MacOS/eclipse"));
+		Manipulator manipulator = getFrameworkManipulator(new File(installFolder, "configuration"), new File(installFolder, "../MacOS/eclipse"));
 		manipulator.getLauncherData().setOS(Constants.OS_MACOSX);
-		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo"), foo.toURI());
+		URI res = FileUtils.getEclipseRealLocation(manipulator, "org.foo");
+		assertEquals(res, foo.toURI());
 	}
 }

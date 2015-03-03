@@ -502,9 +502,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				props.put(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
 
 			String env = getEnvironmentProperty();
-			//Detect the desire to have a bundled mac application and tweak the environemtn
-			if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(os) && destination.getName().endsWith(".app")) //$NON-NLS-1$
-				env += ',' + org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED + "=true"; //$NON-NLS-1$
 			if (env != null)
 				props.put(IProfile.PROP_ENVIRONMENTS, env);
 			if (profileProperties != null)
@@ -587,12 +584,15 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 	}
 
-	private void initializeServices() throws CoreException {
-		BundleContext context = Activator.getContext();
-		packageAdminRef = context.getServiceReference(PackageAdmin.class);
-		packageAdmin = context.getService(packageAdminRef);
-		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.class);
-		IProvisioningAgentProvider provider = context.getService(agentProviderRef);
+	private void adjustDestination() {
+		//Detect the desire to have a bundled mac application and tweak the environment
+		if (destination == null)
+			return;
+		if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(os) && destination.getName().endsWith(".app")) //$NON-NLS-1$
+			destination = new File(destination, "Contents/Eclipse");
+	}
+
+	private URI getP2DataAreaLocation(BundleContext context) {
 		URI p2DataArea;
 		if (destination != null || sharedLocation != null) {
 			File dataAreaFile = sharedLocation == null ? new File(destination, "p2") : sharedLocation;//$NON-NLS-1$
@@ -613,6 +613,17 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				//Can't happen the filter never changes
 			}
 		}
+		return p2DataArea;
+	}
+
+	private void initializeServices() throws CoreException { //TODO FAIRE QQCHE ICI POUR POSITIONNER p2 folder CORRECTEMENT
+		BundleContext context = Activator.getContext();
+		packageAdminRef = context.getServiceReference(PackageAdmin.class);
+		packageAdmin = context.getService(packageAdminRef);
+		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = context.getService(agentProviderRef);
+
+		URI p2DataArea = getP2DataAreaLocation(context);
 		if (targetAgent == null) {
 			targetAgent = provider.createAgent(p2DataArea);
 			targetAgent.registerService(IProvisioningAgent.INSTALLER_AGENT, provider.createAgent(null));
@@ -1084,6 +1095,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			if (printHelpInfo)
 				performHelpInfo();
 			else {
+				adjustDestination();
 				initializeServices();
 				if (!(printIUList || printRootIUList || printTags)) {
 					if (!canInstallInDestination()) {

@@ -48,7 +48,7 @@ public class LazyManipulator implements Manipulator {
 		launcherData.setFwConfigLocation(Util.getConfigurationFolder(profile));
 		launcherData.setLauncher(Util.getLauncherPath(profile));
 		launcherData.setLauncherConfigLocation(Util.getLauncherConfigLocation(profile));
-		launcherData.setOS(Util.isMacOSBundled(profile) ? org.eclipse.equinox.p2.core.spi.Constants.MACOSX_BUNDLED : Util.getOSFromProfile(profile));
+		launcherData.setOS(Util.getOSFromProfile(profile));
 		launcherData.setHome(Util.getInstallFolder(profile));
 
 		try {

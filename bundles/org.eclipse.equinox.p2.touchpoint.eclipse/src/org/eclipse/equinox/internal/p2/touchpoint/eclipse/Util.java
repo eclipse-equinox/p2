@@ -16,7 +16,6 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -24,7 +23,6 @@ import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.*;
-import org.eclipse.equinox.p2.core.spi.Constants;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -272,23 +270,14 @@ public class Util {
 		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
 		if (name == null || name.length() == 0)
 			name = "eclipse"; //$NON-NLS-1$
-		String launcherName = getLauncherName(name, (isMacOSBundled(profile) ? Constants.MACOSX_BUNDLED : getOSFromProfile(profile)), getInstallFolder(profile));
-		return launcherName == null ? null : new File(getInstallFolder(profile), launcherName);
-	}
-
-	public static boolean isMacOSBundled(IProfile profile) {
-		String environments = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
-		if (environments == null)
-			return false;
-		if (environments.indexOf(Constants.MACOSX_BUNDLED + "=true") != -1) //$NON-NLS-1$
-			return true;
-		return false;
+		String relativePath = getLauncherRelativePath(name, getOSFromProfile(profile), getInstallFolder(profile));
+		return relativePath == null ? null : new File(getInstallFolder(profile), relativePath);
 	}
 
 	/**
 	 * Returns the name of the Eclipse application launcher.
 	 */
-	private static String getLauncherName(String name, String os, File installFolder) {
+	private static String getLauncherRelativePath(String name, String os, File installFolder) {
 		if (os == null) {
 			EnvironmentInfo info = ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class);
 			if (info == null)
@@ -302,38 +291,9 @@ public class Util {
 				return name;
 			return name + ".exe"; //$NON-NLS-1$
 		}
-		if (os.equals(Constants.MACOSX_BUNDLED)) {
-			return "/Contents/MacOS/" + name; //$NON-NLS-1$
-		}
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
-			IPath path = new Path(name);
-			if (path.segment(0).endsWith(".app")) //$NON-NLS-1$
-				return name;
-
-			String appName = null;
-			if (installFolder != null) {
-				File appFolder = new File(installFolder, name + ".app"); //$NON-NLS-1$
-				if (appFolder.exists()) {
-					try {
-						appName = appFolder.getCanonicalFile().getName();
-					} catch (IOException e) {
-						appName = appFolder.getName();
-					}
-				}
-			}
-
-			StringBuffer buffer = new StringBuffer();
-			if (appName != null) {
-				buffer.append(appName);
-			} else {
-				buffer.append(name.substring(0, 1).toUpperCase());
-				buffer.append(name.substring(1));
-				buffer.append(".app"); //$NON-NLS-1$
-			}
-			buffer.append("/Contents/MacOS/"); //$NON-NLS-1$
-			buffer.append(name);
-			return buffer.toString();
+			return "../MacOS/" + name;
 		}
 		return name;
 	}

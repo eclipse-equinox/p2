@@ -27,15 +27,15 @@ public class MacOSLikeSetup extends FwkAdminAndSimpleConfiguratorTest {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = new File(Activator.getContext().getDataFile(MacOSLikeSetup.class.getName()), "eclipse");
+		File installFolder = new File(Activator.getContext().getDataFile(getName()), "Eclipse.app/Contents/Eclipse");
 		File configurationFolder = new File(installFolder, "configuration");
-		File launcherFolder = new File(installFolder, "Eclipse.app/Contents/MacOS/"); 
+		File launcherFolder = new File(installFolder, "../MacOS/"); 
 		File launcherName = new File(launcherFolder, "eclipse");
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(configurationFolder);
 		launcherData.setLauncher(launcherName);
-		launcherData.setLauncherConfigLocation(new File(launcherFolder, "eclipse.ini"));
+		launcherData.setLauncherConfigLocation(new File(installFolder, "eclipse.ini"));
 		launcherData.setOS(Constants.OS_MACOSX);
 
 		//Setup the plugins as they should
@@ -60,11 +60,11 @@ public class MacOSLikeSetup extends FwkAdminAndSimpleConfiguratorTest {
 		} catch (IllegalStateException e) {
 			//TODO We ignore the framework JAR location not set exception
 		}
-		File launcherIni = new File(launcherFolder, "eclipse.ini");
+		File launcherIni = new File(installFolder, "eclipse.ini");
 		assertNotContent(launcherIni, "-configuration");
 		assertNotContent(launcherIni, "-install");
 		assertContent(launcherIni, "-startup");
-		assertContent(launcherIni, "../../../plugins/org.eclipse.equinox.launcher.jar");
+		assertContent(launcherIni, "../Eclipse/plugins/org.eclipse.equinox.launcher.jar");
 		assertNotContent(launcherIni, MacOSLikeSetup.class.getName());
 		assertNotContent(new File(configurationFolder, "config.ini"), MacOSLikeSetup.class.getName());
 		assertTrue("bundles.info missing", new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info").exists());
@@ -75,9 +75,9 @@ public class MacOSLikeSetup extends FwkAdminAndSimpleConfiguratorTest {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = new File(Activator.getContext().getDataFile(MacOSLikeSetup.class.getName()), "eclipse");
+		File installFolder = new File(Activator.getContext().getDataFile(getName()), "Eclipse.app/Contents/Eclipse");
 		File configurationFolder = new File(installFolder, "configuration");
-		File launcherFolder = new File(installFolder, "Eclipse.app/Contents/MacOS/"); 
+		File launcherFolder = new File(installFolder, "../MacOS/"); 
 		File launcherName = new File(launcherFolder, "eclipse");
 
 		LauncherData launcherData = manipulator.getLauncherData();
@@ -97,10 +97,9 @@ public class MacOSLikeSetup extends FwkAdminAndSimpleConfiguratorTest {
 		manipulator.getConfigData().addBundle(new BundleInfo(bundle.toURI()));
 		manipulator.save(false);
 		
-		File launcherIni = new File(launcherFolder, "eclipse.ini");
+		File launcherIni = new File(installFolder, "eclipse.ini");
 		File bundleInfo = new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info");
-		assertNotContent(launcherIni, "-configuration");
-		assertNotContent(launcherIni, "../../../configuration");
+		assertFalse(launcherIni.exists());
 		assertContent(bundleInfo, "file:plugins/bundle_1/");
 	}
 }
