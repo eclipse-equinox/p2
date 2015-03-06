@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Reconciler test application" uid="org.eclipse.equinox.p2.reconciler" id="org.eclipse.equinox.p2.reconciler.dropins.product" application="org.eclipse.ui.ide.workbench" version="1.0.0" useFeatures="false" includeLaunchers="true">
+<product name="Reconciler test application" uid="org.eclipse.equinox.p2.reconciler" id="org.eclipse.equinox.p2.reconciler.dropins.product" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -106,7 +106,6 @@
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins"/>
       <plugin id="org.eclipse.equinox.p2.repository"/>
       <plugin id="org.eclipse.equinox.p2.sar"/>
-      <!--plugin id="org.eclipse.equinox.p2.tests.verifier"/-->
       <plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
       <plugin id="org.eclipse.equinox.p2.touchpoint.natives"/>
       <plugin id="org.eclipse.equinox.p2.transport.ecf"/>
