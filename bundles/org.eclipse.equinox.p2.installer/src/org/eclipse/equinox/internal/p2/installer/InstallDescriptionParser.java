@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -53,14 +53,14 @@ public class InstallDescriptionParser {
 		URI propsURI = URIUtil.fromString(site);
 		InputStream in = null;
 		if (!propsURI.isAbsolute()) {
-			String installerInstallArea = System.getProperty("osgi.install.area");
+			String installerInstallArea = System.getProperty("osgi.install.area"); //$NON-NLS-1$
 			if (installerInstallArea == null)
-				throw new IllegalStateException("Install area is not specified.");
+				throw new IllegalStateException("Install area is not specified."); //$NON-NLS-1$
 
 			propsURI = URIUtil.append(URIUtil.fromString(installerInstallArea), site);
 			File installerDescription = URIUtil.toFile(propsURI);
 			if (!installerDescription.exists()) {
-				throw new IllegalStateException("Can't find install description file: " + installerDescription);
+				throw new IllegalStateException("Can't find install description file: " + installerDescription); //$NON-NLS-1$
 			}
 		}
 		Map<String, String> properties;
