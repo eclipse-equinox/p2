@@ -10,7 +10,7 @@
  *     Cloudsmith - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226401
  *     EclipseSource - ongoing development
  *     Sonatype, Inc. - ongoing development
- *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
+ *     Pascal Rapicault - Support for bundled macosx 431116
  *     Red Hat, Inc. - support repositories passed via fragments (see bug 378329).Bug 460967
  *     SAP AG - list formatting (bug 423538)
  *******************************************************************************/
@@ -1389,6 +1389,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private static boolean canWrite(File installDir) {
+		installDir.mkdirs(); //Force create the folders because otherwise the call to canWrite fails on Mac
 		if (installDir.canWrite() == false)
 			return false;
 
