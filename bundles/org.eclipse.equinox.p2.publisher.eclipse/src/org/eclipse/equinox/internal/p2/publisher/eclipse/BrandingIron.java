@@ -504,8 +504,10 @@ public class BrandingIron {
 		}
 
 		//Deal with error case
+		String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
 		infoPListEditor.setKey(InfoPListEditor.MARKER_KEY, name);
-		infoPListEditor.setKey(InfoPListEditor.BUNDLE_KEY, name);
+		infoPListEditor.setKey(InfoPListEditor.BUNDLE_KEY, capitalizedName);
+		infoPListEditor.setKey(InfoPListEditor.BUNDLE_DISPLAYNAME_KEY, capitalizedName);
 		infoPListEditor.setKey(InfoPListEditor.BUNDLE_ID_KEY, id == null ? name : id);
 		if (description != null)
 			infoPListEditor.setKey(InfoPListEditor.BUNDLE_INFO_KEY, description);

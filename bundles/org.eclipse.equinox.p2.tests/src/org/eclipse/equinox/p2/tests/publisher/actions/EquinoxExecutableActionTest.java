@@ -215,10 +215,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		assertTrue(found);
 		try {
 			String contents = readContentsAndClose(zip.getInputStream(candidate));
-			System.out.println("INFO.PLIST.CONTENT IS----> " + contents);
 			assertEquals(id, getPlistStringValue(contents, "CFBundleIdentifier"));
 			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleExecutable"));
 			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleName"));
+			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleDisplayName"));
 			assertEquals(version.toString(), getPlistStringValue(contents, "CFBundleVersion"));
 		} catch (IOException e) {
 			fail();

@@ -26,6 +26,7 @@ public class InfoPListEditor {
 	public static final String MARKER_KEY = "CFBundleExecutable"; //$NON-NLS-1$
 	public static final String BUNDLE_KEY = "CFBundleName"; //$NON-NLS-1$
 	public static final String BUNDLE_ID_KEY = "CFBundleIdentifier"; //$NON-NLS-1$
+	public static final String BUNDLE_DISPLAYNAME_KEY = "CFBundleDisplayName"; //$NON-NLS-1$
 	public static final String BUNDLE_INFO_KEY = "CFBundleGetInfoString"; //$NON-NLS-1$
 	public static final String BUNDLE_VERSION_KEY = "CFBundleVersion"; //$NON-NLS-1$
 	public static final String BUNDLE_SHORT_VERSION_KEY = "CFBundleShortVersionString"; //$NON-NLS-1$
