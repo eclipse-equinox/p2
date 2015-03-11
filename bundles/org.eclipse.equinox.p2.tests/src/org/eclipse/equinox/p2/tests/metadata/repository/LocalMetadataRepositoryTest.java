@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.io.File;
 import java.net.URI;
 import java.util.*;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -253,6 +254,26 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 			assertEquals("1.2", 1, callCount[0]);
 		} finally {
 			getEventBus().removeListener(listener);
+		}
+	}
+
+	public void testUniqueURIs() throws ProvisionException, OperationCanceledException {
+		// The test data bug 278668 has multiple installable units with the same license uri
+		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("test data bug 278668", "testData/bug278668").toURI(), null);
+		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.ALL_UNITS, null);
+		URI last = null;
+		Iterator<IInstallableUnit> it = units.iterator();
+		while (it.hasNext()) {
+			IInstallableUnit iu = it.next();
+			Collection<ILicense> licenses = iu.getLicenses();
+			for (ILicense license : licenses) {
+				URI uri = license.getLocation();
+				if (last == null) {
+					last = uri;
+				} else {
+					assertSame("License URIs must be the same object", last, uri);
+				}
+			}
 		}
 	}
 }

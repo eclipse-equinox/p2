@@ -4,15 +4,14 @@
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
 import java.net.*;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
@@ -45,6 +44,9 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	protected Locator locator = null; // document locator, if supported by the parser
 
 	private IProgressMonitor monitor;
+
+	// Store a cache of previously seen URIs to avoid GC presure
+	final Map<String, URI> uris = new HashMap<String, URI>();
 
 	private static ServiceTracker<SAXParserFactory, SAXParserFactory> xmlTracker = null;
 
@@ -270,6 +272,17 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		 */
 		protected URI parseURIAttribute(Attributes attributes, boolean required) {
 			String location = parseOptionalAttribute(attributes, URI_ATTRIBUTE);
+			URI uri = location == null ? null : XMLParser.this.uris.get(location);
+			if (uri == null) {
+				uri = constructURI(attributes, required, location);
+				if (uri != null) {
+					XMLParser.this.uris.put(location, uri);
+				}
+			}
+			return uri;
+		}
+
+		private URI constructURI(Attributes attributes, boolean required, String location) {
 			try {
 				if (location != null)
 					return new URI(location);
