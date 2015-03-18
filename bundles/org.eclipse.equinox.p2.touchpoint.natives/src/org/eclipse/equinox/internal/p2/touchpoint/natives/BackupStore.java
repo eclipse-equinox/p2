@@ -744,7 +744,9 @@ public class BackupStore implements IBackupStore {
 		}
 		int port = 0;
 		try {
-			socket = new ServerSocket(0);
+			// TODO: this should be replaced by InetAddress.getLoopbackAddress() when 1.7 compatibility is OK
+			// on a system where solely IPv6 is available this address resolution will fail:
+			socket = new ServerSocket(0, 1, InetAddress.getByName("127.0.0.1")); //$NON-NLS-1$
 			port = socket.getLocalPort();
 		} catch (IOException e) {
 			try {
