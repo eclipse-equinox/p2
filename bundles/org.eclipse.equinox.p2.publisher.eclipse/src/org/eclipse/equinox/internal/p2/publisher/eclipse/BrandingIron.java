@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.*;
-import java.util.List;
 import javax.xml.transform.TransformerException;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.pde.internal.publishing.Utils;
@@ -528,7 +527,6 @@ public class BrandingIron {
 			infoPListEditor.setKey(InfoPListEditor.ICON_KEY, iconName);
 		}
 
-		insertLauncherIni(infoPListEditor, descriptor.getExecutableName());
 		File target = new File(targetRoot, "Info.plist"); //$NON-NLS-1$;
 		try {
 			target.getParentFile().mkdirs();
@@ -544,19 +542,6 @@ public class BrandingIron {
 			//ignore
 		}
 		descriptor.replace(infoPList, target);
-	}
-
-	private void insertLauncherIni(InfoPListEditor infoPListEditor, String launcher) {
-		final String LAUNCHER_INI = "--launcher.ini"; //$NON-NLS-1$
-		List<String> args = infoPListEditor.getEclipseArguments();
-		int match = args.indexOf(LAUNCHER_INI);
-		if (match != -1) {
-			args.remove(LAUNCHER_INI);
-			args.remove(match + 1);
-		}
-		args.add(LAUNCHER_INI);
-		args.add("$APP_PACKAGE/Contents/Eclipse/" + launcher + ".ini"); //$NON-NLS-1$//$NON-NLS-2$
-		infoPListEditor.setEclipseArguments(args);
 	}
 
 	private int scan(StringBuffer buf, int start, String targetName) {
