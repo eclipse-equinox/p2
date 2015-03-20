@@ -502,7 +502,6 @@ public class BrandingIron {
 			return;
 		}
 
-		//Deal with error case
 		String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
 		infoPListEditor.setKey(InfoPListEditor.MARKER_KEY, name);
 		infoPListEditor.setKey(InfoPListEditor.BUNDLE_KEY, capitalizedName);
