@@ -169,7 +169,6 @@ public class JarComparator implements IArtifactComparator {
 		return parent.getChildren().length == 0 ? Status.OK_STATUS : parent;
 	}
 
-	@SuppressWarnings("resource")
 	public IStatus compare(File sourceFile, File destinationFile) {
 		ZipFile firstFile = null;
 		ZipFile secondFile = null;
