@@ -47,7 +47,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	}
 
 	protected File getBaseProfileRegistryFolder() {
-		return new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry/");
+		return new File(output, getRootFolder() + "p2/org.eclipse.equinox.p2.engine/profileRegistry/");
 	}
 
 	protected long[] getProfileTimestampsFromUser() {
@@ -241,7 +241,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	}
 
 	public static void setupReadOnlyInstall() {
-		readOnlyBase = new File(output, "eclipse");
+		readOnlyBase = new File(output, getRootFolder());
 		readOnlyBase.mkdirs();
 		assertTrue(readOnlyBase.canWrite());
 		setReadOnly(readOnlyBase, true);

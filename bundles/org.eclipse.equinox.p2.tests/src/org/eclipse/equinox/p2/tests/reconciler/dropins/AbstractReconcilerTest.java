@@ -794,14 +794,14 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		}
 	}
 
-	protected String getRootFolder() {
+	static protected String getRootFolder() {
 		String eclipseFolder = "eclipse/";
 		if (Platform.getWS().equals(Platform.WS_COCOA))
 			eclipseFolder = "Eclipse.app/Contents/Eclipse/";
 		return eclipseFolder;
 	}
 
-	protected String getExeFolder() {
+	static protected String getExeFolder() {
 		String eclipseFolder = "eclipse/";
 		if (Platform.getWS().equals(Platform.WS_COCOA))
 			eclipseFolder = "Eclipse.app/Contents/MacOS/";
