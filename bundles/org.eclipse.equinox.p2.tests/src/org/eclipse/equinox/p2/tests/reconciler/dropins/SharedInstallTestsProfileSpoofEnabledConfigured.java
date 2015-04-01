@@ -53,15 +53,15 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		String command[];
 		if (!debug) {
 			if (extensions != null) {
-				command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dp2.fragments=" + extensions.toString()};
+				command = new String[] {(new File(output, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dp2.fragments=" + extensions.toString()};
 			} else {
-				command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
+				command = new String[] {(new File(output, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
 			}
 		} else {
 			if (extensions != null) {
-				command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dp2.fragments=" + extensions.toString(), "-Xdebug", "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"};
+				command = new String[] {(new File(output, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dp2.fragments=" + extensions.toString(), "-Xdebug", "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"};
 			} else {
-				command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"};
+				command = new String[] {(new File(output, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"};
 			}
 		}
 		run(message, command);

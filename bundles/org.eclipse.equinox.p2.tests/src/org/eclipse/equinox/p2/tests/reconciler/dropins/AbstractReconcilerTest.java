@@ -83,9 +83,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		} else {
 			untar("1.0", file);
 		}
-		File exe = new File(output, "eclipse/eclipse.exe");
+		File exe = new File(output, getExeFolder() + "eclipse.exe");
 		if (!exe.exists()) {
-			exe = new File(output, "eclipse/eclipse");
+			exe = new File(output, getExeFolder() + "eclipse");
 			if (!exe.exists())
 				fail("Executable file: " + exe.getAbsolutePath() + "(or .exe) not found after extracting: " + file.getAbsolutePath() + " to: " + output);
 		}
@@ -240,7 +240,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	public void add(String message, String target, File file) {
 		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features")))
 			fail("Destination folder for resource copying should be either dropins, plugins or features.");
-		File destinationParent = new File(output, "eclipse/" + target);
+		File destinationParent = new File(output, getRootFolder() + target);
 		destinationParent.mkdirs();
 		copy(message, file, new File(destinationParent, file.getName()));
 	}
@@ -249,7 +249,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Create a link file in the links folder. Point it to the given extension location.
 	 */
 	public void createLinkFile(String message, String filename, String extensionLocation) {
-		File file = new File(output, "eclipse/links/" + filename + ".link");
+		File file = new File(output, getRootFolder() + "links/" + filename + ".link");
 		file.getParentFile().mkdirs();
 		Properties properties = new Properties();
 		properties.put("path", extensionLocation);
@@ -273,7 +273,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Delete the link file with the given name from the links folder.
 	 */
 	public void removeLinkFile(String message, String filename) {
-		File file = new File(output, "eclipse/links/" + filename + ".link");
+		File file = new File(output, getRootFolder() + "links/" + filename + ".link");
 		file.delete();
 	}
 
@@ -289,7 +289,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	public boolean remove(String message, String target, String filename) {
 		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features")))
 			fail("Target folder for resource deletion should be either dropins, plugins or features.");
-		File folder = new File(output, "eclipse/" + target);
+		File folder = new File(output, getRootFolder() + target);
 		File targetFile = new File(folder, filename);
 		if (!targetFile.exists())
 			return false;
@@ -315,7 +315,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	protected File getBundlesInfo() {
-		return new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+		return new File(output, getRootFolder() + "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
 	}
 
 	public boolean isInBundlesInfo(String bundleId, String version) throws IOException {
@@ -451,8 +451,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Read and return the configuration object. Will not return null.
 	 */
 	public Configuration getConfiguration() {
-		File configLocation = new File(output, "eclipse/configuration/org.eclipse.update/platform.xml");
-		File installLocation = new File(output, "eclipse");
+		File configLocation = new File(output, getRootFolder() + "configuration/org.eclipse.update/platform.xml");
+		File installLocation = new File(output, getRootFolder());
 		return loadConfiguration(configLocation, installLocation);
 	}
 
@@ -473,8 +473,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Save the given configuration to disk.
 	 */
 	public void save(String message, Configuration configuration) {
-		File configLocation = new File(output, "eclipse/configuration/org.eclipse.update/platform.xml");
-		File installLocation = new File(output, "eclipse");
+		File configLocation = new File(output, getRootFolder() + "configuration/org.eclipse.update/platform.xml");
+		File installLocation = new File(output, getRootFolder());
 		try {
 			configuration.save(configLocation, installLocation.toURL());
 		} catch (ProvisionException e) {
@@ -583,7 +583,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * is installed. We do this by loading the profile registry and seeing if it is there.
 	 */
 	public boolean isInstalled(String id, String version) {
-		File location = new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File location = new File(output, getRootFolder() + "/p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), location, new SurrogateProfileHandler(getAgent()), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
@@ -592,7 +592,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	public IInstallableUnit getRemoteIU(String id, String version) {
-		File location = new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry");
+		File location = new File(output, getRootFolder() + "/p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), location, new SurrogateProfileHandler(getAgent()), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
@@ -622,7 +622,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			exe = new File(root, "java");
 		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
 		List<String> command = new ArrayList<String>();
-		Collections.addAll(command, new String[] {(new File(location == null ? output : location, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
+		Collections.addAll(command, new String[] {(new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
 		Collections.addAll(command, args);
 		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
 		// command-line if you want to run and allow a remote debugger to connect
@@ -746,7 +746,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	private void deleteVerifierBundle(File destination) {
 		if (destination == null)
 			destination = output;
-		destination = new File(destination, "eclipse/plugins");
+		destination = new File(destination, getRootFolder() + "plugins");
 		File[] verifierBundle = destination.listFiles(new FilenameFilter() {
 
 			public boolean accept(File dir, String name) {
@@ -785,5 +785,19 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				}
 			}
 		}
+	}
+
+	protected String getRootFolder() {
+		String eclipseFolder = "eclipse/";
+		if (Platform.getWS().equals(Platform.WS_COCOA))
+			eclipseFolder = "Eclipse.app/Contents/Eclipse/";
+		return eclipseFolder;
+	}
+
+	protected String getExeFolder() {
+		String eclipseFolder = "eclipse/";
+		if (Platform.getWS().equals(Platform.WS_COCOA))
+			eclipseFolder = "Eclipse.app/Contents/MacOS/";
+		return eclipseFolder;
 	}
 }

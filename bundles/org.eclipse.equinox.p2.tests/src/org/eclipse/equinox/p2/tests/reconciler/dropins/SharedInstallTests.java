@@ -48,7 +48,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 			exe = new File(root, "java");
 
 		String configuration = new File(userBase, "configuration").getAbsolutePath();
-		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		String[] command = new String[] {(new File(output, getExeFolder() + "/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
 		run(message, command);
 	}
 
@@ -75,7 +75,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 	}
 
 	protected void setupReadOnlyInstall() {
-		readOnlyBase = new File(output, "eclipse");
+		readOnlyBase = new File(output, getRootFolder());
 		assertTrue(readOnlyBase.canWrite());
 		setReadOnly(readOnlyBase, true);
 		userBase = new File(output, "user");

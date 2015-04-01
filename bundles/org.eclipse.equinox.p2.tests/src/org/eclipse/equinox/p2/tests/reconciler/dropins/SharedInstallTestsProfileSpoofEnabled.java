@@ -41,7 +41,7 @@ public class SharedInstallTestsProfileSpoofEnabled extends SharedInstallTests {
 			exe = new File(root, "java");
 
 		String configuration = new File(userBase, "configuration").getAbsolutePath();
-		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dp2.simpleconfigurator.extensions=true"};
+		String[] command = new String[] {(new File(output, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dp2.simpleconfigurator.extensions=true"};
 		//			String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dp2.simpleconfigurator.extended=true", "-Xdebug", "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"};
 		run(message, command);
 	}
