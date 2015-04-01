@@ -205,6 +205,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			// the releng test framework copies the zip so let's look for it...
 			// it will be a sibling of the eclipse/ folder that we are running
 			File installLocation = getInstallLocation();
+			if (Platform.getWS().equals(Platform.WS_COCOA))
+				installLocation = installLocation.getParentFile().getParentFile();
+
 			if (installLocation != null) {
 				// parent will be "eclipse" and the parent's parent will be "eclipse-testing"
 				File parent = installLocation.getParentFile();
