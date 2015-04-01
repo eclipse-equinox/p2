@@ -64,7 +64,7 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 			exe = new File(root, "java");
 		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
 		List<String> command = new ArrayList<String>();
-		Collections.addAll(command, new String[] {(new File(location == null ? output : location, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
+		Collections.addAll(command, new String[] {(new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
 		Collections.addAll(command, args);
 		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
 		if (extensions != null) {

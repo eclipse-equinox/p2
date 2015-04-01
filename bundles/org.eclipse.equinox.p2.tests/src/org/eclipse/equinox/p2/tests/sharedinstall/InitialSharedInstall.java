@@ -43,7 +43,7 @@ public class InitialSharedInstall extends AbstractSharedInstallTest {
 	public void setupRun() {
 		cleanupDotEclipseFolder();
 		assertInitialized();
-		replaceDotEclipseProductFile(new File(output, "eclipse"), "p2.automated.test", "1.0.0");
+		replaceDotEclipseProductFile(new File(output, getRootFolder()), "p2.automated.test", "1.0.0");
 		setupReadOnlyInstall();
 		reallyReadOnly(readOnlyBase);
 		System.out.println(readOnlyBase);

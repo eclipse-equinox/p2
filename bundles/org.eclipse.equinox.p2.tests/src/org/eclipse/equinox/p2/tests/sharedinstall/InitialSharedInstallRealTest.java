@@ -21,7 +21,7 @@ public class InitialSharedInstallRealTest extends AbstractSharedInstallTest {
 
 	public void testImportFromPreviousInstall() {
 		assertInitialized();
-		replaceDotEclipseProductFile(new File(output, "eclipse"), "p2.automated.test", "1.0.1");
+		replaceDotEclipseProductFile(new File(output, getRootFolder()), "p2.automated.test", "1.0.1");
 		installVerifierInBase();
 		setupReadOnlyInstall();
 		reallyReadOnly(readOnlyBase);

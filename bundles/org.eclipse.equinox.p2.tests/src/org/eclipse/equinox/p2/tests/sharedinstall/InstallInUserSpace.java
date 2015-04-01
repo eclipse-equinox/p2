@@ -11,7 +11,6 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.ReconcilerTestSuite;
 
@@ -29,8 +28,6 @@ public class InstallInUserSpace extends AbstractSharedInstallTest {
 	}
 
 	public void testInstallInUserSpace() {
-		if (Platform.getOS().equals(Platform.OS_MACOSX))
-			return;
 		assertInitialized();
 		setupReadOnlyInstall();
 		System.out.println(readOnlyBase);
