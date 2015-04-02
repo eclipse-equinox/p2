@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2014 IBM Corporation and others.
+ *  Copyright (c) 2008, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -145,10 +145,13 @@ public abstract class UIServices {
 	public abstract TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail);
 
 	/**
-	 * Opens an information dialog
-	 * @param title - the title of the dialog
-	 * @param text - the text shown in the dialog
-	 * @param linkText - an optional text to be rendered as hyperlink
+	 * Shows the given message to the user.  It depends on the concrete implementation how this is done,
+	 * e.g. in a dialog, on the console, or in other ways.
+	 *
+	 * @param title - a title if the message is shown in a dialog
+	 * @param text - the message to be shown
+	 * @param linkText - an optional text to be rendered as hyperlink on the UI
+	 *
 	 * @since 2.4
 	 */
 	public void showInformationMessage(String title, String text, String linkText) {
