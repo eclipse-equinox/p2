@@ -94,8 +94,14 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (dotLocation != -1)
 			launcherName = launcherName.substring(0, dotLocation);
 		File launcherFolder = launcher.getParentFile();
-		if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(launcherData.getOS()))
-			launcherFolder = launcherData.getFwConfigLocation().getParentFile();
+		if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(launcherData.getOS())) {
+			if (launcherData.getFwConfigLocation() != null)
+				launcherFolder = launcherData.getFwConfigLocation().getParentFile();
+			else if (launcherData.getFwPersistentDataLocation() != null)
+				launcherFolder = launcherData.getFwPersistentDataLocation().getParentFile();
+			else
+				throw new IllegalStateException("Not able to determine launcher ini file from " + launcherData); //$NON-NLS-1$
+		}
 		File result = new File(launcherFolder, launcherName + EquinoxConstants.INI_EXTENSION);
 		return result;
 	}
