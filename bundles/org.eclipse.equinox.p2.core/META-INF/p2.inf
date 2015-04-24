@@ -1,7 +1,0 @@
-provides.1.namespace=org.eclipse.equinox.p2.iu
-provides.1.name=org.eclipse.equinox.p2.core
-provides.1.version=2.3.0.v20131211-1531
-
-provides.0.namespace=org.eclipse.equinox.p2.iu
-provides.0.name=org.eclipse.equinox.p2.core
-provides.0.version=2.4.0.$qualifier$

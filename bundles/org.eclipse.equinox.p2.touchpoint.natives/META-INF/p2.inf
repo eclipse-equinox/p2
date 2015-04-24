@@ -1,8 +1,0 @@
-provides.0.namespace=org.eclipse.equinox.p2.iu
-provides.0.name=org.eclipse.equinox.p2.touchpoint.natives
-provides.0.version=1.1.100.v20140523-0116
-
-provides.1.namespace=org.eclipse.equinox.p2.iu
-provides.1.name=org.eclipse.equinox.p2.touchpoint.natives
-provides.1.version=1.2.0.$qualifier$
-
