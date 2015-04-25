@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.*;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.viewers.*;
@@ -206,16 +207,6 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(parent.getShell(), IProvHelpContextIds.REPOSITORY_MANIPULATION_DIALOG);
 
 		Composite composite = new Composite(parent, SWT.NONE);
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		composite.setLayoutData(gd);
-
-		GridLayout layout = new GridLayout();
-		layout.numColumns = policy.getRepositoriesVisible() ? 2 : 1;
-		layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
-		layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
-		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-		layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
-		composite.setLayout(layout);
 
 		// Filter box
 		pattern = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.CANCEL);
@@ -257,8 +248,6 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				});
 			}
 		});
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		pattern.setLayoutData(gd);
 
 		// spacer to fill other column
 		if (policy.getRepositoriesVisible())
@@ -358,11 +347,6 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		// Input last
 		repositoryViewer.setInput(getInput());
 
-		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-		data.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH);
-		data.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
-		table.setLayoutData(data);
-
 		// Drop targets and vertical buttons only if repository manipulation is provided.
 		if (policy.getRepositoriesVisible()) {
 			DropTarget target = new DropTarget(table, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
@@ -371,10 +355,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 			// Vertical buttons
 			Composite verticalButtonBar = createVerticalButtonBar(composite);
-			data = new GridData(SWT.FILL, SWT.FILL, false, false);
-			data.verticalAlignment = SWT.TOP;
-			data.verticalIndent = 0;
-			verticalButtonBar.setLayoutData(data);
+			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.TOP).applyTo(verticalButtonBar);
 			listener = getViewerProvisioningListener();
 
 			ProvUI.getProvisioningEventBus(ui.getSession()).addListener(listener);
@@ -389,10 +370,17 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		// Details area
 		details = new Text(composite, SWT.READ_ONLY | SWT.WRAP);
-		data = new GridData(SWT.FILL, SWT.FILL, true, false);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		data.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_SITEDETAILS_HEIGHT);
+		data.widthHint = 1;
 
 		details.setLayoutData(data);
+
+		GridLayoutFactory.fillDefaults()
+			.numColumns(policy.getRepositoriesVisible() ? 2 : 1)
+			.margins(LayoutConstants.getMargins())
+			.spacing(LayoutConstants.getSpacing())
+			.generateLayout(composite);
 
 		Dialog.applyDialogFont(composite);
 		return composite;
