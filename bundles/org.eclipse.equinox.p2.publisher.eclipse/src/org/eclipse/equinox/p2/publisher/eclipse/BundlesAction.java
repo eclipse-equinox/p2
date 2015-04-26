@@ -641,7 +641,15 @@ public class BundlesAction extends AbstractPublisherAction {
 			if (manifestStream != null) {
 				manifest = parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(manifestStream);
 			} else {
-				manifest = convertPluginManifest(bundleLocation, true);
+				// Bug 437466 - erroneous PluginConverter message caused by a directory in "dropins"
+				// We might need the Eclipse 2.0 converter, if and only if
+				// there is a 'plugin.xml' file or "fragment.xml" file at bundle 
+				// location. If there is none, it is probably "just a directory", 
+				// perhaps with other bundles under it (but, drilling down in the 
+				// directory is handled elsewhere, if we return null manifest here. 
+				if (bundleLocation.isDirectory() && (new File(bundleLocation, PLUGIN_FILENAME_DESCRIPTOR).exists() || new File(bundleLocation, FRAGMENT_FILENAME_DESCRIPTOR).exists())) {
+					manifest = convertPluginManifest(bundleLocation, true);
+				}
 			}
 		} finally {
 			try {
