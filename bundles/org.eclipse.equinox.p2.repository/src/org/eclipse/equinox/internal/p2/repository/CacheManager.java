@@ -86,6 +86,57 @@ public class CacheManager {
 		return repositoryLocation.hashCode();
 	}
 
+	public File createCacheFromFile(URI remoteFile, IProgressMonitor monitor) throws ProvisionException, IOException {
+		if (!isURL(remoteFile)) {
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_CannotLoadNonUrlLocation, remoteFile), null));
+		}
+
+		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
+		try {
+			File cacheFile = getCacheFile(remoteFile);
+
+			boolean stale = true;
+			long lastModified = cacheFile.lastModified();
+			long lastModifiedRemote = 0L;
+
+			// bug 269588 - server may return 0 when file exists, so extra flag is needed
+			try {
+				lastModifiedRemote = transport.getLastModified(remoteFile, submonitor.newChild(1));
+				if (lastModifiedRemote <= 0)
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + remoteFile)); //$NON-NLS-1$
+			} catch (AuthenticationFailedException e) {
+				// it is not meaningful to continue - the credentials are for the server
+				// do not pass the exception - it gives no additional meaningful user information
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, remoteFile), null));
+			} catch (CoreException e) {
+				// give up on a timeout - if we did not get a 404 on the jar, we will just prolong the pain
+				// by (almost certainly) also timing out on the xml.
+				if (e.getStatus() != null && e.getStatus().getException() != null) {
+					Throwable ex = e.getStatus().getException();
+					if (ex.getClass() == java.net.SocketTimeoutException.class)
+						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, remoteFile), ex));
+				}
+			} catch (OperationCanceledException e) {
+				// must pass this on
+				throw e;
+			} catch (Exception e) {
+				// not ideal, just skip the jar on error, and try the xml instead - report errors for
+				// the xml.
+			}
+
+			stale = lastModifiedRemote != lastModified;
+			if (!stale)
+				return cacheFile;
+
+			// The cache is stale or missing, so we need to update it from the remote location
+			updateCache(cacheFile, remoteFile, lastModifiedRemote, submonitor);
+			return cacheFile;
+		} finally {
+			submonitor.done();
+		}
+
+	}
+
 	/**
 	 * Returns a local cache file with the contents of the given remote location,
 	 * or <code>null</code> if a local cache could not be created.
@@ -262,6 +313,12 @@ public class CacheManager {
 		files[0] = new File(dataAreaFile, prefix + hashCode + JAR_EXTENSION);
 		files[1] = new File(dataAreaFile, prefix + hashCode + XML_EXTENSION);
 		return files;
+	}
+
+	private File getCacheFile(URI url) {
+		File dataAreaFile = getCacheDirectory();
+		int hashCode = computeHash(url);
+		return new File(dataAreaFile, Integer.toString(hashCode));
 	}
 
 	private static boolean isURL(URI location) {
