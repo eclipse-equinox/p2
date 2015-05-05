@@ -211,9 +211,13 @@ public class P2FParser extends XMLParser implements P2FConstants {
 			xmlReader.setContentHandler(new P2FDocHandler(P2F_ELEMENT, p2fHandler));
 			xmlReader.parse(new InputSource(stream));
 		} catch (SAXException e) {
-			throw new IOException(e.getMessage());
+			IOException ioException = new IOException(e.getMessage());
+			ioException.initCause(e);
+			throw ioException;
 		} catch (ParserConfigurationException e) {
-			throw new IOException(e.getMessage());
+			IOException ioException = new IOException(e.getMessage());
+			ioException.initCause(e);
+			throw ioException;
 		} finally {
 			stream.close();
 		}

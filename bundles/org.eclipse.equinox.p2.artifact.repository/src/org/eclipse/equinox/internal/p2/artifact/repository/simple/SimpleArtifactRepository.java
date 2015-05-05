@@ -567,7 +567,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				FileInputStream fis = new FileInputStream(zipFile);
 				totalArtifactSize += FileUtils.copyStream(fis, true, destination, false);
 			} catch (IOException e) {
-				return reportStatus(descriptor, destination, new Status(IStatus.ERROR, Activator.ID, e.getMessage()));
+				return reportStatus(descriptor, destination, new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 			} finally {
 				if (zipFile != null)
 					zipFile.delete();

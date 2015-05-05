@@ -43,11 +43,11 @@ public class ProfileLock {
 			location.set(url, false, LOCK_FILENAME);
 			return location;
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.SimpleProfileRegistry_Bad_profile_location, e.getLocalizedMessage()));
+			throw new IllegalArgumentException(NLS.bind(Messages.SimpleProfileRegistry_Bad_profile_location, e.getLocalizedMessage()), e);
 		} catch (IllegalStateException e) {
 			throw e;
 		} catch (IOException e) {
-			throw new IllegalStateException(e.getLocalizedMessage());
+			throw new IllegalStateException(e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -105,7 +105,7 @@ public class ProfileLock {
 
 				lockHolder = current;
 			} catch (IOException e) {
-				throw new IllegalStateException(NLS.bind(Messages.SimpleProfileRegistry_Profile_not_locked_due_to_exception, e.getLocalizedMessage()));
+				throw new IllegalStateException(NLS.bind(Messages.SimpleProfileRegistry_Profile_not_locked_due_to_exception, e.getLocalizedMessage()), e);
 			}
 			return true;
 		}

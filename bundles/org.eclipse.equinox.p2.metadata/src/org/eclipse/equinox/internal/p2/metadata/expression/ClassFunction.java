@@ -29,7 +29,7 @@ public final class ClassFunction extends Function {
 		try {
 			return Class.forName((String) arg);
 		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException(e.getMessage());
+			throw new IllegalArgumentException(e.getMessage(), e);
 		}
 	}
 

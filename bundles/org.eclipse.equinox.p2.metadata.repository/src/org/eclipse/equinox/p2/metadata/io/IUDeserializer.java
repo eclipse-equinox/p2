@@ -66,9 +66,13 @@ public class IUDeserializer {
 				}
 				throw new IOException(status.toString());
 			} catch (ParserConfigurationException configException) {
-				throw new IOException(configException.getMessage());
+				IOException ioException = new IOException(configException.getMessage());
+				ioException.initCause(configException);
+				throw ioException;
 			} catch (SAXException saxException) {
-				throw new IOException(saxException.getMessage());
+				IOException ioException = new IOException(saxException.getMessage());
+				ioException.initCause(saxException);
+				throw ioException;
 			}
 		}
 

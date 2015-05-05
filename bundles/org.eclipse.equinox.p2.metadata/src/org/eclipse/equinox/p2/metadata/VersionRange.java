@@ -263,7 +263,7 @@ public class VersionRange implements Serializable {
 			position[0] = end + 1;
 			return VersionFormat.compile(versionRange, pos, end);
 		} catch (VersionFormatException e) {
-			throw new IllegalArgumentException(e.getMessage());
+			throw new IllegalArgumentException(e.getMessage(), e);
 		}
 	}
 

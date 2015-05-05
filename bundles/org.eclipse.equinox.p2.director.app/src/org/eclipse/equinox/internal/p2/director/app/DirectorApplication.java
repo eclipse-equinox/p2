@@ -179,7 +179,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				try {
 					uris.add(URIUtil.fromString(urlSpecs[i]));
 				} catch (URISyntaxException e) {
-					throw new ProvisionException(NLS.bind(Messages.unable_to_parse_0_to_uri_1, urlSpecs[i], e.getMessage()));
+					throw new ProvisionException(NLS.bind(Messages.unable_to_parse_0_to_uri_1, urlSpecs[i], e.getMessage()), e);
 				}
 			}
 

@@ -19,6 +19,7 @@ import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.installer.InstallerActivator;
 import org.eclipse.equinox.internal.p2.installer.Messages;
 import org.eclipse.swt.SWT;
@@ -244,6 +245,7 @@ public final class ProxiesDialog {
 				openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
 			}
 		} catch (Exception e) {
+			LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, e.getMessage(), e));
 			openMessage(Messages.ProxiesDialog_FailedToSetProxyMessage + e.getLocalizedMessage(), SWT.ICON_ERROR | SWT.OK);
 		}
 	}

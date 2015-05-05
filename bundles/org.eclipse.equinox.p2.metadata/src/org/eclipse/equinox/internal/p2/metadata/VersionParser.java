@@ -150,7 +150,7 @@ public abstract class VersionParser {
 				fmt = VersionFormat.compile(version, pos, end);
 				pos = end + 1;
 			} catch (VersionFormatException e) {
-				throw new IllegalArgumentException(e.getMessage());
+				throw new IllegalArgumentException(e.getMessage(), e);
 			}
 			if (pos == maxPos) {
 				// This was a raw version with format but no original

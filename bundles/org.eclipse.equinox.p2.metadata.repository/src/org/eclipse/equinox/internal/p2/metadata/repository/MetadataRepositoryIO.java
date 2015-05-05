@@ -211,10 +211,15 @@ public class MetadataRepositoryIO {
 					theRepository = repositoryHandler.getRepository();
 				}
 			} catch (SAXException e) {
-				if (!(e.getException() instanceof OperationCanceledException))
-					throw new IOException(e.getMessage());
+				if (!(e.getException() instanceof OperationCanceledException)) {
+					IOException ioException = new IOException(e.getMessage());
+					ioException.initCause(e);
+					throw ioException;
+				}
 			} catch (ParserConfigurationException e) {
-				throw new IOException(e.getMessage());
+				IOException ioException = new IOException(e.getMessage());
+				ioException.initCause(e);
+				throw ioException;
 			} finally {
 				monitor.done();
 				stream.close();

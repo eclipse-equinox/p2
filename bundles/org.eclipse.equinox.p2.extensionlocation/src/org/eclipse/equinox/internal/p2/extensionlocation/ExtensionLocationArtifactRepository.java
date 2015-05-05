@@ -76,7 +76,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 		} catch (ProvisionException e) {
 			//unexpected
 			e.printStackTrace();
-			throw new IllegalStateException(e.getMessage());
+			throw new IllegalStateException(e.getMessage(), e);
 		}
 	}
 

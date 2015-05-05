@@ -731,9 +731,13 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				xmlReader.parse(new InputSource(stream));
 				profileHandlers.put(profileHandler.getProfileId(), profileHandler);
 			} catch (SAXException e) {
-				throw new IOException(e.getMessage());
+				IOException ioException = new IOException(e.getMessage());
+				ioException.initCause(e);
+				throw ioException;
 			} catch (ParserConfigurationException e) {
-				throw new IOException(e.getMessage());
+				IOException ioException = new IOException(e.getMessage());
+				ioException.initCause(e);
+				throw ioException;
 			} finally {
 				stream.close();
 			}

@@ -208,7 +208,7 @@ public class EclipseTouchpoint extends Touchpoint {
 			if (c != null)
 				c = Class.forName("org.eclipse.osgi.service.resolver.PlatformAdmin"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {
-			LogHelper.log(Util.createError(NLS.bind(Messages.publisher_not_available, e.getMessage())));
+			LogHelper.log(Util.createError(NLS.bind(Messages.publisher_not_available, e.getMessage()), e));
 			return null;
 		}
 

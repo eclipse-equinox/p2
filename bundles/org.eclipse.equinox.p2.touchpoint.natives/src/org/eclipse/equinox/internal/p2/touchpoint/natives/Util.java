@@ -99,7 +99,9 @@ public class Util {
 			return unzipStream(in, zipFile.length(), outputDir, path, includePatterns, excludePatterns, store, taskName, monitor);
 		} catch (IOException e) {
 			// add the file name to the message
-			throw new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
+			IOException ioException = new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
+			ioException.initCause(e);
+			throw ioException;
 		} finally {
 			in.close();
 		}

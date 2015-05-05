@@ -64,7 +64,9 @@ public class FileUtils {
 			try {
 				return untarFile(zipFile, outputDir);
 			} catch (TarException e) {
-				throw new IOException(e.getMessage());
+				IOException ioException = new IOException(e.getMessage());
+				ioException.initCause(e);
+				throw ioException;
 			}
 		}
 		InputStream in = new FileInputStream(zipFile);
@@ -72,7 +74,9 @@ public class FileUtils {
 			return unzipStream(in, zipFile.length(), outputDir, null, null);
 		} catch (IOException e) {
 			// add the file name to the message
-			throw new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
+			IOException ioException = new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
+			ioException.initCause(e);
+			throw ioException;
 		} finally {
 			in.close();
 		}
@@ -88,7 +92,9 @@ public class FileUtils {
 			return unzipStream(in, zipFile.length(), outputDir, taskName, monitor);
 		} catch (IOException e) {
 			// add the file name to the message
-			throw new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
+			IOException ioException = new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
+			ioException.initCause(e);
+			throw ioException;
 		} finally {
 			in.close();
 		}

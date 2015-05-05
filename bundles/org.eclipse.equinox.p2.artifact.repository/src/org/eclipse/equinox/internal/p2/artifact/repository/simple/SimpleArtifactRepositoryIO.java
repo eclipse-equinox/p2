@@ -313,9 +313,13 @@ public class SimpleArtifactRepositoryIO {
 					theRepository = repositoryHandler.getRepository();
 				}
 			} catch (SAXException e) {
-				throw new IOException(e.getMessage());
+				IOException ioException = new IOException(e.getMessage());
+				ioException.initCause(e);
+				throw ioException;
 			} catch (ParserConfigurationException e) {
-				throw new IOException(e.getMessage());
+				IOException ioException = new IOException(e.getMessage());
+				ioException.initCause(e);
+				throw ioException;
 			} finally {
 				stream.close();
 			}
