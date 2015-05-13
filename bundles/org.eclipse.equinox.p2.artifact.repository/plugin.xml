@@ -11,7 +11,12 @@
 		<step class="org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep"/>
 	</extension>
 
-   <extension id="simpleRepository"  point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
+   <extension id="XZedRepository"  point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
+		<filter suffix="artifacts.xml.xz"/>
+		<factory class="org.eclipse.equinox.internal.p2.artifact.repository.simple.XZedSimpleArtifactRepositoryFactory"/>
+   </extension>
+   
+    <extension id="simpleRepository"  point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
 		<filter suffix="artifacts.xml"/>
 		<factory class="org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory"/>
    </extension>
