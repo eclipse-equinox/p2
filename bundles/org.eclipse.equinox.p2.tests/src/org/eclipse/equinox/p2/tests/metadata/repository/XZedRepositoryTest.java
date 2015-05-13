@@ -24,21 +24,21 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 
 	@Test
 	public void testLoadContentJarAndXZ() throws ProvisionException, OperationCanceledException {
-		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/contentJarAndXZ").toURI(), null);
+		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/contentJarAndXZ").toURI(), null);
 		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.createIUQuery("testIU", Version.create("2.0.0")), null);
 		assertEquals(1, units.toSet().size());
 	}
 
 	@Test
 	public void testLoadXzAndContentJar() throws ProvisionException, OperationCanceledException {
-		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/xzAndContentJar").toURI(), null);
+		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/xzAndContentJar").toURI(), null);
 		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.createIUQuery("iuFromXZ", Version.create("2.0.0")), null);
 		assertEquals(1, units.toSet().size());
 	}
 
 	@Test
 	public void testLoadXzAndContentXML() throws ProvisionException, OperationCanceledException {
-		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/xzAndContentXML").toURI(), null);
+		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/xzAndContentXML").toURI(), null);
 		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.createIUQuery("iuFromXZ", Version.create("2.0.0")), null);
 		assertEquals(1, units.toSet().size());
 	}
@@ -47,7 +47,7 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 	public void testLoadXzBusted() throws ProvisionException, OperationCanceledException {
 		boolean repoCanLoad = true;
 		try {
-			getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/xzBusted").toURI(), null);
+			getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/xzBusted").toURI(), null);
 		} catch (ProvisionException e) {
 			repoCanLoad = false;
 		}
@@ -56,7 +56,7 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 
 	@Test
 	public void testLoadXzOnly() throws ProvisionException, OperationCanceledException {
-		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/xzOnly").toURI(), null);
+		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/xzOnly").toURI(), null);
 		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.createIUQuery("iuFromXZ", Version.create("2.0.0")), null);
 		assertEquals(1, units.toSet().size());
 	}
