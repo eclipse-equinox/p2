@@ -11,13 +11,14 @@
  *  Sonatype Inc - ongoing development
  *  Ericsson AB. - Bug 407940 - [transport] Initial connection happens in current thread
  *  Red Hat Inc. - Bug 460967
+ *  Rapicorp Inc - Bug 467286 - Set the ECF user agent property
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
 import java.io.*;
 import java.net.SocketTimeoutException;
 import java.net.URI;
-import java.util.Date;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.security.IConnectContext;
@@ -52,6 +53,18 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		public void clearBlocked() {
 			//do nothing
 		}
+	}
+
+	static Map<String, Map<String, String>> options;
+
+	static {
+		Map<String, String> extraRequestHeaders = new HashMap<String, String>(1);
+		String userAgent = System.getProperty("p2.userAgent"); //$NON-NLS-1$
+		if (userAgent == null)
+			userAgent = "eclipse/p2/mars"; //$NON-NLS-1$
+		extraRequestHeaders.put("User-Agent", userAgent); //$NON-NLS-1$
+		options = new HashMap<String, Map<String, String>>(1);
+		options.put(org.eclipse.ecf.filetransfer.IRetrieveFileTransferOptions.REQUEST_HEADERS, extraRequestHeaders);
 	}
 
 	private static IFileReaderProbe testProbe;
@@ -384,10 +397,11 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 			try {
 				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getRetrieveNamespace(), uri.toString());
+
 				if (range != null)
-					adapter.sendRetrieveRequest(fileID, range, this, null);
+					adapter.sendRetrieveRequest(fileID, range, this, options);
 				else
-					adapter.sendRetrieveRequest(fileID, this, null);
+					adapter.sendRetrieveRequest(fileID, this, options);
 			} catch (IncomingFileTransferException e) {
 				exception = e;
 			} catch (FileCreateException e) {
