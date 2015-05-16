@@ -60,8 +60,14 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	static {
 		Map<String, String> extraRequestHeaders = new HashMap<String, String>(1);
 		String userAgent = System.getProperty("p2.userAgent"); //$NON-NLS-1$
-		if (userAgent == null)
-			userAgent = "eclipse/p2/mars"; //$NON-NLS-1$
+		if (userAgent == null) {
+			String productId = System.getProperty("eclipse.product", "eclipse"); //$NON-NLS-1$ //$NON-NLS-2$
+			String appId = System.getProperty("eclipse.application", "noApp"); //$NON-NLS-1$ //$NON-NLS-2$
+			String javaSpec = System.getProperty("java.runtime.version", "unknownJava"); //$NON-NLS-1$//$NON-NLS-2$
+			String osName = System.getProperty("org.osgi.framework.os.name", "unknownOS"); //$NON-NLS-1$ //$NON-NLS-2$
+			String osVersion = System.getProperty("org.osgi.framework.os.version", "unknownOSVersion"); //$NON-NLS-1$ //$NON-NLS-2$
+			userAgent = productId + "/mars (" + appId + "; Java " + javaSpec + "; " + osName + ' ' + osVersion + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
 		extraRequestHeaders.put("User-Agent", userAgent); //$NON-NLS-1$
 		options = new HashMap<String, Map<String, String>>(1);
 		options.put(org.eclipse.ecf.filetransfer.IRetrieveFileTransferOptions.REQUEST_HEADERS, extraRequestHeaders);
