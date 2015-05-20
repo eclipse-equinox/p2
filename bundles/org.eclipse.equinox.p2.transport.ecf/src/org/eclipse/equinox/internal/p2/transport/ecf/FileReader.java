@@ -57,16 +57,32 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	static Map<String, Map<String, String>> options;
 
+	static private String getProperty(String key, String defaultValue) {
+		String value = Activator.getContext().getProperty(key);
+		if (value == null) {
+			value = defaultValue;
+		}
+		return value;
+	}
+
 	static {
 		Map<String, String> extraRequestHeaders = new HashMap<String, String>(1);
-		String userAgent = System.getProperty("p2.userAgent"); //$NON-NLS-1$
-		if (userAgent == null) {
-			String productId = System.getProperty("eclipse.product", "eclipse"); //$NON-NLS-1$ //$NON-NLS-2$
-			String appId = System.getProperty("eclipse.application", "noApp"); //$NON-NLS-1$ //$NON-NLS-2$
-			String javaSpec = System.getProperty("java.runtime.version", "unknownJava"); //$NON-NLS-1$//$NON-NLS-2$
-			String osName = System.getProperty("org.osgi.framework.os.name", "unknownOS"); //$NON-NLS-1$ //$NON-NLS-2$
-			String osVersion = System.getProperty("org.osgi.framework.os.version", "unknownOSVersion"); //$NON-NLS-1$ //$NON-NLS-2$
-			userAgent = productId + "/mars (" + appId + "; Java " + javaSpec + "; " + osName + ' ' + osVersion + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String userAgent = null;
+		String javaSpec = getProperty("java.runtime.version", "unknownJava"); //$NON-NLS-1$//$NON-NLS-2$
+		String javaVendor = getProperty("java.vendor", "unknownJavaVendor");//$NON-NLS-1$//$NON-NLS-2$
+		String osName = getProperty("org.osgi.framework.os.name", "unknownOS"); //$NON-NLS-1$ //$NON-NLS-2$
+		String osgiArch = getProperty("org.osgi.framework.processor", "unknownArch");//$NON-NLS-1$//$NON-NLS-2$
+		String language = getProperty("osgi.nl", "unknownLanguage");//$NON-NLS-1$//$NON-NLS-2$
+		String osVersion = getProperty("org.osgi.framework.os.version", "unknownOSVersion"); //$NON-NLS-1$ //$NON-NLS-2$
+		userAgent = "p2/mars-sr0 (Java " + javaSpec + ' ' + javaVendor + "; " + osName + ' ' + osVersion + ' ' + osgiArch + "; " + language + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String userAgentProvided = getProperty("p2.userAgent", null); //$NON-NLS-1$
+		if (userAgentProvided == null) {
+			String productId = getProperty("eclipse.product", "unknownProduct"); //$NON-NLS-1$ //$NON-NLS-2$
+			String appId = getProperty("eclipse.application", "unknownApp"); //$NON-NLS-1$ //$NON-NLS-2$
+			String buildId = getProperty("eclipse.buildId", "unknownBuildId"); //$NON-NLS-1$ //$NON-NLS-2$
+			userAgent += productId + '/' + buildId + " (" + appId + ')'; //$NON-NLS-1$
+		} else {
+			userAgent += userAgentProvided;
 		}
 		extraRequestHeaders.put("User-Agent", userAgent); //$NON-NLS-1$
 		options = new HashMap<String, Map<String, String>>(1);
