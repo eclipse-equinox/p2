@@ -51,16 +51,16 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 			if (service != null)
 				return service;
 			//attempt to get factory service from service registry
-			PriorityQueue<ServiceReference<IAgentServiceFactory>> refs;
+			Collection<ServiceReference<IAgentServiceFactory>> refs;
 			try {
-				refs = new PriorityQueue<ServiceReference<IAgentServiceFactory>>(context.getServiceReferences(IAgentServiceFactory.class, "(" + IAgentServiceFactory.PROP_CREATED_SERVICE_NAME + '=' + serviceName + ')')); //$NON-NLS-1$			} catch (InvalidSyntaxException e) {
+				refs = context.getServiceReferences(IAgentServiceFactory.class, "(" + IAgentServiceFactory.PROP_CREATED_SERVICE_NAME + '=' + serviceName + ')'); //$NON-NLS-1$
 			} catch (InvalidSyntaxException e) {
 				e.printStackTrace();
 				return null;
 			}
 			if (refs == null || refs.isEmpty())
 				return null;
-			ServiceReference<IAgentServiceFactory> firstRef = refs.peek();
+			ServiceReference<IAgentServiceFactory> firstRef = Collections.max(refs);
 			//track the factory so that we can automatically remove the service when the factory goes away
 			ServiceTracker<IAgentServiceFactory, Object> tracker = new ServiceTracker<IAgentServiceFactory, Object>(context, firstRef, this);
 			tracker.open();
