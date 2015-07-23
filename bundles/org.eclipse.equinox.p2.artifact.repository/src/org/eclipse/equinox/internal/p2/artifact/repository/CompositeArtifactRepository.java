@@ -633,4 +633,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 		return failOnChildFailure;
 	}
+
+	@Override
+	public String toString() {
+		return getChildren().toString();
+	}
 }

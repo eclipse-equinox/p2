@@ -416,4 +416,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return failOnChildFailure;
 	}
 
+	@Override
+	public String toString() {
+		return getChildren().toString();
+	}
+
 }
