@@ -148,6 +148,14 @@ public class ProgressStatistics {
 		String uriString = m_uri.toString();
 		if (m_fileName != null && uriString.endsWith(m_fileName))
 			uriString = uriString.substring(0, uriString.lastIndexOf(m_fileName));
+		if (m_current == 0L || getRecentSpeed() == 0L) {
+			// no meaningful speed data available
+			if (m_total == -1) {
+				return NLS.bind(Messages.fetching_0_from_1, new String[] {m_fileName, uriString});
+			} else {
+				return NLS.bind(Messages.fetching_0_from_1_2, new String[] {m_fileName, uriString, convert(m_total)});
+			}
+		}
 		return m_total != -1 ? NLS.bind(Messages.fetching_0_from_1_2_of_3_at_4, new String[] {m_fileName, uriString, convert(m_current), convert(m_total), convert(getRecentSpeed())}) : NLS.bind(Messages.fetching_0_from_1_2_at_3, new String[] {m_fileName, uriString, convert(m_current), convert(getRecentSpeed())});
 	}
 

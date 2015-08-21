@@ -73,6 +73,8 @@ public class Messages extends NLS {
 	public static String TransportErrorTranslator_UnknownErrorCode;
 	public static String TransportErrorTranslator_UnknownHost;
 
+	public static String fetching_0_from_1;
+	public static String fetching_0_from_1_2;
 	public static String fetching_0_from_1_2_at_3;
 	public static String fetching_0_from_1_2_of_3_at_4;
 	public static String connection_to_0_failed_on_1_retry_attempt_2;
