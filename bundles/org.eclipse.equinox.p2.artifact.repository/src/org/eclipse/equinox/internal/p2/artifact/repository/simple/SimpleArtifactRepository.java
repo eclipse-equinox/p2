@@ -334,7 +334,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		boolean lockAcquired = false;
 		try {
-			canLock = new Boolean(canLock());
+			canLock = Boolean.valueOf(canLock());
 			if (canLock.booleanValue()) {
 				lockAcquired = lockAndLoad(true, new NullProgressMonitor());
 				if (!lockAcquired)
@@ -1019,7 +1019,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (updateTimestamp)
 			updateTimestamp();
 		if (canLock == null)
-			canLock = new Boolean(canLock());
+			canLock = Boolean.valueOf(canLock());
 	}
 
 	private String getBlobStoreName(String defaultValue) {
@@ -1045,9 +1045,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (internalDescriptor != null) {
 			String useArtifactFolder = internalDescriptor.getRepositoryProperty(ARTIFACT_FOLDER);
 			if (useArtifactFolder != null)
-				return Boolean.valueOf(useArtifactFolder).booleanValue();
+				return Boolean.parseBoolean(useArtifactFolder);
 		}
-		return Boolean.valueOf(descriptor.getProperty(ARTIFACT_FOLDER)).booleanValue();
+		return Boolean.parseBoolean(descriptor.getProperty(ARTIFACT_FOLDER));
 	}
 
 	private boolean isForceThreading() {

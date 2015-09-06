@@ -937,7 +937,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		}
 		value = attributes.getValue(ATTRIBUTE_AUTO_START);
 		if (value != null)
-			info.setMarkedAsStarted(Boolean.valueOf(value).booleanValue());
+			info.setMarkedAsStarted(Boolean.parseBoolean(value));
 		if (bundleInfos == null)
 			bundleInfos = new ArrayList<BundleInfo>();
 		bundleInfos.add(info);
@@ -1111,9 +1111,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		String pluginVersion = attributes.getValue(ATTRIBUTE_VERSION);
 
 		FeatureEntry entry = new FeatureEntry(pluginId, pluginVersion != null ? pluginVersion : GENERIC_VERSION_NUMBER, true);
-		entry.setFragment(Boolean.valueOf(fragment).booleanValue());
+		entry.setFragment(Boolean.parseBoolean(fragment));
 
-		if (fragment != null && new Boolean(fragment).booleanValue()) {
+		if (fragment != null && Boolean.parseBoolean(fragment)) {
 			fragments.add(entry);
 		} else {
 			plugins.add(entry);
@@ -1148,7 +1148,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		if (productContentType == null) { // useFeatures attribute is taken into account only if the contentType attribute is missing
 			String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
 			// for backward compatibility with the old behavior 
-			if (use != null && Boolean.valueOf(use).booleanValue())
+			if (use != null && Boolean.parseBoolean(use))
 				productContentType = ProductContentType.FEATURES;
 			else
 				productContentType = ProductContentType.BUNDLES;
@@ -1219,7 +1219,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	private void processWin(Attributes attributes) {
-		//		useIco = Boolean.valueOf(attributes.getValue(P_USE_ICO)).booleanValue();
+		//		useIco = Boolean.parseBoolean(attributes.getValue(P_USE_ICO));
 	}
 
 	private void processIco(Attributes attributes) {

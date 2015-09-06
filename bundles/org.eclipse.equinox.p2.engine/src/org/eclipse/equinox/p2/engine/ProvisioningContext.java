@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -248,11 +248,11 @@ public class ProvisioningContext {
 	}
 
 	private boolean shouldFollowReferences() {
-		return Boolean.valueOf(getProperty(FOLLOW_REPOSITORY_REFERENCES)).booleanValue();
+		return Boolean.parseBoolean(getProperty(FOLLOW_REPOSITORY_REFERENCES));
 	}
 
 	private boolean shouldFollowArtifactReferences() {
-		return Boolean.valueOf(getProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES)).booleanValue();
+		return Boolean.parseBoolean(getProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES));
 	}
 
 	/**
@@ -328,7 +328,6 @@ public class ProvisioningContext {
 	 * and artifact repositories to be used are determined when the client 
 	 * retrieves the metadata queryable.  Clients should not reset the list of
 	 * metadata repository locations once the metadata queryable has been retrieved.
-
 	 * @param metadataRepositories the metadata repository locations
 	*/
 	public void setMetadataRepositories(URI[] metadataRepositories) {

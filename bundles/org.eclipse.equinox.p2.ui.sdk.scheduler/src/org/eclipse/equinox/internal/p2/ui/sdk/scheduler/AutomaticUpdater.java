@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 IBM Corporation and others.
+ * Copyright (c) 2008, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -192,7 +192,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			if (value != null)
 				lock = Integer.parseInt(value);
 			value = profile.getInstallableUnitProperty(iu, IProfile.PROP_PROFILE_ROOT_IU);
-			isRoot = value == null ? false : Boolean.valueOf(value).booleanValue();
+			isRoot = value == null ? false : Boolean.parseBoolean(value);
 		} catch (NumberFormatException e) {
 			// ignore and assume no lock
 		}

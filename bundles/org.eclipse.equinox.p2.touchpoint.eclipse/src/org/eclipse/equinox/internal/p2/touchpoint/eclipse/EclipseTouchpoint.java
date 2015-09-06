@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -181,7 +181,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-		if (iu != null && Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue()) {
+		if (iu != null && Boolean.parseBoolean(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU))) {
 			IInstallableUnit preparedIU = prepareIU(agent, profile, iu, artifactKey);
 			if (preparedIU == null)
 				return Util.createError(NLS.bind(Messages.failed_prepareIU, iu));

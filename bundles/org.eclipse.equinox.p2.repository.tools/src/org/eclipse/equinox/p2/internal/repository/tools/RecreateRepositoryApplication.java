@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,7 +83,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		manager.removeRepository(repository.getLocation());
 
-		boolean compressed = Boolean.valueOf(repoProperties.get(IRepository.PROP_COMPRESSED)).booleanValue();
+		boolean compressed = Boolean.parseBoolean(repoProperties.get(IRepository.PROP_COMPRESSED));
 		URI realLocation = SimpleArtifactRepository.getActualLocation(repository.getLocation(), compressed);
 		File realFile = URIUtil.toFile(realLocation);
 		if (!realFile.exists() || !realFile.delete())

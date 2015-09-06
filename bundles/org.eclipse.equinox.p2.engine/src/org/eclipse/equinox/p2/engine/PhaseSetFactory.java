@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.p2.engine.phases.*;
  */
 public class PhaseSetFactory {
 
-	private static final boolean forcedUninstall = Boolean.valueOf(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")).booleanValue(); //$NON-NLS-1$
+	private static final boolean forcedUninstall = Boolean.parseBoolean(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")); //$NON-NLS-1$
 
 	/**
 	 * A phase id (value "checkTrust") describing the certificate trust check phase.

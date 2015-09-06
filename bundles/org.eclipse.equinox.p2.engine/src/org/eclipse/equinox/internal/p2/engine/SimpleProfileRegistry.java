@@ -144,7 +144,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateSelfProfile"); //$NON-NLS-1$
 		boolean changed = false;
 		//only update if self is a roaming profile
-		if (Boolean.valueOf(selfProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
+		if (Boolean.parseBoolean(selfProfile.getProperty(IProfile.PROP_ROAMING)))
 			changed = updateRoamingProfile(selfProfile);
 
 		if (changed)

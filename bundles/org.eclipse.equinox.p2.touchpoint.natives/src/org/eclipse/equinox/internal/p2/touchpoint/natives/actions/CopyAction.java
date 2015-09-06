@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2015 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,6 @@
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
-
-import java.io.File;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -74,7 +72,7 @@ public class CopyAction extends ProvisioningAction {
 		File targetFile = new File(target);
 		File[] copiedFiles = null;
 		try {
-			copiedFiles = mergeCopy(sourceFile, targetFile, Boolean.valueOf(overwrite).booleanValue(), backupStore);
+			copiedFiles = mergeCopy(sourceFile, targetFile, Boolean.parseBoolean(overwrite), backupStore);
 		} catch (IOException e) {
 			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.copy_failed, sourceFile.getPath()), e);
 		}

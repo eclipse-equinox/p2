@@ -443,7 +443,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	public void cleanup() throws Exception {
 		// rm -rf eclipse sub-dir
-		boolean leaveDirty = Boolean.valueOf(TestActivator.getContext().getProperty("p2.tests.doNotClean")).booleanValue();
+		boolean leaveDirty = Boolean.parseBoolean(TestActivator.getContext().getProperty("p2.tests.doNotClean"));
 		if (leaveDirty)
 			return;
 		for (Iterator iter = toRemove.iterator(); iter.hasNext();) {

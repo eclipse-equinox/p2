@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 IBM Corporation and others.
+ *  Copyright (c) 2010, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -115,7 +115,7 @@ public class FilterTest extends TestCase {
 		assertTrue("does not match filter", f1.match(hash)); //$NON-NLS-1$
 		assertTrue("does not match filter", f1.match(new DictionaryServiceReference(hash))); //$NON-NLS-1$
 
-		comp = new Long(42);
+		comp = Long.valueOf(42);
 		hash.put("comparable", comp); //$NON-NLS-1$
 		assertTrue("does not match filter", f1.match(hash)); //$NON-NLS-1$
 		assertTrue("does not match filter", f1.match(new DictionaryServiceReference(hash))); //$NON-NLS-1$
@@ -128,7 +128,7 @@ public class FilterTest extends TestCase {
 		assertTrue("does not match filter", f2.match(hash)); //$NON-NLS-1$
 		assertTrue("does not match filter", f2.match(new DictionaryServiceReference(hash))); //$NON-NLS-1$
 
-		comp = new Long(42);
+		comp = Long.valueOf(42);
 		hash.put("comparable", comp); //$NON-NLS-1$
 		assertTrue("does not match filter", f2.match(hash)); //$NON-NLS-1$
 		assertTrue("does not match filter", f2.match(new DictionaryServiceReference(hash))); //$NON-NLS-1$
@@ -139,16 +139,16 @@ public class FilterTest extends TestCase {
 	public void testFilter() {
 		Properties props = new Properties();
 		props.put("room", "bedroom"); //$NON-NLS-1$ //$NON-NLS-2$
-		props.put("channel", new Integer(34)); //$NON-NLS-1$
+		props.put("channel", Integer.valueOf(34)); //$NON-NLS-1$
 		props.put("status", "(on\\)*"); //$NON-NLS-1$//$NON-NLS-2$
-		props.put("max record time", new Long(150)); //$NON-NLS-1$
+		props.put("max record time", Long.valueOf(150)); //$NON-NLS-1$
 		props.put("canrecord", "true(x)"); //$NON-NLS-1$ //$NON-NLS-2$
-		props.put("shortvalue", new Short((short) 1000)); //$NON-NLS-1$
-		props.put("bytevalue", new Byte((byte) 10)); //$NON-NLS-1$
-		props.put("floatvalue", new Float(1.01)); //$NON-NLS-1$
-		props.put("doublevalue", new Double(2.01)); //$NON-NLS-1$
-		props.put("charvalue", new Character('A')); //$NON-NLS-1$
-		props.put("booleanvalue", new Boolean(false)); //$NON-NLS-1$
+		props.put("shortvalue", Short.valueOf((short) 1000)); //$NON-NLS-1$
+		props.put("bytevalue", Byte.valueOf((byte) 10)); //$NON-NLS-1$
+		props.put("floatvalue", Float.valueOf(1.01f)); //$NON-NLS-1$
+		props.put("doublevalue", Double.valueOf(2.01)); //$NON-NLS-1$
+		props.put("charvalue", Character.valueOf('A')); //$NON-NLS-1$
+		props.put("booleanvalue", Boolean.FALSE); //$NON-NLS-1$
 		props.put("weirdvalue", new Hashtable()); //$NON-NLS-1$
 		try {
 			props.put("bigintvalue", new BigInteger("4123456")); //$NON-NLS-1$ //$NON-NLS-2$

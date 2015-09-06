@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,7 +65,7 @@ public class GatherBundleAction extends BundlesAction {
 		String shape = manifest.get(BUNDLE_SHAPE);
 		if (shape == null) {
 			if (unpack != null) {
-				shape = Boolean.valueOf(unpack).booleanValue() ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
+				shape = Boolean.parseBoolean(unpack) ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
 			} else {
 				shape = Utils.guessUnpack(bundle, Utils.getBundleClasspath(manifest)) ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
 			}

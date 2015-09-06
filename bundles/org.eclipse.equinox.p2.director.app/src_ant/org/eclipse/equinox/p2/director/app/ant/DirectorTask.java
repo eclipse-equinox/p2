@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -196,7 +196,7 @@ public class DirectorTask extends Task implements ILog {
 
 	public void setList(String value) {
 		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
-			list = Boolean.valueOf(value).booleanValue();
+			list = Boolean.parseBoolean(value);
 	}
 
 	public void setMetadataRepository(String value) {
@@ -231,7 +231,7 @@ public class DirectorTask extends Task implements ILog {
 
 	public void setRoaming(String value) {
 		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
-			roaming = Boolean.valueOf(value).booleanValue();
+			roaming = Boolean.parseBoolean(value);
 	}
 
 	public void setUninstallIU(String value) {

@@ -57,7 +57,7 @@ public abstract class AbstractPublishTask extends Task {
 		}
 
 		/**
-		 * If not set, default is true if we aren't set as an metadata repo 
+		 * If not set, default is true if we aren't set as a metadata repo 
 		 */
 		public boolean isArtifactRepository() {
 			if (artifact != null)
@@ -160,19 +160,19 @@ public abstract class AbstractPublishTask extends Task {
 	}
 
 	public void setCompress(String value) {
-		compress = Boolean.valueOf(value).booleanValue();
+		compress = Boolean.parseBoolean(value);
 	}
 
 	public void setReusePackedFiles(String value) {
-		reusePackedFiles = Boolean.valueOf(value).booleanValue();
+		reusePackedFiles = Boolean.parseBoolean(value);
 	}
 
 	public void setAppend(String value) {
-		append = Boolean.valueOf(value).booleanValue();
+		append = Boolean.parseBoolean(value);
 	}
 
 	public void setPublishArtifacts(String value) {
-		publish = Boolean.valueOf(value).booleanValue();
+		publish = Boolean.parseBoolean(value);
 	}
 
 	public void setArtifactRepository(String location) {

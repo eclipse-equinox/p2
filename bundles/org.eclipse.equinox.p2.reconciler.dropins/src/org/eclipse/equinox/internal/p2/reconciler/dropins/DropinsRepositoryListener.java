@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -167,7 +167,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			// If link is optional, then the link target may not exist.
 			// So IF link is marked as optional AND does not exist, simply ignore it.
 			String optional = links.getProperty(LINK_IS_OPTIONAL);
-			result.setOptional(Boolean.valueOf(optional).booleanValue());
+			result.setOptional(Boolean.parseBoolean(optional));
 			return result;
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_resolving_link, linkedFile.getAbsolutePath(), file.getAbsolutePath()), e));

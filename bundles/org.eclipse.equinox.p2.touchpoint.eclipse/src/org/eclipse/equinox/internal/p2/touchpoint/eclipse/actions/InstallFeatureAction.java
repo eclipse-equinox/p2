@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2015 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -73,7 +73,7 @@ public class InstallFeatureAction extends ProvisioningAction {
 			return Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey));
 		}
 		String pluginId = iu.getProperty(UPDATE_FEATURE_PLUGIN_PROP);
-		boolean isPrimary = Boolean.valueOf(iu.getProperty(UPDATE_FEATURE_PRIMARY_PROP)).booleanValue();
+		boolean isPrimary = Boolean.parseBoolean(iu.getProperty(UPDATE_FEATURE_PRIMARY_PROP));
 		String application = iu.getProperty(UPDATE_FEATURE_APPLICATION_PROP);
 		// TODO this isn't right... but we will leave it for now because we don't actually use the value in the install
 		String pluginVersion = artifactKey.getVersion().toString();

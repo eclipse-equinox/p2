@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 			File bundlePoolFile = new File(bundlePool);
 			if (bundlePoolFile.exists())
 				artifactRepos.add(bundlePoolFile.toURI());
-			else if (Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue()) {
+			else if (Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING))) {
 				// the profile has not been used yet but is a roaming profile
 				// best effort to add "just" the default bundle pool
 				bundlePoolFile = findDefaultBundlePool(p2Directory);

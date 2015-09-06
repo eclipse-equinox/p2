@@ -287,7 +287,7 @@ class ConfigApplier {
 		ArrayList<Bundle> toRefresh = new ArrayList<Bundle>();
 
 		String useReferenceProperty = manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE);
-		boolean useReference = useReferenceProperty == null ? runningOnEquinox : Boolean.valueOf(useReferenceProperty).booleanValue();
+		boolean useReference = useReferenceProperty == null ? runningOnEquinox : Boolean.parseBoolean(useReferenceProperty);
 
 		for (int i = 0; i < finalList.length; i++) {
 			if (finalList[i] == null)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,7 +72,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 
 		// get primary flag
 		String flag = getAttribute(node, ATTRIBUTE_PRIMARY);
-		if (flag != null && Boolean.valueOf(flag).booleanValue())
+		if (flag != null && Boolean.parseBoolean(flag))
 			result.setPrimary(true);
 
 		// get install locations
@@ -123,10 +123,10 @@ public class ConfigurationParser implements ConfigurationConstants {
 			result.setPolicy(policy);
 		String enabled = getAttribute(node, ATTRIBUTE_ENABLED);
 		if (enabled != null)
-			result.setEnabled(Boolean.valueOf(enabled).booleanValue());
+			result.setEnabled(Boolean.parseBoolean(enabled));
 		String updateable = getAttribute(node, ATTRIBUTE_UPDATEABLE);
 		if (updateable != null)
-			result.setUpdateable(Boolean.valueOf(updateable).booleanValue());
+			result.setUpdateable(Boolean.parseBoolean(updateable));
 		String url = getAttribute(node, ATTRIBUTE_URL);
 		if (url != null) {
 			try {
@@ -253,7 +253,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 			result.setDate(value);
 		value = getAttribute(node, ATTRIBUTE_TRANSIENT);
 		if (value != null)
-			result.setTransient(Boolean.valueOf(value).booleanValue());
+			result.setTransient(Boolean.parseBoolean(value));
 		value = getAttribute(node, ATTRIBUTE_SHARED_UR);
 		if (value != null)
 			result.setSharedUR(value);

@@ -128,7 +128,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			info.location = repository.getLocation();
 			String value = repository.getProperties().get(IRepository.PROP_SYSTEM);
 			if (value != null)
-				info.isSystem = Boolean.valueOf(value).booleanValue();
+				info.isSystem = Boolean.parseBoolean(value);
 			info.suffix = suffix;
 		}
 		// save the given repository in the preferences.
@@ -597,7 +597,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				info.nickname = value;
 			else if (IRepository.PROP_SYSTEM.equals(key))
 				//only true if value.equals("true") which is OK because a repository is only system if it's explicitly set to system.
-				info.isSystem = Boolean.valueOf(value).booleanValue();
+				info.isSystem = Boolean.parseBoolean(value);
 			remember(info, true);
 		}
 	}
@@ -683,7 +683,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				if (added)
 					removeRepository(location, false);
 				//eagerly cleanup missing system repositories
-				if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
+				if (Boolean.parseBoolean(getRepositoryProperty(location, IRepository.PROP_SYSTEM)))
 					removeRepository(location);
 				else if (failure == null || (failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_AUTHENTICATION && failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_READ))
 					rememberNotFound(location);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -50,7 +50,7 @@ public class LinkAction extends ProvisioningAction {
 
 		String force = (String) parameters.get(ActionConstants.PARM_LINK_FORCE);
 
-		ln(targetDir, linkTarget, linkName, Boolean.valueOf(force).booleanValue());
+		ln(targetDir, linkTarget, linkName, Boolean.parseBoolean(force));
 		return Status.OK_STATUS;
 	}
 

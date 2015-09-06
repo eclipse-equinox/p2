@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -124,7 +124,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		// todo we should look in the instance scope as well but have to be careful that the instance location has been set
 		nodes.add(ConfigurationScope.INSTANCE.getNode(GCActivator.ID));
 		nodes.add(DefaultScope.INSTANCE.getNode(GCActivator.ID));
-		return Boolean.valueOf(prefService.get(key, Boolean.toString(defaultValue), nodes.toArray(new Preferences[nodes.size()]))).booleanValue();
+		return Boolean.parseBoolean(prefService.get(key, Boolean.toString(defaultValue), nodes.toArray(new Preferences[nodes.size()])));
 	}
 
 	private void invokeCoreGC() {

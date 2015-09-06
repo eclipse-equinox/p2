@@ -780,7 +780,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		Collection<IInstallableUnit> uninstalls = collectRoots(profile, rootsToUninstall, false);
 
 		// keep this result status in case there is a problem so we can report it to the user
-		boolean wasRoaming = Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue();
+		boolean wasRoaming = Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING));
 		try {
 			updateRoamingProperties(profile);
 			ProvisioningContext context = new ProvisioningContext(targetAgent);
@@ -793,7 +793,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			planAndExecute(profile, context, request);
 		} finally {
 			// if we were originally were set to be roaming and we changed it, change it back before we return
-			if (wasRoaming && !Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
+			if (wasRoaming && !Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING)))
 				setRoaming(profile);
 		}
 	}
@@ -1318,7 +1318,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			throw new ProvisionException(Messages.Missing_profileid);
 
 		// make sure that we are set to be roaming before we update the values
-		if (!Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
+		if (!Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING)))
 			return;
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

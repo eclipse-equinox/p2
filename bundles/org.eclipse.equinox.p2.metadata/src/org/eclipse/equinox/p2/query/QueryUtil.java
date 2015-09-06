@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2015 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,9 @@ package org.eclipse.equinox.p2.query;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.internal.p2.metadata.expression.ContextExpression;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression.VariableFinder;
+import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 
@@ -235,7 +236,7 @@ public class QueryUtil {
 			return QueryUtil.createMatchQuery(matchIU_propNull, propertyName);
 		if (ANY.equals(propertyValue))
 			return QueryUtil.createMatchQuery(matchIU_propAny, propertyName);
-		if (Boolean.valueOf(propertyValue).booleanValue())
+		if (Boolean.parseBoolean(propertyValue))
 			return QueryUtil.createMatchQuery(matchIU_propTrue, propertyName);
 		return QueryUtil.createMatchQuery(matchIU_propValue, propertyName, propertyValue);
 	}

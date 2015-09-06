@@ -267,7 +267,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Please enter a query");
 			return;
 		}
-		boolean useFull = Boolean.valueOf(processArgument(interpreter.nextArgument())).booleanValue();
+		boolean useFull = Boolean.parseBoolean(processArgument(interpreter.nextArgument()));
 		URI repoURL = null;
 		if (urlString != null && !urlString.equals(WILDCARD_ANY))
 			repoURL = toURI(interpreter, urlString);
@@ -565,7 +565,7 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 
-		boolean useFull = Boolean.valueOf(processArgument(interpreter.nextArgument())).booleanValue();
+		boolean useFull = Boolean.parseBoolean(processArgument(interpreter.nextArgument()));
 		IQuery<IInstallableUnit> query = useFull ? QueryUtil.createQuery(expression) : QueryUtil.createMatchQuery(expression);
 
 		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);

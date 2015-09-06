@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Tasktop Technologies and others.
+ * Copyright (c) 2010, 2015 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -118,7 +118,7 @@ public class TextSearchControl extends Composite {
 
 		if (useNativeSearchField == null || !useNativeSearchField) {
 			findControl = createLabelButtonControl(this, textControl, JFaceResources.getImageRegistry().getDescriptor(FIND_ICON), "Find", "Find", ICON_SEARCH);
-			clearControl = createLabelButtonControl(this, textControl, JFaceResources.getImageRegistry().getDescriptor(CLEAR_ICON), WorkbenchMessages.FilteredTree_ClearToolTip,//FilteredTree_AccessibleListenerClearButton,
+			clearControl = createLabelButtonControl(this, textControl, JFaceResources.getImageRegistry().getDescriptor(CLEAR_ICON), WorkbenchMessages.FilteredTree_ClearToolTip, //FilteredTree_AccessibleListenerClearButton,
 					WorkbenchMessages.FilteredTree_ClearToolTip, ICON_CANCEL);
 			addModifyListener(new ModifyListener() {
 
@@ -177,7 +177,7 @@ public class TextSearchControl extends Composite {
 						style |= ICON_SEARCH;
 					}
 					testText = new Text(parent, style);
-					useNativeSearchField = new Boolean((testText.getStyle() & ICON_CANCEL) != 0 && (!automaticFind || (testText.getStyle() & ICON_SEARCH) != 0));
+					useNativeSearchField = Boolean.valueOf((testText.getStyle() & ICON_CANCEL) != 0 && (!automaticFind || (testText.getStyle() & ICON_SEARCH) != 0));
 				} finally {
 					if (testText != null) {
 						testText.dispose();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -284,7 +284,7 @@ public class SimpleConfiguratorUtils {
 		String version = tok.nextToken().trim();
 		URI location = parseLocation(tok.nextToken().trim());
 		int startLevel = Integer.parseInt(tok.nextToken().trim());
-		boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
+		boolean markedAsStarted = Boolean.parseBoolean(tok.nextToken());
 		BundleInfo result = new BundleInfo(symbolicName, version, location, startLevel, markedAsStarted);
 		if (!location.isAbsolute())
 			result.setBaseLocation(base);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -61,14 +61,14 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 	public Object _help(CommandInterpreter intp) {
 		String commandName = intp.nextArgument();
 		if (commandName == null) {
-			return new Boolean(false);
+			return Boolean.FALSE;
 		}
 		String help = getHelp(commandName);
 
 		if (help.length() > 0) {
 			return help;
 		}
-		return new Boolean(false);
+		return Boolean.FALSE;
 	}
 
 	public String getHelp() {

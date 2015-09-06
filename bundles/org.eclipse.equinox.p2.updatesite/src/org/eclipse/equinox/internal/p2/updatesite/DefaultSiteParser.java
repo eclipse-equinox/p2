@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2000, 2011 IBM Corporation and others.
+ *  Copyright (c) 2000, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -110,7 +110,7 @@ public class DefaultSiteParser extends DefaultHandler {
 					|| associateSitesURL.startsWith("https://") //$NON-NLS-1$
 					|| associateSitesURL.startsWith("file://") //$NON-NLS-1$
 					|| associateSitesURL.startsWith("ftp://") //$NON-NLS-1$
-			|| associateSitesURL.startsWith("jar://"))) //$NON-NLS-1$
+					|| associateSitesURL.startsWith("jar://"))) //$NON-NLS-1$
 				log(Messages.DefaultSiteParser_mirrors, e);
 			return null;
 		}
@@ -832,7 +832,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		}
 
 		String pack200 = attributes.getValue("pack200"); //$NON-NLS-1$
-		if (pack200 != null && new Boolean(pack200).booleanValue()) {
+		if (pack200 != null && Boolean.parseBoolean(pack200)) {
 			site.setSupportsPack200(true);
 		}
 

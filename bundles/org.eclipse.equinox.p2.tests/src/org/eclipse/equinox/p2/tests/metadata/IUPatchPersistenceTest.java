@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -102,7 +102,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		IRequirement[] required = new IRequirement[requireTuples.length];
 		for (int i = 0; i < requireTuples.length; i++) {
 			String[] nextTuple = requireTuples[i];
-			required[i] = MetadataFactory.createRequirement(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
+			required[i] = MetadataFactory.createRequirement(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.parseBoolean(nextTuple[3]), false);
 		}
 		return required;
 	}
@@ -283,7 +283,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		IRequirementChange change1 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequirementChange change2 = MetadataFactory.createRequirementChange(null, MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
-		IRequirement[][] scope = new IRequirement[][] { {MetadataFactory.createRequirement("foo", "bar", null, null, true, true), MetadataFactory.createRequirement("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequirement("zoo", "far", null, null, true, true)}};
+		IRequirement[][] scope = new IRequirement[][] {{MetadataFactory.createRequirement("foo", "bar", null, null, true, true), MetadataFactory.createRequirement("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequirement("zoo", "far", null, null, true, true)}};
 		IRequirement lifeCycle = MetadataFactory.createRequirement("zoo", "x", null, null, false, false, false);
 		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, lifeCycle, metaRequirements);
 		return iu;

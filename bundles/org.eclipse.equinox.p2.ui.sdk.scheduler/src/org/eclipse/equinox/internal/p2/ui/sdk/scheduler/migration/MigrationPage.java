@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2015 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -870,7 +870,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	}
 
 	private static boolean hasHigherFidelity(IInstallableUnit iu, IInstallableUnit currentIU) {
-		if (Boolean.valueOf(currentIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue() && !Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue())
+		if (Boolean.parseBoolean(currentIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)) && !Boolean.parseBoolean(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)))
 			return true;
 		return false;
 	}

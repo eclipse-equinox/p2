@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 IBM Corporation and others.
+ * Copyright (c) 2006, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -73,7 +73,7 @@ public class SignCommandStep extends CommandStep {
 		for (Iterator<Properties> iterator = containers.iterator(); iterator.hasNext();) {
 			inf = iterator.next();
 			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN_SIGN)) {
-				if (Boolean.valueOf(inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN_SIGN)).booleanValue()) {
+				if (Boolean.parseBoolean(inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN_SIGN))) {
 					if (verbose)
 						System.out.println(input.getName() + "is excluded from signing by its containers."); //$NON-NLS-1$ 
 					return false;
@@ -84,7 +84,7 @@ public class SignCommandStep extends CommandStep {
 
 		//2: Is this jar itself marked as exclude?
 		inf = Utils.getEclipseInf(input, verbose);
-		if (inf != null && inf.containsKey(Utils.MARK_EXCLUDE_SIGN) && Boolean.valueOf(inf.getProperty(Utils.MARK_EXCLUDE_SIGN)).booleanValue()) {
+		if (inf != null && inf.containsKey(Utils.MARK_EXCLUDE_SIGN) && Boolean.parseBoolean(inf.getProperty(Utils.MARK_EXCLUDE_SIGN))) {
 			if (verbose)
 				System.out.println("Excluding " + input.getName() + " from signing."); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;

@@ -106,7 +106,7 @@ public class ProfileSynchronizer {
 			return Status.OK_STATUS;
 
 		ProvisioningContext context = getContext();
-		context.setProperty(EXPLANATION, new Boolean(Tracing.DEBUG_RECONCILER).toString());
+		context.setProperty(EXPLANATION, Boolean.valueOf(Tracing.DEBUG_RECONCILER).toString());
 
 		String updatedCacheExtensions = synchronizeCacheExtensions();
 
@@ -555,7 +555,7 @@ public class ProfileSynchronizer {
 	public ReconcilerProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
 		ReconcilerProfileChangeRequest request = new ReconcilerProfileChangeRequest(profile);
 
-		boolean resolve = Boolean.valueOf(profile.getProperty("org.eclipse.equinox.p2.resolve")).booleanValue(); //$NON-NLS-1$
+		boolean resolve = Boolean.parseBoolean(profile.getProperty("org.eclipse.equinox.p2.resolve")); //$NON-NLS-1$
 		if (resolve)
 			request.removeProfileProperty("org.eclipse.equinox.p2.resolve"); //$NON-NLS-1$
 

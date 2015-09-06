@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2006, 2010 IBM Corporation and others.
+ *  Copyright (c) 2006, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -9,8 +9,6 @@
  *     IBM - Initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.jarprocessor;
-
-import java.util.Properties;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,7 +96,7 @@ public class PackStep extends CommandStep {
 		for (Iterator<Properties> iterator = containers.iterator(); iterator.hasNext();) {
 			Properties container = iterator.next();
 			if (container.containsKey(Utils.MARK_EXCLUDE_CHILDREN_PACK)) {
-				if (Boolean.valueOf(container.getProperty(Utils.MARK_EXCLUDE_CHILDREN_PACK)).booleanValue()) {
+				if (Boolean.parseBoolean(container.getProperty(Utils.MARK_EXCLUDE_CHILDREN_PACK))) {
 					if (verbose)
 						System.out.println(input.getName() + " is excluded from pack200 by its containers."); //$NON-NLS-1$
 					return false;
@@ -108,7 +106,7 @@ public class PackStep extends CommandStep {
 		}
 
 		//2: excluded by self
-		if (inf != null && inf.containsKey(Utils.MARK_EXCLUDE_PACK) && Boolean.valueOf(inf.getProperty(Utils.MARK_EXCLUDE_PACK)).booleanValue()) {
+		if (inf != null && inf.containsKey(Utils.MARK_EXCLUDE_PACK) && Boolean.parseBoolean(inf.getProperty(Utils.MARK_EXCLUDE_PACK))) {
 			if (verbose)
 				System.out.println("Excluding " + input.getName() + " from " + getStepName()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;

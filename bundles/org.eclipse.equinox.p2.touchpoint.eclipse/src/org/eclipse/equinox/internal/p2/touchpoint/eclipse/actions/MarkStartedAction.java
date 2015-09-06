@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -57,8 +57,8 @@ public class MarkStartedAction extends ProvisioningAction {
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 		for (int i = 0; i < bundles.length; i++) {
 			if (bundles[i].equals(bundleInfo)) {
-				getMemento().put(ActionConstants.PARM_PREVIOUS_STARTED, new Boolean(bundles[i].isMarkedAsStarted()));
-				bundles[i].setMarkedAsStarted(Boolean.valueOf(started).booleanValue());
+				getMemento().put(ActionConstants.PARM_PREVIOUS_STARTED, Boolean.valueOf(bundles[i].isMarkedAsStarted()));
+				bundles[i].setMarkedAsStarted(Boolean.parseBoolean(started));
 				break;
 			}
 		}

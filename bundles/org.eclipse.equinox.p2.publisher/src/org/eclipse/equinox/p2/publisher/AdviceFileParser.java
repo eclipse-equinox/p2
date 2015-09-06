@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2009, 2015 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -262,11 +262,11 @@ public class AdviceFileParser {
 		while (current != null && current.startsWith(prefix)) {
 			String token = current.substring(prefix.length());
 			if (token.equals(GREEDY)) {
-				greedy = Boolean.valueOf(currentValue()).booleanValue();
+				greedy = Boolean.parseBoolean(currentValue());
 			} else if (token.equals(OPTIONAL)) {
-				optional = Boolean.valueOf(currentValue()).booleanValue();
+				optional = Boolean.parseBoolean(currentValue());
 			} else if (token.equals(MULTIPLE)) {
-				multiple = Boolean.valueOf(currentValue()).booleanValue();
+				multiple = Boolean.parseBoolean(currentValue());
 			} else if (token.equals(FILTER)) {
 				filter = currentValue();
 			} else if (token.equals(NAME)) {
@@ -395,7 +395,7 @@ public class AdviceFileParser {
 				unitVersion = Version.parseVersion(substituteVersionAndQualifier(currentValue()));
 				next();
 			} else if (token.equals(SINGLETON)) {
-				unitSingleton = Boolean.valueOf(currentValue()).booleanValue();
+				unitSingleton = Boolean.parseBoolean(currentValue());
 				next();
 			} else if (token.equals(FILTER)) {
 				unitFilter = currentValue();

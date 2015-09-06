@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -127,6 +127,6 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	/*  p2.composite.artifact.repository.remove */
 	public void setAllChildren(String value) {
 		if (value != null && !value.startsWith(ANT_PREFIX))
-			((CompositeRepositoryApplication) application).setRemoveAll(Boolean.valueOf(value).booleanValue());
+			((CompositeRepositoryApplication) application).setRemoveAll(Boolean.parseBoolean(value));
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 IBM Corporation and others.
+ * Copyright (c) 2006, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -285,7 +285,7 @@ public class Utils {
 		String exclude = inf.getProperty(MARK_EXCLUDE);
 
 		//was marked as exclude, we should skip
-		if (exclude != null && Boolean.valueOf(exclude).booleanValue())
+		if (exclude != null && Boolean.parseBoolean(exclude))
 			return true;
 
 		//process all was set, don't skip
@@ -294,7 +294,7 @@ public class Utils {
 
 		//otherwise, we skip if not marked marked
 		String marked = inf.getProperty(MARK_PROPERTY);
-		return !Boolean.valueOf(marked).booleanValue();
+		return !Boolean.parseBoolean(marked);
 	}
 
 	/**

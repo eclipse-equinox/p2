@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2011 IBM Corporation and others.
+ *  Copyright (c) 2005, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -147,10 +147,10 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IInstallableUnit[] bundleIUs = EclipsePublisherHelper.createEclipseIU(partialIUBundleDescription, false, key, extraProperties);
 		assertTrue(bundleIUs != null && bundleIUs.length != 0);
 		IInstallableUnit iu = bundleIUs[0];
-		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
+		assertTrue(Boolean.parseBoolean(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)));
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		IInstallableUnit fullIU = touchpoint.prepareIU(getAgent(), profile, iu, key);
-		assertFalse(Boolean.valueOf(fullIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
+		assertFalse(Boolean.parseBoolean(fullIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)));
 	}
 
 	public void testInstallPartialIU() throws Exception {
@@ -185,7 +185,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IInstallableUnit[] bundleIUs = EclipsePublisherHelper.createEclipseIU(partialIUBundleDescription, false, key, extraProperties);
 		assertTrue(bundleIUs != null && bundleIUs.length != 0);
 		IInstallableUnit iu = bundleIUs[0];
-		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
+		assertTrue(Boolean.parseBoolean(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)));
 
 		Iterator iterator = profile.query(QueryUtil.createIUQuery(iu.getId()), null).iterator();
 		assertFalse(iterator.hasNext());
@@ -202,7 +202,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		assertTrue(iterator.hasNext());
 		IInstallableUnit installedIU = (IInstallableUnit) iterator.next();
 		assertTrue(installedIU.getId().equals(iu.getId()));
-		assertFalse(Boolean.valueOf(installedIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
+		assertFalse(Boolean.parseBoolean(installedIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)));
 	}
 
 	public void testInstallPartialIUValidationFailure() throws ProvisionException {

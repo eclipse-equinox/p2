@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ public class LinkAction extends ProvisioningAction {
 		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
 
 		try {
-			ln(targetDir, linkTarget, linkName, Boolean.valueOf(force).booleanValue(), store);
+			ln(targetDir, linkTarget, linkName, Boolean.parseBoolean(force), store);
 		} catch (IOException e) {
 			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.link_failed, linkName, ID), e);
 		}

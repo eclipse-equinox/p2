@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -138,7 +138,7 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 			assertEquals("8.0", 1, descriptors.length);
 			SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) descriptors[0];
 			String isFolder = descriptor.getRepositoryProperty("artifact.folder");
-			if (Boolean.valueOf(isFolder).booleanValue()) {
+			if (Boolean.parseBoolean(isFolder)) {
 				assertNull("9.0", directoryDescriptor);
 				directoryDescriptor = descriptors[0];
 			} else {

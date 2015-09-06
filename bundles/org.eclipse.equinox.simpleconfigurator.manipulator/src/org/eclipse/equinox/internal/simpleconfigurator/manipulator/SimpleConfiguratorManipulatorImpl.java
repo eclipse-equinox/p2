@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -525,7 +525,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		}
 
 		Utils.appendProperties(properties, manipulator.getConfigData().getProperties());
-		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
+		boolean exclusiveInstallation = Boolean.parseBoolean(properties.getProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_EXCLUSIVE_INSTALLATION));
 		File configFile = getConfigFile(manipulator);
 
 		File installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData());

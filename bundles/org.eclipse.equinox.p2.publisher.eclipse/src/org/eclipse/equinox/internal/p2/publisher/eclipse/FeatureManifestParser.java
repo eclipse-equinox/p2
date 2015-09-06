@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,8 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.pde.internal.publishing.*;
+import org.eclipse.pde.internal.publishing.Activator;
+import org.eclipse.pde.internal.publishing.Constants;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -162,8 +163,8 @@ public class FeatureManifestParser extends DefaultHandler {
 
 			result.setApplication(attributes.getValue("application")); //$NON-NLS-1$
 			result.setBrandingPlugin(attributes.getValue("plugin")); //$NON-NLS-1$
-			result.setExclusive(Boolean.valueOf(attributes.getValue("exclusive")).booleanValue()); //$NON-NLS-1$
-			result.setPrimary(Boolean.valueOf(attributes.getValue("primary")).booleanValue()); //$NON-NLS-1$
+			result.setExclusive(Boolean.parseBoolean(attributes.getValue("exclusive"))); //$NON-NLS-1$
+			result.setPrimary(Boolean.parseBoolean(attributes.getValue("primary"))); //$NON-NLS-1$
 			result.setColocationAffinity(attributes.getValue("colocation-affinity")); //$NON-NLS-1$
 
 			result.setProviderName(localize(attributes.getValue("provider-name"))); //$NON-NLS-1$
@@ -204,10 +205,10 @@ public class FeatureManifestParser extends DefaultHandler {
 		FeatureEntry entry = new FeatureEntry(attributes.getValue("id"), attributes.getValue("version"), false); //$NON-NLS-1$ //$NON-NLS-2$
 		String unpack = attributes.getValue("unpack"); //$NON-NLS-1$
 		if (unpack != null)
-			entry.setUnpack(Boolean.valueOf(unpack).booleanValue());
+			entry.setUnpack(Boolean.parseBoolean(unpack));
 		String optional = attributes.getValue("optional"); //$NON-NLS-1$
 		if (optional != null)
-			entry.setOptional(Boolean.valueOf(optional).booleanValue());
+			entry.setOptional(Boolean.parseBoolean(optional));
 		setEnvironment(attributes, entry);
 		String filter = attributes.getValue("filter"); //$NON-NLS-1$
 		if (filter != null)
@@ -237,10 +238,10 @@ public class FeatureManifestParser extends DefaultHandler {
 			setEnvironment(attributes, plugin);
 			String unpack = attributes.getValue("unpack"); //$NON-NLS-1$
 			if (unpack != null)
-				plugin.setUnpack(Boolean.valueOf(unpack).booleanValue());
+				plugin.setUnpack(Boolean.parseBoolean(unpack));
 			String fragment = attributes.getValue("fragment"); //$NON-NLS-1$
 			if (fragment != null)
-				plugin.setFragment(Boolean.valueOf(fragment).booleanValue());
+				plugin.setFragment(Boolean.parseBoolean(fragment));
 			String filter = attributes.getValue("filter"); //$NON-NLS-1$
 			if (filter != null)
 				plugin.setFilter(filter);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2009, 2015 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -229,8 +229,8 @@ public class ReducedCUDFParser {
 	//		String value = line.substring("installed: ".length());
 	//		if (value.length() != 0) {
 	//			if (DEBUG)
-	//				if (!Boolean.valueOf(value).booleanValue()) {
-	//					System.err.println("Unexcepted value for installed.");
+	//				if (!Boolean.parseBoolean(value)) {
+	//					System.err.println("Unexpected value for installed.");
 	//					return;
 	//				}
 	//			currentIU.setInstalled(true);

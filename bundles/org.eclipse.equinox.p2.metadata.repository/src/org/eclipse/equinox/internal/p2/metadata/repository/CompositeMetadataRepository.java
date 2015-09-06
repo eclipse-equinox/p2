@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -410,7 +410,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		if (repoProperties != null) {
 			String value = repoProperties.get(PROP_ATOMIC_LOADING);
 			if (value != null) {
-				failOnChildFailure = Boolean.valueOf(value).booleanValue();
+				failOnChildFailure = Boolean.parseBoolean(value);
 			}
 		}
 		return failOnChildFailure;

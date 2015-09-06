@@ -99,7 +99,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		Location installLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.INSTALL_FILTER);
 		File installFolder = new File(installLocation.getURL().getPath());
 
-		if (Boolean.valueOf(sharedProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue()) {
+		if (Boolean.parseBoolean(sharedProfile.getProperty(IProfile.PROP_ROAMING))) {
 			userProfile.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.getAbsolutePath());
 			userProfile.setProperty(IProfile.PROP_SHARED_CACHE, installFolder.getAbsolutePath());
 			userProfile.setProperty(IProfile.PROP_ROAMING, Boolean.FALSE.toString());
@@ -270,7 +270,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#isSurrogate(org.eclipse.equinox.internal.provisional.p2.engine.IProfile)
 	 */
 	public boolean isSurrogate(IProfile profile) {
-		return Boolean.valueOf(profile.getProperty(PROP_SURROGATE)).booleanValue();
+		return Boolean.parseBoolean(profile.getProperty(PROP_SURROGATE));
 	}
 
 	/* (non-Javadoc)

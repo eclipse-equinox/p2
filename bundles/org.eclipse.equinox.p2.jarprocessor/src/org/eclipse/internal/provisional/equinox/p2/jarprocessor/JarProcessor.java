@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 IBM Corporation and others.
+ * Copyright (c) 2006, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -174,7 +174,7 @@ public class JarProcessor {
 			//skip if excluding children
 			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN)) {
 				String excludeChildren = inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN);
-				if (Boolean.valueOf(excludeChildren).booleanValue())
+				if (Boolean.parseBoolean(excludeChildren))
 					if (verbose) {
 						for (int i = 0; i <= depth; i++)
 							System.out.print("  "); //$NON-NLS-1$
