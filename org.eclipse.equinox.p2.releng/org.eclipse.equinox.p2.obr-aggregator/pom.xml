@@ -13,13 +13,13 @@
 	<parent>
 		<artifactId>org.eclipse.equinox.p2-parent</artifactId>
 		<groupId>org.eclipse</groupId>
-		<version>4.5.1-SNAPSHOT</version>
+		<version>4.5.2-SNAPSHOT</version>
 		<relativePath>../org.eclipse.equinox.p2-parent</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse</groupId>
 	<artifactId>org.eclipse.equinox.p2.obr</artifactId>
-	<version>4.5.1-SNAPSHOT</version>
+	<version>4.5.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<build>
 		<plugins>
