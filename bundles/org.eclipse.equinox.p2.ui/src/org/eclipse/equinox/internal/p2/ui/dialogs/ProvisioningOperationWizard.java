@@ -192,9 +192,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			// If the page selections are different than what we may have resolved
 			// against, then this page is not complete.
 			boolean old = resolutionPage.isPageComplete();
-			if (pageSelectionsHaveChanged(page))
-				resolutionPage.setPageComplete(false);
-			// If the state has truly changed, update the buttons.  
+			resolutionPage.setPageComplete(page.getCheckedIUElements() != null && page.getCheckedIUElements().length > 0);
+			// If the state has truly changed, update the buttons.
 			if (old != resolutionPage.isPageComplete()) {
 				IWizardContainer container = getContainer();
 				if (container != null && container.getCurrentPage() != null)
