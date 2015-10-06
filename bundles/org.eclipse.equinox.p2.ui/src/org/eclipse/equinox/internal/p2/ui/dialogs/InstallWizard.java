@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2013 IBM Corporation and others.
+ *  Copyright (c) 2007, 2015 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
  *     Red Hat, Inc. - support for remediation page
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Bug 479145
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -48,10 +49,12 @@ public class InstallWizard extends WizardWithLicenses {
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));
 	}
 
+	@Override
 	protected ResolutionResultsWizardPage createResolutionPage() {
 		return new InstallWizardPage(ui, this, root, operation);
 	}
 
+	@Override
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
 		mainPage = new AvailableIUsPage(ui, this);
 		if (selections != null && selections.length > 0)
@@ -60,6 +63,7 @@ public class InstallWizard extends WizardWithLicenses {
 
 	}
 
+	@Override
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		if (selectedElements == null)
 			return;
@@ -86,9 +90,9 @@ public class InstallWizard extends WizardWithLicenses {
 
 	/*
 	 * Overridden to dynamically determine which page to get
-	 * selections from.  (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getOperationSelections()
+	 * selections from.
 	 */
+	@Override
 	protected Object[] getOperationSelections() {
 		return getOperationSelectionsPage().getCheckedIUElements();
 	}
@@ -107,10 +111,12 @@ public class InstallWizard extends WizardWithLicenses {
 		return mainPage;
 	}
 
+	@Override
 	protected ProvisioningContext getProvisioningContext() {
 		return ((AvailableIUsPage) mainPage).getProvisioningContext();
 	}
 
+	@Override
 	protected IResolutionErrorReportingPage createErrorReportingPage() {
 		if (root == null)
 			errorReportingPage = new SelectableIUsPage(ui, this, null, null);
@@ -122,14 +128,13 @@ public class InstallWizard extends WizardWithLicenses {
 		return errorReportingPage;
 	}
 
+	@Override
 	protected RemediationPage createRemediationPage() {
 		remediationPage = new RemediationPage(ui, this, root, operation);
 		return remediationPage;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getProfileChangeOperation(java.lang.Object[])
-	 */
+	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		InstallOperation op = new InstallOperation(ui.getSession(), ElementUtils.elementsToIUs(elements));
 		op.setProfileId(getProfileId());
@@ -137,6 +142,7 @@ public class InstallWizard extends WizardWithLicenses {
 		return op;
 	}
 
+	@Override
 	protected boolean shouldUpdateErrorPageModelOnPlanChange() {
 		// We don't want the root of the error page to change unless we are on the
 		// main page.  For example, if we are on the error page, change checkmarks, and
@@ -145,6 +151,7 @@ public class InstallWizard extends WizardWithLicenses {
 		return getContainer().getCurrentPage() == mainPage && super.shouldUpdateErrorPageModelOnPlanChange();
 	}
 
+	@Override
 	protected void planChanged() {
 		super.planChanged();
 		synchSelections(getOperationSelectionsPage());
@@ -153,9 +160,8 @@ public class InstallWizard extends WizardWithLicenses {
 	/*
 	 * overridden to ensure that the main page selections stay in synch
 	 * with changes to the error page.
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#operationSelectionsChanged(org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage)
 	 */
+	@Override
 	public void operationSelectionsChanged(ISelectableIUsPage page) {
 		if (ignoreSelectionChanges)
 			return;
@@ -185,9 +191,8 @@ public class InstallWizard extends WizardWithLicenses {
 	/*
 	 * Overridden to check whether there are UpdateManager install handlers in the item
 	 * to be installed.  Operations don't know about this compatibility issue.
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getCurrentStatus()
 	 */
+	@Override
 	public IStatus getCurrentStatus() {
 		IStatus originalStatus = super.getCurrentStatus();
 		int sev = originalStatus.getSeverity();
@@ -208,11 +213,13 @@ public class InstallWizard extends WizardWithLicenses {
 			// In either case, the failure will be reported in this wizard.
 			if (ProvUI.isUpdateManagerInstallerPresent()) {
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						Shell shell = ProvUI.getDefaultParentShell();
 						MessageDialog dialog = new MessageDialog(shell, ProvUIMessages.Policy_RequiresUpdateManagerTitle, null, ProvUIMessages.Policy_RequiresUpdateManagerMessage, MessageDialog.WARNING, new String[] {ProvUIMessages.LaunchUpdateManagerButton, IDialogConstants.CANCEL_LABEL}, 0);
 						if (dialog.open() == 0)
 							BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
+								@Override
 								public void run() {
 									UpdateManagerCompatibility.openInstaller();
 								}
@@ -231,9 +238,8 @@ public class InstallWizard extends WizardWithLicenses {
 	 * reset on every new resolution, so that status only holds the installHandler status when it is 
 	 * the current status.  The installHandlerStatus must be non-OK for it to matter at all.
 	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#statusOverridesOperation()
 	 */
+	@Override
 	public boolean statusOverridesOperation() {
 		return installHandlerStatus != null && !installHandlerStatus.isOK() && couldNotResolveStatus == installHandlerStatus;
 	}
