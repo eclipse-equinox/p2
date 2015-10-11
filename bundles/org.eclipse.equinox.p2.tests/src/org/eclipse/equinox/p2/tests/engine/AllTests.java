@@ -40,6 +40,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(VariableTest.class);
 		suite.addTestSuite(VariableTest2.class);
 		suite.addTestSuite(VariableTest3.class);
+		suite.addTestSuite(DebugHelperTest.class);
 		return suite;
 	}
 

@@ -160,7 +160,9 @@ public class DebugHelper {
 			buffer.append(key);
 			buffer.append('=');
 			Object value = e.getValue();
-			if (value instanceof String || value instanceof File || value instanceof Operand || value instanceof IArtifactKey || value instanceof IInstallableUnit)
+			if (value == null)
+				buffer.append(value);
+			else if (value instanceof String || value instanceof File || value instanceof Operand || value instanceof IArtifactKey || value instanceof IInstallableUnit)
 				buffer.append(value);
 			else if (value instanceof IProfile)
 				buffer.append(((IProfile) value).getProfileId());
