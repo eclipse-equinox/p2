@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2010, 2015 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -169,9 +169,9 @@ public class LocationProperties {
 			if (VERSION.equals(entry.getKey())) {
 				this.version = Version.parseVersion((String) entry.getValue());
 			} else if (METADATA_REPOSITORY_FACTORY_ORDER.equals(entry.getKey())) {
-				initMetadataRepositoryFactoryOrder((String) entry.getValue());
+				this.metadataSearchOrder = getRepositoryFactoryOrder((String) entry.getValue());
 			} else if (ARTIFACT_REPOSITORY_FACTORY_ORDER.equals(entry.getKey())) {
-				initArtifactRepositoryFactoryOrder((String) entry.getValue());
+				this.artifactSearchOrder = getRepositoryFactoryOrder((String) entry.getValue());
 			} else if (((String) entry.getKey()).startsWith(MD5_HASH)) {
 				initHashMD5Hash((String) entry.getKey(), (String) entry.getValue());
 			}
@@ -188,23 +188,13 @@ public class LocationProperties {
 		// Empty for now
 	}
 
-	private void initArtifactRepositoryFactoryOrder(String repositoryFactoryOrder) {
+	private String[] getRepositoryFactoryOrder(String repositoryFactoryOrder) {
 		repositoryFactoryOrder = repositoryFactoryOrder == null ? "" : repositoryFactoryOrder; //$NON-NLS-1$
 		StringTokenizer tokenizer = new StringTokenizer(repositoryFactoryOrder, ","); //$NON-NLS-1$
 		List<String> searchOrder = new ArrayList<String>();
 		while (tokenizer.hasMoreTokens()) {
 			searchOrder.add(tokenizer.nextToken().trim());
 		}
-		this.artifactSearchOrder = searchOrder.toArray(new String[searchOrder.size()]);
-	}
-
-	private void initMetadataRepositoryFactoryOrder(String repositoryFactoryOrder) {
-		repositoryFactoryOrder = repositoryFactoryOrder == null ? "" : repositoryFactoryOrder; //$NON-NLS-1$
-		StringTokenizer tokenizer = new StringTokenizer(repositoryFactoryOrder, ","); //$NON-NLS-1$
-		List<String> searchOrder = new ArrayList<String>();
-		while (tokenizer.hasMoreTokens()) {
-			searchOrder.add(tokenizer.nextToken().trim());
-		}
-		this.metadataSearchOrder = searchOrder.toArray(new String[searchOrder.size()]);
+		return searchOrder.toArray(new String[searchOrder.size()]);
 	}
 }
