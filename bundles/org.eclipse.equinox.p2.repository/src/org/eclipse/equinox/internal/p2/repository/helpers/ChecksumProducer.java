@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,51 +7,53 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Mykola Nikishov - extract MD5 checksum calculation
+ *     Mykola Nikishov - multiple artifact checksums
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
 import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 
+/**
+ * Calculates a checksum using {@link java.security.MessageDigest}
+ */
 public class ChecksumProducer {
+
+	private static final int BUFFER_SIZE = 4 * 1024;
 
 	/**
 	 * @param file should not be <code>null</code>
 	 * @return MD5 checksum of the file or <code>null</code> in case of NoSuchAlgorithmException
 	 * @throws IOException
 	 */
+	@Deprecated
+	// bug #509401 - still here to not break x-friends like in bug #507193
 	public static String computeMD5(File file) throws IOException {
-		InputStream fis = null;
 		try {
-			MessageDigest md5Checker = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-			fis = new BufferedInputStream(new FileInputStream(file));
-			int read = -1;
-			final int bufferSize = 4 * 1024;
-			byte[] buffer = new byte[bufferSize];
-			while ((read = fis.read(buffer, 0, bufferSize)) != -1) {
-				md5Checker.update(buffer, 0, read);
-			}
-			byte[] digest = md5Checker.digest();
-			StringBuffer buf = new StringBuffer();
-			for (int i = 0; i < digest.length; i++) {
-				if ((digest[i] & 0xFF) < 0x10)
-					buf.append('0');
-				buf.append(Integer.toHexString(digest[i] & 0xFF));
-			}
-			return buf.toString();
+			return produce(file, "MD5"); //$NON-NLS-1$
 		} catch (NoSuchAlgorithmException e) {
 			return null;
-		} finally {
-			if (fis != null)
-				try {
-					fis.close();
-				} catch (IOException e) {
-					// ignore
-				}
 		}
+	}
+
+	/**
+	 * @param file should not be <code>null</code>
+	 * @param algorithm {@link java.security.MessageDigest#getInstance(String)}
+	 * @return checksum of the file
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static String produce(File file, String algorithm) throws IOException, NoSuchAlgorithmException {
+		MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
+		try (InputStream fis = new DigestInputStream(new BufferedInputStream(new FileInputStream(file)), messageDigest)) {
+			byte[] buffer = new byte[BUFFER_SIZE];
+			while (fis.read(buffer) != -1) {
+				// consume stream to update digest
+			}
+		}
+		byte[] digest = messageDigest.digest();
+		return ChecksumHelper.toHexString(digest);
 	}
 
 }

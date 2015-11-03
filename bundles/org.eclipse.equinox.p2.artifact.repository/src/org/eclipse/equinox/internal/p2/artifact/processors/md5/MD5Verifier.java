@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -24,6 +25,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
+@Deprecated
 public class MD5Verifier extends ProcessingStep {
 
 	protected String expectedMD5;
@@ -73,15 +75,10 @@ public class MD5Verifier extends ProcessingStep {
 	@Override
 	public void close() throws IOException {
 		byte[] digest = md5.digest();
-		StringBuilder buf = new StringBuilder();
-		for (byte element : digest) {
-			if ((element & 0xFF) < 0x10)
-				buf.append('0');
-			buf.append(Integer.toHexString(element & 0xFF));
-		}
+		String buf = ChecksumHelper.toHexString(digest);
 
 		// if the hashes don't line up set the status to error.
-		if (!buf.toString().equals(expectedMD5))
+		if (!buf.equals(expectedMD5))
 			setStatus(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_MD5_NOT_MATCH, NLS.bind(Messages.Error_unexpected_hash, expectedMD5, buf), null));
 		super.close();
 	}

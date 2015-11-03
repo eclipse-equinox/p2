@@ -125,6 +125,12 @@
 	</extension>
 	<extension point="org.eclipse.equinox.p2.artifact.repository.artifactComparators">
 		<artifactComparator
+			class="org.eclipse.equinox.p2.internal.repository.comparator.ArtifactChecksumComparator"
+			id="org.eclipse.equinox.artifact.comparator.checksum">
+		</artifactComparator>
+	</extension>
+	<extension point="org.eclipse.equinox.p2.artifact.repository.artifactComparators">
+		<artifactComparator
 			class="org.eclipse.equinox.p2.internal.repository.comparator.JarComparator"
 			id="org.eclipse.equinox.p2.repository.tools.jar.comparator">
 		</artifactComparator>

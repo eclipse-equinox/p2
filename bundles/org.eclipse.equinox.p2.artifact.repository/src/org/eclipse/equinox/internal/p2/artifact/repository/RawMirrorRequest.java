@@ -13,7 +13,8 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -81,15 +82,15 @@ public class RawMirrorRequest extends MirrorRequest {
 	// Perform the mirror operation without any processing steps
 	@Override
 	protected IStatus getArtifact(IArtifactDescriptor artifactDescriptor, OutputStream destination, IProgressMonitor monitor) {
-		ArrayList<ProcessingStep> steps = new ArrayList<>();
-		ChecksumUtilities.addChecksumVerificationStep(SimpleArtifactRepository.DOWNLOAD_MD5_CHECKSUM_ENABLED, IArtifactDescriptor.DOWNLOAD_MD5, artifactDescriptor, steps);
 
-		if (!steps.isEmpty()) {
+		if (SimpleArtifactRepository.CHECKSUMS_ENABLED) {
+			Collection<ProcessingStep> steps = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor, IArtifactDescriptor.DOWNLOAD_CHECKSUM, Collections.<String> emptySet());
 			ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 			// TODO should probably be using createAndLink here
 			ProcessingStepHandler handler = new ProcessingStepHandler();
 			destination = handler.link(stepArray, destination, monitor);
 		}
+
 		return getSourceRepository().getRawArtifact(artifactDescriptor, destination, monitor);
 	}
 }

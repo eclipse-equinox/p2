@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(RepositoryHelperTest.class);
 		suite.addTestSuite(RepositoryExtensionPointTest.class);
 		suite.addTestSuite(FileReaderTest2.class);
+		suite.addTest(new JUnit4TestAdapter(ChecksumHelperTest.class));
 		return suite;
 	}
 }

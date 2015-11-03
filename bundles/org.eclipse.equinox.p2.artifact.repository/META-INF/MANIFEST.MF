@@ -7,6 +7,7 @@ Bundle-Activator: org.eclipse.equinox.internal.p2.artifact.repository.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.artifact.processing;x-friends:="org.eclipse.equinox.p2.artifact.processors,org.eclipse.equinox.p2.artifact.optimizers",
+ org.eclipse.equinox.internal.p2.artifact.processors.checksum;x-friends:="org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.p2.artifact.processors.md5;x-internal:=true,
  org.eclipse.equinox.internal.p2.artifact.processors.pack200;x-friends:="org.eclipse.equinox.p2.artifact.processors,org.eclipse.equinox.p2.artifact.optimizers",
  org.eclipse.equinox.internal.p2.artifact.repository;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,18 +8,18 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype Inc - ongoing development
+ *     Mykola Nikishov - multiple artifact checksums
  *******************************************************************************/
 
 package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -31,6 +31,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class RecreateRepositoryApplication extends AbstractApplication {
+	private static final String MD5_CHECKSUM_ID = "md5"; //$NON-NLS-1$
 	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 	private URI repoLocation;
 	private String repoName = null;
@@ -121,15 +122,18 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 				newDescriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, size);
 				newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, size);
 
-				try {
-					String md5 = ChecksumProducer.computeMD5(artifactFile);
-					if (md5 != null)
-						newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
-				} catch (IOException e) {
-					// don't care if failed to compute checksum
-					// TODO provide message?
-					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "", e));
-				}
+				Map<String, String> checksums = new HashMap<>();
+				IStatus status = ChecksumUtilities.calculateChecksums(artifactFile, checksums, Collections.emptyList());
+				if (!status.isOK())
+					// TODO handle errors in some way
+					LogHelper.log(status);
+
+				String md5 = checksums.get(MD5_CHECKSUM_ID);
+				if (md5 != null)
+					// preserve legacy MD5 checksum location
+					newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
+
+				newDescriptor.addProperties(ChecksumUtilities.checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums));
 
 				File temp = new File(artifactFile.getParentFile(), artifactFile.getName() + ".pack.gz"); //$NON-NLS-1$
 				if (temp.exists()) {

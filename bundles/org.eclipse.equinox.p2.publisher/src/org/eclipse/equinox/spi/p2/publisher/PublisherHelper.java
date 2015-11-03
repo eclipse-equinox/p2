@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  *     Genuitec, LLC - added license support
  *     Code 9 - Ongoing development
  *     SAP AG - consolidation of publishers for PDE formats
- *     Mykola Nikishov - extract MD5 checksum calculation
+ *     Mykola Nikishov - multiple artifact checksums
  *******************************************************************************/
 package org.eclipse.equinox.spi.p2.publisher;
 
@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.BasicVersion;
@@ -111,20 +112,40 @@ public class PublisherHelper {
 				ArtifactDescriptor descriptor = (ArtifactDescriptor) result;
 				descriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
 				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
-				if (info == null || (info.getArtifactOptions() & IPublisherInfo.A_NO_MD5) == 0) {
-					try {
-						String md5 = ChecksumProducer.computeMD5(pathOnDisk);
-						if (md5 != null)
-							descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
-					} catch (IOException e) {
-						// don't care if failed to compute checksum
-						// TODO provide message?
-						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "", e)); //$NON-NLS-1$
-					}
+
+				boolean generateChecksums = info == null || (info.getArtifactOptions() & IPublisherInfo.A_NO_MD5) == 0;
+				if (generateChecksums) {
+					calculateLegacyMd5(pathOnDisk, descriptor);
+					calculateChecksums(pathOnDisk, descriptor);
 				}
 			}
 		}
 		return result;
+	}
+
+	private static void calculateLegacyMd5(File pathOnDisk, ArtifactDescriptor descriptor) {
+		try {
+			String md5 = ChecksumProducer.computeMD5(pathOnDisk);
+			if (md5 != null)
+				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
+		} catch (IOException e) {
+			// don't care if failed to compute checksum
+			// TODO provide message?
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "", e)); //$NON-NLS-1$
+		}
+	}
+
+	private static void calculateChecksums(File pathOnDisk, ArtifactDescriptor descriptor) {
+		// TODO disable specific algorithms
+		List<String> checksumsToSkip = Collections.<String> emptyList();
+		Map<String, String> checksums = new HashMap<>();
+		IStatus status = ChecksumUtilities.calculateChecksums(pathOnDisk, checksums, checksumsToSkip);
+		if (!status.isOK()) {
+			// TODO handle errors in some way
+			LogHelper.log(status);
+		}
+		Map<String, String> checksumProperties = ChecksumUtilities.checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums);
+		descriptor.addProperties(checksumProperties);
 	}
 
 	public static IProvidedCapability makeTranslationCapability(String hostId, Locale locale) {

@@ -12,6 +12,7 @@
  *  Sonatype Inc - ongoing development
  *  EclipseSource - file locking and ongoing development
  *  Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
+ *  Mykola Nikishov - multiple artifact checksums
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
@@ -55,8 +56,18 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
 
 	/**
+	 * A boolean property controlling whether any checksums of the artifact should be checked.
+	 * @see IArtifactDescriptor#DOWNLOAD_MD5
+	 * @see IArtifactDescriptor#DOWNLOAD_CHECKSUM
+	 * @see IArtifactDescriptor#ARTIFACT_MD5
+	 * @see IArtifactDescriptor#ARTIFACT_CHECKSUM
+	 */
+	public static final boolean CHECKSUMS_ENABLED = !"true".equals(Activator.getContext().getProperty("eclipse.p2.checksums.disable")); //$NON-NLS-1$//$NON-NLS-2$
+
+	/**
 	 * A boolean property controlling whether MD5 checksum of the artifact bytes that are transferred should be checked.
 	 * @see IArtifactDescriptor#DOWNLOAD_MD5
+	 * @see IArtifactDescriptor#DOWNLOAD_CHECKSUM
 	 */
 	public static final boolean DOWNLOAD_MD5_CHECKSUM_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5Check")); //$NON-NLS-1$//$NON-NLS-2$
 
@@ -64,6 +75,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * A boolean property controlling whether MD5 checksum of the artifact bytes in its native format (after processing steps have
 	 * been applied) should be checked.
 	 * @see IArtifactDescriptor#ARTIFACT_MD5
+	 * @see IArtifactDescriptor#ARTIFACT_CHECKSUM
 	 */
 	public static final boolean ARTIFACT_MD5_CHECKSUM_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5ArtifactCheck")); //$NON-NLS-1$//$NON-NLS-2$
 
@@ -459,7 +471,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		steps.add(new SignatureVerifier());
-		ChecksumUtilities.addChecksumVerificationStep(ARTIFACT_MD5_CHECKSUM_ENABLED, IArtifactDescriptor.ARTIFACT_MD5, descriptor, steps);
+
+		Set<String> skipChecksums = ARTIFACT_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumUtilities.MD5);
+		addChecksumVerifiers(descriptor, steps, skipChecksums, IArtifactDescriptor.ARTIFACT_CHECKSUM);
 
 		if (steps.isEmpty())
 			return destination;
@@ -472,7 +486,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
-		ChecksumUtilities.addChecksumVerificationStep(DOWNLOAD_MD5_CHECKSUM_ENABLED, IArtifactDescriptor.DOWNLOAD_MD5, descriptor, steps);
+
+		Set<String> skipChecksums = DOWNLOAD_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumUtilities.MD5);
+		addChecksumVerifiers(descriptor, steps, skipChecksums, IArtifactDescriptor.DOWNLOAD_CHECKSUM);
 
 		// Add steps here if needed
 		if (steps.isEmpty())
@@ -480,6 +496,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 		// TODO should probably be using createAndLink here
 		return handler.link(stepArray, destination, monitor);
+	}
+
+	private void addChecksumVerifiers(IArtifactDescriptor descriptor, ArrayList<ProcessingStep> steps, Set<String> skipChecksums, String property) {
+		if (CHECKSUMS_ENABLED) {
+			Collection<ProcessingStep> checksumVerifiers = ChecksumUtilities.getChecksumVerifiers(descriptor, property, skipChecksums);
+			steps.addAll(checksumVerifiers);
+		}
 	}
 
 	private byte[] bytesFromHexString(String string) {

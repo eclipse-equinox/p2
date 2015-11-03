@@ -4,6 +4,7 @@
    <extension-point id="artifactRepositories" name="Artifact Repositories" schema="schema/artifactRepositories.exsd"/>
    <extension-point id="processingSteps" name="Processing Steps" schema="schema/processingSteps.exsd"/>
    <extension-point id="artifactComparators" name="Artifact Comparators" schema="schema/artifactComparators.exsd"/>
+   <extension-point id="artifactChecksums" name="Artifact Checksum support" schema="schema/artifactChecksums.exsd"/>
 
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
@@ -36,5 +37,17 @@
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
 			id="org.eclipse.equinox.p2.processing.MD5Verifier">
 		<step class="org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier"/>
+	</extension>
+   	<extension
+			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
+			id="org.eclipse.equinox.p2.processing.ChecksumVerifier">
+		<step class="org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumVerifier"/>
+	</extension>
+	<extension
+			point="org.eclipse.equinox.p2.artifact.repository.artifactChecksums">
+		<artifactChecksum
+			algorithm="SHA-256"
+			id="sha-256">
+		</artifactChecksum>
 	</extension>
 </plugin>

@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.equinox.p2.artifact.repository" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.equinox.p2.artifact.repository" id="artifactChecksums" name="Artifact Checksum support"/>
+      </appInfo>
+      <documentation>
+         Provides a mapping from checksum algorithm id and &lt;code&gt;java.security.MessageDigest&lt;/code&gt; implementations.
+
+&lt;p&gt;p2 detects errors which may have been introduced during artifact transmission/storage by calculating artifact checksum using MD5 hash function. As a &lt;a href=&quot;https://en.wikipedia.org/wiki/Collision_attack&quot;&gt;collision attack&lt;/a&gt; and a &lt;a href=&quot;https://en.wikipedia.org/wiki/Chosen-prefix_collision_attack&quot;&gt;chosen-prefix collision attack&lt;/a&gt; against MD5 have been demonstrated in public, it can be used but only to detect unintentional corruption. Current implementation is not extensible and doesn&apos;t allow to use other, more collision-resistant, hash functions.&lt;/p&gt;
+
+&lt;p&gt;With this extension point, any &lt;code&gt;java.security.MessageDigest&lt;/code&gt; from Java Security API can be used to check integrity of artifacts. For more information on these APIs, see &lt;a href=&quot;https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html&quot;&gt;Java Cryptography Architecture (JCA) Reference Guide&lt;/a&gt;.&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="artifactChecksum" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="artifactChecksum">
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  id of the checksum algorithm, i.e. &lt;code&gt;sha-512&lt;/code&gt;.
+
+As other tools will rely on this id, consider using some well-defined value (i.e. &lt;a href=&quot;https://www.iana.org/assignments/hash-function-text-names/hash-function-text-names.xhtml&quot;&gt;Hash Function Textual Names&lt;/a&gt; ).
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="algorithm" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Name of the message digest algorithm as expected by &lt;code&gt;java.security.MessageDigest&lt;/code&gt;&apos;s method &lt;code&gt;getInstance(String)&lt;/code&gt;. Also check the MessageDigest section in the Java Cryptography Architecture Standard Algorithm Name Documentation for information about standard algorithm names.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         2.4.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         To enable support for MessageDigest implementation which is provided by a statically registered Provider, contributing bundle should only register an extension:
+
+&lt;pre&gt;
+&lt;extension point=&quot;org.eclipse.equinox.p2.artifact.repository.artifactChecksums&quot;&gt;
+  &lt;artifactChecksum
+   algorithm=&quot;SHA3-512&quot;
+   id=&quot;sha3-512&quot;&gt;
+  &lt;/artifactChecksum&gt;
+&lt;/extension&gt;
+&lt;/pre&gt;
+
+If the MessageDigest implementation is provided by a custom Provider (from the contributing bundle itself or some other bundle), it should be first dynamically registered:
+
+&lt;pre&gt;
+import java.security.Security;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+public class Activator implements BundleActivator {
+
+  public void start(BundleContext context) throws Exception {
+    Security.addProvider(new BouncyCastleProvider());
+  }
+}
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         Contributes a checksum algorithm with id &lt;code&gt;sha-256&lt;code&gt; and maps it to &lt;code&gt;SHA-256&lt;/code&gt; MessageDigest implementation.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2015, 2018 Mykola Nikishov.
+
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+      </documentation>
+   </annotation>
+
+</schema>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Mykola Nikishov - multiple artifact checksums
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
@@ -36,11 +37,22 @@ public interface IArtifactDescriptor {
 	 * bytes of the artifact in its native format (after processing steps have been applied).
 	 */
 	public static final String ARTIFACT_SIZE = "artifact.size"; //$NON-NLS-1$
+
+	/**
+	 * A prefix of an artifact descriptor properties (value "download.checksums") storing checksum
+	 * of the artifact bytes that are transferred.
+	 * @since 2.4.0
+	 */
+	public static final String DOWNLOAD_CHECKSUM = "download.checksum"; //$NON-NLS-1$
+
 	/**
 	 * An artifact descriptor property (value "download.md5") indicating the MD5
 	 * checksum of the artifact bytes that are transferred.
+	 * @see #DOWNLOAD_CHECKSUM
 	 */
+	@Deprecated
 	public static final String DOWNLOAD_MD5 = "download.md5"; //$NON-NLS-1$
+
 	/**
 	 * An artifact descriptor property (value "download.contentType") indicating the 
 	 * content type of the artifact bytes that are transferred.
@@ -50,11 +62,22 @@ public interface IArtifactDescriptor {
 	 * An content type (value "application/zip") indicating the content is a zip file.
 	 */
 	public static final String TYPE_ZIP = "application/zip"; //$NON-NLS-1$
+
+	/**
+	 * An artifact descriptor property (value "artifact.checksums") storing list of
+	 * checksums of the artifact bytes in its native format (after processing steps have
+	 * been applied).
+	 * @since 2.4.0
+	 */
+	public static final String ARTIFACT_CHECKSUM = "artifact.checksum"; //$NON-NLS-1$
+
 	/**
 	 * An artifact descriptor property (value "artifact.md5") indicating the MD5
 	 * checksum of the artifact bytes in its native format (after processing steps have
 	 * been applied).
+	 * @see #ARTIFACT_CHECKSUM
 	 */
+	@Deprecated
 	public static final String ARTIFACT_MD5 = "artifact.md5"; //$NON-NLS-1$
 
 	/**

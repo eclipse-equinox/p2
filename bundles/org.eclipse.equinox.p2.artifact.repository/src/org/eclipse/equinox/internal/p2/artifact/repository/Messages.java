@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,6 +63,10 @@ public class Messages extends NLS {
 	public static String retryRequest;
 
 	public static String error_copying_local_file;
+
+	public static String calculateChecksum_file;
+	public static String calculateChecksum_ok;
+	public static String calculateChecksum_error;
 
 	static {
 		// initialize resource bundles
