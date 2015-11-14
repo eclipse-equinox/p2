@@ -221,6 +221,7 @@ public class RequestFlexer {
 	}
 
 	private IProvisioningPlan resolve(IProfileChangeRequest temporaryRequest, IProgressMonitor monitor) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
 		String explainPropertyBackup = null;
 		try {
 			temporaryRequest.setProfileProperty("_internal_user_defined_", "true"); //$NON-NLS-1$//$NON-NLS-2$
@@ -228,7 +229,7 @@ public class RequestFlexer {
 				explainPropertyBackup = provisioningContext.getProperty(EXPLANATION_ENABLEMENT);
 				provisioningContext.setProperty(EXPLANATION_ENABLEMENT, Boolean.FALSE.toString());
 			}
-			return planner.getProvisioningPlan(temporaryRequest, provisioningContext, SubMonitor.convert(monitor));
+			return planner.getProvisioningPlan(temporaryRequest, provisioningContext, subMonitor.split(1));
 		} finally {
 			if (provisioningContext != null) {
 				if (explainPropertyBackup == null)
@@ -244,8 +245,10 @@ public class RequestFlexer {
 	private void loosenUpOriginalRequest(IProfileChangeRequest newRequest, IProfileChangeRequest originalRequest, IProgressMonitor monitor) {
 		//First deal with the IUs that are being added
 		Collection<IInstallableUnit> requestedAdditions = originalRequest.getAdditions();
+		SubMonitor subMonitor = SubMonitor.convert(monitor, requestedAdditions.size());
 		for (IInstallableUnit addedIU : requestedAdditions) {
-			Collection<IInstallableUnit> potentialUpdates = allowDifferentVersion ? findAllVersionsAvailable(addedIU, monitor) : new ArrayList<IInstallableUnit>();
+			SubMonitor iterationMonitor = subMonitor.split(1);
+			Collection<IInstallableUnit> potentialUpdates = allowDifferentVersion ? findAllVersionsAvailable(addedIU, iterationMonitor) : new ArrayList<IInstallableUnit>();
 			foundDifferentVersionsForElementsToInstall = (foundDifferentVersionsForElementsToInstall || (potentialUpdates.size() == 0 ? false : true));
 			potentialUpdates.add(addedIU); //Make sure that we include the IU that we were initially trying to install
 
@@ -313,8 +316,9 @@ public class RequestFlexer {
 	}
 
 	private Collection<IInstallableUnit> findUpdates(IInstallableUnit iu, IProgressMonitor monitor) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
 		Collection<IInstallableUnit> availableUpdates = new HashSet<IInstallableUnit>();
-		IQueryResult<IInstallableUnit> updatesAvailable = planner.updatesFor(iu, provisioningContext, SubMonitor.convert(monitor));
+		IQueryResult<IInstallableUnit> updatesAvailable = planner.updatesFor(iu, provisioningContext, subMonitor.split(1));
 		for (Iterator<IInstallableUnit> iterator = updatesAvailable.iterator(); iterator.hasNext();) {
 			availableUpdates.add(iterator.next());
 		}
