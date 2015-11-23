@@ -83,7 +83,8 @@ public class FeatureManifestParser extends DefaultHandler {
 		}
 		if (characters == null)
 			return;
-		if (null != localName) switch (localName) {
+		if (null != localName)
+			switch (localName) {
 			case "description": //$NON-NLS-1$
 				result.setDescription(localize(characters.toString().trim()));
 				break;
@@ -95,7 +96,7 @@ public class FeatureManifestParser extends DefaultHandler {
 				break;
 			default:
 				break;
-		}
+			}
 		characters = null;
 	}
 
@@ -128,8 +129,7 @@ public class FeatureManifestParser extends DefaultHandler {
 	}
 
 	/**
-	 * Parse the given input stream and return a feature object
-	 * or null.
+	 * Parse the given input stream and return a feature object or null.
 	 */
 	public Feature parse(InputStream in, URL featureURL) throws SAXException, IOException {
 		result = null;
@@ -149,7 +149,7 @@ public class FeatureManifestParser extends DefaultHandler {
 	}
 
 	private void processDiscoverySite(Attributes attributes) {
-		//ignore discovery sites of type 'web'
+		// ignore discovery sites of type 'web'
 		if ("web".equals(attributes.getValue("type"))) //$NON-NLS-1$ //$NON-NLS-2$
 			return;
 		result.addDiscoverySite(attributes.getValue("label"), attributes.getValue("url")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -161,7 +161,7 @@ public class FeatureManifestParser extends DefaultHandler {
 
 		if (id == null || id.trim().equals("") //$NON-NLS-1$
 				|| ver == null || ver.trim().equals("")) { //$NON-NLS-1$
-			error(NLS.bind(Messages.feature_parse_invalidIdOrVersion, (new String[] {id, ver})));
+			error(NLS.bind(Messages.feature_parse_invalidIdOrVersion, (new String[] { id, ver })));
 		} else {
 			result = createFeature(id, ver);
 
@@ -183,7 +183,8 @@ public class FeatureManifestParser extends DefaultHandler {
 			result.setLicenseFeature(attributes.getValue("license-feature")); //$NON-NLS-1$
 			result.setLicenseFeatureVersion(attributes.getValue("license-feature-version")); //$NON-NLS-1$
 
-			//			Utils.debug("End process DefaultFeature tag: id:" +id + " ver:" +ver + " url:" + feature.getURL()); 	 //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			// Utils.debug("End process DefaultFeature tag: id:" +id + " ver:" +ver + "
+			// url:" + feature.getURL()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
 
@@ -198,13 +199,19 @@ public class FeatureManifestParser extends DefaultHandler {
 		}
 		String versionStr = attributes.getValue("version"); //$NON-NLS-1$
 		FeatureEntry entry = null;
+		boolean isPatch = !isPlugin && Boolean.parseBoolean(attributes.getValue("patch")); //$NON-NLS-1$
+		String match = attributes.getValue("match"); //$NON-NLS-1$
+		if (match == null && isPatch) {
+			match = "perfect"; //$NON-NLS-1$
+		}
 		if ("versionRange".equals(attributes.getValue("match"))) { //$NON-NLS-1$//$NON-NLS-2$
 			VersionRange versionRange = VersionRange.create(versionStr);
-			entry = FeatureEntry.createRequires(id, versionRange, attributes.getValue("match"), attributes.getValue("filter"), isPlugin); //$NON-NLS-1$ //$NON-NLS-2$
+			entry = FeatureEntry.createRequires(id, versionRange, attributes.getValue("match"), //$NON-NLS-1$
+					attributes.getValue("filter"), isPlugin); //$NON-NLS-1$
 		} else {
-			entry = FeatureEntry.createRequires(id, versionStr, attributes.getValue("match"), attributes.getValue("filter"), isPlugin); //$NON-NLS-1$ //$NON-NLS-2$
+			entry = FeatureEntry.createRequires(id, versionStr, match, attributes.getValue("filter"), isPlugin); //$NON-NLS-1$
 		}
-		if (!isPlugin && "true".equalsIgnoreCase(attributes.getValue("patch"))) { //$NON-NLS-1$ //$NON-NLS-2$
+		if (isPatch) {
 			entry.setPatch(true);
 		}
 		hasImports = true;
@@ -242,7 +249,7 @@ public class FeatureManifestParser extends DefaultHandler {
 		String version = attributes.getValue("version"); //$NON-NLS-1$
 
 		if (id == null || id.trim().equals("") || version == null || version.trim().equals("")) { //$NON-NLS-1$ //$NON-NLS-2$
-			error(NLS.bind(Messages.feature_parse_invalidIdOrVersion, (new String[] {id, version})));
+			error(NLS.bind(Messages.feature_parse_invalidIdOrVersion, (new String[] { id, version })));
 		} else {
 			FeatureEntry plugin = new FeatureEntry(id, version, true);
 			setEnvironment(attributes, plugin);
@@ -257,7 +264,8 @@ public class FeatureManifestParser extends DefaultHandler {
 				plugin.setFilter(filter);
 			result.addEntry(plugin);
 
-			//			Utils.debug("End process DefaultFeature tag: id:" + id + " ver:" + ver + " url:" + feature.getURL()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			// Utils.debug("End process DefaultFeature tag: id:" + id + " ver:" + ver + "
+			// url:" + feature.getURL()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
 
@@ -276,40 +284,41 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
-		if (null != localName) //		Utils.debug("Start Element: uri:" + uri + " local Name:" + localName + " qName:" + qName); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (null != localName) // Utils.debug("Start Element: uri:" + uri + " local Name:" + localName + "
+								// qName:" + qName); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			switch (localName) {
-				case "plugin": //$NON-NLS-1$
-					processPlugin(attributes);
-					break;
-				case "description": //$NON-NLS-1$
-					processDescription(attributes);
-					break;
-				case "license": //$NON-NLS-1$
-					processLicense(attributes);
-					break;
-				case "copyright": //$NON-NLS-1$
-					processCopyright(attributes);
-					break;
-				case "feature": //$NON-NLS-1$
-					processFeature(attributes);
-					break;
-				case "import": //$NON-NLS-1$
-					processImport(attributes);
-					break;
-				case "includes": //$NON-NLS-1$
-					processIncludes(attributes);
-					break;
-				case "install-handler": //$NON-NLS-1$
-					processInstallHandler(attributes);
-					break;
-				case "update": //$NON-NLS-1$
-					processUpdateSite(attributes);
-					break;
-				case "discovery": //$NON-NLS-1$
-					processDiscoverySite(attributes);
-					break;
-				default:
-					break;
+			case "plugin": //$NON-NLS-1$
+				processPlugin(attributes);
+				break;
+			case "description": //$NON-NLS-1$
+				processDescription(attributes);
+				break;
+			case "license": //$NON-NLS-1$
+				processLicense(attributes);
+				break;
+			case "copyright": //$NON-NLS-1$
+				processCopyright(attributes);
+				break;
+			case "feature": //$NON-NLS-1$
+				processFeature(attributes);
+				break;
+			case "import": //$NON-NLS-1$
+				processImport(attributes);
+				break;
+			case "includes": //$NON-NLS-1$
+				processIncludes(attributes);
+				break;
+			case "install-handler": //$NON-NLS-1$
+				processInstallHandler(attributes);
+				break;
+			case "update": //$NON-NLS-1$
+				processUpdateSite(attributes);
+				break;
+			case "discovery": //$NON-NLS-1$
+				processDiscoverySite(attributes);
+				break;
+			default:
+				break;
 			}
 	}
 
