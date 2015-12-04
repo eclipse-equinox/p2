@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
  *     Red Hat Inc. - Bug 460967
+ *     Mickael Istria (Red Hat Inc.) - 483644 Improve "No updates found" dialog
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui;
@@ -28,7 +29,11 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -93,7 +98,16 @@ public class ProvUI {
 		// blocking right.
 		if ((style & StatusManager.BLOCK) == StatusManager.BLOCK || (style & StatusManager.SHOW) == StatusManager.SHOW) {
 			if (status.getSeverity() == IStatus.INFO) {
-				MessageDialog.openInformation(ProvUI.getDefaultParentShell(), ProvUIMessages.ProvUI_InformationTitle, status.getMessage());
+				final MessageDialogWithLink dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), ProvUIMessages.ProvUI_InformationTitle, null, status.getMessage(), MessageDialog.INFORMATION, 0, IDialogConstants.OK_LABEL);
+				if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE) {
+					dialog.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							ProvisioningUI.getDefaultUI().manipulateRepositories(dialog.getShell());
+						}
+					});
+				}
+				dialog.open();
 				// unset the dialog bits
 				style = style & ~StatusManager.BLOCK;
 				style = style & ~StatusManager.SHOW;
