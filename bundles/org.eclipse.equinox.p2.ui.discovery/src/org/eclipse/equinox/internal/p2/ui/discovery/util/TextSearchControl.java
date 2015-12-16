@@ -62,7 +62,7 @@ public class TextSearchControl extends Composite {
 	 * Get image descriptors for the clear button.
 	 */
 	static {
-		ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID, "$nl$/icons/full/etool16/clear_co.gif"); //$NON-NLS-1$
+		ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID, "$nl$/icons/full/etool16/clear_co.png"); //$NON-NLS-1$
 		if (descriptor != null) {
 			JFaceResources.getImageRegistry().put(CLEAR_ICON, descriptor);
 		}
@@ -195,7 +195,7 @@ public class TextSearchControl extends Composite {
 
 		final Image nativeImage = parent.getDisplay().getSystemImage(detail);
 
-		final Image activeImage = nativeImage != null ? nativeImage : activeImageDescriptor.createImage();
+		final Image activeImage = nativeImage != null ? nativeImage : activeImageDescriptor == null ? ImageDescriptor.getMissingImageDescriptor().createImage() : activeImageDescriptor.createImage();
 		final Image inactiveImage = new Image(parent.getDisplay(), activeImage, SWT.IMAGE_GRAY);
 		final Image pressedImage = inactiveImage;
 
