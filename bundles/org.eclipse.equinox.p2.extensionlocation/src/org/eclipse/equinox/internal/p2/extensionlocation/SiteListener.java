@@ -296,7 +296,7 @@ public class SiteListener extends DirectoryChangeListener {
 		Map<File, Feature> result = new HashMap<File, Feature>();
 		File featureDir = new File(location, FEATURES);
 		File[] children = featureDir.listFiles();
-		for (int i = 0; i < children.length; i++) {
+		for (int i = 0; children != null && i < children.length; i++) {
 			File featureLocation = children[i];
 			if (featureLocation.isDirectory() && featureLocation.getParentFile() != null && featureLocation.getParentFile().getName().equals("features") && new File(featureLocation, "feature.xml").exists()) {//$NON-NLS-1$ //$NON-NLS-2$
 				FeatureParser parser = new FeatureParser();
