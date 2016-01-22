@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,7 +66,7 @@ public class RepositorySelectionGroup {
 	ProvisioningUI ui;
 	IUViewQueryContext queryContext;
 
-	ListenerList listeners = new ListenerList();
+	ListenerList<IRepositorySelectionListener> listeners = new ListenerList<IRepositorySelectionListener>();
 
 	Combo repoCombo;
 	Link repoManipulatorLink;
@@ -647,9 +647,8 @@ public class RepositorySelectionGroup {
 			repoLocation = comboRepos[selection];
 		}
 
-		Object[] selectionListeners = listeners.getListeners();
-		for (int i = 0; i < selectionListeners.length; i++) {
-			((IRepositorySelectionListener) selectionListeners[i]).repositorySelectionChanged(repoChoice, repoLocation);
+		for (IRepositorySelectionListener listener : listeners) {
+			listener.repositorySelectionChanged(repoChoice, repoLocation);
 		}
 	}
 

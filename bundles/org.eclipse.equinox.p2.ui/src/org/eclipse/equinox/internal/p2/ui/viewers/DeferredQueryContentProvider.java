@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 	HashMap<Object, Object> alreadyQueried = new HashMap<Object, Object>();
 	HashSet<Object> queryCompleted = new HashSet<Object>();
 	AbstractTreeViewer viewer = null;
-	ListenerList listeners = new ListenerList();
+	ListenerList<IInputChangeListener> listeners = new ListenerList<IInputChangeListener>();
 	boolean synchronous = false;
 
 	/**
@@ -74,9 +74,8 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		alreadyQueried = new HashMap<Object, Object>();
 		queryCompleted = new HashSet<Object>();
 		currentInput = newInput;
-		Object[] inputListeners = listeners.getListeners();
-		for (int i = 0; i < inputListeners.length; i++) {
-			((IInputChangeListener) inputListeners[i]).inputChanged(v, oldInput, newInput);
+		for (IInputChangeListener listener : listeners) {
+			listener.inputChanged(v, oldInput, newInput);
 		}
 	}
 
