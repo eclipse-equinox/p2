@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,8 +23,9 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
@@ -141,6 +142,19 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 		// Details area
 		iuDetailsGroup = new IUDetailsGroup(sashForm, availableIUGroup.getStructuredViewer(), SWT.DEFAULT, true);
+		// Clear highlighted text pattern
+		availableIUGroup.getCheckboxTreeViewer().getTree().addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				iuDetailsGroup.setDetailHighlight(null);
+			}
+		});
+		availableIUGroup.getDefaultFocusControl().addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				iuDetailsGroup.setDetailHighlight(null);
+			}
+		});
 
 		sashForm.setWeights(getSashWeights());
 
@@ -578,6 +592,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		java.util.List<IInstallableUnit> selected = getSelectedIUs();
 		if (selected.size() == 1) {
 			StringBuffer result = new StringBuffer();
+			String filterString = availableIUGroup.getFilterString();
 			String description = selected.get(0).getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
 			if (description != null) {
 				result.append(description);
@@ -593,6 +608,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			}
 
 			iuDetailsGroup.setDetailText(result.toString());
+			if (result.length() > 0) {
+				iuDetailsGroup.setDetailHighlight(filterString);
+			}
 			return;
 		}
 		iuDetailsGroup.setDetailText(""); //$NON-NLS-1$

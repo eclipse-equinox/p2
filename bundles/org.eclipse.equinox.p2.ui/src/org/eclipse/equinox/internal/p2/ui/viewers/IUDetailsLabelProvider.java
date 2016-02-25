@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -100,6 +100,12 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				if (showingId)
 					return BLANK;
 				return iu.getId();
+			case IUColumnConfig.COLUMN_DESCRIPTION :
+				// Get the iu description in the current locale
+				String description = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
+				if (description != null)
+					return description;
+				return BLANK;
 			case IUColumnConfig.COLUMN_VERSION :
 				// If it's an element, determine if version should be shown
 				if (element instanceof IIUElement) {

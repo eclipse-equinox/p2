@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -47,6 +47,11 @@ public class IUColumnConfig {
 	 * Constant indicating that the column represents an IInstallableUnit's provider
 	 */
 	public final static int COLUMN_PROVIDER = 4;
+
+	/**
+	 * Constant indicating that the column represents an IInstallableUnit's description
+	 */
+	public final static int COLUMN_DESCRIPTION = 5;
 
 	private String columnTitle;
 	private int columnType;

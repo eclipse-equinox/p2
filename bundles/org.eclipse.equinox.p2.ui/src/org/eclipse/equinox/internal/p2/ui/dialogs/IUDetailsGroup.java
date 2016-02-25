@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2016 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.PropertyDialogAction;
+import org.eclipse.equinox.internal.p2.ui.misc.StringMatcher;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -19,6 +20,8 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
@@ -33,7 +36,7 @@ public class IUDetailsGroup {
 	private static final String LINKACTION = "linkAction"; //$NON-NLS-1$
 
 	private GridLayout layout;
-	private Text detailsArea;
+	private StyledText detailsArea;
 	private GridData gd;
 	private Link propLink;
 	private ISelectionProvider selectionProvider;
@@ -76,9 +79,9 @@ public class IUDetailsGroup {
 		gd.minimumHeight = Dialog.convertHeightInCharsToPixels(fontMetrics, ILayoutConstants.MINIMUM_DESCRIPTION_HEIGHT);
 		gd.widthHint = widthHint;
 		if (scrollable)
-			detailsArea = new Text(detailsComposite, SWT.WRAP | SWT.READ_ONLY | SWT.V_SCROLL);
+			detailsArea = new StyledText(detailsComposite, SWT.WRAP | SWT.READ_ONLY | SWT.V_SCROLL);
 		else
-			detailsArea = new Text(detailsComposite, SWT.WRAP | SWT.READ_ONLY);
+			detailsArea = new StyledText(detailsComposite, SWT.WRAP | SWT.READ_ONLY);
 		detailsArea.setLayoutData(gd);
 
 		gd = new GridData(SWT.END, SWT.BOTTOM, true, false);
@@ -98,9 +101,29 @@ public class IUDetailsGroup {
 		// If the string is the same but the user has scrolled, the text
 		// widget will reset the selection.  This makes it look like the text
 		// has changed when it hasn't.  For this reason, we check equality first.
-		if (lastText == null || !lastText.equals(text))
+		if (lastText == null || !lastText.equals(text)) {
 			detailsArea.setText(text);
+		}
 		lastText = text;
+	}
+
+	/**
+	 * Set the pattern to highlight in the detail text
+	 */
+	public void setDetailHighlight(String pattern) {
+		detailsArea.setStyleRanges(new StyleRange[0]);
+		if (pattern != null) {
+			StringMatcher matcher = new StringMatcher(pattern, true, false);
+			int i = 0;
+			StringMatcher.Position match = null;
+			do {
+				match = matcher.find(lastText, i, lastText.length());
+				if (match != null) {
+					i = match.getEnd();
+					detailsArea.setStyleRange(new StyleRange(match.getStart(), match.getEnd() - match.getStart(), null, null, SWT.BOLD));
+				}
+			} while (match != null);
+		}
 	}
 
 	/**

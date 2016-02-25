@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ import org.eclipse.ui.dialogs.PatternFilter;
  */
 public class AvailableIUPatternFilter extends PatternFilter {
 
-	boolean checkName, checkVersion, checkId = false;
+	boolean checkName, checkDescription, checkVersion, checkId = false;
 	String patternString;
 
 	/**
@@ -40,6 +40,8 @@ public class AvailableIUPatternFilter extends PatternFilter {
 				checkId = true;
 			else if (field == IUColumnConfig.COLUMN_NAME)
 				checkName = true;
+			else if (field == IUColumnConfig.COLUMN_DESCRIPTION)
+				checkDescription = true;
 			else if (field == IUColumnConfig.COLUMN_VERSION)
 				checkVersion = true;
 		}
@@ -93,12 +95,22 @@ public class AvailableIUPatternFilter extends PatternFilter {
 				text = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 				if (text != null && wordMatches(text))
 					return true;
+				// Get the iu description in the default locale
+				text = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
+				if (text != null && wordMatches(text))
+					return true;
 			}
 			if (checkId || (checkName && text == null)) {
 				text = iu.getId();
 				if (wordMatches(text)) {
 					return true;
 				}
+			}
+			if (!checkName && checkDescription) {
+				// Get the iu description in the default locale
+				text = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
+				if (text != null && wordMatches(text))
+					return true;
 			}
 			if (checkVersion) {
 				text = iu.getVersion().toString();
