@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -156,7 +156,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private static final CommandLineOption OPTION_DOWNLOAD_ONLY = new CommandLineOption(new String[] {"-downloadOnly"}, null, Messages.Help_Download_Only); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_IGNORED = new CommandLineOption(new String[] {"-showLocation", "-eclipse.password", "-eclipse.keyring"}, null, ""); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 
-	private static final Integer EXIT_ERROR = new Integer(13);
+	private static final Integer EXIT_ERROR = 13;
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
 	static private final String PROP_P2_PROFILE = "eclipse.p2.profile"; //$NON-NLS-1$
 	static private final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$

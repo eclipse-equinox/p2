@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,7 @@ public class PlanAnalyzer {
 			case IStatusCodes.OPERATION_ALREADY_IN_PROGRESS :
 				return new Status(IStatus.ERROR, Activator.ID, statusCode, Messages.PlanAnalyzer_AnotherOperationInProgress, null);
 			default :
-				return new Status(IStatus.ERROR, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_UnexpectedError, new Integer(statusCode), getIUString(affectedIU)), null);
+				return new Status(IStatus.ERROR, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_UnexpectedError, Integer.valueOf(statusCode), getIUString(affectedIU)), null);
 		}
 	}
 

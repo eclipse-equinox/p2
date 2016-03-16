@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Wind River and others.
+ * Copyright (c) 2012, 2016 Wind River and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ public class Stats extends HttpServlet {
 	private Map downloadStats = new HashMap();
 
 	public Stats() {
-		downloadStats.put(UnkownPackage, new Integer(0));
+		downloadStats.put(UnkownPackage, Integer.valueOf(0));
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -97,9 +97,9 @@ public class Stats extends HttpServlet {
 					found = true;
 					Integer count = (Integer) downloadStats.get(paraPair[1]);
 					if (count == null) {
-						count = new Integer(1);
+						count = Integer.valueOf(1);
 					} else
-						count = new Integer(1 + count.intValue());
+						count = Integer.valueOf(1 + count.intValue());
 					downloadStats.put(paraPair[1], count);
 					break;
 				}
@@ -107,7 +107,7 @@ public class Stats extends HttpServlet {
 		}
 		if (!found) {
 			Integer count = (Integer) downloadStats.get(UnkownPackage);
-			downloadStats.put(UnkownPackage, new Integer(1 + count.intValue()));
+			downloadStats.put(UnkownPackage, Integer.valueOf(1 + count.intValue()));
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -284,9 +284,9 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		if (MEMBER_FILTER == memberName)
 			return filter;
 		if (MEMBER_MIN == memberName)
-			return new Integer(min);
+			return Integer.valueOf(min);
 		if (MEMBER_MAX == memberName)
-			return new Integer(max);
+			return Integer.valueOf(max);
 		if (MEMBER_GREEDY == memberName)
 			return Boolean.valueOf(greedy);
 		if (MEMBER_MATCH == memberName)

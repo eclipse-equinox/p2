@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -258,7 +258,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 			public ProfilesHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, PROFILES_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				profileHandlers = (size != null ? new HashMap(new Integer(size).intValue()) : new HashMap(4));
+				profileHandlers = (size != null ? new HashMap(Integer.parseInt(size)) : new HashMap(4));
 			}
 
 			public IProfile[] getProfiles() {

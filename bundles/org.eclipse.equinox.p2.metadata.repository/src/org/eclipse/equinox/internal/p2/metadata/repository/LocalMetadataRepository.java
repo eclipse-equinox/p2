@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -42,7 +42,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 
 	static final private String CONTENT_FILENAME = "content"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = LocalMetadataRepository.class.getName();
-	static final private Integer REPOSITORY_VERSION = new Integer(1);
+	static final private Integer REPOSITORY_VERSION = 1;
 	static final private String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	static final private String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 

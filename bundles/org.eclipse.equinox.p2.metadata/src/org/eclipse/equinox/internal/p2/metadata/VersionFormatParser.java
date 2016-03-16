@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1189,11 +1189,11 @@ class VersionFormatParser {
 	}
 
 	private VersionFormatException formatException(String message) {
-		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_2, new Object[] {format.substring(start, eos), new Integer(current), message}));
+		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_2, new Object[] {format.substring(start, eos), Integer.valueOf(current), message}));
 	}
 
 	private VersionFormatException formatException(String found, String expected) {
-		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_found_2_expected_3, new Object[] {format.substring(start, eos), new Integer(current), found, expected}));
+		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_found_2_expected_3, new Object[] {format.substring(start, eos), Integer.valueOf(current), found, expected}));
 	}
 
 	private VersionFormatException illegalControlCharacter(char c) {

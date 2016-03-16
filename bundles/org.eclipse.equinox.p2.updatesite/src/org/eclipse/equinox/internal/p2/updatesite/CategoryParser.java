@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2000, 2013 IBM Corporation and others.
+ *  Copyright (c) 2000, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -419,10 +419,10 @@ public class CategoryParser extends DefaultHandler {
 
 	private void handleCategoryDefState(String elementName, Attributes attributes) {
 		if (elementName.equals(DESCRIPTION)) {
-			stateStack.push(new Integer(STATE_DESCRIPTION_CATEGORY_DEF));
+			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_CATEGORY_DEF));
 			processInfo(attributes);
 		} else if (elementName.equals(CATEGORY)) {
-			stateStack.push(new Integer(STATE_CATEGORY));
+			stateStack.push(Integer.valueOf(STATE_CATEGORY));
 			processCategory(attributes);
 		} else
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
@@ -434,7 +434,7 @@ public class CategoryParser extends DefaultHandler {
 
 	private void handleFeatureState(String elementName, Attributes attributes) {
 		if (elementName.equals(CATEGORY)) {
-			stateStack.push(new Integer(STATE_CATEGORY));
+			stateStack.push(Integer.valueOf(STATE_CATEGORY));
 			processCategory(attributes);
 		} else
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
@@ -442,7 +442,7 @@ public class CategoryParser extends DefaultHandler {
 
 	private void handleBundleState(String elementName, Attributes attributes) {
 		if (elementName.equals(CATEGORY)) {
-			stateStack.push(new Integer(STATE_CATEGORY));
+			stateStack.push(Integer.valueOf(STATE_CATEGORY));
 			processCategory(attributes);
 		} else
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
@@ -450,7 +450,7 @@ public class CategoryParser extends DefaultHandler {
 
 	private void handleInitialState(String elementName, Attributes attributes) throws SAXException {
 		if (elementName.equals(SITE)) {
-			stateStack.push(new Integer(STATE_SITE));
+			stateStack.push(Integer.valueOf(STATE_SITE));
 			processSite(attributes);
 		} else {
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
@@ -462,28 +462,28 @@ public class CategoryParser extends DefaultHandler {
 
 	private void handleSiteState(String elementName, Attributes attributes) {
 		if (elementName.equals(DESCRIPTION)) {
-			stateStack.push(new Integer(STATE_DESCRIPTION_SITE));
+			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
 			processInfo(attributes);
 		} else if (elementName.equals(FEATURE)) {
-			stateStack.push(new Integer(STATE_FEATURE));
+			stateStack.push(Integer.valueOf(STATE_FEATURE));
 			processFeature(attributes);
 		} else if (elementName.equals(BUNDLE)) {
-			stateStack.push(new Integer(STATE_BUNDLE));
+			stateStack.push(Integer.valueOf(STATE_BUNDLE));
 			processBundle(attributes);
 		} else if (elementName.equals(IU)) {
-			stateStack.push(new Integer(STATE_IU));
+			stateStack.push(Integer.valueOf(STATE_IU));
 			processIU(attributes);
 		} else if (elementName.equals(ARCHIVE)) {
-			stateStack.push(new Integer(STATE_ARCHIVE));
+			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
 			processArchive(attributes);
 		} else if (elementName.equals(CATEGORY_DEF)) {
-			stateStack.push(new Integer(STATE_CATEGORY_DEF));
+			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
 			processCategoryDef(attributes);
 		} else if (elementName.equals(REPOSITORY_REF)) {
-			stateStack.push(new Integer(STATE_REPOSITORY_REF));
+			stateStack.push(Integer.valueOf(STATE_REPOSITORY_REF));
 			processRepositoryReference(attributes);
 		} else if (elementName.equals(STATS_URI)) {
-			stateStack.push(new Integer(STATE_STATS));
+			stateStack.push(Integer.valueOf(STATE_STATS));
 			processStatsInfo(attributes);
 		} else
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
@@ -502,10 +502,10 @@ public class CategoryParser extends DefaultHandler {
 
 	private void handleIUState(String elementName, Attributes attributes) {
 		if (elementName.equals(QUERY)) {
-			stateStack.push(new Integer(STATE_QUERY));
+			stateStack.push(Integer.valueOf(STATE_QUERY));
 			processQuery(attributes);
 		} else if (elementName.equals(CATEGORY)) {
-			stateStack.push(new Integer(STATE_CATEGORY));
+			stateStack.push(Integer.valueOf(STATE_CATEGORY));
 			processCategory(attributes);
 		} else
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
@@ -513,10 +513,10 @@ public class CategoryParser extends DefaultHandler {
 
 	private void handleQueryState(String elementName, Attributes attributes) {
 		if (elementName.equals(EXPRESSION)) {
-			stateStack.push(new Integer(STATE_EXPRESSION));
+			stateStack.push(Integer.valueOf(STATE_EXPRESSION));
 			processExpression(attributes);
 		} else if (elementName.equals(PARAM)) {
-			stateStack.push(new Integer(STATE_PARAM));
+			stateStack.push(Integer.valueOf(STATE_PARAM));
 			processParam(attributes);
 		} else
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
@@ -541,7 +541,7 @@ public class CategoryParser extends DefaultHandler {
 	 *
 	 */
 	private void internalErrorUnknownTag(String msg) {
-		stateStack.push(new Integer(STATE_IGNORED_ELEMENT));
+		stateStack.push(Integer.valueOf(STATE_IGNORED_ELEMENT));
 		internalError(msg);
 	}
 
@@ -583,7 +583,7 @@ public class CategoryParser extends DefaultHandler {
 	 * @since 2.0
 	 */
 	public SiteModel parse(InputStream in) throws SAXException, IOException {
-		stateStack.push(new Integer(STATE_INITIAL));
+		stateStack.push(Integer.valueOf(STATE_INITIAL));
 		parser.parse(new InputSource(in), this);
 		if (objectStack.isEmpty())
 			throw new SAXException(Messages.DefaultSiteParser_NoSiteTag);

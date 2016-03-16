@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2016 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,7 +65,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		public RepositoriesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REPOSITORIES_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			uris = (size == null) ? new ArrayList<URI>() : new ArrayList<URI>(new Integer(size).intValue());
+			uris = (size == null) ? new ArrayList<URI>() : new ArrayList<URI>(Integer.parseInt(size));
 		}
 
 		@Override
@@ -124,7 +124,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		public IUsHandler(ContentHandler parentHandler, Attributes attributes) {
 			super(parentHandler, IUS_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			ius = (size != null ? new ArrayList<IUDetail>(new Integer(size).intValue()) : new ArrayList<IUDetail>());
+			ius = (size != null ? new ArrayList<IUDetail>(Integer.parseInt(size)) : new ArrayList<IUDetail>());
 		}
 
 		@Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -396,9 +396,9 @@ public class Utils {
 	public static BundleInfo[] sortBundleInfos(BundleInfo[] bInfos, int initialBSL) {
 		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<Integer, List<BundleInfo>>();
 		for (int i = 0; i < bInfos.length; i++) {
-			Integer sL = new Integer(bInfos[i].getStartLevel());
+			Integer sL = Integer.valueOf(bInfos[i].getStartLevel());
 			if (sL.intValue() == BundleInfo.NO_LEVEL)
-				sL = new Integer(initialBSL);
+				sL = Integer.valueOf(initialBSL);
 			List<BundleInfo> list = bslToList.get(sL);
 			if (list == null) {
 				list = new LinkedList<BundleInfo>();

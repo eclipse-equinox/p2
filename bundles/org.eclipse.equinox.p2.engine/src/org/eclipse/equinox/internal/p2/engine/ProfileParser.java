@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -161,7 +161,7 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 		public IUsPropertiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, IUS_PROPERTIES_ELEMENT);
 			String sizeStr = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			int size = (sizeStr != null ? new Integer(sizeStr).intValue() : 4);
+			int size = (sizeStr != null ? Integer.parseInt(sizeStr) : 4);
 			iusPropertiesMap = new LinkedHashMap<String, Map<String, String>>(size);
 		}
 

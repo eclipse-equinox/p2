@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 IBM Corporation and others.
+ *  Copyright (c) 2008, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -74,7 +74,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		// register alternate services
 		SimpleLicenseManager manager = new SimpleLicenseManager(TESTPROFILE);
 		Dictionary<String, Object> properties = new Hashtable<String, Object>(5);
-		properties.put(Constants.SERVICE_RANKING, new Integer(1));
+		properties.put(Constants.SERVICE_RANKING, Integer.valueOf(1));
 		regLicenseManager = TestActivator.getContext().registerService(LicenseManager.class.getName(), manager, properties);
 
 		profileElement = new ProfileElement(null, TESTPROFILE);
@@ -132,7 +132,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		}
 		if (lock) {
-			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, new Integer(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE).toString());
+			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, Integer.valueOf(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE).toString());
 		}
 		// Use an empty provisioning context to prevent repo access
 		ProvisioningContext context = new ProvisioningContext(getAgent());

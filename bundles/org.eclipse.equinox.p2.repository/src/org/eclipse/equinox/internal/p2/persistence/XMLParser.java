@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -546,7 +546,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			line = this.locator.getLineNumber();
 			column = this.locator.getColumnNumber();
 			if (line > 0) {
-				args = new Object[] {msg, root, name, new Integer(line), new Integer(column)};
+				args = new Object[] {msg, root, name, Integer.valueOf(line), Integer.valueOf(column)};
 				if (column > 0) {
 					key = (name != null ? Messages.XMLParser_Error_At_Name_Line_Column //
 							: Messages.XMLParser_Error_At_Line_Column);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,7 +46,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 	public void testInstanceOf() throws Exception {
 		// Explicit instanceof when rhs is a class
 		IExpression expr = parser.parse("$0 ~= $1");
-		assertEquals(Boolean.TRUE, expr.evaluate(factory.createContext(new Integer(4), Number.class)));
+		assertEquals(Boolean.TRUE, expr.evaluate(factory.createContext(Integer.valueOf(4), Number.class)));
 	}
 
 	public void testArray() throws Exception {
@@ -143,7 +143,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IQueryResult result = repo.query(QueryUtil.createQuery("select(x | x.id ~= /tooling.*/).limit(1)"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 1);
 
-		result = repo.query(QueryUtil.createQuery("select(x | x.id ~= /tooling.*/).limit($0)", new Integer(2)), new NullProgressMonitor());
+		result = repo.query(QueryUtil.createQuery("select(x | x.id ~= /tooling.*/).limit($0)", Integer.valueOf(2)), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 2);
 	}
 

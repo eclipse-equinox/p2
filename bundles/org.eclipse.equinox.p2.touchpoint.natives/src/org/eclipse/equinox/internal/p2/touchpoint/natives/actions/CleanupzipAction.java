@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -102,10 +102,10 @@ public class CleanupzipAction extends ProvisioningAction {
 				if (f1 == null)
 					return 1;
 				try {
-					return new Integer(f2.getCanonicalPath().length()).compareTo(f1.getCanonicalPath().length());
+					return Integer.valueOf(f2.getCanonicalPath().length()).compareTo(f1.getCanonicalPath().length());
 				} catch (IOException e) {
 					// did our best. try an absolute path compare
-					return new Integer(f2.getAbsolutePath().length()).compareTo(f1.getAbsolutePath().length());
+					return Integer.valueOf(f2.getAbsolutePath().length()).compareTo(f1.getAbsolutePath().length());
 				}
 			}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2015 IBM Corporation and others.
+ *  Copyright (c) 2009, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	private static final String FILE_SCHEME = "file"; //$NON-NLS-1$
 	private static final String DOT_PROFILE = ".profile"; //$NON-NLS-1$
 	public static final String TYPE = "org.eclipse.equinox.p2.engine.repo.metadataRepository"; //$NON-NLS-1$
-	public static final Integer VERSION = new Integer(1);
+	public static final Integer VERSION = 1;
 	private IProfile profile;
 	private HashSet<IRepositoryReference> repositories = new HashSet<IRepositoryReference>();
 

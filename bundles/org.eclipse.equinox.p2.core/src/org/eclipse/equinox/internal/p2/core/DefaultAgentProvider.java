@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ public class DefaultAgentProvider implements IProvisioningAgentProvider {
 			properties.put("locationURI", String.valueOf(agentLocation.getRootLocation())); //$NON-NLS-1$
 		//make the currently running system have a higher service ranking
 		if (location == null) {
-			properties.put(Constants.SERVICE_RANKING, new Integer(100));
+			properties.put(Constants.SERVICE_RANKING, Integer.valueOf(100));
 			properties.put(IProvisioningAgent.SERVICE_CURRENT, Boolean.TRUE.toString());
 		}
 		ServiceRegistration<IProvisioningAgent> reg = context.registerService(IProvisioningAgent.class, result, properties);

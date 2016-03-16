@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -660,7 +660,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public ArtifactsHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, ARTIFACT_KEYS_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			artifacts = (size != null ? new ArrayList<IArtifactKey>(new Integer(size).intValue()) : new ArrayList<IArtifactKey>(4));
+			artifacts = (size != null ? new ArrayList<IArtifactKey>(Integer.parseInt(size)) : new ArrayList<IArtifactKey>(4));
 		}
 
 		public IArtifactKey[] getArtifactKeys() {
@@ -723,7 +723,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public TouchpointDataHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, TOUCHPOINT_DATA_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			data = (size != null ? new ArrayList<TouchpointInstructionsHandler>(new Integer(size).intValue()) : new ArrayList<TouchpointInstructionsHandler>(4));
+			data = (size != null ? new ArrayList<TouchpointInstructionsHandler>(Integer.parseInt(size)) : new ArrayList<TouchpointInstructionsHandler>(4));
 		}
 
 		public ITouchpointData[] getTouchpointData() {
@@ -749,7 +749,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public TouchpointInstructionsHandler(AbstractHandler parentHandler, Attributes attributes, List<TouchpointInstructionsHandler> data) {
 			super(parentHandler, TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			instructions = (size != null ? new LinkedHashMap<String, ITouchpointInstruction>(new Integer(size).intValue()) : new LinkedHashMap<String, ITouchpointInstruction>(4));
+			instructions = (size != null ? new LinkedHashMap<String, ITouchpointInstruction>(Integer.parseInt(size)) : new LinkedHashMap<String, ITouchpointInstruction>(4));
 		}
 
 		public ITouchpointData getTouchpointData() {
@@ -818,7 +818,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 			int severity;
 			try {
-				severity = new Integer(values[severityIdx]).intValue();
+				severity = Integer.parseInt(values[severityIdx]);
 			} catch (NumberFormatException e) {
 				invalidAttributeValue(UPDATE_DESCRIPTOR_ELEMENT, UPDATE_DESCRIPTOR_SEVERITY, values[severityIdx]);
 				severity = IUpdateDescriptor.NORMAL;
@@ -852,7 +852,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public LicensesHandler(ContentHandler parentHandler, Attributes attributes) {
 			super(parentHandler, LICENSES_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			licenses = (size != null ? new ArrayList<ILicense>(new Integer(size).intValue()) : new ArrayList<ILicense>(2));
+			licenses = (size != null ? new ArrayList<ILicense>(Integer.parseInt(size)) : new ArrayList<ILicense>(2));
 		}
 
 		public ILicense[] getLicenses() {

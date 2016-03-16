@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,11 +60,11 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 	protected static final Map<String, Integer> keywords;
 	static {
 		keywords = new HashMap<String, Integer>();
-		keywords.put(KEYWORD_FALSE, new Integer(TOKEN_FALSE));
-		keywords.put(KEYWORD_NULL, new Integer(TOKEN_NULL));
-		keywords.put(KEYWORD_TRUE, new Integer(TOKEN_TRUE));
-		keywords.put(KEYWORD_ALL, new Integer(TOKEN_ALL));
-		keywords.put(KEYWORD_EXISTS, new Integer(TOKEN_EXISTS));
+		keywords.put(KEYWORD_FALSE, Integer.valueOf(TOKEN_FALSE));
+		keywords.put(KEYWORD_NULL, Integer.valueOf(TOKEN_NULL));
+		keywords.put(KEYWORD_TRUE, Integer.valueOf(TOKEN_TRUE));
+		keywords.put(KEYWORD_ALL, Integer.valueOf(TOKEN_ALL));
+		keywords.put(KEYWORD_EXISTS, Integer.valueOf(TOKEN_EXISTS));
 	}
 
 	protected final IExpressionFactory factory;

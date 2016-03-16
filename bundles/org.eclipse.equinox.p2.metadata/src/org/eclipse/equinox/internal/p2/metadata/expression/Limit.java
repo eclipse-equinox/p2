@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,7 @@ final class Limit extends Binary {
 	}
 
 	Limit(Expression operand, int limit) {
-		this(operand, (Expression) ExpressionFactory.INSTANCE.constant(new Integer(limit)));
+		this(operand, (Expression) ExpressionFactory.INSTANCE.constant(Integer.valueOf(limit)));
 	}
 
 	public Object evaluate(IEvaluationContext context) {

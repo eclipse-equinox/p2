@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -539,7 +539,7 @@ public class BackupStore implements IBackupStore {
 			try {
 				socket.close();
 			} catch (IOException e) { /* ignored */
-				logWarning(NLS.bind(Messages.BackupStore_can_not_close_tcp_port, new Integer(socket.getLocalPort())));
+				logWarning(NLS.bind(Messages.BackupStore_can_not_close_tcp_port, Integer.valueOf(socket.getLocalPort())));
 			}
 	}
 

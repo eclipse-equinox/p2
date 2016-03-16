@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ import org.eclipse.osgi.util.NLS;
 public class CompositeArtifactRepository extends AbstractArtifactRepository implements ICompositeRepository<IArtifactKey> {
 
 	static final public String REPOSITORY_TYPE = CompositeArtifactRepository.class.getName();
-	static final private Integer REPOSITORY_VERSION = new Integer(1);
+	static final private Integer REPOSITORY_VERSION = 1;
 	static final public String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	static final public String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	static final public String CONTENT_FILENAME = "compositeArtifacts"; //$NON-NLS-1$

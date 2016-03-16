@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,20 +35,20 @@ public class QLParser extends ExpressionParser {
 	static {
 		qlKeywords = new HashMap<String, Integer>();
 		qlKeywords.putAll(keywords);
-		qlKeywords.put(KEYWORD_COLLECT, new Integer(TOKEN_COLLECT));
-		qlKeywords.put(KEYWORD_FALSE, new Integer(TOKEN_FALSE));
-		qlKeywords.put(KEYWORD_FIRST, new Integer(TOKEN_FIRST));
-		qlKeywords.put(KEYWORD_FLATTEN, new Integer(TOKEN_FLATTEN));
-		qlKeywords.put(KEYWORD_LATEST, new Integer(TOKEN_LATEST));
-		qlKeywords.put(KEYWORD_LIMIT, new Integer(TOKEN_LIMIT));
-		qlKeywords.put(KEYWORD_NULL, new Integer(TOKEN_NULL));
-		qlKeywords.put(KEYWORD_SELECT, new Integer(TOKEN_SELECT));
-		qlKeywords.put(KEYWORD_TRAVERSE, new Integer(TOKEN_TRAVERSE));
-		qlKeywords.put(KEYWORD_TRUE, new Integer(TOKEN_TRUE));
-		qlKeywords.put(KEYWORD_UNIQUE, new Integer(TOKEN_UNIQUE));
-		qlKeywords.put(KEYWORD_INTERSECT, new Integer(TOKEN_INTERSECT));
-		qlKeywords.put(KEYWORD_UNION, new Integer(TOKEN_UNION));
-		qlKeywords.put(OPERATOR_EACH, new Integer(TOKEN_ANY));
+		qlKeywords.put(KEYWORD_COLLECT, Integer.valueOf(TOKEN_COLLECT));
+		qlKeywords.put(KEYWORD_FALSE, Integer.valueOf(TOKEN_FALSE));
+		qlKeywords.put(KEYWORD_FIRST, Integer.valueOf(TOKEN_FIRST));
+		qlKeywords.put(KEYWORD_FLATTEN, Integer.valueOf(TOKEN_FLATTEN));
+		qlKeywords.put(KEYWORD_LATEST, Integer.valueOf(TOKEN_LATEST));
+		qlKeywords.put(KEYWORD_LIMIT, Integer.valueOf(TOKEN_LIMIT));
+		qlKeywords.put(KEYWORD_NULL, Integer.valueOf(TOKEN_NULL));
+		qlKeywords.put(KEYWORD_SELECT, Integer.valueOf(TOKEN_SELECT));
+		qlKeywords.put(KEYWORD_TRAVERSE, Integer.valueOf(TOKEN_TRAVERSE));
+		qlKeywords.put(KEYWORD_TRUE, Integer.valueOf(TOKEN_TRUE));
+		qlKeywords.put(KEYWORD_UNIQUE, Integer.valueOf(TOKEN_UNIQUE));
+		qlKeywords.put(KEYWORD_INTERSECT, Integer.valueOf(TOKEN_INTERSECT));
+		qlKeywords.put(KEYWORD_UNION, Integer.valueOf(TOKEN_UNION));
+		qlKeywords.put(OPERATOR_EACH, Integer.valueOf(TOKEN_ANY));
 	}
 
 	public QLParser(IExpressionFactory factory) {

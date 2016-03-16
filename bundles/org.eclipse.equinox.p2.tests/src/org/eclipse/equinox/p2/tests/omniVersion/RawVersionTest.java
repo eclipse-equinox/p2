@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -422,10 +422,10 @@ public class RawVersionTest extends VersionTesting {
 	public void testArrayParsing() {
 		Version v = null;
 		assertNotNull(v = Version.create("raw:<1>"));
-		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1)}, null));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {Integer.valueOf(1)}, null));
 
 		assertNotNull(v = Version.create("raw:<1.0>"));
-		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1), new Integer(0)}, null));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {Integer.valueOf(1), Integer.valueOf(0)}, null));
 
 		assertNotNull(v = Version.create("raw:<'a'>"));
 		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {"a"}, null));
@@ -437,19 +437,19 @@ public class RawVersionTest extends VersionTesting {
 		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {"a", "bc"}, null));
 
 		assertNotNull(v = Version.create("raw:<1.2.-M>"));
-		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1), new Integer(2)}, null));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {Integer.valueOf(1), Integer.valueOf(2)}, null));
 
 		assertNotNull(v = Version.create("raw:<1.2.m>"));
-		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1), new Integer(2), VersionVector.MAXS_VALUE}, null));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {Integer.valueOf(1), Integer.valueOf(2), VersionVector.MAXS_VALUE}, null));
 
 		assertNotNull(v = Version.create("raw:<1.2.M>"));
-		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new Integer(1), new Integer(2), VersionVector.MAX_VALUE}, null));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {Integer.valueOf(1), Integer.valueOf(2), VersionVector.MAX_VALUE}, null));
 
 		assertNotNull(v = Version.create("raw:<<1>>"));
-		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new VersionVector(new Comparable[] {new Integer(1)}, null)}, null));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new VersionVector(new Comparable[] {Integer.valueOf(1)}, null)}, null));
 
 		assertNotNull(v = Version.create("raw:<<1.<2>>>"));
-		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new VersionVector(new Comparable[] {new Integer(1), new VersionVector(new Comparable[] {new Integer(2)}, null)}, null)}, null));
+		assertEquals(v.getSegment(0), new VersionVector(new Comparable[] {new VersionVector(new Comparable[] {Integer.valueOf(1), new VersionVector(new Comparable[] {Integer.valueOf(2)}, null)}, null)}, null));
 
 	}
 

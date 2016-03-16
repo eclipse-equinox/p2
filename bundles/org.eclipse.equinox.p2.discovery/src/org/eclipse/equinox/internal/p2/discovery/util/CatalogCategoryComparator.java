@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2016 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ public class CatalogCategoryComparator implements Comparator<CatalogCategory> {
 			// don't have to worry about format, since they were already validated
 			// note that higher relevance appears first, thus the reverse order of
 			// the comparison.
-			i = new Integer(r2).compareTo(new Integer(r1));
+			i = Integer.valueOf(r2).compareTo(Integer.valueOf(r1));
 		} else if (r1 == null && r2 != null) {
 			return 1;
 		} else if (r2 == null && r1 != null) {

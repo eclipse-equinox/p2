@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2016 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -262,9 +262,9 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	private SortedMap<Integer, List<BundleInfo>> getSortedMap(int initialSl, BundleInfo[] bInfos) {
 		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<Integer, List<BundleInfo>>();
 		for (int i = 0; i < bInfos.length; i++) {
-			Integer sL = new Integer(bInfos[i].getStartLevel());
+			Integer sL = Integer.valueOf(bInfos[i].getStartLevel());
 			if (sL.intValue() == BundleInfo.NO_LEVEL)
-				sL = new Integer(initialSl);
+				sL = Integer.valueOf(initialSl);
 			List<BundleInfo> list = bslToList.get(sL);
 			if (list == null) {
 				list = new LinkedList<BundleInfo>();

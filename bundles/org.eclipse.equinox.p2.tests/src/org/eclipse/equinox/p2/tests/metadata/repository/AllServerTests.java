@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -122,7 +122,7 @@ public class AllServerTests extends TestCase {
 
 		// We must ensure that our IServiceUI service wins because the SDK registers one declaratively
 		Hashtable properties = new Hashtable(1);
-		properties.put(org.osgi.framework.Constants.SERVICE_RANKING, new Integer(Integer.MAX_VALUE));
+		properties.put(org.osgi.framework.Constants.SERVICE_RANKING, Integer.valueOf(Integer.MAX_VALUE));
 
 		certificateUIRegistration = context.registerService(UIServices.class.getName(), new DelegatingAuthService(), properties);
 		setUpCounter = 1;

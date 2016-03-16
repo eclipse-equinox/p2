@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Rapicorp, Inc and others.
+ * Copyright (c) 2014, 2016 Rapicorp, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ public class NativePackageExtractionApplication implements IApplication {
 	private static final String DEFAULT_VERSION_CONSTRAINT = "ge"; //$NON-NLS-1$
 	private static final String _ACTION_ID = "_action_id_"; //$NON-NLS-1$
 	private static final String PROP_P2_PROFILE = "eclipse.p2.profile"; //$NON-NLS-1$
-	private static final Integer EXIT_ERROR = new Integer(13);
+	private static final Integer EXIT_ERROR = 13;
 
 	//Constants for arguments
 	private static final String OPTION_TO_ANALYZE = "-toAnalyze"; //$NON-NLS-1$

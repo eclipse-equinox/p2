@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -425,7 +425,7 @@ public class SimpleArtifactRepositoryIO {
 			public MappingRulesHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, MAPPING_RULES_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				mappingRules = (size != null ? new ArrayList<String[]>(new Integer(size).intValue()) : new ArrayList<String[]>(4));
+				mappingRules = (size != null ? new ArrayList<String[]>(Integer.parseInt(size)) : new ArrayList<String[]>(4));
 			}
 
 			public String[][] getMappingRules() {
@@ -467,7 +467,7 @@ public class SimpleArtifactRepositoryIO {
 			public ArtifactsHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, ARTIFACTS_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				artifacts = (size != null ? new LinkedHashSet<SimpleArtifactDescriptor>(new Integer(size).intValue()) : new LinkedHashSet<SimpleArtifactDescriptor>(4));
+				artifacts = (size != null ? new LinkedHashSet<SimpleArtifactDescriptor>(Integer.parseInt(size)) : new LinkedHashSet<SimpleArtifactDescriptor>(4));
 			}
 
 			public Set<SimpleArtifactDescriptor> getArtifacts() {
@@ -550,7 +550,7 @@ public class SimpleArtifactRepositoryIO {
 			public ProcessingStepsHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, PROCESSING_STEPS_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				processingSteps = (size != null ? new ArrayList<IProcessingStepDescriptor>(new Integer(size).intValue()) : new ArrayList<IProcessingStepDescriptor>(4));
+				processingSteps = (size != null ? new ArrayList<IProcessingStepDescriptor>(Integer.parseInt(size)) : new ArrayList<IProcessingStepDescriptor>(4));
 			}
 
 			public IProcessingStepDescriptor[] getProcessingSteps() {

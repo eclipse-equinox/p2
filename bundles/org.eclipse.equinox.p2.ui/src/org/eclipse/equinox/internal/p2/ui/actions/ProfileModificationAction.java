@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -65,7 +65,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected IStatus getNoProfileOrSelectionStatus(String id, Collection<IInstallableUnit> ius) {
-		return new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, NLS.bind(ProvUIMessages.ProfileModificationAction_InvalidSelections, id, new Integer(ius.size())));
+		return new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, NLS.bind(ProvUIMessages.ProfileModificationAction_InvalidSelections, id, Integer.valueOf(ius.size())));
 	}
 
 	protected abstract ProfileChangeOperation getProfileChangeOperation(Collection<IInstallableUnit> ius);

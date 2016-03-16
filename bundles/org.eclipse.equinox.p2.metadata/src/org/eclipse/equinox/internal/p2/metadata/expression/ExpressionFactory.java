@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Cloudsmith Inc. and others.
+ * Copyright (c) 2011, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -190,7 +190,7 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 	}
 
 	public IExpression limit(IExpression collection, int count) {
-		return new Limit((Expression) collection, Literal.create(new Integer(count)));
+		return new Limit((Expression) collection, Literal.create(Integer.valueOf(count)));
 	}
 
 	public IExpression matches(IExpression lhs, IExpression rhs) {

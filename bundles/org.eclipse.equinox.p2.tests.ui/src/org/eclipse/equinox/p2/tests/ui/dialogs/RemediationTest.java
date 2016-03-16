@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public class RemediationTest extends WizardTest {
 		// register alternate services
 		SimpleLicenseManager manager = new SimpleLicenseManager(name);
 		Dictionary<String, Object> properties = new Hashtable<String, Object>(5);
-		properties.put(Constants.SERVICE_RANKING, new Integer(1));
+		properties.put(Constants.SERVICE_RANKING, Integer.valueOf(1));
 		regLicenseManager = TestActivator.getContext().registerService(LicenseManager.class.getName(), manager, properties);
 		profileElement = new ProfileElement(null, name);
 		IULoader.loadIUs(this);

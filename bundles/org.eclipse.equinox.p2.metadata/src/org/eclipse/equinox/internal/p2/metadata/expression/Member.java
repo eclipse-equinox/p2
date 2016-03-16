@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,7 +105,6 @@ public abstract class Member extends Unary {
 	}
 
 	public static class LengthMember extends Member {
-		private static final Integer ZERO = new Integer(0);
 
 		LengthMember(Expression operand) {
 			super(operand, "length", Expression.emptyArray); //$NON-NLS-1$
@@ -113,7 +112,7 @@ public abstract class Member extends Unary {
 
 		public Object evaluate(IEvaluationContext context) {
 			int len = getLength(operand.evaluate(context));
-			return len == 0 ? ZERO : new Integer(len);
+			return Integer.valueOf(len);
 		}
 
 		int getLength(Object val) {

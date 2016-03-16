@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -233,7 +233,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
 
-	static final private Integer REPOSITORY_VERSION = new Integer(1);
+	static final private Integer REPOSITORY_VERSION = 1;
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	protected Set<SimpleArtifactDescriptor> artifactDescriptors = new HashSet<SimpleArtifactDescriptor>();
 	/**
