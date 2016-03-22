@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,7 +62,7 @@ public class OmniVersion extends BasicVersion {
 			if (padValue == VersionVector.MAX_VALUE)
 				return (BasicVersion) MAX_VERSION;
 		}
-		if (vtop == 3 && padValue == null && vector.get(0) == VersionParser.ZERO_INT && vector.get(1) == VersionParser.ZERO_INT && vector.get(2) == VersionParser.ZERO_INT)
+		if (vtop == 3 && padValue == null && vector.get(0) == (Integer) 0 && vector.get(1) == (Integer) 0 && vector.get(2) == (Integer) 0)
 			return (BasicVersion) emptyVersion;
 
 		return new OmniVersion(vector, format, original);

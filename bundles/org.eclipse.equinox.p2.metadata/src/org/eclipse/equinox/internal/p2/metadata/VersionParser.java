@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,23 +24,10 @@ import org.eclipse.osgi.util.NLS;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public abstract class VersionParser {
-	public static final Integer ZERO_INT = new Integer(0);
-
-	public static final Integer MAX_INT_OBJ = new Integer(Integer.MAX_VALUE);
-
-	private static final Integer cache[] = new Integer[100];
-
-	static {
-		cache[0] = ZERO_INT;
-		for (int i = 1; i < cache.length; i++)
-			cache[i] = new Integer(i);
-	}
+	public static final Integer MAX_INT_OBJ = Integer.MAX_VALUE;
 
 	public static Integer valueOf(int i) {
-		if (i >= 0 && i < cache.length)
-			return cache[i];
-
-		return (i == Integer.MAX_VALUE) ? MAX_INT_OBJ : new Integer(i);
+		return (i == Integer.MAX_VALUE) ? MAX_INT_OBJ : Integer.valueOf(i);
 	}
 
 	static Comparable<?> removeRedundantTrail(List<Comparable<?>> segments, Comparable<?> padValue) {
