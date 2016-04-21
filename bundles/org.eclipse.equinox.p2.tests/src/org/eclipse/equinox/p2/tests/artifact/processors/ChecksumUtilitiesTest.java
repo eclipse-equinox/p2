@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2018 Mykola Nikishov
+ *  Copyright (c) 2018, 2019 Mykola Nikishov
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -54,9 +54,13 @@ public class ChecksumUtilitiesTest {
 		return asList(new Object[][] {{IArtifactDescriptor.ARTIFACT_CHECKSUM, IArtifactDescriptor.ARTIFACT_MD5, "123456789_123456789_123456789_12", "MD5", "md5"},
 			{IArtifactDescriptor.ARTIFACT_CHECKSUM, IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".md5"), "123456789_123456789_123456789_12", "MD5", "md5"},
 			{IArtifactDescriptor.ARTIFACT_CHECKSUM, IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".sha-256"), "123456789_123456789_123456789_123456789_123456789_123456789_1234", "SHA-256", "sha-256"},
+			{IArtifactDescriptor.ARTIFACT_CHECKSUM, IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".dstu7564-512"), "123456789_123456789_123456789_123456789_123456789_123456789_1234", "DSTU7564-512", "dstu7564-512"},
+			{IArtifactDescriptor.ARTIFACT_CHECKSUM, IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".whirlpool"), "123456789_123456789_123456789_123456789_123456789_123456789_1234", "Whirlpool", "whirlpool"},
 			{IArtifactDescriptor.DOWNLOAD_CHECKSUM, IArtifactDescriptor.DOWNLOAD_MD5, "123456789_123456789_123456789_12", "MD5", "md5"},
 			{IArtifactDescriptor.DOWNLOAD_CHECKSUM, IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".md5"), "123456789_123456789_123456789_12", "MD5", "md5"},
-			{IArtifactDescriptor.DOWNLOAD_CHECKSUM, IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".sha-256"), "123456789_123456789_123456789_123456789_123456789_123456789_1234", "SHA-256", "sha-256"}});
+			{IArtifactDescriptor.DOWNLOAD_CHECKSUM, IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".sha-256"), "123456789_123456789_123456789_123456789_123456789_123456789_1234", "SHA-256", "sha-256"},
+			{IArtifactDescriptor.DOWNLOAD_CHECKSUM, IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".dstu7564-512"), "123456789_123456789_123456789_123456789_123456789_123456789_1234", "DSTU7564-512", "dstu7564-512"},
+			{IArtifactDescriptor.DOWNLOAD_CHECKSUM, IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".whirlpool"), "123456789_123456789_123456789_123456789_123456789_123456789_1234", "Whirlpool", "whirlpool"}});
 	}
 
 	private ArtifactDescriptor artifactDescriptor;

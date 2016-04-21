@@ -69,6 +69,13 @@ As other tools will rely on this id, consider using some well-defined value (i.e
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="providerName" type="string">
+            <annotation>
+               <documentation>
+                  For custom security provider, name of the security provider that provides this message digest implementation, the value returned by &lt;code&gt;java.security.Provider.getName()&lt;/code&gt;.
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
@@ -97,18 +104,35 @@ As other tools will rely on this id, consider using some well-defined value (i.e
 &lt;/extension&gt;
 &lt;/pre&gt;
 
-If the MessageDigest implementation is provided by a custom Provider (from the contributing bundle itself or some other bundle), it should be first dynamically registered:
+If the MessageDigest implementation is provided by a custom security provider (from the contributing bundle itself or some other bundle), it should be registered first with the Framework service registry under interface &lt;code&gt;java.security.Provider&lt;/code&gt;:
 
 &lt;pre&gt;
-import java.security.Security;
+import java.security.Provider;
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
-public class Activator implements BundleActivator {
+...
 
-  public void start(BundleContext context) throws Exception {
-    Security.addProvider(new BouncyCastleProvider());
-  }
-}
+Dictionary&lt;String, Object&gt; props = new Hashtable&lt;&gt;();
+props.put(&quot;providerName&quot;, &quot;BC&quot;);
+ServiceRegistration&lt;Provider&gt; registration = context.registerService(Provider.class, new BouncyCastleProvider(), props);
+&lt;/pre&gt;
+
+and then register an extension using &lt;code&gt;providerName&lt;/code&gt; attribute:
+
+&lt;pre&gt;
+&lt;extension point=&quot;org.eclipse.equinox.p2.artifact.repository.artifactChecksums&quot;&gt;
+  &lt;artifactChecksum
+   algorithm=&quot;Whirlpool&quot;
+   id=&quot;whirlpool&quot;
+   providerName=&quot;BC&quot;&gt;
+  &lt;/artifactChecksum&gt;
+&lt;/extension&gt;
 &lt;/pre&gt;
       </documentation>
    </annotation>

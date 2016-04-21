@@ -70,6 +70,7 @@ public class Messages extends NLS {
 	public static String calculateChecksum_file;
 	public static String calculateChecksum_ok;
 	public static String calculateChecksum_error;
+	public static String calculateChecksum_providerError;
 
 	static {
 		// initialize resource bundles

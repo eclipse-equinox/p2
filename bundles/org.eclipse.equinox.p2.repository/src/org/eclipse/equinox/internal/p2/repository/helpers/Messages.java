@@ -38,5 +38,5 @@ class Messages extends NLS {
 	public static String DestinationNotModifiable;
 	public static String locationMustBeAbsolute;
 	public static String schemeNotSupported;
-
+	public static String noSuchProvider;
 }

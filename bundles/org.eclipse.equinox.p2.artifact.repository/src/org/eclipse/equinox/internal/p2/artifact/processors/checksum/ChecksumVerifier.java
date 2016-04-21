@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 Mykola Nikishov.
+ * Copyright (c) 2015, 2019 Mykola Nikishov.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,11 +15,12 @@ package org.eclipse.equinox.internal.p2.artifact.processors.checksum;
 
 import static java.util.Optional.ofNullable;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -30,11 +31,13 @@ final public class ChecksumVerifier extends MessageDigestProcessingStep {
 
 	private String expectedChecksum;
 	final private String algorithmName;
+	final private String providerName;
 	final private String algorithmId;
 
 	// public to access from tests
-	public ChecksumVerifier(String digestAlgorithm, String algorithmId) {
+	public ChecksumVerifier(String digestAlgorithm, String providerName, String algorithmId) {
 		this.algorithmName = digestAlgorithm;
+		this.providerName = providerName;
 		this.algorithmId = algorithmId;
 		basicInitialize(null);
 	}
@@ -56,9 +59,9 @@ final public class ChecksumVerifier extends MessageDigestProcessingStep {
 
 	private void basicInitialize(IProcessingStepDescriptor descriptor) {
 		try {
-			messageDigest = MessageDigest.getInstance(algorithmName);
+			messageDigest = ChecksumProducer.getMessageDigest(algorithmName, providerName);
 			setStatus(Status.OK_STATUS);
-		} catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchProviderException | NoSuchAlgorithmException e) {
 			int code = buildErrorCode(descriptor);
 			setStatus(new Status(code, Activator.ID, NLS.bind(Messages.Error_checksum_unavailable, algorithmName), e));
 		}
