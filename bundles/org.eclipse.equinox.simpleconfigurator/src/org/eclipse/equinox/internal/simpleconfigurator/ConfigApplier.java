@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2016 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -390,6 +390,21 @@ class ConfigApplier {
 		if (bundles.length == 0 || packageAdminService == null)
 			return;
 
+		// Prior to Luna the Equinox framework would refresh all bundles with the same
+		// BSN automatically.  This is no longer the case for Luna or other framework
+		// implementations.  Here we want to make sure all existing bundles with the
+		// same BSN are refreshed also.
+		Set<Bundle> allSameBSNs = new LinkedHashSet<Bundle>(); // maintain order and avoid duplicates
+		for (Bundle bundle : bundles) {
+			allSameBSNs.add(bundle);
+			// look for others with same BSN
+			Bundle[] sameBSNs = packageAdminService.getBundles(bundle.getSymbolicName(), null);
+			if (sameBSNs != null) {
+				// likely contains the bundle we just added above but a set is used
+				allSameBSNs.addAll(Arrays.asList(sameBSNs));
+			}
+		}
+
 		final boolean[] flag = new boolean[] {false};
 		FrameworkListener listener = new FrameworkListener() {
 			public void frameworkEvent(FrameworkEvent event) {
@@ -402,7 +417,7 @@ class ConfigApplier {
 			}
 		};
 		context.addFrameworkListener(listener);
-		packageAdminService.refreshPackages(bundles);
+		packageAdminService.refreshPackages(allSameBSNs.toArray(new Bundle[0]));
 		synchronized (flag) {
 			while (!flag[0]) {
 				try {
