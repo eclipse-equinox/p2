@@ -74,7 +74,8 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		String osgiArch = getProperty("org.osgi.framework.processor", "unknownArch");//$NON-NLS-1$//$NON-NLS-2$
 		String language = getProperty("osgi.nl", "unknownLanguage");//$NON-NLS-1$//$NON-NLS-2$
 		String osVersion = getProperty("org.osgi.framework.os.version", "unknownOSVersion"); //$NON-NLS-1$ //$NON-NLS-2$
-		userAgent = "p2/mars-sr0 (Java " + javaSpec + ' ' + javaVendor + "; " + osName + ' ' + osVersion + ' ' + osgiArch + "; " + language + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String uuid = getProperty("eclipse.uuid", "unknownUUID"); //$NON-NLS-1$//$NON-NLS-2$
+		userAgent = "p2/neon-sr0 (Java " + javaSpec + ' ' + javaVendor + "; " + osName + ' ' + osVersion + ' ' + osgiArch + "; " + language + "; " + uuid + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		String userAgentProvided = getProperty("p2.userAgent", null); //$NON-NLS-1$
 		if (userAgentProvided == null) {
 			String productId = getProperty("eclipse.product", "unknownProduct"); //$NON-NLS-1$ //$NON-NLS-2$
