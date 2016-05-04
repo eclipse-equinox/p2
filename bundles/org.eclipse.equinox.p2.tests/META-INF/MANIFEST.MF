@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.tests;singleton:=true
-Bundle-Version: 1.6.100.qualifier
+Bundle-Version: 1.6.200.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.equinox.p2.tests.TestActivator
 Bundle-Vendor: %providerName
