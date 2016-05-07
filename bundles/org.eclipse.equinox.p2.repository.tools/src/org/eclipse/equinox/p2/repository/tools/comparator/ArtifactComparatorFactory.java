@@ -31,9 +31,9 @@ public class ArtifactComparatorFactory {
 		if (comparatorID == null && extensions.length > 0) {
 			element = extensions[0]; //just take the first one
 		} else {
-			for (int i = 0; i < extensions.length; i++) {
-				if (extensions[i].getAttribute(ATTR_ID).equals(comparatorID)) {
-					element = extensions[i];
+			for (IConfigurationElement extension : extensions) {
+				if (extension.getAttribute(ATTR_ID).equals(comparatorID)) {
+					element = extension;
 					break;
 				}
 			}
