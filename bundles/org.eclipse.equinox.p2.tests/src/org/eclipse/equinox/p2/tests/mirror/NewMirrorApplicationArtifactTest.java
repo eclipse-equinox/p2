@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -36,10 +37,13 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
 import org.junit.*;
+import org.junit.experimental.theories.*;
+import org.junit.runner.RunWith;
 
 /*
  * Modified from ArtifactMirrorApplicationTest
  */
+@RunWith(Theories.class)
 public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	private static final String MISSING_ARTIFACT = "canonical: osgi.bundle,javax.wsdl,1.4.0.v200803061811.";
 	protected File destRepoLocation;
@@ -1141,8 +1145,11 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 	}
 
-	@Test
-	public void testCompareUsingMD5Comparator() {
+	@DataPoints
+	public static String[] defaultComparator = {null, MD5ArtifactComparator.MD5_COMPARATOR_ID};
+
+	@Theory
+	public void testCompareUsingMD5Comparator(String comparator) {
 		//Setup create descriptors with different md5 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
@@ -1176,8 +1183,9 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 				app.addSource(createRepositoryDescriptor(repo1Location.toURI(), null, null, null));
 				app.addDestination(createRepositoryDescriptor(repo2Location.toURI(), null, null, null));
 				app.setVerbose(true);
-				//Set compare flag.
+				//Call a comparator
 				app.setCompare(true);
+				app.setComparatorID(comparator);
 				//run the mirror application
 				app.run(null);
 			} catch (Exception e) {
@@ -1198,8 +1206,8 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		}
 	}
 
-	@Test
-	public void testBaselineCompareUsingMD5Comparator() {
+	@Theory
+	public void testBaselineCompareUsingMD5Comparator(String comparator) {
 		//Setup create descriptors with different md5 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/content.xml");
@@ -1241,8 +1249,9 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			//Set baseline
 			app.setBaseline(baselineLocation.toURI());
 			app.setVerbose(true);
-			//Set compare flag.
+			//Call a comparator
 			app.setCompare(true);
+			app.setComparatorID(comparator);
 			//run the mirror application
 			app.run(null);
 		} catch (Exception e) {

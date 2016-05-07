@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
 import org.eclipse.equinox.p2.internal.repository.mirroring.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -230,7 +231,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 		Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, raw);
 		mirror.setCompare(compare);
-		mirror.setComparatorId(comparatorID);
+		mirror.setComparatorId(comparatorID == null ? MD5ArtifactComparator.MD5_COMPARATOR_ID : comparatorID);
 		mirror.setBaseline(initializeBaseline());
 		mirror.setValidate(validate);
 		mirror.setCompareExclusions(compareExclusions);
