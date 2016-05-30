@@ -1,13 +1,14 @@
+
 /*******************************************************************************
- * Copyright (c) 2006, 2015 Cloudsmith Inc.
+ * Copyright (c) 2006, 2016 Cloudsmith Inc.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
- * 	Cloudsmith Inc - initial API and implementation
- * 	IBM Corporation - ongoing development
+ *     Cloudsmith Inc - initial API and implementation
+ *     IBM Corporation - ongoing development
  *  Sonatype Inc - ongoing development
  *  Ericsson AB. - Bug 407940 - [transport] Initial connection happens in current thread
  *  Red Hat Inc. - Bug 460967
@@ -55,7 +56,8 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		}
 	}
 
-	static Map<String, Map<String, String>> options;
+	static Map<String, Map<String, String>> userAgentWithoutUUIDOptions;
+	static Map<String, Map<String, String>> userAgentOptions;
 
 	static private String getProperty(String key, String defaultValue) {
 		String value = Activator.getContext().getProperty(key);
@@ -66,7 +68,6 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	}
 
 	static {
-		Map<String, String> extraRequestHeaders = new HashMap<String, String>(1);
 		String userAgent = null;
 		String javaSpec = getProperty("java.runtime.version", "unknownJava"); //$NON-NLS-1$//$NON-NLS-2$
 		String javaVendor = getProperty("java.vendor", "unknownJavaVendor");//$NON-NLS-1$//$NON-NLS-2$
@@ -76,18 +77,34 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		String osVersion = getProperty("org.osgi.framework.os.version", "unknownOSVersion"); //$NON-NLS-1$ //$NON-NLS-2$
 		String uuid = getProperty("eclipse.uuid", "unknownUUID"); //$NON-NLS-1$//$NON-NLS-2$
 		userAgent = "p2/neon-sr0 (Java " + javaSpec + ' ' + javaVendor + "; " + osName + ' ' + osVersion + ' ' + osgiArch + "; " + language + "; " + uuid + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		String userAgentNoUUID = "p2/neon-sr0 (Java " + javaSpec + ' ' + javaVendor + "; " + osName + ' ' + osVersion + ' ' + osgiArch + "; " + language + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String userAgentProvided = getProperty("p2.userAgent", null); //$NON-NLS-1$
 		if (userAgentProvided == null) {
 			String productId = getProperty("eclipse.product", "unknownProduct"); //$NON-NLS-1$ //$NON-NLS-2$
 			String appId = getProperty("eclipse.application", "unknownApp"); //$NON-NLS-1$ //$NON-NLS-2$
 			String buildId = getProperty("eclipse.buildId", "unknownBuildId"); //$NON-NLS-1$ //$NON-NLS-2$
-			userAgent += productId + '/' + buildId + " (" + appId + ')'; //$NON-NLS-1$
+			String suffix = productId + '/' + buildId + " (" + appId + ')'; //$NON-NLS-1$
+			userAgent += suffix;
+			userAgentNoUUID += suffix;
 		} else {
 			userAgent += userAgentProvided;
+			userAgentNoUUID += userAgentProvided;
 		}
-		extraRequestHeaders.put("User-Agent", userAgent); //$NON-NLS-1$
-		options = new HashMap<String, Map<String, String>>(1);
-		options.put(org.eclipse.ecf.filetransfer.IRetrieveFileTransferOptions.REQUEST_HEADERS, extraRequestHeaders);
+
+		{
+			//Create an option map that includes the user agent with uuid (used when we are contacting eclipse.org servers)
+			Map<String, String> extraRequestHeaders = new HashMap<String, String>(1);
+			extraRequestHeaders.put("User-Agent", userAgent); //$NON-NLS-1$
+			userAgentOptions = new HashMap<String, Map<String, String>>(1);
+			userAgentOptions.put(org.eclipse.ecf.filetransfer.IRetrieveFileTransferOptions.REQUEST_HEADERS, extraRequestHeaders);
+		}
+		{
+			//Create an option map that includes the user agent without uuid
+			Map<String, String> extraRequestHeaders = new HashMap<String, String>(1);
+			extraRequestHeaders.put("User-Agent", userAgentNoUUID); //$NON-NLS-1$
+			userAgentWithoutUUIDOptions = new HashMap<String, Map<String, String>>(1);
+			userAgentWithoutUUIDOptions.put(org.eclipse.ecf.filetransfer.IRetrieveFileTransferOptions.REQUEST_HEADERS, extraRequestHeaders);
+		}
 	}
 
 	private static IFileReaderProbe testProbe;
@@ -421,10 +438,15 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			try {
 				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getRetrieveNamespace(), uri.toString());
 
-				if (range != null)
+				Map<String, Map<String, String>> options = userAgentWithoutUUIDOptions;
+				if (uri.getHost() != null && uri.getHost().endsWith(".eclipse.org")) //$NON-NLS-1$
+					options = userAgentOptions;
+
+				if (range != null) {
 					adapter.sendRetrieveRequest(fileID, range, this, options);
-				else
+				} else {
 					adapter.sendRetrieveRequest(fileID, this, options);
+				}
 			} catch (IncomingFileTransferException e) {
 				exception = e;
 			} catch (FileCreateException e) {
@@ -458,7 +480,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	/**
 	 * Utility method to check exception condition and determine if retry should be done.
 	 * If there was an exception it is translated into one of the specified exceptions and thrown.
-	 * 
+	 *
 	 * @param uri the URI being read - used for logging purposes
 	 * @param attemptCounter - the current attempt number (start with 0)
 	 * @return true if the exception is an IOException and attemptCounter < connectionRetryCount, false otherwise
@@ -572,7 +594,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 * Sets the progress statistics. This method is synchronized because the field
 	 * is accessed from both the transfer thread and the thread initiating the transfer
 	 * and we need to ensure field values are consistent across threads.
-	 * 
+	 *
 	 * @param statistics the statistics to set, or <code>null</code>
 	 */
 	private synchronized void setStatistics(ProgressStatistics statistics) {
@@ -583,7 +605,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 * Returns the progress statistics. This method is synchronized because the field
 	 * is accessed from both the transfer thread and the thread initiating the transfer
 	 * and we need to ensure field values are consistent across threads.
-	 * 
+	 *
 	 * @return the statistics, or <code>null</code>
 	 */
 	private synchronized ProgressStatistics getStatistics() {
