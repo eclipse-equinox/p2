@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2015 IBM Corporation and others.
+ *  Copyright (c) 2008, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -317,7 +317,7 @@ public class ProvisioningContext {
 	 *
 	 * @param artifactRepositories the artifact repository locations
 	*/
-	public void setArtifactRepositories(URI[] artifactRepositories) {
+	public void setArtifactRepositories(URI... artifactRepositories) {
 		this.artifactRepositories = artifactRepositories;
 	}
 
@@ -330,7 +330,7 @@ public class ProvisioningContext {
 	 * metadata repository locations once the metadata queryable has been retrieved.
 	 * @param metadataRepositories the metadata repository locations
 	*/
-	public void setMetadataRepositories(URI[] metadataRepositories) {
+	public void setMetadataRepositories(URI... metadataRepositories) {
 		this.metadataRepositories = metadataRepositories;
 	}
 
