@@ -81,15 +81,6 @@
             </command>
                         
       </menuContribution>
-      <menuContribution
-            locationURI="menu:help?after=org.eclipse.equinox.p2.ui.sdk.install">
-         <command
-               commandId="org.eclipse.equinox.p2.ui.sdk.installationDetails"
-               icon="icons/obj/profile_obj.gif"
-               id="org.eclipse.equinox.p2.ui.sdk.installationDetails"
-               mnemonic="%InstallationDetails.command.mnemonic">
-         </command>
-      </menuContribution>
    </extension>
 
       	<extension 
