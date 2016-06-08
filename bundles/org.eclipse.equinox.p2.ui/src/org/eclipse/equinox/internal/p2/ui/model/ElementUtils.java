@@ -129,12 +129,13 @@ public class ElementUtils {
 		if (remedy == null)
 			return new AvailableIUElement[0];
 		ArrayList<AvailableIUElement> temp = new ArrayList<AvailableIUElement>();
-		IUElementListRoot root = new IUElementListRoot();
+		ProvisioningUI ui = ProvisioningUI.getDefaultUI();
+		IUElementListRoot root = new IUElementListRoot(ui);
 		for (Iterator<RemedyIUDetail> iterator = remedy.getIusDetails().iterator(); iterator.hasNext();) {
 			RemedyIUDetail iuDetail = iterator.next();
 			if (iuDetail.getStatus() == RemedyIUDetail.STATUS_NOT_ADDED)
 				continue;
-			AvailableIUElement element = new AvailableIUElement(root, iuDetail.getIu(), ProvisioningUI.getDefaultUI().getProfileId(), true);
+			AvailableIUElement element = new AvailableIUElement(root, iuDetail.getIu(), ui.getProfileId(), true);
 			if (iuDetail.getBeingInstalledVersion() != null && iuDetail.getRequestedVersion() != null && iuDetail.getBeingInstalledVersion().compareTo(iuDetail.getRequestedVersion()) < 0 && !installMode)
 				element.setImageOverlayId(ProvUIImages.IMG_INFO);
 			else if (iuDetail.getStatus() == RemedyIUDetail.STATUS_REMOVED)

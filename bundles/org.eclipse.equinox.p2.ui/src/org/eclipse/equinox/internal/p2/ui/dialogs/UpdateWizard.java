@@ -116,7 +116,7 @@ public class UpdateWizard extends WizardWithLicenses {
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		if (selectedElements == null)
 			return;
-		root = new IUElementListRoot();
+		root = new IUElementListRoot(ui);
 		if (operation instanceof RemediationOperation) {
 			AvailableIUElement[] elements = ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy(), false);
 			root.setChildren(elements);
@@ -176,7 +176,7 @@ public class UpdateWizard extends WizardWithLicenses {
 
 	private IUElementListRoot getAllPossibleUpdatesRoot() {
 		if (firstPageRoot == null) {
-			firstPageRoot = new IUElementListRoot();
+			firstPageRoot = new IUElementListRoot(ui);
 			if (operation != null && operation instanceof UpdateOperation) {
 				Update[] updates;
 				if (getPolicy().getShowLatestVersionsOnly()) {

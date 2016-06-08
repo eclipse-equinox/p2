@@ -59,7 +59,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		super("IUSelectionPage", ui, wizard); //$NON-NLS-1$
 		this.root = root;
 		if (root == null)
-			root = new IUElementListRoot();
+			root = new IUElementListRoot(ui);
 		if (initialSelections == null)
 			this.initialSelections = new IInstallableUnit[0];
 		else

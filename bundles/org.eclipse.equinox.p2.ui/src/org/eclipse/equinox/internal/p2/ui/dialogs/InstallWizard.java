@@ -63,7 +63,7 @@ public class InstallWizard extends WizardWithLicenses {
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		if (selectedElements == null)
 			return;
-		root = new IUElementListRoot();
+		root = new IUElementListRoot(ui);
 		if (operation instanceof RemediationOperation) {
 			AvailableIUElement[] elements = ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy(), true);
 			root.setChildren(elements);

@@ -61,7 +61,7 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 	}
 
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
-		root = new IUElementListRoot();
+		root = new IUElementListRoot(ui);
 		ArrayList<AvailableIUElement> list = new ArrayList<AvailableIUElement>(selectedElements.length);
 		ArrayList<AvailableIUElement> selected = new ArrayList<AvailableIUElement>(selectedElements.length);
 		for (int i = 0; i < selectedElements.length; i++) {

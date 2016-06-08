@@ -689,7 +689,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 	protected Object getInput() {
 
-		IUElementListRoot root = new IUElementListRoot();
+		IUElementListRoot root = new IUElementListRoot(ui);
 		List<AvailableIUElement> elements = new ArrayList<AvailableIUElement>(unitsToMigrate.size());
 		for (IInstallableUnit unit : unitsToMigrate) {
 			elements.add(new AvailableIUElement(root, unit, toImportFrom.getProfileId(), false));
@@ -756,10 +756,8 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 	// Both checkedElements and checkedElementsUpdates and the logic inside the getCheckedIUElements method
 	// are used to prevent unnecessary call to getUpdates method due to computational cost.
-	@SuppressWarnings("rawtypes")
-	private Set checkedElements;
-	@SuppressWarnings("rawtypes")
-	private Set checkedElementsUpdates;
+	@SuppressWarnings("rawtypes") private Set checkedElements;
+	@SuppressWarnings("rawtypes") private Set checkedElementsUpdates;
 	private boolean getUpdatesCanceled;
 
 	public Object[] getCheckedIUElements() {

@@ -59,7 +59,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		super("ResolutionPage", ui, wizard); //$NON-NLS-1$
 		this.resolvedOperation = operation;
 		if (input == null)
-			this.input = new IUElementListRoot();
+			this.input = new IUElementListRoot(ui);
 		else
 			this.input = input;
 	}
