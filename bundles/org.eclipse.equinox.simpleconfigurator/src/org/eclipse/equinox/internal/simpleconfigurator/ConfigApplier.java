@@ -397,11 +397,14 @@ class ConfigApplier {
 		Set<Bundle> allSameBSNs = new LinkedHashSet<Bundle>(); // maintain order and avoid duplicates
 		for (Bundle bundle : bundles) {
 			allSameBSNs.add(bundle);
-			// look for others with same BSN
-			Bundle[] sameBSNs = packageAdminService.getBundles(bundle.getSymbolicName(), null);
-			if (sameBSNs != null) {
-				// likely contains the bundle we just added above but a set is used
-				allSameBSNs.addAll(Arrays.asList(sameBSNs));
+			String bsn = bundle.getSymbolicName();
+			if (bsn != null) {
+				// look for others with same BSN
+				Bundle[] sameBSNs = packageAdminService.getBundles(bsn, null);
+				if (sameBSNs != null) {
+					// likely contains the bundle we just added above but a set is used
+					allSameBSNs.addAll(Arrays.asList(sameBSNs));
+				}
 			}
 		}
 
