@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * ElementWrapper that accepts the matched repo URLs and
@@ -47,13 +48,16 @@ public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 	 */
 	protected Object wrap(Object item) {
 		// Assume the item is enabled
-		boolean enabled = true;
+
 		// if the parent is a queried element then use its provisioning UI to find out about enablement
 		if (parent instanceof QueriedElement) {
-			ProvisioningSession session = ((QueriedElement) parent).getProvisioningUI().getSession();
-			enabled = ProvUI.getMetadataRepositoryManager(session).isEnabled((URI) item);
-		} 
-		return super.wrap(new MetadataRepositoryElement(parent, (URI) item, enabled));
+			QueriedElement qe = (QueriedElement) parent;
+			ProvisioningUI provisioningUI = qe.getProvisioningUI();
+			ProvisioningSession session = provisioningUI.getSession();
+			boolean enabled = ProvUI.getMetadataRepositoryManager(session).isEnabled((URI) item);
+			return super.wrap(new MetadataRepositoryElement(parent, qe.getQueryContext(), provisioningUI, (URI) item, enabled));
+		}
+		return super.wrap(new MetadataRepositoryElement(parent, (URI) item, true));
 	}
 
 }
