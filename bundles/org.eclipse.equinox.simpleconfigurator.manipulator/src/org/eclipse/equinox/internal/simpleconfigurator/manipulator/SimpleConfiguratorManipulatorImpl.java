@@ -16,8 +16,7 @@
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
@@ -340,8 +339,21 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			}
 		}
 
+		List<BundleInfo> result = new ArrayList<BundleInfo>();
 		//stream will be closed
-		return loadConfiguration(stream, installArea);
+		result.addAll(Arrays.asList(loadConfiguration(stream, installArea)));
+
+		try {
+			List<File> infoFiles = SimpleConfiguratorUtils.getInfoFiles();
+			for (File infoFile : infoFiles) {
+				BundleInfo[] info = loadConfiguration(infoFile.toURL().openStream(), infoFile.getParentFile().toURI());
+				result.addAll(Arrays.asList(info));
+			}
+		} catch (URISyntaxException e) {
+			// ignore the extended configurations
+		}
+
+		return result.toArray(new BundleInfo[0]);
 	}
 
 	/*

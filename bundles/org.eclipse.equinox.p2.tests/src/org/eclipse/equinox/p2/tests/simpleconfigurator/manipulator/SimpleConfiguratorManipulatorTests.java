@@ -14,10 +14,16 @@ package org.eclipse.equinox.p2.tests.simpleconfigurator.manipulator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
+import java.net.URL;
+import java.util.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.EquinoxUtils;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.reconciler.dropins.SharedInstallTests;
 import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 
 public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest {
@@ -78,5 +84,48 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 
 		bundles = manipulator.loadConfiguration(new FileInputStream(configurationFile), folder.toURI());
 		assertEquals(bundles[0].getLocation(), new File(folder, "\u0CA0_\u0CA0.jar").toURI());
+	}
+
+	public void testLoadConfigurationExtended() throws Exception {
+		// installation info
+		URI installArea = EquinoxUtils.getInstallLocationURI(TestActivator.getContext());
+
+		// test info configured through p2.fragments
+		File mainTestData = getTestData("0.0", "testData/simpleConfiguratorExtendedTest/main/bundles.info");
+		URL configURL = EquinoxUtils.getConfigLocation(TestActivator.getContext()).getDataArea(SimpleConfiguratorManipulator.BUNDLES_INFO_PATH);
+		File target = new File(configURL.getPath());
+		target.getParentFile().mkdirs();
+		target.createNewFile();
+		copy("Copying ..", mainTestData, target);
+
+		File fragTestData = getTestData("0.1", "/testData/simpleConfiguratorExtendedTest");
+		File fragDir = getTempFolder();
+		copy("Copying ..", fragTestData, fragDir);
+		SharedInstallTests.setReadOnly(fragDir, true);
+		Activator.EXTENDED = true;
+		Activator.EXTENSIONS = fragDir.getAbsolutePath();
+
+		List<String> expected = Arrays.asList(new String[] {"m,1.0.0", "n,1.0.0", "a,1.0.0", "b,1.0.0"});
+
+		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
+		BundleInfo[] installedInfo = manipulator.loadConfiguration(configURL.openStream(), installArea);
+		BundleInfo[] installedAndExtendedInfo = manipulator.loadConfiguration(TestActivator.getContext(), SimpleConfiguratorManipulator.BUNDLES_INFO_PATH);
+
+		List<BundleInfo> installedAndExtendedL = Arrays.asList(installedAndExtendedInfo);
+		List<BundleInfo> installedL = Arrays.asList(installedInfo);
+		List<BundleInfo> extendedL = new ArrayList<BundleInfo>(installedAndExtendedL);
+		extendedL.removeAll(installedL);
+
+		assertTrue(installedAndExtendedL.containsAll(installedL));
+		assertFalse(extendedL.isEmpty());
+
+		for (BundleInfo b : extendedL) {
+			String actual = b.getSymbolicName() + "," + b.getVersion();
+			if (!expected.contains(actual)) {
+				fail(actual + " Could not be found in the list of expected bundle info entries.");
+			}
+		}
+
+		SharedInstallTests.setReadOnly(fragDir, false);
 	}
 }
