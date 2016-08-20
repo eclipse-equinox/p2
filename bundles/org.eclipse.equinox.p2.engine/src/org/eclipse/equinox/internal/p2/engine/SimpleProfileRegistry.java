@@ -110,7 +110,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			}
 		}
 		if (self == null)
-			self = (String) agent.getService("FORCED_SELF");
+			self = (String) agent.getService("FORCED_SELF"); //$NON-NLS-1$
 		context.ungetService(ref);
 	}
 
@@ -243,6 +243,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return timestamps;
 	}
 
+	/**
+	 * Returns the profile with the given ID, or {@code null} if no such profile exists.
+	 */
 	private Profile internalGetProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
@@ -1126,6 +1129,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			throw new NullPointerException();
 
 		Profile internalProfile = internalGetProfile(id);
+		if (internalProfile == null)
+			throw new IllegalArgumentException(id);
 		return internalSetProfileStateProperties(internalProfile, timestamp, propertiesToAdd);
 	}
 
@@ -1158,7 +1163,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	public IStatus setProfileStateProperty(String id, long timestamp, String key, String value) {
 		if (id == null)
 			throw new NullPointerException();
-		return internalSetProfileStateProperty(internalGetProfile(id), timestamp, key, value);
+		Profile internalProfile = internalGetProfile(id);
+		if (internalProfile == null)
+			throw new IllegalArgumentException(id);
+		return internalSetProfileStateProperty(internalProfile, timestamp, key, value);
 	}
 
 	private IStatus internalSetProfileStateProperty(IProfile profile, long timestamp, String key, String value) {
@@ -1173,7 +1181,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	public Map<String, String> getProfileStateProperties(String id, long timestamp) {
 		if (id == null)
 			throw new NullPointerException();
-		return internalGetProfileStateProperties(internalGetProfile(id), timestamp, true);
+		Profile internalProfile = internalGetProfile(id);
+		if (internalProfile == null)
+			return Collections.emptyMap();
+		return internalGetProfileStateProperties(internalProfile, timestamp, true);
 	}
 
 	private Map<String, String> internalGetProfileStateProperties(IProfile profile, long timestamp, boolean lock) {
@@ -1209,6 +1220,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			throw new NullPointerException();
 
 		Profile internalProfile = internalGetProfile(id);
+		if (internalProfile == null)
+			return Collections.emptyMap();
 		return internalGetProfileStateProperties(internalProfile, userKey, true);
 	}
 
@@ -1249,6 +1262,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			return Status.OK_STATUS;
 
 		Profile internalProfile = internalGetProfile(id);
+		if (internalProfile == null)
+			return Status.OK_STATUS;
+
 		if (!internalLockProfile(internalProfile))
 			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
 
@@ -1260,7 +1276,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				for (Iterator<Object> already = properties.keySet().iterator(); already.hasNext();) {
 					String key = (String) already.next();
 					// property key is timestamp.key
-					if (key.indexOf(timestampString) == 0)
+					if (key.startsWith(timestampString))
 						already.remove();
 				}
 			} else {
