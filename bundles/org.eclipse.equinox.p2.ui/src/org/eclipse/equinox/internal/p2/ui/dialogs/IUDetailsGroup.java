@@ -112,7 +112,7 @@ public class IUDetailsGroup {
 	 */
 	public void setDetailHighlight(String pattern) {
 		detailsArea.setStyleRanges(new StyleRange[0]);
-		if (pattern != null) {
+		if (pattern != null && !pattern.isEmpty()) {
 			StringMatcher matcher = new StringMatcher(pattern, true, false);
 			int i = 0;
 			StringMatcher.Position match = null;
