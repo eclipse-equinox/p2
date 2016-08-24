@@ -298,9 +298,9 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	 * Filters {@link InstalledIUElement}s from a viewer using a String pattern. 
 	 * Filtering is dependent on a given array of {@link IUColumnConfig}s :
 	 * <ul>
-	 * <li>if {@link IUColumnConfig.COLUMN_ID} is present, filters on the Installable Unit's id;</li>
-	 * <li>if {@link IUColumnConfig.COLUMN_NAME} is present, filters on the Installable Unit's  name;</li>
-	 * <li>if {@link IUColumnConfig.COLUMN_PROVIDER} is present, filters on the Installable Unit's provider;</li>
+	 * <li>if {@link IUColumnConfig#COLUMN_ID} is present, filters on the Installable Unit's id;</li>
+	 * <li>if {@link IUColumnConfig#COLUMN_NAME} is present, filters on the Installable Unit's  name;</li>
+	 * <li>if {@link IUColumnConfig#COLUMN_PROVIDER} is present, filters on the Installable Unit's provider;</li>
 	 * </ul>   
 	 * 
 	 * @since 2.3
