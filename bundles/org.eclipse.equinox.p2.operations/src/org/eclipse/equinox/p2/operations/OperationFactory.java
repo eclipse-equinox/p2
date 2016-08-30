@@ -123,14 +123,18 @@ public class OperationFactory {
 	}
 
 	/**
-	 * Return the {@link IInstallableUnit} that are installed in the running instance of eclipse.
+	 * Returns the {@link IInstallableUnit}s that are installed in the running instance of Eclipse.
+	 *
 	 * @param rootsOnly set to true to return only the elements that have been explicitly installed (aka roots).
 	 * @param monitor the progress monitor
-	 * @return the installable units installed
+	 * @return the installable units installed, or an empty result if the installation profile of the running system
+	 *     cannot be accessed
 	 */
 	public IQueryResult<IInstallableUnit> listInstalledElements(boolean rootsOnly, IProgressMonitor monitor) {
 		IProfileRegistry registry = (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
+		if (profile == null)
+			return new CollectionResult<IInstallableUnit>(null);
 		if (rootsOnly)
 			return profile.query(new UserVisibleRootQuery(), monitor);
 		return profile.query(QueryUtil.ALL_UNITS, monitor);
