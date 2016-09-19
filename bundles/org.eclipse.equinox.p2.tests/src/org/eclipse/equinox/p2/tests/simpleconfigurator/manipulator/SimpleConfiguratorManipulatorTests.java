@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.SharedInstallTests;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 
 public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest {
@@ -87,6 +88,11 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 	}
 
 	public void testLoadConfigurationExtended() throws Exception {
+		// See org.eclipse.equinox.p2.tests.simpleconfigurator.SimpleConfiguratorTests
+		if (AbstractSharedInstallTest.WINDOWS) {
+			return;
+		}
+
 		// installation info
 		URI installArea = EquinoxUtils.getInstallLocationURI(TestActivator.getContext());
 
