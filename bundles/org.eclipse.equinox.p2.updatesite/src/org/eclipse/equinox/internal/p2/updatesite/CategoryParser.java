@@ -7,7 +7,8 @@
  *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
- *     Red Hat Inc. - 383795 (bundle element), 406902 (nested categories)
+ *     Red Hat Inc. - 383795 (bundle element), 406902 (nested categories),
+ *                    505808 (platform filters in category.xml)
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
@@ -760,6 +761,9 @@ public class CategoryParser extends DefaultHandler {
 		// identifier and version
 		String id = attributes.getValue("id"); //$NON-NLS-1$
 		String ver = attributes.getValue("version"); //$NON-NLS-1$
+		String os = attributes.getValue("os"); //$NON-NLS-1$
+		String ws = attributes.getValue("ws"); //$NON-NLS-1$
+		String arch = attributes.getValue("arch"); //$NON-NLS-1$
 
 		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
 
@@ -769,6 +773,9 @@ public class CategoryParser extends DefaultHandler {
 
 		feature.setFeatureIdentifier(id);
 		feature.setFeatureVersion(ver);
+		feature.setOS(os);
+		feature.setWS(ws);
+		feature.setArch(arch);
 
 		SiteModel site = (SiteModel) objectStack.peek();
 		site.addFeature(feature);
@@ -789,6 +796,9 @@ public class CategoryParser extends DefaultHandler {
 		// identifier and version
 		String id = attributes.getValue("id"); //$NON-NLS-1$
 		String ver = attributes.getValue("version"); //$NON-NLS-1$
+		String os = attributes.getValue("os"); //$NON-NLS-1$
+		String ws = attributes.getValue("ws"); //$NON-NLS-1$
+		String arch = attributes.getValue("arch"); //$NON-NLS-1$
 
 		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
 
@@ -798,6 +808,9 @@ public class CategoryParser extends DefaultHandler {
 
 		bundle.setBundleIdentifier(id);
 		bundle.setBundleVersion(ver);
+		bundle.setOS(os);
+		bundle.setWS(ws);
+		bundle.setArch(arch);
 
 		SiteModel site = (SiteModel) objectStack.peek();
 		site.addBundle(bundle);
