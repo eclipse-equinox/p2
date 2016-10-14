@@ -189,11 +189,14 @@ public class QueryProvider {
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
 					Collection<IRequirement> reqs = ((IIUElement) element).getRequirements();
+					if (reqs.size() == 0)
+						return null; // no children
 					IExpression[] requirementExpressions = new IExpression[reqs.size()];
 					int i = 0;
 					for (IRequirement req : reqs) {
 						requirementExpressions[i++] = req.getMatches();
 					}
+
 					IExpressionFactory factory = ExpressionUtil.getFactory();
 					IQuery<IInstallableUnit> meetsAnyRequirementQuery = QueryUtil.createMatchQuery(factory.or(requirementExpressions));
 					IQuery<IInstallableUnit> visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
