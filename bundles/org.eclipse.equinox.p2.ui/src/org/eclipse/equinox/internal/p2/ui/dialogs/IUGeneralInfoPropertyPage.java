@@ -111,31 +111,17 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 	}
 
 	private void addField(Composite parent, String property, String value) {
-
 		if (value != null && value.length() > 0) {
 			Label label = new Label(parent, SWT.NONE);
 			label.setText(property);
 
 			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
-			text.setText(getEscapedString(value));
+			text.setText(value);
 			// Needed to get the right color on the Mac.
 			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=258112
 			text.setBackground(text.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 			text.setLayoutData(gd);
 		}
-	}
-
-	private String getEscapedString(String value) {
-		StringBuffer result = new StringBuffer(value.length() + 10);
-		for (int i = 0; i < value.length(); ++i) {
-			char c = value.charAt(i);
-			if ('&' == c) {
-				result.append("&&"); //$NON-NLS-1$
-			} else {
-				result.append(c);
-			}
-		}
-		return result.toString();
 	}
 }
