@@ -11,4 +11,4 @@ Bug 419647 - React to ECF feature restructuring
 Bug 419647 - React to ECF feature restructuring
 Bug 432209 - needs to touch 3 equinox/p2 features, for qualifier change in org.sat4j.pb
 Bug 458346 - Unusual, hard to decipher error in I-build
-
+Bug 506597 - Build failure on I20161026-2000
