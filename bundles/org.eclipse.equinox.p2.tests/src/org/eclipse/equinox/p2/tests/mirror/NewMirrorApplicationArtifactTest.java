@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2015 IBM Corporation and others.
+ *  Copyright (c) 2008, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
+import org.junit.*;
 
 /*
  * Modified from ArtifactMirrorApplicationTest
@@ -50,7 +51,8 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
 	 */
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		super.setUp();
 		//load all the repositories
 		sourceRepoLocation = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space");
@@ -66,7 +68,8 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#tearDown()
 	 */
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		//remove all the repositories
 		getArtifactRepositoryManager().removeRepository(destRepoLocation.toURI());
 		getArtifactRepositoryManager().removeRepository(sourceRepoLocation.toURI());
@@ -327,6 +330,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains
 	 * Expected is A, B
 	 */
+	@Test
 	public void testArtifactMirrorToEmpty() {
 		artifactMirrorToEmpty("1.0", true, false); // run the test with append set to true
 
@@ -344,6 +348,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains
 	 * Expected is A, B
 	 */
+	@Test
 	public void testArtifactMirrorToEmptyWithClean() {
 		artifactMirrorToEmpty("2.0", false, false);
 
@@ -361,6 +366,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
+	@Test
 	public void testArtifactMirrorToFullDuplicate() {
 		artifactMirrorToFullDuplicate("3.0", true); //run the test with append set to true
 
@@ -378,6 +384,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
+	@Test
 	public void testArtifactMirrorToFullDuplicateWithClean() {
 		artifactMirrorToFullDuplicate("4.0", false);
 
@@ -395,6 +402,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains C, D
 	 * Expected is A, B, C, D
 	 */
+	@Test
 	public void testArtifactMirrorToPopulated() {
 		artifactMirrorToPopulated("5.0", true); //run the test with append set to true
 
@@ -415,6 +423,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains C, D
 	 * Expected is A, B
 	 */
+	@Test
 	public void testArtifactMirrorToPopulatedWithClean() {
 		artifactMirrorToPopulated("6.0", false);
 
@@ -432,6 +441,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains  A, B
 	 * Expected is A, B, C, D
 	 */
+	@Test
 	public void testArtifactMirrorToPartialDuplicate() {
 		artifactMirrorToPartialDuplicate("7.0", true); //run the test with append set to true
 
@@ -449,6 +459,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains  A, B
 	 * Expected is A, B, C, D
 	 */
+	@Test
 	public void testArtifactMirrorToPartialDuplicateWithClean() {
 		artifactMirrorToPartialDuplicate("8.0", false);
 
@@ -466,6 +477,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B, C, D
 	 * Expected is A, B, C, D
 	 */
+	@Test
 	public void testArtifactMirrorToPopulatedWithFullDuplicate() {
 		artifactMirrorToPopulatedWithFullDuplicate("9.0", true); //run the test with append set to true
 
@@ -483,6 +495,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B, C, D
 	 * Expected is A, B
 	 */
+	@Test
 	public void testArtifactMirrorToPopulatedWithFullDuplicateWithClean() {
 		artifactMirrorToPopulatedWithFullDuplicate("10.0", false);
 
@@ -500,6 +513,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B, E, F
 	 * Expected is A, B, C, D, E, F
 	 */
+	@Test
 	public void testArtifactMirrorToPopulatedWithPartialDuplicate() {
 		artifactMirrorToPopulatedWithPartialDuplicate("11.0", true); //run the test with append set to true
 
@@ -520,6 +534,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B, E, F
 	 * Expected is A, B, C, D
 	 */
+	@Test
 	public void testArtifactMirrorToPopulatedWithPartialDuplicateWithClean() {
 		artifactMirrorToPopulatedWithPartialDuplicate("12.0", false);
 
@@ -534,6 +549,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Tests MirrorApplication's behaviour when given an invalid source repository
 	 */
+	@Test
 	public void testArtifactMirrorFromInvalid() {
 		File invalidRepository = new File(getTempFolder(), getUniqueString());
 		delete(invalidRepository);
@@ -552,6 +568,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Tests MirrorApplication's behaviour when given an invalid destination repository
 	 */
+	@Test
 	public void testArtifactMirrorToInvalid() {
 		URI invalidDestRepository = null;
 		try {
@@ -576,6 +593,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Tests MirrorApplication's behaviour when given both an invalid source and an invalid destination repository
 	 */
+	@Test
 	public void testArtifactMirrorBothInvalid() {
 		//Setup: create a file that is not a valid repository
 		File invalidRepository = new File(getTempFolder(), getUniqueString());
@@ -601,6 +619,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains
 	 * Expected is
 	 */
+	@Test
 	public void testArtifactMirrorEmptyToEmpty() {
 		File emptyRepository = artifactMirrorEmpty("16.0", true);
 
@@ -623,6 +642,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
+	@Test
 	public void testArtifactMirrorEmptyToPopulated() {
 		File emptyRepository = artifactMirrorEmptyToPopulated("17.0", true);
 
@@ -646,6 +666,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B
 	 * Expected is
 	 */
+	@Test
 	public void testArtifactMirrorEmptyToPopulatedWithClean() {
 		File emptyRepository = artifactMirrorEmptyToPopulated("18.0", false);
 
@@ -668,6 +689,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
+	@Test
 	public void testArtifactMirrorSourceIsDestination() {
 		//Setup: Populate the repository
 		runMirrorApplication("19.0", sourceRepoLocation, destRepoLocation, false);
@@ -689,6 +711,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Target contains A, B (v1.0.0)
 	 * Expected is A, B (v1.0.0) and A, B (v1.0.1)
 	 */
+	@Test
 	public void testArtifactMirrorDifferentVersions() {
 		//Setup: Populate the repository
 		runMirrorApplication("20.0", sourceRepoLocation, destRepoLocation, false);
@@ -710,6 +733,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Tests how mirror application handles an unspecified source
 	 */
+	@Test
 	public void testArtifactMirrorNullSource() {
 		try {
 			basicRunMirrorApplication("21.1", null, destRepoLocation.toURI());
@@ -725,6 +749,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Tests how mirror application handles an unspecified destination
 	 */
+	@Test
 	public void testArtifactMirrorNullDestination() {
 		try {
 			basicRunMirrorApplication("22.1", sourceRepoLocation.toURI(), null);
@@ -740,6 +765,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Tests how mirror application handles both an unspecified source and an unspecified destination
 	 */
+	@Test
 	public void testArtifactMirrorNullBoth() {
 		try {
 			basicRunMirrorApplication("23.0", null, null);
@@ -755,6 +781,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Ensures that a repository created by the mirror application is a copy of the source
 	 */
+	@Test
 	public void testNewArtifactRepoProperties() {
 		//run mirror application with source not preexisting
 		artifactMirrorToEmpty("24.0", true, true);
@@ -772,6 +799,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Ensures that a repository created before the mirror application is run does not have its properties changed
 	 */
+	@Test
 	public void testExistingArtifactRepoProperties() {
 		//Setup: create the destination
 		String name = "Destination Name";
@@ -799,6 +827,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 *  * Ensures that a repository created by the mirror application has specified name
 	 * For Bug 256909
 	 */
+	@Test
 	public void testNewArtifactRepoWithNewName() {
 		String name = "Bug 256909 test - new";
 		try {
@@ -820,6 +849,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Ensures that an existing destination used by the mirror application is given specified name
 	 * For Bug 256909
 	 */
+	@Test
 	public void testExistingArtifactRepoWithNewName() {
 		String oldName = "The original naem for Bug 256909 test - existing";
 		String newName = "Bug 256909 test - existing";
@@ -858,6 +888,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Verifies that the mirror application copies files (including packed files) correctly
 	 */
+	@Test
 	public void testArtifactFileCopying() {
 		//Setup: load the repository containing packed data
 		File packedRepoLocation = getTestData("26.0", "/testData/mirror/mirrorPackedRepo");
@@ -881,6 +912,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Verifies that the mirror application executes processing steps correctly
 	 */
+	@Test
 	public void testArtifactProcessingSteps() {
 		//Setup: load the repository containing packed data
 		File packedRepoLocation = getTestData("27.0", "/testData/mirror/mirrorPackedRepo");
@@ -946,6 +978,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 235683
+	@Test
 	public void testMirrorCompressedSource() {
 		File compressedSource = getTestData("0", "/testData/mirror/mirrorCompressedRepo");
 
@@ -969,6 +1002,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 235683
+	@Test
 	public void testMirrorCompressedSourcetoUncompressedDestination() {
 		File compressedSource = getTestData("0", "/testData/mirror/mirrorCompressedRepo");
 
@@ -1005,6 +1039,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 235683
+	@Test
 	public void testMirrorUncompressedSourceToCompressedDestination() {
 		File uncompressedSource = getTestData("0", "/testData/mirror/mirrorPackedRepo");
 
@@ -1042,6 +1077,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		assertFalse("7", destArtifactsXML.exists());
 	}
 
+	@Test
 	public void testMirrorApplicationWithCompositeSource() {
 		//Setup Make composite repository
 		File repoLocation = new File(getTempFolder(), "CompositeArtifactMirrorTest");
@@ -1077,6 +1113,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 250527
+	@Test
 	public void testIgnoreErrorsArgument() {
 		//Error prints to stderr, redirect that to a file
 		PrintStream oldErr = System.err;
@@ -1104,6 +1141,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 	}
 
+	@Test
 	public void testCompareUsingMD5Comparator() {
 		//Setup create descriptors with different md5 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
@@ -1160,6 +1198,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		}
 	}
 
+	@Test
 	public void testBaselineCompareUsingMD5Comparator() {
 		//Setup create descriptors with different md5 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
@@ -1232,6 +1271,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 259111
+	@Test
 	public void testDownloadRetry() {
 		//repository that is known to force a retry
 		class TestRetryArtifactRepository extends SimpleArtifactRepository {
@@ -1300,6 +1340,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 259112
+	@Test
 	public void testErrorLoggingNoVerbose() {
 		//initialize log file
 		FrameworkLog log = ServiceHelper.getService(Activator.getContext(), FrameworkLog.class);
@@ -1345,6 +1386,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 259112
+	@Test
 	public void testErrorLoggingWithVerbose() {
 		//initialize log file
 		FrameworkLog log = ServiceHelper.getService(Activator.getContext(), FrameworkLog.class);
@@ -1425,6 +1467,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Test how the mirror application handles a repository specified as a local path
 	 */
+	@Test
 	public void testArtifactMirrorNonURIDest() {
 		try {
 			basicRunMirrorApplication("Mirroring", sourceRepoLocation.toURI(), destRepoLocation.toURI());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2013 IBM Corporation and others.
+ *  Copyright (c) 2008, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(MetadataMirrorApplicationTest.class);
 		suite.addTestSuite(ArtifactRepositoryCleanupTest.class);
 		suite.addTestSuite(MetadataRepositoryCleanupTest.class);
-		suite.addTestSuite(NewMirrorApplicationArtifactTest.class);
+		suite.addTest(new JUnit4TestAdapter(NewMirrorApplicationArtifactTest.class));
 		suite.addTestSuite(NewMirrorApplicationMetadataTest.class);
 		suite.addTest(new JUnit4TestAdapter(MirrorApplicationTest.class));
 		return suite;
