@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,10 +79,14 @@ public class RawMirrorRequest extends MirrorRequest {
 
 	// Perform the mirror operation without any processing steps
 	@Override
-	protected IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-		ProcessingStepHandler handler = new ProcessingStepHandler();
-		if (SimpleArtifactRepository.DOWNLOAD_MD5_CHECKSUM_ENABLED && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
-			destination = handler.link(new ProcessingStep[] {new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5))}, destination, monitor);
-		return getSourceRepository().getRawArtifact(descriptor, destination, monitor);
+	protected IStatus getArtifact(IArtifactDescriptor artifactDescriptor, OutputStream destination, IProgressMonitor monitor) {
+		if (SimpleArtifactRepository.DOWNLOAD_MD5_CHECKSUM_ENABLED && artifactDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null) {
+			MD5Verifier checksumVerifier = new MD5Verifier(artifactDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+			if (checksumVerifier.getStatus().isOK()) {
+				ProcessingStepHandler handler = new ProcessingStepHandler();
+				destination = handler.link(new ProcessingStep[] {checksumVerifier}, destination, monitor);
+			}
+		}
+		return getSourceRepository().getRawArtifact(artifactDescriptor, destination, monitor);
 	}
 }

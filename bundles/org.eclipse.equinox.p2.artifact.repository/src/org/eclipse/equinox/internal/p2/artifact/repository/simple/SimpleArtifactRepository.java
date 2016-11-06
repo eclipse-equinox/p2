@@ -459,7 +459,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		steps.add(new SignatureVerifier());
-		addChecksumVerifiers(steps, ARTIFACT_MD5_CHECKSUM_ENABLED, descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5));
+		addChecksumVerifiers(steps, ARTIFACT_MD5_CHECKSUM_ENABLED, descriptor, IArtifactDescriptor.ARTIFACT_MD5);
 
 		if (steps.isEmpty())
 			return destination;
@@ -472,7 +472,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
-		addChecksumVerifiers(steps, DOWNLOAD_MD5_CHECKSUM_ENABLED, descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		addChecksumVerifiers(steps, DOWNLOAD_MD5_CHECKSUM_ENABLED, descriptor, IArtifactDescriptor.DOWNLOAD_MD5);
 
 		// Add steps here if needed
 		if (steps.isEmpty())
@@ -485,9 +485,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/**
 	 * Adds checksum verifier to steps only if isChecksumEnabled and checksum is not null
 	 */
-	private void addChecksumVerifiers(ArrayList<ProcessingStep> steps, boolean isChecksumEnabled, String checksum) {
-		if (isChecksumEnabled && checksum != null)
-			steps.add(new MD5Verifier(checksum));
+	private void addChecksumVerifiers(ArrayList<ProcessingStep> steps, boolean isChecksumEnabled, IArtifactDescriptor descriptor, String property) {
+		if (isChecksumEnabled && descriptor.getProperty(property) != null) {
+			MD5Verifier checksumVerifier = new MD5Verifier(descriptor.getProperty(property));
+			if (checksumVerifier.getStatus().isOK())
+				steps.add(checksumVerifier);
+		}
 	}
 
 	private byte[] bytesFromHexString(String string) {
