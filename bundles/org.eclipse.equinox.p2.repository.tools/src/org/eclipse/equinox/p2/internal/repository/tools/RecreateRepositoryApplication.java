@@ -17,7 +17,6 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -118,7 +117,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 				newDescriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, size);
 				newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, size);
 
-				String md5 = ChecksumProducer.computeMD5(artifactFile);
+				String md5 = RepositoryUtilities.computeMD5(artifactFile);
 				if (md5 != null)
 					newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
 
