@@ -24,7 +24,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
+import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -459,7 +459,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		steps.add(new SignatureVerifier());
-		addChecksumVerifiers(steps, ARTIFACT_MD5_CHECKSUM_ENABLED, descriptor, IArtifactDescriptor.ARTIFACT_MD5);
+		ChecksumUtilities.addChecksumVerificationStep(ARTIFACT_MD5_CHECKSUM_ENABLED, IArtifactDescriptor.ARTIFACT_MD5, descriptor, steps);
 
 		if (steps.isEmpty())
 			return destination;
@@ -472,7 +472,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
-		addChecksumVerifiers(steps, DOWNLOAD_MD5_CHECKSUM_ENABLED, descriptor, IArtifactDescriptor.DOWNLOAD_MD5);
+		ChecksumUtilities.addChecksumVerificationStep(DOWNLOAD_MD5_CHECKSUM_ENABLED, IArtifactDescriptor.DOWNLOAD_MD5, descriptor, steps);
 
 		// Add steps here if needed
 		if (steps.isEmpty())
@@ -480,17 +480,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 		// TODO should probably be using createAndLink here
 		return handler.link(stepArray, destination, monitor);
-	}
-
-	/**
-	 * Adds checksum verifier to steps only if isChecksumEnabled and checksum is not null
-	 */
-	private void addChecksumVerifiers(ArrayList<ProcessingStep> steps, boolean isChecksumEnabled, IArtifactDescriptor descriptor, String property) {
-		if (isChecksumEnabled && descriptor.getProperty(property) != null) {
-			MD5Verifier checksumVerifier = new MD5Verifier(descriptor.getProperty(property));
-			if (checksumVerifier.getStatus().isOK())
-				steps.add(checksumVerifier);
-		}
 	}
 
 	private byte[] bytesFromHexString(String string) {

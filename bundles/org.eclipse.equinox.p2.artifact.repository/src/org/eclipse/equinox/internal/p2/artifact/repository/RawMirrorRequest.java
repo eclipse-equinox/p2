@@ -13,8 +13,9 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
+import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
@@ -80,12 +81,14 @@ public class RawMirrorRequest extends MirrorRequest {
 	// Perform the mirror operation without any processing steps
 	@Override
 	protected IStatus getArtifact(IArtifactDescriptor artifactDescriptor, OutputStream destination, IProgressMonitor monitor) {
-		if (SimpleArtifactRepository.DOWNLOAD_MD5_CHECKSUM_ENABLED && artifactDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null) {
-			MD5Verifier checksumVerifier = new MD5Verifier(artifactDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
-			if (checksumVerifier.getStatus().isOK()) {
-				ProcessingStepHandler handler = new ProcessingStepHandler();
-				destination = handler.link(new ProcessingStep[] {checksumVerifier}, destination, monitor);
-			}
+		ArrayList<ProcessingStep> steps = new ArrayList<>();
+		ChecksumUtilities.addChecksumVerificationStep(SimpleArtifactRepository.DOWNLOAD_MD5_CHECKSUM_ENABLED, IArtifactDescriptor.DOWNLOAD_MD5, artifactDescriptor, steps);
+
+		if (!steps.isEmpty()) {
+			ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
+			// TODO should probably be using createAndLink here
+			ProcessingStepHandler handler = new ProcessingStepHandler();
+			destination = handler.link(stepArray, destination, monitor);
 		}
 		return getSourceRepository().getRawArtifact(artifactDescriptor, destination, monitor);
 	}
