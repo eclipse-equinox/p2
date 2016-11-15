@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2016 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
+ *     Mikael Barbero (Eclipse Foundation) - Bug 498116
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
@@ -68,7 +69,7 @@ public class UpdateChecker implements IUpdateChecker {
 					Thread.sleep(delay);
 				}
 				while (!done) {
-
+					listener.checkingForUpdates();
 					trace("Checking for updates for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
 					Collection<IInstallableUnit> iusWithUpdates = checkForUpdates(profileId, query);
 					if (iusWithUpdates.size() > 0) {

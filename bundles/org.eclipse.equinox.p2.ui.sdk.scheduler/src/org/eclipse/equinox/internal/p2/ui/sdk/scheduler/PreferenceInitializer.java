@@ -132,6 +132,27 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 			}
 		}
 
+		// Migrate "look for updates on schedule (daily at fixed time, or weekly, at fixed weekday and time)".
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=498116
+		final String autoUpdateSchedule = pref.get(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, null);
+		if (autoUpdateSchedule != null) {
+			if (PreferenceConstants.PREF_UPDATE_ON_SCHEDULE.equals(autoUpdateSchedule)) {				
+				//Before neon.2, the update schedule could be specified to be done daily or at a specific day and time
+				pref.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_FUZZY_SCHEDULE);
+				final String PRE_NEON2_PREF_KEY_FOR_SCHEDULE = "day"; //$NON-NLS-1$
+				String day = pref.get(PRE_NEON2_PREF_KEY_FOR_SCHEDULE, null);
+				if (day != null) {
+					if (AutomaticUpdateMessages.Pre_neon2_pref_value_everyday.equals(day)) {
+						pref.put(AutomaticUpdateScheduler.P_FUZZY_RECURRENCE, AutomaticUpdateScheduler.FUZZY_RECURRENCE[0]);
+					} else {
+						pref.put(AutomaticUpdateScheduler.P_FUZZY_RECURRENCE, AutomaticUpdateScheduler.FUZZY_RECURRENCE[1]);
+					}
+				} else {
+					pref.put(AutomaticUpdateScheduler.P_FUZZY_RECURRENCE, AutomaticUpdateScheduler.FUZZY_RECURRENCE[1]);
+				}
+			}
+		}
+
 		// All migration is done, check that the value of the auto update reminder time is *not* localized
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=321568
 		String value = pref.get(PreferenceConstants.PREF_REMIND_ELAPSED, PreferenceConstants.PREF_REMIND_30Minutes);
