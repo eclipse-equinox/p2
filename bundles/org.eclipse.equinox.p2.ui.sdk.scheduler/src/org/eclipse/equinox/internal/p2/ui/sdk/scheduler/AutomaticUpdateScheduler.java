@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,14 @@
  *     Ericsson AB - (Pascal Rapicault)
  *     Ericsson AB   (Hamdan Msheik) - Bug 398833
  *     Red Hat Inc. - Bug 460967
+ *     Mikael Barbero (Eclipse Foundation) - Bug 498116
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.ULocale;
-import org.eclipse.core.runtime.*;
+import java.util.Date;
+import java.util.Random;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.MigrationSupport;
@@ -38,34 +40,16 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class AutomaticUpdateScheduler implements IStartup {
 	public static final String MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
 
-	// values are to be picked up from the arrays DAYS and HOURS
-	public static final String P_DAY = "day"; //$NON-NLS-1$
+	public static final String P_FUZZY_RECURRENCE = "fuzzy_recurrence"; //$NON-NLS-1$
 
-	public static final String P_HOUR = "hour"; //$NON-NLS-1$
+	public static final String[] FUZZY_RECURRENCE = {AutomaticUpdateMessages.SchedulerStartup_OnceADay, AutomaticUpdateMessages.SchedulerStartup_OnceAWeek, AutomaticUpdateMessages.SchedulerStartup_OnceAMonth};
 
-	public static final String[] DAYS;
-
-	public static final String[] HOURS = {AutomaticUpdateMessages.SchedulerStartup_1AM, AutomaticUpdateMessages.SchedulerStartup_2AM, AutomaticUpdateMessages.SchedulerStartup_3AM, AutomaticUpdateMessages.SchedulerStartup_4AM, AutomaticUpdateMessages.SchedulerStartup_5AM, AutomaticUpdateMessages.SchedulerStartup_6AM, AutomaticUpdateMessages.SchedulerStartup_7AM, AutomaticUpdateMessages.SchedulerStartup_8AM, AutomaticUpdateMessages.SchedulerStartup_9AM, AutomaticUpdateMessages.SchedulerStartup_10AM, AutomaticUpdateMessages.SchedulerStartup_11AM, AutomaticUpdateMessages.SchedulerStartup_12PM, AutomaticUpdateMessages.SchedulerStartup_1PM, AutomaticUpdateMessages.SchedulerStartup_2PM, AutomaticUpdateMessages.SchedulerStartup_3PM, AutomaticUpdateMessages.SchedulerStartup_4PM,
-			AutomaticUpdateMessages.SchedulerStartup_5PM, AutomaticUpdateMessages.SchedulerStartup_6PM, AutomaticUpdateMessages.SchedulerStartup_7PM, AutomaticUpdateMessages.SchedulerStartup_8PM, AutomaticUpdateMessages.SchedulerStartup_9PM, AutomaticUpdateMessages.SchedulerStartup_10PM, AutomaticUpdateMessages.SchedulerStartup_11PM, AutomaticUpdateMessages.SchedulerStartup_12AM,};
+	private static final int ONE_HOUR_IN_MS = 60 * 60 * 1000;
+	private static final int ONE_DAY_IN_MS = 24 * ONE_HOUR_IN_MS;
 
 	private IUpdateListener listener = null;
 	private IUpdateChecker checker = null;
 	String profileId;
-
-	static {
-		Calendar calendar = Calendar.getInstance(new ULocale(Platform.getNL()));
-		String[] daysAsStrings = {AutomaticUpdateMessages.SchedulerStartup_day, AutomaticUpdateMessages.SchedulerStartup_Sunday, AutomaticUpdateMessages.SchedulerStartup_Monday, AutomaticUpdateMessages.SchedulerStartup_Tuesday, AutomaticUpdateMessages.SchedulerStartup_Wednesday, AutomaticUpdateMessages.SchedulerStartup_Thursday, AutomaticUpdateMessages.SchedulerStartup_Friday, AutomaticUpdateMessages.SchedulerStartup_Saturday};
-		int firstDay = calendar.getFirstDayOfWeek();
-		DAYS = new String[8];
-		DAYS[0] = daysAsStrings[0];
-		int countDays = 0;
-		for (int i = firstDay; i <= 7; i++) {
-			DAYS[++countDays] = daysAsStrings[i];
-		}
-		for (int i = 1; i < firstDay; i++) {
-			DAYS[++countDays] = daysAsStrings[i];
-		}
-	}
 
 	/**
 	 * The constructor.
@@ -148,8 +132,10 @@ public class AutomaticUpdateScheduler implements IStartup {
 		long delay = IUpdateChecker.ONE_TIME_CHECK;
 		long poll = IUpdateChecker.ONE_TIME_CHECK;
 		if (!schedule.equals(PreferenceConstants.PREF_UPDATE_ON_STARTUP)) {
-			delay = computeDelay(pref);
-			poll = computePoll(pref);
+			if (schedule.equals(PreferenceConstants.PREF_UPDATE_ON_FUZZY_SCHEDULE)) {
+				delay = computeFuzzyDelay(pref);
+				poll = computeFuzzyPoll(pref);
+			}
 		}
 		// We do not access the AutomaticUpdater directly when we register
 		// the listener. This prevents the UI classes from being started up
@@ -160,6 +146,9 @@ public class AutomaticUpdateScheduler implements IStartup {
 				AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().updatesAvailable(event);
 			}
 
+			public void checkingForUpdates() {
+				AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().checkingForUpdates();
+			}
 		};
 		checker.addUpdateCheck(profileId, getProfileQuery(), delay, poll, listener);
 
@@ -171,98 +160,43 @@ public class AutomaticUpdateScheduler implements IStartup {
 		return new IUProfilePropertyQuery(IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 	}
 
-	private int getDay(IPreferenceStore pref) {
-		String day = pref.getString(P_DAY);
-		for (int d = 0; d < DAYS.length; d++)
-			if (DAYS[d].equals(day))
-				switch (d) {
-					case 0 :
-						return -1;
-					case 1 :
-						return Calendar.MONDAY;
-					case 2 :
-						return Calendar.TUESDAY;
-					case 3 :
-						return Calendar.WEDNESDAY;
-					case 4 :
-						return Calendar.THURSDAY;
-					case 5 :
-						return Calendar.FRIDAY;
-					case 6 :
-						return Calendar.SATURDAY;
-					case 7 :
-						return Calendar.SUNDAY;
-				}
-		return -1;
-	}
-
-	private int getHour(IPreferenceStore pref) {
-		String hour = pref.getString(P_HOUR);
-		for (int h = 0; h < HOURS.length; h++)
-			if (HOURS[h].equals(hour))
-				return h + 1;
-		return 1;
-	}
-
-	/*
-	 * Computes the number of milliseconds from this moment to the next
-	 * scheduled update check. If that moment has already passed, returns 0L (start
-	 * immediately).
-	 */
-	private long computeDelay(IPreferenceStore pref) {
-
-		int target_d = getDay(pref);
-		int target_h = getHour(pref);
-
-		Calendar calendar = Calendar.getInstance();
-		// may need to use the BootLoader locale
-		int current_d = calendar.get(Calendar.DAY_OF_WEEK);
-		// starts with SUNDAY
-		int current_h = calendar.get(Calendar.HOUR_OF_DAY);
-		int current_m = calendar.get(Calendar.MINUTE);
-		int current_s = calendar.get(Calendar.SECOND);
-		int current_ms = calendar.get(Calendar.MILLISECOND);
-
-		long delay = 0L; // milliseconds
-
-		if (target_d == -1) {
-			// Compute the delay for "every day at x o'clock"
-			// Is it now ?
-			if (target_h == current_h && current_m == 0 && current_s == 0)
-				return delay;
-
-			int delta_h = target_h - current_h;
-			if (target_h <= current_h)
-				delta_h += 24;
-			delay = ((delta_h * 60 - current_m) * 60 - current_s) * 1000 - current_ms;
-			return delay;
+	private static long computeFuzzyDelay(IPreferenceStore pref) {
+		Date nowDate = java.util.Calendar.getInstance().getTime();
+		long now = nowDate.getTime();
+		long lastCheckForUpdateSinceEpoch = new LastAutoCheckForUpdateMemo(AutomaticUpdatePlugin.getDefault().getAgentLocation()).readAndStoreIfAbsent(nowDate).getTime();
+		long poll = computeFuzzyPoll(pref);
+		if (now - lastCheckForUpdateSinceEpoch >= poll + getMaxDelay(pref)) {
+			// Last check for update has exceeded the max delay we allow,
+			// let's do it sometime in the next hour.
+			return new Random().nextInt(ONE_HOUR_IN_MS);
 		}
-		// Compute the delay for "every Xday at x o'clock"
-		// Is it now ?
-		if (target_d == current_d && target_h == current_h && current_m == 0 && current_s == 0)
-			return delay;
-
-		int delta_d = target_d - current_d;
-		if (target_d < current_d || target_d == current_d && (target_h < current_h || target_h == current_h && current_m > 0))
-			delta_d += 7;
-
-		delay = (((delta_d * 24 + target_h - current_h) * 60 - current_m) * 60 - current_s) * 1000 - current_ms;
-		return delay;
+		long delay = now - lastCheckForUpdateSinceEpoch;
+		// We do delay the next check sometime in the 8 hours after the computed schedule
+		return poll - delay + new Random().nextInt(8 * ONE_HOUR_IN_MS);
 	}
 
-	/*
-	 * Computes the number of milliseconds for the polling frequency.
-	 * We have already established that there is a schedule, vs. only
-	 * on startup.
-	 */
-	private long computePoll(IPreferenceStore pref) {
-
-		int target_d = getDay(pref);
-		if (target_d == -1) {
-			// Every 24 hours
-			return 24 * 60 * 60 * 1000;
+	private static long getMaxDelay(IPreferenceStore pref) {
+		String recurrence = pref.getString(P_FUZZY_RECURRENCE);
+		if (AutomaticUpdateMessages.SchedulerStartup_OnceADay.equals(recurrence)) {
+			return 6 * ONE_HOUR_IN_MS;
+		} else if (AutomaticUpdateMessages.SchedulerStartup_OnceAWeek.equals(recurrence)) {
+			return 2 * ONE_DAY_IN_MS;
+		} else { // Once a month
+			return 6 * ONE_DAY_IN_MS;
 		}
-		return 7 * 24 * 60 * 60 * 1000;
+	}
+
+	private static long computeFuzzyPoll(IPreferenceStore pref) {
+		String recurrence = pref.getString(P_FUZZY_RECURRENCE);
+		if (AutomaticUpdateMessages.SchedulerStartup_OnceADay.equals(recurrence)) {
+			return ONE_DAY_IN_MS;
+		} else if (AutomaticUpdateMessages.SchedulerStartup_OnceAWeek.equals(recurrence)) {
+			return 7 * ONE_DAY_IN_MS;
+		} else { // Once a month
+			// It's not rocket science we're doing here,
+			// let's approximate that a month is always 30 days long
+			return 30 * ONE_DAY_IN_MS;
+		}
 	}
 
 	private void removeUpdateListener() {

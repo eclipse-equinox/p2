@@ -67,4 +67,8 @@ public class TestUpdateListener implements IUpdateListener {
 	public void reset() {
 		expectedCount = unexpectedCount = 0;
 	}
+
+	@Override
+	public void checkingForUpdates() {
+	}
 }

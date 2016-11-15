@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
  *     Christian Georgi <christian.georgi@sap.com> - Bug 432887 - Setting to show update wizard w/o notification popup
+ *     Mikael Barbero (Eclipse Foundation) - Bug 498116
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -89,6 +90,10 @@ public class AutomaticUpdater implements IUpdateListener {
 	 */
 	public void updatesAvailable(UpdateEvent event) {
 		updatesAvailable(event, true);
+	}
+
+	public void checkingForUpdates() {
+		new LastAutoCheckForUpdateMemo(AutomaticUpdatePlugin.getDefault().getAgentLocation()).store(Calendar.getInstance().getTime());
 	}
 
 	void updatesAvailable(final UpdateEvent event, final boolean notifyWithPopup) {

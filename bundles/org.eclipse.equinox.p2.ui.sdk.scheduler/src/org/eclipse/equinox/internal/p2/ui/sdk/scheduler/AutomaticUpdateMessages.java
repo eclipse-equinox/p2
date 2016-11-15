@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Christian Georgi <christian.georgi@sap.com> - Bug 432887 - Setting to show update wizard w/o notification popup
+ *     Mikael Barbero (Eclipse Foundation) - Bug 498116
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
@@ -25,38 +26,10 @@ public class AutomaticUpdateMessages extends NLS {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, AutomaticUpdateMessages.class);
 	}
-	public static String SchedulerStartup_day;
-	public static String SchedulerStartup_Monday;
-	public static String SchedulerStartup_Tuesday;
-	public static String SchedulerStartup_Wednesday;
-	public static String SchedulerStartup_Thursday;
-	public static String SchedulerStartup_Friday;
-	public static String SchedulerStartup_Saturday;
-	public static String SchedulerStartup_Sunday;
-	public static String SchedulerStartup_1AM;
-	public static String SchedulerStartup_2AM;
-	public static String SchedulerStartup_3AM;
-	public static String SchedulerStartup_4AM;
-	public static String SchedulerStartup_5AM;
-	public static String SchedulerStartup_6AM;
-	public static String SchedulerStartup_7AM;
-	public static String SchedulerStartup_8AM;
-	public static String SchedulerStartup_9AM;
-	public static String SchedulerStartup_10AM;
-	public static String SchedulerStartup_11AM;
-	public static String SchedulerStartup_12PM;
-	public static String SchedulerStartup_1PM;
-	public static String SchedulerStartup_2PM;
-	public static String SchedulerStartup_3PM;
-	public static String SchedulerStartup_4PM;
-	public static String SchedulerStartup_5PM;
-	public static String SchedulerStartup_6PM;
-	public static String SchedulerStartup_7PM;
-	public static String SchedulerStartup_8PM;
-	public static String SchedulerStartup_9PM;
-	public static String SchedulerStartup_10PM;
-	public static String SchedulerStartup_11PM;
-	public static String SchedulerStartup_12AM;
+	public static String Pre_neon2_pref_value_everyday;
+	public static String SchedulerStartup_OnceADay;
+	public static String SchedulerStartup_OnceAWeek;
+	public static String SchedulerStartup_OnceAMonth;
 	public static String AutomaticUpdatesPopup_PrefLinkOnly;
 	public static String AutomaticUpdatesPopup_RemindAndPrefLink;
 	public static String AutomaticUpdatesPopup_ReminderJobTitle;
@@ -78,6 +51,7 @@ public class AutomaticUpdateMessages extends NLS {
 	public static String AutomaticUpdatesPreferencePage_downloadAndNotify;
 	public static String AutomaticUpdatesPreferencePage_at;
 	public static String AutomaticUpdatesPreferencePage_GenericProductName;
+	public static String AutomaticUpdatesPreferencePage_never;
 	public static String AutomaticUpdatesPreferencePage_RemindGroup;
 	public static String AutomaticUpdatesPreferencePage_RemindSchedule;
 	public static String AutomaticUpdatesPreferencePage_RemindOnce;
