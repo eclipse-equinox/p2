@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ant;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -716,7 +718,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, baselineContentLocation);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotSame("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		assertNotEquals("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
 
 		//Setup make repositories
 		IArtifactRepository repo = null;

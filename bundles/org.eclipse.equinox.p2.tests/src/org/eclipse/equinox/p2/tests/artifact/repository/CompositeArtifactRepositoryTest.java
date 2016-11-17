@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.*;
@@ -716,7 +717,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotSame("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		assertNotEquals("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
 
 		//Setup make repositories
 		File repo1Location = getTestFolder(getUniqueString());
@@ -755,7 +756,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotSame("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		assertNotEquals("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
 
 		//Setup make repositories
 		File repo1Location = getTestFolder(getUniqueString());
