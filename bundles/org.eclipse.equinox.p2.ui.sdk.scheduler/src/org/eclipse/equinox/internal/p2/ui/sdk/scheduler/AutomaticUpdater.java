@@ -71,10 +71,16 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	boolean sameProfile(String another) {
 		if (another.equals(IProfileRegistry.SELF)) {
-			another = getProfileRegistry().getProfile(another).getProfileId();
+			IProfile profile = getProfileRegistry().getProfile(another);
+			if (profile != null) {
+				another = profile.getProfileId();
+			}
 		}
 		if (profileId.equals(IProfileRegistry.SELF)) {
-			profileId = getProfileRegistry().getProfile(profileId).getProfileId();
+			IProfile profile = getProfileRegistry().getProfile(profileId);
+			if (profile != null) {
+				profileId = profile.getProfileId();
+			}
 		}
 		return profileId.equals(another);
 	}
@@ -175,12 +181,14 @@ public class AutomaticUpdater implements IUpdateListener {
 		ArrayList<IInstallableUnit> list = new ArrayList<IInstallableUnit>(iusWithUpdates.size());
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 
-		for (IInstallableUnit iuWithUpdate : iusWithUpdates) {
-			try {
-				if (validToUpdate(profile, iuWithUpdate))
-					list.add(iuWithUpdate);
-			} catch (OperationCanceledException e) {
-				// Nothing to report
+		if (profile != null) {
+			for (IInstallableUnit iuWithUpdate : iusWithUpdates) {
+				try {
+					if (validToUpdate(profile, iuWithUpdate))
+						list.add(iuWithUpdate);
+				} catch (OperationCanceledException e) {
+					// Nothing to report
+				}
 			}
 		}
 		iusWithUpdates = list;
