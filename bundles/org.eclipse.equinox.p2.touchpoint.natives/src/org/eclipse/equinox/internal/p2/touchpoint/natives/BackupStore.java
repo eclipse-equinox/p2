@@ -571,17 +571,21 @@ public class BackupStore implements IBackupStore {
 	 * @return true if, and only if the file is deleted without errors
 	 */
 	private boolean fullyDelete(File file) {
-		if (!file.exists())
-			return true;
 		if (file.isDirectory()) {
 			File[] children = file.listFiles();
-			if (children == null)
-				return false;
-			for (int i = 0; i < children.length; i++)
-				if (!fullyDelete(new File(file, children[i].getName())))
-					return false;
+			if (children != null) {
+				for (int i = 0; i < children.length; i++) {
+					// we will not stop even if some deletion failed
+					fullyDelete(new File(file, children[i].getName()));
+				}
+			}
 		}
-		return file.delete();
+		// will attempt to delete before exists check to get rid of dead links
+		if (file.delete()) {
+			return true;
+		}
+		// will return true if files does not actually exist even delete fails
+		return !file.exists();
 	}
 
 	private void restore(File root, File buRoot, Set<File> unrestorable) {
