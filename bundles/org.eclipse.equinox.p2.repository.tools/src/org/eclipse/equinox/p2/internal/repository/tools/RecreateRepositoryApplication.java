@@ -108,13 +108,13 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 			String unpackedSize = null;
 			File packFile = null;
 			Set<File> files = new HashSet<File>();
-			for (int i = 0; i < descriptors.length; i++) {
-				File artifactFile = simple.getArtifactFile(descriptors[i]);
+			for (IArtifactDescriptor descriptor : descriptors) {
+				File artifactFile = simple.getArtifactFile(descriptor);
 				files.add(artifactFile);
 
 				String size = Long.toString(artifactFile.length());
 
-				ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptors[i]);
+				ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
 				newDescriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, size);
 				newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, size);
 
