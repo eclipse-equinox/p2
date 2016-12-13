@@ -33,7 +33,7 @@ public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfigu
 		copy("preparing readonly data", getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorExtendedTest"), testData);
 		testData = new File(testData, "extensions");
 		AbstractSharedInstallTest.setReadOnly(testData.getParentFile(), true);
-		AbstractSharedInstallTest.reallyReadOnly(testData.getParentFile());
+		AbstractSharedInstallTest.reallyReadOnly(testData.getParentFile(), true);
 		Activator.EXTENSIONS = testData.toString();
 
 		mainBundlesInfo = getTestData("simpleconfigurator extensions - main bundles.info", "testData/simpleConfiguratorExtendedTest/main/bundles.info");
@@ -42,7 +42,7 @@ public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfigu
 	@Override
 	protected void tearDown() throws Exception {
 		Activator.EXTENSIONS = null;
-		AbstractSharedInstallTest.removeReallyReadOnly(testData.getParentFile());
+		AbstractSharedInstallTest.removeReallyReadOnly(testData.getParentFile(), true);
 		AbstractSharedInstallTest.setReadOnly(testData.getParentFile(), false);
 		testData.getParentFile().delete();
 		super.tearDown();

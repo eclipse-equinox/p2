@@ -88,11 +88,6 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 	}
 
 	public void testLoadConfigurationExtended() throws Exception {
-		// See org.eclipse.equinox.p2.tests.simpleconfigurator.SimpleConfiguratorTests
-		if (AbstractSharedInstallTest.WINDOWS) {
-			return;
-		}
-
 		// installation info
 		URI installArea = EquinoxUtils.getInstallLocationURI(TestActivator.getContext());
 
@@ -108,6 +103,7 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 		File fragDir = getTempFolder();
 		copy("Copying ..", fragTestData, fragDir);
 		SharedInstallTests.setReadOnly(fragDir, true);
+		AbstractSharedInstallTest.reallyReadOnly(fragDir, true);
 		Activator.EXTENDED = true;
 		Activator.EXTENSIONS = fragDir.getAbsolutePath();
 
@@ -132,6 +128,7 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 			}
 		}
 
+		AbstractSharedInstallTest.removeReallyReadOnly(fragDir, true);
 		SharedInstallTests.setReadOnly(fragDir, false);
 	}
 }

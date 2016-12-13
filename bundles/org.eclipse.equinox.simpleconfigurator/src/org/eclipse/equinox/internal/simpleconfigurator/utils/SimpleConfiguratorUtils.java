@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
 import java.util.*;
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.osgi.framework.Version;
@@ -141,7 +142,7 @@ public class SimpleConfiguratorUtils {
 				}
 
 				if (extension.isDirectory()) {
-					if (extension.canWrite()) {
+					if (Files.isWritable(extension.toPath())) {
 						synchronized (reportedExtensions) {
 							if (!reportedExtensions.contains(extension)) {
 								reportedExtensions.add(extension);

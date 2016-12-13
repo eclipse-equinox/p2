@@ -193,6 +193,21 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		realExecuteVerifier(verificationProperties, true);
 	}
 
+	public static void reallyReadOnly(File folder, boolean recurse) {
+		reallyReadOnly(folder);
+		if (folder.exists() && recurse) {
+			File[] dirs = folder.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					return pathname.isDirectory();
+				}
+			});
+			for (File dir : dirs) {
+				reallyReadOnly(dir, true);
+			}
+		}
+	}
+
 	public static void reallyReadOnly(File folder) {
 		if (!Platform.getOS().equals(Platform.OS_WIN32))
 			return;
@@ -207,6 +222,21 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 			view.setAcl(acl);
 		} catch (IOException e) {
 			fail("can't mark the folder " + folder + " read-only.");
+		}
+	}
+
+	public static void removeReallyReadOnly(File folder, boolean recurse) {
+		removeReallyReadOnly(folder);
+		if (folder.exists() && recurse) {
+			File[] dirs = folder.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					return pathname.isDirectory();
+				}
+			});
+			for (File dir : dirs) {
+				removeReallyReadOnly(dir, true);
+			}
 		}
 	}
 

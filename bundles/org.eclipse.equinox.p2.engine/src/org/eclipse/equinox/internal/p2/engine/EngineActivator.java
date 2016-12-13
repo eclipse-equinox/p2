@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -135,7 +136,7 @@ public class EngineActivator implements BundleActivator {
 				}
 
 				if (extension.isDirectory()) {
-					if (extension.canWrite()) {
+					if (Files.isWritable(extension.toPath())) {
 						synchronized (reportedExtensions) {
 							if (!reportedExtensions.contains(extension)) {
 								reportedExtensions.add(extension);

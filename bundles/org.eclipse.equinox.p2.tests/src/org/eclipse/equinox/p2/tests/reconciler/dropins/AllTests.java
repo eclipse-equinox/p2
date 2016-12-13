@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import junit.framework.*;
-import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 /**
  * To run the reconciler tests, you must perform some manual setup steps:
@@ -30,9 +29,7 @@ public class AllTests extends TestCase {
 		suite.addTest(FeaturePatchTest.suite());
 		suite.addTest(SharedInstallTests.suite());
 		suite.addTest(SharedInstallTestsProfileSpoofEnabled.suite());
-		if (!AbstractSharedInstallTest.WINDOWS) {
-			suite.addTest(SharedInstallTestsProfileSpoofEnabledConfigured.suite());
-		}
+		suite.addTest(SharedInstallTestsProfileSpoofEnabledConfigured.suite());
 		suite.addTest(Bug362692.suite());
 		return suite;
 	}

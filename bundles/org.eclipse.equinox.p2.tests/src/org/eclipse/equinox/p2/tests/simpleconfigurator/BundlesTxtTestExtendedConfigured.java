@@ -29,7 +29,7 @@ public class BundlesTxtTestExtendedConfigured extends BundlesTxtTestExtended {
 		Activator.EXTENSIONS = testData.toString();
 		System.setProperty("p2.fragments", Activator.EXTENSIONS);
 		AbstractSharedInstallTest.setReadOnly(testData, true);
-		AbstractSharedInstallTest.reallyReadOnly(testData);
+		AbstractSharedInstallTest.reallyReadOnly(testData, true);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class BundlesTxtTestExtendedConfigured extends BundlesTxtTestExtended {
 	@Override
 	protected void tearDown() throws Exception {
 		Activator.EXTENSIONS = null;
-		AbstractSharedInstallTest.removeReallyReadOnly(testData);
+		AbstractSharedInstallTest.removeReallyReadOnly(testData, true);
 		AbstractSharedInstallTest.setReadOnly(testData, false);
 		testData.delete();
 		super.tearDown();
