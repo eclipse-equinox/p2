@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,14 +21,9 @@ public class ChecksumProducer {
 	public static String computeMD5(File file) {
 		if (file == null || file.isDirectory() || !file.exists())
 			return null;
-		MessageDigest md5Checker;
-		try {
-			md5Checker = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-		} catch (NoSuchAlgorithmException e) {
-			return null;
-		}
 		InputStream fis = null;
 		try {
+			MessageDigest md5Checker = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
 			fis = new BufferedInputStream(new FileInputStream(file));
 			int read = -1;
 			final int bufferSize = 4 * 1024;
@@ -44,7 +39,7 @@ public class ChecksumProducer {
 				buf.append(Integer.toHexString(digest[i] & 0xFF));
 			}
 			return buf.toString();
-		} catch (FileNotFoundException e) {
+		} catch (NoSuchAlgorithmException e) {
 			return null;
 		} catch (IOException e) {
 			return null;
