@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2016 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -15,9 +15,14 @@
 package org.eclipse.equinox.spi.p2.publisher;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.BasicVersion;
+import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -106,11 +111,17 @@ public class PublisherHelper {
 			if (pathOnDisk != null) {
 				descriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
 				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
-			}
-			if (info == null || (info.getArtifactOptions() & IPublisherInfo.A_NO_MD5) == 0) {
-				String md5 = ChecksumProducer.computeMD5(pathOnDisk);
-				if (md5 != null)
-					descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
+				if (info == null || (info.getArtifactOptions() & IPublisherInfo.A_NO_MD5) == 0) {
+					try {
+						String md5 = ChecksumProducer.computeMD5(pathOnDisk);
+						if (md5 != null)
+							descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
+					} catch (IOException e) {
+						// don't care if failed to compute checksum
+						// TODO provide message?
+						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "", e));
+					}
+				}
 			}
 		}
 		return result;

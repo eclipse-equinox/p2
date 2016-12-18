@@ -18,9 +18,12 @@ import java.security.NoSuchAlgorithmException;
 
 public class ChecksumProducer {
 
-	public static String computeMD5(File file) {
-		if (file == null || file.isDirectory() || !file.exists())
-			return null;
+	/**
+	 * @param file should not be <code>null</code>
+	 * @return MD5 checksum of the file or <code>null</code> in case of NoSuchAlgorithmException
+	 * @throws IOException
+	 */
+	public static String computeMD5(File file) throws IOException {
 		InputStream fis = null;
 		try {
 			MessageDigest md5Checker = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
@@ -40,8 +43,6 @@ public class ChecksumProducer {
 			}
 			return buf.toString();
 		} catch (NoSuchAlgorithmException e) {
-			return null;
-		} catch (IOException e) {
 			return null;
 		} finally {
 			if (fis != null)
