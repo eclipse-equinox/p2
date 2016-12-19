@@ -1497,7 +1497,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		} finally {
 			reader.close();
 		}
-		assertTrue(false);
+		fail(String.format("Log file %s doesn't contain lines %s", log.getCanonicalPath(), Arrays.toString(lines)));
 	}
 
 	/**
@@ -1524,7 +1524,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				String line = reader.readLine();
 				if (line.indexOf(lines[idx]) >= 0) {
 					if (++idx >= lines.length) {
-						assertTrue(false);
+						fail(String.format("Log file %s contains lines %s", log.getCanonicalPath(), Arrays.toString(lines)));
 					}
 				}
 			}
