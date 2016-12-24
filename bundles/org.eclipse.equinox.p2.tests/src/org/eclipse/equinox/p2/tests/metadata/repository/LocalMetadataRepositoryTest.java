@@ -174,7 +174,6 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	/**
 	 * Tests loading a repository that has a reference to itself as a disabled repository.
-	 * @throws MalformedURLException 
 	 * @throws ProvisionException 
 	 */
 	public void testLoadSelfReference() throws ProvisionException {

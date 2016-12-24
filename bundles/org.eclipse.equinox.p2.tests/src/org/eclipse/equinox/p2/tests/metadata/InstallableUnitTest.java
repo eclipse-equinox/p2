@@ -14,11 +14,11 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
- * Black box tests for API of {@link org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit}.
+ * Black box tests for API of {@link IInstallableUnit}.
  */
 public class InstallableUnitTest extends AbstractProvisioningTest {
 	/**
-	 * Tests for {@link org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit#satisfies(org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability)}.
+	 * Tests for {@link IInstallableUnit#satisfies(IRequirement)}.
 	 */
 	public void testSatisfies() {
 		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testNamespace", "name", Version.createOSGi(1, 0, 0))};

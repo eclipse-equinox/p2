@@ -93,7 +93,6 @@ public class VersionTesting extends TestCase {
 
 	/**
 	 * Asserts serialization of a VersionRange instance.
-	 * @param v
 	 */
 	public static void assertSerialized(VersionRange range) {
 		VersionRange serialized = getSerialized(range);

@@ -28,7 +28,7 @@ import junit.framework.TestCase;
  *      &nbsp;&nbsp;&nbsp;&nbsp;return suite;<br/>
  *  }<br/>
  * </code>
- * The tests in the suite should call {@link TestServerLauncher} to make sure the server is
+ * The tests in the suite should call {@link TestServerController} to make sure the server is
  * running either started by this suite, or directly when test is run individually. This is
  * handled by the class {@link AbstractTestServerClientCase} which serves as the base for
  * tests requiring access to a running server.

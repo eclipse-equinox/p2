@@ -65,7 +65,7 @@ public class ProductFileTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getProperties()}.
+	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getConfigurationProperties()}.
 	 */
 	public void testGetConfigurationProperties() {
 		Map<String, String> properties = productFile.getConfigurationProperties();

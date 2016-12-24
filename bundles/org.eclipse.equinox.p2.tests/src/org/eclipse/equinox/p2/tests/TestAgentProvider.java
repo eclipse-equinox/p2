@@ -18,7 +18,7 @@ import org.junit.rules.TemporaryFolder;
 import org.osgi.framework.*;
 
 /**
- * Provides {@link IProvisioningAgent} instances for tests. Use as JUnit 4 {@link Rule}.
+ * Provides {@link IProvisioningAgent} instances for tests. Use as JUnit 4 {@link org.junit.Rule}.
  */
 public final class TestAgentProvider extends ExternalResource {
 	private final TemporaryFolder tempManager;
@@ -43,7 +43,7 @@ public final class TestAgentProvider extends ExternalResource {
 
 	/**
 	 * Returns an instance of an {@link IProvisioningAgent}. If this class is used as a JUnit method
-	 * {@link Rule}, a separate instance is returned per test method.
+	 * {@link org.junit.Rule}, a separate instance is returned per test method.
 	 */
 	public IProvisioningAgent getAgent() throws ProvisionException {
 		if (agent == null) {

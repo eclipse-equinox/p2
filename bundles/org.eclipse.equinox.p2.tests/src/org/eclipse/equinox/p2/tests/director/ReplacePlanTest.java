@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -20,7 +19,7 @@ import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
- * Tests {@link IPlanner#getProvisioningPlan(ProfileChangeRequest, ProvisioningContext, org.eclipse.core.runtime.IProgressMonitor)}
+ * Tests {@link IPlanner#getProvisioningPlan(org.eclipse.equinox.p2.planner.IProfileChangeRequest, ProvisioningContext, org.eclipse.core.runtime.IProgressMonitor)}
  * involving replacing an IU with a different version.
  */
 public class ReplacePlanTest extends AbstractProvisioningTest {

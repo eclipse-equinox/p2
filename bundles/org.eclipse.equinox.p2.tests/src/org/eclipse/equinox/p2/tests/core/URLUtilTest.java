@@ -58,7 +58,7 @@ public class URLUtilTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests for {@link URLUtil#toURI(URL)}.
+	 * Tests for {@link URLUtil#toFile(URL)}.
 	 */
 	public void testToFileFromLocalURL() throws Exception {
 		File original = new File(System.getProperty("java.io.tmpdir"), "repo");

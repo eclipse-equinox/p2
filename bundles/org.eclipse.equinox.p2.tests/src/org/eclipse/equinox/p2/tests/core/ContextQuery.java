@@ -29,7 +29,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
  * This class may be subclassed by clients. Subclasses should specify the type
  * of object they support querying on. Subclasses are also encouraged to clearly
  * specify their match algorithm, and expose the parameters involved in the match
- * computation, to allow {@link IQueryable} implementations to optimize their
+ * computation, to allow {@link org.eclipse.equinox.p2.query.IQueryable} implementations to optimize their
  * execution of the query. <P>
  * 
  * @since 2.0

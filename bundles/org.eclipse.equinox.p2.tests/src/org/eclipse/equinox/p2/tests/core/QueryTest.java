@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import org.eclipse.equinox.p2.query.MatchQuery;
-
 import java.util.Arrays;
 import java.util.List;
 import junit.framework.TestCase;
@@ -19,7 +17,7 @@ import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
- * Tests for the {@link org.eclipse.equinox.internal.provisional.p2.query.Query} class.
+ * Tests for the {@link QueryUtil} class.
  */
 public class QueryTest extends TestCase {
 

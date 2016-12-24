@@ -33,7 +33,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.StringBufferStream;
 
 /**
- * Various automated tests of the {@link IDirector} API.
+ * Various automated tests of the {@link org.eclipse.equinox.internal.provisional.p2.director.IDirector} API.
  */
 public class DirectorApplicationTest extends AbstractProvisioningTest {
 

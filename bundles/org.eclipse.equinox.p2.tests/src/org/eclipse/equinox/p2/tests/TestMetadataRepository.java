@@ -110,7 +110,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	/**
-	 * Returns a collection of {@link RepositoryReference}.
+	 * Returns a collection of {@link org.eclipse.equinox.p2.repository.spi.RepositoryReference}.
 	 */
 	public Collection<IRepositoryReference> getReferences() {
 		return repositories;
