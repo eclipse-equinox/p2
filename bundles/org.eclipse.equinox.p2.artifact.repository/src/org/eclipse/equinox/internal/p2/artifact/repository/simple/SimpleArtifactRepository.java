@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,9 +54,18 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 */
 	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
 
-	public static final boolean MD5_CHECK_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5Check")); //$NON-NLS-1$//$NON-NLS-2$
+	/**
+	 * A boolean property controlling whether MD5 checksum of the artifact bytes that are transferred should be checked.
+	 * @see IArtifactDescriptor#DOWNLOAD_MD5
+	 */
+	public static final boolean DOWNLOAD_MD5_CHECKSUM_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5Check")); //$NON-NLS-1$//$NON-NLS-2$
 
-	public static final boolean MD5_ARTIFACT_CHECK_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5ArtifactCheck")); //$NON-NLS-1$//$NON-NLS-2$
+	/**
+	 * A boolean property controlling whether MD5 checksum of the artifact bytes in its native format (after processing steps have
+	 * been applied) should be checked.
+	 * @see IArtifactDescriptor#ARTIFACT_MD5
+	 */
+	public static final boolean ARTIFACT_MD5_CHECKSUM_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5ArtifactCheck")); //$NON-NLS-1$//$NON-NLS-2$
 
 	public static final String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
 
@@ -435,7 +444,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList<ProcessingStep> steps = new ArrayList<ProcessingStep>();
 		steps.add(new SignatureVerifier());
-		if (MD5_ARTIFACT_CHECK_ENABLED && descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5) != null)
+		if (ARTIFACT_MD5_CHECKSUM_ENABLED && descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5) != null)
 			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5)));
 		if (steps.isEmpty())
 			return destination;
@@ -448,7 +457,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ArrayList<ProcessingStep> steps = new ArrayList<ProcessingStep>();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
-		if (MD5_CHECK_ENABLED && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
+		if (DOWNLOAD_MD5_CHECKSUM_ENABLED && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
 			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5)));
 		// Add steps here if needed
 		if (steps.isEmpty())
