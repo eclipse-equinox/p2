@@ -16,12 +16,12 @@
     <groupId>org.eclipse</groupId>
     <artifactId>eclipse-platform-parent</artifactId>
     <relativePath>../../../eclipse-platform-parent</relativePath>
-    <version>4.6.2-SNAPSHOT</version>
+    <version>4.6.3-SNAPSHOT</version>
   </parent>
   
 	<groupId>org.eclipse</groupId>
 	<artifactId>org.eclipse.equinox.p2-parent</artifactId>
-	<version>4.6.2-SNAPSHOT</version>
+	<version>4.6.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
   <properties>
