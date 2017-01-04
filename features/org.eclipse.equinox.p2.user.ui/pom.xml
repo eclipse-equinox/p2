@@ -20,7 +20,7 @@
 
   <groupId>org.eclipse.equinox</groupId>
   <artifactId>org.eclipse.equinox.p2.user.ui</artifactId>
-  <version>2.2.201-SNAPSHOT</version>
+  <version>2.2.203-SNAPSHOT</version>
   <packaging>eclipse-feature</packaging>
 
   <build>

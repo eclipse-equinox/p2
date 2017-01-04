@@ -20,7 +20,7 @@
 
   <groupId>org.eclipse.equinox</groupId>
   <artifactId>org.eclipse.equinox.p2.rcp.feature</artifactId>
-  <version>1.2.201-SNAPSHOT</version>
+  <version>1.2.203-SNAPSHOT</version>
   <packaging>eclipse-feature</packaging>
 
   <build>
