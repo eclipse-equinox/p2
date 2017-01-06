@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.ui.sdk.scheduler" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter comment="Updated the behavior of checking for automatic updates" id="926941240">
+            <message_arguments>
+                <message_argument value="1.3.100"/>
+                <message_argument value="1.2.200"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
