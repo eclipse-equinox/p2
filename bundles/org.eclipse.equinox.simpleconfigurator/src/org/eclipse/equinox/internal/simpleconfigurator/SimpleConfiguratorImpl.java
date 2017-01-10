@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -178,6 +178,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 		return new long[] {lastModified, extLastModified};
 	}
 
+	@Override
 	public void applyConfiguration(URL url) throws IOException {
 		synchronized (configurationLock) {
 			if (Activator.DEBUG)
@@ -199,6 +200,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 		return Boolean.parseBoolean(value);
 	}
 
+	@Override
 	public void applyConfiguration() throws IOException {
 		synchronized (configurationLock) {
 			configurationURL = getConfigurationURL();
@@ -206,6 +208,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 		}
 	}
 
+	@Override
 	public URL getUrlInUse() {
 		synchronized (configurationLock) {
 			return configurationURL;

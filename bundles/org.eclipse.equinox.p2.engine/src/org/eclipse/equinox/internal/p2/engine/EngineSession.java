@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -29,14 +29,14 @@ public class EngineSession {
 
 	private static class ActionsRecord {
 		Operand operand;
-		List<ProvisioningAction> actions = new ArrayList<ProvisioningAction>();
+		List<ProvisioningAction> actions = new ArrayList<>();
 
 		ActionsRecord(Operand operand) {
 			this.operand = operand;
 		}
 	}
 
-	private List<Object[]> phaseActionRecordsPairs = new ArrayList<Object[]>();
+	private List<Object[]> phaseActionRecordsPairs = new ArrayList<>();
 
 	private Phase currentPhase;
 	boolean currentPhaseActive;
@@ -48,9 +48,9 @@ public class EngineSession {
 
 	private ProvisioningContext context;
 
-	private final HashMap<String, Object> sessionServices = new HashMap<String, Object>();
+	private final HashMap<String, Object> sessionServices = new HashMap<>();
 
-	private Set<Touchpoint> touchpoints = new HashSet<Touchpoint>();
+	private Set<Touchpoint> touchpoints = new HashSet<>();
 
 	private final IProvisioningAgent agent;
 
@@ -231,7 +231,7 @@ public class EngineSession {
 
 			for (ListIterator<ActionsRecord> it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 				ActionsRecord record = it.previous();
-				List<ProvisioningAction> reversedActions = new ArrayList<ProvisioningAction>(record.actions);
+				List<ProvisioningAction> reversedActions = new ArrayList<>(record.actions);
 				Collections.reverse(reversedActions);
 				ProvisioningAction[] actions = reversedActions.toArray(new ProvisioningAction[record.actions.size()]);
 				try {
@@ -275,7 +275,7 @@ public class EngineSession {
 			throw new IllegalArgumentException(Messages.not_current_phase);
 
 		currentPhaseActive = true;
-		currentActionRecords = new ArrayList<ActionsRecord>();
+		currentActionRecords = new ArrayList<>();
 	}
 
 	void recordPhaseEnd(Phase phase) {

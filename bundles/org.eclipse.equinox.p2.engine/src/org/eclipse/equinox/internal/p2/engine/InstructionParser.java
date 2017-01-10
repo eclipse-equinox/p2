@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,7 @@ public class InstructionParser {
 	}
 
 	public List<ProvisioningAction> parseActions(ITouchpointInstruction instruction, ITouchpointType touchpointType) {
-		List<ProvisioningAction> actions = new ArrayList<ProvisioningAction>();
+		List<ProvisioningAction> actions = new ArrayList<>();
 		Map<String, ActionEntry> importMap = parseImportAttribute(instruction.getImportAttribute());
 		StringTokenizer tokenizer = new StringTokenizer(instruction.getBody(), ";"); //$NON-NLS-1$
 		while (tokenizer.hasMoreTokens()) {
@@ -51,7 +51,7 @@ public class InstructionParser {
 		if (importAttribute == null)
 			return Collections.<String, ActionEntry> emptyMap();
 
-		Map<String, ActionEntry> result = new HashMap<String, ActionEntry>();
+		Map<String, ActionEntry> result = new HashMap<>();
 		StringTokenizer tokenizer = new StringTokenizer(importAttribute, ","); //$NON-NLS-1$
 		while (tokenizer.hasMoreTokens()) {
 			StringTokenizer actionTokenizer = new StringTokenizer(tokenizer.nextToken(), ";"); //$NON-NLS-1$
@@ -85,7 +85,7 @@ public class InstructionParser {
 			return new ParameterizedProvisioningAction(action, Collections.<String, String> emptyMap(), statement);
 
 		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ","); //$NON-NLS-1$
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		while (tokenizer.hasMoreTokens()) {
 			String nameValuePair = tokenizer.nextToken();
 			int colonIndex = nameValuePair.indexOf(":"); //$NON-NLS-1$

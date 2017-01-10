@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2016 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	public static final String TYPE = "org.eclipse.equinox.p2.engine.repo.metadataRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = 1;
 	private IProfile profile;
-	private HashSet<IRepositoryReference> repositories = new HashSet<IRepositoryReference>();
+	private HashSet<IRepositoryReference> repositories = new HashSet<>();
 
 	public ProfileMetadataRepository(IProvisioningAgent agent, URI location, IProgressMonitor monitor) throws ProvisionException {
 		super(agent, location.toString(), TYPE, VERSION.toString(), location, null, null, null);
@@ -65,7 +65,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	private List<URI> findArtifactRepos() {
-		List<URI> artifactRepos = new ArrayList<URI>();
+		List<URI> artifactRepos = new ArrayList<>();
 		File p2Directory = findP2Directory();
 
 		// Add the profile registry's default agent artifact repository.
@@ -154,14 +154,17 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		return p2EngineDirectory.getParentFile();
 	}
 
+	@Override
 	public Collection<IRepositoryReference> getReferences() {
 		return Collections.unmodifiableCollection(repositories);
 	}
 
+	@Override
 	public void initialize(RepositoryState state) {
 		// nothing to do
 	}
 
+	@Override
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return profile.query(query, monitor);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2016 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -46,6 +46,7 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 			this.profileId = profileId;
 		}
 
+		@Override
 		protected void handleRootAttributes(Attributes attributes) {
 			profileId = parseRequiredAttributes(attributes, required)[0];
 			parentId = parseOptionalAttribute(attributes, PARENT_ID_ATTRIBUTE);
@@ -53,6 +54,7 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (PROPERTIES_ELEMENT.equals(name)) {
 				if (propertiesHandler == null) {
@@ -139,12 +141,14 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 			iuIdentity = id + "_" + version.toString(); //$NON-NLS-1$
 		}
 
+		@Override
 		protected void finished() {
 			if (isValidXML() && iuIdentity != null && propertiesHandler != null) {
 				iusPropertiesMap.put(iuIdentity, propertiesHandler.getProperties());
 			}
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(PROPERTIES_ELEMENT)) {
 				propertiesHandler = new PropertiesHandler(this, attributes);
@@ -162,13 +166,14 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 			super(parentHandler, IUS_PROPERTIES_ELEMENT);
 			String sizeStr = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
 			int size = (sizeStr != null ? Integer.parseInt(sizeStr) : 4);
-			iusPropertiesMap = new LinkedHashMap<String, Map<String, String>>(size);
+			iusPropertiesMap = new LinkedHashMap<>(size);
 		}
 
 		public Map<String, Map<String, String>> getIUsPropertiesMap() {
 			return iusPropertiesMap;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(IU_PROPERTIES_ELEMENT)) {
 				new IUPropertiesHandler(this, attributes, iusPropertiesMap);

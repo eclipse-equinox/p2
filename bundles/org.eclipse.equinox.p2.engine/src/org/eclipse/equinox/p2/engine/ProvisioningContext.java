@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2016 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ public class ProvisioningContext {
 	private URI[] artifactRepositories; //artifact repositories to consult
 	private final List<IInstallableUnit> extraIUs = Collections.synchronizedList(new ArrayList<IInstallableUnit>());
 	private URI[] metadataRepositories; //metadata repositories to consult
-	private final Map<String, String> properties = new HashMap<String, String>();
+	private final Map<String, String> properties = new HashMap<>();
 	private Map<String, URI> referencedArtifactRepositories = null;
 
 	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
@@ -49,6 +49,7 @@ public class ProvisioningContext {
 			this.repositories = repositories;
 		}
 
+		@Override
 		public IQueryResult<IArtifactRepository> query(IQuery<IArtifactRepository> query, IProgressMonitor mon) {
 			return query.perform(repositories.listIterator());
 		}
@@ -59,6 +60,7 @@ public class ProvisioningContext {
 	 */
 	private static final Comparator<URI> LOCAL_FIRST_COMPARATOR = new Comparator<URI>() {
 
+		@Override
 		public int compare(URI arg0, URI arg1) {
 			String protocol0 = arg0.getScheme();
 			String protocol1 = arg1.getScheme();
@@ -123,7 +125,7 @@ public class ProvisioningContext {
 	 */
 	public IQueryable<IArtifactDescriptor> getArtifactDescriptors(IProgressMonitor monitor) {
 		List<IArtifactRepository> repos = getLoadedArtifactRepositories(monitor);
-		List<IQueryable<IArtifactDescriptor>> descriptorQueryables = new ArrayList<IQueryable<IArtifactDescriptor>>();
+		List<IQueryable<IArtifactDescriptor>> descriptorQueryables = new ArrayList<>();
 		for (IArtifactRepository repo : repos) {
 			descriptorQueryables.add(repo.descriptorQueryable());
 		}
@@ -151,7 +153,7 @@ public class ProvisioningContext {
 		URI[] repositories = artifactRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : artifactRepositories;
 		Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
 
-		List<IArtifactRepository> repos = new ArrayList<IArtifactRepository>();
+		List<IArtifactRepository> repos = new ArrayList<>();
 		SubMonitor sub = SubMonitor.convert(monitor, (repositories.length + 1) * 100);
 		for (int i = 0; i < repositories.length; i++) {
 			if (sub.isCanceled())
@@ -183,17 +185,17 @@ public class ProvisioningContext {
 		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		URI[] repositories = metadataRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : metadataRepositories;
 
-		HashMap<String, IMetadataRepository> repos = new HashMap<String, IMetadataRepository>();
+		HashMap<String, IMetadataRepository> repos = new HashMap<>();
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
 
 		// Clear out the list of remembered artifact repositories
-		referencedArtifactRepositories = new HashMap<String, URI>();
+		referencedArtifactRepositories = new HashMap<>();
 		for (int i = 0; i < repositories.length; i++) {
 			if (sub.isCanceled())
 				throw new OperationCanceledException();
 			loadMetadataRepository(repoManager, repositories[i], repos, shouldFollowReferences(), sub.newChild(100));
 		}
-		Set<IMetadataRepository> set = new HashSet<IMetadataRepository>();
+		Set<IMetadataRepository> set = new HashSet<>();
 		set.addAll(repos.values());
 		return set;
 	}
@@ -361,6 +363,7 @@ public class ProvisioningContext {
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("{artifactRepos=" + DebugHelper.formatArray(null != artifactRepositories ? Arrays.asList(artifactRepositories) : null, true, false)); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,16 +22,12 @@ public class SizingPhaseSet extends PhaseSet implements ISizingPhaseSet {
 		super(new Phase[] {sizing = new Sizing(100)});
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.ISizingPhaseSet#getDiskSize()
-	 */
+	@Override
 	public long getDiskSize() {
 		return sizing.getDiskSize();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.ISizingPhaseSet#getDownloadSize()
-	 */
+	@Override
 	public long getDownloadSize() {
 		return sizing.getDownloadSize();
 	}

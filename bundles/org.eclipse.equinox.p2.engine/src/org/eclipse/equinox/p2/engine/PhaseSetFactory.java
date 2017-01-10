@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -80,7 +80,7 @@ public class PhaseSetFactory {
 		if (exclude == null || exclude.length == 0)
 			return createDefaultPhaseSet();
 		List<String> excludeList = Arrays.asList(exclude);
-		List<String> includeList = new ArrayList<String>(ALL_PHASES_LIST);
+		List<String> includeList = new ArrayList<>(ALL_PHASES_LIST);
 		includeList.removeAll(excludeList);
 		return createPhaseSetIncluding(includeList.toArray(new String[includeList.size()]));
 	}
@@ -97,7 +97,7 @@ public class PhaseSetFactory {
 		if (include == null || include.length == 0)
 			return new PhaseSet(new Phase[0]);
 		List<String> includeList = Arrays.asList(include);
-		ArrayList<Phase> phases = new ArrayList<Phase>();
+		ArrayList<Phase> phases = new ArrayList<>();
 		if (includeList.contains(PHASE_COLLECT))
 			phases.add(new Collect(100));
 		if (includeList.contains(PHASE_CHECK_TRUST))

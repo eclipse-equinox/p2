@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,11 +55,12 @@ public class Activator implements BundleActivator {
 	private ServiceRegistration<?> configuratorRegistration;
 	private ServiceRegistration<?> commandRegistration;
 
+	@Override
 	public void start(BundleContext context) throws Exception {
 		SimpleConfiguratorImpl bundleConfigurator = new SimpleConfiguratorImpl(context, context.getBundle());
 		bundleConfigurator.applyConfiguration();
 
-		Dictionary<String, String> props = new Hashtable<String, String>();
+		Dictionary<String, String> props = new Hashtable<>();
 		props.put(Constants.SERVICE_VENDOR, "Eclipse"); //$NON-NLS-1$
 		props.put(Constants.SERVICE_PID, SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME);
 		ServiceFactory<?> configurationFactory = new SimpleConfiguratorFactory(context);
@@ -77,6 +78,7 @@ public class Activator implements BundleActivator {
 			System.out.println("registered Configurator"); //$NON-NLS-1$
 	}
 
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		if (configuratorRegistration != null) {
 			configuratorRegistration.unregister();

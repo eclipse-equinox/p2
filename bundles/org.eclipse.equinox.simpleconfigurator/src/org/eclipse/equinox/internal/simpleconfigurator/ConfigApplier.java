@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -54,7 +54,7 @@ class ConfigApplier {
 			throw new IllegalStateException("No StartLevelService service is available."); //$NON-NLS-1$
 		startLevelService = manipulatingContext.getService(startLevelRef);
 
-		frameworkWiring = (FrameworkWiring) manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
+		frameworkWiring = manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
 	}
 
 	void install(URL url, boolean exclusiveMode) throws IOException {
@@ -85,15 +85,15 @@ class ConfigApplier {
 		if (!exclusiveMode) {
 			BundleInfo[] lastInstalledBundles = getLastState();
 			if (lastInstalledBundles != null) {
-				toUninstall = new HashSet<BundleInfo>(Arrays.asList(lastInstalledBundles));
+				toUninstall = new HashSet<>(Arrays.asList(lastInstalledBundles));
 				toUninstall.removeAll(Arrays.asList(expectedState));
 			}
 			saveStateAsLast(url);
 		}
 
 		Set<Bundle> prevouslyResolved = getResolvedBundles();
-		Collection<Bundle> toRefresh = new ArrayList<Bundle>();
-		Collection<Bundle> toStart = new ArrayList<Bundle>();
+		Collection<Bundle> toRefresh = new ArrayList<>();
+		Collection<Bundle> toStart = new ArrayList<>();
 		if (exclusiveMode) {
 			toRefresh.addAll(installBundles(expectedState, toStart));
 			toRefresh.addAll(uninstallBundles(expectedState, packageAdminService));
@@ -102,23 +102,23 @@ class ConfigApplier {
 			if (toUninstall != null)
 				toRefresh.addAll(uninstallBundles(toUninstall));
 		}
-		refreshPackages((Bundle[]) toRefresh.toArray(new Bundle[toRefresh.size()]), manipulatingContext);
+		refreshPackages(toRefresh.toArray(new Bundle[toRefresh.size()]), manipulatingContext);
 		if (toRefresh.size() > 0) {
 			Bundle[] additionalRefresh = getAdditionalRefresh(prevouslyResolved, toRefresh);
 			if (additionalRefresh.length > 0)
 				refreshPackages(additionalRefresh, manipulatingContext);
 		}
-		startBundles((Bundle[]) toStart.toArray(new Bundle[toStart.size()]));
+		startBundles(toStart.toArray(new Bundle[toStart.size()]));
 	}
 
 	private Bundle[] getAdditionalRefresh(Set<Bundle> previouslyResolved, Collection<Bundle> toRefresh) {
 		// This is the luna equinox framework or a non-equinox framework.
 		// Use standard OSGi API.
-		final Set<Bundle> additionalRefresh = new HashSet<Bundle>();
-		final Set<Bundle> originalRefresh = new HashSet<Bundle>(toRefresh);
+		final Set<Bundle> additionalRefresh = new HashSet<>();
+		final Set<Bundle> originalRefresh = new HashSet<>(toRefresh);
 		for (Iterator<Bundle> iToRefresh = toRefresh.iterator(); iToRefresh.hasNext();) {
-			Bundle bundle = (Bundle) iToRefresh.next();
-			BundleRevision revision = (BundleRevision) bundle.adapt(BundleRevision.class);
+			Bundle bundle = iToRefresh.next();
+			BundleRevision revision = bundle.adapt(BundleRevision.class);
 			if (bundle.getState() == Bundle.INSTALLED && revision != null && (revision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
 				// this is an unresolved fragment; look to see if it has additional payload requirements
 				boolean foundPayLoadReq = false;
@@ -148,13 +148,13 @@ class ConfigApplier {
 
 		for (Iterator<Bundle> iPreviouslyResolved = previouslyResolved.iterator(); iPreviouslyResolved.hasNext();) {
 			Bundle bundle = iPreviouslyResolved.next();
-			BundleRevision revision = (BundleRevision) bundle.adapt(BundleRevision.class);
+			BundleRevision revision = bundle.adapt(BundleRevision.class);
 			BundleWiring wiring = revision == null ? null : revision.getWiring();
 			if (wiring != null) {
 				Collection<BundleRequirement> reqs = revision.getDeclaredRequirements(null);
-				Set<BundleRequirement> optionalReqs = new HashSet<BundleRequirement>();
+				Set<BundleRequirement> optionalReqs = new HashSet<>();
 				for (Iterator<BundleRequirement> iReqs = reqs.iterator(); iReqs.hasNext();) {
-					BundleRequirement req = (BundleRequirement) iReqs.next();
+					BundleRequirement req = iReqs.next();
 					String namespace = req.getNamespace();
 					// only do this for package and bundle namespaces
 					if (PackageNamespace.PACKAGE_NAMESPACE.equals(namespace) || BundleNamespace.BUNDLE_NAMESPACE.equals(namespace)) {
@@ -195,7 +195,7 @@ class ConfigApplier {
 				}
 			}
 		}
-		return (Bundle[]) additionalRefresh.toArray(new Bundle[additionalRefresh.size()]);
+		return additionalRefresh.toArray(new Bundle[additionalRefresh.size()]);
 	}
 
 	private BundleWiring getHostWiring(BundleWiring wiring) {
@@ -208,12 +208,12 @@ class ConfigApplier {
 		if (hostWires.isEmpty()) {
 			return wiring;
 		}
-		BundleWire hostWire = (BundleWire) hostWires.iterator().next();
+		BundleWire hostWire = hostWires.iterator().next();
 		return hostWire.getProviderWiring();
 	}
 
 	private Set<Bundle> getResolvedBundles() {
-		Set<Bundle> resolved = new HashSet<Bundle>();
+		Set<Bundle> resolved = new HashSet<>();
 		Bundle[] allBundles = manipulatingContext.getBundles();
 		for (int i = 0; i < allBundles.length; i++)
 			if ((allBundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
@@ -222,7 +222,7 @@ class ConfigApplier {
 	}
 
 	private Collection<Bundle> uninstallBundles(HashSet<BundleInfo> toUninstall) {
-		Collection<Bundle> removedBundles = new ArrayList<Bundle>(toUninstall.size());
+		Collection<Bundle> removedBundles = new ArrayList<>(toUninstall.size());
 		for (Iterator<BundleInfo> iterator = toUninstall.iterator(); iterator.hasNext();) {
 			BundleInfo current = iterator.next();
 			Bundle[] matchingBundles = packageAdminService.getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
@@ -247,7 +247,7 @@ class ConfigApplier {
 			try {
 				destinationStream = new FileOutputStream(lastBundlesTxt);
 				ArrayList<File> sourcesLocation = SimpleConfiguratorUtils.getInfoFiles();
-				List<InputStream> sourceStreams = new ArrayList<InputStream>(sourcesLocation.size() + 1);
+				List<InputStream> sourceStreams = new ArrayList<>(sourcesLocation.size() + 1);
 				sourceStreams.add(url.openStream());
 				if (Activator.EXTENDED) {
 					for (int i = 0; i < sourcesLocation.size(); i++) {
@@ -277,14 +277,14 @@ class ConfigApplier {
 		if (!lastBundlesInfo.isFile())
 			return null;
 		try {
-			return (BundleInfo[]) SimpleConfiguratorUtils.readConfiguration(lastBundlesInfo.toURL(), baseLocation).toArray(new BundleInfo[1]);
+			return SimpleConfiguratorUtils.readConfiguration(lastBundlesInfo.toURL(), baseLocation).toArray(new BundleInfo[1]);
 		} catch (IOException e) {
 			return null;
 		}
 	}
 
 	private ArrayList<Bundle> installBundles(BundleInfo[] finalList, Collection<Bundle> toStart) {
-		ArrayList<Bundle> toRefresh = new ArrayList<Bundle>();
+		ArrayList<Bundle> toRefresh = new ArrayList<>();
 
 		String useReferenceProperty = manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE);
 		boolean useReference = useReferenceProperty == null ? runningOnEquinox : Boolean.parseBoolean(useReferenceProperty);
@@ -394,7 +394,7 @@ class ConfigApplier {
 		// BSN automatically.  This is no longer the case for Luna or other framework
 		// implementations.  Here we want to make sure all existing bundles with the
 		// same BSN are refreshed also.
-		Set<Bundle> allSameBSNs = new LinkedHashSet<Bundle>(); // maintain order and avoid duplicates
+		Set<Bundle> allSameBSNs = new LinkedHashSet<>(); // maintain order and avoid duplicates
 		for (Bundle bundle : bundles) {
 			allSameBSNs.add(bundle);
 			String bsn = bundle.getLocation();
@@ -475,7 +475,7 @@ class ConfigApplier {
 		Bundle[] allBundles = manipulatingContext.getBundles();
 
 		//Build a set with all the bundles from the system
-		Set<Bundle> removedBundles = new HashSet<Bundle>(allBundles.length);
+		Set<Bundle> removedBundles = new HashSet<>(allBundles.length);
 		//		configurator.setPrerequisiteBundles(allBundles);
 		for (int i = 0; i < allBundles.length; i++) {
 			if (allBundles[i].getBundleId() == 0)

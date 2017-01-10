@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Ericsson AB and others.
+ * Copyright (c) 2012, 2017 Ericsson AB and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,19 +46,23 @@ public class SharedProfilePreferences extends ProfilePreferences {
 		qualifier = getQualifierSegment();
 	}
 
+	@Override
 	protected IProvisioningAgent getAgent(String segment) throws BackingStoreException {
 		IProvisioningAgent agent = super.getAgent(segment);
 		return (IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_BASE_AGENT);
 	}
 
+	@Override
 	protected void doSave(IProvisioningAgent agent) throws BackingStoreException {
 		throw new BackingStoreException("Can't store in shared install"); //$NON-NLS-1$
 	}
 
+	@Override
 	protected EclipsePreferences internalCreate(EclipsePreferences nodeParent, String nodeName, Object context) {
 		return new SharedProfilePreferences(nodeParent, nodeName);
 	}
 
+	@Override
 	protected IEclipsePreferences getLoadLevel() {
 		if (loadLevel == null) {
 			if (qualifier == null)
@@ -74,18 +78,22 @@ public class SharedProfilePreferences extends ProfilePreferences {
 		return loadLevel;
 	}
 
+	@Override
 	protected synchronized void save() throws BackingStoreException {
 		throw new BackingStoreException("Can't store in shared install");
 	}
 
+	@Override
 	protected String getQualifierSegment() {
 		return getSegment(absolutePath(), 4);
 	}
 
+	@Override
 	protected String getProfileIdSegment() {
 		return getSegment(absolutePath(), 3);
 	}
 
+	@Override
 	protected String getAgentLocationSegment() {
 		return getSegment(absolutePath(), 2);
 	}

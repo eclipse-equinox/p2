@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -35,6 +35,7 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	 * An index that limits the candidates to those units that has profile properties
 	 */
 	class ProfilePropertyIndex implements IIndex<IInstallableUnit> {
+		@Override
 		public Iterator<IInstallableUnit> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
 			return iuProperties.keySet().iterator();
 		}
@@ -65,7 +66,7 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	private OrderedProperties storage = new OrderedProperties();
 
 	private IUMap ius = new IUMap();
-	final Map<IInstallableUnit, OrderedProperties> iuProperties = new HashMap<IInstallableUnit, OrderedProperties>();
+	final Map<IInstallableUnit, OrderedProperties> iuProperties = new HashMap<>();
 	private boolean changed = false;
 
 	private long timestamp;
@@ -83,16 +84,11 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getProfileId()
-	 */
+	@Override
 	public String getProfileId() {
 		return profileId;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getParentProfile()
-	 */
 	public IProfile getParentProfile() {
 		return parentProfile;
 	}
@@ -113,16 +109,13 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	 * 	A profile is a root profile if it is not a sub-profile
 	 * 	of another profile.
 	 */
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#isRootProfile()
-	 */
 	public boolean isRootProfile() {
 		return parentProfile == null;
 	}
 
 	public void addSubProfile(String subProfileId) throws IllegalArgumentException {
 		if (subProfileIds == null)
-			subProfileIds = new ArrayList<String>();
+			subProfileIds = new ArrayList<>();
 
 		if (!subProfileIds.contains(subProfileId))
 			subProfileIds.add(subProfileId);
@@ -136,25 +129,17 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 			subProfileIds.remove(subProfileId);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#hasSubProfiles()
-	 */
 	public boolean hasSubProfiles() {
 		return subProfileIds != null && !subProfileIds.isEmpty();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getSubProfileIds()
-	 */
 	public List<String> getSubProfileIds() {
 		if (subProfileIds == null)
 			return Collections.<String> emptyList();
 		return Collections.unmodifiableList(subProfileIds);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getProperty(java.lang.String)
-	 */
+	@Override
 	public String getProperty(String key) {
 		String value = getLocalProperty(key);
 		if (value == null && parentProfile != null) {
@@ -163,9 +148,6 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 		return value;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getLocalProperty(java.lang.String)
-	 */
 	public String getLocalProperty(String key) {
 		return storage.getProperty(key);
 	}
@@ -184,6 +166,7 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 		changed = true;
 	}
 
+	@Override
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
 		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
 			if (idIndex == null)
@@ -205,10 +188,12 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 		return null;
 	}
 
+	@Override
 	public Iterator<IInstallableUnit> everything() {
 		return ius.iterator();
 	}
 
+	@Override
 	public Object getManagedProperty(Object client, String memberName, Object key) {
 		if (!(client instanceof IInstallableUnit))
 			return null;
@@ -225,15 +210,14 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 		return null;
 	}
 
+	@Override
 	public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (surrogateProfileHandler != null)
 			return surrogateProfileHandler.queryProfile(this, query, monitor);
 		return query(query, new NullProgressMonitor());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getInstallableUnitProperty(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit, java.lang.String)
-	 */
+	@Override
 	public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
 		OrderedProperties properties = iuProperties.get(iu);
 		if (properties == null)
@@ -272,25 +256,21 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	//		return iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
 	//	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getLocalProperties()
-	 */
 	public Map<String, String> getLocalProperties() {
 		return OrderedProperties.unmodifiableProperties(storage);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getProperties()
-	 */
+	@Override
 	public Map<String, String> getProperties() {
 		if (parentProfile == null)
 			return getLocalProperties();
 
-		Map<String, String> properties = new HashMap<String, String>(parentProfile.getProperties());
+		Map<String, String> properties = new HashMap<>(parentProfile.getProperties());
 		properties.putAll(storage);
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
+	@Override
 	public IProvisioningAgent getProvisioningAgent() {
 		return agent;
 	}
@@ -319,9 +299,7 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 		changed = true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getInstallableUnitProperties(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit)
-	 */
+	@Override
 	public Map<String, String> getInstallableUnitProperties(IInstallableUnit iu) {
 		OrderedProperties properties = iuProperties.get(iu);
 		if (properties == null)
@@ -390,7 +368,7 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	public void clearOrphanedInstallableUnitProperties() {
 		Set<IInstallableUnit> keys = iuProperties.keySet();
 		//		Set orphans = new HashSet();
-		Collection<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> toRemove = new ArrayList<>();
 		for (IInstallableUnit iu : keys) {
 			if (!ius.contains(iu))
 				toRemove.add(iu);
@@ -406,6 +384,7 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 		//		iuProperties.keySet().retainAll(iuKeys);
 	}
 
+	@Override
 	public long getTimestamp() {
 		return timestamp;
 	}
@@ -421,6 +400,7 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	/**
 	 * Prints a string representation for debugging purposes only.
 	 */
+	@Override
 	public String toString() {
 		return "Profile(" + getProfileId() + ')'; //$NON-NLS-1$
 	}

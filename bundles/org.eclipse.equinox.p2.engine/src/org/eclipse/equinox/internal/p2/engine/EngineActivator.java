@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2013 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -81,16 +81,18 @@ public class EngineActivator implements BundleActivator {
 	 */
 	public static final String P2_FRAGMENT_PROPERTY = "p2.fragment"; //$NON-NLS-1$
 
+	@Override
 	public void start(BundleContext aContext) throws Exception {
 		EngineActivator.context = aContext;
 	}
 
+	@Override
 	public void stop(BundleContext aContext) throws Exception {
 		EngineActivator.context = null;
 	}
 
 	public static File[] getExtensionsDirectories() {
-		List<File> files = new ArrayList<File>(0);
+		List<File> files = new ArrayList<>(0);
 		if (EXTENSIONS != null) {
 			String[] locationToCheck = EXTENSIONS.split(","); //$NON-NLS-1$
 			for (String location : locationToCheck) {
@@ -111,7 +113,7 @@ public class EngineActivator implements BundleActivator {
 	// This method must match the implementation in the SimpleConfiguratorUtils with the only difference that
 	// parent folder of the metadata is returned.
 	private static ArrayList<File> getInfoFilesFromLocation(String locationToCheck) throws IOException, FileNotFoundException, URISyntaxException {
-		ArrayList<File> result = new ArrayList<File>(1);
+		ArrayList<File> result = new ArrayList<>(1);
 
 		File extensionsLocation = new File(locationToCheck);
 

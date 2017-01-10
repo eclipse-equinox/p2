@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -31,11 +31,13 @@ public abstract class InstallableUnitPhase extends Phase {
 		this(phaseId, weight, false);
 	}
 
+	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		parameters.put(PARM_INSTALL_FOLDER, profile.getProperty(IProfile.PROP_INSTALL_FOLDER));
 		return super.initializePhase(monitor, profile, parameters);
 	}
 
+	@Override
 	protected IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
@@ -55,6 +57,7 @@ public abstract class InstallableUnitPhase extends Phase {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	protected IStatus completeOperand(IProfile profile, Operand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 
@@ -68,6 +71,7 @@ public abstract class InstallableUnitPhase extends Phase {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	final protected List<ProvisioningAction> getActions(Operand operand) {
 		if (!(operand instanceof InstallableUnitOperand))
 			return null;
@@ -78,6 +82,7 @@ public abstract class InstallableUnitPhase extends Phase {
 
 	protected abstract List<ProvisioningAction> getActions(InstallableUnitOperand operand);
 
+	@Override
 	final public boolean isApplicable(Operand operand) {
 		if (!(operand instanceof InstallableUnitOperand))
 			return false;
@@ -96,7 +101,7 @@ public abstract class InstallableUnitPhase extends Phase {
 		if (instrSize == 0)
 			return null;
 
-		List<ProvisioningAction> actions = new ArrayList<ProvisioningAction>();
+		List<ProvisioningAction> actions = new ArrayList<>();
 		InstructionParser instructionParser = new InstructionParser(getActionManager());
 		for (int i = 0; i < instrSize; i++) {
 			actions.addAll(instructionParser.parseActions(instructions.get(i), unit.getTouchpointType()));
@@ -110,7 +115,7 @@ public abstract class InstallableUnitPhase extends Phase {
 		if (dataSize == 0)
 			return Collections.<ITouchpointInstruction> emptyList();
 
-		ArrayList<ITouchpointInstruction> matches = new ArrayList<ITouchpointInstruction>(dataSize);
+		ArrayList<ITouchpointInstruction> matches = new ArrayList<>(dataSize);
 		for (ITouchpointData td : data) {
 			ITouchpointInstruction instructions = td.getInstruction(key);
 			if (instructions != null)

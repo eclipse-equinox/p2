@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -40,10 +40,12 @@ public class Collect extends InstallableUnitPhase {
 		postPerformWork = 1000;
 	}
 
+	@Override
 	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.second() != null && !op.second().equals(op.first()));
 	}
 
+	@Override
 	protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
 		List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
@@ -62,10 +64,12 @@ public class Collect extends InstallableUnitPhase {
 		return Collections.singletonList(action);
 	}
 
+	@Override
 	protected String getProblemMessage() {
 		return Messages.Phase_Collect_Error;
 	}
 
+	@Override
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		// do nothing for rollback if the provisioning has been cancelled
 		if (monitor.isCanceled())
@@ -90,7 +94,7 @@ public class Collect extends InstallableUnitPhase {
 				return Status.CANCEL_STATUS;
 		}
 
-		List<IArtifactRequest> totalArtifactRequests = new ArrayList<IArtifactRequest>(artifactRequests.size());
+		List<IArtifactRequest> totalArtifactRequests = new ArrayList<>(artifactRequests.size());
 		DownloadManager dm = new DownloadManager(context, agent);
 		for (IArtifactRequest[] requests : artifactRequests) {
 			for (int i = 0; i < requests.length; i++) {
@@ -113,6 +117,7 @@ public class Collect extends InstallableUnitPhase {
 		}
 	}
 
+	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
 		return null;
@@ -134,6 +139,7 @@ public class Collect extends InstallableUnitPhase {
 		}
 	}
 
+	@Override
 	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		IStatus status = super.initializeOperand(profile, operand, parameters, monitor);
 		// defer setting the IU until after the super method to avoid triggering touchpoint initialization

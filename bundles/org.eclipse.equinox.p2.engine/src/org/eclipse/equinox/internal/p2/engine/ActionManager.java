@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -90,7 +90,7 @@ public class ActionManager implements IRegistryChangeListener {
 			return actionMap;
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_ACTIONS);
 		IExtension[] extensions = point.getExtensions();
-		actionMap = new HashMap<String, IConfigurationElement>(extensions.length);
+		actionMap = new HashMap<>(extensions.length);
 		for (int i = 0; i < extensions.length; i++) {
 			try {
 				IConfigurationElement[] elements = extensions[i].getConfigurationElements();
@@ -115,6 +115,7 @@ public class ActionManager implements IRegistryChangeListener {
 		return actionMap;
 	}
 
+	@Override
 	public synchronized void registryChanged(IRegistryChangeEvent event) {
 		actionMap = null;
 	}

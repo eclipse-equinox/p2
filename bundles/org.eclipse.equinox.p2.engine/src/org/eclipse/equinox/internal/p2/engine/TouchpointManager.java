@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -76,6 +76,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 			}
 		}
 
+		@Override
 		public String toString() {
 			StringBuffer result = new StringBuffer(element.toString());
 			if (createdExtension) {
@@ -134,7 +135,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_TOUCHPOINTS);
 		IExtension[] extensions = point.getExtensions();
-		touchpointEntries = new HashMap<String, TouchpointEntry>(extensions.length);
+		touchpointEntries = new HashMap<>(extensions.length);
 		for (int i = 0; i < extensions.length; i++) {
 			try {
 				IConfigurationElement[] elements = extensions[i].getConfigurationElements();
@@ -167,9 +168,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 		LogHelper.log(errorStatus);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.runtime.IRegistryChangeListener#registryChanged(org.eclipse.core.runtime.IRegistryChangeEvent)
-	 */
+	@Override
 	public synchronized void registryChanged(IRegistryChangeEvent event) {
 		// just flush the cache when something changed.  It will be recomputed on demand.
 		touchpointEntries = null;

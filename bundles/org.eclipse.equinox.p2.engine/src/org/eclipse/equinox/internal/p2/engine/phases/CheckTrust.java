@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.PhaseSetFactory;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ITouchpointType;
@@ -35,10 +35,12 @@ public class CheckTrust extends InstallableUnitPhase {
 		super(PhaseSetFactory.PHASE_CHECK_TRUST, weight);
 	}
 
+	@Override
 	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.second() != null);
 	}
 
+	@Override
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		@SuppressWarnings("unchecked")
 		Collection<File> artifactRequests = (Collection<File>) parameters.get(PARM_ARTIFACT_FILES);
@@ -52,6 +54,7 @@ public class CheckTrust extends InstallableUnitPhase {
 		return status;
 	}
 
+	@Override
 	protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
 		List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
@@ -70,6 +73,7 @@ public class CheckTrust extends InstallableUnitPhase {
 		return Collections.singletonList(action);
 	}
 
+	@Override
 	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
 		parameters.put(PARM_IU, iu);
@@ -77,6 +81,7 @@ public class CheckTrust extends InstallableUnitPhase {
 		return super.initializeOperand(profile, operand, parameters, monitor);
 	}
 
+	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		parameters.put(PARM_ARTIFACT_FILES, new ArrayList<File>());
 		return super.initializePhase(monitor, profile, parameters);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ public class Unconfigure extends InstallableUnitPhase {
 
 	final static class BeforeUnConfigureEventAction extends ProvisioningAction {
 
+		@Override
 		public IStatus execute(Map<String, Object> parameters) {
 			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
@@ -37,6 +38,7 @@ public class Unconfigure extends InstallableUnitPhase {
 			return null;
 		}
 
+		@Override
 		public IStatus undo(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
@@ -49,6 +51,7 @@ public class Unconfigure extends InstallableUnitPhase {
 
 	final static class AfterUnConfigureEventAction extends ProvisioningAction {
 
+		@Override
 		public IStatus execute(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
@@ -58,6 +61,7 @@ public class Unconfigure extends InstallableUnitPhase {
 			return null;
 		}
 
+		@Override
 		public IStatus undo(Map<String, Object> parameters) {
 			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
@@ -76,10 +80,12 @@ public class Unconfigure extends InstallableUnitPhase {
 		this(weight, false);
 	}
 
+	@Override
 	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.first() != null);
 	}
 
+	@Override
 	protected List<ProvisioningAction> getActions(InstallableUnitOperand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Unconfiguring_IU, unit.getId()));
 
@@ -92,7 +98,7 @@ public class Unconfigure extends InstallableUnitPhase {
 			beforeAction.setTouchpoint(touchpoint);
 			afterAction.setTouchpoint(touchpoint);
 		}
-		ArrayList<ProvisioningAction> actions = new ArrayList<ProvisioningAction>();
+		ArrayList<ProvisioningAction> actions = new ArrayList<>();
 		actions.add(beforeAction);
 		if (!QueryUtil.isFragment(unit)) {
 			List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
@@ -103,10 +109,12 @@ public class Unconfigure extends InstallableUnitPhase {
 		return actions;
 	}
 
+	@Override
 	protected String getProblemMessage() {
 		return Messages.Phase_Unconfigure_Error;
 	}
 
+	@Override
 	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.first();
 		parameters.put(PARM_IU, iu);

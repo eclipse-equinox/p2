@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,8 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
@@ -43,7 +44,7 @@ public class CertificateChecker {
 
 	public CertificateChecker(IProvisioningAgent agent) {
 		this.agent = agent;
-		artifacts = new ArrayList<File>();
+		artifacts = new ArrayList<>();
 	}
 
 	public IStatus start() {
@@ -61,10 +62,10 @@ public class CertificateChecker {
 		UIServices serviceUI = (UIServices) agent.getService(UIServices.SERVICE_NAME);
 		SignedContent content = null;
 		SignerInfo[] signerInfo = null;
-		ArrayList<Certificate> untrusted = new ArrayList<Certificate>();
-		ArrayList<File> unsigned = new ArrayList<File>();
-		ArrayList<Certificate[]> untrustedChain = new ArrayList<Certificate[]>();
-		Map<Certificate, Collection<File>> untrustedArtifacts = new HashMap<Certificate, Collection<File>>();
+		ArrayList<Certificate> untrusted = new ArrayList<>();
+		ArrayList<File> unsigned = new ArrayList<>();
+		ArrayList<Certificate[]> untrustedChain = new ArrayList<>();
+		Map<Certificate, Collection<File>> untrustedArtifacts = new HashMap<>();
 		IStatus status = Status.OK_STATUS;
 		if (artifacts.size() == 0 || serviceUI == null)
 			return status;
@@ -92,7 +93,7 @@ public class CertificateChecker {
 						if (untrustedArtifacts.containsKey(certificateChain[0])) {
 							untrustedArtifacts.get(certificateChain[0]).add(artifact);
 						} else {
-							untrustedArtifacts.put(certificateChain[0], new ArrayList<File>(Arrays.asList(artifact)));
+							untrustedArtifacts.put(certificateChain[0], new ArrayList<>(Arrays.asList(artifact)));
 						}
 					}
 				}
@@ -181,7 +182,7 @@ public class CertificateChecker {
 		if (trustedCertificates == null)
 			// I'm pretty sure this would be a bug; trustedCertificates should never be null here.
 			return new Status(IStatus.INFO, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
-		ServiceTracker<TrustEngine, TrustEngine> trustEngineTracker = new ServiceTracker<TrustEngine, TrustEngine>(EngineActivator.getContext(), TrustEngine.class, null);
+		ServiceTracker<TrustEngine, TrustEngine> trustEngineTracker = new ServiceTracker<>(EngineActivator.getContext(), TrustEngine.class, null);
 		trustEngineTracker.open();
 		Object[] trustEngines = trustEngineTracker.getServices();
 		try {

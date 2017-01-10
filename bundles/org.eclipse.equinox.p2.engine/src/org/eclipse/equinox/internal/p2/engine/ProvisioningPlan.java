@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.query.*;
 public class ProvisioningPlan implements IProvisioningPlan {
 
 	final IProfile profile;
-	final List<Operand> operands = new ArrayList<Operand>();
+	final List<Operand> operands = new ArrayList<>();
 	final ProvisioningContext context;
 	IQueryable<IInstallableUnit> futureState;
 	IStatus status;
@@ -46,20 +46,17 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		this.installerPlan = installerPlan;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getStatus()
-	 */
+	@Override
 	public IStatus getStatus() {
 		return status;
 	}
 
+	@Override
 	public void setStatus(IStatus status) {
 		this.status = status;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getProfile()
-	 */
+	@Override
 	public IProfile getProfile() {
 		return profile;
 	}
@@ -68,20 +65,17 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		return operands.toArray(new Operand[operands.size()]);
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return operands.isEmpty();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getRemovals()
-	 */
+	@Override
 	public IQueryable<IInstallableUnit> getRemovals() {
 		return new QueryablePlan(false);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getAdditions()
-	 */
+	@Override
 	public IQueryable<IInstallableUnit> getAdditions() {
 		return new QueryablePlan(true);
 	}
@@ -93,10 +87,11 @@ public class ProvisioningPlan implements IProvisioningPlan {
 			this.addition = add;
 		}
 
+		@Override
 		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 			if (operands == null || status.getSeverity() == IStatus.ERROR)
 				return Collector.emptyCollector();
-			Collection<IInstallableUnit> list = new ArrayList<IInstallableUnit>();
+			Collection<IInstallableUnit> list = new ArrayList<>();
 			for (Operand operand : operands) {
 				if (!(operand instanceof InstallableUnitOperand))
 					continue;
@@ -109,33 +104,37 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getInstallerPlan()
-	 */
+	@Override
 	public IProvisioningPlan getInstallerPlan() {
 		return installerPlan;
 	}
 
+	@Override
 	public ProvisioningContext getContext() {
 		return context;
 	}
 
+	@Override
 	public void setInstallerPlan(IProvisioningPlan p) {
 		installerPlan = p;
 	}
 
+	@Override
 	public void addInstallableUnit(IInstallableUnit iu) {
 		operands.add(new InstallableUnitOperand(null, iu));
 	}
 
+	@Override
 	public void removeInstallableUnit(IInstallableUnit iu) {
 		operands.add(new InstallableUnitOperand(iu, null));
 	}
 
+	@Override
 	public void updateInstallableUnit(IInstallableUnit iu1, IInstallableUnit iu2) {
 		operands.add(new InstallableUnitOperand(iu1, iu2));
 	}
 
+	@Override
 	public void setProfileProperty(String name, String value) {
 		String currentValue = profile.getProperty(name);
 		if (value == null && currentValue == null)
@@ -143,6 +142,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		operands.add(new PropertyOperand(name, currentValue, value));
 	}
 
+	@Override
 	public void setInstallableUnitProfileProperty(IInstallableUnit iu, String name, String value) {
 		String currentValue = profile.getInstallableUnitProperty(iu, name);
 		if (value == null && currentValue == null)
@@ -150,10 +150,12 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		operands.add(new InstallableUnitPropertyOperand(iu, name, currentValue, value));
 	}
 
+	@Override
 	public IQueryable<IInstallableUnit> getFutureState() {
 		return futureState;
 	}
 
+	@Override
 	public void setFuturePlan(IQueryable<IInstallableUnit> futureState) {
 		this.futureState = futureState;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -36,7 +36,7 @@ public class SimpleConfiguratorUtils {
 	private static final Set<File> reportedExtensions = Collections.synchronizedSet(new HashSet<File>(0));
 
 	public static List<BundleInfo> readConfiguration(URL url, URI base) throws IOException {
-		List<BundleInfo> result = new ArrayList<BundleInfo>();
+		List<BundleInfo> result = new ArrayList<>();
 
 		//old behaviour
 		result.addAll(readConfigurationFromFile(url, base));
@@ -103,7 +103,7 @@ public class SimpleConfiguratorUtils {
 	}
 
 	public static ArrayList<File> getInfoFiles() throws IOException, FileNotFoundException, URISyntaxException {
-		ArrayList<File> files = new ArrayList<File>(1);
+		ArrayList<File> files = new ArrayList<>(1);
 
 		if (Activator.EXTENSIONS != null) {
 			//configured simpleconfigurator extensions location
@@ -117,7 +117,7 @@ public class SimpleConfiguratorUtils {
 	}
 
 	private static ArrayList<File> getInfoFilesFromLocation(String locationToCheck) throws IOException, FileNotFoundException, URISyntaxException {
-		ArrayList<File> result = new ArrayList<File>(1);
+		ArrayList<File> result = new ArrayList<>(1);
 
 		File extensionsLocation = new File(locationToCheck);
 
@@ -202,7 +202,7 @@ public class SimpleConfiguratorUtils {
 	 * @throws IOException
 	 */
 	public static List<BundleInfo> readConfiguration(InputStream stream, URI base) throws IOException {
-		List<BundleInfo> bundles = new ArrayList<BundleInfo>();
+		List<BundleInfo> bundles = new ArrayList<>();
 
 		BufferedInputStream bufferedStream = new BufferedInputStream(stream);
 		String encoding = determineEncoding(bufferedStream);
@@ -403,15 +403,7 @@ public class SimpleConfiguratorUtils {
 						regularTimestamp = infoFileLastModified;
 					}
 				}
-			} catch (FileNotFoundException e) {
-				if (Activator.DEBUG) {
-					e.printStackTrace();
-				}
-			} catch (IOException e) {
-				if (Activator.DEBUG) {
-					e.printStackTrace();
-				}
-			} catch (URISyntaxException e) {
+			} catch (IOException | URISyntaxException e) {
 				if (Activator.DEBUG) {
 					e.printStackTrace();
 				}

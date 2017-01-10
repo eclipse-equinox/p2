@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,24 +27,17 @@ public class ProfileEvent extends EventObject implements IProfileEvent {
 		this.reason = reason;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfileEvent#getReason()
-	 */
+	@Override
 	public int getReason() {
 		return reason;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfileEvent#getProfileId()
-	 */
+	@Override
 	public String getProfileId() {
 		return (String) getSource();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.util.EventObject#toString()
-	 */
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("ProfileEvent["); //$NON-NLS-1$

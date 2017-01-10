@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,17 +49,13 @@ public final class ProfileScope implements IScopeContext {
 		this.location = agentLocation;
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.core.runtime.preferences.IScopeContext#getLocation()
-	 */
+	@Override
 	public IPath getLocation() {
 		// Null returned as the location should only be used when the profile is locked
 		return null;
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.core.runtime.preferences.IScopeContext#getName()
-	 */
+	@Override
 	public String getName() {
 		return SCOPE;
 	}
@@ -69,6 +65,7 @@ public final class ProfileScope implements IScopeContext {
 	 * 
 	 * @see org.eclipse.core.runtime.preferences.IScopeContext#getNode(java.lang.String)
 	 */
+	@Override
 	public IEclipsePreferences getNode(String qualifier) {
 		if (qualifier == null)
 			throw new IllegalArgumentException();
@@ -77,9 +74,7 @@ public final class ProfileScope implements IScopeContext {
 		return (IEclipsePreferences) PreferencesService.getDefault().getRootNode().node(getName()).node(locationString).node(profileId).node(qualifier);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -91,9 +86,7 @@ public final class ProfileScope implements IScopeContext {
 		return profileId.equals(other.profileId);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+	@Override
 	public int hashCode() {
 		return super.hashCode() + profileId.hashCode();
 	}

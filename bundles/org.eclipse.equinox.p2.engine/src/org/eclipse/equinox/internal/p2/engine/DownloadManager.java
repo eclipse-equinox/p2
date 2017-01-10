@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 
 public class DownloadManager {
 	private ProvisioningContext provContext = null;
-	ArrayList<IArtifactRequest> requestsToProcess = new ArrayList<IArtifactRequest>();
+	ArrayList<IArtifactRequest> requestsToProcess = new ArrayList<>();
 	private IProvisioningAgent agent = null;
 
 	/**
@@ -35,6 +35,7 @@ public class DownloadManager {
 	private static final Comparator<IArtifactRepository> LOCAL_FIRST_COMPARATOR = new Comparator<IArtifactRepository>() {
 		private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 
+		@Override
 		public int compare(IArtifactRepository arg0, IArtifactRepository arg1) {
 			String protocol0 = arg0.getLocation().getScheme();
 			String protocol1 = arg1.getLocation().getScheme();
@@ -89,7 +90,7 @@ public class DownloadManager {
 				provContext = new ProvisioningContext(agent);
 
 			IQueryable<IArtifactRepository> repoQueryable = provContext.getArtifactRepositories(subMonitor.newChild(250));
-			IQuery<IArtifactRepository> all = new ExpressionMatchQuery<IArtifactRepository>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
+			IQuery<IArtifactRepository> all = new ExpressionMatchQuery<>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
 			IArtifactRepository[] repositories = repoQueryable.query(all, subMonitor.newChild(250)).toArray(IArtifactRepository.class);
 			if (repositories.length == 0)
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
@@ -125,7 +126,7 @@ public class DownloadManager {
 	}
 
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository) {
-		ArrayList<IArtifactRequest> applicable = new ArrayList<IArtifactRequest>();
+		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
 		for (IArtifactRequest request : requestsToProcess) {
 			if (repository.contains(request.getArtifactKey()))
 				applicable.add(request);

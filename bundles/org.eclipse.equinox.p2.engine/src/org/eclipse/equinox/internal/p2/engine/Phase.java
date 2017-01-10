@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -43,9 +43,9 @@ public abstract class Phase {
 	protected int mainPerformWork = 10000;
 	protected int postPerformWork = 1000;
 	private Map<String, Object> operandParameters = null;
-	private Map<String, Object> phaseParameters = new HashMap<String, Object>();
-	private Map<Touchpoint, Map<String, Object>> touchpointToTouchpointPhaseParameters = new HashMap<Touchpoint, Map<String, Object>>();
-	private Map<Touchpoint, Map<String, Object>> touchpointToTouchpointOperandParameters = new HashMap<Touchpoint, Map<String, Object>>();
+	private Map<String, Object> phaseParameters = new HashMap<>();
+	private Map<Touchpoint, Map<String, Object>> touchpointToTouchpointPhaseParameters = new HashMap<>();
+	private Map<Touchpoint, Map<String, Object>> touchpointToTouchpointOperandParameters = new HashMap<>();
 	ActionManager actionManager; // injected from phaseset
 	protected boolean isPaused = false;
 
@@ -67,6 +67,7 @@ public abstract class Phase {
 		return actionManager;
 	}
 
+	@Override
 	public String toString() {
 		return getClass().getName() + " - " + this.weight; //$NON-NLS-1$
 	}
@@ -141,7 +142,7 @@ public abstract class Phase {
 
 			session.recordOperandStart(operand);
 			List<ProvisioningAction> actions = getActions(operand);
-			operandParameters = new HashMap<String, Object>(phaseParameters);
+			operandParameters = new HashMap<>(phaseParameters);
 			operandParameters.put(PARM_OPERAND, operand);
 			mergeStatus(status, initializeOperand(profile, operand, operandParameters, subMonitor));
 			if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
@@ -172,7 +173,7 @@ public abstract class Phase {
 						parameters = touchpointToTouchpointOperandParameters.get(touchpoint);
 					}
 					if (lastResult != null) {
-						parameters = new HashMap<String, Object>(parameters);
+						parameters = new HashMap<>(parameters);
 						parameters.put(LAST_RESULT_INTERNAL_NAME, lastResult);
 					}
 					parameters = Collections.unmodifiableMap(parameters);
@@ -221,14 +222,14 @@ public abstract class Phase {
 
 		Map<String, Object> touchpointPhaseParameters = touchpointToTouchpointPhaseParameters.get(touchpoint);
 		if (touchpointPhaseParameters == null) {
-			touchpointPhaseParameters = new HashMap<String, Object>(phaseParameters);
+			touchpointPhaseParameters = new HashMap<>(phaseParameters);
 			IStatus status = touchpoint.initializePhase(monitor, profile, phaseId, touchpointPhaseParameters);
 			if (status != null && status.matches(IStatus.ERROR | IStatus.CANCEL))
 				return status;
 			touchpointToTouchpointPhaseParameters.put(touchpoint, touchpointPhaseParameters);
 		}
 
-		Map<String, Object> touchpointOperandParameters = new HashMap<String, Object>(touchpointPhaseParameters);
+		Map<String, Object> touchpointOperandParameters = new HashMap<>(touchpointPhaseParameters);
 		touchpointOperandParameters.putAll(operandParameters);
 		IStatus status = touchpoint.initializeOperand(profile, touchpointOperandParameters);
 		if (status != null && status.matches(IStatus.ERROR | IStatus.CANCEL))
@@ -253,7 +254,7 @@ public abstract class Phase {
 
 	void undo(MultiStatus status, EngineSession session, IProfile profile, Operand operand, ProvisioningAction[] actions, ProvisioningContext context) {
 		if (operandParameters == null) {
-			operandParameters = new HashMap<String, Object>(phaseParameters);
+			operandParameters = new HashMap<>(phaseParameters);
 			operandParameters.put(PARM_OPERAND, operand);
 			mergeStatus(status, initializeOperand(profile, operand, operandParameters, new NullProgressMonitor()));
 			Touchpoint operandTouchpoint = (Touchpoint) operandParameters.get(PARM_TOUCHPOINT);

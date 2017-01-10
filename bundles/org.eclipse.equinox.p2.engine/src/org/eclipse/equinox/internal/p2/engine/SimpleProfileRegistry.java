@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -57,7 +57,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * Reference to Map of String(Profile id)->Profile. 
 	 */
 	private SoftReference<Map<String, Profile>> profiles;
-	private Map<String, ProfileLock> profileLocks = new HashMap<String, ProfileLock>();
+	private Map<String, ProfileLock> profileLocks = new HashMap<>();
 
 	private String self;
 
@@ -171,10 +171,12 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return changed;
 	}
 
+	@Override
 	public synchronized String toString() {
 		return "Profile registry for location: " + store.getAbsolutePath() + "\n" + getProfileMap().toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public synchronized IProfile getProfile(String id) {
 		Profile profile = internalGetProfile(id);
 		if (profile == null)
@@ -182,6 +184,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return profile.snapshot();
 	}
 
+	@Override
 	public synchronized IProfile getProfile(String id, long timestamp) {
 		if (SELF.equals(id))
 			id = self;
@@ -212,6 +215,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return parser.getProfileMap().get(id);
 	}
 
+	@Override
 	public synchronized long[] listProfileTimestamps(String id) {
 		if (SELF.equals(id))
 			id = self;
@@ -224,6 +228,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			return new long[0];
 
 		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
+			@Override
 			public boolean accept(File pathname) {
 				return (pathname.getName().endsWith(PROFILE_EXT) || pathname.getName().endsWith(PROFILE_GZ_EXT)) && pathname.isFile() && !pathname.getName().startsWith("._"); //$NON-NLS-1$
 			}
@@ -346,6 +351,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return getProfileMap().get(id);
 	}
 
+	@Override
 	public synchronized IProfile[] getProfiles() {
 		Map<String, Profile> profileMap = getProfileMap();
 		Profile[] result = new Profile[profileMap.size()];
@@ -367,8 +373,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		}
 		Map<String, Profile> result = restore();
 		if (result == null)
-			result = new LinkedHashMap<String, Profile>(8);
-		profiles = new SoftReference<Map<String, Profile>>(result);
+			result = new LinkedHashMap<>(8);
+		profiles = new SoftReference<>(result);
 		if (updateSelfProfile) {
 			//update self profile on first load
 			updateSelfProfile(result);
@@ -403,10 +409,12 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		broadcastChangeEvent(id, IProfileEvent.CHANGED);
 	}
 
+	@Override
 	public IProfile addProfile(String id) throws ProvisionException {
 		return addProfile(id, null, null);
 	}
 
+	@Override
 	public IProfile addProfile(String id, Map<String, String> profileProperties) throws ProvisionException {
 		return addProfile(id, profileProperties, null);
 	}
@@ -436,6 +444,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return profile.snapshot();
 	}
 
+	@Override
 	public synchronized void removeProfile(String profileId) {
 		if (SELF.equals(profileId))
 			profileId = self;
@@ -469,6 +478,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		broadcastChangeEvent(profileId, IProfileEvent.REMOVED);
 	}
 
+	@Override
 	public synchronized void removeProfile(String id, long timestamp) throws ProvisionException {
 		if (SELF.equals(id))
 			id = self;
@@ -511,6 +521,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 		File[] profileDirectories = store.listFiles(new FileFilter() {
+			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isDirectory();
 			}
@@ -555,6 +566,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		File latest = null;
 		long latestTimestamp = 0;
 		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
+			@Override
 			public boolean accept(File pathname) {
 				return (pathname.getName().endsWith(PROFILE_GZ_EXT) || pathname.getName().endsWith(PROFILE_EXT)) && !pathname.isDirectory();
 			}
@@ -699,7 +711,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * 	as written by the Writer class.
 	 */
 	class Parser extends ProfileParser {
-		private final Map<String, ProfileHandler> profileHandlers = new HashMap<String, ProfileHandler>();
+		private final Map<String, ProfileHandler> profileHandlers = new HashMap<>();
 
 		public Map<String, ProfileHandler> getProfileHandlers() {
 			return Collections.unmodifiableMap(profileHandlers);
@@ -746,12 +758,13 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			}
 		}
 
+		@Override
 		protected Object getRootObject() {
 			return this;
 		}
 
 		public Map<String, Profile> getProfileMap() {
-			Map<String, Profile> profileMap = new HashMap<String, Profile>();
+			Map<String, Profile> profileMap = new HashMap<>();
 			for (String profileId : profileHandlers.keySet()) {
 				addProfile(profileId, profileMap);
 			}
@@ -800,6 +813,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				super(rootName, rootHandler);
 			}
 
+			@Override
 			public void processingInstruction(String target, String data) throws SAXException {
 				if (ProfileXMLConstants.PROFILE_TARGET.equals(target)) {
 					Version repositoryVersion = extractPIVersion(target, data);
@@ -810,10 +824,12 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			}
 		}
 
+		@Override
 		protected String getErrorMessage() {
 			return Messages.SimpleProfileRegistry_Parser_Error_Parsing_Registry;
 		}
 
+		@Override
 		public String toString() {
 			// TODO:
 			return null;
@@ -821,6 +837,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	}
 
+	@Override
 	public synchronized boolean isCurrent(IProfile profile) {
 		Profile internalProfile = getProfileMap().get(profile.getProfileId());
 		if (internalProfile == null)
@@ -897,6 +914,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry#containsProfile(java.lang.String)
 	 */
+	@Override
 	public synchronized boolean containsProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
@@ -913,6 +931,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (!profileDirectory.isDirectory())
 			return false;
 		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
+			@Override
 			public boolean accept(File pathname) {
 				return (pathname.getName().endsWith(PROFILE_GZ_EXT) || pathname.getName().endsWith(PROFILE_EXT)) && pathname.isFile();
 			}
@@ -955,6 +974,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	/*(non-Javadoc)
 	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#start()
 	 */
+	@Override
 	public void start() {
 		//nothing to do
 	}
@@ -962,6 +982,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	/*(non-Javadoc)
 	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#stop()
 	 */
+	@Override
 	public void stop() {
 		try {
 			//ensure there are no more profile preference save jobs running
@@ -1090,7 +1111,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	private Properties pruneStateProperties(String id, Properties properties) {
 		Properties result = new Properties();
 		long[] timestamps = listProfileTimestamps(id);
-		HashSet<String> timestampsSet = new HashSet<String>(timestamps.length);
+		HashSet<String> timestampsSet = new HashSet<>(timestamps.length);
 		for (int i = 0; i < timestamps.length; i++) {
 			timestampsSet.add(String.valueOf(timestamps[i]));
 		}
@@ -1124,6 +1145,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#setProfileStateProperties(java.lang.String, long, java.util.Map)
 	 */
+	@Override
 	public IStatus setProfileStateProperties(String id, long timestamp, Map<String, String> propertiesToAdd) {
 		if (id == null || propertiesToAdd == null)
 			throw new NullPointerException();
@@ -1160,6 +1182,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#setProfileStateProperty(java.lang.String, long, java.lang.String, java.lang.String)
 	 */
+	@Override
 	public IStatus setProfileStateProperty(String id, long timestamp, String key, String value) {
 		if (id == null)
 			throw new NullPointerException();
@@ -1172,12 +1195,13 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	private IStatus internalSetProfileStateProperty(IProfile profile, long timestamp, String key, String value) {
 		if (key == null || value == null)
 			throw new NullPointerException();
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(key, value);
 
 		return internalSetProfileStateProperties(profile, timestamp, properties);
 	}
 
+	@Override
 	public Map<String, String> getProfileStateProperties(String id, long timestamp) {
 		if (id == null)
 			throw new NullPointerException();
@@ -1188,7 +1212,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	private Map<String, String> internalGetProfileStateProperties(IProfile profile, long timestamp, boolean lock) {
-		Map<String, String> result = new HashMap<String, String>();
+		Map<String, String> result = new HashMap<>();
 		String timestampString = String.valueOf(timestamp);
 		int keyOffset = timestampString.length() + 1;
 		lock = lock || lastAccessedProperties == null;
@@ -1215,6 +1239,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#getProfileStateProperties(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public Map<String, String> getProfileStateProperties(String id, String userKey) {
 		if (id == null || userKey == null)
 			throw new NullPointerException();
@@ -1226,7 +1251,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	private Map<String, String> internalGetProfileStateProperties(IProfile profile, String userKey, boolean lock) {
-		Map<String, String> result = new HashMap<String, String>();
+		Map<String, String> result = new HashMap<>();
 		lock = lock || lastAccessedProperties == null;
 		if (lock)
 			if (!internalLockProfile(profile))
@@ -1254,6 +1279,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#removeProfileStateProperties(java.lang.String, long, java.util.Collection)
 	 */
+	@Override
 	public IStatus removeProfileStateProperties(String id, long timestamp, Collection<String> keys) {
 		if (id == null)
 			throw new NullPointerException();

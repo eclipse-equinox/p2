@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ public class Sizing extends InstallableUnitPhase {
 		super(PHASE_ID, weight);
 	}
 
+	@Override
 	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.second() != null && !op.second().equals(op.first()));
 	}
@@ -46,6 +47,7 @@ public class Sizing extends InstallableUnitPhase {
 		return dlSize;
 	}
 
+	@Override
 	protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
 		List<ProvisioningAction> parsedActions = getActions(unit, COLLECT_PHASE_ID);
@@ -64,17 +66,19 @@ public class Sizing extends InstallableUnitPhase {
 		return Collections.singletonList(action);
 	}
 
+	@Override
 	protected String getProblemMessage() {
 		return Messages.Phase_Sizing_Error;
 	}
 
+	@Override
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		@SuppressWarnings("unchecked")
 		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 		int statusCode = 0;
 
-		Set<IArtifactRequest> artifactsToObtain = new HashSet<IArtifactRequest>(artifactRequests.size());
+		Set<IArtifactRequest> artifactsToObtain = new HashSet<>(artifactRequests.size());
 
 		for (IArtifactRequest[] requests : artifactRequests) {
 			if (requests == null)
@@ -89,7 +93,7 @@ public class Sizing extends InstallableUnitPhase {
 
 		SubMonitor sub = SubMonitor.convert(monitor, 1000);
 		IQueryable<IArtifactRepository> repoQueryable = context.getArtifactRepositories(sub.newChild(500));
-		IQuery<IArtifactRepository> all = new ExpressionMatchQuery<IArtifactRepository>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
+		IQuery<IArtifactRepository> all = new ExpressionMatchQuery<>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
 		IArtifactRepository[] repositories = repoQueryable.query(all, sub.newChild(500)).toArray(IArtifactRepository.class);
 
 		for (IArtifactRequest artifactRequest : artifactsToObtain) {
@@ -123,11 +127,13 @@ public class Sizing extends InstallableUnitPhase {
 		return null;
 	}
 
+	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
 		return null;
 	}
 
+	@Override
 	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		IStatus status = super.initializeOperand(profile, operand, parameters, monitor);
 		// defer setting the IU until after the super method to avoid triggering touchpoint initialization

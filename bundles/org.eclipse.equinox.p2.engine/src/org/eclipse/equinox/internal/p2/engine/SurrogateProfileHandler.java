@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -76,12 +76,12 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		iuDescription.setId("SharedProfile_" + sharedProfile.getProfileId()); //$NON-NLS-1$
 		iuDescription.setVersion(Version.createOSGi(1, 0, 0, Long.toString(sharedProfile.getTimestamp())));
 
-		ArrayList<IProvidedCapability> iuCapabilities = new ArrayList<IProvidedCapability>();
+		ArrayList<IProvidedCapability> iuCapabilities = new ArrayList<>();
 		IProvidedCapability selfCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, iuDescription.getId(), iuDescription.getVersion());
 		iuCapabilities.add(selfCapability);
 		iuDescription.addProvidedCapabilities(iuCapabilities);
 
-		ArrayList<IRequirement> iuRequirements = new ArrayList<IRequirement>();
+		ArrayList<IRequirement> iuRequirements = new ArrayList<>();
 		IQueryResult<IInstallableUnit> allIUs = sharedProfile.query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
@@ -203,9 +203,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#createProfile(java.lang.String)
-	 */
+	@Override
 	public IProfile createProfile(String id) {
 		final Profile sharedProfile = (Profile) getSharedProfile(id);
 		if (sharedProfile == null)
@@ -222,7 +220,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		}
 
 		File[] extensionLocations = EngineActivator.getExtensionsDirectories();
-		Set<IInstallableUnit> added = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> added = new HashSet<>();
 		for (File extension : extensionLocations) {
 			try {
 				IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
@@ -266,23 +264,19 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		return userProfile;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#isSurrogate(org.eclipse.equinox.internal.provisional.p2.engine.IProfile)
-	 */
+	@Override
 	public boolean isSurrogate(IProfile profile) {
 		return Boolean.parseBoolean(profile.getProperty(PROP_SURROGATE));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#queryProfile(org.eclipse.equinox.internal.provisional.p2.engine.IProfile, org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IQueryResult<IInstallableUnit> queryProfile(IProfile profile, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		IProfile sharedProfile = getSharedProfile(profile.getProfileId());
 		if (sharedProfile == null)
 			return profile.query(query, monitor);
 
 		// TODO: Should consider using a sequenced iterator here instead of collecting
-		Collector<IInstallableUnit> result = new Collector<IInstallableUnit>();
+		Collector<IInstallableUnit> result = new Collector<>();
 		result.addAll(sharedProfile.query(query, monitor));
 		result.addAll(profile.query(query, monitor));
 		return result;

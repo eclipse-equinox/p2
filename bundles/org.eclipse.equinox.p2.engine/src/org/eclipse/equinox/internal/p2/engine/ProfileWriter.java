@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants {
 
@@ -30,8 +29,9 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 		attribute(ID_ATTRIBUTE, profile.getProfileId());
 		attribute(TIMESTAMP_ATTRIBUTE, Long.toString(profile.getTimestamp()));
 		writeProperties(profile.getProperties());
-		ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(profile.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet());
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(profile.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet());
 		Collections.sort(ius, new Comparator<IInstallableUnit>() {
+			@Override
 			public int compare(IInstallableUnit iu1, IInstallableUnit iu2) {
 				int IdCompare = iu1.getId().compareTo(iu2.getId());
 				if (IdCompare != 0)

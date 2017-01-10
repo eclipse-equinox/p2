@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 Landmark Graphics Corporation and others
+ * Copyright (c) 2012, 2017 Landmark Graphics Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@ package org.eclipse.equinox.p2.engine.spi;
  * @since 2.3
  */
 public class Value<T> {
-	public static final Value<Object> NO_VALUE = new Value<Object>(null);
+	public static final Value<Object> NO_VALUE = new Value<>(null);
 	private T value;
 	private Class<T> clazz;
 

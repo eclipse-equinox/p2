@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -99,7 +99,7 @@ public class PhaseSet implements IPhaseSet {
 	}
 
 	public final IStatus validate(ActionManager actionManager, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
-		Set<MissingAction> missingActions = new HashSet<MissingAction>();
+		Set<MissingAction> missingActions = new HashSet<>();
 		for (int i = 0; i < phases.length; i++) {
 			Phase phase = phases[i];
 			phase.actionManager = actionManager;
@@ -171,6 +171,7 @@ public class PhaseSet implements IPhaseSet {
 		return count;
 	}
 
+	@Override
 	public String[] getPhaseIds() {
 		String[] ids = new String[phases.length];
 		for (int i = 0; i < ids.length; i++) {

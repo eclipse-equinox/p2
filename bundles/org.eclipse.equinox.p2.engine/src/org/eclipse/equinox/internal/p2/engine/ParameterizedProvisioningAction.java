@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,22 +29,24 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 			throw new IllegalArgumentException(Messages.ParameterizedProvisioningAction_action_or_parameters_null);
 		this.action = action;
 		this.actionParameters = actionParameters;
-		this.actualParameters = new HashMap<String, Object>(actionParameters.size());
+		this.actualParameters = new HashMap<>(actionParameters.size());
 		this.actionText = actionText;
 	}
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		parameters = processActionParameters(parameters);
 		return action.execute(parameters);
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		parameters = processActionParameters(parameters);
 		return action.undo(parameters);
 	}
 
 	private Map<String, Object> processActionParameters(Map<String, Object> parameters) {
-		Map<String, Object> result = new HashMap<String, Object>(parameters);
+		Map<String, Object> result = new HashMap<>(parameters);
 		for (Entry<String, String> entry : actionParameters.entrySet()) {
 			String name = entry.getKey();
 			Object value = processVariables(entry.getValue(), parameters, false);
@@ -114,10 +116,12 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 		return actionText;
 	}
 
+	@Override
 	public Touchpoint getTouchpoint() {
 		return action.getTouchpoint();
 	}
 
+	@Override
 	public void setTouchpoint(Touchpoint touchpoint) {
 		throw new UnsupportedOperationException();
 	}
