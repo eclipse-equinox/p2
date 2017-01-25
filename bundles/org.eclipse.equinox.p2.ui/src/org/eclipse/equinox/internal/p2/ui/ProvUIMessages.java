@@ -192,6 +192,7 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUsPage_ShowLatestVersions;
 	public static String AvailableIUsPage_SingleSelectionCount;
 	public static String AvailableIUsPage_Title;
+	public static String AvailableIUsPage_Fetching;
 	public static String AvailableIUWrapper_AllAreInstalled;
 	public static String IUViewQueryContext_AllAreInstalledDescription;
 	public static String Label_Profiles;

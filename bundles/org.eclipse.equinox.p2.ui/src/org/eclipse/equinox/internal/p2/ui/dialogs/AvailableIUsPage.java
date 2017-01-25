@@ -16,6 +16,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.EmptyElementExplanation;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
@@ -26,6 +27,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
@@ -64,6 +66,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	RepositorySelectionGroup repoSelector;
 	IUDetailsGroup iuDetailsGroup;
 	Label selectionCount;
+	int progressBarRefCount = 0;
 
 	public AvailableIUsPage(ProvisioningUI ui, ProvisioningOperationWizard wizard) {
 		super("AvailableSoftwarePage", ui, wizard); //$NON-NLS-1$
@@ -172,6 +175,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 		createViewControlsArea(controlsComposite);
 
+		Composite progressBarComposite = createProgressBar(composite);
+		gd = new GridData(SWT.FILL, SWT.TOP, false, false);
+		progressBarComposite.setLayoutData(gd);
+		progressBarComposite.setVisible(false);
+
 		initializeWidgetState();
 		setControl(composite);
 		composite.addDisposeListener(new DisposeListener() {
@@ -182,6 +190,46 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 		});
 		Dialog.applyDialogFont(composite);
+	}
+
+	private Composite createProgressBar(Composite parent) {
+		final Composite progressBarComposite = new Composite(parent, SWT.NONE);
+		Label progressBarLabel = new Label(progressBarComposite, SWT.NONE);
+		progressBarLabel.setText(ProvUIMessages.AvailableIUsPage_Fetching);
+		ProgressBar progressBar = new ProgressBar(progressBarComposite, SWT.INDETERMINATE);
+		IContentProvider contentProvider = availableIUGroup.getCheckboxTreeViewer().getContentProvider();
+		if (contentProvider instanceof DeferredQueryContentProvider) {
+			((DeferredQueryContentProvider) contentProvider).addOnFetchingActionListener(new IDeferredQueryTreeListener() {
+
+				@Override
+				public void finishedFetchingDeferredChildren(Object parent, Object placeHolder) {
+					if (parent instanceof QueriedElement) {
+						if (((QueriedElement) parent).getCachedChildren().length > 0) {
+							if (progressBarRefCount > 0) {
+								progressBarRefCount--;
+							}
+						}
+					}
+					changeProgressBarVisibility(progressBarComposite);
+				}
+
+				@Override
+				public void fetchingDeferredChildren(Object parent, Object placeHolder) {
+					progressBarRefCount++;
+					changeProgressBarVisibility(progressBarComposite);
+				}
+			});
+		}
+		GridLayoutFactory.fillDefaults().generateLayout(progressBarComposite);
+		return progressBarComposite;
+	}
+
+	void changeProgressBarVisibility(final Composite progressBarComposite) {
+		this.display.asyncExec(() -> {
+			if (!progressBarComposite.isDisposed()) {
+				progressBarComposite.setVisible(progressBarRefCount > 0 ? true : false);
+			}
+		});
 	}
 
 	private void createSelectButtons(Composite parent) {
@@ -341,6 +389,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 					repoComboSelectionChanged(repoChoice, repoLocation);
 				}
 			});
+
 			// The ProvisioningOperationWizard signals the start of a repository operation as a way
 			// to keep side-effect events from changing the selections or state of the wizard.
 			// This is the one case where we want to respond to repo events, because we are
@@ -350,7 +399,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			repoSelector.setRepositoryManipulationHook(new IRepositoryManipulationHook() {
 				@Override
 				public void preManipulateRepositories() {
-					getProvisioningUI().signalRepositoryOperationComplete(null, false);
+					getProvisioningUI().signalRepositoryOperationComplete(null, true);
 				}
 
 				@Override

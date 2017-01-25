@@ -35,6 +35,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 	AbstractTreeViewer viewer = null;
 	ListenerList<IInputChangeListener> listeners = new ListenerList<IInputChangeListener>();
 	boolean synchronous = false;
+	IDeferredQueryTreeListener onFetchingActionListener;
 
 	/**
 	 * 
@@ -51,6 +52,10 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		listeners.remove(listener);
 	}
 
+	public void addOnFetchingActionListener(IDeferredQueryTreeListener listener) {
+		onFetchingActionListener = listener;
+	}
+
 	@Override
 	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		super.inputChanged(v, oldInput, newInput);
@@ -59,8 +64,9 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 			manager.cancel(oldInput);
 		if (v instanceof AbstractTreeViewer) {
 			manager = new DeferredQueryTreeContentManager((AbstractTreeViewer) v);
+			manager.addListener(onFetchingActionListener);
 			viewer = (AbstractTreeViewer) v;
-			manager.setListener(new IDeferredQueryTreeListener() {
+			manager.addListener(new IDeferredQueryTreeListener() {
 
 				@Override
 				public void fetchingDeferredChildren(Object parent, Object placeholder) {

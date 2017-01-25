@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.*;
@@ -41,10 +42,11 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	}
 
 	Object elementRequested;
-	IDeferredQueryTreeListener listener;
+	ListenerList<IDeferredQueryTreeListener> listeners;
 
 	public DeferredQueryTreeContentManager(AbstractTreeViewer viewer) {
 		super(viewer);
+		listeners = new ListenerList<IDeferredQueryTreeListener>();
 	}
 
 	/*
@@ -86,16 +88,23 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 		return new ElementPendingUpdateAdapter(elementRequested);
 	}
 
-	public void setListener(IDeferredQueryTreeListener listener) {
-		this.listener = listener;
+	public void addListener(IDeferredQueryTreeListener listener) {
+		if (listener != null) {
+			this.listeners.add(listener);
+		}
 	}
 
 	private void notifyListener(boolean starting, ElementPendingUpdateAdapter placeholder) {
-		if (listener == null)
+		if (listeners == null || listeners.isEmpty())
 			return;
-		if (starting)
-			listener.fetchingDeferredChildren(placeholder.element, placeholder);
-		else
-			listener.finishedFetchingDeferredChildren(placeholder.element, placeholder);
+		if (starting) {
+			for (IDeferredQueryTreeListener deferredQueryTreeListener : listeners) {
+				deferredQueryTreeListener.fetchingDeferredChildren(placeholder.element, placeholder);
+			}
+		} else {
+			for (IDeferredQueryTreeListener deferredQueryTreeListener : listeners) {
+				deferredQueryTreeListener.finishedFetchingDeferredChildren(placeholder.element, placeholder);
+			}
+		}
 	}
 }
