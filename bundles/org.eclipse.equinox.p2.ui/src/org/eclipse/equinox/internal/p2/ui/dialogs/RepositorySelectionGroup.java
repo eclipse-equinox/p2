@@ -26,7 +26,6 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -106,7 +105,7 @@ public class RepositorySelectionGroup {
 		GridLayout layout = new GridLayout();
 		layout.marginTop = 0;
 		layout.marginBottom = IDialogConstants.VERTICAL_SPACING;
-		layout.numColumns = 3;
+		layout.numColumns = 4;
 		comboComposite.setLayout(layout);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		comboComposite.setLayoutData(gd);
@@ -214,21 +213,7 @@ public class RepositorySelectionGroup {
 		setButtonLayoutData(button);
 		button.setFont(comboComposite.getFont());
 
-		// Link to repository manipulator
-		repoManipulatorLink = createLink(comboComposite, new Action() {
-			@Override
-			public void runWithEvent(Event event) {
-				if (repositoryManipulationHook != null)
-					repositoryManipulationHook.preManipulateRepositories();
-				ui.manipulateRepositories(repoCombo.getShell());
-				if (repositoryManipulationHook != null)
-					repositoryManipulationHook.postManipulateRepositories();
-			}
-		}, getLinkLabel());
-		gd = new GridData(SWT.END, SWT.FILL, true, false);
-		gd.horizontalSpan = 3;
-		repoManipulatorLink.setLayoutData(gd);
-		repoManipulatorLink.setFont(comboComposite.getFont());
+		createRepoManipulatorButton(comboComposite);
 
 		addComboProvisioningListeners();
 		parent.addDisposeListener(new DisposeListener() {
@@ -240,14 +225,26 @@ public class RepositorySelectionGroup {
 		});
 	}
 
-	private String getLinkLabel() {
-		if (ui.getPolicy().getRepositoryPreferencePageId() != null) {
-			String pageName = ui.getPolicy().getRepositoryPreferencePageName();
-			if (pageName == null)
-				pageName = ProvUIMessages.RepositorySelectionGroup_PrefPageName;
-			return NLS.bind(ProvUIMessages.RepositorySelectionGroup_PrefPageLink, pageName);
+	private void createRepoManipulatorButton(Composite comboComposite) {
+		Button repoManipulatorButton = new Button(comboComposite, SWT.PUSH);
+		repoManipulatorButton.setText(ProvUIMessages.RepositoryManipulationPage_Manage);
+		setButtonLayoutData(repoManipulatorButton);
+		repoManipulatorButton.setFont(comboComposite.getFont());
+
+		repoManipulatorButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			openRepoManipulatorUi();
+		}));
+	}
+
+	private void openRepoManipulatorUi() {
+		if (repositoryManipulationHook != null) {
+			repositoryManipulationHook.preManipulateRepositories();
 		}
-		return ProvUIMessages.RepositorySelectionGroup_GenericSiteLinkTitle;
+		ui.manipulateRepositories(repoCombo.getShell());
+
+		if (repositoryManipulationHook != null) {
+			repositoryManipulationHook.postManipulateRepositories();
+		}
 	}
 
 	private void setButtonLayoutData(Button button) {
@@ -391,24 +388,6 @@ public class RepositorySelectionGroup {
 		if (nickname != null && nickname.length() > 0)
 			return NLS.bind(ProvUIMessages.AvailableIUsPage_NameWithLocation, new Object[] {nickname, ProvUIMessages.RepositorySelectionGroup_NameAndLocationSeparator, URIUtil.toUnencodedString(uri)});
 		return URIUtil.toUnencodedString(uri);
-	}
-
-	private Link createLink(Composite parent, IAction action, String text) {
-		Link link = new Link(parent, SWT.PUSH);
-		link.setText(text);
-
-		link.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				IAction linkAction = getLinkAction(event.widget);
-				if (linkAction != null) {
-					linkAction.runWithEvent(event);
-				}
-			}
-		});
-		link.setToolTipText(action.getToolTipText());
-		link.setData(LINKACTION, action);
-		return link;
 	}
 
 	IAction getLinkAction(Widget widget) {

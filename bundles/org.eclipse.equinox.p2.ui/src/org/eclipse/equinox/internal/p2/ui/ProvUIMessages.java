@@ -149,14 +149,12 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryManipulationPage_TestConnectionSuccess;
 	public static String RepositoryManipulationPage_TestConnectionTitle;
 	public static String RepositoryManipulationPage_Title;
+	public static String RepositoryManipulationPage_Manage;
 	public static String RepositoryManipulatorDropTarget_DragAndDropJobLabel;
 	public static String RepositoryManipulatorDropTarget_DragSourceNotValid;
 	public static String RepositoryNameAndLocationDialog_Title;
 
-	public static String RepositorySelectionGroup_GenericSiteLinkTitle;
 	public static String RepositorySelectionGroup_NameAndLocationSeparator;
-	public static String RepositorySelectionGroup_PrefPageLink;
-	public static String RepositorySelectionGroup_PrefPageName;
 	public static String ResolutionWizardPage_Canceled;
 	public static String ResolutionWizardPage_ErrorStatus;
 	public static String ResolutionWizardPage_NoSelections;
