@@ -34,6 +34,7 @@ public class ProvisioningWizardDialog extends WizardDialog {
 		setBlockOnOpen(false);
 	}
 
+	@Override
 	protected IDialogSettings getDialogBoundsSettings() {
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(wizard.getDialogSettingsSectionName());
@@ -46,6 +47,7 @@ public class ProvisioningWizardDialog extends WizardDialog {
 	/**
 	 * @see org.eclipse.jface.window.Window#close()
 	 */
+	@Override
 	public boolean close() {
 		if (getShell() != null && !getShell().isDisposed()) {
 			wizard.saveBoundsRelatedSettings();

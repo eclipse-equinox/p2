@@ -33,6 +33,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public abstract class IUPropertyPage extends PropertyPage {
 
+	@Override
 	protected Control createContents(Composite parent) {
 		noDefaultAndApplyButton();
 		IInstallableUnit iu = ProvUI.getAdapter(getElement(), IInstallableUnit.class);

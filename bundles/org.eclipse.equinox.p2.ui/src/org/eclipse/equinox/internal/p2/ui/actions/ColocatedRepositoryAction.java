@@ -35,6 +35,7 @@ public abstract class ColocatedRepositoryAction extends ProvisioningAction {
 		return urls.toArray(new URI[urls.size()]);
 	}
 
+	@Override
 	protected void checkEnablement(Object[] selectionArray) {
 		setEnabled(getSelectedLocations(selectionArray).length > 0);
 	}

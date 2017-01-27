@@ -51,6 +51,7 @@ public class UpdateSingleIUWizard extends Wizard {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.wizard.Wizard#addPages()
 	 */
+	@Override
 	public void addPages() {
 		mainPage = createMainPage();
 		addPage(mainPage);

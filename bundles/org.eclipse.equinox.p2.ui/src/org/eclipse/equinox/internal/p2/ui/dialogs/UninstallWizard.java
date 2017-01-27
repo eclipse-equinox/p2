@@ -35,6 +35,7 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL));
 	}
 
+	@Override
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
 		mainPage = new SelectableIUsPage(ui, this, input, selections);
 		mainPage.setTitle(ProvUIMessages.UninstallIUOperationLabel);
@@ -43,10 +44,12 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		return mainPage;
 	}
 
+	@Override
 	protected ResolutionResultsWizardPage createResolutionPage() {
 		return new UninstallWizardPage(ui, this, root, (UninstallOperation) operation);
 	}
 
+	@Override
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		root = new IUElementListRoot(ui);
 		ArrayList<InstalledIUElement> list = new ArrayList<InstalledIUElement>(selectedElements.length);
@@ -63,6 +66,7 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		planSelections = selections.toArray();
 	}
 
+	@Override
 	protected IResolutionErrorReportingPage createErrorReportingPage() {
 		return (SelectableIUsPage) mainPage;
 	}
@@ -71,6 +75,7 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.wizard.Wizard#getStartingPage()
 	 */
+	@Override
 	public IWizardPage getStartingPage() {
 		if (getCurrentStatus().isOK()) {
 			((SelectableIUsPage) mainPage).setPageComplete(true);
@@ -82,6 +87,7 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getProfileChangeOperation(java.lang.Object[])
 	 */
+	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		UninstallOperation op = new UninstallOperation(ui.getSession(), ElementUtils.elementsToIUs(elements));
 		op.setProfileId(getProfileId());

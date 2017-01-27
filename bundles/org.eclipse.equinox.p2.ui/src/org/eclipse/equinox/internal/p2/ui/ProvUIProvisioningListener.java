@@ -42,6 +42,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 		this.runner = runner;
 	}
 
+	@Override
 	public void notify(EventObject o) {
 		if (o instanceof RepositoryOperationBeginningEvent) {
 			if (Tracing.DEBUG_EVENTS_CLIENT)

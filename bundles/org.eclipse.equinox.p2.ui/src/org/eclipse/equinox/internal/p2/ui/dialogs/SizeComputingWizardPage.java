@@ -59,12 +59,14 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		if (sizingJob != null)
 			sizingJob.cancel();
 		sizingJob = new Job(ProvUIMessages.SizeComputingWizardPage_SizeJobTitle) {
+			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				size = ProvUI.getSize(ProvUI.getEngine(getProvisioningUI().getSession()), plan, provisioningContext, monitor);
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 				if (display != null) {
 					display.asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							updateSizingInfo();
 						}
@@ -80,6 +82,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		sizingJob.schedule();
 	}
 
+	@Override
 	protected void createSizingInfo(Composite parent) {
 		sizeInfo = new Label(parent, SWT.NONE);
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -108,6 +111,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_Bytes, NumberFormat.getInstance().format(new Long(size)));
 	}
 
+	@Override
 	public void dispose() {
 		if (sizingJob != null) {
 			sizingJob.cancel();
@@ -115,12 +119,14 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		}
 	}
 
+	@Override
 	public void updateStatus(IUElementListRoot root, ProfileChangeOperation op) {
 		super.updateStatus(root, op);
 		if (op != null && op.getProvisioningPlan() != null)
 			computeSizing(op.getProvisioningPlan(), op.getProvisioningContext());
 	}
 
+	@Override
 	protected IQueryable<IInstallableUnit> getQueryable(IProvisioningPlan plan) {
 		return plan.getAdditions();
 	}

@@ -48,6 +48,7 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 		return super.getStartingPage();
 	}
 
+	@Override
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
 		mainPage = new SelectableIUsPage(ui, this, input, selections);
 		mainPage.setTitle(ProvUIMessages.PreselectedIUInstallWizard_Title);
@@ -56,10 +57,12 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 		return mainPage;
 	}
 
+	@Override
 	protected ResolutionResultsWizardPage createResolutionPage() {
 		return new InstallWizardPage(ui, this, root, operation);
 	}
 
+	@Override
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		root = new IUElementListRoot(ui);
 		ArrayList<AvailableIUElement> list = new ArrayList<AvailableIUElement>(selectedElements.length);
@@ -82,6 +85,7 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getErrorReportingPage()
 	 */
+	@Override
 	protected IResolutionErrorReportingPage createErrorReportingPage() {
 		return (IResolutionErrorReportingPage) mainPage;
 	}
@@ -89,6 +93,7 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getProfileChangeOperation(java.lang.Object[])
 	 */
+	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		InstallOperation op = new InstallOperation(ui.getSession(), ElementUtils.elementsToIUs(elements));
 		op.setProfileId(getProfileId());

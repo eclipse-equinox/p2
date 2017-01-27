@@ -30,6 +30,7 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 		super(ui, includeDisabledRepos);
 	}
 
+	@Override
 	protected IMetadataRepository getRepository(IRepositoryManager<IInstallableUnit> manager, URI location) {
 		// note the use of MetadataRepositoryManager (the concrete implementation).
 		if (manager instanceof MetadataRepositoryManager) {
@@ -38,10 +39,12 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 		return null;
 	}
 
+	@Override
 	protected IMetadataRepositoryManager getRepositoryManager() {
 		return ProvUI.getMetadataRepositoryManager(getSession());
 	}
 
+	@Override
 	protected IMetadataRepository doLoadRepository(IRepositoryManager<IInstallableUnit> manager, URI location, IProgressMonitor monitor) throws ProvisionException {
 		return ui.loadMetadataRepository(location, false, monitor);
 	}
@@ -49,6 +52,7 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.QueryableRepositoryManager#getRepositoryFlags(org.eclipse.equinox.p2.ui.RepositoryManipulator)
 	 */
+	@Override
 	protected int getRepositoryFlags(RepositoryTracker repositoryManipulator) {
 		return repositoryManipulator.getMetadataRepositoryFlags();
 	}

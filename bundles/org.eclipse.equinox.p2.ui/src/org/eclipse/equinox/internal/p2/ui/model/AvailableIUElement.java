@@ -69,6 +69,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	 * 
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
+	@Override
 	protected String getImageId(Object obj) {
 		if (imageId != null)
 			return imageId;
@@ -85,6 +86,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return ProvUIImages.IMG_IU;
 	}
 
+	@Override
 	public String getImageOverlayId(Object obj) {
 		if (imageOverlayId != null)
 			return imageOverlayId;
@@ -95,10 +97,12 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return null;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		return iu.getId();
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IInstallableUnit.class)
@@ -106,10 +110,12 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return super.getAdapter(adapter);
 	}
 
+	@Override
 	public long getSize() {
 		return size;
 	}
 
+	@Override
 	public void computeSize(IProgressMonitor monitor) {
 		if (profileID == null)
 			return;
@@ -141,14 +147,17 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return ProvUI.getProfileRegistry(getProvisioningUI().getSession());
 	}
 
+	@Override
 	public IInstallableUnit getIU() {
 		return iu;
 	}
 
+	@Override
 	public boolean shouldShowSize() {
 		return shouldShowSize;
 	}
 
+	@Override
 	public boolean shouldShowVersion() {
 		return true;
 	}
@@ -156,6 +165,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
 	 */
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.AVAILABLE_IUS;
 	}
@@ -163,6 +173,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
 	 */
+	@Override
 	public Collection<IRequirement> getRequirements() {
 		return iu.getRequirements();
 	}
@@ -170,10 +181,12 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
 	 */
+	@Override
 	public boolean shouldShowChildren() {
 		return shouldShowChildren;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -195,12 +208,14 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return false;
 	}
 
+	@Override
 	public int hashCode() {
 		if (iu == null)
 			return 0;
 		return iu.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		if (iu == null)
 			return "NULL"; //$NON-NLS-1$

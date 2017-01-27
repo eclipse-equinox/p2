@@ -74,12 +74,14 @@ public class UserValidationDialog extends Dialog {
 		this.dialogImageType = dialogImageType;
 	}
 
+	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
 		newShell.setText(titleMessage);
 		newShell.setImage(titleImage);
 	}
 
+	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 
@@ -139,6 +141,7 @@ public class UserValidationDialog extends Dialog {
 		saveButton.setSelection(saveResult());
 	}
 
+	@Override
 	protected void okPressed() {
 		this.result = new AuthenticationInfo(username.getText(), password.getText(), saveButton.getSelection());
 		super.okPressed();

@@ -70,12 +70,14 @@ public class MetadataRepositories extends RootElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryType()
 	 */
+	@Override
 	public int getQueryType() {
 		if (getQueryContext() == null)
 			return getDefaultQueryType();
 		return getQueryContext().getQueryType();
 	}
 
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.METADATA_REPOS;
 	}
@@ -84,6 +86,7 @@ public class MetadataRepositories extends RootElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
 	 */
+	@Override
 	public String getLabel(Object o) {
 		return ProvUIMessages.Label_Repositories;
 	}
@@ -93,6 +96,7 @@ public class MetadataRepositories extends RootElement {
 	 * (type = METADATA_REPOSITORIES) rather than loading repos.  If this
 	 * is the case, we only care whether we have a queryable or not.
 	 */
+	@Override
 	public boolean hasQueryable() {
 		if (getQueryType() == QueryProvider.METADATA_REPOS)
 			return queryable != null;

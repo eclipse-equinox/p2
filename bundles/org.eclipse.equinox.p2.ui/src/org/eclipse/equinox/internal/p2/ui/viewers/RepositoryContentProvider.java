@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  */
 public class RepositoryContentProvider extends DeferredQueryContentProvider {
 
+	@Override
 	public Object[] getChildren(final Object parent) {
 		Object[] children = super.getChildren(parent);
 		if (children != null)

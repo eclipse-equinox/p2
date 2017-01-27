@@ -119,10 +119,12 @@ public class RepositorySelectionGroup {
 		repoCombo = new Combo(comboComposite, SWT.DROP_DOWN);
 		repoCombo.addSelectionListener(new SelectionListener() {
 
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				repoComboSelectionChanged();
 			}
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				repoComboSelectionChanged();
 			}
@@ -133,6 +135,7 @@ public class RepositorySelectionGroup {
 		repoCombo.setVisibleItemCount(COUNT_VISIBLE_ITEMS);
 		repoCombo.addKeyListener(new KeyAdapter() {
 
+			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)
 					addRepository(false);
@@ -142,6 +145,7 @@ public class RepositorySelectionGroup {
 		// We don't ever want this to be interpreted as a default
 		// button event
 		repoCombo.addTraverseListener(new TraverseListener() {
+			@Override
 			public void keyTraversed(TraverseEvent e) {
 				if (e.detail == SWT.TRAVERSE_RETURN) {
 					e.doit = false;
@@ -155,6 +159,7 @@ public class RepositorySelectionGroup {
 		repoCombo.setLayoutData(gd);
 		repoCombo.setFont(comboComposite.getFont());
 		repoCombo.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent event) {
 				URI location = null;
 				IStatus status = null;
@@ -185,6 +190,7 @@ public class RepositorySelectionGroup {
 			/* (non-Javadoc)
 			 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLDropAdapter#handleURLString(java.lang.String, org.eclipse.swt.dnd.DropTargetEvent)
 			 */
+			@Override
 			protected void handleDrop(String urlText, DropTargetEvent event) {
 				repoCombo.setText(urlText);
 				event.detail = DND.DROP_LINK;
@@ -195,10 +201,12 @@ public class RepositorySelectionGroup {
 		Button button = new Button(comboComposite, SWT.PUSH);
 		button.setText(ProvUIMessages.AvailableIUsPage_AddButton);
 		button.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				addRepository(true);
 			}
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				addRepository(true);
 			}
@@ -208,6 +216,7 @@ public class RepositorySelectionGroup {
 
 		// Link to repository manipulator
 		repoManipulatorLink = createLink(comboComposite, new Action() {
+			@Override
 			public void runWithEvent(Event event) {
 				if (repositoryManipulationHook != null)
 					repositoryManipulationHook.preManipulateRepositories();
@@ -223,6 +232,7 @@ public class RepositorySelectionGroup {
 
 		addComboProvisioningListeners();
 		parent.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				removeProvisioningListeners();
 			}
@@ -298,6 +308,7 @@ public class RepositorySelectionGroup {
 		// use a delay to show the validation method because the very next
 		// selection or keystroke might fix it
 		repoCombo.getDisplay().timerExec(500, new Runnable() {
+			@Override
 			public void run() {
 				if (repoDec != null && repoDec.getImage() != info)
 					repoDec.showHoverText(status.getMessage());
@@ -336,6 +347,7 @@ public class RepositorySelectionGroup {
 		if (sites.length > 0)
 			sortRepoItems(items, comboRepos, hasLocalSites);
 		Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				if (repoCombo == null || repoCombo.isDisposed())
 					return;
@@ -386,6 +398,7 @@ public class RepositorySelectionGroup {
 		link.setText(text);
 
 		link.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				IAction linkAction = getLinkAction(event.widget);
 				if (linkAction != null) {
@@ -417,11 +430,13 @@ public class RepositorySelectionGroup {
 		}
 		final Collator collator = Collator.getInstance(Locale.getDefault());
 		Comparator<String> stringComparator = new Comparator<String>() {
+			@Override
 			public int compare(String a, String b) {
 				return collator.compare(a, b);
 			}
 		};
 		Comparator<URI> uriComparator = new Comparator<URI>() {
+			@Override
 			public int compare(URI a, URI b) {
 				return collator.compare(uriToString.get(a), uriToString.get(b));
 			}
@@ -493,14 +508,17 @@ public class RepositorySelectionGroup {
 	void addComboProvisioningListeners() {
 		// We need to monitor repository events so that we can adjust the repo combo.
 		comboRepoListener = new ProvUIProvisioningListener(getClass().getName(), ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, ui.getOperationRunner()) {
+			@Override
 			protected void repositoryAdded(RepositoryEvent e) {
 				fillRepoCombo(getSiteString(e.getRepositoryLocation()));
 			}
 
+			@Override
 			protected void repositoryRemoved(RepositoryEvent e) {
 				fillRepoCombo(null);
 			}
 
+			@Override
 			protected void refreshAll() {
 				fillRepoCombo(null);
 			}
@@ -532,6 +550,7 @@ public class RepositorySelectionGroup {
 		} else if (alwaysPrompt) {
 			AddRepositoryDialog dialog = new AddRepositoryDialog(repoCombo.getShell(), ui) {
 
+				@Override
 				protected String getInitialLocationText() {
 					if (isNewText) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293068
@@ -565,6 +584,7 @@ public class RepositorySelectionGroup {
 		} else if (isNewText) {
 			try {
 				container.run(false, false, new IRunnableWithProgress() {
+					@Override
 					public void run(IProgressMonitor monitor) {
 						URI location;
 						IStatus status;

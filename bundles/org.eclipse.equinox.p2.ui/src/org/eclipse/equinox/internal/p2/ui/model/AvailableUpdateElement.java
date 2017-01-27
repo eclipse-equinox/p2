@@ -59,6 +59,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		return iuToBeUpdated;
 	}
 
+	@Override
 	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
 		IPlanner planner = getPlanner();
 		IProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
@@ -68,6 +69,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		return planner.getProvisioningPlan(request, new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent()), monitor);
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -83,6 +85,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		return iu.equals(other.getIU()) && iuToBeUpdated.equals(other.getIUToBeUpdated());
 	}
 
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -95,6 +98,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		return new Update(iuToBeUpdated, getIU());
 	}
 
+	@Override
 	protected String getImageId(Object obj) {
 		String imageId = super.getImageId(obj);
 		if (ProvUIImages.IMG_IU.equals(imageId) && isLockedForUpdate())

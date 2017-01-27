@@ -63,6 +63,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	}
 
 	class LicenseContentProvider implements ITreeContentProvider {
+		@Override
 		public Object[] getChildren(Object parentElement) {
 			if (!(parentElement instanceof ILicense))
 				return new Object[0];
@@ -79,6 +80,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			return null;
 		}
 
+		@Override
 		public Object getParent(Object element) {
 			if (element instanceof IUWithLicenseParent) {
 				return ((IUWithLicenseParent) element).license;
@@ -86,28 +88,34 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			return null;
 		}
 
+		@Override
 		public boolean hasChildren(Object element) {
 			return licensesToIUs.containsKey(element);
 		}
 
+		@Override
 		public Object[] getElements(Object inputElement) {
 			return licensesToIUs.keySet().toArray();
 		}
 
+		@Override
 		public void dispose() {
 			// Nothing to do
 		}
 
+		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			// Nothing to do
 		}
 	}
 
 	class LicenseLabelProvider extends LabelProvider {
+		@Override
 		public Image getImage(Object element) {
 			return null;
 		}
 
+		@Override
 		public String getText(Object element) {
 			if (element instanceof License) {
 				return getFirstLine(((License) element).getBody());
@@ -174,6 +182,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 		List<IInstallableUnit> ius;
@@ -214,6 +223,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		iuViewer.setInput(licensesToIUs);
 
 		iuViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				handleSelectionChanged((IStructuredSelection) event.getSelection());
 			}
@@ -239,6 +249,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			acceptButton.setText(ProvUIMessages.AcceptLicensesWizardPage_AcceptSingle);
 
 		acceptButton.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setPageComplete(acceptButton.getSelection());
 			}
@@ -249,6 +260,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		else
 			declineButton.setText(ProvUIMessages.AcceptLicensesWizardPage_RejectSingle);
 		declineButton.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setPageComplete(!declineButton.getSelection());
 			}
@@ -492,6 +504,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.dialogs.IDialogPage#setVisible(boolean)
 	 */
+	@Override
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		if (visible && hasLicensesToAccept() && iuViewer != null) {

@@ -46,10 +46,12 @@ public class IUElementListRoot extends QueriedElement {
 	 * 
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
+	@Override
 	protected String getImageId(Object obj) {
 		return null;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		return null;
 	}
@@ -57,6 +59,7 @@ public class IUElementListRoot extends QueriedElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
 	 */
+	@Override
 	public Object[] getChildren(Object o) {
 		return children;
 	}
@@ -66,10 +69,12 @@ public class IUElementListRoot extends QueriedElement {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public Policy getPolicy() {
 		return getProvisioningUI().getPolicy();
 	}
 
+	@Override
 	public ProvisioningUI getProvisioningUI() {
 		if (ui != null)
 			return ui;

@@ -31,6 +31,7 @@ public class QueryableProfileRegistry implements IQueryable<IProfile> {
 		this.ui = ui;
 	}
 
+	@Override
 	public IQueryResult<IProfile> query(IQuery<IProfile> query, IProgressMonitor monitor) {
 		IProfile[] profiles = ProvUI.getProfileRegistry(ui.getSession()).getProfiles();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);

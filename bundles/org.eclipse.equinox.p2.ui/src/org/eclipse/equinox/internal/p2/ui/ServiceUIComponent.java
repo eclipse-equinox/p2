@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
  */
 public class ServiceUIComponent implements IAgentServiceFactory {
 
+	@Override
 	public Object createService(IProvisioningAgent agent) {
 		return new ValidationDialogServiceUI();
 	}

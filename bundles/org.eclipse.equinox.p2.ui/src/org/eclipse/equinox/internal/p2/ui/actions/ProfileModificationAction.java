@@ -44,6 +44,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		init();
 	}
 
+	@Override
 	public void run() {
 		Collection<IInstallableUnit> ius = getSelectedIUs();
 		// No ius or no profile?
@@ -77,10 +78,12 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 			ProvUI.reportStatus(operation.getResolutionResult(), StatusManager.SHOW);
 		} else {
 			job.addJobChangeListener(new JobChangeAdapter() {
+				@Override
 				public void done(IJobChangeEvent event) {
 
 					if (PlatformUI.isWorkbenchRunning()) {
 						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								if (validateOperation(operation))
 									performAction(operation, ius);
@@ -173,6 +176,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return getProvisioningUI().getLicenseManager();
 	}
 
+	@Override
 	protected final void checkEnablement(Object[] selections) {
 		if (isEnabledFor(selections)) {
 			setEnabled(!getProvisioningUI().hasScheduledOperations());

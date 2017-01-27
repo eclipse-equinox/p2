@@ -44,6 +44,7 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
 	 */
+	@Override
 	public Object[] getChildren(Object o) {
 		IProfileRegistry registry = ProvUI.getProfileRegistry(session);
 		long[] timestamps = registry.listProfileTimestamps(profileId);
@@ -80,6 +81,7 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
 	 */
+	@Override
 	public String getLabel(Object o) {
 		return ProvUIMessages.ProfileSnapshots_Label;
 	}
@@ -87,6 +89,7 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#fetchDeferredChildren(java.lang.Object, org.eclipse.ui.progress.IElementCollector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@Override
 	public void fetchDeferredChildren(Object object, IElementCollector collector, IProgressMonitor monitor) {
 		Object[] children = getChildren(object);
 		collector.add(children, monitor);
@@ -95,6 +98,7 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#getRule(java.lang.Object)
 	 */
+	@Override
 	public ISchedulingRule getRule(Object object) {
 		return null;
 	}
@@ -102,6 +106,7 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#isContainer()
 	 */
+	@Override
 	public boolean isContainer() {
 		return false;
 	}

@@ -45,6 +45,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
 	 */
+	@Override
 	public Object[] getElements(final Object input) {
 		// Simple deferred fetch handling for table viewers
 		if (fetchInBackground && input instanceof IDeferredWorkbenchAdapter && viewer instanceof AbstractTableViewer) {
@@ -53,22 +54,26 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 			if (fetchJob != null)
 				fetchJob.cancel();
 			fetchJob = new Job(ProvUIMessages.ProvElementContentProvider_FetchJobTitle) {
+				@Override
 				protected IStatus run(final IProgressMonitor monitor) {
 					IDeferredWorkbenchAdapter parent = (IDeferredWorkbenchAdapter) input;
 					final ArrayList<Object> children = new ArrayList<Object>();
 					parent.fetchDeferredChildren(parent, new IElementCollector() {
+						@Override
 						public void add(Object element, IProgressMonitor mon) {
 							if (mon.isCanceled())
 								return;
 							children.add(element);
 						}
 
+						@Override
 						public void add(Object[] elements, IProgressMonitor mon) {
 							if (mon.isCanceled())
 								return;
 							children.addAll(Arrays.asList(elements));
 						}
 
+						@Override
 						public void done() {
 							// nothing special to do
 						}
@@ -76,6 +81,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 					}, monitor);
 					if (!monitor.isCanceled()) {
 						display.asyncExec(new Runnable() {
+							@Override
 							public void run() {
 								AbstractTableViewer tableViewer = (AbstractTableViewer) viewer;
 								if (monitor.isCanceled() || tableViewer == null || tableViewer.getControl().isDisposed())
@@ -91,6 +97,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 					return Status.OK_STATUS;
 				}
 
+				@Override
 				public boolean belongsTo(Object family) {
 					return family == fetchFamily;
 				}
@@ -108,6 +115,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
 	 */
+	@Override
 	public Object getParent(Object child) {
 		if (child instanceof ProvElement) {
 			return ((ProvElement) child).getParent(child);
@@ -119,6 +127,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
 	 */
+	@Override
 	public boolean hasChildren(Object element) {
 		if (element instanceof ProvElement)
 			return ((ProvElement) element).hasChildren(element);
@@ -129,6 +138,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
 	 */
+	@Override
 	public Object[] getChildren(final Object parent) {
 		if (parent instanceof ProvElement) {
 			return ((ProvElement) parent).getChildren(parent);
@@ -139,6 +149,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
 	 */
+	@Override
 	public void dispose() {
 		viewer = null;
 		if (fetchJob != null) {
@@ -150,6 +161,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
 	 */
+	@Override
 	public void inputChanged(Viewer aViewer, Object oldInput, Object newInput) {
 		this.viewer = aViewer;
 		if (fetchJob != null) {

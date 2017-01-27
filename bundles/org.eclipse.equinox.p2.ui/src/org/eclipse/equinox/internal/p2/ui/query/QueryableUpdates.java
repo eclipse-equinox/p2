@@ -35,6 +35,7 @@ public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 		this.iusToUpdate = iusToUpdate;
 	}
 
+	@Override
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();

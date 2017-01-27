@@ -21,10 +21,12 @@ import org.eclipse.swt.graphics.Image;
  */
 public class CertificateLabelProvider implements ILabelProvider {
 
+	@Override
 	public Image getImage(Object element) {
 		return null;
 	}
 
+	@Override
 	public String getText(Object element) {
 		Certificate cert = null;
 		if (element instanceof TreeNode) {
@@ -37,18 +39,22 @@ public class CertificateLabelProvider implements ILabelProvider {
 		return ""; //$NON-NLS-1$
 	}
 
+	@Override
 	public void addListener(ILabelProviderListener listener) {
 		// do nothing
 	}
 
+	@Override
 	public void dispose() {
 		// do nothing
 	}
 
+	@Override
 	public boolean isLabelProperty(Object element, String property) {
 		return false;
 	}
 
+	@Override
 	public void removeListener(ILabelProviderListener listener) {
 		// do nothing
 	}

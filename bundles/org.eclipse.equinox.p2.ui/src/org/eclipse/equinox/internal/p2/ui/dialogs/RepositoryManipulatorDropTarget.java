@@ -46,6 +46,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		this.control = control;
 	}
 
+	@Override
 	protected void handleDrop(String urlText, final DropTargetEvent event) {
 		event.detail = DND.DROP_NONE;
 		final URI[] location = new URI[1];
@@ -60,6 +61,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 
 		Job job = new WorkbenchJob(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel) {
 
+			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				IStatus status = tracker.validateRepositoryLocation(ui.getSession(), location[0], false, monitor);
 				if (status.isOK()) {

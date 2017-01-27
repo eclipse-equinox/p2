@@ -28,10 +28,12 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 public class ProvUIAdapterFactory implements IAdapterFactory {
 	private static final Class<?>[] CLASSES = new Class[] {IInstallableUnit.class, IProfile.class, IRepository.class, IMetadataRepository.class, IArtifactRepository.class};
 
+	@Override
 	public <T> T getAdapter(Object adaptableObject, Class<T> adapterType) {
 		return ProvUI.getAdapter(adaptableObject, adapterType);
 	}
 
+	@Override
 	public Class<?>[] getAdapterList() {
 		return CLASSES;
 	}

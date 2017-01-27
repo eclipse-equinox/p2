@@ -32,6 +32,7 @@ public class TextURLDropAdapter extends URLDropAdapter {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLDropAdapter#handleURLString(java.lang.String, org.eclipse.swt.dnd.DropTargetEvent)
 	 */
+	@Override
 	protected void handleDrop(String urlText, DropTargetEvent event) {
 		text.setText(urlText);
 		event.detail = DND.DROP_LINK;

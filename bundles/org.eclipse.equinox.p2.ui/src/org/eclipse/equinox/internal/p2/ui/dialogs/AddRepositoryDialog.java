@@ -51,6 +51,7 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parentShell, IProvHelpContextIds.ADD_REPOSITORY_DIALOG);
 	}
 
+	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		initializeDialogUnits(comp);
@@ -68,6 +69,7 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 		Button localButton = new Button(comp, SWT.PUSH);
 		localButton.setText(ProvUIMessages.RepositoryGroup_LocalRepoBrowseButton);
 		localButton.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent event) {
 				DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.APPLICATION_MODAL);
 				dialog.setMessage(ProvUIMessages.RepositoryGroup_SelectRepositoryDirectory);
@@ -88,6 +90,7 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 		Button archiveButton = new Button(comp, SWT.PUSH);
 		archiveButton.setText(ProvUIMessages.RepositoryGroup_ArchivedRepoBrowseButton);
 		archiveButton.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent event) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.APPLICATION_MODAL);
 				dialog.setText(ProvUIMessages.RepositoryGroup_RepositoryFile);
@@ -116,6 +119,7 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 		}
 	}
 
+	@Override
 	protected boolean handleOk() {
 		IStatus status = addRepository();
 		return status.isOK();

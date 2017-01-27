@@ -38,6 +38,7 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ProvElementLabelProvider extends LabelProvider implements ITableLabelProvider {
 
+	@Override
 	public String getText(Object obj) {
 		if (obj instanceof ProvElement) {
 			return ((ProvElement) obj).getLabel(obj);
@@ -80,6 +81,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		return obj.toString();
 	}
 
+	@Override
 	public Image getImage(Object obj) {
 		if (obj instanceof ProvElement) {
 			return ((ProvElement) obj).getImage(obj);
@@ -105,6 +107,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		return null;
 	}
 
+	@Override
 	public Image getColumnImage(Object element, int index) {
 		if (index == 0) {
 			return getImage(element);
@@ -112,6 +115,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		return null;
 	}
 
+	@Override
 	public String getColumnText(Object element, int columnIndex) {
 
 		switch (columnIndex) {

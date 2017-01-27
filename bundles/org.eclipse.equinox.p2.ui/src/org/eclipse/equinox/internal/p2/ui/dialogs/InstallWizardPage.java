@@ -24,10 +24,12 @@ public class InstallWizardPage extends SizeComputingWizardPage {
 		setDescription(ProvUIMessages.InstallWizardPage_NoCheckboxDescription);
 	}
 
+	@Override
 	protected String getOperationLabel() {
 		return ProvUIMessages.InstallIUOperationLabel;
 	}
 
+	@Override
 	protected String getOperationTaskName() {
 		return ProvUIMessages.InstallIUOperationTask;
 	}

@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.*;
  */
 public class IUCopyrightPropertyPage extends IUPropertyPage {
 
+	@Override
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
 		// Get the copyright in the current locale
 		final ICopyright copyright = iu.getCopyright(null);
@@ -60,6 +61,7 @@ public class IUCopyrightPropertyPage extends IUPropertyPage {
 				gd.widthHint = computeWidthLimit(link, 80);
 				link.setLayoutData(gd);
 				link.addSelectionListener(new SelectionAdapter() {
+					@Override
 					public void widgetSelected(SelectionEvent e) {
 						try {
 							showURL(copyright.getLocation().toURL());

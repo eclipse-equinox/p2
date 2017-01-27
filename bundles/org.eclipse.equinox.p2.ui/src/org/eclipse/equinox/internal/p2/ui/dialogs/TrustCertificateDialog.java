@@ -44,6 +44,7 @@ public class TrustCertificateDialog extends ListSelectionDialog {
 		detailsButton = new Button(composite, SWT.NONE);
 		detailsButton.setText(ProvUIMessages.TrustCertificateDialog_Details);
 		detailsButton.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				if (selectedCertificate != null) {
 					X509Certificate cert = (X509Certificate) ((TreeNode) selectedCertificate).getValue();
@@ -52,12 +53,14 @@ public class TrustCertificateDialog extends ListSelectionDialog {
 				}
 			}
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				widgetDefaultSelected(e);
 			}
 		});
 	}
 
+	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 		certificateChainViewer = new TreeViewer(composite, SWT.BORDER);
@@ -89,6 +92,7 @@ public class TrustCertificateDialog extends ListSelectionDialog {
 
 	private ISelectionChangedListener getChainSelectionListener() {
 		return new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				ISelection selection = event.getSelection();
 				if (selection instanceof StructuredSelection) {
@@ -104,6 +108,7 @@ public class TrustCertificateDialog extends ListSelectionDialog {
 
 	private IDoubleClickListener getDoubleClickListener() {
 		return new IDoubleClickListener() {
+			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				StructuredSelection selection = (StructuredSelection) event.getSelection();
 				Object selectedElement = selection.getFirstElement();
@@ -119,6 +124,7 @@ public class TrustCertificateDialog extends ListSelectionDialog {
 
 	private ISelectionChangedListener getParentSelectionListener() {
 		return new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				ISelection selection = event.getSelection();
 				if (selection instanceof StructuredSelection) {

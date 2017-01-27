@@ -37,6 +37,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		this.parent = parent;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IWorkbenchAdapter.class)
@@ -68,6 +69,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	 * 
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getImageDescriptor(java.lang.Object)
 	 */
+	@Override
 	public ImageDescriptor getImageDescriptor(Object object) {
 		String id = getImageId(object);
 		if (id == null) {
@@ -133,6 +135,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getParent(java.lang.Object)
 	 */
+	@Override
 	public Object getParent(Object o) {
 		return parent;
 	}

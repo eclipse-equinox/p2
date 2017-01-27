@@ -41,6 +41,7 @@ public class IUComparator extends ViewerComparator {
 			}
 	}
 
+	@Override
 	public int compare(Viewer viewer, Object obj1, Object obj2) {
 		IInstallableUnit iu1 = ProvUI.getAdapter(obj1, IInstallableUnit.class);
 		IInstallableUnit iu2 = ProvUI.getAdapter(obj2, IInstallableUnit.class);

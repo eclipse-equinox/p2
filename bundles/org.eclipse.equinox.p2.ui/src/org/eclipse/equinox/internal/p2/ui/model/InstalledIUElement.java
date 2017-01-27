@@ -42,14 +42,17 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	 * 
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
+	@Override
 	protected String getImageId(Object obj) {
 		return isPatch ? ProvUIImages.IMG_PATCH_IU : ProvUIImages.IMG_IU;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		return iu.getId();
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IInstallableUnit.class)
@@ -61,24 +64,29 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 		return profileId;
 	}
 
+	@Override
 	public IInstallableUnit getIU() {
 		return iu;
 	}
 
 	// TODO Later we might consider showing this in the installed views,
 	// but it is less important than before install.
+	@Override
 	public long getSize() {
 		return ProvUI.SIZE_UNKNOWN;
 	}
 
+	@Override
 	public boolean shouldShowSize() {
 		return false;
 	}
 
+	@Override
 	public void computeSize(IProgressMonitor monitor) {
 		// Should never be called, as long as shouldShowSize() returns false
 	}
 
+	@Override
 	public boolean shouldShowVersion() {
 		return true;
 	}
@@ -86,6 +94,7 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
 	 */
+	@Override
 	public Collection<IRequirement> getRequirements() {
 		return iu.getRequirements();
 	}
@@ -93,6 +102,7 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
 	 */
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.INSTALLED_IUS;
 	}
@@ -100,10 +110,12 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
 	 */
+	@Override
 	public boolean shouldShowChildren() {
 		return true;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -125,12 +137,14 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 		return false;
 	}
 
+	@Override
 	public int hashCode() {
 		if (iu == null)
 			return 0;
 		return iu.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		if (iu == null)
 			return "NULL"; //$NON-NLS-1$

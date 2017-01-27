@@ -28,6 +28,7 @@ public class ArtifactRepositories extends RootElement {
 		this.queryable = queryable;
 	}
 
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.ARTIFACT_REPOS;
 	}
@@ -36,6 +37,7 @@ public class ArtifactRepositories extends RootElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
 	 */
+	@Override
 	public String getLabel(Object o) {
 		return ProvUIMessages.Label_Repositories;
 	}

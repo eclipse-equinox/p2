@@ -366,6 +366,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		return new Object[0];
 	}
 
+	@Override
 	protected String getFilterString() {
 		return super.getFilterString();
 	}

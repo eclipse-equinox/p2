@@ -126,6 +126,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		createGroupComposite(parent);
 	}
 
+	@Override
 	protected StructuredViewer createViewer(Composite parent) {
 		// Table of available IU's
 		filteredTree = new DelayedFilterCheckboxTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, getPreFilterJobProvider());
@@ -139,10 +140,12 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// a newly loaded visible and expanding it.  Setting the load job to null 
 		// will take care of this.
 		availableIUViewer.getTree().addTreeListener(new TreeListener() {
+			@Override
 			public void treeCollapsed(TreeEvent e) {
 				lastRequestedLoadJob = null;
 			}
 
+			@Override
 			public void treeExpanded(TreeEvent e) {
 				lastRequestedLoadJob = null;
 			}
@@ -172,10 +175,12 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		filteredTree.contentProviderSet(contentProvider);
 
 		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(getClass().getName(), availableIUViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, getProvisioningUI().getOperationRunner()) {
+			@Override
 			protected void repositoryAdded(final RepositoryEvent event) {
 				makeRepositoryVisible(event.getRepositoryLocation());
 			}
 
+			@Override
 			protected void refreshViewer() {
 				final TreeViewer treeViewer = filteredTree.getViewer();
 				final Tree tree = treeViewer.getTree();
@@ -191,6 +196,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).addListener(listener);
 
 		availableIUViewer.getControl().addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).removeListener(listener);
 			}
@@ -217,6 +223,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		} else if (filterConstant == AVAILABLE_NONE) {
 			// Dummy object that explains empty site list
 			return new ProvElement(null) {
+				@Override
 				public Object[] getChildren(Object o) {
 					String description;
 					String name;
@@ -234,6 +241,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 					return new Object[] {new EmptyElementExplanation(null, severity, name, description)};
 				}
 
+				@Override
 				public String getLabel(Object o) {
 					// Label not needed for input
 					return null;
@@ -260,6 +268,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * Return the composite that contains the controls in this group.
 	 * @return the composite
 	 */
+	@Override
 	public Composite getComposite() {
 		return super.getComposite();
 	}
@@ -268,6 +277,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * Get the viewer used to represent the available IU's
 	 * @return the viewer
 	 */
+	@Override
 	public StructuredViewer getStructuredViewer() {
 		return super.getStructuredViewer();
 	}
@@ -277,11 +287,13 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * @return the array of selected IU's
 	 */
 	// overridden for visibility in the public package
+	@Override
 	public java.util.List<IInstallableUnit> getSelectedIUs() {
 		return super.getSelectedIUs();
 	}
 
 	// overridden to weed out non-IU elements, such as repositories or empty explanations
+	@Override
 	public Object[] getSelectedIUElements() {
 		Object[] elements = ((IStructuredSelection) viewer.getSelection()).toArray();
 		ArrayList<Object> list = new ArrayList<Object>(elements.length);
@@ -329,6 +341,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		if (!(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO)) {
 			if (Display.getCurrent() == null)
 				display.asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						updateAvailableViewState();
 					}
@@ -339,6 +352,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		}
 		// First reset the input so that the new repo shows up
 		Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				final TreeViewer treeViewer = filteredTree.getViewer();
 				final Tree tree = treeViewer.getTree();
@@ -358,6 +372,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// We do it in a job to be safe, and when it's done, we update
 		// the UI.
 		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, URIUtil.toUnencodedString(location))) {
+			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					getProvisioningUI().loadMetadataRepository(location, true, monitor);
@@ -373,9 +388,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		job.setSystem(true);
 		job.setUser(false);
 		job.addJobChangeListener(new JobChangeAdapter() {
+			@Override
 			public void done(final IJobChangeEvent event) {
 				if (event.getResult().isOK())
 					display.asyncExec(new Runnable() {
+						@Override
 						@SuppressWarnings("rawtypes")
 						public void run() {
 							final TreeViewer treeViewer = filteredTree.getViewer();
@@ -414,6 +431,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		setUseBoldFontForFilteredItems(queryContext.getViewType() != IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 
 		BusyIndicator.showWhile(display, new Runnable() {
+			@Override
 			public void run() {
 				parent.setRedraw(false);
 				getCheckboxTreeViewer().setInput(getNewInput());
@@ -423,6 +441,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		});
 	}
 
+	@Override
 	public Control getDefaultFocusControl() {
 		if (filteredTree != null)
 			return filteredTree.getFilterControl();
@@ -433,6 +452,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		return filteredTree.getFilterString();
 	}
 
+	@Override
 	protected GridData getViewerGridData() {
 		GridData data = super.getViewerGridData();
 		data.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);
@@ -488,6 +508,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private IPreFilterJobProvider getPreFilterJobProvider() {
 		return new IPreFilterJobProvider() {
 
+			@Override
 			public Job getPreFilterJob() {
 				switch (filterConstant) {
 					case AVAILABLE_ALL :

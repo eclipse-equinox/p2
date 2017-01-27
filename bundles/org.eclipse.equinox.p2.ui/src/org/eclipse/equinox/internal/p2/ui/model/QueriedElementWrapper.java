@@ -44,6 +44,7 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 	/**
 	 * Sets an item as Queryable if it is a QueriedElement
 	 */
+	@Override
 	protected Object wrap(Object item) {
 		if (item instanceof QueriedElement) {
 			QueriedElement element = (QueriedElement) item;
@@ -54,6 +55,7 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 		return item;
 	}
 
+	@Override
 	public Collection<?> getElements(Collector<?> collector) {
 		// Any previously stored explanations are not valid.
 		emptyExplanationString = null;

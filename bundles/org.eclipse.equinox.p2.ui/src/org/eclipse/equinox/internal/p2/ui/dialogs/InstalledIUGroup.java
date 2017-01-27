@@ -51,6 +51,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		createGroupComposite(parent);
 	}
 
+	@Override
 	protected StructuredViewer createViewer(Composite parent) {
 		// Table of installed IU's
 		TreeViewer installedIUViewer = new TreeViewer(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
@@ -74,6 +75,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(getClass().getName(), installedIUViewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE, getProvisioningUI().getOperationRunner());
 		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).addListener(listener);
 		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).removeListener(listener);
 			}
@@ -101,10 +103,12 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	/**
 	 * Get the viewer used to represent the installed IU's
 	 */
+	@Override
 	public StructuredViewer getStructuredViewer() {
 		return super.getStructuredViewer();
 	}
 
+	@Override
 	public Control getDefaultFocusControl() {
 		return super.getDefaultFocusControl();
 	}

@@ -82,6 +82,7 @@ public class ProvisioningOperationRunner {
 		}
 
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (PlatformUI.getWorkbench().isClosing())
 					return;
@@ -110,6 +111,7 @@ public class ProvisioningOperationRunner {
 	public void manageJob(Job job, final int jobRestartPolicy) {
 		ui.getSession().rememberJob(job);
 		job.addJobChangeListener(new JobChangeAdapter() {
+			@Override
 			public void done(IJobChangeEvent event) {
 				int severity = event.getResult().getSeverity();
 				// If the job finished without error, see if restart is needed

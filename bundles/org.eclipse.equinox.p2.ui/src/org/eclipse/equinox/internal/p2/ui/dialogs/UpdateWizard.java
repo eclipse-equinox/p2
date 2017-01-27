@@ -101,6 +101,7 @@ public class UpdateWizard extends WizardWithLicenses {
 		recomputePlan(getContainer());
 	}
 
+	@Override
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
 		mainPage = new SelectableIUsPage(ui, this, getAllPossibleUpdatesRoot(), selections);
 		mainPage.setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
@@ -109,10 +110,12 @@ public class UpdateWizard extends WizardWithLicenses {
 		return mainPage;
 	}
 
+	@Override
 	protected ResolutionResultsWizardPage createResolutionPage() {
 		return new UpdateWizardPage(ui, this, root, (UpdateOperation) operation);
 	}
 
+	@Override
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		if (selectedElements == null)
 			return;
@@ -142,6 +145,7 @@ public class UpdateWizard extends WizardWithLicenses {
 		}
 	}
 
+	@Override
 	protected IResolutionErrorReportingPage createErrorReportingPage() {
 		return (SelectableIUsPage) mainPage;
 	}
@@ -150,6 +154,7 @@ public class UpdateWizard extends WizardWithLicenses {
 		this.skipSelectionsPage = skipSelectionsPage;
 	}
 
+	@Override
 	public IWizardPage getStartingPage() {
 		if (skipSelectionsPage) {
 			// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=276963
@@ -163,6 +168,7 @@ public class UpdateWizard extends WizardWithLicenses {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getProfileChangeOperation(java.lang.Object[])
 	 */
+	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		if (operation == null) {
 			operation = new UpdateOperation(ui.getSession(), getIUsToReplace(elements));

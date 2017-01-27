@@ -34,6 +34,7 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 			this.element = element;
 		}
 
+		@Override
 		public boolean isRemoved() {
 			return super.isRemoved();
 		}
@@ -52,6 +53,7 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.progress.DeferredTreeContentManager#getChildren(java.lang.Object)
 	 */
+	@Override
 	public Object[] getChildren(final Object parent) {
 		elementRequested = parent;
 		return super.getChildren(parent);
@@ -62,12 +64,14 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.progress.DeferredTreeContentManager#startFetchingDeferredChildren(java.lang.Object, org.eclipse.ui.progress.IDeferredWorkbenchAdapter, org.eclipse.ui.progress.PendingUpdateAdapter)
 	 */
+	@Override
 	protected void startFetchingDeferredChildren(final Object parent, final IDeferredWorkbenchAdapter adapter, final PendingUpdateAdapter placeholder) {
 		if (placeholder instanceof ElementPendingUpdateAdapter)
 			notifyListener(true, (ElementPendingUpdateAdapter) placeholder);
 		super.startFetchingDeferredChildren(parent, adapter, placeholder);
 	}
 
+	@Override
 	protected void runClearPlaceholderJob(final PendingUpdateAdapter placeholder) {
 		if (placeholder instanceof ElementPendingUpdateAdapter) {
 			if (((ElementPendingUpdateAdapter) placeholder).isRemoved() || !PlatformUI.isWorkbenchRunning())
@@ -77,6 +81,7 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 		super.runClearPlaceholderJob(placeholder);
 	}
 
+	@Override
 	protected PendingUpdateAdapter createPendingUpdateAdapter() {
 		return new ElementPendingUpdateAdapter(elementRequested);
 	}

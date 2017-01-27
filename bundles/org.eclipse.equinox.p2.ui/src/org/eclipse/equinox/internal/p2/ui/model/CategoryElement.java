@@ -39,10 +39,12 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	 * 
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
+	@Override
 	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_CATEGORY;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		IInstallableUnit iu = getIU();
 		if (iu != null)
@@ -50,6 +52,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return null;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IInstallableUnit.class)
@@ -57,28 +60,34 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return super.getAdapter(adapter);
 	}
 
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.AVAILABLE_IUS;
 	}
 
+	@Override
 	public IInstallableUnit getIU() {
 		if (ius == null || ius.isEmpty())
 			return null;
 		return ius.get(0);
 	}
 
+	@Override
 	public long getSize() {
 		return ProvUI.SIZE_UNKNOWN;
 	}
 
+	@Override
 	public boolean shouldShowSize() {
 		return false;
 	}
 
+	@Override
 	public void computeSize(IProgressMonitor monitor) {
 		// Should never be called, since shouldShowSize() returns false
 	}
 
+	@Override
 	public boolean shouldShowVersion() {
 		return false;
 	}
@@ -102,6 +111,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return mergeKey;
 	}
 
+	@Override
 	public Collection<IRequirement> getRequirements() {
 		if (ius == null || ius.isEmpty())
 			return Collections.<IRequirement> emptyList();
@@ -129,10 +139,12 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
 	 */
+	@Override
 	public boolean shouldShowChildren() {
 		return true;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -147,6 +159,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return getMergeKey(myIU).equals(getMergeKey(objIU));
 	}
 
+	@Override
 	public int hashCode() {
 		IInstallableUnit iu = getIU();
 		final int prime = 23;
@@ -155,6 +168,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return result;
 	}
 
+	@Override
 	public String toString() {
 		IInstallableUnit iu = getIU();
 		if (iu == null)

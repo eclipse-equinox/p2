@@ -52,6 +52,7 @@ public class AvailableIUPatternFilter extends PatternFilter {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.internal.dialogs.PatternFilter#isElementSelectable(java.lang.Object)
 	 */
+	@Override
 	public boolean isElementSelectable(Object element) {
 		return element instanceof IIUElement && !(element instanceof CategoryElement);
 	}
@@ -62,6 +63,7 @@ public class AvailableIUPatternFilter extends PatternFilter {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.PatternFilter#setPattern(java.lang.String)
 	 */
+	@Override
 	public void setPattern(String patternString) {
 		super.setPattern(patternString);
 		this.patternString = patternString;
@@ -73,6 +75,7 @@ public class AvailableIUPatternFilter extends PatternFilter {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.PatternFilter#isParentMatch(org.eclipse.jface.viewers.Viewer, java.lang.Object)
 	 */
+	@Override
 	protected boolean isParentMatch(Viewer viewer, Object element) {
 		if (patternString == null || patternString.length() == 0)
 			return true;
@@ -82,6 +85,7 @@ public class AvailableIUPatternFilter extends PatternFilter {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.PatternFilter#isElementMatch(org.eclipse.jface.viewers.Viewer, java.lang.Object)
 	 */
+	@Override
 	protected boolean isLeafMatch(Viewer viewer, Object element) {
 		if (element instanceof CategoryElement) {
 			return false;

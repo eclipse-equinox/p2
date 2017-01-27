@@ -37,6 +37,7 @@ public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 	 * @return <code>true</code> if the query should continue,
 	 * or <code>false</code> to indicate the query should stop.
 	 */
+	@Override
 	protected boolean shouldWrap(Object match) {
 		if ((match instanceof URI))
 			return true;
@@ -46,6 +47,7 @@ public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 	/**
 	 * Transforms the item to a UI element
 	 */
+	@Override
 	protected Object wrap(Object item) {
 		// Assume the item is enabled
 

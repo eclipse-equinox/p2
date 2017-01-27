@@ -64,6 +64,7 @@ public class ApplyProfileChangesDialog extends MessageDialog {
 	 * 
 	 * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
 	 */
+	@Override
 	protected void buttonPressed(int id) {
 		if (id == 0) { // YES
 			returnCode = PROFILE_RESTART;

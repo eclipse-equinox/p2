@@ -71,6 +71,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IProvHelpContextIds.INSTALLED_SOFTWARE);
@@ -126,6 +127,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.about.InstallationPage#createPageButtons(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	public void createPageButtons(Composite parent) {
 		if (profileId == null)
 			return;
@@ -136,10 +138,12 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		// is shown properly.
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=236495
 		UpdateAction updateAction = new UpdateAction(getProvisioningUI(), new ISelectionProvider() {
+			@Override
 			public void addSelectionChangedListener(ISelectionChangedListener listener) {
 				installedIUGroup.getStructuredViewer().addSelectionChangedListener(listener);
 			}
 
+			@Override
 			public ISelection getSelection() {
 				StructuredViewer viewer = installedIUGroup.getStructuredViewer();
 				ISelection selection = viewer.getSelection();
@@ -150,14 +154,17 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 				return selection;
 			}
 
+			@Override
 			public void removeSelectionChangedListener(ISelectionChangedListener listener) {
 				installedIUGroup.getStructuredViewer().removeSelectionChangedListener(listener);
 			}
 
+			@Override
 			public void setSelection(ISelection selection) {
 				installedIUGroup.getStructuredViewer().setSelection(selection);
 			}
 		}, profileId, true) {
+			@Override
 			public void run() {
 				super.run();
 				if (getReturnCode() == Window.OK)
@@ -169,6 +176,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		updateButton.setData(BUTTON_ACTION, updateAction);
 		// Uninstall action
 		Action uninstallAction = new UninstallAction(getProvisioningUI(), installedIUGroup.getStructuredViewer(), profileId) {
+			@Override
 			public void run() {
 				super.run();
 				if (getReturnCode() == Window.OK)
@@ -187,6 +195,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		// we rely on the enablement state of the action.  So we don't hook
 		// the selection listener on our table until after actions are created.
 		installedIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				updateDetailsArea();
 				updateEnablement();
@@ -196,6 +205,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 
 		final IUPatternFilter searchFilter = new IUPatternFilter(getColumnConfig());
 		filterText.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				if (filterText != null && !filterText.isDisposed()) {
 					searchFilter.setPattern(filterText.getText());
@@ -250,6 +260,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.ui.ICopyable#copyToClipboard(org.eclipse.swt.widgets.Control)
 	 */
+	@Override
 	public void copyToClipboard(Control activeControl) {
 		Object[] elements = installedIUGroup.getSelectedIUElements();
 		if (elements.length == 0)
@@ -260,6 +271,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		clipboard.dispose();
 	}
 
+	@Override
 	protected void buttonPressed(int buttonId) {
 		switch (buttonId) {
 			case UPDATE_ID :

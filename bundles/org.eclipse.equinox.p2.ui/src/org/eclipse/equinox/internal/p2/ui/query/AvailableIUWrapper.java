@@ -63,6 +63,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 
 	InformationCache cache = null;
 
+	@Override
 	protected boolean shouldWrap(Object match) {
 		IInstallableUnit iu = ProvUI.getAdapter(match, IInstallableUnit.class);
 		cache = computeIUInformation(iu); // Cache the result
@@ -99,6 +100,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 		return new InformationCache(iu, isUpdate, isInstalled, isPatch);
 	}
 
+	@Override
 	protected Object wrap(Object item) {
 		IInstallableUnit iu = ProvUI.getAdapter(item, IInstallableUnit.class);
 		boolean isUpdate = false;

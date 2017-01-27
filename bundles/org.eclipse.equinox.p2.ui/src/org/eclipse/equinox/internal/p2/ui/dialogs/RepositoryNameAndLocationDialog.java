@@ -49,11 +49,13 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		setTitle(ProvUIMessages.RepositoryNameAndLocationDialog_Title);
 	}
 
+	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
 		okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 	}
 
+	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		initializeDialogUnits(comp);
@@ -82,6 +84,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		return ui.getRepositoryTracker();
 	}
 
+	@Override
 	protected void okPressed() {
 		if (handleOk())
 			super.okPressed();
@@ -148,6 +151,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 				status[0] = Status.OK_STATUS;
 			else
 				BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+					@Override
 					public void run() {
 						status[0] = getRepositoryTracker().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null);
 					}
@@ -165,6 +169,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 
 	}
 
+	@Override
 	protected void updateButtonsEnableState(IStatus status) {
 		setOkEnablement(!status.matches(IStatus.ERROR));
 	}
@@ -215,6 +220,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 		target.addDropListener(new TextURLDropAdapter(url, true));
 		url.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				validateRepositoryURL(false);
 			}

@@ -50,6 +50,7 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.actions.SelectionProviderAction#selectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
 	 */
+	@Override
 	public final void selectionChanged(IStructuredSelection selection) {
 		ISelection providerSelection = getSelectionProvider().getSelection();
 		if (providerSelection instanceof IStructuredSelection) {

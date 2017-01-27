@@ -39,6 +39,7 @@ public class Updates extends QueriedElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
 	 */
+	@Override
 	public String getLabel(Object o) {
 		return ProvUIMessages.Updates_Label;
 	}
@@ -46,6 +47,7 @@ public class Updates extends QueriedElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getDefaultQueryType()
 	 */
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.AVAILABLE_UPDATES;
 	}

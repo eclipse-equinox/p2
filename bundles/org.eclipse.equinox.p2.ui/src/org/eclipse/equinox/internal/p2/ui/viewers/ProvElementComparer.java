@@ -19,6 +19,7 @@ import org.eclipse.jface.viewers.IElementComparer;
 
 public class ProvElementComparer implements IElementComparer {
 
+	@Override
 	public boolean equals(Object a, Object b) {
 		// We treat category elements specially because this
 		// is one case where resolving down to an IU will lose identity
@@ -40,6 +41,7 @@ public class ProvElementComparer implements IElementComparer {
 		return a.equals(b);
 	}
 
+	@Override
 	public int hashCode(Object element) {
 		if (element instanceof CategoryElement)
 			return element.hashCode();

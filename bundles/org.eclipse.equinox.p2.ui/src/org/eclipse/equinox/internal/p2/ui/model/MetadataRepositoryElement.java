@@ -54,6 +54,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		this.isEnabled = isEnabled;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IMetadataRepository.class)
@@ -63,6 +64,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		return super.getAdapter(adapter);
 	}
 
+	@Override
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
 		if (cache != null)
 			return cache;
@@ -83,14 +85,17 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		return cache;
 	}
 
+	@Override
 	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_METADATA_REPOSITORY;
 	}
 
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.AVAILABLE_IUS;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		String n = getName();
 		if (n != null && n.length() > 0) {
@@ -104,12 +109,14 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryable()
 	 */
+	@Override
 	public IQueryable<?> getQueryable() {
 		if (queryable == null)
 			queryable = getRepository(new NullProgressMonitor());
 		return queryable;
 	}
 
+	@Override
 	public IMetadataRepository getRepository(IProgressMonitor monitor) {
 		try {
 			return getMetadataRepository(monitor);
@@ -135,6 +142,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#knowsQueryable()
 	 */
+	@Override
 	public boolean knowsQueryable() {
 		return location != null;
 	}
@@ -142,6 +150,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getURL()
 	 */
+	@Override
 	public URI getLocation() {
 		return location;
 	}
@@ -150,6 +159,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
+	@Override
 	public String getName() {
 		if (name == null) {
 			name = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
@@ -174,6 +184,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
+	@Override
 	public String getDescription() {
 		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.RepositoryElement_NotFound;
@@ -186,6 +197,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#isEnabled()
 	 */
+	@Override
 	public boolean isEnabled() {
 		return isEnabled;
 	}
@@ -193,6 +205,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement#setEnabled(boolean)
 	 */
+	@Override
 	public void setEnabled(boolean enabled) {
 		isEnabled = enabled;
 	}
@@ -207,6 +220,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#hasQueryable()
 	 */
+	@Override
 	public boolean hasQueryable() {
 		if (queryable != null)
 			return true;
@@ -222,6 +236,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		return true;
 	}
 
+	@Override
 	public Policy getPolicy() {
 		Object parent = getParent(this);
 		if (parent == null)
@@ -231,6 +246,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		return getProvisioningUI().getPolicy();
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer();
 		result.append("Metadata Repository Element - "); //$NON-NLS-1$
@@ -251,6 +267,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * When they are roots the should have a ui set directly.  As children they should
 	 * defer to the parent to get the ui.
 	 */
+	@Override
 	public ProvisioningUI getProvisioningUI() {
 		ProvisioningUI ui = super.getProvisioningUI();
 		if (ui != null)

@@ -46,6 +46,7 @@ public class ValidationDialogServiceUI extends UIServices {
 			this.linkText = linkText;
 		}
 
+		@Override
 		protected Control createCustomArea(Composite parent) {
 			if (linkText == null)
 				return super.createCustomArea(parent);
@@ -77,6 +78,7 @@ public class ValidationDialogServiceUI extends UIServices {
 			super(parentShell, dialogTitle, message, status, displayMask);
 		}
 
+		@Override
 		protected void createButtonsForButtonBar(Composite parent) {
 			// create OK and Details buttons
 			createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
@@ -89,11 +91,13 @@ public class ValidationDialogServiceUI extends UIServices {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.IServiceUI#getUsernamePassword(java.lang.String)
 	 */
+	@Override
 	public AuthenticationInfo getUsernamePassword(final String location) {
 
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		if (!suppressAuthentication() && !isHeadless()) {
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				@Override
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
 					String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
@@ -123,6 +127,7 @@ public class ValidationDialogServiceUI extends UIServices {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.IServiceUI#showCertificates(java.lang.Object)
 	 */
+	@Override
 	public TrustInfo getTrustInfo(Certificate[][] untrustedChains, final String[] unsignedDetail) {
 		boolean trustUnsigned = true;
 		boolean persistTrust = false;
@@ -132,6 +137,7 @@ public class ValidationDialogServiceUI extends UIServices {
 		if (!isHeadless() && unsignedDetail != null && unsignedDetail.length > 0) {
 			final boolean[] result = new boolean[] {false};
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				@Override
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
 					OkCancelErrorDialog dialog = new OkCancelErrorDialog(shell, ProvUIMessages.ServiceUI_warning_title, null, createStatus(), IStatus.WARNING);
@@ -159,6 +165,7 @@ public class ValidationDialogServiceUI extends UIServices {
 			final TreeNode[] input = createTreeNodes(untrustedChains);
 
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				@Override
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
 					ILabelProvider labelProvider = new CertificateLabelProvider();
@@ -194,10 +201,12 @@ public class ValidationDialogServiceUI extends UIServices {
 		return children;
 	}
 
+	@Override
 	public AuthenticationInfo getUsernamePassword(final String location, final AuthenticationInfo previousInfo) {
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		if (!suppressAuthentication() && !isHeadless()) {
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+				@Override
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
 					String message = null;
@@ -220,12 +229,14 @@ public class ValidationDialogServiceUI extends UIServices {
 		return result[0];
 	}
 
+	@Override
 	public void showInformationMessage(final String title, final String text, final String linkText) {
 		if (isHeadless()) {
 			super.showInformationMessage(title, text, linkText);
 			return;
 		}
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				MessageDialog dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), title, null, text, MessageDialog.INFORMATION, new String[] {IDialogConstants.OK_LABEL}, 0, linkText);
 				dialog.open();

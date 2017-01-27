@@ -76,14 +76,17 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			this.ui = ui;
 		}
 
+		@Override
 		protected CellEditor getCellEditor(Object element) {
 			return new TextCellEditor(((TableViewer) getViewer()).getTable());
 		}
 
+		@Override
 		protected boolean canEdit(Object element) {
 			return element instanceof RollbackProfileElement;
 		}
 
+		@Override
 		protected Object getValue(Object element) {
 			if (element instanceof RollbackProfileElement) {
 				return ((RollbackProfileElement) element).getProfileTag() != null ? ((RollbackProfileElement) element).getProfileTag() : ""; //$NON-NLS-1$
@@ -91,6 +94,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			return null;
 		}
 
+		@Override
 		protected void setValue(Object element, Object value) {
 			if (element instanceof RollbackProfileElement && value instanceof String) {
 				RollbackProfileElement ele = ((RollbackProfileElement) element);
@@ -117,6 +121,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.about.InstallationPage#createPageButtons(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	public void createPageButtons(Composite parent) {
 		if (profileId == null)
 			return;
@@ -132,6 +137,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		profileId = getProvisioningUI().getProfileId();
 		if (profileId == null) {
@@ -175,6 +181,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		label.setText(ProvUIMessages.RevertDialog_ConfigsLabel);
 		configsViewer = new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
 		ProvElementContentProvider provider = new ProvElementContentProvider() {
+			@Override
 			protected void finishedFetchingElements(Object o) {
 				Object element = configsViewer.getElementAt(0);
 				if (element != null)
@@ -191,6 +198,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			// We override the ViewerComparator so that we don't get the labels of the elements
 			// for comparison, but rather get the timestamps and compare them.
 			// Reverse sorting is used so that newest is first.
+			@Override
 			public int compare(Viewer viewer, Object o1, Object o2) {
 				if (o1 instanceof RollbackProfileElement && o2 instanceof RollbackProfileElement) {
 					long timestamp1 = ((RollbackProfileElement) o1).getTimestamp();
@@ -206,6 +214,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		configsViewer.setInput(getInput());
 
 		configsViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				handleSelectionChanged((IStructuredSelection) event.getSelection());
 			}
@@ -263,6 +272,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	private void createRevertAction() {
 		revertAction = new Action() {
+			@Override
 			public void run() {
 				boolean result = MessageDialog.openQuestion(getShell(), ProvUIMessages.RevertDialog_Title, ProvUIMessages.RevertDialog_ConfirmRestartMessage);
 				if (!result)
@@ -282,6 +292,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		return element;
 	}
 
+	@Override
 	protected void buttonPressed(int buttonId) {
 		switch (buttonId) {
 			case REVERT_ID :
@@ -371,6 +382,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			return false;
 		final IProvisioningPlan[] plan = new IProvisioningPlan[1];
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			@Override
 			public void run(IProgressMonitor monitor) {
 				IProfile currentProfile;
 				IProfileRegistry registry = ProvUI.getProfileRegistry(getSession());
@@ -415,6 +427,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.ui.ICopyable#copyToClipboard(org.eclipse.swt.widgets.Control)
 	 */
+	@Override
 	public void copyToClipboard(Control activeControl) {
 		String text = ""; //$NON-NLS-1$
 		if (activeControl == configContentsViewer.getControl()) {

@@ -36,6 +36,7 @@ abstract class ProvisioningWizardPage extends WizardPage implements ICopyable {
 		return wizard;
 	}
 
+	@Override
 	public void copyToClipboard(Control activeControl) {
 		String text = getClipboardText(activeControl);
 		if (text.length() == 0)

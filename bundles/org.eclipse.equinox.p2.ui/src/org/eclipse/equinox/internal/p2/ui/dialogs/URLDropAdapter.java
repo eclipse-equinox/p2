@@ -35,6 +35,7 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 		this.convertFileToURL = convertFileToURL;
 	}
 
+	@Override
 	public void dragEnter(DropTargetEvent e) {
 		if (!dropTargetIsValid(e)) {
 			e.detail = DND.DROP_NONE;
@@ -44,11 +45,13 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 			e.detail = DND.DROP_LINK;
 	}
 
+	@Override
 	public void dragOperationChanged(DropTargetEvent e) {
 		if (e.detail == DND.DROP_NONE)
 			e.detail = DND.DROP_LINK;
 	}
 
+	@Override
 	public void drop(DropTargetEvent event) {
 		if (dropTargetIsValid(event)) {
 			String urlText = getURLText(event);

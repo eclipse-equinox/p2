@@ -32,6 +32,7 @@ public class CopyPopup {
 			/*
 			 * @see SelectionListener.widgetSelected (SelectionEvent)
 			 */
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				copySource.copyToClipboard(control);
 			}
@@ -39,6 +40,7 @@ public class CopyPopup {
 			/*
 			 * @see SelectionListener.widgetDefaultSelected(SelectionEvent)
 			 */
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				copySource.copyToClipboard(control);
 			}

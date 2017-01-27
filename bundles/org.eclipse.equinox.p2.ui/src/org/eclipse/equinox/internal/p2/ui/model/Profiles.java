@@ -32,6 +32,7 @@ public class Profiles extends RootElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
 	 */
+	@Override
 	public String getLabel(Object o) {
 		return ProvUIMessages.Label_Profiles;
 	}
@@ -39,6 +40,7 @@ public class Profiles extends RootElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getDefaultQueryType()
 	 */
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.PROFILES;
 	}

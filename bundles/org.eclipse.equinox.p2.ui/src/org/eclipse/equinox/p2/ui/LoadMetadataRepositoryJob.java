@@ -89,6 +89,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.operations.ProvisioningJob#runModal(org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@Override
 	public IStatus runModal(IProgressMonitor monitor) {
 		if (locations == null || locations.length == 0)
 			return Status.OK_STATUS;
@@ -182,6 +183,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.runtime.jobs.Job#belongsTo(java.lang.Object)
 	 */
+	@Override
 	public boolean belongsTo(Object family) {
 		return family == LOAD_FAMILY;
 	}

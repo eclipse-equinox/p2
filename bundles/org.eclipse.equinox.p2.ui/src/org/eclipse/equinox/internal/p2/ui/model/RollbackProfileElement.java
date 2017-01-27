@@ -48,16 +48,19 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 	 * 
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
+	@Override
 	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_PROFILE;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		if (isCurrent)
 			return ProvUIMessages.RollbackProfileElement_CurrentInstallation;
 		return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG).format(new Date(timestamp));
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IProfile.class)
@@ -100,6 +103,7 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
 	 */
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.INSTALLED_IUS;
 	}
@@ -109,6 +113,7 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getQueryable()
 	 */
+	@Override
 	public IQueryable<?> getQueryable() {
 		return getProfileSnapshot(new NullProgressMonitor());
 	}

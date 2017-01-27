@@ -41,6 +41,7 @@ public class IUDragAdapter extends DragSourceAdapter {
 	 * Set the drag data to represent the local selection of IU's if possible.
 	 * Fallback to using a text description of each IU.
 	 */
+	@Override
 	public void dragSetData(DragSourceEvent event) {
 		IInstallableUnit[] ius = getSelectedIUs();
 
@@ -71,6 +72,7 @@ public class IUDragAdapter extends DragSourceAdapter {
 	/**
 	 * Start the drag only if the selection contains IUs.
 	 */
+	@Override
 	public void dragStart(DragSourceEvent event) {
 
 		// Focus workaround copied from navigator drag adapter

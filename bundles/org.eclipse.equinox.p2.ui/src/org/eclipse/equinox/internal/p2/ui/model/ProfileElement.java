@@ -29,6 +29,7 @@ public class ProfileElement extends RemoteQueriedElement {
 		this.profileId = profileId;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IProfile.class)
@@ -36,10 +37,12 @@ public class ProfileElement extends RemoteQueriedElement {
 		return super.getAdapter(adapter);
 	}
 
+	@Override
 	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_PROFILE;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		return profileId;
 	}
@@ -48,10 +51,12 @@ public class ProfileElement extends RemoteQueriedElement {
 		return profileId;
 	}
 
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.INSTALLED_IUS;
 	}
 
+	@Override
 	public IQueryable<?> getQueryable() {
 		return ProvUI.getProfileRegistry(getProvisioningUI().getSession()).getProfile(profileId);
 	}
@@ -62,6 +67,7 @@ public class ProfileElement extends RemoteQueriedElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#knowsQueryable()
 	 */
+	@Override
 	public boolean knowsQueryable() {
 		return profileId != null;
 	}
@@ -76,6 +82,7 @@ public class ProfileElement extends RemoteQueriedElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement#isContainer()
 	 */
+	@Override
 	public boolean isContainer() {
 		return super.getChildren(this).length > 0;
 	}

@@ -30,6 +30,7 @@ public class ArtifactKeyWrapper extends QueriedElementWrapper {
 		this.repo = repo;
 	}
 
+	@Override
 	protected boolean shouldWrap(Object match) {
 		if ((match instanceof IArtifactKey))
 			return true;
@@ -39,6 +40,7 @@ public class ArtifactKeyWrapper extends QueriedElementWrapper {
 	/**
 	 * Transforms the item to a UI element
 	 */
+	@Override
 	protected Object wrap(Object item) {
 		return super.wrap(new ArtifactElement(parent, (IArtifactKey) item, repo));
 	}

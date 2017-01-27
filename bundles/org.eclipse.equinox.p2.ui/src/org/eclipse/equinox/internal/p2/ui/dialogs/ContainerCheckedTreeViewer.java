@@ -84,14 +84,17 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	private void initViewer() {
 		setUseHashlookup(true);
 		addCheckStateListener(new ICheckStateListener() {
+			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				doCheckStateChanged(event.getElement());
 			}
 		});
 		addTreeListener(new ITreeViewerListener() {
+			@Override
 			public void treeCollapsed(TreeExpansionEvent event) {
 			}
 
+			@Override
 			public void treeExpanded(TreeExpansionEvent event) {
 				Widget item = findItem(event.getElement());
 				if (item instanceof TreeItem) {
@@ -185,6 +188,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.ICheckable#setChecked(java.lang.Object, boolean)
 	 */
+	@Override
 	public boolean setChecked(Object element, boolean state) {
 		if (super.setChecked(element, state)) {
 			doCheckStateChanged(element);
@@ -196,6 +200,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.CheckboxTreeViewer#setCheckedElements(java.lang.Object[])
 	 */
+	@Override
 	public void setCheckedElements(Object[] elements) {
 		super.setCheckedElements(elements);
 		for (int i = 0; i < elements.length; i++) {
@@ -206,6 +211,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.AbstractTreeViewer#setExpanded(org.eclipse.swt.widgets.Item, boolean)
 	 */
+	@Override
 	protected void setExpanded(Item item, boolean expand) {
 		super.setExpanded(item, expand);
 		if (expand && item instanceof TreeItem) {
@@ -216,6 +222,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.CheckboxTreeViewer#getCheckedElements()
 	 */
+	@Override
 	public Object[] getCheckedElements() {
 		Object[] checked = super.getCheckedElements();
 		// add all items that are children of a checked node but not created yet
@@ -259,12 +266,14 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	// won't be.  The best we can do is at least turn off all the
 	// rippling checks that happen during this method since we are going
 	// to reset all the checkmarks anyway.
+	@Override
 	protected void preservingSelection(Runnable updateCode) {
 		rippleCheckMarks = false;
 		super.preservingSelection(updateCode);
 		rippleCheckMarks = true;
 	}
 
+	@Override
 	protected void internalRefresh(Object element, boolean updateLabels) {
 		saveCheckedState();
 		super.internalRefresh(element, updateLabels);

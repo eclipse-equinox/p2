@@ -36,6 +36,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 		super(ui, label, selectionProvider, profileId);
 	}
 
+	@Override
 	protected boolean isEnabledFor(Object[] selectionArray) {
 		Object parent = null;
 		// We don't want to prompt for a profile during validation,
@@ -68,6 +69,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 		return false;
 	}
 
+	@Override
 	protected boolean isSelectable(IIUElement element) {
 		if (!super.isSelectable(element))
 			return false;
@@ -80,6 +82,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 		return false;
 	}
 
+	@Override
 	protected boolean isSelectable(IInstallableUnit iu) {
 		if (!super.isSelectable(iu))
 			return false;

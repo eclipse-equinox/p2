@@ -61,19 +61,23 @@ public class RemediationGroup {
 
 	public class RemedyContentProvider implements ITreeContentProvider {
 
+		@Override
 		public void dispose() {
 			// not needed
 		}
 
+		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			// not needed
 		}
 
+		@Override
 		public Object[] getElements(Object inputElement) {
 			Object[] elements = ElementUtils.requestToRemedyElementsCategories((Remedy) inputElement);
 			return elements;
 		}
 
+		@Override
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof RemedyElementCategory) {
 				RemedyElementCategory category = (RemedyElementCategory) parentElement;
@@ -82,10 +86,12 @@ public class RemediationGroup {
 			return null;
 		}
 
+		@Override
 		public Object getParent(Object element) {
 			return null;
 		}
 
+		@Override
 		public boolean hasChildren(Object element) {
 			if (element instanceof RemedyElementCategory) {
 				return true;
@@ -115,6 +121,7 @@ public class RemediationGroup {
 		descriptionLabel.setText(ProvUIMessages.RemediationPage_SubDescription);
 
 		solutionslistener = new Listener() {
+			@Override
 			public void handleEvent(Event e) {
 				Button btn = (Button) e.widget;
 				Remedy remedy = (btn.getData() == null ? null : (Remedy) btn.getData());
@@ -152,6 +159,7 @@ public class RemediationGroup {
 		buildMyOwnSolution.addListener(SWT.Selection, solutionslistener);
 
 		Listener checkboxListener = new Listener() {
+			@Override
 			public void handleEvent(Event e) {
 				currentRemedy = searchRemedyMatchingUserChoices();
 				refreshResultComposite();
@@ -221,6 +229,7 @@ public class RemediationGroup {
 		nameColumn.getColumn().setMoveable(true);
 		nameColumn.getColumn().addSelectionListener(columnChangeListener(0));
 		nameColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
 			public String getText(Object element) {
 				if (element instanceof RemedyElementCategory)
 					return ((RemedyElementCategory) element).getName();
@@ -234,6 +243,7 @@ public class RemediationGroup {
 				return super.getText(element);
 			}
 
+			@Override
 			public Image getImage(Object element) {
 				if (element instanceof RemedyElementCategory) {
 					RemedyElementCategory category = (RemedyElementCategory) element;
@@ -269,6 +279,7 @@ public class RemediationGroup {
 				return super.getImage(element);
 			}
 
+			@Override
 			public String getToolTipText(Object element) {
 				if (element instanceof RemedyIUDetail) {
 					RemedyIUDetail iuDetail = (RemedyIUDetail) element;
@@ -312,6 +323,7 @@ public class RemediationGroup {
 		versionColumn.getColumn().setWidth(200);
 		versionColumn.getColumn().addSelectionListener(columnChangeListener(1));
 		versionColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
 			public String getText(Object element) {
 				if (element instanceof RemedyIUDetail) {
 					RemedyIUDetail iu = (RemedyIUDetail) element;
@@ -327,6 +339,7 @@ public class RemediationGroup {
 		idColumn.getColumn().addSelectionListener(columnChangeListener(2));
 
 		idColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
 			public String getText(Object element) {
 				if (element instanceof RemedyIUDetail) {
 					RemedyIUDetail iu = (RemedyIUDetail) element;

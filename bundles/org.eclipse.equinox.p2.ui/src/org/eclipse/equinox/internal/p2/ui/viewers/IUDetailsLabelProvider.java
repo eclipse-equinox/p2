@@ -62,14 +62,17 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		this.shell = shell;
 	}
 
+	@Override
 	public String getText(Object obj) {
 		return getColumnText(obj, PRIMARY_COLUMN);
 	}
 
+	@Override
 	public Image getImage(Object obj) {
 		return getColumnImage(obj, PRIMARY_COLUMN);
 	}
 
+	@Override
 	public String getColumnText(Object element, int columnIndex) {
 		int columnContent = IUColumnConfig.COLUMN_ID;
 		if (columnIndex < columnConfig.length) {
@@ -125,6 +128,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		return BLANK;
 	}
 
+	@Override
 	public Image getColumnImage(Object element, int index) {
 		if (index == PRIMARY_COLUMN) {
 			if (element instanceof ProvElement)
@@ -144,6 +148,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		if (!jobs.containsKey(element)) {
 			Job resolveJob = new Job(element.getIU().getId()) {
 
+				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					if (monitor.isCanceled())
 						return Status.CANCEL_STATUS;
@@ -165,6 +170,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 					shell.getDisplay().asyncExec(new Runnable() {
 
+						@Override
 						public void run() {
 							if (shell != null && !shell.isDisposed())
 								fireLabelProviderChanged(new LabelProviderChangedEvent(IUDetailsLabelProvider.this, element));
@@ -177,6 +183,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			jobs.put(element, resolveJob);
 			resolveJob.setSystem(true);
 			resolveJob.addJobChangeListener(new JobChangeAdapter() {
+				@Override
 				public void done(IJobChangeEvent event) {
 					jobs.remove(element);
 				}
@@ -214,6 +221,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		this.useBoldFont = useBoldFont;
 	}
 
+	@Override
 	public String getToolTipText(Object element) {
 		IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null || toolTipProperty == null)
@@ -224,6 +232,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
 	 */
+	@Override
 	public Font getFont(Object element) {
 		if (filteredTree != null && useBoldFont) {
 			return FilteredTree.getBoldFont(element, filteredTree, filteredTree.getPatternFilter());
@@ -231,6 +240,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		return null;
 	}
 
+	@Override
 	public void dispose() {
 		super.dispose();
 		for (Job job : jobs.values())

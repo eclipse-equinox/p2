@@ -36,6 +36,7 @@ public class UninstallAction extends ExistingIUInProfileAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.AlterExistingProfileIUAction#getLockConstant()
 	 */
+	@Override
 	protected int getLockConstant() {
 		return IProfile.LOCK_UNINSTALL;
 	}
@@ -43,6 +44,7 @@ public class UninstallAction extends ExistingIUInProfileAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#getProfileChangeOperation(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
 	 */
+	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Collection<IInstallableUnit> ius) {
 		return ui.getUninstallOperation(ius, null);
 	}
@@ -50,6 +52,7 @@ public class UninstallAction extends ExistingIUInProfileAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#performAction(org.eclipse.equinox.p2.operations.ProfileChangeOperation, org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
 	 */
+	@Override
 	protected int performAction(ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
 		return ui.openUninstallWizard(ius, (UninstallOperation) operation, null);
 	}

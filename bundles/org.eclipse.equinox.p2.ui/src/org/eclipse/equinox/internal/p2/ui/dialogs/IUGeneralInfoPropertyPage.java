@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.*;
  */
 public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 
+	@Override
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
@@ -102,6 +103,7 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 				gd.widthHint = computeWidthLimit(link, 80);
 				link.setLayoutData(gd);
 				link.addSelectionListener(new SelectionAdapter() {
+					@Override
 					public void widgetSelected(SelectionEvent e) {
 						showURL(url);
 					}

@@ -27,6 +27,7 @@ public class ProfileElementWrapper extends QueriedElementWrapper {
 		super(profile, parent);
 	}
 
+	@Override
 	protected boolean shouldWrap(Object match) {
 		if ((match instanceof IProfile))
 			return true;
@@ -36,6 +37,7 @@ public class ProfileElementWrapper extends QueriedElementWrapper {
 	/**
 	 * Transforms the item to a UI element
 	 */
+	@Override
 	protected Object wrap(Object item) {
 		return super.wrap(new ProfileElement(parent, ((IProfile) item).getProfileId()));
 	}

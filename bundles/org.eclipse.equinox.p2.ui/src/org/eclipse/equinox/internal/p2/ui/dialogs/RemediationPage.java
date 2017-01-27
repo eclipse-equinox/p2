@@ -41,6 +41,7 @@ public class RemediationPage extends ResolutionStatusPage {
 		}
 	}
 
+	@Override
 	public void createControl(Composite parent) {
 		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setLayout(new GridLayout());
@@ -61,6 +62,7 @@ public class RemediationPage extends ResolutionStatusPage {
 		return remediationGroup;
 	}
 
+	@Override
 	public boolean canFlipToNextPage() {
 		return isPageComplete() && remediationGroup.getCurrentRemedy() != null;
 	}

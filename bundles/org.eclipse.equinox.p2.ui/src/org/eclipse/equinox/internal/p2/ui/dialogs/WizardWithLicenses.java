@@ -46,6 +46,7 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 		this.bypassLicencePage = bypassLicencePage;
 	}
 
+	@Override
 	public void addPages() {
 		super.addPages();
 
@@ -72,6 +73,7 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
 	 */
+	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
 		// If the license page is supposed to be the next page,
 		// ensure there are actually licenses that need acceptance.
@@ -90,6 +92,7 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 		return proposedPage;
 	}
 
+	@Override
 	protected void planChanged() {
 		super.planChanged();
 		if (!bypassLicencePage) {
@@ -101,6 +104,7 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#performFinish()
 	 */
+	@Override
 	public boolean performFinish() {
 
 		if (!bypassLicencePage) {

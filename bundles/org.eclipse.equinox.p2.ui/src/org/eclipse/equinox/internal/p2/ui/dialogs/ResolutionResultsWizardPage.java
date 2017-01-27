@@ -68,6 +68,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		display = parent.getDisplay();
 		sashForm = new SashForm(parent, SWT.VERTICAL);
@@ -96,6 +97,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		nameColumn.getColumn().setWidth(400);
 		nameColumn.getColumn().setMoveable(true);
 		nameColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
 			public String getText(Object element) {
 				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 				String label = iu.getProperty(IInstallableUnit.PROP_NAME, null);
@@ -104,6 +106,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 				return label;
 			}
 
+			@Override
 			public Image getImage(Object element) {
 				if (element instanceof ProvElement)
 					return ((ProvElement) element).getImage(element);
@@ -112,6 +115,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 				return null;
 			}
 
+			@Override
 			public String getToolTipText(Object element) {
 				if (element instanceof AvailableIUElement && ((AvailableIUElement) element).getImageOverlayId(null) == ProvUIImages.IMG_INFO)
 					return ProvUIMessages.RemedyElementNotHighestVersion;
@@ -122,6 +126,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		versionColumn.getColumn().setText(ProvUIMessages.ProvUI_VersionColumnTitle);
 		versionColumn.getColumn().setWidth(200);
 		versionColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
 			public String getText(Object element) {
 				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 				if (element instanceof IIUElement) {
@@ -137,6 +142,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		idColumn.getColumn().setWidth(200);
 
 		idColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
 			public String getText(Object element) {
 				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 				return iu.getId();
@@ -177,8 +183,10 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		controlsComposite.setLayoutData(gd);
 
 		final Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+					@Override
 					public void selectionChanged(SelectionChangedEvent event) {
 						setDetailText(resolvedOperation);
 					}
@@ -191,6 +199,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		if (resolvedOperation != null && !resolvedOperation.hasResolved()) {
 			try {
 				getContainer().run(true, false, new IRunnableWithProgress() {
+					@Override
 					public void run(IProgressMonitor monitor) {
 						resolvedOperation.resolveModal(monitor);
 						display.asyncExec(runnable);
@@ -231,10 +240,12 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return null;
 	}
 
+	@Override
 	protected Object[] getSelectedElements() {
 		return ((IStructuredSelection) treeViewer.getSelection()).toArray();
 	}
 
+	@Override
 	protected IInstallableUnit getSelectedIU() {
 		java.util.List<IInstallableUnit> units = ElementUtils.elementsToIUs(getSelectedElements());
 		if (units.size() == 0)
@@ -242,6 +253,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return units.get(0);
 	}
 
+	@Override
 	protected boolean shouldCompleteOnCancel() {
 		return false;
 	}
@@ -292,18 +304,22 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	protected abstract IQueryable<IInstallableUnit> getQueryable(IProvisioningPlan plan);
 
+	@Override
 	protected String getClipboardText(Control control) {
 		return CopyUtils.getIndentedClipboardText(getSelectedElements(), labelProvider);
 	}
 
+	@Override
 	protected IUDetailsGroup getDetailsGroup() {
 		return iuDetailsGroup;
 	}
 
+	@Override
 	protected boolean isCreated() {
 		return treeViewer != null;
 	}
 
+	@Override
 	protected void updateCaches(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		resolvedOperation = op;
 		if (newRoot != null) {
@@ -318,14 +334,17 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		}
 	}
 
+	@Override
 	protected String getDialogSettingsName() {
 		return getWizard().getClass().getName() + "." + DIALOG_SETTINGS_SECTION; //$NON-NLS-1$
 	}
 
+	@Override
 	protected int getColumnWidth(int index) {
 		return treeViewer.getTree().getColumn(index).getWidth();
 	}
 
+	@Override
 	protected SashForm getSashForm() {
 		return sashForm;
 	}

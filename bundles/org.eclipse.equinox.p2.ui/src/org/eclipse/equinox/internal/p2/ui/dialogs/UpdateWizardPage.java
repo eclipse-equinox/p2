@@ -26,6 +26,7 @@ public class UpdateWizardPage extends SizeComputingWizardPage {
 		setDescription(ProvUIMessages.UpdateWizardPage_Description);
 	}
 
+	@Override
 	protected String getIUDescription(IInstallableUnit iu) {
 		if (iu != null) {
 			IUpdateDescriptor updateDescriptor = iu.getUpdateDescriptor();
@@ -35,10 +36,12 @@ public class UpdateWizardPage extends SizeComputingWizardPage {
 		return super.getIUDescription(iu);
 	}
 
+	@Override
 	protected String getOperationLabel() {
 		return ProvUIMessages.UpdateIUOperationLabel;
 	}
 
+	@Override
 	protected String getOperationTaskName() {
 		return ProvUIMessages.UpdateIUOperationTask;
 	}

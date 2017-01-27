@@ -122,10 +122,12 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			setIncludeDisabledRepositories(getPolicy().getRepositoriesVisible());
 		}
 
+		@Override
 		public int getQueryType() {
 			return QueryProvider.METADATA_REPOS;
 		}
 
+		@Override
 		public Object[] fetchChildren(Object o, IProgressMonitor monitor) {
 			if (cachedElements == null) {
 				Object[] children = super.fetchChildren(o, monitor);
@@ -171,6 +173,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			setIncludeLeadingWildcard(true);
 		}
 
+		@Override
 		public boolean isElementVisible(Viewer viewer, Object element) {
 			if (element instanceof MetadataRepositoryElement) {
 				return wordMatches(labelProvider.getColumnText(element, RepositoryDetailsLabelProvider.COL_NAME) + " " + labelProvider.getColumnText(element, RepositoryDetailsLabelProvider.COL_LOCATION)); //$NON-NLS-1$
@@ -200,6 +203,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		tracker = ui.getRepositoryTracker();
 	}
 
+	@Override
 	protected Control createContents(Composite parent) {
 		display = parent.getDisplay();
 		// The help refers to the full-blown dialog.  No help if it's read only.
@@ -211,6 +215,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		// Filter box
 		pattern = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.CANCEL);
 		pattern.getAccessible().addAccessibleListener(new AccessibleAdapter() {
+			@Override
 			public void getName(AccessibleEvent e) {
 				e.result = DEFAULT_FILTER_TEXT;
 			}
@@ -218,12 +223,14 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		pattern.setText(DEFAULT_FILTER_TEXT);
 		pattern.selectAll();
 		pattern.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent e) {
 				applyFilter();
 			}
 		});
 
 		pattern.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_DOWN) {
 					if (table.getItemCount() > 0) {
@@ -236,8 +243,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		});
 
 		pattern.addFocusListener(new FocusAdapter() {
+			@Override
 			public void focusGained(FocusEvent e) {
 				display.asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						if (!pattern.isDisposed()) {
 							if (DEFAULT_FILTER_TEXT.equals(pattern.getText().trim())) {
@@ -259,6 +268,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		// Key listener for delete
 		table.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.DEL) {
 					removeRepositories();
@@ -281,14 +291,17 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		// Edit the nickname
 		repositoryViewer.setCellModifier(new ICellModifier() {
+			@Override
 			public boolean canModify(Object element, String property) {
 				return element instanceof MetadataRepositoryElement;
 			}
 
+			@Override
 			public Object getValue(Object element, String property) {
 				return ((MetadataRepositoryElement) element).getName();
 			}
 
+			@Override
 			public void modify(Object element, String property, Object value) {
 				if (value != null && value.toString().length() >= 0) {
 					MetadataRepositoryElement repo;
@@ -315,6 +328,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		repositoryViewer.setCellEditors(new CellEditor[] {new TextCellEditor(repositoryViewer.getTable())});
 
 		repositoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				if (policy.getRepositoriesVisible())
 					validateButtons();
@@ -323,16 +337,19 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		});
 
 		repositoryViewer.setCheckStateProvider(new ICheckStateProvider() {
+			@Override
 			public boolean isChecked(Object element) {
 				return ((MetadataRepositoryElement) element).isEnabled();
 			}
 
+			@Override
 			public boolean isGrayed(Object element) {
 				return false;
 			}
 		});
 
 		repositoryViewer.addCheckStateListener(new ICheckStateListener() {
+			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				MetadataRepositoryElement element = (MetadataRepositoryElement) event.getElement();
 				element.setEnabled(event.getChecked());
@@ -360,6 +377,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 			ProvUI.getProvisioningEventBus(ui.getSession()).addListener(listener);
 			composite.addDisposeListener(new DisposeListener() {
+				@Override
 				public void widgetDisposed(DisposeEvent event) {
 					ProvUI.getProvisioningEventBus(ui.getSession()).removeListener(listener);
 				}
@@ -432,10 +450,12 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH));
 			}
 			tc.addSelectionListener(new SelectionListener() {
+				@Override
 				public void widgetDefaultSelected(SelectionEvent e) {
 					columnSelected((TableColumn) e.widget);
 				}
 
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					columnSelected((TableColumn) e.widget);
 				}
@@ -471,6 +491,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	private void createVerticalButtons(Composite parent) {
 		addButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Add, false);
 		addButton.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				addRepository();
 			}
@@ -478,6 +499,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		editButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Edit, false);
 		editButton.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				changeRepositoryProperties();
 			}
@@ -485,6 +507,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		removeButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Remove, false);
 		removeButton.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				removeRepositories();
 			}
@@ -492,6 +515,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		refreshButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_RefreshConnection, false);
 		refreshButton.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				refreshRepository();
 			}
@@ -499,6 +523,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		disableButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_DisableButton, false);
 		disableButton.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				toggleRepositoryEnablement();
 			}
@@ -506,6 +531,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		Button button = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Import, false);
 		button.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				importRepositories();
 			}
@@ -513,6 +539,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		exportButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Export, false);
 		exportButton.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				exportRepositories();
 			}
@@ -529,6 +556,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.preference.PreferencePage#performOk()
 	 */
+	@Override
 	public boolean performOk() {
 		if (changed)
 			ElementUtils.updateRepositoryUsingElements(ui, getElements());
@@ -539,10 +567,12 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	private StructuredViewerProvisioningListener getViewerProvisioningListener() {
 		return new StructuredViewerProvisioningListener(RepositoryManipulationPage.this.getClass().getName(), repositoryViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, ui.getOperationRunner()) {
+			@Override
 			protected void repositoryDiscovered(RepositoryEvent e) {
 				RepositoryManipulationPage.this.safeRefresh(null);
 			}
 
+			@Override
 			protected void repositoryChanged(RepositoryEvent e) {
 				RepositoryManipulationPage.this.safeRefresh(null);
 			}
@@ -583,6 +613,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	void addRepository() {
 		AddRepositoryDialog dialog = new AddRepositoryDialog(getShell(), ui) {
+			@Override
 			protected RepositoryTracker getRepositoryTracker() {
 				return RepositoryManipulationPage.this.getLocalCacheRepoTracker();
 			}
@@ -602,6 +633,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
 		try {
 			dialog.run(true, true, new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					monitor.beginTask(NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 100);
 					try {
@@ -708,6 +740,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	void importRepositories() {
 		BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+			@Override
 			public void run() {
 				MetadataRepositoryElement[] imported = UpdateManagerCompatibility.importSites(getShell());
 				if (imported.length > 0) {
@@ -722,6 +755,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	void exportRepositories() {
 		BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+			@Override
 			public void run() {
 				MetadataRepositoryElement[] elements = getSelectedElements();
 				if (elements.length == 0)
@@ -748,10 +782,12 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			originalName = selected[0].getName();
 		final URI existingLocation = originalLocation;
 		RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(getShell(), ui) {
+			@Override
 			protected String getInitialLocationText() {
 				return URIUtil.toUnencodedString(selected[0].getLocation());
 			}
 
+			@Override
 			protected String getInitialNameText() {
 				return selected[0].getName();
 			}
@@ -811,6 +847,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	void safeRefresh(final MetadataRepositoryElement elementToSelect) {
 		Runnable runnable = new Runnable() {
+			@Override
 			public void run() {
 				repositoryViewer.refresh();
 				if (elementToSelect != null)
@@ -834,6 +871,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		if (filterJob != null)
 			filterJob.cancel();
 		filterJob = new WorkbenchJob("filter job") { //$NON-NLS-1$
+			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
@@ -859,6 +897,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
+	@Override
 	public void init(IWorkbench workbench) {
 		noDefaultAndApplyButton();
 		if (ui == null) {
@@ -888,6 +927,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	RepositoryTracker getLocalCacheRepoTracker() {
 		if (localCacheRepoManipulator == null)
 			localCacheRepoManipulator = new RepositoryTracker() {
+				@Override
 				public void addRepository(URI location, String nickname, ProvisioningSession session) {
 					MetadataRepositoryElement element = getInput().get(location);
 					if (element == null) {
@@ -900,18 +940,22 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					safeRefresh(element);
 				}
 
+				@Override
 				public URI[] getKnownRepositories(ProvisioningSession session) {
 					return RepositoryManipulationPage.this.getKnownRepositories();
 				}
 
+				@Override
 				public void removeRepositories(URI[] repoLocations, ProvisioningSession session) {
 					RepositoryManipulationPage.this.removeRepositories();
 				}
 
+				@Override
 				public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
 					// Nothing to refresh in the local cache
 				}
 
+				@Override
 				public IStatus validateRepositoryLocation(ProvisioningSession session, URI location, boolean contactRepositories, IProgressMonitor monitor) {
 					IStatus status = super.validateRepositoryLocation(session, location, contactRepositories, monitor);
 					if (status.isOK()) {
@@ -937,6 +981,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.ui.ICopyable#copyToClipboard(org.eclipse.swt.widgets.Control)
 	 */
+	@Override
 	public void copyToClipboard(Control activeControl) {
 		MetadataRepositoryElement[] elements = getSelectedElements();
 		if (elements.length == 0)

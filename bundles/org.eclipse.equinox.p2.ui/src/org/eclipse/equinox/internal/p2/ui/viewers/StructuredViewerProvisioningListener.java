@@ -47,6 +47,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * 
 	 * @param event the RepositoryEvent describing the details
 	 */
+	@Override
 	protected void repositoryAdded(RepositoryEvent event) {
 		safeRefresh();
 	}
@@ -58,6 +59,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * 
 	 * @param event the RepositoryEvent describing the details
 	 */
+	@Override
 	protected void repositoryRemoved(RepositoryEvent event) {
 		safeRefresh();
 	}
@@ -68,6 +70,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * 
 	 * @param event the RepositoryEvent describing the details
 	 */
+	@Override
 	protected void repositoryDiscovered(RepositoryEvent event) {
 		// Do nothing for now
 	}
@@ -78,6 +81,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * 
 	 * @param event the RepositoryEvent describing the details
 	 */
+	@Override
 	protected void repositoryChanged(RepositoryEvent event) {
 		// Do nothing for now.  When this event is actually used in
 		// the core, we may want to refresh particular elements the way
@@ -91,8 +95,10 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * 
 	 * @param profileId the id of the profile that changed.
 	 */
+	@Override
 	protected void profileChanged(final String profileId) {
 		display.asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (isClosing())
 					return;
@@ -111,6 +117,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * 
 	 * @param profileId the id of the profile that has been added.
 	 */
+	@Override
 	protected void profileAdded(final String profileId) {
 		safeRefresh();
 	}
@@ -122,6 +129,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * 
 	 * @param profileId the id of the profile that has been removed.
 	 */
+	@Override
 	protected void profileRemoved(final String profileId) {
 		safeRefresh();
 	}
@@ -133,6 +141,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 		}
 
 		display.asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				if (isClosing())
 					return;
@@ -141,6 +150,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 		});
 	}
 
+	@Override
 	protected void refreshAll() {
 		safeRefresh();
 	}

@@ -78,6 +78,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	 * 
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 
@@ -87,6 +88,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		packageAdmin = bundleContext.getService(packageAdminRef);
 	}
 
+	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		try {
 			// cancel any repository load jobs started in the UI
@@ -103,6 +105,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		}
 	}
 
+	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		createImageDescriptor(ProvUIImages.IMG_METADATA_REPOSITORY, reg);
 		createImageDescriptor(ProvUIImages.IMG_ARTIFACT_REPOSITORY, reg);

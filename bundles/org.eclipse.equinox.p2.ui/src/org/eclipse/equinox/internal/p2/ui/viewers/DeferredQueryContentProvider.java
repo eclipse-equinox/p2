@@ -51,6 +51,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		listeners.remove(listener);
 	}
 
+	@Override
 	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		super.inputChanged(v, oldInput, newInput);
 
@@ -61,10 +62,12 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 			viewer = (AbstractTreeViewer) v;
 			manager.setListener(new IDeferredQueryTreeListener() {
 
+				@Override
 				public void fetchingDeferredChildren(Object parent, Object placeholder) {
 					alreadyQueried.put(parent, placeholder);
 				}
 
+				@Override
 				public void finishedFetchingDeferredChildren(Object parent, Object placeholder) {
 					queryCompleted.add(parent);
 				}
@@ -79,6 +82,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		}
 	}
 
+	@Override
 	public Object[] getElements(Object input) {
 		if (input instanceof QueriedElement) {
 			return getChildren(input);
@@ -86,6 +90,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		return super.getElements(input);
 	}
 
+	@Override
 	public void dispose() {
 		super.dispose();
 		if (manager != null) {
@@ -93,6 +98,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		}
 	}
 
+	@Override
 	public boolean hasChildren(Object element) {
 		if (manager != null) {
 			if (manager.isDeferredAdapter(element))
@@ -101,6 +107,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 		return super.hasChildren(element);
 	}
 
+	@Override
 	public Object[] getChildren(final Object parent) {
 		if (parent instanceof RemoteQueriedElement) {
 			RemoteQueriedElement element = (RemoteQueriedElement) parent;

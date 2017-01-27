@@ -58,16 +58,19 @@ public class CopyUtils {
 		if (fs != null && hs != null) {
 			fs.addFocusTracker(control, CONTROL_ID);
 			final IHandlerActivation handlerActivation = hs.activateHandler(CopyHandler.ID, new CopyHandler(copyable), new Expression() {
+				@Override
 				public EvaluationResult evaluate(IEvaluationContext context) {
 					return context.getVariable(ISources.ACTIVE_FOCUS_CONTROL_NAME) == control ? EvaluationResult.TRUE : EvaluationResult.FALSE;
 				}
 
+				@Override
 				public void collectExpressionInfo(final ExpressionInfo info) {
 					info.addVariableNameAccess(ISources.ACTIVE_FOCUS_CONTROL_NAME);
 				}
 
 			});
 			control.addDisposeListener(new DisposeListener() {
+				@Override
 				public void widgetDisposed(DisposeEvent e) {
 					hs.deactivateHandler(handlerActivation);
 				}

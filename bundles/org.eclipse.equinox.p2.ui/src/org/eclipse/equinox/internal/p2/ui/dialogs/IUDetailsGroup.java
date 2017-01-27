@@ -138,6 +138,7 @@ public class IUDetailsGroup {
 		link.setText(text);
 
 		link.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				IAction linkAction = getLinkAction(event.widget);
 				if (linkAction != null) {

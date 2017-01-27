@@ -36,6 +36,7 @@ public class InstalledIUElementWrapper extends QueriedElementWrapper {
 	 * @return <code>true</code> if the query should continue,
 	 * or <code>false</code> to indicate the query should stop.
 	 */
+	@Override
 	protected boolean shouldWrap(Object match) {
 		if (match instanceof IInstallableUnit)
 			return true;
@@ -45,6 +46,7 @@ public class InstalledIUElementWrapper extends QueriedElementWrapper {
 	/**
 	 * Transforms the item to a UI element
 	 */
+	@Override
 	protected Object wrap(Object item) {
 		if (queryable instanceof IProfile)
 			return super.wrap(new InstalledIUElement(parent, ((IProfile) queryable).getProfileId(), (IInstallableUnit) item));

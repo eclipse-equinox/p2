@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  */
 public class RepositoryTrackerComponent implements IAgentServiceFactory {
 
+	@Override
 	public Object createService(IProvisioningAgent agent) {
 		ProvisioningUI ui = (ProvisioningUI) agent.getService(ProvisioningUI.class.getName());
 		if (ui == null)

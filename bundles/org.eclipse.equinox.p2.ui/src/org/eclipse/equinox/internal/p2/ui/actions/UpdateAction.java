@@ -57,6 +57,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.AlterExistingProfileIUAction#getLockConstant()
 	 */
+	@Override
 	protected int getLockConstant() {
 		return IProfile.LOCK_UPDATE;
 	}
@@ -64,6 +65,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#getProfileChangeOperation(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
 	 */
+	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Collection<IInstallableUnit> ius) {
 		return ui.getUpdateOperation(ius, null);
 	}
@@ -71,6 +73,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#performAction(org.eclipse.equinox.p2.operations.ProfileChangeOperation, org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
 	 */
+	@Override
 	protected int performAction(final ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
 		if (operation.getResolutionResult() == Status.OK_STATUS)
 			return ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, null);
@@ -87,9 +90,11 @@ public class UpdateAction extends ExistingIUInProfileAction {
 			}
 		};
 		job.addJobChangeListener(new JobChangeAdapter() {
+			@Override
 			public void done(IJobChangeEvent event) {
 				if (PlatformUI.isWorkbenchRunning()) {
 					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+						@Override
 						public void run() {
 							ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, remediationOperation, null);
 						}

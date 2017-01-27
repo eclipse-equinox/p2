@@ -34,6 +34,7 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 	public static final int COL_LOCATION = 1;
 	public static final int COL_ENABLEMENT = 2;
 
+	@Override
 	public Image getImage(Object obj) {
 		if (obj instanceof ProvElement) {
 			return ((ProvElement) obj).getImage(obj);
@@ -47,6 +48,7 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 		return null;
 	}
 
+	@Override
 	public Image getColumnImage(Object element, int index) {
 		if (index == 0) {
 			return getImage(element);
@@ -54,6 +56,7 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 		return null;
 	}
 
+	@Override
 	public String getColumnText(Object element, int columnIndex) {
 
 		switch (columnIndex) {

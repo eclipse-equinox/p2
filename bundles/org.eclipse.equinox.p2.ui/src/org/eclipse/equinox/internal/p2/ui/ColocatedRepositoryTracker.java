@@ -53,10 +53,12 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getKnownRepositories()
 	 */
+	@Override
 	public URI[] getKnownRepositories(ProvisioningSession session) {
 		return getMetadataRepositoryManager().getKnownRepositories(getMetadataRepositoryFlags());
 	}
 
+	@Override
 	public void addRepository(URI repoLocation, String nickname, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
 		try {
@@ -78,6 +80,7 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#removeRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession)
 	 */
+	@Override
 	public void removeRepositories(URI[] repoLocations, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
 		try {
@@ -94,6 +97,7 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#refreshRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession, org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@Override
 	public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
 		ui.signalRepositoryOperationStart();
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
@@ -110,6 +114,7 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		ui.signalRepositoryOperationComplete(null, true);
 	}
 
+	@Override
 	public void reportLoadFailure(final URI location, ProvisionException e) {
 		int code = e.getStatus().getCode();
 		// If the user doesn't have a way to manage repositories, then don't report failures.
@@ -124,6 +129,7 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 			if (!hasNotFoundStatusBeenReported(location)) {
 				addNotFound(location);
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						IWorkbench workbench = PlatformUI.getWorkbench();
 						if (workbench.isClosing())
@@ -131,10 +137,12 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 						Shell shell = ProvUI.getDefaultParentShell();
 						if (MessageDialog.openQuestion(shell, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFoundTitle, NLS.bind(ProvUIMessages.ColocatedRepositoryTracker_PromptForSiteLocationEdit, URIUtil.toUnencodedString(location)))) {
 							RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(shell, ui) {
+								@Override
 								protected String getInitialLocationText() {
 									return URIUtil.toUnencodedString(location);
 								}
 
+								@Override
 								protected String getInitialNameText() {
 									String nickname = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 									return nickname == null ? "" : nickname; //$NON-NLS-1$
@@ -175,6 +183,7 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#locationFromString(java.lang.String)
 	 */
+	@Override
 	public URI locationFromString(String locationString) {
 		URI uri = super.locationFromString(locationString);
 		if (uri != null)

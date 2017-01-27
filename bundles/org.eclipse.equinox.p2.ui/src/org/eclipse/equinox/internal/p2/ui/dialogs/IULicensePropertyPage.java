@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.*;
  */
 public class IULicensePropertyPage extends IUPropertyPage {
 
+	@Override
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
 		// Get the license in the default locale
 		Iterator<ILicense> licenses = iu.getLicenses(null).iterator();
@@ -62,6 +63,7 @@ public class IULicensePropertyPage extends IUPropertyPage {
 				gd.widthHint = computeWidthLimit(link, 80);
 				link.setLayoutData(gd);
 				link.addSelectionListener(new SelectionAdapter() {
+					@Override
 					public void widgetSelected(SelectionEvent e) {
 						try {
 							showURL(license.getLocation().toURL());

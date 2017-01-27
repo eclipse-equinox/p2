@@ -29,6 +29,7 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 		super(parent);
 	}
 
+	@Override
 	public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
 		try {
 			Object[] children = fetchChildren(o, monitor);
@@ -46,10 +47,12 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 		collector.done();
 	}
 
+	@Override
 	public ISchedulingRule getRule(Object object) {
 		return null;
 	}
 
+	@Override
 	public boolean isContainer() {
 		return true;
 	}
@@ -69,6 +72,7 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#hasQueryable()
 	 */
 
+	@Override
 	public boolean hasQueryable() {
 		if (queryable instanceof QueryableMetadataRepositoryManager)
 			return ((QueryableMetadataRepositoryManager) queryable).areRepositoriesLoaded();

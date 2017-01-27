@@ -71,6 +71,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		display = parent.getDisplay();
 		sashForm = new SashForm(parent, SWT.VERTICAL);
@@ -103,12 +104,14 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		}
 
 		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				setDetailText(resolvedOperation);
 			}
 		});
 
 		tableViewer.addCheckStateListener(new ICheckStateListener() {
+			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				// If the checkEvent is on a locked update element, uncheck it and select it.
 				if (event.getElement() instanceof AvailableUpdateElement) {
@@ -183,6 +186,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		selectAll.setText(ProvUIMessages.SelectableIUsPage_Select_All);
 		setButtonLayoutData(selectAll);
 		selectAll.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				tableViewer.setAllChecked(true);
 				updateSelection();
@@ -193,6 +197,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		deselectAll.setText(ProvUIMessages.SelectableIUsPage_Deselect_All);
 		setButtonLayoutData(deselectAll);
 		deselectAll.addListener(SWT.Selection, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				tableViewer.setAllChecked(false);
 				updateSelection();
@@ -218,16 +223,19 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		return v;
 	}
 
+	@Override
 	public Object[] getCheckedIUElements() {
 		if (tableViewer == null)
 			return initialSelections;
 		return tableViewer.getCheckedElements();
 	}
 
+	@Override
 	public Object[] getSelectedIUElements() {
 		return ((IStructuredSelection) tableViewer.getSelection()).toArray();
 	}
 
+	@Override
 	protected Object[] getSelectedElements() {
 		return ((IStructuredSelection) tableViewer.getSelection()).toArray();
 	}
@@ -267,6 +275,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.wizard.WizardPage#canFlipToNextPage()
 	 */
+	@Override
 	public boolean canFlipToNextPage() {
 		return isPageComplete();
 	}
@@ -278,11 +287,13 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.wizard.WizardPage#getPreviousPage()
 	 */
+	@Override
 	public IWizardPage getPreviousPage() {
 		setPreviousPage(null);
 		return super.getPreviousPage();
 	}
 
+	@Override
 	protected String getClipboardText(Control control) {
 		StringBuffer buffer = new StringBuffer();
 		Object[] elements = getSelectedElements();
@@ -294,6 +305,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		return buffer.toString();
 	}
 
+	@Override
 	protected IInstallableUnit getSelectedIU() {
 		java.util.List<IInstallableUnit> units = ElementUtils.elementsToIUs(getSelectedElements());
 		if (units.size() == 0)
@@ -301,10 +313,12 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		return units.get(0);
 	}
 
+	@Override
 	protected IUDetailsGroup getDetailsGroup() {
 		return iuDetailsGroup;
 	}
 
+	@Override
 	protected boolean isCreated() {
 		return tableViewer != null;
 	}
@@ -313,6 +327,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionStatusPage#updateCaches(org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot, org.eclipse.equinox.p2.operations.ProfileChangeOperation)
 	 */
+	@Override
 	protected void updateCaches(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		resolvedOperation = op;
 		if (newRoot != null && root != newRoot) {
@@ -326,6 +341,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage#setCheckedElements(java.lang.Object[])
 	 */
+	@Override
 	public void setCheckedElements(Object[] elements) {
 		if (tableViewer == null)
 			initialSelections = elements;
@@ -333,14 +349,17 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 			tableViewer.setCheckedElements(elements);
 	}
 
+	@Override
 	protected SashForm getSashForm() {
 		return sashForm;
 	}
 
+	@Override
 	protected String getDialogSettingsName() {
 		return getWizard().getClass().getName() + "." + DIALOG_SETTINGS_SECTION; //$NON-NLS-1$
 	}
 
+	@Override
 	protected int getColumnWidth(int index) {
 		return tableViewer.getTable().getColumn(index).getWidth();
 	}

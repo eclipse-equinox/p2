@@ -31,6 +31,7 @@ public class MetadataRepositoryElementComparator extends ViewerComparator {
 		this.key = sortKey;
 	}
 
+	@Override
 	public int compare(Viewer viewer, Object obj1, Object obj2) {
 		MetadataRepositoryElement repo1 = obj1 instanceof MetadataRepositoryElement ? (MetadataRepositoryElement) obj1 : null;
 		MetadataRepositoryElement repo2 = obj2 instanceof MetadataRepositoryElement ? (MetadataRepositoryElement) obj2 : null;

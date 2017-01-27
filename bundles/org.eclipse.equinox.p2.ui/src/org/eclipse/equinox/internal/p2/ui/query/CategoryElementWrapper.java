@@ -35,6 +35,7 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 		super(queryable, parent);
 	}
 
+	@Override
 	protected boolean shouldWrap(Object match) {
 		if (match instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) match;
@@ -62,6 +63,7 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 		return false;
 	}
 
+	@Override
 	public Collection<?> getElements(Collector<?> collector) {
 		if (collector.isEmpty())
 			return super.getElements(collector);
@@ -70,6 +72,7 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 		return results;
 	}
 
+	@Override
 	protected Object wrap(Object item) {
 		IInstallableUnit iu = (IInstallableUnit) item;
 		return super.wrap(new CategoryElement(parent, iu));

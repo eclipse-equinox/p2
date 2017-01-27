@@ -53,14 +53,17 @@ public abstract class RootElement extends RemoteQueriedElement {
 		queryContext = context;
 	}
 
+	@Override
 	public IUViewQueryContext getQueryContext() {
 		return queryContext;
 	}
 
+	@Override
 	public Policy getPolicy() {
 		return ui.getPolicy();
 	}
 
+	@Override
 	public ProvisioningUI getProvisioningUI() {
 		return ui;
 	}

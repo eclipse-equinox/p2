@@ -65,6 +65,7 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	 *    reporting is not desired
 	 * @return The QueryResult argument
 	 */
+	@Override
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 		IRepositoryManager<T> manager = getRepositoryManager();
 		if (monitor == null)
@@ -75,6 +76,7 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	public IQueryable<URI> locationsQueriable() {
 		return new IQueryable<URI>() {
 
+			@Override
 			public IQueryResult<URI> query(IQuery<URI> query, IProgressMonitor monitor) {
 				return query.perform(getRepoLocations(getRepositoryManager()).iterator());
 			}

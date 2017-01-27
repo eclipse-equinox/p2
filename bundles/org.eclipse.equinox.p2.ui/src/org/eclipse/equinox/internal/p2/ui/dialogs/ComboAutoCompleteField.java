@@ -49,6 +49,7 @@ public class ComboAutoCompleteField {
 
 	IContentProposalProvider getProposalProvider() {
 		return new IContentProposalProvider() {
+			@Override
 			public IContentProposal[] getProposals(String contents, int position) {
 				String[] items = getStringItems();
 				if (contents.length() == 0 || items.length == 0)
@@ -75,18 +76,22 @@ public class ComboAutoCompleteField {
 					final String proposal = matches.get(i);
 					proposals[i] = new IContentProposal() {
 
+						@Override
 						public String getContent() {
 							return proposal;
 						}
 
+						@Override
 						public int getCursorPosition() {
 							return proposal.length();
 						}
 
+						@Override
 						public String getDescription() {
 							return null;
 						}
 
+						@Override
 						public String getLabel() {
 							return null;
 						}

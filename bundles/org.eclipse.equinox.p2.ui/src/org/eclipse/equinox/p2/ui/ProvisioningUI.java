@@ -325,6 +325,7 @@ public class ProvisioningUI {
 			TitleAreaDialog dialog = new TitleAreaDialog(shell) {
 				RepositoryManipulationPage page;
 
+				@Override
 				protected Control createDialogArea(Composite parent) {
 					page = new RepositoryManipulationPage();
 					page.setProvisioningUI(ProvisioningUI.this);
@@ -338,15 +339,18 @@ public class ProvisioningUI {
 					return page.getControl();
 				}
 
+				@Override
 				protected boolean isResizable() {
 					return true;
 				}
 
+				@Override
 				protected void okPressed() {
 					if (page.performOk())
 						super.okPressed();
 				}
 
+				@Override
 				protected void cancelPressed() {
 					if (page.performCancel())
 						super.cancelPressed();

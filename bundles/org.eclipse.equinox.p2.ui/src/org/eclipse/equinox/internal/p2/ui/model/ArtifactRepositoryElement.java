@@ -43,6 +43,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 		this.isEnabled = isEnabled;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IArtifactRepository.class)
@@ -52,10 +53,12 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 		return super.getAdapter(adapter);
 	}
 
+	@Override
 	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_ARTIFACT_REPOSITORY;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		String name = getName();
 		if (name != null && name.length() > 0) {
@@ -64,6 +67,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 		return URIUtil.toUnencodedString(getLocation());
 	}
 
+	@Override
 	public IArtifactRepository getRepository(IProgressMonitor monitor) {
 		if (repo == null)
 			try {
@@ -79,6 +83,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getURL()
 	 */
+	@Override
 	public URI getLocation() {
 		return location;
 	}
@@ -87,6 +92,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
+	@Override
 	public String getName() {
 		String name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 		if (name == null)
@@ -100,6 +106,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
+	@Override
 	public String getDescription() {
 		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.RepositoryElement_NotFound;
@@ -112,6 +119,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#isEnabled()
 	 */
+	@Override
 	public boolean isEnabled() {
 		return isEnabled;
 	}
@@ -119,6 +127,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement#setEnabled(boolean)
 	 */
+	@Override
 	public void setEnabled(boolean enabled) {
 		isEnabled = enabled;
 	}
@@ -126,6 +135,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
 	 */
+	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.AVAILABLE_ARTIFACTS;
 	}
@@ -135,6 +145,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryable()
 	 */
+	@Override
 	public IQueryable<?> getQueryable() {
 		if (queryable == null)
 			queryable = getRepository(new NullProgressMonitor());

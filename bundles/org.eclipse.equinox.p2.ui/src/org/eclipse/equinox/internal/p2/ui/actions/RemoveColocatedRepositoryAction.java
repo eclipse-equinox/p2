@@ -22,6 +22,7 @@ public class RemoveColocatedRepositoryAction extends ColocatedRepositoryAction {
 
 	}
 
+	@Override
 	public void run() {
 		ui.getRepositoryTracker().removeRepositories(getSelectedLocations(getStructuredSelection().toArray()), ui.getSession());
 	}

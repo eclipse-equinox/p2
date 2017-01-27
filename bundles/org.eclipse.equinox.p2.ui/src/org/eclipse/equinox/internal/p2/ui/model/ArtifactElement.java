@@ -35,18 +35,22 @@ public class ArtifactElement extends ProvElement {
 	 * 
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
+	@Override
 	protected String getImageId(Object obj) {
 		return null;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		return key.getId() + " [" + key.getClassifier() + "]"; //$NON-NLS-1$//$NON-NLS-2$
 	}
 
+	@Override
 	public Object[] getChildren(Object o) {
 		return repo.getArtifactDescriptors(key);
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == IArtifactRepository.class)

@@ -43,6 +43,7 @@ public class EmptyElementExplanation extends ProvElement {
 	 * 
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
+	@Override
 	protected String getImageId(Object obj) {
 		if (severity == IStatus.ERROR)
 			return Dialog.DLG_IMG_MESSAGE_ERROR;
@@ -51,6 +52,7 @@ public class EmptyElementExplanation extends ProvElement {
 		return Dialog.DLG_IMG_MESSAGE_INFO;
 	}
 
+	@Override
 	public String getLabel(Object o) {
 		return explanation;
 	}
@@ -58,6 +60,7 @@ public class EmptyElementExplanation extends ProvElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
 	 */
+	@Override
 	public Object[] getChildren(Object o) {
 		return new Object[0];
 	}

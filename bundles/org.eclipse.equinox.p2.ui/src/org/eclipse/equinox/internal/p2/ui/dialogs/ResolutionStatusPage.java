@@ -278,6 +278,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		}
 	}
 
+	@Override
 	public void saveBoundsRelatedSettings() {
 		if (!isCreated())
 			return;

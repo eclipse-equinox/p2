@@ -65,6 +65,7 @@ public abstract class QueriedElement extends ProvElement {
 		return null;
 	}
 
+	@Override
 	public Object[] getChildren(Object o) {
 		return fetchChildren(o, new NullProgressMonitor());
 	}
@@ -73,6 +74,7 @@ public abstract class QueriedElement extends ProvElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
 	 */
+	@Override
 	public String getLabel(Object o) {
 		return null;
 	}
