@@ -10,6 +10,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -42,13 +44,6 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		}
 	}
 
-	private void assertArrayOrder(String[] expected, String[] actual) {
-		assertEquals(expected.length, actual.length);
-		for (int i = 0; i < expected.length; i++) {
-			assertEquals(expected[i], actual[i]);
-		}
-	}
-
 	/*
 	 * Tests that the sort method works in a simple case
 	 */
@@ -56,7 +51,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"first", "second", "third"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), null);
-		assertArrayOrder(new String[] {"first", "second", "third"}, suffixes);
+		assertArrayEquals(new String[] {"first", "second", "third"}, suffixes);
 	}
 
 	/*
@@ -66,7 +61,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"first", "second", "third"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"first", "second", "third"});
-		assertArrayOrder(new String[] {"first", "second", "third"}, suffixes);
+		assertArrayEquals(new String[] {"first", "second", "third"}, suffixes);
 	}
 
 	/*
@@ -76,7 +71,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"first"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"first", "second", "third"});
-		assertArrayOrder(new String[] {"first"}, suffixes);
+		assertArrayEquals(new String[] {"first"}, suffixes);
 	}
 
 	/*
@@ -86,7 +81,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"first", "second", "third"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"first"});
-		assertArrayOrder(new String[] {"first", "second", "third"}, suffixes);
+		assertArrayEquals(new String[] {"first", "second", "third"}, suffixes);
 	}
 
 	/*
@@ -96,7 +91,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"first", "second", "third"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"foo", "bar"});
-		assertArrayOrder(new String[] {"first", "second", "third"}, suffixes);
+		assertArrayEquals(new String[] {"first", "second", "third"}, suffixes);
 	}
 
 	/*
@@ -106,7 +101,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"first", "second", "third"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"third", "second", "first"});
-		assertArrayOrder(new String[] {"third", "second", "first"}, suffixes);
+		assertArrayEquals(new String[] {"third", "second", "first"}, suffixes);
 	}
 
 	/*
@@ -116,7 +111,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"first", "second", "third"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"third"});
-		assertArrayOrder(new String[] {"third", "first", "second"}, suffixes);
+		assertArrayEquals(new String[] {"third", "first", "second"}, suffixes);
 	}
 
 	/*
@@ -126,7 +121,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"a", "b", "c", "d", "e", "f"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"b", "e", "f"});
-		assertArrayOrder(new String[] {"b", "e", "f", "a", "c", "d"}, suffixes);
+		assertArrayEquals(new String[] {"b", "e", "f", "a", "c", "d"}, suffixes);
 	}
 
 	/*
@@ -136,7 +131,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"a", "b", "c", "d", "e", "f"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"first", "b", "second", "e", "third", "f"});
-		assertArrayOrder(new String[] {"b", "e", "f", "a", "c", "d"}, suffixes);
+		assertArrayEquals(new String[] {"b", "e", "f", "a", "c", "d"}, suffixes);
 	}
 
 	/*
@@ -146,7 +141,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"a", "b", "c", "d", "e", "f"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"a", "b", "a"});
-		assertArrayOrder(new String[] {"a", "b", "c", "d", "e", "f"}, suffixes);
+		assertArrayEquals(new String[] {"a", "b", "c", "d", "e", "f"}, suffixes);
 	}
 
 	/*
@@ -156,7 +151,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"a", "b", "c", "d", "e", "f"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"a", "!"});
-		assertArrayOrder(new String[] {"a"}, suffixes);
+		assertArrayEquals(new String[] {"a"}, suffixes);
 	}
 
 	/*
@@ -166,7 +161,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		VisibleMetadataRepositoryManager repositoryManager = new VisibleMetadataRepositoryManager();
 		String[] suffixes = {"a", "b", "c", "d", "e", "f"};
 		suffixes = repositoryManager.sortSuffixes(suffixes, new URI("http://foo"), new String[] {"!"});
-		assertArrayOrder(new String[] {}, suffixes);
+		assertArrayEquals(new String[] {}, suffixes);
 	}
 
 	/*
@@ -241,10 +236,8 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		LocationProperties locationProperties = LocationProperties.create(inputStream);
 		assertNotNull("1.0", locationProperties);
 		assertEquals("1.1", Version.createOSGi(1, 0, 0), locationProperties.getVersion());
-		assertEquals("1.2", 3, locationProperties.getMetadataFactorySearchOrder().length);
-		assertEquals("1.4", 3, locationProperties.getArtifactFactorySearchOrder().length);
-		assertArrayOrder(new String[] {"bar", "foo", "!"}, locationProperties.getMetadataFactorySearchOrder());
-		assertArrayOrder(new String[] {"foo", "bar", "!"}, locationProperties.getArtifactFactorySearchOrder());
+		assertArrayEquals(new String[] {"bar", "foo", "!"}, locationProperties.getMetadataFactorySearchOrder());
+		assertArrayEquals(new String[] {"foo", "bar", "!"}, locationProperties.getArtifactFactorySearchOrder());
 	}
 
 	/*
