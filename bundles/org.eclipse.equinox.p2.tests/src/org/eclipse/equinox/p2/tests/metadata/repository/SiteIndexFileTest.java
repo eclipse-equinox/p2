@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
 
 import java.io.*;
 import java.net.URI;
@@ -27,6 +28,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.*;
+import org.hamcrest.core.IsInstanceOf;
 
 /**
  * These tests are used to verify the index.p2 file in a variety 
@@ -249,7 +251,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 		try {
 			System.setOut(new PrintStream(new StringBufferStream()));
 			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-			assertTrue(repository instanceof UpdateSiteMetadataRepository);
+			assertThat(repository, new IsInstanceOf(UpdateSiteMetadataRepository.class));
 		} finally {
 			System.setOut(out);
 		}
