@@ -122,7 +122,7 @@ public class LocationProperties {
 	 * guaranteed to return a value for all location property files >= to Version 1.0
 	 * For all other Versions, this method will return an empty string array
 	 * 
-	 * If END (!) is specified, then all other repositories should be ignored.
+	 * If {@link #END} is specified, then all other repositories should be ignored.
 	 * 
 	 * @return The Metadata FactoryID Search Order
 	 */
@@ -135,7 +135,7 @@ public class LocationProperties {
 	 * guaranteed to return a value for all location property files >= to Version 1.0
 	 * For all other Versions, this method will return an empty string array
 	 * 
-	 * If END (!) is specified, then all other repositories should be ignored.
+	 * If {@link #END} is specified, then all other repositories should be ignored.
 	 * 
 	 * @return The Metadata FactoryID Search Order
 	 */
