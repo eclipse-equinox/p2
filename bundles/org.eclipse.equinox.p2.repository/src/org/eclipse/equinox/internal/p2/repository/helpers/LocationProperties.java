@@ -137,7 +137,7 @@ public class LocationProperties {
 	 * 
 	 * If {@link #END} is specified, then all other repositories should be ignored.
 	 * 
-	 * @return The Metadata FactoryID Search Order
+	 * @return The Artifact FactoryID Search Order
 	 */
 	public String[] getArtifactFactorySearchOrder() {
 		return this.artifactSearchOrder;
