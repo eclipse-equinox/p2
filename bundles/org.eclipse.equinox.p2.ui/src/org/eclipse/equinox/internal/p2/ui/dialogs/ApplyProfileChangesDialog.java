@@ -28,7 +28,7 @@ public class ApplyProfileChangesDialog extends MessageDialog {
 	public static final int PROFILE_IGNORE = 0;
 	public static final int PROFILE_APPLYCHANGES = 1;
 	public static final int PROFILE_RESTART = 2;
-	private final static String[] yesNo = new String[] {IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL};
+	private final static String[] yesNo = new String[] {ProvUIMessages.ApplyProfileChangesDialog_Restart, IDialogConstants.NO_LABEL};
 	private final static String[] yesNoApply = new String[] {ProvUIMessages.ApplyProfileChangesDialog_Restart, ProvUIMessages.ApplyProfileChangesDialog_NotYet, ProvUIMessages.ApplyProfileChangesDialog_ApplyChanges};
 
 	private int returnCode = PROFILE_IGNORE;
