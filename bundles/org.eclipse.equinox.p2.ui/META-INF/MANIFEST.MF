@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.p2.ui;singleton:=true
-Bundle-Version: 2.4.200.qualifier
+Bundle-Version: 2.5.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.ProvUIActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -65,4 +65,4 @@ Import-Package: com.ibm.icu.text,
  org.xml.sax
 Service-Component: OSGI-INF/repositoryTracker_component.xml, OSGI-INF/serviceui.xml
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
