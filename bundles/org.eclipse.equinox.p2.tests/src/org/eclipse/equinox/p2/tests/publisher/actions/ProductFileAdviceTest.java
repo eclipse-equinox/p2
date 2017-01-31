@@ -184,7 +184,7 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice#getIcons()}.
+	 * Test method for {@link org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice#getIcons(java.lang.String)}.
 	 */
 	public void testGetIcons() {
 		String[] icons = productFileAdviceWin32.getIcons();

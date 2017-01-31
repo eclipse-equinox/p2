@@ -157,6 +157,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 
 	/**
 	 * Tests mirroring all metadata in a repository to a repository populated with exact duplicate data
+	 * @throws Exception
 	 * Source contains A, B
 	 * Target contains A, B
 	 */

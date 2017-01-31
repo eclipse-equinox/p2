@@ -78,7 +78,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests for {@link IRepositoryManager#contains(URI)}.
+	 * Tests for {@link IRepositoryManager#contains(URI).
 	 */
 	public void testContains() {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
