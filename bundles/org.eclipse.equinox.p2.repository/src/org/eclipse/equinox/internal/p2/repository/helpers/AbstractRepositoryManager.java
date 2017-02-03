@@ -705,38 +705,37 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 * a NullSafe version is returned.
 	 */
 	private LocationProperties loadIndexFile(URI location, IProgressMonitor monitor) {
-		LocationProperties locationProperties = LocationProperties.createEmptyIndexFile();
-		//Handle the case of in-memory repos
-		if (!isURL(location))
-			return locationProperties;
+		if (!isInMemoryRepository(location))
+			return LocationProperties.createEmptyIndexFile();
 
-		if ("file".equals(location.getScheme())) { //$NON-NLS-1$ 
-			InputStream localStream = null;
-			try {
-				try {
-					File indexFile = URIUtil.toFile(getIndexFileURI(location));
-					if (indexFile != null && indexFile.exists() && indexFile.canRead()) {
-						localStream = new FileInputStream(indexFile);
-						locationProperties = LocationProperties.create(localStream);
-					}
-				} finally {
-					if (localStream != null)
-						localStream.close();
-				}
-			} catch (IOException e) {
-				//do nothing.
-			}
-			return locationProperties;
+		URI indexFile = getIndexFileURI(location);
+		if ("file".equals(indexFile.getScheme())) { //$NON-NLS-1$
+			return handleLocalIndexFile(indexFile);
 		}
+		return handleRemoteIndexFile(indexFile, monitor);
+	}
 
-		//Handle non local repos (i.e. not file:)
+	private LocationProperties handleRemoteIndexFile(URI indexFileURI, IProgressMonitor monitor) {
 		ByteArrayOutputStream index = new ByteArrayOutputStream();
 		IStatus indexFileStatus = null;
-		indexFileStatus = getTransport().download(getIndexFileURI(location), index, monitor);
+		indexFileStatus = getTransport().download(indexFileURI, index, monitor);
 		if (indexFileStatus != null && indexFileStatus.isOK())
-			locationProperties = LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
+			return LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
+		return LocationProperties.createEmptyIndexFile();
+	}
 
-		return locationProperties;
+	private LocationProperties handleLocalIndexFile(URI indexFileURI) {
+		try {
+			File indexFile = URIUtil.toFile(indexFileURI);
+			if (indexFile != null && indexFile.exists() && indexFile.canRead()) {
+				try (InputStream localStream = new FileInputStream(indexFile)) {
+					return LocationProperties.create(localStream);
+				}
+			}
+		} catch (IOException e) {
+			//do nothing.
+		}
+		return LocationProperties.createEmptyIndexFile();
 	}
 
 	/**
@@ -750,7 +749,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		return location;
 	}
 
-	private static boolean isURL(URI location) {
+	private static boolean isInMemoryRepository(URI location) {
 		try {
 			new URL(location.toASCIIString());
 		} catch (MalformedURLException e) {
