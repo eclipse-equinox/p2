@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -17,8 +19,12 @@ import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.reconciler.dropins.SharedInstallTests;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 	private static final String PROFILE_NAME = "profile.SurrogateProfileHandlerTest";
@@ -84,5 +90,25 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		assertTrue(handler.isSurrogate(surrogateProfile));
 		assertEquals(1, queryResultSize(surrogateProfile.query(QueryUtil.createIUAnyQuery(), null)));
 		assertEquals(2, queryResultSize(surrogateProfile.available(QueryUtil.createIUAnyQuery(), null)));
+	}
+
+	public void testDropletsCanDetectFeatureGroup() throws IOException, ProvisionException {
+		// Droplet containing 'org.foo.bar', 'org.foo.bar.feature.feature.jar' and 'org.foo.bar.feature.feature.group'
+		File fragTestData = getTestData("0.1", "/testData/testRepos/foo-droplet");
+		File fragDir = getTempFolder();
+		copy("Copying ..", fragTestData, fragDir);
+		SharedInstallTests.setReadOnly(fragDir, true);
+		AbstractSharedInstallTest.reallyReadOnly(fragDir, true);
+		EngineActivator.EXTENDED = true;
+		EngineActivator.EXTENSIONS = fragDir.getAbsolutePath();
+
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		saveProfile(registry, profile);
+		IProfile surrogateProfile = handler.createProfile(PROFILE_NAME);
+		IQueryResult<IInstallableUnit> qRes = surrogateProfile.available(QueryUtil.createIUPropertyQuery(QueryUtil.PROP_TYPE_GROUP, "true"), null);
+		assertFalse(qRes.isEmpty());
+
+		AbstractSharedInstallTest.removeReallyReadOnly(fragDir, true);
+		SharedInstallTests.setReadOnly(fragDir, false);
 	}
 }
