@@ -70,19 +70,19 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	boolean sameProfile(String another) {
-		if (another.equals(IProfileRegistry.SELF)) {
+		if (IProfileRegistry.SELF.equals(another)) {
 			IProfile profile = getProfileRegistry().getProfile(another);
 			if (profile != null) {
 				another = profile.getProfileId();
 			}
 		}
-		if (profileId.equals(IProfileRegistry.SELF)) {
+		if (IProfileRegistry.SELF.equals(profileId)) {
 			IProfile profile = getProfileRegistry().getProfile(profileId);
 			if (profile != null) {
 				profileId = profile.getProfileId();
 			}
 		}
-		return profileId.equals(another);
+		return (profileId == another) || (profileId != null && profileId.equals(another));
 	}
 
 	/*
