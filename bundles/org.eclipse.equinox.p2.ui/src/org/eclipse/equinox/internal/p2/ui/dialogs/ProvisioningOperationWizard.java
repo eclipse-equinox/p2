@@ -235,7 +235,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	protected void planChanged() {
-		IWizardPage currentPage = ((WizardDialog) getContainer()).getCurrentPage();
+		IWizardPage currentPage = getContainer().getCurrentPage();
 		if ((currentPage == null || currentPage == mainPage) && remediationPage != null && remediationOperation != null && remediationOperation.getResolutionResult() == Status.OK_STATUS) {
 			remediationPage.updateStatus(root, operation, planSelections);
 		}
