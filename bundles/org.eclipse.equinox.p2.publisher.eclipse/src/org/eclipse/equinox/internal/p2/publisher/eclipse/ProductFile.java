@@ -434,7 +434,13 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	public boolean containsPlugin(String plugin) {
-		return getBundles(true).contains(plugin);
+		List<IVersionedId> bundles = getBundles(true);
+		for (IVersionedId versionedId : bundles) {
+			if (versionedId.getId().equals(plugin)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public String[] getIcons() {

@@ -236,7 +236,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 									|| "feature".equals(cap.getName())) { //$NON-NLS-1$
 								featureOrBundle = true;
 							}
-						} else if (Boolean.TRUE.equals(unit.getProperties().get("org.eclipse.equinox.p2.type.group"))) { //$NON-NLS-1$
+						} else if (Boolean.TRUE.equals(Boolean.valueOf(unit.getProperties().get("org.eclipse.equinox.p2.type.group")))) { //$NON-NLS-1$
 							featureOrBundle = true;
 						}
 					}

@@ -156,16 +156,19 @@ public class ProvisioningContext {
 		List<IArtifactRepository> repos = new ArrayList<>();
 		SubMonitor sub = SubMonitor.convert(monitor, (repositories.length + 1) * 100);
 		for (int i = 0; i < repositories.length; i++) {
-			if (sub.isCanceled())
+			if (sub.isCanceled()) {
 				throw new OperationCanceledException();
+			}
+			URI location = repositories[i];
 			try {
-				repos.add(repoManager.loadRepository(repositories[i], sub.newChild(100)));
+				repos.add(repoManager.loadRepository(location, sub.newChild(100)));
 			} catch (ProvisionException e) {
 				//skip unreadable repositories
 			}
 			// Remove this URI from the list of extra references if it is there.
-			if (referencedArtifactRepositories != null)
-				referencedArtifactRepositories.remove(repositories[i]);
+			if (referencedArtifactRepositories != null && location != null) {
+				referencedArtifactRepositories.remove(location.toString());
+			}
 		}
 		// Are there any extra artifact repository references to consider?
 		if (referencedArtifactRepositories != null && referencedArtifactRepositories.size() > 0 && shouldFollowArtifactReferences()) {
