@@ -81,7 +81,7 @@ public class ValidationDialogServiceUI extends UIServices {
 		@Override
 		protected void createButtonsForButtonBar(Composite parent) {
 			// create OK and Details buttons
-			createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+			createButton(parent, IDialogConstants.OK_ID, ProvUIMessages.ServiceUI_InstallAnywayAction_Label, true);
 			createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, true);
 			createDetailsButton(parent);
 		}
