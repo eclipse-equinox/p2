@@ -49,7 +49,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 	public ArtifactDescriptor(IArtifactDescriptor base) {
 		super();
 		key = base.getArtifactKey();
-		processingSteps = base.getProcessingSteps();
+		setProcessingSteps(base.getProcessingSteps());
 		properties.putAll(base.getProperties());
 		repository = base.getRepository();
 	}
@@ -99,7 +99,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 	}
 
 	public void setProcessingSteps(IProcessingStepDescriptor[] value) {
-		processingSteps = value == null ? EMPTY_STEPS : value;
+		processingSteps = value == null || value.length == 0 ? EMPTY_STEPS : value;
 	}
 
 	public boolean equals(Object obj) {
