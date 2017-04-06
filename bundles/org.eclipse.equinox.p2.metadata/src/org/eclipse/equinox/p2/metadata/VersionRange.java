@@ -12,6 +12,8 @@
 package org.eclipse.equinox.p2.metadata;
 
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.util.WeakHashMap;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
@@ -34,6 +36,7 @@ public class VersionRange implements Serializable {
 	 * An empty OSGi Version range.
 	 */
 	public static final VersionRange emptyRange = new VersionRange(Version.emptyVersion, true, Version.MAX_VERSION, true);
+	private static WeakHashMap<String, SoftReference<VersionRange>> POOL = new WeakHashMap<String, SoftReference<VersionRange>>();
 
 	private final Version minVersion;
 	private final boolean includeMin;
@@ -250,6 +253,39 @@ public class VersionRange implements Serializable {
 			}
 		}
 		validateRange();
+	}
+
+	/**
+	 * Parses a version range from the specified string.
+	 * <p>
+	 * Note that this method performs a non thread-safe object pooling. Instances are
+	 * stored in a weak cache, i.e. for multiple calls with the same input it is likely
+	 * but not guaranteed that the same instance is retrieved. Same holds for concurrent
+	 * access on this method. Clients must not assume to get the same instance for 
+	 * subsequent calls.
+	 * 
+	 * @param versionRange String representation of the version range. Leading
+	 *        and trailing whitespace will be ignored.
+	 * @return A <code>VersionRange</code> object representing the version range
+	 *         or <code>null</code> if <code>versionRange</code> is <code>null</code> or
+	 *         an empty string.
+	 * @throws IllegalArgumentException If <code>versionRange</code> is improperly
+	 *         formatted.
+	 * @since 2.3
+	 */
+	public static VersionRange create(String versionRange) {
+		VersionRange v = null;
+		if (versionRange != null && versionRange.length() > 0) {
+			SoftReference<VersionRange> vRef = POOL.get(versionRange);
+			v = vRef != null ? vRef.get() : null;
+			if (v == null) {
+				v = new VersionRange(versionRange);
+				synchronized (POOL) {
+					POOL.put(versionRange, new SoftReference<VersionRange>(v));
+				}
+			}
+		}
+		return v;
 	}
 
 	private static IVersionFormat parseFormat(String versionRange, int[] position) {

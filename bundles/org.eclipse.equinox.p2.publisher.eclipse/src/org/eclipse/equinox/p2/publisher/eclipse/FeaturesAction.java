@@ -16,8 +16,9 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
@@ -560,7 +561,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			return VersionRange.emptyRange;
 		String match = entry.getMatch();
 		if ("versionRange".equals(match)) //$NON-NLS-1$
-			return new VersionRange(versionSpec);
+			return VersionRange.create(versionSpec);
 		Version version = Version.parseVersion(versionSpec);
 		if (version.equals(Version.emptyVersion))
 			return VersionRange.emptyRange;
@@ -582,7 +583,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("greaterOrEqual")) //$NON-NLS-1$
-			return new VersionRange(version, true, new VersionRange(null).getMaximum(), true);
+			return new VersionRange(version, true, VersionRange.create(null).getMaximum(), true);
 		return null;
 	}
 

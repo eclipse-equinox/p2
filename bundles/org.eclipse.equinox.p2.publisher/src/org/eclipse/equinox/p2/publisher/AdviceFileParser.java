@@ -199,7 +199,7 @@ public class AdviceFileParser {
 			return MetadataFactory.createUpdateDescriptor(descriptors, Integer.valueOf(severity), description, (URI) null);
 		}
 		range = substituteVersionAndQualifier(range);
-		VersionRange versionRange = new VersionRange(range);
+		VersionRange versionRange = VersionRange.create(range);
 		return MetadataFactory.createUpdateDescriptor(name, versionRange, Integer.valueOf(severity), description);
 	}
 
@@ -274,7 +274,7 @@ public class AdviceFileParser {
 			} else if (token.equals(NAMESPACE)) {
 				namespace = currentValue();
 			} else if (token.equals(RANGE)) {
-				range = new VersionRange(substituteVersionAndQualifier(currentValue()));
+				range = VersionRange.create(substituteVersionAndQualifier(currentValue()));
 			} else if (token.equals(MIN)) {
 				min = Integer.valueOf(currentValue()).intValue();
 			} else if (token.equals(MAX)) {
@@ -416,7 +416,7 @@ public class AdviceFileParser {
 				unitUpdateId = currentValue();
 				next();
 			} else if (token.equals(UPDATE_RANGE)) {
-				unitUpdateRange = new VersionRange(substituteVersionAndQualifier(currentValue()));
+				unitUpdateRange = VersionRange.create(substituteVersionAndQualifier(currentValue()));
 				next();
 			} else if (token.equals(UPDATE_SEVERITY)) {
 				unitUpdateSeverity = Integer.parseInt(currentValue());

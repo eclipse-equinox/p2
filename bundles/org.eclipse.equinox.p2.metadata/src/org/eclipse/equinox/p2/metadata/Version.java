@@ -12,6 +12,8 @@
 package org.eclipse.equinox.p2.metadata;
 
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.util.WeakHashMap;
 import org.eclipse.equinox.internal.p2.metadata.*;
 
 /**
@@ -40,6 +42,7 @@ import org.eclipse.equinox.internal.p2.metadata.*;
  */
 public abstract class Version implements Comparable<Version>, Serializable {
 	public static final String RAW_PREFIX = "raw:"; //$NON-NLS-1$
+	private static WeakHashMap<String, SoftReference<Version>> POOL = new WeakHashMap<String, SoftReference<Version>>();
 
 	/**
 	 * The version that is semantically greater then all other versions.
@@ -66,6 +69,12 @@ public abstract class Version implements Comparable<Version>, Serializable {
 
 	/**
 	 * Parses a version identifier from the specified string.
+	 * <p>
+	 * Note that this method performs a non thread-safe object pooling. Instances are
+	 * stored in a weak cache, i.e. for multiple calls with the same input it is likely
+	 * but not guaranteed that the same instance is retrieved. Same holds for concurrent
+	 * access on this method. Clients must not assume to get the same instance for 
+	 * subsequent calls.
 	 * 
 	 * @param version String representation of the version identifier. Leading
 	 *        and trailing whitespace will be ignored.
@@ -76,7 +85,18 @@ public abstract class Version implements Comparable<Version>, Serializable {
 	 *         formatted.
 	 */
 	public static Version create(String version) {
-		return version == null ? null : VersionParser.parse(version, 0, version.length());
+		Version v = null;
+		if (version != null && version.length() > 0) {
+			SoftReference<Version> vRef = POOL.get(version);
+			v = vRef != null ? vRef.get() : null;
+			if (v == null) {
+				v = VersionParser.parse(version, 0, version.length());
+				synchronized (POOL) {
+					POOL.put(version, new SoftReference<Version>(v));
+				}
+			}
+		}
+		return v;
 	}
 
 	/**

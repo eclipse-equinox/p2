@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
-
 import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
@@ -27,7 +26,7 @@ public final class RangeFunction extends Function {
 	}
 
 	Object createInstance(Object arg) {
-		return new VersionRange((String) arg);
+		return VersionRange.create((String) arg);
 	}
 
 	public String getOperator() {

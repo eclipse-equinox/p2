@@ -118,7 +118,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 		if (entry == null)
 			return null;
 		if (versionRange != null) {
-			VersionRange range = new VersionRange(versionRange);
+			VersionRange range = VersionRange.create(versionRange);
 			if (!range.isIncluded(entry.getVersion()))
 				return null;
 		}

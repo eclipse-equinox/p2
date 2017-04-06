@@ -272,7 +272,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			return Collections.<IInstallableUnit> emptyList();
 		IQuery<IInstallableUnit> query = null;
 		if (id != null) {
-			VersionRange vRange = new VersionRange(range);
+			VersionRange vRange = VersionRange.create(range);
 			query = QueryUtil.createIUQuery(id, vRange);
 		} else if (type.equals("context")) { //$NON-NLS-1$
 			query = QueryUtil.createQuery(expression, params);

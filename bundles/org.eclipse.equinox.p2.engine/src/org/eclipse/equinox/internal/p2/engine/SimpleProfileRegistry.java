@@ -643,7 +643,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			return false;
 
 		//check whether the profile contains the p2 engine from 3.5.0 or earlier
-		return profile.available(QueryUtil.createIUQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.101)")), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
+		return profile.available(QueryUtil.createIUQuery("org.eclipse.equinox.p2.engine", VersionRange.create("[0.0.0, 1.0.101)")), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void deleteProfile(String profileId) {

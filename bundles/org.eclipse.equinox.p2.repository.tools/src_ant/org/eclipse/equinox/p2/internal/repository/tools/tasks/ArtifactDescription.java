@@ -64,7 +64,7 @@ public class ArtifactDescription extends DataType {
 	public IQuery<IArtifactKey> createKeyQuery() {
 		VersionRange keyRange = null;
 		if (range != null)
-			keyRange = new VersionRange(range);
+			keyRange = VersionRange.create(range);
 		else if (version != null) {
 			Version keyVersion = Version.parseVersion(version);
 			keyRange = new VersionRange(keyVersion, true, keyVersion, true);
@@ -75,7 +75,7 @@ public class ArtifactDescription extends DataType {
 	public IQuery<IArtifactDescriptor> createDescriptorQuery() {
 		VersionRange keyRange = null;
 		if (range != null)
-			keyRange = new VersionRange(range);
+			keyRange = VersionRange.create(range);
 		else if (version != null) {
 			Version keyVersion = Version.parseVersion(version);
 			keyRange = new VersionRange(keyVersion, true, keyVersion, true);

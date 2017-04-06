@@ -689,7 +689,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	public VersionRange checkVersionRange(String element, String attribute, String value) {
 		try {
 			if (value != null)
-				return new VersionRange(value);
+				return VersionRange.create(value);
 		} catch (IllegalArgumentException iae) {
 			invalidAttributeValue(element, attribute, value);
 		} catch (NullPointerException npe) {

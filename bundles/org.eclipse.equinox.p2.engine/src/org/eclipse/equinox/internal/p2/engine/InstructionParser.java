@@ -62,7 +62,7 @@ public class InstructionParser {
 			while (actionTokenizer.hasMoreTokens()) {
 				String actionAttribute = actionTokenizer.nextToken().trim();
 				if (actionAttribute.startsWith(VERSION_EQUALS))
-					actionVersionRange = new VersionRange(actionAttribute.substring(VERSION_EQUALS.length() + 1));
+					actionVersionRange = VersionRange.create(actionAttribute.substring(VERSION_EQUALS.length() + 1));
 			}
 			result.put(actionKey, new ActionEntry(actionId, actionVersionRange));
 			result.put(actionId, new ActionEntry(actionId, actionVersionRange));

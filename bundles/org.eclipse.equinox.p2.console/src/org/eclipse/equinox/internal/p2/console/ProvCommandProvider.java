@@ -81,7 +81,7 @@ public class ProvCommandProvider implements CommandProvider {
 		if (ProvisioningHelper.addMetadataRepository(agent, repoURI) == null) {
 			interpreter.println("Unable to add metadata repository: " + repoURI);
 		} else // add artifact repo at same URL
-			if (ProvisioningHelper.addArtifactRepository(agent, repoURI) == null) {
+		if (ProvisioningHelper.addArtifactRepository(agent, repoURI) == null) {
 			interpreter.println("Unable to add artifact repository: " + repoURI);
 		}
 	}
@@ -248,7 +248,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoURL = null;
 		if (urlString != null && !urlString.equals(WILDCARD_ANY))
 			repoURL = toURI(interpreter, urlString);
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoURL, QueryUtil.createIUQuery(id, new VersionRange(version)), null));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoURL, QueryUtil.createIUQuery(id, VersionRange.create(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -303,7 +303,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoLocation = toURI(interpreter, urlString);
 		if (repoLocation == null)
 			return;
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoLocation, QueryUtil.createIUQuery(id, new VersionRange(version)), null));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoLocation, QueryUtil.createIUQuery(id, VersionRange.create(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -434,7 +434,7 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 
 		// list the profile contents
-		IInstallableUnit[] result = sort(target.query(QueryUtil.createIUQuery(id, new VersionRange(range)), null));
+		IInstallableUnit[] result = sort(target.query(QueryUtil.createIUQuery(id, VersionRange.create(range)), null));
 		for (int i = 0; i < result.length; i++)
 			interpreter.println(result[i]);
 	}

@@ -189,7 +189,7 @@ public class FeatureManifestParser extends DefaultHandler {
 		String versionStr = attributes.getValue("version"); //$NON-NLS-1$
 		FeatureEntry entry = null;
 		if ("versionRange".equals(attributes.getValue("match"))) { //$NON-NLS-1$//$NON-NLS-2$
-			VersionRange versionRange = new VersionRange(versionStr);
+			VersionRange versionRange = VersionRange.create(versionStr);
 			entry = FeatureEntry.createRequires(id, versionRange, attributes.getValue("match"), attributes.getValue("filter"), isPlugin); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
 			entry = FeatureEntry.createRequires(id, versionStr, attributes.getValue("match"), attributes.getValue("filter"), isPlugin); //$NON-NLS-1$ //$NON-NLS-2$

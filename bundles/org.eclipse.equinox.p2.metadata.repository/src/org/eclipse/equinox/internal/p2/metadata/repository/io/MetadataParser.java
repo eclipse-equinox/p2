@@ -20,9 +20,7 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
@@ -286,7 +284,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 						continue;
 					}
 					if (key.equals("equinox.p2.update.range")) { //$NON-NLS-1$
-						updateRange = new VersionRange(value);
+						updateRange = VersionRange.create(value);
 						continue;
 					}
 					//End of backward compatibility
