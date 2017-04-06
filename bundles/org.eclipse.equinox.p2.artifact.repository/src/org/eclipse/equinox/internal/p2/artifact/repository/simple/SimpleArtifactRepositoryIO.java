@@ -46,6 +46,7 @@ public class SimpleArtifactRepositoryIO {
 
 	private final IProvisioningAgent agent;
 	private Location lockLocation = null;
+	static final IProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
 
 	public SimpleArtifactRepositoryIO(IProvisioningAgent agent) {
 		this.agent = agent;
@@ -535,7 +536,7 @@ public class SimpleArtifactRepositoryIO {
 					properties = (repositoryPropertiesHandler == null ? new OrderedProperties(0) : repositoryPropertiesHandler.getProperties());
 					currentArtifact.addRepositoryProperties(properties);
 
-					IProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? new ProcessingStepDescriptor[0] //
+					IProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? EMPTY_STEPS //
 							: processingStepsHandler.getProcessingSteps());
 					currentArtifact.setProcessingSteps(processingSteps);
 					artifacts.add(currentArtifact);
@@ -554,7 +555,7 @@ public class SimpleArtifactRepositoryIO {
 			}
 
 			public IProcessingStepDescriptor[] getProcessingSteps() {
-				return processingSteps.toArray(new ProcessingStepDescriptor[processingSteps.size()]);
+				return processingSteps.isEmpty() ? EMPTY_STEPS : processingSteps.toArray(new ProcessingStepDescriptor[processingSteps.size()]);
 			}
 
 			public void startElement(String name, Attributes attributes) {
