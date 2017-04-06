@@ -20,7 +20,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.jarprocessor.ant.JarProcessorTask;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.internal.repository.tools.*;
+import org.eclipse.equinox.p2.internal.repository.tools.Messages;
+import org.eclipse.equinox.p2.internal.repository.tools.RecreateRepositoryApplication;
 import org.eclipse.osgi.util.NLS;
 
 public class ProcessRepoTask extends Task {
@@ -91,14 +92,8 @@ public class ProcessRepoTask extends Task {
 	}
 
 	private void recreateRepository() {
-		RepositoryDescriptor descriptor = new RepositoryDescriptor();
-		descriptor.setAppend(true);
-		descriptor.setFormat(null);
-		descriptor.setKind("artifact"); //$NON-NLS-1$
-		descriptor.setLocation(repository);
-
 		RecreateRepositoryApplication application = new RecreateRepositoryApplication();
-		application.setArtifactRepository(descriptor);
+		application.setArtifactRepository(repository);
 		try {
 			application.run(new NullProgressMonitor());
 		} catch (ProvisionException e) {

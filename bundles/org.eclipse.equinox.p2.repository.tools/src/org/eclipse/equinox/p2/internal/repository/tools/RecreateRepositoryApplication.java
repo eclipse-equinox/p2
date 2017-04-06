@@ -32,7 +32,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class RecreateRepositoryApplication extends AbstractApplication {
 	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
-	private RepositoryDescriptor descriptor;
+	private URI repoLocation;
 	private String repoName = null;
 	boolean removeArtifactRepo = true;
 	private Map<String, String> repoProperties = null;
@@ -46,22 +46,22 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		} finally {
 			if (removeArtifactRepo) {
 				IArtifactRepositoryManager repositoryManager = getArtifactRepositoryManager();
-				repositoryManager.removeRepository(descriptor.getRepoLocation());
+				repositoryManager.removeRepository(repoLocation);
 			}
 		}
 
 		return Status.OK_STATUS;
 	}
 
-	public void setArtifactRepository(RepositoryDescriptor descriptor) {
-		this.descriptor = descriptor;
+	public void setArtifactRepository(URI repository) {
+		this.repoLocation = repository;
 	}
 
 	private IArtifactRepository initialize(IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepositoryManager repositoryManager = getArtifactRepositoryManager();
-		removeArtifactRepo = !repositoryManager.contains(descriptor.getRepoLocation());
+		removeArtifactRepo = !repositoryManager.contains(repoLocation);
 
-		IArtifactRepository repository = repositoryManager.loadRepository(descriptor.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, monitor);
+		IArtifactRepository repository = repositoryManager.loadRepository(repoLocation, IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, monitor);
 
 		if (repository == null || !repository.isModifiable())
 			throw new ProvisionException(NLS.bind(Messages.exception_destinationNotModifiable, repository.getLocation()));
@@ -99,7 +99,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		//add pack200 mappings, the existing repoProperties is not modifiable 
 		Map<String, String> newProperties = new HashMap<String, String>(repoProperties);
 		newProperties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-		IArtifactRepository repository = manager.createRepository(descriptor.getRepoLocation(), repoName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, newProperties);
+		IArtifactRepository repository = manager.createRepository(repoLocation, repoName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, newProperties);
 		if (!(repository instanceof IFileArtifactRepository))
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 
