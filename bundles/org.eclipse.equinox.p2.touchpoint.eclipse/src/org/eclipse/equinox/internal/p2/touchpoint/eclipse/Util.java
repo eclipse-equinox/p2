@@ -78,7 +78,12 @@ public class Util {
 			return null;
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
 		try {
-			return (IFileArtifactRepository) manager.loadRepository(location, null);
+			IArtifactRepository repository = manager.loadRepository(location, null);
+			if (repository instanceof IFileArtifactRepository) {
+				return (IFileArtifactRepository) repository;
+			}
+			// update site repository
+			return null;
 		} catch (ProvisionException e) {
 			//the repository doesn't exist, so fall through and create a new one
 		}
