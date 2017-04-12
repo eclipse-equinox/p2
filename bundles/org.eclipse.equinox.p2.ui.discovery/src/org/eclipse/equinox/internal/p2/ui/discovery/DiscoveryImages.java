@@ -37,17 +37,17 @@ public class DiscoveryImages {
 	/**
 	 * image descriptor for a warning overlay suitable for use with 32x32 images.
 	 */
-	public static final ImageDescriptor OVERLAY_WARNING_32 = create(T_OVR_32, "message_warning.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor OVERLAY_WARNING_32 = create(T_OVR_32, "message_warning.png"); //$NON-NLS-1$
 
 	public static final ImageDescriptor BANNER_DISOVERY = create(T_WIZBAN, "banner-discovery.png"); //$NON-NLS-1$
 
-	public static final ImageDescriptor IU_AVAILABLE = create(T_OBJ_16, "iu_disabled_obj.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor IU_AVAILABLE = create(T_OBJ_16, "iu_disabled_obj.png"); //$NON-NLS-1$
 
-	public static final ImageDescriptor IU_INSTALLED = create(T_OBJ_16, "iu_obj.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor IU_INSTALLED = create(T_OBJ_16, "iu_obj.png"); //$NON-NLS-1$
 
-	public static final ImageDescriptor IU_UPDATABLE = create(T_OBJ_16, "iu_update_obj.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor IU_UPDATABLE = create(T_OBJ_16, "iu_update_obj.png"); //$NON-NLS-1$
 
-	public static final ImageDescriptor MESSAGE_INFO = create(T_OBJ_16, "message_info.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor MESSAGE_INFO = create(T_OBJ_16, "message_info.png"); //$NON-NLS-1$
 
 	public static final ImageDescriptor FIND_CLEAR = create(T_TOOL, "find-clear.gif"); //$NON-NLS-1$
 

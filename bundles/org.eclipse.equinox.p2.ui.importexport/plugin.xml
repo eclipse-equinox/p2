@@ -10,7 +10,7 @@
       <wizard
             category="org.eclipse.equinox.p2.category"
             class="org.eclipse.equinox.internal.p2.importexport.internal.wizard.ExportWizard"
-            icon="icons/install_wiz.gif"
+            icon="icons/wizban/install_wiz.png"
             id="org.eclipse.equinox.p2.replication.export"
             name="%export.name">
             <description>
@@ -27,17 +27,17 @@
       <wizard
             category="org.eclipse.equinox.p2.category"
             class="org.eclipse.equinox.internal.p2.importexport.internal.wizard.ImportWizard"
-            icon="icons/install_wiz.gif"
+            icon="icons/wizban/install_wiz.png"
             id="org.eclipse.equinox.p2.replication.import"
             name="%import.name">
             <description>
             	%import.description
-            </description>            
+            </description>
       </wizard>
       <wizard
             category="org.eclipse.equinox.p2.category"
             class="org.eclipse.equinox.internal.p2.importexport.internal.wizard.ImportFromInstallationWizard"
-            icon="icons/install_wiz.gif"
+            icon="icons/wizban/install_wiz.png"
             id="org.eclipse.equinox.p2.replication.importfrominstallation"
             name="%importfrominstallation.name">
          <description>

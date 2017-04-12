@@ -25,22 +25,22 @@
                value="%aboutText"/>
          <property
                name="windowImages"
-               value="platform:/plugin/org.eclipse.equinox.p2.ui.admin/icons/provision.gif"/>
-               
+               value="platform:/plugin/org.eclipse.equinox.p2.ui.admin/icons/view/provision.png"/>
+
     </product>
     </extension>
-    
+
        <extension
          point="org.eclipse.ui.views">
       <view
             name="%Views.Progress"
-            icon="$nl$/icons/pview.gif"
+            icon="$nl$/icons/view/pview.png"
             category="org.eclipse.ui"
             class="org.eclipse.ui.internal.progress.ProgressView"
             id="org.eclipse.ui.views.ProgressView">
       </view>
     </extension>
-    
+
          <extension
          point="org.eclipse.ui.perspectives">
       <perspective
@@ -49,5 +49,5 @@
             id="org.eclipse.equinox.p2.ui.admin.rcp.ProvisioningRCPPerspective">
       </perspective>
    </extension>
-   
+
 </plugin>

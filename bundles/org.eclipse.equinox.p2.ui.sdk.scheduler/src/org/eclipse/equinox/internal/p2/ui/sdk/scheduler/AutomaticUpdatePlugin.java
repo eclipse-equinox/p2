@@ -41,10 +41,10 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	public final static String ICON_PATH = "$nl$/icons/"; //$NON-NLS-1$
 
 	// tool icons
-	public final static String IMG_TOOL_UPDATE = "tool/update.gif"; //$NON-NLS-1$
-	public final static String IMG_TOOL_UPDATE_PROBLEMS = "tool/update_problems.gif"; //$NON-NLS-1$
-	public final static String IMG_TOOL_CLOSE = "tool/close.gif"; //$NON-NLS-1$
-	public final static String IMG_TOOL_CLOSE_HOT = "tool/close_hot.gif"; //$NON-NLS-1$
+	public final static String IMG_TOOL_UPDATE = "tool/update.png"; //$NON-NLS-1$
+	public final static String IMG_TOOL_UPDATE_PROBLEMS = "tool/update_problems.png"; //$NON-NLS-1$
+	public final static String IMG_TOOL_CLOSE = "tool/close.png"; //$NON-NLS-1$
+	public final static String IMG_TOOL_CLOSE_HOT = "tool/close_hot.png"; //$NON-NLS-1$
 
 	private static AutomaticUpdatePlugin plugin;
 	private static BundleContext context;
@@ -63,7 +63,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the singleton plugin instance
-	 * 
+	 *
 	 * @return the instance
 	 */
 	public static AutomaticUpdatePlugin getDefault() {
@@ -76,7 +76,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
 	 * )
@@ -131,7 +131,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	/*
 	 * Overridden to use a profile scoped preference store. (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#getPreferenceStore()
 	 */
 	public IPreferenceStore getPreferenceStore() {

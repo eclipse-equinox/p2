@@ -57,7 +57,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		setWindowTitle(Messages.ImportWizard_WINDOWTITLE);
-		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(Constants.Bundle_ID).getEntry("icons/install_wiz.gif"))); //$NON-NLS-1$
+		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(Constants.Bundle_ID).getEntry("icons/wizban/install_wiz.png"))); //$NON-NLS-1$
 		setNeedsProgressMonitor(true);
 	}
 

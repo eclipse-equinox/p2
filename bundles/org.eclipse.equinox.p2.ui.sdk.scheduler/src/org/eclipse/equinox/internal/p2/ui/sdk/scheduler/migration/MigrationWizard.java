@@ -9,7 +9,7 @@
  *     WindRiver Corporation - initial API and implementation
  *     Ericsson AB - Ongoing development
  *     Ericsson AB (Pascal Rapicault)
- *     Ericsson AB (Hamdan Msheik) 
+ *     Ericsson AB (Hamdan Msheik)
  *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
@@ -69,7 +69,7 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		setWindowTitle(firstTime ? ProvUIMessages.MigrationWizard_WINDOWTITLE_FIRSTRUN : ProvUIMessages.MigrationWizard_WINDOWTITLE);
-		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(ProvUIActivator.PLUGIN_ID).getEntry("icons/install_wiz.gif"))); //$NON-NLS-1$
+		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(ProvUIActivator.PLUGIN_ID).getEntry("icons/install_wiz.png"))); //$NON-NLS-1$
 		setNeedsProgressMonitor(true);
 	}
 

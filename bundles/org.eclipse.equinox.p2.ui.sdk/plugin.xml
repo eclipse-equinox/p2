@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-   	<extension 
+   	<extension
    		id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferences">
 		<initializer class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer"/>
 	</extension>
@@ -13,7 +13,7 @@
             id="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage">
             <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </page>
-      
+
        <page
             name="%sitesPrefPage"
             category="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"
@@ -21,7 +21,7 @@
             id="org.eclipse.equinox.internal.p2.ui.sdk.SitesPreferencePage">
             <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </page>
- 
+
    </extension>
 
       <extension
@@ -30,8 +30,8 @@
             label="%preferenceKeywords.general"
             id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </extension>
-      
-      
+
+
    <extension
          point="org.eclipse.ui.commands">
       <command
@@ -67,9 +67,9 @@
                   commandId="org.eclipse.equinox.p2.ui.sdk.update"
             	  mnemonic="%Update.command.mnemonic"
                   id="org.eclipse.equinox.p2.ui.sdk.update"
-                  icon="icons/obj/iu_update_obj.gif">
+                  icon="icons/obj/iu_update_obj.png">
             </command>
-                        
+
       </menuContribution>
       <menuContribution
             locationURI="menu:help?after=org.eclipse.equinox.p2.ui.sdk.update">
@@ -77,13 +77,13 @@
                   commandId="org.eclipse.equinox.p2.ui.sdk.install"
             	  mnemonic="%Install.command.mnemonic"
                   id="org.eclipse.equinox.p2.ui.sdk.install"
-                  icon="icons/obj/iu_obj.gif">
+                  icon="icons/obj/iu_obj.png">
             </command>
-                        
+
       </menuContribution>
    </extension>
 
-      	<extension 
+      	<extension
    		id="preferences" point="org.eclipse.core.runtime.preferences" name="%preferences">
 		<initializer class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer"/>
 	</extension>
@@ -99,7 +99,7 @@
             class="org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePageExtensionFactory"
             id="11.org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePage">
           </page>
-          
+
       </extension>
 
 </plugin>
