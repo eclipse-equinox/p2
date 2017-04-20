@@ -63,6 +63,7 @@ public class NativePackageExtractionApplication implements IApplication {
 			processArguments((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 			initializeServices();
 			NativeTouchpoint.loadInstallCommandsProperties(installCommandsProperties, "debian"); //$NON-NLS-1$
+			NativeTouchpoint.loadInstallCommandsProperties(installCommandsProperties, "fedora"); //$NON-NLS-1$
 			NativeTouchpoint.loadInstallCommandsProperties(installCommandsProperties, "windows"); //$NON-NLS-1$
 			collectData();
 			persistInformation();
