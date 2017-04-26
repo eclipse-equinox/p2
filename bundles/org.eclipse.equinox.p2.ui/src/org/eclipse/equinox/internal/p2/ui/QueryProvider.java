@@ -54,6 +54,8 @@ public class QueryProvider {
 	 * if the settings cannot be obtained.
 	 */
 	private static Map<String, String> getEnvFromProfile(IProfile profile) {
+		if (profile == null)
+			return null;
 		String environments = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
 		if (environments == null)
 			return null;
