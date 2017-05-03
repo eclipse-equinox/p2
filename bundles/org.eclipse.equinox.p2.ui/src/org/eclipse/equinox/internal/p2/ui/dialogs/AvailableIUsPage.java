@@ -196,7 +196,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		final Composite progressBarComposite = new Composite(parent, SWT.NONE);
 		Label progressBarLabel = new Label(progressBarComposite, SWT.NONE);
 		progressBarLabel.setText(ProvUIMessages.AvailableIUsPage_Fetching);
-		ProgressBar progressBar = new ProgressBar(progressBarComposite, SWT.INDETERMINATE);
+		new ProgressBar(progressBarComposite, SWT.INDETERMINATE);
 		IContentProvider contentProvider = availableIUGroup.getCheckboxTreeViewer().getContentProvider();
 		if (contentProvider instanceof DeferredQueryContentProvider) {
 			((DeferredQueryContentProvider) contentProvider).addOnFetchingActionListener(new IDeferredQueryTreeListener() {
