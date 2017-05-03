@@ -46,7 +46,7 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 
 	public DeferredQueryTreeContentManager(AbstractTreeViewer viewer) {
 		super(viewer);
-		listeners = new ListenerList<IDeferredQueryTreeListener>();
+		listeners = new ListenerList<>();
 	}
 
 	/*

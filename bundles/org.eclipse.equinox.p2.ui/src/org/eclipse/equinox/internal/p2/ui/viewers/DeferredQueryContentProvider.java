@@ -30,10 +30,10 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 
 	DeferredQueryTreeContentManager manager;
 	Object currentInput;
-	HashMap<Object, Object> alreadyQueried = new HashMap<Object, Object>();
-	HashSet<Object> queryCompleted = new HashSet<Object>();
+	HashMap<Object, Object> alreadyQueried = new HashMap<>();
+	HashSet<Object> queryCompleted = new HashSet<>();
 	AbstractTreeViewer viewer = null;
-	ListenerList<IInputChangeListener> listeners = new ListenerList<IInputChangeListener>();
+	ListenerList<IInputChangeListener> listeners = new ListenerList<>();
 	boolean synchronous = false;
 	IDeferredQueryTreeListener onFetchingActionListener;
 
@@ -80,8 +80,8 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 			});
 		} else
 			viewer = null;
-		alreadyQueried = new HashMap<Object, Object>();
-		queryCompleted = new HashSet<Object>();
+		alreadyQueried = new HashMap<>();
+		queryCompleted = new HashSet<>();
 		currentInput = newInput;
 		for (IInputChangeListener listener : listeners) {
 			listener.inputChanged(v, oldInput, newInput);

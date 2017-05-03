@@ -71,7 +71,7 @@ public class ElementUtils {
 			}
 			// Are there any elements that need to be deleted?  Go over the original state
 			// and remove any elements that weren't in the elements we were given
-			Set<String> nowKnown = new HashSet<String>();
+			Set<String> nowKnown = new HashSet<>();
 			for (int i = 0; i < elements.length; i++)
 				nowKnown.add(URIUtil.toUnencodedString(elements[i].getLocation()));
 			for (int i = 0; i < currentlyEnabled.length; i++) {
@@ -105,7 +105,7 @@ public class ElementUtils {
 	}
 
 	public static List<IInstallableUnit> elementsToIUs(Object[] elements) {
-		ArrayList<IInstallableUnit> theIUs = new ArrayList<IInstallableUnit>(elements.length);
+		ArrayList<IInstallableUnit> theIUs = new ArrayList<>(elements.length);
 		for (int i = 0; i < elements.length; i++) {
 			IInstallableUnit iu = ProvUI.getAdapter(elements[i], IInstallableUnit.class);
 			if (iu != null)
@@ -128,7 +128,7 @@ public class ElementUtils {
 	public static AvailableIUElement[] requestToElement(Remedy remedy, boolean installMode) {
 		if (remedy == null)
 			return new AvailableIUElement[0];
-		ArrayList<AvailableIUElement> temp = new ArrayList<AvailableIUElement>();
+		ArrayList<AvailableIUElement> temp = new ArrayList<>();
 		ProvisioningUI ui = ProvisioningUI.getDefaultUI();
 		IUElementListRoot root = new IUElementListRoot(ui);
 		for (Iterator<RemedyIUDetail> iterator = remedy.getIusDetails().iterator(); iterator.hasNext();) {
@@ -146,7 +146,7 @@ public class ElementUtils {
 	}
 
 	public static RemedyElementCategory[] requestToRemedyElementsCategories(Remedy remedy) {
-		List<RemedyElementCategory> categories = new ArrayList<RemedyElementCategory>();
+		List<RemedyElementCategory> categories = new ArrayList<>();
 		RemedyElementCategory categoryAdded = new RemedyElementCategory(ProvUIMessages.RemedyCategoryAdded);
 		RemedyElementCategory cateogyRemoved = new RemedyElementCategory(ProvUIMessages.RemedyCategoryRemoved);
 		RemedyElementCategory categoryNotAdded = new RemedyElementCategory(ProvUIMessages.RemedyCategoryNotAdded);

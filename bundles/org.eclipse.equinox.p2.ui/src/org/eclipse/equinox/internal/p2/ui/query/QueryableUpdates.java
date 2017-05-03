@@ -43,7 +43,7 @@ public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 		monitor.beginTask(ProvUIMessages.QueryableUpdates_UpdateListProgress, totalWork);
 		IPlanner planner = (IPlanner) ui.getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
 		try {
-			Set<IInstallableUnit> allUpdates = new HashSet<IInstallableUnit>();
+			Set<IInstallableUnit> allUpdates = new HashSet<>();
 			for (int i = 0; i < iusToUpdate.length; i++) {
 				if (monitor.isCanceled())
 					return Collector.emptyCollector();

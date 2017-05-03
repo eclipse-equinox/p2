@@ -25,7 +25,7 @@ public abstract class ElementWrapper {
 	 * of UI elements
 	 */
 	public Collection<?> getElements(Collector<?> collector) {
-		collection = new ArrayList<Object>(collector.size());
+		collection = new ArrayList<>(collector.size());
 		Iterator<?> iter = collector.iterator();
 		while (iter.hasNext()) {
 			Object o = iter.next();

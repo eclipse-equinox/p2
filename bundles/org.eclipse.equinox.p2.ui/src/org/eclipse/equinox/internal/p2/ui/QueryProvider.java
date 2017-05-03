@@ -59,7 +59,7 @@ public class QueryProvider {
 		String environments = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
 		if (environments == null)
 			return null;
-		Map<String, String> result = new HashMap<String, String>();
+		Map<String, String> result = new HashMap<>();
 		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
 			String entry = tokenizer.nextToken();
 			int i = entry.indexOf('=');
@@ -127,10 +127,10 @@ public class QueryProvider {
 							topLevelQuery = QueryUtil.createLatestQuery(topLevelQuery);
 						if (targetProfile != null)
 							wrapper.markInstalledIUs(targetProfile, hideInstalled);
-						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector<Object>(), wrapper);
+						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector<>(), wrapper);
 					}
 					// Installed content not a concern for collecting categories
-					return new ElementQueryDescriptor(queryable, categoryQuery, new Collector<Object>(), new CategoryElementWrapper(queryable, element));
+					return new ElementQueryDescriptor(queryable, categoryQuery, new Collector<>(), new CategoryElementWrapper(queryable, element));
 				}
 
 				// If it's a category or some other IUElement to drill down in, we get the requirements and show all requirements
@@ -156,14 +156,14 @@ public class QueryProvider {
 					if (element instanceof CategoryElement) {
 						if (showLatest)
 							memberOfCategoryQuery = QueryUtil.createLatestQuery(memberOfCategoryQuery);
-						return new ElementQueryDescriptor(queryable, memberOfCategoryQuery, new Collector<Object>(), availableIUWrapper);
+						return new ElementQueryDescriptor(queryable, memberOfCategoryQuery, new Collector<>(), availableIUWrapper);
 					}
 					// It is not a category, we want to traverse the requirements that are groups.
 					IQuery<IInstallableUnit> query = QueryUtil.createCompoundQuery(topLevelQuery, new RequiredIUsQuery(((IIUElement) element).getIU()), true);
 					if (showLatest)
 						query = QueryUtil.createLatestQuery(query);
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
-					return new ElementQueryDescriptor(queryable, query, new Collector<Object>(), availableIUWrapper);
+					return new ElementQueryDescriptor(queryable, query, new Collector<>(), availableIUWrapper);
 				}
 				return null;
 
@@ -185,7 +185,7 @@ public class QueryProvider {
 					toUpdate = queryResult.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(ui, toUpdate);
-				return new ElementQueryDescriptor(updateQueryable, context.getShowLatestVersionsOnly() ? QueryUtil.createLatestIUQuery() : QueryUtil.createIUAnyQuery(), new Collector<Object>());
+				return new ElementQueryDescriptor(updateQueryable, context.getShowLatestVersionsOnly() ? QueryUtil.createLatestIUQuery() : QueryUtil.createIUAnyQuery(), new Collector<>());
 
 			case INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
@@ -222,12 +222,12 @@ public class QueryProvider {
 
 			case PROFILES :
 				queryable = new QueryableProfileRegistry(ui);
-				return new ElementQueryDescriptor(queryable, QueryUtil.createMatchQuery(IProfile.class, ExpressionUtil.TRUE_EXPRESSION), new Collector<Object>(), new ProfileElementWrapper(null, element));
+				return new ElementQueryDescriptor(queryable, QueryUtil.createMatchQuery(IProfile.class, ExpressionUtil.TRUE_EXPRESSION), new Collector<>(), new ProfileElementWrapper(null, element));
 
 			case AVAILABLE_ARTIFACTS :
 				if (!(queryable instanceof IArtifactRepository))
 					return null;
-				return new ElementQueryDescriptor(queryable, ArtifactKeyQuery.ALL_KEYS, new Collector<Object>(), new ArtifactKeyWrapper((IArtifactRepository) queryable, element));
+				return new ElementQueryDescriptor(queryable, ArtifactKeyQuery.ALL_KEYS, new Collector<>(), new ArtifactKeyWrapper((IArtifactRepository) queryable, element));
 
 			default :
 				return null;

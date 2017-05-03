@@ -21,7 +21,7 @@ public class RemedyElementCategory {
 
 	public RemedyElementCategory(String name) {
 		this.name = name;
-		elements = new ArrayList<RemedyIUDetail>();
+		elements = new ArrayList<>();
 	}
 
 	public List<RemedyIUDetail> getElements() {

@@ -361,7 +361,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private void updateLicenses(IInstallableUnit[] theIUs, IProvisioningPlan plan) {
 		this.originalIUs = theIUs;
 		if (theIUs == null)
-			licensesToIUs = new HashMap<ILicense, List<IInstallableUnit>>();
+			licensesToIUs = new HashMap<>();
 		else
 			findUnacceptedLicenses(theIUs, plan);
 		setDescription();
@@ -403,8 +403,8 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		// Current metadata generation can result with a feature group IU and the feature jar IU
 		// having the same name and license.  We will weed out duplicates if the license and name are both
 		// the same.  
-		licensesToIUs = new HashMap<ILicense, List<IInstallableUnit>>();//map of License->ArrayList of IUs with that license
-		HashMap<ILicense, HashSet<String>> namesSeen = new HashMap<ILicense, HashSet<String>>(); // map of License->HashSet of names with that license
+		licensesToIUs = new HashMap<>();//map of License->ArrayList of IUs with that license
+		HashMap<ILicense, HashSet<String>> namesSeen = new HashMap<>(); // map of License->HashSet of names with that license
 		for (int i = 0; i < iusToCheck.length; i++) {
 			IInstallableUnit iu = iusToCheck[i];
 			for (ILicense license : iu.getLicenses(null)) {
@@ -420,10 +420,10 @@ public class AcceptLicensesWizardPage extends WizardPage {
 							((ArrayList<IInstallableUnit>) licensesToIUs.get(license)).add(iu);
 						}
 					} else {
-						ArrayList<IInstallableUnit> list = new ArrayList<IInstallableUnit>(1);
+						ArrayList<IInstallableUnit> list = new ArrayList<>(1);
 						list.add(iu);
 						licensesToIUs.put(license, list);
-						HashSet<String> names = new HashSet<String>(1);
+						HashSet<String> names = new HashSet<>(1);
 						names.add(name);
 						namesSeen.put(license, names);
 					}

@@ -253,7 +253,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 			return;
 		}
 
-		ArrayList<Object> selections = new ArrayList<Object>(initialSelections.length);
+		ArrayList<Object> selections = new ArrayList<>(initialSelections.length);
 
 		for (int i = 0; i < initialSelections.length; i++) {
 			if (initialSelections[i] instanceof AvailableUpdateElement) {

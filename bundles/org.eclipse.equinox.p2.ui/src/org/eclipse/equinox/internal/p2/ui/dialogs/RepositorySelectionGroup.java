@@ -65,7 +65,7 @@ public class RepositorySelectionGroup {
 	ProvisioningUI ui;
 	IUViewQueryContext queryContext;
 
-	ListenerList<IRepositorySelectionListener> listeners = new ListenerList<IRepositorySelectionListener>();
+	ListenerList<IRepositorySelectionListener> listeners = new ListenerList<>();
 
 	Combo repoCombo;
 	Link repoManipulatorLink;
@@ -76,7 +76,7 @@ public class RepositorySelectionGroup {
 
 	Image info, warning, error;
 	URI[] comboRepos; // the URIs shown in the combo, kept in sync with combo items
-	HashMap<String, URI> disabledRepoProposals = new HashMap<String, URI>(); // proposal string -> disabled URI 
+	HashMap<String, URI> disabledRepoProposals = new HashMap<>(); // proposal string -> disabled URI 
 
 	public RepositorySelectionGroup(ProvisioningUI ui, IWizardContainer container, Composite parent, IUViewQueryContext queryContext) {
 		this.container = container;
@@ -403,7 +403,7 @@ public class RepositorySelectionGroup {
 		int sortEnd = hasLocalSites ? strings.length - 2 : strings.length - 1;
 		if (sortStart >= sortEnd)
 			return;
-		final HashMap<URI, String> uriToString = new HashMap<URI, String>();
+		final HashMap<URI, String> uriToString = new HashMap<>();
 		for (int i = sortStart; i <= sortEnd; i++) {
 			uriToString.put(locations[i], strings[i]);
 		}
@@ -435,7 +435,7 @@ public class RepositorySelectionGroup {
 		int flags = ui.getRepositoryTracker().getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_DISABLED;
 		String[] items = repoCombo.getItems();
 		// Clear any previously remembered disabled repos
-		disabledRepoProposals = new HashMap<String, URI>();
+		disabledRepoProposals = new HashMap<>();
 		URI[] disabled = getMetadataRepositoryManager().getKnownRepositories(flags);
 		String[] disabledItems = new String[disabled.length];
 		for (int i = 0; i < disabledItems.length; i++) {

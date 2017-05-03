@@ -42,7 +42,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	private IUColumnConfig[] columnConfig;
 	Shell shell;
-	HashMap<IIUElement, Job> jobs = new HashMap<IIUElement, Job>();
+	HashMap<IIUElement, Job> jobs = new HashMap<>();
 
 	public IUDetailsLabelProvider() {
 		this(null, null, null);

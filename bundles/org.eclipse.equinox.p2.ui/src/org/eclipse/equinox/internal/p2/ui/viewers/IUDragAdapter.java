@@ -99,7 +99,7 @@ public class IUDragAdapter extends DragSourceAdapter {
 	}
 
 	private IInstallableUnit[] getSelectedIUs() {
-		List<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> ius = new ArrayList<>();
 
 		ISelection selection = selectionProvider.getSelection();
 		if (!(selection instanceof IStructuredSelection) || selection.isEmpty()) {

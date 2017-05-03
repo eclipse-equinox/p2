@@ -102,7 +102,7 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 	}
 
 	Collection<?> emptyExplanation(int severity, String explanationString, String explanationDescription) {
-		ArrayList<Object> collection = new ArrayList<Object>(1);
+		ArrayList<Object> collection = new ArrayList<>(1);
 		collection.add(new EmptyElementExplanation(parent, severity, explanationString, explanationDescription));
 		return collection;
 	}

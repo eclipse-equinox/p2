@@ -68,7 +68,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	 */
 	public static final QualifiedName ACCUMULATE_LOAD_ERRORS = new QualifiedName(ProvUIActivator.PLUGIN_ID, "ACCUMULATE_LOAD_ERRORS"); //$NON-NLS-1$
 
-	private List<IMetadataRepository> repoCache = new ArrayList<IMetadataRepository>();
+	private List<IMetadataRepository> repoCache = new ArrayList<>();
 	private RepositoryTracker tracker;
 	private MultiStatus accumulatedStatus;
 	private URI[] locations;

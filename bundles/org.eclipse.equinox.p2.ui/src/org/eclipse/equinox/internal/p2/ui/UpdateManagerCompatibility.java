@@ -202,13 +202,13 @@ public class UpdateManagerCompatibility {
 	}
 
 	public static MetadataRepositoryElement[] readBookmarkFile(File file) {
-		Vector<MetadataRepositoryElement> bookmarks = new Vector<MetadataRepositoryElement>();
+		Vector<MetadataRepositoryElement> bookmarks = new Vector<>();
 		parse(file.getAbsolutePath(), bookmarks);
 		return getSites(bookmarks);
 	}
 
 	public static void writeBookmarkFile(String filename, MetadataRepositoryElement[] sites) {
-		Vector<MetadataRepositoryElement> bookmarks = new Vector<MetadataRepositoryElement>(sites.length);
+		Vector<MetadataRepositoryElement> bookmarks = new Vector<>(sites.length);
 		for (int i = 0; i < sites.length; i++)
 			bookmarks.add(sites[i]);
 		store(filename, bookmarks);

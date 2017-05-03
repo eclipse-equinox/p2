@@ -27,7 +27,7 @@ public abstract class ColocatedRepositoryAction extends ProvisioningAction {
 	}
 
 	protected URI[] getSelectedLocations(Object[] selectionArray) {
-		List<URI> urls = new ArrayList<URI>();
+		List<URI> urls = new ArrayList<>();
 		for (int i = 0; i < selectionArray.length; i++) {
 			if (selectionArray[i] instanceof MetadataRepositoryElement)
 				urls.add(((MetadataRepositoryElement) selectionArray[i]).getLocation());

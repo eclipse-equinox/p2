@@ -215,10 +215,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	protected boolean pageSelectionsHaveChanged(ISelectableIUsPage page) {
-		HashSet<IInstallableUnit> selectedIUs = new HashSet<IInstallableUnit>();
+		HashSet<IInstallableUnit> selectedIUs = new HashSet<>();
 		Object[] currentSelections = page.getCheckedIUElements();
 		selectedIUs.addAll(ElementUtils.elementsToIUs(currentSelections));
-		HashSet<IInstallableUnit> lastIUSelections = new HashSet<IInstallableUnit>();
+		HashSet<IInstallableUnit> lastIUSelections = new HashSet<>();
 		if (planSelections != null)
 			lastIUSelections.addAll(ElementUtils.elementsToIUs(planSelections));
 		return !(selectedIUs.equals(lastIUSelections));

@@ -52,8 +52,8 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 	@Override
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		root = new IUElementListRoot(ui);
-		ArrayList<InstalledIUElement> list = new ArrayList<InstalledIUElement>(selectedElements.length);
-		ArrayList<InstalledIUElement> selections = new ArrayList<InstalledIUElement>(selectedElements.length);
+		ArrayList<InstalledIUElement> list = new ArrayList<>(selectedElements.length);
+		ArrayList<InstalledIUElement> selections = new ArrayList<>(selectedElements.length);
 		for (int i = 0; i < selectedElements.length; i++) {
 			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
 			if (iu != null) {

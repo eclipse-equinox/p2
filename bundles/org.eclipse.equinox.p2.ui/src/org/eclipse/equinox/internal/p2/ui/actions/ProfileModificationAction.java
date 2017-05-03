@@ -148,7 +148,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	 */
 	protected List<IInstallableUnit> getSelectedIUs() {
 		List<?> elements = getStructuredSelection().toList();
-		List<IInstallableUnit> iusList = new ArrayList<IInstallableUnit>(elements.size());
+		List<IInstallableUnit> iusList = new ArrayList<>(elements.size());
 
 		for (int i = 0; i < elements.size(); i++) {
 			if (elements.get(i) instanceof IIUElement) {

@@ -226,7 +226,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	public Object[] getCheckedElements() {
 		Object[] checked = super.getCheckedElements();
 		// add all items that are children of a checked node but not created yet
-		ArrayList<Object> result = new ArrayList<Object>();
+		ArrayList<Object> result = new ArrayList<>();
 		for (int i = 0; i < checked.length; i++) {
 			Object curr = checked[i];
 			result.add(curr);
@@ -285,7 +285,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	// problem.
 	private void saveCheckedState() {
 		Object[] checked = getCheckedElements();
-		savedCheckState = new ArrayList<Object>(checked.length);
+		savedCheckState = new ArrayList<>(checked.length);
 		for (int i = 0; i < checked.length; i++)
 			if (!isExpandable(checked[i]) && !getGrayed(checked[i]))
 				savedCheckState.add(checked[i]);

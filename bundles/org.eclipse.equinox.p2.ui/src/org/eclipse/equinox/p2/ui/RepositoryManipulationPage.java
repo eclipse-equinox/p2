@@ -111,8 +111,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	WorkbenchJob filterJob;
 	Button addButton, removeButton, editButton, refreshButton, disableButton, exportButton;
 
-	private Map<MetadataRepositoryElement, URI> originalURICache = new HashMap<MetadataRepositoryElement, URI>(2);
-	private Map<MetadataRepositoryElement, String> originalNameCache = new HashMap<MetadataRepositoryElement, String>(2);
+	private Map<MetadataRepositoryElement, URI> originalURICache = new HashMap<>(2);
+	private Map<MetadataRepositoryElement, String> originalNameCache = new HashMap<>(2);
 
 	class CachedMetadataRepositories extends MetadataRepositories {
 		private Hashtable<String, MetadataRepositoryElement> cachedElements;
@@ -131,7 +131,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		public Object[] fetchChildren(Object o, IProgressMonitor monitor) {
 			if (cachedElements == null) {
 				Object[] children = super.fetchChildren(o, monitor);
-				cachedElements = new Hashtable<String, MetadataRepositoryElement>(children.length);
+				cachedElements = new Hashtable<>(children.length);
 				for (int i = 0; i < children.length; i++) {
 					if (children[i] instanceof MetadataRepositoryElement) {
 						put((MetadataRepositoryElement) children[i]);
@@ -585,7 +585,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	MetadataRepositoryElement[] getSelectedElements() {
 		Object[] items = ((IStructuredSelection) repositoryViewer.getSelection()).toArray();
-		ArrayList<Object> list = new ArrayList<Object>(items.length);
+		ArrayList<Object> list = new ArrayList<>(items.length);
 		for (int i = 0; i < items.length; i++) {
 			if (items[i] instanceof MetadataRepositoryElement)
 				list.add(items[i]);

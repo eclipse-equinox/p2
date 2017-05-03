@@ -48,8 +48,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	WorkbenchJob filterJob;
 	boolean ignoreFiltering = true;
 	Object viewerInput;
-	HashSet<Object> checkState = new HashSet<Object>();
-	Set<Object> expanded = new HashSet<Object>();
+	HashSet<Object> checkState = new HashSet<>();
+	Set<Object> expanded = new HashSet<>();
 	ContainerCheckedTreeViewer checkboxViewer;
 
 	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter, IPreFilterJobProvider jobProvider) {
@@ -71,13 +71,13 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 					if (event.getElement() == ALL_ITEMS_HACK) {
 						clearCheckStateCache();
 					} else {
-						ArrayList<Object> toRemove = new ArrayList<Object>(1);
+						ArrayList<Object> toRemove = new ArrayList<>(1);
 						// See bug 258117.  Ideally we would get check state changes 
 						// for children when the parent state changed, but we aren't, so
 						// we need to remove all children from the additive check state
 						// cache.
 						if (contentProvider.hasChildren(event.getElement())) {
-							Set<Object> unchecked = new HashSet<Object>();
+							Set<Object> unchecked = new HashSet<>();
 							Object[] children = contentProvider.getChildren(event.getElement());
 							for (Object element : children) {
 								unchecked.add(element);
@@ -296,7 +296,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		ContainerCheckedTreeViewer v = (ContainerCheckedTreeViewer) getViewer();
 		Object[] checked = v.getCheckedElements();
 		if (checkState == null) {
-			checkState = new HashSet<Object>(checked.length);
+			checkState = new HashSet<>(checked.length);
 		}
 		for (int i = 0; i < checked.length; i++) {
 			if (!v.getGrayed(checked[i]) && contentProvider.getChildren(checked[i]).length == 0) {

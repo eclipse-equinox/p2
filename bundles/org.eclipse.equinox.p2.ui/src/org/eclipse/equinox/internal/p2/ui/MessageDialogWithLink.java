@@ -24,7 +24,7 @@ public class MessageDialogWithLink extends MessageDialog {
 
 	protected String linkMessage;
 	protected Link link;
-	protected List<SelectionListener> linkListeners = new ArrayList<SelectionListener>();
+	protected List<SelectionListener> linkListeners = new ArrayList<>();
 
 	public MessageDialogWithLink(Shell parentShell, String dialogTitle, Image dialogTitleImage, String dialogMessage, int dialogImageType, String[] dialogButtonLabels, int defaultIndex) {
 		super(parentShell, dialogTitle, dialogTitleImage, dialogMessage, dialogImageType, dialogButtonLabels, defaultIndex);

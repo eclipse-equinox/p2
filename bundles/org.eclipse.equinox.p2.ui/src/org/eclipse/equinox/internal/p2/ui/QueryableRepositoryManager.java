@@ -84,7 +84,7 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	}
 
 	protected Collection<URI> getRepoLocations(IRepositoryManager<T> manager) {
-		Set<URI> locations = new HashSet<URI>();
+		Set<URI> locations = new HashSet<>();
 		locations.addAll(Arrays.asList(manager.getKnownRepositories(repositoryFlags)));
 		if (includeDisabledRepos) {
 			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | repositoryFlags)));
@@ -152,7 +152,7 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 			return (IQueryResult<T>) locationsQueriable().query((IQuery<URI>) query, monitor);
 		}
 		SubMonitor sub = SubMonitor.convert(monitor, (uris.size() + 1) * 100);
-		ArrayList<IRepository<T>> loadedRepos = new ArrayList<IRepository<T>>(uris.size());
+		ArrayList<IRepository<T>> loadedRepos = new ArrayList<>(uris.size());
 		for (URI uri : uris) {
 			IRepository<T> repo = null;
 			try {

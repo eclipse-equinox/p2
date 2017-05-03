@@ -57,7 +57,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 				@Override
 				protected IStatus run(final IProgressMonitor monitor) {
 					IDeferredWorkbenchAdapter parent = (IDeferredWorkbenchAdapter) input;
-					final ArrayList<Object> children = new ArrayList<Object>();
+					final ArrayList<Object> children = new ArrayList<>();
 					parent.fetchDeferredChildren(parent, new IElementCollector() {
 						@Override
 						public void add(Object element, IProgressMonitor mon) {

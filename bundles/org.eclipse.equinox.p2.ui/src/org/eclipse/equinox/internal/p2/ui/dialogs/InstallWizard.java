@@ -73,8 +73,8 @@ public class InstallWizard extends WizardWithLicenses {
 			root.setChildren(elements);
 			planSelections = elements;
 		} else {
-			ArrayList<AvailableIUElement> list = new ArrayList<AvailableIUElement>(selectedElements.length);
-			ArrayList<AvailableIUElement> selections = new ArrayList<AvailableIUElement>(selectedElements.length);
+			ArrayList<AvailableIUElement> list = new ArrayList<>(selectedElements.length);
+			ArrayList<AvailableIUElement> selections = new ArrayList<>(selectedElements.length);
 			for (int i = 0; i < selectedElements.length; i++) {
 				IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
 				if (iu != null) {

@@ -52,7 +52,7 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 		// find out which profile states we should hide
 		Map<String, String> hidden = registry.getProfileStateProperties(profileId, IProfile.STATE_PROP_HIDDEN);
 		Map<String, String> tag = registry.getProfileStateProperties(profileId, IProfile.STATE_PROP_TAG);
-		List<RollbackProfileElement> elements = new ArrayList<RollbackProfileElement>();
+		List<RollbackProfileElement> elements = new ArrayList<>();
 
 		for (int i = 0; i < timestamps.length; i++) {
 			if (hidden.containsKey(String.valueOf(timestamps[i])))

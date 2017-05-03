@@ -40,7 +40,7 @@ public class RemediationGroup {
 	private Button bestBeingInstalledRelaxedButton;
 	private Button bestInstalledRelaxedButton;
 	Button buildMyOwnSolution;
-	final ArrayList<Button> checkboxes = new ArrayList<Button>();
+	final ArrayList<Button> checkboxes = new ArrayList<>();
 	private Composite resultFoundComposite;
 	private Composite resultComposite;
 	private Composite resultNotFoundComposite;
@@ -101,7 +101,7 @@ public class RemediationGroup {
 	}
 
 	public RemediationGroup(WizardPage page) {
-		CONSTRAINTS = new HashMap<String, String[]>();
+		CONSTRAINTS = new HashMap<>();
 		CONSTRAINTS.put(ProvUIMessages.RemediationPage_BeingInstalledSection, new String[] {ProvUIMessages.RemediationPage_BeingInstalledSection_AllowPartialInstall, ProvUIMessages.RemediationPage_BeingInstalledSection_AllowDifferentVersion});
 		CONSTRAINTS.put(ProvUIMessages.RemediationPage_InstalledSection, new String[] {ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledUpdate, ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledRemoval});
 
@@ -284,7 +284,7 @@ public class RemediationGroup {
 				if (element instanceof RemedyIUDetail) {
 					RemedyIUDetail iuDetail = (RemedyIUDetail) element;
 					String toolTipText = ""; //$NON-NLS-1$
-					List<String> versions = new ArrayList<String>();
+					List<String> versions = new ArrayList<>();
 					if (iuDetail.getInstalledVersion() != null)
 						versions.add(ProvUIMessages.RemedyElementInstalledVersion + iuDetail.getInstalledVersion().toString());
 					if (iuDetail.getRequestedVersion() != null)

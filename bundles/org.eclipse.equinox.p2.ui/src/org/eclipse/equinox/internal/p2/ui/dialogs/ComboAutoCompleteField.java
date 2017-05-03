@@ -55,7 +55,7 @@ public class ComboAutoCompleteField {
 				if (contents.length() == 0 || items.length == 0)
 					return new IContentProposal[0];
 				StringMatcher matcher = new StringMatcher("*" + contents + "*", true, false); //$NON-NLS-1$ //$NON-NLS-2$
-				ArrayList<String> matches = new ArrayList<String>();
+				ArrayList<String> matches = new ArrayList<>();
 				for (int i = 0; i < items.length; i++)
 					if (matcher.match(items[i]))
 						matches.add(items[i]);

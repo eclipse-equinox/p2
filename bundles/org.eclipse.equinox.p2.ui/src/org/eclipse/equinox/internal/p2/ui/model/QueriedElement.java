@@ -106,7 +106,7 @@ public abstract class QueriedElement extends ProvElement {
 		Collection<?> results = queryDescriptor.performQuery(monitor);
 		cachedChildren = Collections.unmodifiableCollection(results);
 		if (results.size() > 0) {
-			Collection<Object> returnedChildren = new HashSet<Object>();
+			Collection<Object> returnedChildren = new HashSet<>();
 			returnedChildren.addAll(results);
 			Object[] siblings = getSiblings();
 			for (int i = 0; i < siblings.length; i++) {

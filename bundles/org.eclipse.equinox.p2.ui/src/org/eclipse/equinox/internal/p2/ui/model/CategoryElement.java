@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  */
 public class CategoryElement extends RemoteQueriedElement implements IIUElement {
 
-	private ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(1);
+	private ArrayList<IInstallableUnit> ius = new ArrayList<>(1);
 	private Collection<IRequirement> requirements;
 	private Object[] cache = null;
 
@@ -119,7 +119,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 			if (ius.size() == 1)
 				requirements = getIU().getRequirements();
 			else {
-				ArrayList<IRequirement> capabilities = new ArrayList<IRequirement>();
+				ArrayList<IRequirement> capabilities = new ArrayList<>();
 				for (IInstallableUnit iu : ius) {
 					capabilities.addAll(iu.getRequirements());
 				}

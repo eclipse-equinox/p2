@@ -296,7 +296,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	@Override
 	public Object[] getSelectedIUElements() {
 		Object[] elements = ((IStructuredSelection) viewer.getSelection()).toArray();
-		ArrayList<Object> list = new ArrayList<Object>(elements.length);
+		ArrayList<Object> list = new ArrayList<>(elements.length);
 		for (int i = 0; i < elements.length; i++)
 			if (ElementUtils.getIU(elements[i]) != null)
 				list.add(elements[i]);
@@ -315,7 +315,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		Object[] selections = filteredTree.getCheckedElements(); // Get all the elements that have been selected, not just the visible ones
 		if (selections.length == 0)
 			return new IInstallableUnit[0];
-		ArrayList<IInstallableUnit> leaves = new ArrayList<IInstallableUnit>(selections.length);
+		ArrayList<IInstallableUnit> leaves = new ArrayList<>(selections.length);
 		for (int i = 0; i < selections.length; i++) {
 			if (!getCheckboxTreeViewer().getGrayed(selections[i])) {
 				IInstallableUnit iu = ProvUI.getAdapter(selections[i], IInstallableUnit.class);

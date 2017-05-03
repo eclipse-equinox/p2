@@ -36,7 +36,7 @@ public class UpdateWizard extends WizardWithLicenses {
 	Update[] initialSelections;
 
 	public static Collection<IInstallableUnit> getIUsToReplace(Object[] elements) {
-		Set<IInstallableUnit> iusToReplace = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> iusToReplace = new HashSet<>();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof AvailableUpdateElement) {
 				iusToReplace.add(((AvailableUpdateElement) elements[i]).getIUToBeUpdated());
@@ -46,7 +46,7 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	public static IInstallableUnit[] getReplacementIUs(Object[] elements) {
-		Set<IInstallableUnit> replacements = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> replacements = new HashSet<>();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof AvailableUpdateElement) {
 				replacements.add(((AvailableUpdateElement) elements[i]).getIU());
@@ -56,7 +56,7 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	public static Update[] makeUpdatesFromElements(Object[] elements) {
-		Set<Update> updates = new HashSet<Update>();
+		Set<Update> updates = new HashSet<>();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof AvailableUpdateElement) {
 				updates.add(((AvailableUpdateElement) elements[i]).getUpdate());
@@ -90,7 +90,7 @@ public class UpdateWizard extends WizardWithLicenses {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ui.getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
 		IProfile profile = profileRegistry.getProfile(ui.getProfileId());
 
-		ArrayList<Update> newSelection = new ArrayList<Update>(initialSelections.length);
+		ArrayList<Update> newSelection = new ArrayList<>(initialSelections.length);
 		for (int i = 0; i < initialSelections.length; i++) {
 			if (!isLocked(profile, initialSelections[i].toUpdate)) {
 				newSelection.add(initialSelections[i]);
@@ -125,8 +125,8 @@ public class UpdateWizard extends WizardWithLicenses {
 			root.setChildren(elements);
 			//planSelections = elements;
 		} else {
-			ArrayList<AvailableUpdateElement> list = new ArrayList<AvailableUpdateElement>(selectedElements.length);
-			ArrayList<AvailableUpdateElement> selected = new ArrayList<AvailableUpdateElement>(selectedElements.length);
+			ArrayList<AvailableUpdateElement> list = new ArrayList<>(selectedElements.length);
+			ArrayList<AvailableUpdateElement> selected = new ArrayList<>(selectedElements.length);
 			for (int i = 0; i < selectedElements.length; i++) {
 				if (selectedElements[i] instanceof AvailableUpdateElement) {
 					AvailableUpdateElement element = (AvailableUpdateElement) selectedElements[i];
@@ -190,7 +190,7 @@ public class UpdateWizard extends WizardWithLicenses {
 				} else {
 					updates = ((UpdateOperation) operation).getPossibleUpdates();
 				}
-				ArrayList<AvailableUpdateElement> allPossible = new ArrayList<AvailableUpdateElement>(updates.length);
+				ArrayList<AvailableUpdateElement> allPossible = new ArrayList<>(updates.length);
 				for (int i = 0; i < updates.length; i++) {
 					AvailableUpdateElement newElement = new AvailableUpdateElement(firstPageRoot, updates[i].replacement, updates[i].toUpdate, getProfileId(), shouldShowProvisioningPlanChildren());
 					allPossible.add(newElement);

@@ -59,7 +59,7 @@ public class ElementQueryDescriptor {
 		if (query != null && collector != null && queryable != null)
 			results.addAll(this.queryable.query(this.query, monitor));
 		else if (results == null)
-			results = new Collector<Object>();
+			results = new Collector<>();
 		// Let the wrapper analyze the results, even if we didn't perform the query.
 		// This allows the wrapper to modify the results with explanations.
 		if (wrapper != null)
