@@ -34,8 +34,9 @@ public class SetStartLevelAction extends ProvisioningAction {
 
 		// Changes to this object will be reflected in the backing runtime configuration store
 		BundleInfo bundleInfo = Util.findBundleInfo(manipulator.getConfigData(), iu);
-		if (bundleInfo == null)
-			return Util.createError(NLS.bind(Messages.failed_bundleinfo, iu));
+		if (bundleInfo == null) {
+			return Util.createWarning(NLS.bind(Messages.failed_find_bundleinfo, iu));
+		}
 
 		// Bundle fragments are not started
 		if (bundleInfo.getFragmentHost() != null) {
@@ -62,7 +63,7 @@ public class SetStartLevelAction extends ProvisioningAction {
 		// Changes to this object will be reflected in the backing runtime configuration store
 		BundleInfo bundleInfo = Util.findBundleInfo(manipulator.getConfigData(), iu);
 		if (bundleInfo == null) {
-			return Util.createError(NLS.bind(Messages.failed_bundleinfo, iu));
+			return Util.createWarning(NLS.bind(Messages.failed_find_bundleinfo, iu));
 		}
 
 		bundleInfo.setStartLevel(previousStartLevel.intValue());

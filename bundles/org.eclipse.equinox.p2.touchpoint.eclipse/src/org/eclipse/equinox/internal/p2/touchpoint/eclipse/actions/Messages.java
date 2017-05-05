@@ -19,7 +19,8 @@ public class Messages extends NLS {
 	public static String iu_contains_no_arifacts;
 	public static String no_matching_artifact;
 	public static String missing_manifest;
-	public static String failed_bundleinfo;
+	public static String failed_create_bundleinfo;
+	public static String failed_find_bundleinfo;
 	public static String cannot_configure_source_bundle;
 	public static String error_parsing_startlevel;
 	public static String artifact_not_directory;

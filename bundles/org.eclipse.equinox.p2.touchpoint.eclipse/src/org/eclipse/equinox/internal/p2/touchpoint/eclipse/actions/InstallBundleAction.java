@@ -71,7 +71,7 @@ public class InstallBundleAction extends ProvisioningAction {
 
 		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, iu);
 		if (bundleInfo == null)
-			return Util.createError(NLS.bind(Messages.failed_bundleinfo, iu));
+			return Util.createError(NLS.bind(Messages.failed_create_bundleinfo, iu));
 		manipulator.getConfigData().addBundle(bundleInfo);
 
 		return Status.OK_STATUS;

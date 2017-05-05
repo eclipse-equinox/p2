@@ -344,6 +344,14 @@ public class Util {
 		return new Status(IStatus.ERROR, Activator.ID, message, e);
 	}
 
+	public static IStatus createWarning(String message) {
+		return createWarning(message, null);
+	}
+
+	public static IStatus createWarning(String message, Exception e) {
+		return new Status(IStatus.WARNING, Activator.ID, message, e);
+	}
+
 	public static File getLauncherConfigLocation(IProfile profile) {
 		String launcherConfig = profile.getProperty(IProfile.PROP_LAUNCHER_CONFIGURATION);
 		return launcherConfig == null ? null : new File(launcherConfig);
