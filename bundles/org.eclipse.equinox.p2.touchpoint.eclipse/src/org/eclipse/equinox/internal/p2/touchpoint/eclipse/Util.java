@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -204,6 +205,23 @@ public class Util {
 			}
 		}
 		return bundleInfo;
+	}
+
+	public static BundleInfo findBundleInfo(ConfigData config, IInstallableUnit unit) {
+		// Construct a partial BundleInfo from the IU capabilities.
+		BundleInfo bundleInfo = Util.createBundleInfo(null, unit);
+
+		// Find the actual fully populated BundleInfo used by the runtime.
+		BundleInfo[] bundles = config.getBundles();
+		for (BundleInfo bundle : bundles) {
+			// Can't use BundleInfol.equals(), because bundleInfo is only partially populated.
+			if (bundleInfo.getSymbolicName().equals(bundle.getSymbolicName())
+					&& bundleInfo.getVersion().equals(bundle.getVersion())) {
+				return bundle;
+			}
+		}
+
+		return null;
 	}
 
 	private static String getFragmentHost(IInstallableUnit unit, String fragmentName) {
