@@ -29,6 +29,9 @@ foundVersion=$(rpm -q --qf '%{version}' $1)
 
 #The package is found, check the version
 if [ $? -eq 0 ]; then
+	if [ "$#" -eq 1 ]; then
+		exit 0
+	fi
 	
 case "$2" in 
 	"gt")
