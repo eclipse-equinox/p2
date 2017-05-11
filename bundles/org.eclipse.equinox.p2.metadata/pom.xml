@@ -9,6 +9,6 @@
   </parent>
   <groupId>org.eclipse.equinox</groupId>
   <artifactId>org.eclipse.equinox.p2.metadata</artifactId>
-  <version>2.3.100-SNAPSHOT</version>
+  <version>2.3.200-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>
