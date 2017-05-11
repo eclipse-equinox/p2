@@ -9,3 +9,7 @@ provides.1.version=1.2.0.$qualifier$
 provides.2.namespace=org.eclipse.equinox.p2.iu
 provides.2.name=org.eclipse.equinox.p2.touchpoint.natives
 provides.2.version=1.2.100.$qualifier$
+
+provides.3.namespace=org.eclipse.equinox.p2.iu
+provides.3.name=org.eclipse.equinox.p2.touchpoint.natives
+provides.3.version=1.2.200.$qualifier$
