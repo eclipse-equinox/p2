@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -638,6 +638,8 @@ public class EquinoxBundlesState implements BundlesState {
 				}
 			}
 		}
+		// TODO ignore uses directive for resolution here
+		platformProperties.put("osgi.resolver.usesMode", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
 		state.setPlatformProperties(platformProperties);
 	}
 
