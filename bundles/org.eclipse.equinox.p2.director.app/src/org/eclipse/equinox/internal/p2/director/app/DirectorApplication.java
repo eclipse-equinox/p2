@@ -807,24 +807,37 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private void executePlan(ProvisioningContext context, IProvisioningPlan result) throws CoreException {
+		if (verifyOnly) {
+			return;
+		}
+
 		IStatus operationStatus;
-		if (!verifyOnly) {
-			if (!downloadOnly)
-				operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
-			else
-				operationStatus = PlanExecutionHelper.executePlan(result, engine, PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST}), context, new NullProgressMonitor());
-			if (!operationStatus.isOK()) {
+		if (!downloadOnly)
+			operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
+		else
+			operationStatus = PlanExecutionHelper.executePlan(result, engine, PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST}), context, new NullProgressMonitor());
+
+		switch (operationStatus.getSeverity()) {
+			case IStatus.OK :
+				break;
+			case IStatus.INFO :
+			case IStatus.WARNING :
+				logStatus(operationStatus);
+				break;
+			//. All other status codes correspond to IStatus.isOk() == false
+			default :
 				if (noArtifactRepositorySpecified && hasNoRepositoryFound(operationStatus))
 					throw new ProvisionException(Messages.Application_NoRepositories);
 				throw new CoreException(operationStatus);
-			}
-			if (tag != null) {
-				long newState = result.getProfile().getTimestamp();
-				IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
-				registry.setProfileStateProperty(result.getProfile().getProfileId(), newState, IProfile.STATE_PROP_TAG, tag);
-			}
-
 		}
+
+		if (tag == null) {
+			return;
+		}
+
+		long newState = result.getProfile().getTimestamp();
+		IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
+		registry.setProfileStateProperty(result.getProfile().getProfileId(), newState, IProfile.STATE_PROP_TAG, tag);
 	}
 
 	private boolean hasNoRepositoryFound(IStatus status) {
