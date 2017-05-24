@@ -106,6 +106,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 		Composite aboveSash = new Composite(sashForm, SWT.NONE);
 		GridLayout grid = new GridLayout();
+		grid.numColumns = 2;
 		grid.marginWidth = 0;
 		grid.marginHeight = 0;
 		aboveSash.setLayout(grid);
@@ -140,6 +141,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 		// select buttons
 		createSelectButtons(aboveSash);
+		createSelectionCount(aboveSash);
 
 		// Details area
 		iuDetailsGroup = new IUDetailsGroup(sashForm, availableIUGroup.getStructuredViewer(), SWT.DEFAULT, true);
@@ -182,6 +184,24 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		setControl(composite);
 		composite.addDisposeListener(e -> removeProvisioningListeners());
 		Dialog.applyDialogFont(composite);
+	}
+
+	private void createSelectionCount(Composite parentComposite) {
+		Composite selectionCountComposite = new Composite(parentComposite, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.verticalSpacing = 10;
+		selectionCountComposite.setLayout(layout);
+		selectionCountComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+
+		selectionCount = new Label(selectionCountComposite, SWT.NONE);
+		GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		selectionCount.setLayoutData(data);
+
+		// separator underneath
+		Label sep = new Label(selectionCountComposite, SWT.HORIZONTAL | SWT.SEPARATOR);
+		GridData separatorGridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		sep.setLayoutData(separatorGridData);
 	}
 
 	private Composite createProgressBar(Composite parent) {
@@ -227,12 +247,14 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private void createSelectButtons(Composite parent) {
 		Composite buttonParent = new Composite(parent, SWT.NONE);
 		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 3;
+		gridLayout.numColumns = 1;
+		gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+		gridLayout.marginHeight = 0;
 		gridLayout.marginWidth = 0;
 		gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
 		buttonParent.setLayout(gridLayout);
 
-		GridData data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+		GridData data = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
 		buttonParent.setLayoutData(data);
 
 		Button selectAll = new Button(buttonParent, SWT.PUSH);
@@ -244,18 +266,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		deselectAll.setText(ProvUIMessages.SelectableIUsPage_Deselect_All);
 		setButtonLayoutData(deselectAll);
 		deselectAll.addListener(SWT.Selection, event -> setAllChecked(false));
-
-		// dummy to take extra space
-		selectionCount = new Label(buttonParent, SWT.NONE);
-		data = new GridData(SWT.FILL, SWT.CENTER, true, true);
-		data.horizontalIndent = 20; // breathing room
-		selectionCount.setLayoutData(data);
-
-		// separator underneath
-		Label sep = new Label(buttonParent, SWT.HORIZONTAL | SWT.SEPARATOR);
-		data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-		data.horizontalSpan = 3;
-		sep.setLayoutData(data);
 	}
 
 	// The viewer method is deprecated because it only applies to visible items,

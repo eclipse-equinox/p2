@@ -106,6 +106,7 @@ public class RepositorySelectionGroup {
 		layout.marginTop = 0;
 		layout.marginBottom = IDialogConstants.VERTICAL_SPACING;
 		layout.numColumns = 4;
+		layout.marginWidth = 0;
 		comboComposite.setLayout(layout);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		comboComposite.setLayoutData(gd);
