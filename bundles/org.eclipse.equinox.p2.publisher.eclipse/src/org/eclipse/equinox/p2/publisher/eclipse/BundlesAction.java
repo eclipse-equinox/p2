@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.p2.metadata.*;
@@ -206,9 +207,41 @@ public class BundlesAction extends AbstractPublisherAction {
 		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
 
 		// Process exported packages
-		ExportPackageDescription[] exportedPackages = bd.getExportPackages();
-		for (ExportPackageDescription packageExport : exportedPackages) {
+		for (ExportPackageDescription packageExport : bd.getExportPackages()) {
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageExport.getName(), PublisherHelper.fromOSGiVersion(packageExport.getVersion())));
+		}
+
+		// Process generic capabilities
+
+		// TODO 
+		// IProvidedCapability may have to be extended to contain the OSGi directives as well which may be needed for 
+		// Bug 360659, Bug 525368. E.g. with IProvidedCapability.getDirectives()
+
+		// TODO
+		// The "osgi.wiring.bundle" capability seems equal to p2 "osgi.bundle" capability.
+		// It may be better to derive it at runtime.
+
+		// TODO
+		// It may be possible map the "osgi.identity" capability to elements of the IU like the id, the license, etc.
+		// It may be better to derive it at runtime.
+
+		int numCapName = 0;
+		for (GenericDescription genericCap : bd.getGenericCapabilities()) {
+			String capNs = genericCap.getType();
+
+			Map<String, Object> capAttrs = genericCap.getDeclaredAttributes();
+
+			// Some capabilities do not follow the OSGi convention to have an attribute with a key equal to their namespace (e.g. "osgi.service")
+			// In such cases synthesize a unique name
+			if (!capAttrs.containsKey(capNs)) {
+				capAttrs = new HashMap<>(capAttrs);
+				capAttrs.put(
+						ProvidedCapability.MEMBER_NAME,
+						String.format("%s_%s-%s", iu.getId(), iu.getVersion(), numCapName++)); //$NON-NLS-1$
+				numCapName++;
+			}
+
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(capNs, capAttrs));
 		}
 
 		// Add capability to describe the type of bundle

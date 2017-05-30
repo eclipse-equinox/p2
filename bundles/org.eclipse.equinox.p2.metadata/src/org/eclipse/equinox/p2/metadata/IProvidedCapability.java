@@ -31,7 +31,7 @@ public interface IProvidedCapability {
 
 	/**
 	 * 
-	 * @return String the special "name" attribute of this capability.
+	 * @return String the String representation of the special "name" attribute of this capability.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public String getName();

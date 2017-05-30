@@ -40,6 +40,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class BundlesActionTest extends ActionTest {
 	private static final String OSGI = PublisherHelper.OSGI_BUNDLE_CLASSIFIER;
+	private static final String OSGI_IDENTITY = "osgi.identity";
 	private static final String JAVA_PACKAGE = "java.package";//$NON-NLS-1$
 	private static final String JAVA_EE_1_4_REQ = "providedCapabilities.exists(pc | pc ~= filter('(&(namespace=osgi.ee)(|(&(osgi.ee=JavaSE)(version=1.4))(&(osgi.ee=CDC/Foundation)(version=1.1))))'))";
 	private static final String JAVA_EE_1_6_REQ = "providedCapabilities.exists(pc | pc ~= filter('(&(namespace=osgi.ee)(&(osgi.ee=JavaSE)(version=1.6)))'))";
@@ -223,10 +224,11 @@ public class BundlesActionTest extends ActionTest {
 		// check provided capabilities
 		Collection<IProvidedCapability> providedCapabilities = bundle1IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
+		verifyProvidedCapability(providedCapabilities, OSGI_IDENTITY, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST1_PROV_Z_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
-		assertEquals("2.1", 4, providedCapabilities.size());
+		assertEquals("2.1", 5, providedCapabilities.size());
 
 		Collection<ITouchpointData> data = bundle1IU.getTouchpointData();
 		boolean found = false;
@@ -262,11 +264,12 @@ public class BundlesActionTest extends ActionTest {
 		Collection<IProvidedCapability> providedCapabilities = bundle2IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST2_PROV_BUNDLE_NAME, PROVBUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION);
+		verifyProvidedCapability(providedCapabilities, OSGI_IDENTITY, TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROV_Z_NAMESPACE, TEST2_PROV_Z_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROV_Y_NAMESPACE, TEST2_PROV_Y_NAME, TEST2_PROVY_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROV_X_NAMESPACE, TEST2_PROV_X_NAME, TEST2_PROVX_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
-		assertEquals(6, providedCapabilities.size()); /*number of tested elements*/
+		assertEquals(7, providedCapabilities.size()); /*number of tested elements*/
 
 		// check %bundle name is correct
 		Map<String, String> prop = bundle2IU.getProperties();

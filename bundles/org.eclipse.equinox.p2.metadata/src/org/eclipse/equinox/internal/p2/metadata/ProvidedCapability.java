@@ -93,7 +93,9 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 	}
 
 	public String getName() {
-		return (String) attributes.get(MEMBER_NAME);
+		// There is always a "name" member, but it may not always be a string.
+		// Convert it here so that it is still possible to get the real type via getAttributes().
+		return attributes.get(MEMBER_NAME).toString();
 	}
 
 	public String getNamespace() {
