@@ -24,15 +24,12 @@ import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -66,7 +63,6 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	String profileId;
 	Button updateButton, uninstallButton, propertiesButton;
 	ProvisioningUI ui;
-	private Text filterText;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
@@ -97,12 +93,6 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
-
-		//Let users filter installed softwares
-		filterText = new Text(composite, SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL);
-		filterText.setLayoutData(GridDataFactory.fillDefaults().create());
-		filterText.setMessage(ProvUIMessages.InstalledSoftwarePage_Filter_Installed_Software);
-		filterText.setFocus();//Steal focus, consistent with org.eclipse.ui.internal.about.AboutPluginsPage
 
 		// Table of installed IU's
 		installedIUGroup = new InstalledIUGroup(getProvisioningUI(), composite, JFaceResources.getDialogFont(), profileId, getColumnConfig());
@@ -204,15 +194,6 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		});
 
 		final IUPatternFilter searchFilter = new IUPatternFilter(getColumnConfig());
-		filterText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				if (filterText != null && !filterText.isDisposed()) {
-					searchFilter.setPattern(filterText.getText());
-					installedIUGroup.getStructuredViewer().refresh();
-				}
-			}
-		});
 		installedIUGroup.getStructuredViewer().addFilter(searchFilter);
 
 		updateEnablement();

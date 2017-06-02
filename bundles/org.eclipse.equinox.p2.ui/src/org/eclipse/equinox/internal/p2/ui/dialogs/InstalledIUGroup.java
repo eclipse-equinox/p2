@@ -22,6 +22,8 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
 
 /**
  * An InstalledIUGroup is a reusable UI component that displays the
@@ -54,7 +56,9 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	@Override
 	protected StructuredViewer createViewer(Composite parent) {
 		// Table of installed IU's
-		TreeViewer installedIUViewer = new TreeViewer(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		FilteredTree filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, new PatternFilter(), true);
+		filteredTree.getFilterControl().setFocus(); //Steal focus, consistent with org.eclipse.ui.internal.about.AboutPluginsPage
+		TreeViewer installedIUViewer = filteredTree.getViewer();
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
 		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
