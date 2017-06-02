@@ -64,9 +64,6 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	Button updateButton, uninstallButton, propertiesButton;
 	ProvisioningUI ui;
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
-	 */
 	@Override
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
@@ -113,10 +110,6 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		setControl(composite);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.about.InstallationPage#createPageButtons(org.eclipse.swt.widgets.Composite)
-	 */
 	@Override
 	public void createPageButtons(Composite parent) {
 		if (profileId == null)
@@ -237,10 +230,6 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		return totalWidth + 20; // buffer for surrounding composites
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.ICopyable#copyToClipboard(org.eclipse.swt.widgets.Control)
-	 */
 	@Override
 	public void copyToClipboard(Control activeControl) {
 		Object[] elements = installedIUGroup.getSelectedIUElements();
