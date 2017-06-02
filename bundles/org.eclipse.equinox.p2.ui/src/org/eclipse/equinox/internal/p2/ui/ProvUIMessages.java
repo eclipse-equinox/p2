@@ -235,6 +235,7 @@ public class ProvUIMessages extends NLS {
 	public static String RevertDialog_ConfirmRestartMessage;
 	public static String RevertDialog_RevertOperationLabel;
 	public static String RevertDialog_Title;
+	public static String RevertDialog_CancelButtonLabel;
 	public static String RollbackProfileElement_CurrentInstallation;
 	public static String SelectableIUsPage_Select_All;
 	public static String SelectableIUsPage_Deselect_All;

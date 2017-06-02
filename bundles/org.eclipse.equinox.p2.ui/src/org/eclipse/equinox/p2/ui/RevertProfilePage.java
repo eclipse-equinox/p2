@@ -29,6 +29,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.*;
@@ -274,8 +275,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		revertAction = new Action() {
 			@Override
 			public void run() {
-				boolean result = MessageDialog.openQuestion(getShell(), ProvUIMessages.RevertDialog_Title, ProvUIMessages.RevertDialog_ConfirmRestartMessage);
-				if (!result)
+				int result = MessageDialog.open(MessageDialog.QUESTION, getShell(), ProvUIMessages.RevertDialog_Title, ProvUIMessages.RevertDialog_ConfirmRestartMessage, SWT.NONE, ProvUIMessages.RevertProfilePage_RevertLabel, ProvUIMessages.RevertDialog_CancelButtonLabel);
+				if (result != Window.OK)
 					return;
 				boolean finish = revert();
 				if (finish) {
