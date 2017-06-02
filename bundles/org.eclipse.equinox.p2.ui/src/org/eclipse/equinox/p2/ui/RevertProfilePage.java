@@ -459,7 +459,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			return;
 		String title = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_DeleteSingleConfigurationTitle : ProvUIMessages.RevertProfilePage_DeleteMultipleConfigurationsTitle;
 		String confirmMessage = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_ConfirmDeleteSingleConfig : ProvUIMessages.RevertProfilePage_ConfirmDeleteMultipleConfigs;
-		if (MessageDialog.openConfirm(configsViewer.getControl().getShell(), title, confirmMessage)) {
+		if (Window.OK == MessageDialog.open(MessageDialog.QUESTION, configsViewer.getControl().getShell(), title, confirmMessage, SWT.NONE, ProvUIMessages.RevertProfilePage_Delete, ProvUIMessages.RevertProfilePage_CancelButtonLabel)) {
 			Iterator<?> iter = selection.iterator();
 			while (iter.hasNext()) {
 				Object selected = iter.next();

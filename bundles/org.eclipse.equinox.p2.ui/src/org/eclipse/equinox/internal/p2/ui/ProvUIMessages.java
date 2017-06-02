@@ -47,6 +47,7 @@ public class ProvUIMessages extends NLS {
 	public static String RevertProfilePage_ConfirmDeleteMultipleConfigs;
 	public static String RevertProfilePage_ConfirmDeleteSingleConfig;
 	public static String RevertProfilePage_Delete;
+	public static String RevertProfilePage_CancelButtonLabel;
 	public static String RevertProfilePage_DeleteMultipleConfigurationsTitle;
 	public static String RevertProfilePage_DeleteSingleConfigurationTitle;
 	public static String RevertProfilePage_DeleteTooltip;
