@@ -31,6 +31,18 @@ import org.xml.sax.ContentHandler;
 public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	static final ILicense[] NO_LICENSES = new ILicense[0];
 
+	static final String ATTR_TYPE_LIST_HEAD = "List<"; //$NON-NLS-1$
+	static final String ATTR_TYPE_STRING = String.class.getSimpleName();
+	static final String ATTR_TYPE_INTEGER = Integer.class.getSimpleName();
+	static final String ATTR_TYPE_LONG = Long.class.getSimpleName();
+	static final String ATTR_TYPE_FLOAT = Float.class.getSimpleName();
+	static final String ATTR_TYPE_DOUBLE = Double.class.getSimpleName();
+	static final String ATTR_TYPE_BYTE = Byte.class.getSimpleName();
+	static final String ATTR_TYPE_SHORT = Short.class.getSimpleName();
+	static final String ATTR_TYPE_CHARACTER = Character.class.getSimpleName();
+	static final String ATTR_TYPE_BOOLEAN = Boolean.class.getSimpleName();
+	static final String ATTR_TYPE_VERSION = Version.class.getSimpleName();
+
 	public MetadataParser(BundleContext context, String bundleId) {
 		super(context, bundleId);
 	}
@@ -503,17 +515,132 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class ProvidedCapabilityHandler extends AbstractHandler {
+		private String namespace;
+		private String name;
+		private Version version;
+		private ProvidedCapabilityAttributesHandler attributesHandler;
+
+		private List<IProvidedCapability> capabilities;
 
 		public ProvidedCapabilityHandler(AbstractHandler parentHandler, Attributes attributes, List<IProvidedCapability> capabilities) {
 			super(parentHandler, PROVIDED_CAPABILITY_ELEMENT);
+
+			this.capabilities = capabilities;
+
 			String[] values = parseRequiredAttributes(attributes, REQUIRED_PROVIDED_CAPABILITY_ATTRIBUTES);
-			Version version = checkVersion(PROVIDED_CAPABILITY_ELEMENT, VERSION_ATTRIBUTE, values[2]);
-			capabilities.add(MetadataFactory.createProvidedCapability(values[0], values[1], version));
+			this.namespace = values[0];
+			this.name = values[1];
+			this.version = checkVersion(PROVIDED_CAPABILITY_ELEMENT, VERSION_ATTRIBUTE, values[2]);
+		}
+
+		public void startElement(String elem, Attributes attributes) {
+			if (elem.equals(CAPABILITY_ATTRIBUTES_ELEMENT)) {
+				this.attributesHandler = new ProvidedCapabilityAttributesHandler(this, attributes);
+			} else {
+				invalidElement(elem, attributes);
+			}
+		}
+
+		protected void finished() {
+			Map<String, Object> capAttrs = (attributesHandler != null)
+					? attributesHandler.getAttributes()
+					: new HashMap<String, Object>();
+
+			capAttrs.put(NAME_ATTRIBUTE, name);
+			capAttrs.put(VERSION_ATTRIBUTE, version);
+			IProvidedCapability cap = MetadataFactory.createProvidedCapability(namespace, capAttrs);
+			capabilities.add(cap);
+		}
+	}
+
+	protected class ProvidedCapabilityAttributesHandler extends AbstractMetadataHandler {
+		private Map<String, Object> capAttributes;
+
+		public ProvidedCapabilityAttributesHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, CAPABILITY_ATTRIBUTES_ELEMENT);
+			// TODO add getOptionalSize(attributes, 4)
+			this.capAttributes = new HashMap<String, Object>();
+		}
+
+		public Map<String, Object> getAttributes() {
+			return capAttributes;
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (name.equals(CAPABILITY_ATTRIBUTE_ELEMENT)) {
+				new ProvidedCapabilityAttributeHandler(this, attributes, capAttributes);
+			} else {
+				invalidElement(name, attributes);
+			}
+		}
+	}
+
+	protected class ProvidedCapabilityAttributeHandler extends AbstractMetadataHandler {
+		public ProvidedCapabilityAttributeHandler(AbstractHandler parentHandler, Attributes attributes, Map<String, Object> capAttributes) {
+			super(parentHandler, CAPABILITY_ATTRIBUTE_ELEMENT);
+
+			String[] values = parseRequiredAttributes(attributes, CAPABILITY_ATTRIBUTE_REQUIRED_ATTRIBUTES);
+
+			String name = values[0];
+			String value = values[1];
+			String type = values[2];
+
+			if (type.startsWith(ATTR_TYPE_LIST_HEAD)) {
+				capAttributes.put(name, parseList(type, value));
+			} else {
+				capAttributes.put(name, parseScalar(type, value));
+			}
 		}
 
 		@Override
 		public void startElement(String name, Attributes attributes) {
 			invalidElement(name, attributes);
+		}
+
+		private List<Object> parseList(String type, String value) {
+			String elType = type.substring(ATTR_TYPE_LIST_HEAD.length(), type.length() - 1);
+
+			List<Object> res = new ArrayList<Object>();
+			for (String el : value.split("\\s*,\\s*")) { //$NON-NLS-1$
+				res.add(parseScalar(elType, el));
+			}
+
+			return res;
+		}
+
+		private Object parseScalar(String type, String value) {
+			if (ATTR_TYPE_STRING.equals(type)) {
+				return value;
+			}
+			if (ATTR_TYPE_INTEGER.equals(type)) {
+				return Integer.parseInt(value);
+			}
+			if (ATTR_TYPE_LONG.equals(type)) {
+				return Long.parseLong(value);
+			}
+			if (ATTR_TYPE_FLOAT.equals(type)) {
+				return Float.parseFloat(value);
+			}
+			if (ATTR_TYPE_DOUBLE.equals(type)) {
+				return Double.parseDouble(value);
+			}
+			if (ATTR_TYPE_BYTE.equals(type)) {
+				return Byte.parseByte(value);
+			}
+			if (ATTR_TYPE_SHORT.equals(type)) {
+				return Short.parseShort(value);
+			}
+			if (ATTR_TYPE_CHARACTER.equals(type)) {
+				return value.charAt(0);
+			}
+			if (ATTR_TYPE_BOOLEAN.equals(type)) {
+				return Boolean.parseBoolean(value);
+			}
+			if (ATTR_TYPE_VERSION.equals(type)) {
+				return Version.create(value);
+			}
+			// TODO Throw what?
+			return value.toString();
 		}
 	}
 
@@ -623,13 +750,13 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		@Override
-		public void startElement(String name, Attributes attributes) {
-			if (name.equals(CAPABILITY_FILTER_ELEMENT)) {
+		public void startElement(String elem, Attributes attributes) {
+			if (elem.equals(CAPABILITY_FILTER_ELEMENT)) {
 				filterHandler = new TextHandler(this, CAPABILITY_FILTER_ELEMENT, attributes);
-			} else if (name.equals(REQUIREMENT_DESCRIPTION_ELEMENT)) {
+			} else if (elem.equals(REQUIREMENT_DESCRIPTION_ELEMENT)) {
 				descriptionHandler = new TextHandler(this, REQUIREMENT_DESCRIPTION_ELEMENT, attributes);
 			} else {
-				invalidElement(name, attributes);
+				invalidElement(elem, attributes);
 			}
 		}
 
