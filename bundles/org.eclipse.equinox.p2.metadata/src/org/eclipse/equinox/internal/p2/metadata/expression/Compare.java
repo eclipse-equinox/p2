@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
+import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
 /**
@@ -31,7 +32,30 @@ final class Compare extends Binary {
 	}
 
 	public Object evaluate(IEvaluationContext context) {
-		int cmpResult = CoercingComparator.coerceAndCompare(lhs.evaluate(context), rhs.evaluate(context));
+		Object lhsVal = lhs.evaluate(context);
+		Object rhsVal = rhs.evaluate(context);
+
+		// Handle collections as per the OSGi LDAP spec
+		if (lhsVal instanceof Collection<?>) {
+			for (Object lhsItem : (Collection<?>) lhsVal) {
+				int cmpResult = CoercingComparator.coerceAndCompare(lhsItem, rhsVal);
+
+				if (cmpResult == 0) {
+					return equalOK;
+				}
+
+				if (cmpResult < 0 && compareLess) {
+					return true;
+				}
+
+				if (!compareLess) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		int cmpResult = CoercingComparator.coerceAndCompare(lhsVal, rhsVal);
 		return Boolean.valueOf(cmpResult == 0 ? equalOK : (cmpResult < 0 ? compareLess : !compareLess));
 	}
 

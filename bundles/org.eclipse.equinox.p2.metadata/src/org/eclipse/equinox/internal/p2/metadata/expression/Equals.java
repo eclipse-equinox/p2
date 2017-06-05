@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
+import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
 /**
@@ -24,10 +25,23 @@ final class Equals extends Binary {
 	}
 
 	public Object evaluate(IEvaluationContext context) {
-		boolean result = CoercingComparator.coerceAndEquals(lhs.evaluate(context), rhs.evaluate(context));
-		if (negate)
-			result = !result;
-		return Boolean.valueOf(result);
+		Object lhsVal = lhs.evaluate(context);
+		Object rhsVal = rhs.evaluate(context);
+
+		// Handle collections as per the OSGi LDAP spec
+		if (lhsVal instanceof Collection<?>) {
+			for (Object lhsItem : (Collection<?>) lhsVal) {
+				boolean eq = CoercingComparator.coerceAndEquals(lhsItem, rhsVal);
+
+				if (eq && !negate) {
+					return true;
+				}
+			}
+			return negate;
+		}
+
+		boolean eq = CoercingComparator.coerceAndEquals(lhsVal, rhsVal);
+		return negate ? !eq : eq;
 	}
 
 	public int getExpressionType() {
