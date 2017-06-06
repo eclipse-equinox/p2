@@ -12,6 +12,8 @@ package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
 import java.util.Map.Entry;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 import org.osgi.framework.ServiceReference;
 
@@ -135,6 +137,14 @@ public abstract class MemberProvider implements IMemberProvider {
 			return caseInsensitive ? new CIDictionaryMemberProvider((Dictionary<String, ?>) value) : new DictionaryMemberProvider((Dictionary<String, ?>) value);
 		if (value instanceof ServiceReference)
 			return new ServiceRefMemberProvider((ServiceReference<?>) value);
+		// TODO Should there be a clause in Matches.match() instead?
+		if (value instanceof IProvidedCapability) {
+			IProvidedCapability cap = (IProvidedCapability) value;
+			Map<String, Object> attrs = new HashMap<String, Object>();
+			attrs.put(ProvidedCapability.MEMBER_NAMESPACE, cap.getNamespace());
+			attrs.putAll(cap.getAttributes());
+			return caseInsensitive ? new CIMapMemberProvider(attrs) : new MapMemberProvider(attrs);
+		}
 		throw new IllegalArgumentException();
 	}
 
