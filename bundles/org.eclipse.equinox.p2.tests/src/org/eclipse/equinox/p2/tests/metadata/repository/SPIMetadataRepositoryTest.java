@@ -177,14 +177,15 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	class SPIProvidedCapability implements IProvidedCapability {
 
-		String namespace = null;
-		String name = null;
-		Version version = null;
+		String namespace;
+		Map<String, Object> attributes;
 
 		public SPIProvidedCapability(String namespace, String name, Version version) {
 			this.namespace = namespace;
-			this.name = name;
-			this.version = version;
+
+			this.attributes = new HashMap<String, Object>();
+			attributes.put(ProvidedCapability.MEMBER_NAME, name);
+			attributes.put(ProvidedCapability.MEMBER_VERSION, version);
 		}
 
 		@Override
@@ -196,14 +197,14 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			IProvidedCapability otherCapability = (IProvidedCapability) other;
 			if (!(namespace.equals(otherCapability.getNamespace())))
 				return false;
-			if (!(name.equals(otherCapability.getName())))
+			if (!(attributes.equals(otherCapability.getAttributes())))
 				return false;
 			return true;
 		}
 
 		@Override
 		public String getName() {
-			return this.name;
+			return (String) attributes.get(ProvidedCapability.MEMBER_NAME);
 		}
 
 		@Override
@@ -213,13 +214,16 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public Version getVersion() {
-			return this.version;
+			return (Version) attributes.get(ProvidedCapability.MEMBER_VERSION);
 		}
 
 		public boolean satisfies(IRequirement candidate) {
 			return false;
 		}
 
+		public Map<String, Object> getAttributes() {
+			return attributes;
+		}
 	}
 
 	class SPIInstallableUnit implements IInstallableUnit {

@@ -430,6 +430,17 @@ public final class MetadataFactory {
 	}
 
 	/**
+	 * Returns a {@link IProvidedCapability} with the given values.
+	 * 
+	 * @param namespace The capability namespace
+	 * @param attributes The description of the capability
+	 * @since 2.4
+	 */
+	public static IProvidedCapability createProvidedCapability(String namespace, Map<String, Object> attributes) {
+		return new ProvidedCapability(namespace, attributes);
+	}
+
+	/**
 	 * Returns a {@link IRequirement} with the given values.
 	 * 
 	 * @param namespace The capability namespace

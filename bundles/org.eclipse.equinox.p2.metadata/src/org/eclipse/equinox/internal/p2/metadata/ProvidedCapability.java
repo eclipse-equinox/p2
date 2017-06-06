@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -26,33 +29,71 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 	public static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
 	public static final String MEMBER_NAMESPACE = "namespace"; //$NON-NLS-1$
 
-	private final String name;
 	private final String namespace;
-	private final Version version;
+	private final Map<String, Object> attributes;
+
+	public ProvidedCapability(String namespace, Map<String, Object> attrs) {
+		Assert.isNotNull(namespace, NLS.bind(Messages.provided_capability_namespace_not_defined, null));
+		this.namespace = namespace;
+
+		Assert.isNotNull(attrs);
+		Assert.isTrue(!attrs.isEmpty());
+		Assert.isTrue(!attrs.containsKey(MEMBER_NAMESPACE));
+		this.attributes = new HashMap<>(attrs);
+
+		if (!attributes.containsKey(MEMBER_NAME)) {
+			// It is common for a capability to have a main attribute under a key
+			// with value the same as the capability namespace. Use as "name" if present.
+			Assert.isTrue(attributes.containsKey(namespace));
+			attributes.put(MEMBER_NAME, attributes.get(namespace));
+		}
+
+		Object version = attributes.get(MEMBER_VERSION);
+		if (version == null) {
+			attributes.put(MEMBER_VERSION, Version.emptyVersion);
+		} else if (version instanceof org.osgi.framework.Version) {
+			org.osgi.framework.Version osgiVer = (org.osgi.framework.Version) version;
+			attributes.put(
+					MEMBER_VERSION,
+					Version.createOSGi(osgiVer.getMajor(), osgiVer.getMinor(), osgiVer.getMicro(), osgiVer.getQualifier()));
+		} else {
+			Assert.isTrue(version instanceof Version);
+		}
+	}
 
 	public ProvidedCapability(String namespace, String name, Version version) {
 		Assert.isNotNull(namespace, NLS.bind(Messages.provided_capability_namespace_not_defined, null));
 		Assert.isNotNull(name, NLS.bind(Messages.provided_capability_name_not_defined, namespace));
 		this.namespace = namespace;
-		this.name = name;
-		this.version = version == null ? Version.emptyVersion : version;
+		this.attributes = new HashMap<>();
+		attributes.put(MEMBER_NAME, name);
+		attributes.put(MEMBER_VERSION, version == null ? Version.emptyVersion : version);
 	}
 
 	public boolean equals(Object other) {
-		if (other == null)
+		if (other == null) {
 			return false;
-		if (!(other instanceof IProvidedCapability))
+		}
+
+		if (!(other instanceof IProvidedCapability)) {
 			return false;
+		}
+
 		IProvidedCapability otherCapability = (IProvidedCapability) other;
-		if (!(namespace.equals(otherCapability.getNamespace())))
+
+		if (!(namespace.equals(otherCapability.getNamespace()))) {
 			return false;
-		if (!(name.equals(otherCapability.getName())))
+		}
+
+		if (!(attributes.equals(otherCapability.getAttributes()))) {
 			return false;
-		return version.equals(otherCapability.getVersion());
+		}
+
+		return true;
 	}
 
 	public String getName() {
-		return name;
+		return (String) attributes.get(MEMBER_NAME);
 	}
 
 	public String getNamespace() {
@@ -60,28 +101,37 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 	}
 
 	public Version getVersion() {
-		return version;
+		return (Version) attributes.get(MEMBER_VERSION);
+	}
+
+	public Map<String, Object> getAttributes() {
+		return attributes;
 	}
 
 	public int hashCode() {
-		return namespace.hashCode() * name.hashCode() * version.hashCode();
+		return namespace.hashCode() * attributes.hashCode();
 	}
 
 	public String toString() {
-		return namespace + '/' + name + '/' + version;
+		StringBuilder str = new StringBuilder();
+		str.append(namespace);
+
+		for (Entry<String, Object> attr : attributes.entrySet()) {
+			String key = attr.getKey();
+			Object val = attr.getValue();
+			String type = val.getClass().getSimpleName();
+
+			str.append("; ").append(key).append(":").append(type).append("=").append(val); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+
+		return str.toString();
 	}
 
 	public Object getMember(String memberName) {
-		// It is OK to use identity comparisons here since
-		// a) All constant valued strings are always interned
-		// b) The Member constructor always interns the name
-		//
-		if (MEMBER_NAME == memberName)
-			return name;
-		if (MEMBER_VERSION == memberName)
-			return version;
-		if (MEMBER_NAMESPACE == memberName)
-			return namespace;
-		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+		Object res = memberName.equals(MEMBER_NAMESPACE) ? namespace : attributes.get(memberName);
+		if (res == null) {
+			throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+		}
+		return res;
 	}
 }

@@ -10,6 +10,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import java.util.Map;
+
 /**
  * Describes a capability that is exposed by an installable unit. These capabilities
  * can satisfy the dependencies of other installable units, causing the unit
@@ -29,24 +31,31 @@ public interface IProvidedCapability {
 
 	/**
 	 * 
-	 * @return String
+	 * @return String the special "name" attribute of this capability.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public String getName();
 
 	/**
 	 * 
-	 * @return String
+	 * @return String the namespace of this capability.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public String getNamespace();
 
 	/**
 	 * 
-	 * @return String
+	 * @return String the special "version" attribute of this capability.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public Version getVersion();
+
+	/**
+	 * 
+	 * @return A full description of this capability
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public Map<String, Object> getAttributes();
 
 	/**
 	 * Returns whether this provided capability is equal to the given object.
