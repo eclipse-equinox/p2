@@ -151,9 +151,12 @@ public class BundlesAction extends AbstractPublisherAction {
 	protected IInstallableUnit doCreateBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo info) {
 		@SuppressWarnings("unchecked")
 		Map<String, String> manifest = (Map<String, String>) bd.getUserObject();
+
 		Map<Locale, Map<String, String>> manifestLocalizations = null;
-		if (manifest != null && bd.getLocation() != null)
+		if (manifest != null && bd.getLocation() != null) {
 			manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
+		}
+
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(bd.isSingleton());
 		iu.setId(bd.getSymbolicName());
@@ -163,52 +166,56 @@ public class BundlesAction extends AbstractPublisherAction {
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 
-		boolean isFragment = bd.getHost() != null;
-		//		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
+		boolean isFragment = (bd.getHost() != null);
 
-		// Process the required bundles
-		BundleSpecification requiredBundles[] = bd.getRequiredBundles();
-		ArrayList<IRequirement> reqsDeps = new ArrayList<>();
-		//		if (requiresAFragment)
-		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
-		if (isFragment)
-			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+		// Gather requirements here
+		List<IRequirement> requirements = new ArrayList<>();
 
+		// Process required fragment host
+		if (isFragment) {
+			requirements.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+		}
+
+		// Process required bundles
 		ManifestElement[] rawRequireBundleHeader = parseManifestHeader(Constants.REQUIRE_BUNDLE, manifest, bd.getLocation());
-		for (BundleSpecification requiredBundle : requiredBundles) {
-			addRequireBundleRequirement(reqsDeps, requiredBundle, rawRequireBundleHeader);
+		for (BundleSpecification requiredBundle : bd.getRequiredBundles()) {
+			addRequireBundleRequirement(requirements, requiredBundle, rawRequireBundleHeader);
 		}
 
 		// Process the import packages
 		ManifestElement[] rawImportPackageHeader = parseManifestHeader(Constants.IMPORT_PACKAGE, manifest, bd.getLocation());
-		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
-		for (int i = 0; i < osgiImports.length; i++) {
-			// TODO we need to sort out how we want to handle wild-carded dynamic imports - for now we ignore them
-			ImportPackageSpecification importSpec = osgiImports[i];
-			if (isDynamicImport(importSpec))
-				continue;
-			addImportPackageRequirement(reqsDeps, importSpec, rawImportPackageHeader);
+		for (ImportPackageSpecification importedPackage : bd.getImportPackages()) {
+			if (!isDynamicImport(importedPackage)) {
+				addImportPackageRequirement(requirements, importedPackage, rawImportPackageHeader);
+			}
 		}
-		iu.setRequirements(reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
+
+		iu.setRequirements(requirements.toArray(new IRequirement[requirements.size()]));
 
 		// Create set of provided capabilities
-		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>();
+		List<IProvidedCapability> providedCapabilities = new ArrayList<>();
+
+		// Add identification capabilities
 		providedCapabilities.add(PublisherHelper.createSelfCapability(bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
 		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
 
-		// Process the export package
-		ExportPackageDescription exports[] = bd.getExportPackages();
-		for (int i = 0; i < exports.length; i++) {
-			//TODO make sure that we support all the refinement on the exports
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, exports[i].getName(), PublisherHelper.fromOSGiVersion(exports[i].getVersion())));
+		// Process exported packages
+		ExportPackageDescription[] exportedPackages = bd.getExportPackages();
+		for (ExportPackageDescription packageExport : exportedPackages) {
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageExport.getName(), PublisherHelper.fromOSGiVersion(packageExport.getVersion())));
 		}
-		// Here we add a bundle capability to identify bundles
-		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) //$NON-NLS-1$
+
+		// Add capability to describe the type of bundle
+		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) { //$NON-NLS-1$
 			providedCapabilities.add(SOURCE_BUNDLE_CAPABILITY);
-		else
+		} else {
 			providedCapabilities.add(BUNDLE_CAPABILITY);
-		if (isFragment)
+		}
+
+		// If needed add an additional capability to identify this as an OSGi fragment
+		if (isFragment) {
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
+		}
 
 		if (manifestLocalizations != null) {
 			for (Entry<Locale, Map<String, String>> locEntry : manifestLocalizations.entrySet()) {
@@ -220,7 +227,10 @@ public class BundlesAction extends AbstractPublisherAction {
 				providedCapabilities.add(PublisherHelper.makeTranslationCapability(bd.getSymbolicName(), locale));
 			}
 		}
+
 		iu.setCapabilities(providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
+
+		// Process advice
 		processUpdateDescriptorAdvice(iu, info);
 		processCapabilityAdvice(iu, info);
 
@@ -245,15 +255,18 @@ public class BundlesAction extends AbstractPublisherAction {
 		// that this is something that will not impact the configuration.
 		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
-		if (isDir(bd, info))
+		if (isDir(bd, info)) {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-		processTouchpointAdvice(iu, touchpointData, info);
+		}
 
+		// Process more advice
+		processTouchpointAdvice(iu, touchpointData, info);
 		processInstallableUnitPropertiesAdvice(iu, info);
+
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	protected void addImportPackageRequirement(ArrayList<IRequirement> reqsDeps, ImportPackageSpecification importSpec, ManifestElement[] rawImportPackageHeader) {
+	protected void addImportPackageRequirement(List<IRequirement> reqsDeps, ImportPackageSpecification importSpec, ManifestElement[] rawImportPackageHeader) {
 		VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
 		final boolean optional = isOptional(importSpec);
 		final boolean greedy;
@@ -265,7 +278,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional ? 0 : 1, 1, greedy));
 	}
 
-	protected void addRequireBundleRequirement(ArrayList<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
+	protected void addRequireBundleRequirement(List<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
 		final boolean optional = requiredBundle.isOptional();
 		final boolean greedy;
 		if (optional)
@@ -739,68 +752,86 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
-	//TODO remove this method
+	/**
+	 * Publishes bundle IUs to the p2 metadata and artifact repositories. 
+	 * 
+	 * @param bundleDescriptions Equinox framework descriptions of the bundles to publish. 
+	 * @param result Used to attach status for the publication operation.
+	 * @param monitor Used to fire progress events.
+	 * 
+	 * @deprecated Use {@link #generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor)} with
+	 * {@link IPublisherInfo} set to <code>null</code>
+	 */
+	@Deprecated
 	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherResult result, IProgressMonitor monitor) {
 		generateBundleIUs(bundleDescriptions, null, result, monitor);
 	}
 
+	/**
+	 * Publishes bundle IUs to the p2 metadata and artifact repositories. 
+	 * 
+	 * @param bundleDescriptions Equinox framework descriptions of the bundles to publish. 
+	 * @param info Configuration and publication advice information.
+	 * @param result Used to attach status for the publication operation.
+	 * @param monitor Used to fire progress events.
+	 */
 	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor) {
-
 		// This assumes that hosts are processed before fragments because for each fragment the host
 		// is queried for the strings that should be translated.
-		for (int i = 0; i < bundleDescriptions.length; i++) {
-			if (monitor.isCanceled())
+		for (BundleDescription bd : bundleDescriptions) {
+			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 
-			BundleDescription bd = bundleDescriptions[i];
-			if (bd != null && bd.getSymbolicName() != null && bd.getVersion() != null) {
-				//First check to see if there is already an IU around for this
-				IInstallableUnit bundleIU = queryForIU(result, bundleDescriptions[i].getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion()));
-				IArtifactKey key = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
-				if (bundleIU == null) {
-					createAdviceFileAdvice(bundleDescriptions[i], info);
-					// Create the bundle IU according to any shape advice we have
-					bundleIU = doCreateBundleIU(bd, key, info);
-				}
+			if (bd == null || bd.getSymbolicName() == null || bd.getVersion() == null) {
+				continue;
+			}
 
-				File location = new File(bd.getLocation());
-				IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(info, key, location);
-				processArtifactPropertiesAdvice(bundleIU, ad, info);
+			//First check to see if there is already an IU around for this
+			IInstallableUnit bundleIU = queryForIU(result, bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion()));
+			IArtifactKey bundleArtKey = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
+			if (bundleIU == null) {
+				createAdviceFileAdvice(bd, info);
+				// Create the bundle IU according to any shape advice we have
+				bundleIU = doCreateBundleIU(bd, bundleArtKey, info);
+			}
 
-				// Publish according to the shape on disk
-				File bundleLocation = new File(bd.getLocation());
-				if (bundleLocation.isDirectory())
-					publishArtifact(ad, bundleLocation, bundleLocation.listFiles(), info);
-				else
-					publishArtifact(ad, bundleLocation, info);
+			File bundleLocation = new File(bd.getLocation());
+			IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(info, bundleArtKey, bundleLocation);
+			processArtifactPropertiesAdvice(bundleIU, ad, info);
 
-				IInstallableUnit fragment = null;
-				if (isFragment(bd)) {
-					// TODO: Need a test case for multiple hosts
-					String hostId = bd.getHost().getName();
-					VersionRange hostVersionRange = PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange());
-					IQueryResult<IInstallableUnit> hosts = queryForIUs(result, hostId, hostVersionRange);
+			// Publish according to the shape on disk
+			if (bundleLocation.isDirectory()) {
+				publishArtifact(ad, bundleLocation, bundleLocation.listFiles(), info);
+			} else {
+				publishArtifact(ad, bundleLocation, info);
+			}
 
-					for (Iterator<IInstallableUnit> itor = hosts.iterator(); itor.hasNext();) {
-						IInstallableUnit host = itor.next();
-						String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
-						fragment = queryForIU(result, fragmentId, PublisherHelper.fromOSGiVersion(bd.getVersion()));
-						if (fragment == null) {
-							String[] externalizedStrings = getExternalizedStrings(host);
-							fragment = createHostLocalizationFragment(bundleIU, bd, hostId, externalizedStrings);
-						}
+			IInstallableUnit fragment = null;
+			if (isFragment(bd)) {
+				String hostId = bd.getHost().getName();
+				VersionRange hostVersionRange = PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange());
+
+				IQueryResult<IInstallableUnit> hosts = queryForIUs(result, hostId, hostVersionRange);
+
+				for (IInstallableUnit host : hosts) {
+					String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
+					fragment = queryForIU(result, fragmentId, PublisherHelper.fromOSGiVersion(bd.getVersion()));
+					if (fragment == null) {
+						String[] externalizedStrings = getExternalizedStrings(host);
+						fragment = createHostLocalizationFragment(bundleIU, bd, hostId, externalizedStrings);
 					}
-
 				}
+			}
 
-				result.addIU(bundleIU, IPublisherResult.ROOT);
-				if (fragment != null)
-					result.addIU(fragment, IPublisherResult.NON_ROOT);
+			result.addIU(bundleIU, IPublisherResult.ROOT);
+			if (fragment != null) {
+				result.addIU(fragment, IPublisherResult.NON_ROOT);
+			}
 
-				InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(bundleIU, info);
-				for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
-					result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
-				}
+			InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(bundleIU, info);
+			for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
+				result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
 			}
 		}
 	}
