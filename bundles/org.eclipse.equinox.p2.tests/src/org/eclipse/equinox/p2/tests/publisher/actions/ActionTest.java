@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -81,6 +81,23 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 			}
 		}
 		Assert.fail("Missing RequiredCapability: " + name + " " + range.toString()); //$NON-NLS-1$
+	}
+
+	protected void verifyRequirement(Collection<IRequirement> requirement, String filter, int min, int max, boolean greedy) {
+		IExpression expr = ExpressionUtil.parse(filter);
+		IMatchExpression<IInstallableUnit> matchExpr = ExpressionUtil.getFactory().matchExpression(expr);
+
+		for (Iterator iterator = requirement.iterator(); iterator.hasNext();) {
+			IRequirement required = (IRequirement) iterator.next();
+			if (required.getMatches().equals(matchExpr)) {
+				String requirementDescr = "IRequirement " + filter;
+				Assert.assertEquals("Min of " + requirementDescr, min, required.getMin());
+				Assert.assertEquals("Max of " + requirementDescr, max, required.getMax());
+				Assert.assertEquals("Greedy of " + requirementDescr, greedy, required.isGreedy());
+				return;
+			}
+		}
+		Assert.fail("Missing IRequirement: " + filter); //$NON-NLS-1$
 	}
 
 	protected IInstallableUnit mockIU(String id, Version version) {

@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -190,6 +190,12 @@ public class BundlesAction extends AbstractPublisherAction {
 			}
 		}
 
+		// Process generic requirements
+		ManifestElement[] rawRequireCapHeader = parseManifestHeader(Constants.REQUIRE_CAPABILITY, manifest, bd.getLocation());
+		for (GenericSpecification requiredCap : bd.getGenericRequires()) {
+			addGenericRequirement(requirements, requiredCap, rawRequireCapHeader);
+		}
+
 		iu.setRequirements(requirements.toArray(new IRequirement[requirements.size()]));
 
 		// Create set of provided capabilities
@@ -276,6 +282,18 @@ public class BundlesAction extends AbstractPublisherAction {
 			greedy = true;
 		//TODO this needs to be refined to take into account all the attribute handled by imports
 		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional ? 0 : 1, 1, greedy));
+	}
+
+	protected void addGenericRequirement(List<IRequirement> reqsDeps, GenericSpecification requireCapSpec, ManifestElement[] rawRequiresPackageHeader) {
+		String ldap = requireCapSpec.getMatchingFilter();
+		ldap = "(&(namespace=" + requireCapSpec.getType() + ")" + ldap + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		IExpression expr = ExpressionUtil.parse("providedCapabilities.exists(pc | pc ~= filter('" + ldap + "'))"); //$NON-NLS-1$ //$NON-NLS-2$
+		IMatchExpression<IInstallableUnit> matchExpr = ExpressionUtil.getFactory().matchExpression(expr);
+
+		// Optional and greedy in order to be backward compatible.
+		IRequirement requireCap = MetadataFactory.createRequirement(matchExpr, null, 0, 1, true);
+
+		reqsDeps.add(requireCap);
 	}
 
 	protected void addRequireBundleRequirement(List<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {

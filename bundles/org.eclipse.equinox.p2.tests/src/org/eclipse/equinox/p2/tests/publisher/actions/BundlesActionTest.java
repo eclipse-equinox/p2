@@ -41,39 +41,45 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 public class BundlesActionTest extends ActionTest {
 	private static final String OSGI = PublisherHelper.OSGI_BUNDLE_CLASSIFIER;
 	private static final String JAVA_PACKAGE = "java.package";//$NON-NLS-1$
+	private static final String JAVA_EE_1_4_REQ = "providedCapabilities.exists(pc | pc ~= filter('(&(namespace=osgi.ee)(|(&(osgi.ee=JavaSE)(version=1.4))(&(osgi.ee=CDC/Foundation)(version=1.1))))'))";
+	private static final String JAVA_EE_1_6_REQ = "providedCapabilities.exists(pc | pc ~= filter('(&(namespace=osgi.ee)(&(osgi.ee=JavaSE)(version=1.6)))'))";
 
 	private static final String TEST1_IUD_NAME = "iud";//$NON-NLS-1$
 	private static final String TEST1_PROVZ_NAME = "iuz";//$NON-NLS-1$
 	private static final String TEST1_PROVBUNDLE_NAME = "test1";//$NON-NLS-1$
-	private static final String TEST2_REQA_NAME = "iua";//$NON-NLS-1$
-	private static final String TEST2_REQB_NAME = "iub";//$NON-NLS-1$
-	private static final String TEST2_REQC_NAME = "iuc";//$NON-NLS-1$
-	private static final String TEST2_PROVZ_NAME = "iuz";//$NON-NLS-1$
-	private static final String TEST2_PROVY_NAME = "iuy";//$NON-NLS-1$
-	private static final String TEST2_PROVX_NAME = "iux";//$NON-NLS-1$
-	private static final String TEST2_PROVBUNDLE_NAME = "test2";//$NON-NLS-1$
-	private static final String TEST3_PROVBUNDLE_NAME = "test3";//$NON-NLS-1$
-	private static final String TEST4_PROVBUNDLE_NAME = "test4";//$NON-NLS-1$
+	private static final String TEST1_REQ_EE_FILTER = JAVA_EE_1_4_REQ;
+	private static final String TEST2_REQ_A_NAME = "iua";//$NON-NLS-1$
+	private static final String TEST2_REQ_B_NAME = "iub";//$NON-NLS-1$
+	private static final String TEST2_REQ_C_NAME = "iuc";//$NON-NLS-1$
+	private static final String TEST2_REQ_EE_FILTER = JAVA_EE_1_4_REQ;
+	private static final String TEST2_PROV_Z_NAME = "iuz";//$NON-NLS-1$
+	private static final String TEST2_PROV_Y_NAME = "iuy";//$NON-NLS-1$
+	private static final String TEST2_PROV_X_NAME = "iux";//$NON-NLS-1$
+	private static final String TEST2_PROV_BUNDLE_NAME = "test2";//$NON-NLS-1$
+	private static final String TEST3_PROV_BUNDLE_NAME = "test3";//$NON-NLS-1$
+	private static final String TEST4_PROV_BUNDLE_NAME = "test4";//$NON-NLS-1$
 	private static final String TEST4_REQ_PACKAGE_OPTIONAL_NAME = "iue";//$NON-NLS-1$
 	private static final String TEST4_REQ_PACKAGE_OPTGREEDY_NAME = "iuf";//$NON-NLS-1$
 	private static final String TEST4_REQ_BUNDLE_OPTIONAL_NAME = "iug";//$NON-NLS-1$
 	private static final String TEST4_REQ_BUNDLE_OPTGREEDY_NAME = "iuh";//$NON-NLS-1$
-	private static final String TEST5_PROVBUNDLE_NAME = "test5";//$NON-NLS-1$
+	private static final String TEST5_REQ_EE_FILTER = JAVA_EE_1_4_REQ;
+	private static final String TEST5_PROV_BUNDLE_NAME = "test5";//$NON-NLS-1$
+	private static final String TESTDYN_REQ_EE_FILTER = JAVA_EE_1_6_REQ;
 
 	private static final File TEST_BASE = new File(TestActivator.getTestDataFolder(), "BundlesActionTest");//$NON-NLS-1$
 	private static final File TEST_FILE1 = new File(TEST_BASE, TEST1_PROVBUNDLE_NAME);
-	private static final File TEST_FILE2 = new File(TEST_BASE, TEST2_PROVBUNDLE_NAME + ".jar");//$NON-NLS-1$
-	private static final File TEST_FILE2_PACKED = new File(TEST_BASE, TEST2_PROVBUNDLE_NAME + ".jar.pack.gz");//$NON-NLS-1$
+	private static final File TEST_FILE2 = new File(TEST_BASE, TEST2_PROV_BUNDLE_NAME + ".jar");//$NON-NLS-1$
+	private static final File TEST_FILE2_PACKED = new File(TEST_BASE, TEST2_PROV_BUNDLE_NAME + ".jar.pack.gz");//$NON-NLS-1$
 
 	private static final String PROVBUNDLE_NAMESPACE = "org.eclipse.equinox.p2.iu";//$NON-NLS-1$
-	private static final String TEST2_IUA_NAMESPACE = OSGI;
-	private static final String TEST2_IUB_NAMESPACE = JAVA_PACKAGE;
-	private static final String TEST2_IUC_NAMESPACE = JAVA_PACKAGE;
-	private static final String TEST1_IUD_NAMESPACE = JAVA_PACKAGE;
-	private static final String TEST2_PROVZ_NAMESPACE = JAVA_PACKAGE;
-	private static final String TEST2_PROVY_NAMESPACE = JAVA_PACKAGE;
-	private static final String TEST2_PROVX_NAMESPACE = JAVA_PACKAGE;
-	private static final String TEST1_PROVZ_NAMESPACE = JAVA_PACKAGE;
+	private static final String TEST2_IU_A_NAMESPACE = OSGI;
+	private static final String TEST2_IU_B_NAMESPACE = JAVA_PACKAGE;
+	private static final String TEST2_IU_C_NAMESPACE = JAVA_PACKAGE;
+	private static final String TEST1_IU_D_NAMESPACE = JAVA_PACKAGE;
+	private static final String TEST2_PROV_Z_NAMESPACE = JAVA_PACKAGE;
+	private static final String TEST2_PROV_Y_NAMESPACE = JAVA_PACKAGE;
+	private static final String TEST2_PROV_X_NAMESPACE = JAVA_PACKAGE;
+	private static final String TEST1_PROV_Z_NAMESPACE = JAVA_PACKAGE;
 
 	private final Version BUNDLE1_VERSION = Version.create("0.1.0");//$NON-NLS-1$
 	private final Version BUNDLE2_VERSION = Version.create("1.0.0.qualifier");//$NON-NLS-1$
@@ -210,14 +216,15 @@ public class BundlesActionTest extends ActionTest {
 
 		// check required capabilities
 		Collection<IRequirement> requiredCapability = bundle1IU.getRequirements();
-		verifyRequiredCapability(requiredCapability, TEST1_IUD_NAMESPACE, TEST1_IUD_NAME, TEST1_IUD_VERSION_RANGE);
-		assertEquals("2.0", 1, requiredCapability.size());
+		verifyRequiredCapability(requiredCapability, TEST1_IU_D_NAMESPACE, TEST1_IUD_NAME, TEST1_IUD_VERSION_RANGE);
+		verifyRequirement(requiredCapability, TEST1_REQ_EE_FILTER, 0, 1, true);
+		assertEquals("2.0", 2, requiredCapability.size());
 
 		// check provided capabilities
 		Collection<IProvidedCapability> providedCapabilities = bundle1IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
-		verifyProvidedCapability(providedCapabilities, TEST1_PROVZ_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
+		verifyProvidedCapability(providedCapabilities, TEST1_PROV_Z_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
 		assertEquals("2.1", 4, providedCapabilities.size());
 
@@ -236,7 +243,7 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void verifyBundle2() {
-		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST2_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST2_PROV_BUNDLE_NAME, IPublisherResult.ROOT));
 		assertTrue(ius.size() == 1);
 		IInstallableUnit bundle2IU = ius.get(0);
 
@@ -244,21 +251,22 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals(bundle2IU.getVersion(), BUNDLE2_VERSION);
 
 		// check required capabilities
-		Collection<IRequirement> requiredCapabilities = bundle2IU.getRequirements();
-		verifyRequiredCapability(requiredCapabilities, TEST2_IUA_NAMESPACE, TEST2_REQA_NAME, TEST2_IUA_VERSION_RANGE);
-		verifyRequiredCapability(requiredCapabilities, TEST2_IUB_NAMESPACE, TEST2_REQB_NAME, TEST2_IUB_VERSION_RANGE);
-		verifyRequiredCapability(requiredCapabilities, TEST2_IUC_NAMESPACE, TEST2_REQC_NAME, TEST2_IUC_VERSION_RANGE);
-		assertTrue(requiredCapabilities.size() == 3 /*number of tested elements*/);
+		Collection<IRequirement> requirements = bundle2IU.getRequirements();
+		verifyRequiredCapability(requirements, TEST2_IU_A_NAMESPACE, TEST2_REQ_A_NAME, TEST2_IUA_VERSION_RANGE);
+		verifyRequiredCapability(requirements, TEST2_IU_B_NAMESPACE, TEST2_REQ_B_NAME, TEST2_IUB_VERSION_RANGE);
+		verifyRequiredCapability(requirements, TEST2_IU_C_NAMESPACE, TEST2_REQ_C_NAME, TEST2_IUC_VERSION_RANGE);
+		verifyRequirement(requirements, TEST2_REQ_EE_FILTER, 0, 1, true);
+		assertTrue(requirements.size() == 4 /*number of tested elements*/);
 
 		// check provided capabilities
 		Collection<IProvidedCapability> providedCapabilities = bundle2IU.getProvidedCapabilities();
-		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST2_PROVBUNDLE_NAME, PROVBUNDLE2_VERSION);
-		verifyProvidedCapability(providedCapabilities, OSGI, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION);
-		verifyProvidedCapability(providedCapabilities, TEST2_PROVZ_NAMESPACE, TEST2_PROVZ_NAME, TEST2_PROVZ_VERSION);
-		verifyProvidedCapability(providedCapabilities, TEST2_PROVY_NAMESPACE, TEST2_PROVY_NAME, TEST2_PROVY_VERSION);
-		verifyProvidedCapability(providedCapabilities, TEST2_PROVX_NAMESPACE, TEST2_PROVX_NAME, TEST2_PROVX_VERSION);
+		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST2_PROV_BUNDLE_NAME, PROVBUNDLE2_VERSION);
+		verifyProvidedCapability(providedCapabilities, OSGI, TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION);
+		verifyProvidedCapability(providedCapabilities, TEST2_PROV_Z_NAMESPACE, TEST2_PROV_Z_NAME, TEST2_PROVZ_VERSION);
+		verifyProvidedCapability(providedCapabilities, TEST2_PROV_Y_NAMESPACE, TEST2_PROV_Y_NAME, TEST2_PROVY_VERSION);
+		verifyProvidedCapability(providedCapabilities, TEST2_PROV_X_NAMESPACE, TEST2_PROV_X_NAME, TEST2_PROVX_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(providedCapabilities.size() == 6 /*number of tested elements*/);
+		assertEquals(6, providedCapabilities.size()); /*number of tested elements*/
 
 		// check %bundle name is correct
 		Map<String, String> prop = bundle2IU.getProperties();
@@ -282,7 +290,7 @@ public class BundlesActionTest extends ActionTest {
 
 	private void verifyBundle3() {
 		// also a regression test for bug 393051: manifest headers use uncommon (but valid) capitalization
-		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST3_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST3_PROV_BUNDLE_NAME, IPublisherResult.ROOT));
 
 		assertTrue(ius.size() == 1);
 		IInstallableUnit bundle3IU = ius.get(0);
@@ -294,14 +302,14 @@ public class BundlesActionTest extends ActionTest {
 		int severity = updateDescriptor.getSeverity();
 
 		VersionRange expectedRange = new VersionRange("(0.0.1," + BUNDLE3_VERSION + "]");
-		assertEquals(TEST3_PROVBUNDLE_NAME, name);
+		assertEquals(TEST3_PROV_BUNDLE_NAME, name);
 		assertEquals(expectedRange, range);
 		assertEquals("Some description about this update", description.trim());
 		assertEquals(8, severity);
 	}
 
 	private void verifyBundle4() {
-		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST4_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST4_PROV_BUNDLE_NAME, IPublisherResult.ROOT));
 		assertTrue(ius.size() == 1);
 		IInstallableUnit bundle4IU = ius.get(0);
 
@@ -309,21 +317,22 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("1.1", bundle4IU.getVersion(), BUNDLE4_VERSION);
 
 		// check required capabilities
-		Collection<IRequirement> requiredCapability = bundle4IU.getRequirements();
-		verifyRequiredCapability(requiredCapability, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
-		verifyRequiredCapability(requiredCapability, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
-		verifyRequiredCapability(requiredCapability, OSGI, TEST4_REQ_BUNDLE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
-		verifyRequiredCapability(requiredCapability, OSGI, TEST4_REQ_BUNDLE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
-		assertEquals("2.0", 4, requiredCapability.size());
+		Collection<IRequirement> requirements = bundle4IU.getRequirements();
+		verifyRequiredCapability(requirements, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
+		verifyRequiredCapability(requirements, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
+		verifyRequiredCapability(requirements, OSGI, TEST4_REQ_BUNDLE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
+		verifyRequiredCapability(requirements, OSGI, TEST4_REQ_BUNDLE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
+		assertEquals("2.0", 4, requirements.size());
 	}
 
 	private void verifyBundle5() {
-		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST5_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST5_PROV_BUNDLE_NAME, IPublisherResult.ROOT));
 		assertTrue(ius.size() == 1);
 		IInstallableUnit bundle5IU = ius.get(0);
 
 		Collection<IRequirement> requirements = bundle5IU.getRequirements();
-		assertTrue(requirements.size() == 1);
+		verifyRequirement(requirements, TEST5_REQ_EE_FILTER, 0, 1, true);
+		assertTrue(requirements.size() == 2);
 		IRequirement requirement = requirements.iterator().next();
 
 		int min = requirement.getMin();
@@ -363,37 +372,37 @@ public class BundlesActionTest extends ActionTest {
 		expectUpdateDescriptorAdviceQuery(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, null);
 		expectTouchpointAdviceQuery(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, tpAdvice1);
 
-		expectOtherAdviceQueries(TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION);
-		expectPropertyAdviceQuery(TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, sdkProperties);
-		expectUpdateDescriptorAdviceQuery(TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, null);
-		expectTouchpointAdviceQuery(TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, tpAdvice2);
+		expectOtherAdviceQueries(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION);
+		expectPropertyAdviceQuery(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION, sdkProperties);
+		expectUpdateDescriptorAdviceQuery(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION, null);
+		expectTouchpointAdviceQuery(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION, tpAdvice2);
 
-		expectOtherAdviceQueries(TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION);
-		expectPropertyAdviceQuery(TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, sarProperties);
-		expectUpdateDescriptorAdviceQuery(TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, udAdvice3);
-		expectTouchpointAdviceQuery(TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, null);
+		expectOtherAdviceQueries(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION);
+		expectPropertyAdviceQuery(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION, sarProperties);
+		expectUpdateDescriptorAdviceQuery(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION, udAdvice3);
+		expectTouchpointAdviceQuery(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION, null);
 
-		expectOtherAdviceQueries(TEST4_PROVBUNDLE_NAME, BUNDLE4_VERSION);
-		expectPropertyAdviceQuery(TEST4_PROVBUNDLE_NAME, BUNDLE4_VERSION, null);
-		expectUpdateDescriptorAdviceQuery(TEST4_PROVBUNDLE_NAME, BUNDLE4_VERSION, null);
-		expectTouchpointAdviceQuery(TEST4_PROVBUNDLE_NAME, BUNDLE4_VERSION, null);
+		expectOtherAdviceQueries(TEST4_PROV_BUNDLE_NAME, BUNDLE4_VERSION);
+		expectPropertyAdviceQuery(TEST4_PROV_BUNDLE_NAME, BUNDLE4_VERSION, null);
+		expectUpdateDescriptorAdviceQuery(TEST4_PROV_BUNDLE_NAME, BUNDLE4_VERSION, null);
+		expectTouchpointAdviceQuery(TEST4_PROV_BUNDLE_NAME, BUNDLE4_VERSION, null);
 
-		expectCapabilityAdviceQuery(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, capAdvice5);
-		expectOtherAdviceQueries(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION);
-		expectPropertyAdviceQuery(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, sarProperties);
-		expectUpdateDescriptorAdviceQuery(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, null);
-		expectTouchpointAdviceQuery(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, null);
+		expectCapabilityAdviceQuery(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION, capAdvice5);
+		expectOtherAdviceQueries(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION);
+		expectPropertyAdviceQuery(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION, sarProperties);
+		expectUpdateDescriptorAdviceQuery(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION, null);
+		expectTouchpointAdviceQuery(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION, null);
 
 		//capture any touchpoint advice, and return the captured advice when the action asks for it
 		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, ITouchpointAdvice.class), capture(tpAdvice1)));
 		EasyMock.expectLastCall().anyTimes();
 
-		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, ITouchpointAdvice.class), capture(tpAdvice2)));
+		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION, ITouchpointAdvice.class), capture(tpAdvice2)));
 		EasyMock.expectLastCall().anyTimes();
 
-		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, AdviceFileAdvice.class), capture(udAdvice3)));
+		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION, AdviceFileAdvice.class), capture(udAdvice3)));
 
-		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST5_PROVBUNDLE_NAME, BUNDLE5_VERSION, AdviceFileAdvice.class), capture(capAdvice5)));
+		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION, AdviceFileAdvice.class), capture(capAdvice5)));
 		EasyMock.expectLastCall().anyTimes();
 	}
 
@@ -441,7 +450,10 @@ public class BundlesActionTest extends ActionTest {
 	public void testDynamicImport() throws Exception {
 		File testData = getTestData("dymamicImport", "testData/dynamicImport");
 		IInstallableUnit iu = BundlesAction.createBundleIU(BundlesAction.createBundleDescription(testData), null, new PublisherInfo());
-		assertEquals(0, iu.getRequirements().size());
+
+		Collection<IRequirement> requirements = iu.getRequirements();
+		verifyRequirement(requirements, TESTDYN_REQ_EE_FILTER, 0, 1, true);
+		assertEquals(1, requirements.size());
 	}
 
 	public void testPublishBundlesWhereOneBundleIsInvalid() throws Exception {

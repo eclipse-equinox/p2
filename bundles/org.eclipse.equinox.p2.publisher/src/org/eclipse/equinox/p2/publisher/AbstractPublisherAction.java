@@ -20,8 +20,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -315,19 +314,18 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				Set<IRequirement> resultRequiredCapabilities = new HashSet<>(current);
 
 				// remove current required capabilities that match (same name and namespace) advice.
-				for (int j = 0; j < current.size(); j++) {
-					IRequirement curr = current.get(j);
-					IRequiredCapability currentRequiredCapability = null;
-					if (curr instanceof IRequiredCapability)
-						currentRequiredCapability = (IRequiredCapability) curr;
-					else
+				for (IRequirement currReq : current) {
+					IRequiredCapability currentRequiredCapability = toRequiredCapability(currReq);
+					if (currentRequiredCapability == null) {
 						continue;
-					for (int k = 0; k < requiredAdvice.length; k++) {
-						IRequiredCapability requiredCapability = null;
-						if (requiredAdvice[k] instanceof IRequiredCapability)
-							requiredCapability = (IRequiredCapability) requiredAdvice[k];
-						else
+					}
+
+					for (IRequirement currReqAdvice : requiredAdvice) {
+						IRequiredCapability requiredCapability = toRequiredCapability(currReqAdvice);
+						if (requiredCapability == null) {
 							continue;
+						}
+
 						if (requiredCapability.getNamespace().equals(currentRequiredCapability.getNamespace()) && requiredCapability.getName().equals(currentRequiredCapability.getName())) {
 							resultRequiredCapabilities.remove(currentRequiredCapability);
 							break;
@@ -346,18 +344,18 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				Set<IRequirement> resultMetaRequiredCapabilities = new HashSet<>(current);
 
 				// remove current meta-required capabilities that match (same name and namespace) advice.
-				for (IRequirement curr : current) {
-					IRequiredCapability currentMetaRequiredCapability = null;
-					if (curr instanceof IRequiredCapability)
-						currentMetaRequiredCapability = (IRequiredCapability) curr;
-					else
+				for (IRequirement currMetaReq : current) {
+					IRequiredCapability currentMetaRequiredCapability = toRequiredCapability(currMetaReq);
+					if (currentMetaRequiredCapability == null) {
 						continue;
-					for (int k = 0; k < metaRequiredAdvice.length; k++) {
-						IRequiredCapability metaRequiredCapability = null;
-						if (metaRequiredAdvice[k] instanceof IRequiredCapability)
-							metaRequiredCapability = (IRequiredCapability) metaRequiredAdvice[k];
-						else
+					}
+
+					for (IRequirement currMetaReqAdvice : metaRequiredAdvice) {
+						IRequiredCapability metaRequiredCapability = toRequiredCapability(currMetaReqAdvice);
+						if (metaRequiredCapability == null) {
 							continue;
+						}
+
 						if (metaRequiredCapability.getNamespace().equals(currentMetaRequiredCapability.getNamespace()) && metaRequiredCapability.getName().equals(currentMetaRequiredCapability.getName())) {
 							resultMetaRequiredCapabilities.remove(currentMetaRequiredCapability);
 							break;
@@ -388,6 +386,19 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				iu.setCapabilities(resultProvidedCapabilities.toArray(new IProvidedCapability[resultProvidedCapabilities.size()]));
 			}
 		}
+	}
+
+	protected static IRequiredCapability toRequiredCapability(IRequirement requirement) {
+		if (!(requirement instanceof IRequiredCapability)) {
+			return null;
+		}
+
+		IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
+		if (!RequiredCapability.isSimpleRequirement(requiredCapability.getMatches())) {
+			return null;
+		}
+
+		return requiredCapability;
 	}
 
 	/**
