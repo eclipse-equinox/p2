@@ -71,6 +71,14 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String CAPABILITY_OPTIONAL_ATTRIBUTE = "optional"; //$NON-NLS-1$
 	public static final String CAPABILITY_MULTIPLE_ATTRIBUTE = "multiple"; //$NON-NLS-1$
 	public static final String CAPABILITY_GREED_ATTRIBUTE = "greedy"; //$NON-NLS-1$
+
+	public static final String CAPABILITY_ATTRIBUTES_ELEMENT = "attributes"; //$NON-NLS-1$
+	public static final String CAPABILITY_ATTRIBUTE_ELEMENT = "attribute"; //$NON-NLS-1$
+	public static final String CAPABILITY_ATTRIBUTE_NAME_ATTRIBUTE = "name"; //$NON-NLS-1$
+	public static final String CAPABILITY_ATTRIBUTE_TYPE_ATTRIBUTE = "type"; //$NON-NLS-1$
+	public static final String CAPABILITY_ATTRIBUTE_VALUE_ATTRIBUTE = "value"; //$NON-NLS-1$
+	public static final String[] CAPABILITY_ATTRIBUTE_REQUIRED_ATTRIBUTES = new String[] {CAPABILITY_ATTRIBUTE_NAME_ATTRIBUTE, CAPABILITY_ATTRIBUTE_VALUE_ATTRIBUTE, CAPABILITY_ATTRIBUTE_TYPE_ATTRIBUTE};
+
 	public static final String[] REQIURED_CAPABILITY_ATTRIBUTES = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
 	public static final String[] REQIUREMENT_ATTRIBUTES = new String[] {MATCH_ATTRIBUTE};
 	public static final String[] OPTIONAL_CAPABILITY_ATTRIBUTES = new String[] {CAPABILITY_OPTIONAL_ATTRIBUTE, CAPABILITY_MULTIPLE_ATTRIBUTE, CAPABILITY_GREED_ATTRIBUTE};

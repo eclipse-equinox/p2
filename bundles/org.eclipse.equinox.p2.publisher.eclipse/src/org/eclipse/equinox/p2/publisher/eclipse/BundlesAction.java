@@ -317,6 +317,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional ? 0 : 1, 1, greedy));
 	}
 
+	// TODO Handle all attributes and directives somehow? Especially the "effective" directive.
+	// TODO Make these optional and greedy for backward compatibility?
 	protected void addGenericRequirement(List<IRequirement> reqsDeps, GenericSpecification requireCapSpec, ManifestElement[] rawRequiresPackageHeader) {
 		String ldap = requireCapSpec.getMatchingFilter();
 		ldap = "(&(namespace=" + requireCapSpec.getType() + ")" + ldap + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

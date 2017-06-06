@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.p2.metadata.repository.io;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
@@ -152,14 +153,66 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 			start(PROVIDED_CAPABILITIES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.size());
 			for (IProvidedCapability capability : capabilities) {
-				start(PROVIDED_CAPABILITY_ELEMENT);
-				attribute(NAMESPACE_ATTRIBUTE, capability.getNamespace());
-				attribute(NAME_ATTRIBUTE, capability.getName());
-				attribute(VERSION_ATTRIBUTE, capability.getVersion());
-				end(PROVIDED_CAPABILITY_ELEMENT);
+				writeProvidedCapability(capability);
 			}
 			end(PROVIDED_CAPABILITIES_ELEMENT);
 		}
+	}
+
+	protected void writeProvidedCapability(IProvidedCapability capability) {
+		start(PROVIDED_CAPABILITY_ELEMENT);
+
+		attribute(NAMESPACE_ATTRIBUTE, capability.getNamespace());
+		attribute(NAME_ATTRIBUTE, capability.getName());
+		attribute(VERSION_ATTRIBUTE, capability.getVersion());
+
+		Map<String, Object> attrs = new HashMap<>(capability.getAttributes());
+		attrs.remove(NAME_ATTRIBUTE);
+		attrs.remove(VERSION_ATTRIBUTE);
+
+		if (!attrs.isEmpty()) {
+			start(CAPABILITY_ATTRIBUTES_ELEMENT);
+			attribute(COLLECTION_SIZE_ATTRIBUTE, attrs.size());
+
+			for (Entry<String, Object> attr : attrs.entrySet()) {
+				start(CAPABILITY_ATTRIBUTE_ELEMENT);
+
+				String name = attr.getKey();
+				Object val = attr.getValue();
+				String type;
+
+				if (Collection.class.isAssignableFrom(val.getClass())) {
+					Collection<?> coll = (Collection<?>) val;
+
+					String elType = coll.iterator().next().getClass().getSimpleName();
+					type = "List<" + elType + ">"; //$NON-NLS-1$ //$NON-NLS-2$
+
+					StringBuilder valBuff = new StringBuilder();
+					for (Iterator<?> iter = coll.iterator(); iter.hasNext();) {
+						String el = iter.next().toString();
+
+						valBuff.append(el);
+						if (iter.hasNext()) {
+							valBuff.append(","); //$NON-NLS-1$
+						}
+					}
+
+					val = valBuff.toString();
+				} else {
+					type = val.getClass().getSimpleName();
+					val = val.toString();
+				}
+
+				attribute(CAPABILITY_ATTRIBUTE_NAME_ATTRIBUTE, name);
+				attribute(CAPABILITY_ATTRIBUTE_TYPE_ATTRIBUTE, type);
+				attribute(CAPABILITY_ATTRIBUTE_VALUE_ATTRIBUTE, val);
+
+				end(CAPABILITY_ATTRIBUTE_ELEMENT);
+			}
+			end(CAPABILITY_ATTRIBUTES_ELEMENT);
+		}
+
+		end(PROVIDED_CAPABILITY_ELEMENT);
 	}
 
 	protected void writeMetaRequirements(Collection<IRequirement> metaRequirements) {
