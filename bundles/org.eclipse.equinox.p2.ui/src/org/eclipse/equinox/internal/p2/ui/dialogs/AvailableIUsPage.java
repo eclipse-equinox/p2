@@ -29,7 +29,8 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.IContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -57,9 +58,14 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	AvailableIUGroup availableIUGroup;
 	Composite availableIUButtonBar;
 	Link installLink;
-	Button useCategoriesCheckbox, hideInstalledCheckbox, showLatestVersionsCheckbox, resolveAllCheckbox, filterOnEnvCheckBox;
+	Button useCategoriesCheckbox;
+	Button hideInstalledCheckbox;
+	Button showLatestVersionsCheckbox;
+	Button resolveAllCheckbox;
+	Button filterOnEnvCheckBox;
 	SashForm sashForm;
-	IUColumnConfig nameColumn, versionColumn;
+	IUColumnConfig nameColumn;
+	IUColumnConfig versionColumn;
 	StructuredViewerProvisioningListener profileListener;
 	Display display;
 	int batchCount = 0;
@@ -95,7 +101,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		sashForm = new SashForm(composite, SWT.VERTICAL);
 		FillLayout fill = new FillLayout();
 		sashForm.setLayout(fill);
-		GridData data = new GridData(GridData.FILL_BOTH);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		sashForm.setLayoutData(data);
 
 		Composite aboveSash = new Composite(sashForm, SWT.NONE);
@@ -119,20 +125,12 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// Selection listeners must be registered on both the normal selection
 		// events and the check mark events.  Must be done after buttons 
 		// are created so that the buttons can register and receive their selection notifications before us.
-		availableIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				updateDetails();
-				iuDetailsGroup.enablePropertyLink(availableIUGroup.getSelectedIUElements().length == 1);
-			}
+		availableIUGroup.getStructuredViewer().addSelectionChangedListener(event -> {
+			updateDetails();
+			iuDetailsGroup.enablePropertyLink(availableIUGroup.getSelectedIUElements().length == 1);
 		});
 
-		availableIUGroup.getCheckboxTreeViewer().addCheckStateListener(new ICheckStateListener() {
-			@Override
-			public void checkStateChanged(CheckStateChangedEvent event) {
-				updateSelection();
-			}
-		});
+		availableIUGroup.getCheckboxTreeViewer().addCheckStateListener(event -> updateSelection());
 
 		addViewerProvisioningListeners();
 
@@ -182,13 +180,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 		initializeWidgetState();
 		setControl(composite);
-		composite.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				removeProvisioningListeners();
-			}
-
-		});
+		composite.addDisposeListener(e -> removeProvisioningListeners());
 		Dialog.applyDialogFont(composite);
 	}
 
@@ -246,22 +238,12 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		Button selectAll = new Button(buttonParent, SWT.PUSH);
 		selectAll.setText(ProvUIMessages.SelectableIUsPage_Select_All);
 		setButtonLayoutData(selectAll);
-		selectAll.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				setAllChecked(true);
-			}
-		});
+		selectAll.addListener(SWT.Selection, event -> setAllChecked(true));
 
 		Button deselectAll = new Button(buttonParent, SWT.PUSH);
 		deselectAll.setText(ProvUIMessages.SelectableIUsPage_Deselect_All);
 		setButtonLayoutData(deselectAll);
-		deselectAll.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				setAllChecked(false);
-			}
-		});
+		deselectAll.addListener(SWT.Selection, event -> setAllChecked(false));
 
 		// dummy to take extra space
 		selectionCount = new Label(buttonParent, SWT.NONE);
@@ -383,12 +365,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// is specified.
 		if (getPolicy().getRepositoriesVisible()) {
 			repoSelector = new RepositorySelectionGroup(getProvisioningUI(), getContainer(), parent, queryContext);
-			repoSelector.addRepositorySelectionListener(new IRepositorySelectionListener() {
-				@Override
-				public void repositorySelectionChanged(int repoChoice, URI repoLocation) {
-					repoComboSelectionChanged(repoChoice, repoLocation);
-				}
-			});
+			repoSelector.addRepositorySelectionListener(this::repoComboSelectionChanged);
 
 			// The ProvisioningOperationWizard signals the start of a repository operation as a way
 			// to keep side-effect events from changing the selections or state of the wizard.
@@ -447,13 +424,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		Link link = new Link(parent, SWT.PUSH);
 		link.setText(text);
 
-		link.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				IAction linkAction = getLinkAction(event.widget);
-				if (linkAction != null) {
-					linkAction.runWithEvent(event);
-				}
+		link.addListener(SWT.Selection, event -> {
+			IAction linkAction = getLinkAction(event.widget);
+			if (linkAction != null) {
+				linkAction.runWithEvent(event);
 			}
 		});
 		link.setToolTipText(action.getToolTipText());
@@ -472,9 +446,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private void setDropTarget(Control control) {
 		if (getPolicy().getRepositoriesVisible()) {
 			DropTarget target = new DropTarget(control, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
-			target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
+			target.setTransfer(URLTransfer.getInstance(), FileTransfer.getInstance());
 			target.addDropListener(new RepositoryManipulatorDropTarget(getProvisioningUI(), control));
 		}
+
 	}
 
 	private void initializeWidgetState() {
