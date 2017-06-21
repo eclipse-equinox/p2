@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2011, 2015 Sonatype, Inc. and others.
+ *  Copyright (c) 2011, 2017 Sonatype, Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *     IBM Corporation - Ongoing development
@@ -62,9 +62,9 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 		URI repoLocation = getTestData("p2 location", "testData/synchronizeOperation/repo").toURI();
 		IProvisioningAgent firstAgent = provider.createAgent(p2location);
 		IVersionedId v = new VersionedId("payload.feature.feature.group", (String) null);
-		Collection<IVersionedId> toInstall = new ArrayList<IVersionedId>();
+		Collection<IVersionedId> toInstall = new ArrayList<>();
 		toInstall.add(v);
-		List<URI> repos = new ArrayList<URI>();
+		List<URI> repos = new ArrayList<>();
 		repos.add(repoLocation);
 		SynchronizeOperation operation = createSynchronizeOperation(toInstall, repos, new NullProgressMonitor(), firstAgent);
 		operation.setProfileId("DefaultProfile");
@@ -102,7 +102,7 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 
 	//This is a copy of the OperationHelper code
 	private Collection<IInstallableUnit> gatherIUs(IQueryable<IInstallableUnit> searchContext, Collection<IVersionedId> ius, boolean checkIUs, IProgressMonitor monitor) throws ProvisionException {
-		Collection<IInstallableUnit> gatheredIUs = new ArrayList<IInstallableUnit>(ius.size());
+		Collection<IInstallableUnit> gatheredIUs = new ArrayList<>(ius.size());
 
 		for (IVersionedId versionedId : ius) {
 			if (!checkIUs && versionedId instanceof IInstallableUnit) {

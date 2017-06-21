@@ -1,20 +1,19 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -35,6 +34,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 	IProfile profile;
 	IEngine engine;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		a1 = createIU("A", Version.parseVersion("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]")));
@@ -73,6 +73,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		assertContains(profile.query(QueryUtil.createIUAnyQuery(), null), c1);
 
 		IProfile availableWrapper = new IProfile() {
+			@Override
 			public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 				IQueryResult queryResult = profile.query(query, monitor);
 				Collector collector = new Collector();
@@ -85,34 +86,42 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 			}
 
 			// everything else is delegated
+			@Override
 			public Map getInstallableUnitProperties(IInstallableUnit iu) {
 				return profile.getInstallableUnitProperties(iu);
 			}
 
+			@Override
 			public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
 				return profile.getInstallableUnitProperty(iu, key);
 			}
 
+			@Override
 			public String getProfileId() {
 				return profile.getProfileId();
 			}
 
+			@Override
 			public Map getProperties() {
 				return profile.getProperties();
 			}
 
+			@Override
 			public String getProperty(String key) {
 				return profile.getProperty(key);
 			}
 
+			@Override
 			public long getTimestamp() {
 				return profile.getTimestamp();
 			}
 
+			@Override
 			public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 				return profile.query(query, monitor);
 			}
 
+			@Override
 			public IProvisioningAgent getProvisioningAgent() {
 				return profile.getProvisioningAgent();
 			}

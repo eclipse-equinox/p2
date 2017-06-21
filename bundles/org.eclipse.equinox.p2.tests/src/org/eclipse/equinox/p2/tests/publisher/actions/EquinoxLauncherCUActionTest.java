@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -31,6 +31,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 	private static String c_ID = EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER;
 	private static String d_ID = EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + ".source";//$NON-NLS-1$
 
+	@Override
 	public void setUp() throws Exception {
 		setupPublisherInfo();
 		setupPublisherResult();
@@ -63,12 +64,12 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 				assertTrue(iu instanceof InstallableUnitFragment);
 				//verify required capability
 				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.OSGI_BUNDLE_CLASSIFIER, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, VersionRange.emptyRange);
-				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false), 1, 1, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false), 1, 1, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				assertEquals(2, (((InstallableUnitFragment) iu).getHost().size()));
 
 				Collection<IProvidedCapability> cap = iu.getProvidedCapabilities();
-				verifyProvidedCapability(cap, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$ 
-				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ 
+				verifyProvidedCapability(cap, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$
+				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(cap.size() == 2);
 
 				Map prop = iu.getProperties();
@@ -79,6 +80,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 		fail();
 	}
 
+	@Override
 	public void setupPublisherResult() {
 		publisherResult = new PublisherResult();
 		ArrayList iuList = new ArrayList();
@@ -89,6 +91,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 		publisherResult.addIUs(iuList, IPublisherResult.ROOT);
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		VersionAdvice versionAdvice = new VersionAdvice();
 		versionAdvice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$

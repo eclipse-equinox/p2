@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -32,14 +32,13 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings({"unchecked"})
 public class EquinoxExecutableActionTest extends ActionTest {
 
 	private static final File MAC_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/macosx/"); //$NON-NLS-1$
 	private static final File LINUX_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/linux/"); //$NON-NLS-1$
 	private static final File WIN_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/win/"); //$NON-NLS-1$
 	private final String EXECUTABLE_NAME = "LauncherName"; //$NON-NLS-1$
-	private Collection<IBrandingAdvice> brandingAdvice = new LinkedList<IBrandingAdvice>();
+	private Collection<IBrandingAdvice> brandingAdvice = new LinkedList<>();
 	private String macConfigCocoa = "cocoa.macosx.x86"; //$NON-NLS-1$
 	private String winConfig = "win32.win32.x86"; //$NON-NLS-1$
 	private String linuxConfig = "linux.gtk.x86"; //$NON-NLS-1$
@@ -49,6 +48,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private String id;
 	private String[] expectedExecutablesContents;
 
+	@Override
 	public void setUp() throws Exception {
 		setupPublisherInfo();
 		setupPublisherResult();
@@ -99,7 +99,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		testAction = new EquinoxExecutableAction(executablesDescriptor, config, idBase, version, flavorArg);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyResults(idBase, config);
-		debug("Completed EquinoxExecutableActionTest " + idBase + " test."); //$NON-NLS-1$ //$NON-NLS-2$		
+		debug("Completed EquinoxExecutableActionTest " + idBase + " test."); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void verifyResults(String idBase, String confSpec) {
@@ -117,13 +117,13 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		String _arch = config[2];
 		for (int i = 0; i < iuList.size(); i++) {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
-			if (possibleEclipse.getId().equals(flavorArg + idBase + ".executable." + confSpec)) {//$NON-NLS-1$ 
+			if (possibleEclipse.getId().equals(flavorArg + idBase + ".executable." + confSpec)) {//$NON-NLS-1$
 				IInstallableUnitFragment fragment = (IInstallableUnitFragment) iuList.get(i);
 				Collection<IProvidedCapability> providedCapability = fragment.getProvidedCapabilities();
-				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + confSpec, version); //$NON-NLS-1$ 
+				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + confSpec, version); //$NON-NLS-1$
 				assertTrue(providedCapability.size() == 1);
 				Collection<IRequirement> requiredCapability = fragment.getHost();
-				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
+				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 				assertTrue(requiredCapability.size() == 1);
 
 				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.ws=" + _ws + ")") != -1);
@@ -142,7 +142,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			if (possibleEclipse.getId().equals((idBase + ".executable." + confSpec + "." + EXECUTABLE_NAME))) { //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(possibleEclipse.getVersion().equals(version));
 				Collection<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
-				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec + "." + EXECUTABLE_NAME, version); //$NON-NLS-1$ //$NON-NLS-2$ 
+				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec + "." + EXECUTABLE_NAME, version); //$NON-NLS-1$ //$NON-NLS-2$
 				assertTrue(providedCapability.size() == 1);
 				Collection<IRequirement> req = possibleEclipse.getRequirements();
 				assertTrue(req.size() == 0);
@@ -167,12 +167,12 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				assertTrue(eKey.getId().equals(idBase + ".executable." + confSpec)); //$NON-NLS-1$
 				assertTrue(eKey.getVersion().equals(version));
 				Collection<IProvidedCapability> providedCapabilities = possibleExec.getProvidedCapabilities();
-				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec, version); //$NON-NLS-1$ 
+				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec, version); //$NON-NLS-1$
 				verifyProvidedCapability(providedCapabilities, flavorArg + idBase, idBase + ".executable", version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.size() == 2);
 
 				Collection<IRequirement> requiredCapability = possibleExec.getRequirements();
-				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? confSpec.substring(0, confSpec.lastIndexOf(".")) : confSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? confSpec.substring(0, confSpec.lastIndexOf(".")) : confSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				assertTrue(requiredCapability.size() == 1);
 
 				try {
@@ -212,9 +212,9 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		file.delete();
 	}
 
-	/** 
+	/**
 	 * If present, check that the Info.plist had its various values
-	 * properly rewritten. 
+	 * properly rewritten.
 	 * @param zip file to check for the Info.plist
 	 */
 	private void checkInfoPlist(ZipFile zip) {
@@ -265,6 +265,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		}
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		setupArtifactRepository();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
@@ -274,18 +275,22 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	private void setupBrandingAdvice(final String osArg, final String config, final File exec, final File icon) {
 		brandingAdvice.add(new IBrandingAdvice() {
+			@Override
 			public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
 				return true;
 			}
 
+			@Override
 			public String getOS() {
 				return osArg;
 			}
 
+			@Override
 			public String[] getIcons() {
 				return icon == null ? null : new String[] {icon.getAbsolutePath()};
 			}
 
+			@Override
 			public String getExecutableName() {
 				return EXECUTABLE_NAME;
 			}

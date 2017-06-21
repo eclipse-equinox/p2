@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,7 +51,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 	//		assertTrue(prov.satisfies(req));
 	//	}
 
-	//Test the slicer and the resolver. 
+	//Test the slicer and the resolver.
 	public void testNot4() {
 		MetadataFactory.InstallableUnitDescription iud1 = new MetadataFactory.InstallableUnitDescription();
 		iud1.setId("TestNegation4");
@@ -102,7 +102,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 
 		//Verify that the installing iu1 and iu3 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
-		Collection<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> toAdd = new ArrayList<>();
 		toAdd.add(iu1);
 		toAdd.add(iu3);
 		changeRequest2.addAll(toAdd);
@@ -182,7 +182,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		assertEquals(0, queryResultSize(slice.query(QueryUtil.createIUQuery("ProviderOf1_1_1"), new NullProgressMonitor())));
 		assertEquals(2, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
-		//Verify that the negation can not fail the resolution when the IUs satisfying the negative requirement are not there 
+		//Verify that the negation can not fail the resolution when the IUs satisfying the negative requirement are not there
 		IProfile profile = createProfile("TestProfile." + getName());
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
@@ -192,7 +192,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUAnyQuery(), null)));
 	}
 
-	//Test the slicer and the resolver. 
+	//Test the slicer and the resolver.
 	public void testNot7() {
 		MetadataFactory.InstallableUnitDescription iud1 = new MetadataFactory.InstallableUnitDescription();
 		iud1.setId("TestNegation4");
@@ -246,7 +246,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 
 		//Verify that the installing iu1 and iu3 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
-		Collection<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> toAdd = new ArrayList<>();
 		toAdd.add(iu1);
 		toAdd.add(iu3);
 		changeRequest2.addAll(toAdd);
@@ -320,7 +320,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 
 		//Verify that the installing iu1 and iu4 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
-		Collection<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> toAdd = new ArrayList<>();
 		toAdd.add(iu1);
 		toAdd.add(iu4);
 		changeRequest2.addAll(toAdd);
@@ -345,7 +345,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		assertNotOK("plan should fail", plan.getStatus());
 	}
 
-	//This test demonstrates having capabilities that are unique 
+	//This test demonstrates having capabilities that are unique
 	public void testUniqueCapability() {
 		MetadataFactory.InstallableUnitDescription iud1 = new MetadataFactory.InstallableUnitDescription();
 		iud1.setId("TestNegation4");

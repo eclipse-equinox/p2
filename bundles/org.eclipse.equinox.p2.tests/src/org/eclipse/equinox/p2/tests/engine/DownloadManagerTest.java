@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -133,14 +133,17 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	private IArtifactRequest createArtifactRequest() {
 		IArtifactRequest request = new IArtifactRequest() {
+			@Override
 			public IArtifactKey getArtifactKey() {
 				return null;
 			}
 
+			@Override
 			public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
 				//do nothing
 			}
 
+			@Override
 			public IStatus getResult() {
 				return Status.OK_STATUS;
 			}

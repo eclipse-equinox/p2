@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -40,6 +40,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	AntTaskElement root, target;
 	File buildScript, logLocation;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		buildScript = new File(getTestFolder(getName()), "build_" + getName() + ".xml");
@@ -47,6 +48,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		createBuildScript();
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		// Delete the build script
 		delete(buildScript.getParentFile());
@@ -179,7 +181,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	 * Write an element to the buildscript
 	 */
 	private void writeElement(XMLWriter writer, AntTaskElement task) {
-		// Properties ought to occur in key-value pairs 
+		// Properties ought to occur in key-value pairs
 		assertTrue("Task " + task + " should have an even number of properties", (task.attributes.size() % 2) == 0);
 
 		// Start tag
@@ -229,6 +231,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 			elements.add(element);
 		}
 
+		@Override
 		public String toString() {
 			return name;
 		}
@@ -271,7 +274,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	}
 
 	protected static List getArtifactKeys(IQueryResult<IInstallableUnit> ius) {
-		List<IArtifactKey> keys = new ArrayList<IArtifactKey>();
+		List<IArtifactKey> keys = new ArrayList<>();
 
 		for (Iterator<IInstallableUnit> iter = ius.iterator(); iter.hasNext();)
 			keys.addAll(iter.next().getArtifacts());

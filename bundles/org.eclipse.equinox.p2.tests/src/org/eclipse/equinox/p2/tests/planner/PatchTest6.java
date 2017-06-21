@@ -1,22 +1,22 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
+import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -35,6 +35,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 	IPlanner planner;
 	IEngine engine;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		a1 = createIU("A", Version.create("1.0.0"), new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, true)});
@@ -77,7 +78,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 
-		//Install a1 and p1. 
+		//Install a1 and p1.
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
 		req4.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
@@ -87,7 +88,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 		assertInstallOperand(plan4, pp1);
 		assertInstallOperand(plan4, b1);
 
-		//Install a1, c1 and p1. 
+		//Install a1, c1 and p1.
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
 		req5.addInstallableUnits(new IInstallableUnit[] {a1, c1, p1});
 		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);

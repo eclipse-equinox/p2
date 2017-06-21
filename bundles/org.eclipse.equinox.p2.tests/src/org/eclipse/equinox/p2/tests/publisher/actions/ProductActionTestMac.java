@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2012 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *   IBM - initial API and implementation
  *******************************************************************************/
@@ -45,6 +45,7 @@ public class ProductActionTestMac extends ActionTest {
 		return createNiceMock(IPublisherInfo.class);
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(RootIUAdvice.class), EasyMock.capture(rootIUAdviceCapture)));
 		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(ProductFileAdvice.class), EasyMock.capture(productFileAdviceCapture)));
@@ -53,10 +54,11 @@ public class ProductActionTestMac extends ActionTest {
 		expectLastCall().anyTimes();
 	}
 
+	@Override
 	public void setUp() throws Exception {
 		configSpec = AbstractPublisherAction.createConfigSpec("carbon", "macosx", "x86");
-		rootIUAdviceCapture = new Capture<RootIUAdvice>();
-		productFileAdviceCapture = new Capture<ProductFileAdvice>();
+		rootIUAdviceCapture = new Capture<>();
+		productFileAdviceCapture = new Capture<>();
 		setupPublisherInfo();
 		setupPublisherResult();
 	}

@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -36,7 +36,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	private static final String TYPE = "testmetadatarepo"; //$NON-NLS-1$
 	private static final String VERSION = "1"; //$NON-NLS-1$
 	private final List units = new ArrayList();
-	protected HashSet<IRepositoryReference> repositories = new HashSet<IRepositoryReference>();
+	protected HashSet<IRepositoryReference> repositories = new HashSet<>();
 
 	private static URI createLocation() {
 		try {
@@ -53,9 +53,6 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		units.addAll(Arrays.asList(ius));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addInstallableUnits(java.util.Collection)
-	 */
 	@Override
 	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		units.addAll(installableUnits);
@@ -66,24 +63,24 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		return (IInstallableUnit) (result.hasNext() ? result.next() : null);
 	}
 
-	public Object getAdapter(Class adapter) {
+	@Override
+	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == TestMetadataRepository.class || adapter == IMetadataRepository.class || adapter == IRepository.class) {
-			return this;
+			return (T) this;
 		}
 		return null;
 	}
 
+	@Override
 	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		return query.perform(units.iterator());
 	}
 
+	@Override
 	public void removeAll() {
 		units.clear();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeInstallableUnits(java.util.Collection)
-	 */
 	@Override
 	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		boolean modified = false;
@@ -92,6 +89,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		return modified;
 	}
 
+	@Override
 	public void initialize(RepositoryState state) {
 		setName(state.Name);
 		setType(state.Type);
@@ -104,6 +102,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		this.repositories.addAll(Arrays.asList(state.Repositories));
 	}
 
+	@Override
 	public synchronized void addReferences(Collection<? extends IRepositoryReference> references) {
 		assertModifiable();
 		repositories.addAll(references);
@@ -112,6 +111,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	/**
 	 * Returns a collection of {@link RepositoryReference}.
 	 */
+	@Override
 	public Collection<IRepositoryReference> getReferences() {
 		return repositories;
 	}
@@ -121,6 +121,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	 * it is not. This is suitable for use by subclasses when an attempt is made
 	 * to write to a repository.
 	 */
+	@Override
 	protected void assertModifiable() {
 	}
 }

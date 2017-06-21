@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP AG - ongoing development
@@ -32,7 +32,6 @@ import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings({"unchecked"})
 public class JREActionTest extends ActionTest {
 
 	private File J14 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.4/"); //$NON-NLS-1$
@@ -44,12 +43,13 @@ public class JREActionTest extends ActionTest {
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 	protected TestMetadataRepository metadataRepository;
 
+	@Override
 	public void setUp() throws Exception {
 		setupPublisherInfo();
 		setupPublisherResult();
 	}
 
-	// TODO this name is misleading: the test doesn't test the real Java 1.4 JRE IU but a broken local copy of the 1.4 profile 
+	// TODO this name is misleading: the test doesn't test the real Java 1.4 JRE IU but a broken local copy of the 1.4 profile
 	public void test14() throws Exception {
 		performAction(new JREAction(J14));
 
@@ -189,11 +189,11 @@ public class JREActionTest extends ActionTest {
 		assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(bar instanceof IInstallableUnitFragment);
 		Collection<IRequirement> requiredCapability = ((IInstallableUnitFragment) bar).getHost();
-		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(jreVersion, true, Version.MAX_VERSION, true)); //$NON-NLS-1$ 
+		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(jreVersion, true, Version.MAX_VERSION, true));
 		assertTrue(requiredCapability.size() == 1);
 
 		Collection<IProvidedCapability> providedCapability = bar.getProvidedCapabilities();
-		verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, "config." + id, jreVersion); //$NON-NLS-1$ 
+		verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, "config." + id, jreVersion); //$NON-NLS-1$
 		assertTrue(providedCapability.size() == 1);
 
 		assertTrue(bar.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$//$NON-NLS-2$
@@ -203,11 +203,7 @@ public class JREActionTest extends ActionTest {
 	private void verifyArtifactRepository(IArtifactKey key, File JRELocation, final String fileName) throws IOException {
 		assertTrue(artifactRepository.contains(key));
 		ByteArrayOutputStream content = new ByteArrayOutputStream();
-		FileFilter fileFilter = new FileFilter() {
-			public boolean accept(File file) {
-				return file.getName().endsWith(fileName);
-			}
-		};
+		FileFilter fileFilter = file -> file.getName().endsWith(fileName);
 		File[] contentBytes = JRELocation.listFiles(fileFilter);
 		FileUtils.copyStream(new FileInputStream(contentBytes[0]), false, content, true);
 		ZipInputStream zipInputStream = artifactRepository.getZipInputStream(key);
@@ -230,6 +226,7 @@ public class JREActionTest extends ActionTest {
 		return iu.getProvidedCapabilities();
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();

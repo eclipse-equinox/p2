@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,6 +26,7 @@ public class RepoTasksTests extends AbstractAntProvisioningTest {
 	private URI destinationRepo;
 	private URI sourceRepo;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		// Get a random location to create a repository
@@ -33,6 +34,7 @@ public class RepoTasksTests extends AbstractAntProvisioningTest {
 		sourceRepo = getTestData("error loading data", "testData/mirror/mirrorSourceRepo2").toURI();
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		// Remove repository manager references
 		getArtifactRepositoryManager().removeRepository(destinationRepo);

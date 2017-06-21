@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 compeople AG and others.
+ * Copyright (c) 2007, 2017 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ public class ArtifactOutputStreamTest extends AbstractProvisioningTest {
 	private File temp = null;
 	private File tempWritableLocation = null;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
@@ -52,6 +53,7 @@ public class ArtifactOutputStreamTest extends AbstractProvisioningTest {
 		Destination.baos = null;
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		AbstractProvisioningTest.delete(temp);
 		AbstractProvisioningTest.delete(tempWritableLocation);
@@ -140,6 +142,7 @@ public class ArtifactOutputStreamTest extends AbstractProvisioningTest {
 		static IOException ioe = null;
 		static ByteArrayOutputStream baos = null;
 
+		@Override
 		public void close() throws IOException {
 			super.close();
 			if (ioe != null) {
@@ -147,6 +150,7 @@ public class ArtifactOutputStreamTest extends AbstractProvisioningTest {
 			}
 		}
 
+		@Override
 		public void write(int b) {
 			if (baos != null)
 				baos.write(b);

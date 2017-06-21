@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2014 SAP AG and others.
+ *  Copyright (c) 2014, 2017 SAP AG and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -31,9 +31,9 @@ public class IUListFormatterTest extends TestCase {
 	public void testFormat_MultipleIUs() {
 		IUListFormatter format = new IUListFormatter("${id}=${version},${org.eclipse.equinox.p2.name}");
 		String result = format.format(asList(//
-				createIU("iu1", "1.0.0", "name", null),//
+				createIU("iu1", "1.0.0", "name", null), //
 				createIU("iu2", "2.0.0", "name2", null)//
-				));
+		));
 		assertEquals("iu1=1.0.0,name" + System.getProperty("line.separator") + "iu2=2.0.0,name2", result);
 	}
 
@@ -51,7 +51,7 @@ public class IUListFormatterTest extends TestCase {
 
 	public static void main(String[] args) {
 		IUListFormatter format = new IUListFormatter("${id=${version");
-		List<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(20000);
+		List<IInstallableUnit> ius = new ArrayList<>(20000);
 		for (int i = 0; i < 20000; i++) {
 			ius.add(createIU("iu_" + i, "1.0.0", 30));
 		}
@@ -65,7 +65,7 @@ public class IUListFormatterTest extends TestCase {
 		expect(iu.getId()).andStubReturn(id);
 		expect(iu.getVersion()).andStubReturn(Version.create(version));
 
-		final Map<String, String> properties = new HashMap<String, String>(3, 1);
+		final Map<String, String> properties = new HashMap<>(3, 1);
 		properties.put(IInstallableUnit.PROP_NAME, name);
 		properties.put(IInstallableUnit.PROP_DESCRIPTION, description);
 		expect(iu.getProperties()).andStubReturn(properties);
@@ -80,7 +80,7 @@ public class IUListFormatterTest extends TestCase {
 		expect(iu.getId()).andStubReturn(id);
 		expect(iu.getVersion()).andStubReturn(Version.create(version));
 
-		final Map<String, String> properties = new HashMap<String, String>(propCount, 1);
+		final Map<String, String> properties = new HashMap<>(propCount, 1);
 		for (int i = 0; i < propCount; i++) {
 			properties.put("prop_" + i, "propValue_" + i);
 		}
@@ -98,6 +98,7 @@ public class IUListFormatterTest extends TestCase {
 			this.map = map;
 		}
 
+		@Override
 		public T answer() throws Throwable {
 			return map.get(getCurrentArguments()[0]);
 		}

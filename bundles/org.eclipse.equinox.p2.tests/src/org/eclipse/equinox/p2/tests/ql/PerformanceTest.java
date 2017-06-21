@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -267,7 +267,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 	}
 
 	public void testSlicerPerformance() throws Exception {
-		HashMap<String, String> env = new HashMap<String, String>();
+		HashMap<String, String> env = new HashMap<>();
 		env.put("osgi.os", "linux");
 		env.put("osgi.ws", "gtk");
 		env.put("osgi.arch", "x86");
@@ -298,6 +298,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		}
 		// Check the size of the last slice to verify that it's the same as the traverse size
 		r = slice.query(new MatchQuery() {
+			@Override
 			public boolean isMatch(Object value) {
 				return true;
 			}
@@ -312,7 +313,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 	}
 
 	public void testPermissiveSlicerPerformance() throws Exception {
-		HashMap<String, String> env = new HashMap<String, String>();
+		HashMap<String, String> env = new HashMap<>();
 		//env.put("osgi.os", "linux");
 		//env.put("osgi.ws", "gtk");
 		//env.put("osgi.arch", "x86");
@@ -343,6 +344,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		}
 		// Check the size of the last slice to verify that it's the same as the traverse size
 		r = slice.query(new MatchQuery() {
+			@Override
 			public boolean isMatch(Object value) {
 				return true;
 			}
@@ -366,7 +368,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit[] gatherAvailableInstallableUnits(IQueryable queryable) {
-		ArrayList<IInstallableUnit> list = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> list = new ArrayList<>();
 		IQueryResult<IInstallableUnit> matches = queryable.query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();)
 			list.add(it.next());

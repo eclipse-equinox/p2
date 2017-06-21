@@ -1,16 +1,14 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2010 IBM Corporation and others.
+ *  Copyright (c) 2005, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.generator;
-
-import org.osgi.framework.Bundle;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -28,11 +26,13 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 public class GeneratorTests extends AbstractProvisioningTest {
 
 	protected class TestGeneratorApplication extends GeneratorApplication {
+		@Override
 		protected Object launchApplication(Map<String, Object> applicationMap) {
 			try {
 				String appId = (String) applicationMap.get(APP_ID);
@@ -79,7 +79,7 @@ public class GeneratorTests extends AbstractProvisioningTest {
 		//this also covers 220494
 		File rootFolder = getTestFolder("artifactsDeleted");
 
-		//copy some bundles over 
+		//copy some bundles over
 		File plugins = new File(rootFolder, "plugins");
 		plugins.mkdir();
 
@@ -94,7 +94,7 @@ public class GeneratorTests extends AbstractProvisioningTest {
 				continue;
 			}
 			// tycho surefire uses rather "-" instead of "_" (maven convention). PDE uses "_". We need to be P2 compatible.
-			copy("1.0 Populating input bundles.", bundleFile, new File(plugins, bundle.getSymbolicName() + "_" + bundle.getVersion() + ".jar" ));
+			copy("1.0 Populating input bundles.", bundleFile, new File(plugins, bundle.getSymbolicName() + "_" + bundle.getVersion() + ".jar"));
 		}
 
 		String[] arguments = new String[] {"-metadataRepository", rootFolder.toURL().toExternalForm().toString(), "-artifactRepository", rootFolder.toURL().toExternalForm().toString(), "-source", rootFolder.getAbsolutePath(), "-publishArtifacts", "-noDefaultIUs"};

@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2010, 2015 EclipseSource and others. All rights reserved. This
+/*******************************************************************************
+* Copyright (c) 2010, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -31,7 +31,7 @@ import org.eclipse.equinox.p2.tests.*;
 import org.hamcrest.core.IsInstanceOf;
 
 /**
- * These tests are used to verify the index.p2 file in a variety 
+ * These tests are used to verify the index.p2 file in a variety
  * of different situations
  */
 public class SiteIndexFileTest extends AbstractProvisioningTest {
@@ -41,6 +41,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 			super(ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.class));
 		}
 
+		@Override
 		public String[] sortSuffixes(String[] suffixes, URI location, String[] preferredOrder) {
 			return super.sortSuffixes(suffixes, location, preferredOrder);
 		}
@@ -258,7 +259,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	}
 
 	/*
-	 * Adds a query parameter to the end of the URI and tests that p2 can properly 
+	 * Adds a query parameter to the end of the URI and tests that p2 can properly
 	 * find the p2.index file.
 	 */
 	public void testSingleRepositoryWithQueryParams() throws Exception {
@@ -429,7 +430,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	}
 
 	/*
-	 * Tests that a location which specifies both an artifact and a metadata repository w/ an index.p2 file 
+	 * Tests that a location which specifies both an artifact and a metadata repository w/ an index.p2 file
 	 * can fully loaded
 	 */
 	public void testFullRepository() throws Exception {

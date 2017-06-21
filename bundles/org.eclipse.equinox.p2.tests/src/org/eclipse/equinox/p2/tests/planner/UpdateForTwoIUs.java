@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,12 +38,12 @@ public class UpdateForTwoIUs extends AbstractProvisioningTest {
 		IExpression expr = ExpressionUtil.parse(orExpression);
 		IMatchExpression matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
 
-		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<IMatchExpression<IInstallableUnit>>();
+		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<>();
 		updateExpression.add(matchExpression);
 		iud.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateExpression, IUpdateDescriptor.HIGH, (String) null, (URI) null));
 		iua = MetadataFactory.createInstallableUnit(iud);
 
-		Collection<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> ius = new ArrayList<>();
 		ius.add(iua);
 		URI repoURI = getTempFolder().toURI();
 		createMetadataRepository(repoURI, null).addInstallableUnits(ius);

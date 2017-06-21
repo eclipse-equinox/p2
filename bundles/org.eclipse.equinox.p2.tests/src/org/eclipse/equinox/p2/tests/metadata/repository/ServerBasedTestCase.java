@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015, Cloudsmith Inc.
+ * Copyright (c) 2006, 2017 Cloudsmith Inc. and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
  * such license is available at www.eclipse.org.
- * 
+ *
  * Contributors:
  *     Cloudsmith Inc. - Initial API and implementation.
  *     Red Hat Inc. - Bug 460967
@@ -27,6 +27,7 @@ public class ServerBasedTestCase extends TestCase {
 		super(name);
 	}
 
+	@Override
 	public void run(TestResult result) {
 		Protectable p = new ProtectedRunner(result);
 		result.runProtected(this, p);
@@ -53,11 +54,13 @@ public class ServerBasedTestCase extends TestCase {
 		AllServerTests.checkTearDown();
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		// if a test is run out or order - this must be done
 		AllServerTests.checkTearDown();
 	}
 
+	@Override
 	public void setUp() throws Exception {
 		// if a test is run out or order - this must be done
 		AllServerTests.checkSetUp();
@@ -70,6 +73,7 @@ public class ServerBasedTestCase extends TestCase {
 			this.result = result;
 		}
 
+		@Override
 		public void protect() throws Exception {
 			oneTimeSetUp();
 			basicRun(result);

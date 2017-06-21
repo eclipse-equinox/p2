@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype, Inc. and others. All rights reserved. This
+ * Copyright (c) 2011, 2017 Sonatype, Inc. and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -28,6 +28,7 @@ public class FindRootsAfterUpdate extends AbstractProvisioningTest {
 	IProfile profile;
 	IPlanner planner;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		a1 = createIU("A", Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 4.0.0)")));

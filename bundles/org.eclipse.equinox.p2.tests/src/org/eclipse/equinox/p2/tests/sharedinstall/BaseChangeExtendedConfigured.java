@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2013 Ericsson AB and others. All rights reserved. This
+ * Copyright (c) 2013, 2017 Ericsson AB and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     Ericsson AB - initial API and implementation
  *     Red Hat, Inc. - fragment support
  ******************************************************************************/
@@ -63,7 +63,7 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 		if (!exe.exists())
 			exe = new File(root, "java");
 		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
-		List<String> command = new ArrayList<String>();
+		List<String> command = new ArrayList<>();
 		Collections.addAll(command, new String[] {(new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
 		Collections.addAll(command, args);
 		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
@@ -96,6 +96,7 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature2.feature.group", "-repository", getTestRepo()}, extension);
 	}
 
+	@Override
 	protected void installVerifierInBase() {
 		setReadOnly(readOnlyBase, false);
 		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "Verifier.feature.group", "-repository", getTestRepo()});
@@ -143,7 +144,7 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 			//install verifier again
 			installVerifierInBase();
 
-			// next start is with extensions, should find zzz and verifier, and no other bundles 
+			// next start is with extensions, should find zzz and verifier, and no other bundles
 			// as base was changed and user configuration is ignored
 			Properties verificationProperties = new Properties();
 			verificationProperties.setProperty("checkPresenceOfVerifier", "true");

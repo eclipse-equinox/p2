@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2017 Sonatype, Inc and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *     IBM Corporation - ongoing development
@@ -30,7 +30,7 @@ public class Bug306279d extends AbstractProvisioningTest {
 		b2 = createIU("B", Version.createOSGi(2, 0, 0));
 		b3 = createIU("B", Version.createOSGi(3, 0, 0));
 
-		//A -ng-> B 
+		//A -ng-> B
 		IRequirement[] reqB = new IRequirement[1];
 		reqB[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, false);
 		a = createIU("A", Version.create("1.0.0"), reqB);
@@ -62,7 +62,7 @@ public class Bug306279d extends AbstractProvisioningTest {
 
 		IRequirement negationX = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "X", VersionRange.emptyRange, null, 0, 0, false);
 		IRequirement negationY = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "Y", VersionRange.emptyRange, null, 0, 0, false);
-		Collection<IRequirement> req = new ArrayList<IRequirement>();
+		Collection<IRequirement> req = new ArrayList<>();
 		req.add(negationX);
 		req.add(negationY);
 		pcr.addExtraRequirements(req);
@@ -77,7 +77,7 @@ public class Bug306279d extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		IProfile profile = createProfile(getUniqueString());
 
-		//Here we create a request that request the installation of A, X and Y. 
+		//Here we create a request that request the installation of A, X and Y.
 		IProfileChangeRequest pcr = planner.createChangeRequest(profile);
 		pcr.add(a);
 		pcr.add(x);
@@ -87,7 +87,7 @@ public class Bug306279d extends AbstractProvisioningTest {
 
 		//Negate Y to prevent its installation
 		IRequirement negationY = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "Y", VersionRange.emptyRange, null, 0, 0, false);
-		Collection<IRequirement> req = new ArrayList<IRequirement>();
+		Collection<IRequirement> req = new ArrayList<>();
 		req.add(negationY);
 		pcr.addExtraRequirements(req);
 
@@ -101,7 +101,7 @@ public class Bug306279d extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		IProfile profile = createProfile(getUniqueString());
 
-		//Here we create a request that request the installation of A, X and Y. 
+		//Here we create a request that request the installation of A, X and Y.
 		IProfileChangeRequest pcr = planner.createChangeRequest(profile);
 		pcr.add(a);
 		pcr.add(x);
@@ -111,7 +111,7 @@ public class Bug306279d extends AbstractProvisioningTest {
 
 		//Negate X to prevent its installation
 		IRequirement negationX = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "X", VersionRange.emptyRange, null, 0, 0, false);
-		Collection<IRequirement> req = new ArrayList<IRequirement>();
+		Collection<IRequirement> req = new ArrayList<>();
 		req.add(negationX);
 		pcr.addExtraRequirements(req);
 

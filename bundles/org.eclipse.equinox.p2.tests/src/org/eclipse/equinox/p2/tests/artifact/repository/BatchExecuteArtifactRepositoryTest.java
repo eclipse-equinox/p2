@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+/*******************************************************************************
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -47,14 +47,12 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
-					try {
-						assertFalse("1.0", fileContainsString(artifactXML, "foo"));
-					} catch (IOException e) {
-						fail("0.99");
-					}
+			IStatus status = repo.executeBatch(monitor -> {
+				repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
+				try {
+					assertFalse("1.0", fileContainsString(artifactXML, "foo"));
+				} catch (IOException e) {
+					fail("0.99");
 				}
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
@@ -76,6 +74,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
 					repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
@@ -112,6 +111,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
 					repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
@@ -139,6 +139,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					IArtifactDescriptor foo = createDescriptor("foo", "foo", Version.emptyVersion);
 					repo.addDescriptor(foo);
@@ -167,6 +168,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					repo.addDescriptor(createDescriptor("1", "1", Version.emptyVersion));
 					repo.addDescriptor(createDescriptor("2", "2", Version.emptyVersion));
@@ -209,6 +211,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					// empty
 				}
@@ -231,11 +234,13 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			super(getAgent(), repositoryName, location, properties);
 		}
 
+		@Override
 		public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 			executeBatch = true;
 			return super.executeBatch(runnable, monitor);
 		}
 
+		@Override
 		public void save() {
 			if (executeBatch)
 				throw new RuntimeException("foo");
@@ -254,11 +259,13 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			super(manager, location, repositoryName, properties);
 		}
 
+		@Override
 		public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 			executeBatch = true;
 			return super.executeBatch(runnable, monitor);
 		}
 
+		@Override
 		public void save() {
 			if (executeBatch)
 				throw new RuntimeException("foo");
@@ -266,13 +273,14 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 	}
 
 	/*
-	 * This tests that exceptions are properly propagated for a SimpleArtifactRepository 
+	 * This tests that exceptions are properly propagated for a SimpleArtifactRepository
 	 */
 	public void testBatchProcessingExceptionsSimple() {
 		try {
 			SimpleArtifactRepository simpleArtifactRepository = new FailingSimpleArtifactRepository("foo", new URI("http://foo.bar"), null);
 
 			IStatus status = simpleArtifactRepository.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					throw new RuntimeException("bar");
 				}
@@ -294,6 +302,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			SimpleArtifactRepository simpleArtifactRepository = new FailingSimpleArtifactRepository("foo", new URI("http://foo.bar"), null);
 
 			IStatus status = simpleArtifactRepository.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					// empty
 				}
@@ -318,6 +327,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			monitor.setCanceled(true);
 
 			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					if (monitor.isCanceled())
 						throw new OperationCanceledException();
@@ -339,6 +349,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 
 			IStatus status = compositeArtifactRepository.executeBatch(new IRunnableWithProgress() {
 
+				@Override
 				public void run(IProgressMonitor monitor) {
 					throw new RuntimeException("bar");
 				}
@@ -360,6 +371,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			FailingCompositeArtifactRepository compositeArtifactRepository = new FailingCompositeArtifactRepository(getArtifactRepositoryManager(), "foo", new URI("http://foo.bar"), null);
 
 			IStatus status = compositeArtifactRepository.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					// empty
 				}
@@ -384,11 +396,13 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			super(getAgent(), repositoryName, location, properties);
 		}
 
+		@Override
 		public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 			executeBatch = true;
 			return super.executeBatch(runnable, monitor);
 		}
 
+		@Override
 		public void save() {
 			if (executeBatch)
 				didSave = true;
@@ -403,6 +417,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			TrackSavignSimpleArtifactRepository simpleArtifactRepository = new TrackSavignSimpleArtifactRepository("foo", new URI("http://foo.bar"), null);
 			simpleArtifactRepository.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					//do nothing;
 				}
@@ -421,6 +436,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			TrackSavignSimpleArtifactRepository simpleArtifactRepository = new TrackSavignSimpleArtifactRepository("foo", new URI("http://foo.bar"), null);
 			simpleArtifactRepository.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					throw new RuntimeException();
 				}
@@ -442,6 +458,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					throw new RuntimeException();
 				}
@@ -457,7 +474,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 	}
 
 	/*
-	 * This test ensure that the simple artifact repository disables the 
+	 * This test ensure that the simple artifact repository disables the
 	 * save flag during the batch process
 	 */
 	public void testDisableSaveFlagDuringExecutionSimple() {
@@ -467,6 +484,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					Field field;
 					try {
@@ -503,6 +521,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			CompositeArtifactRepository repo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, properties);
 			repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					throw new RuntimeException();
 				}
@@ -527,6 +546,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final CompositeArtifactRepository repo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, properties);
 			repo.executeBatch(new IRunnableWithProgress() {
+				@Override
 				public void run(IProgressMonitor monitor) {
 					Field field;
 					try {

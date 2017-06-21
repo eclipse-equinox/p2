@@ -1,22 +1,21 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2010, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
-
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -34,6 +33,7 @@ public class Bug306424 extends AbstractProvisioningTest {
 		return "testData/bug306424";
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 
@@ -47,10 +47,7 @@ public class Bug306424 extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	/*
-	 * 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
-	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		File reporegistry1 = getTestData("loading planner test data", getTestDataPath());
@@ -80,7 +77,7 @@ public class Bug306424 extends AbstractProvisioningTest {
 		changeRequest.remove(b);
 
 		IRequirement negateB = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, b.getId(), new VersionRange(b.getVersion(), true, b.getVersion(), true), null, 0, 0, false);
-		Collection<IRequirement> extraReqs = new ArrayList<IRequirement>();
+		Collection<IRequirement> extraReqs = new ArrayList<>();
 		extraReqs.add(negateB);
 		changeRequest.addExtraRequirements(extraReqs);
 

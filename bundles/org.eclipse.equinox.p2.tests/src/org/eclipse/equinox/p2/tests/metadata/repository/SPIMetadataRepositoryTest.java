@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2008, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
@@ -41,6 +41,7 @@ import org.eclipse.equinox.p2.tests.StringBufferStream;
 public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	protected File repoLocation;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		String tempDir = System.getProperty("java.io.tmpdir");
@@ -49,6 +50,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		repoLocation.mkdir();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		getMetadataRepositoryManager().removeRepository(repoLocation.toURI());
 		delete(repoLocation);
@@ -81,22 +83,27 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.versionRange = versionRange;
 		}
 
+		@Override
 		public IMatchExpression<IInstallableUnit> getFilter() {
 			return this.filter;
 		}
 
+		@Override
 		public String getName() {
 			return this.name;
 		}
 
+		@Override
 		public String getNamespace() {
 			return this.namespace;
 		}
 
+		@Override
 		public VersionRange getRange() {
 			return this.versionRange;
 		}
 
+		@Override
 		public boolean isGreedy() {
 			return isGreedy;
 		}
@@ -105,6 +112,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.filter = filter == null ? null : InstallableUnit.parseFilter(filter);
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
@@ -134,14 +142,17 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return getRange().isIncluded(cap.getVersion());
 		}
 
+		@Override
 		public int getMin() {
 			return min;
 		}
 
+		@Override
 		public int getMax() {
 			return max;
 		}
 
+		@Override
 		public boolean isMatch(IInstallableUnit candidate) {
 			if (!candidate.satisfies(this))
 				return false;
@@ -153,10 +164,12 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return false;
 		}
 
+		@Override
 		public IMatchExpression<IInstallableUnit> getMatches() {
 			return ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version ~= $2)"), name, namespace, versionRange);
 		}
 
+		@Override
 		public String getDescription() {
 			return description;
 		}
@@ -174,6 +187,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.version = version;
 		}
 
+		@Override
 		public boolean equals(Object other) {
 			if (other == null)
 				return false;
@@ -187,14 +201,17 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return true;
 		}
 
+		@Override
 		public String getName() {
 			return this.name;
 		}
 
+		@Override
 		public String getNamespace() {
 			return this.namespace;
 		}
 
+		@Override
 		public Version getVersion() {
 			return this.version;
 		}
@@ -233,60 +250,74 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.providedCapabilities.add(providedCapability);
 		}
 
+		@Override
 		public Collection<IArtifactKey> getArtifacts() {
 			return artifacts;
 		}
 
+		@Override
 		public ICopyright getCopyright() {
 			return this.copyright;
 		}
 
+		@Override
 		public IMatchExpression<IInstallableUnit> getFilter() {
 			return this.filter;
 		}
 
+		@Override
 		public Collection<IInstallableUnitFragment> getFragments() {
 			return fragments;
 		}
 
+		@Override
 		public String getId() {
 			return this.id;
 		}
 
+		@Override
 		public Collection<ILicense> getLicenses() {
 			return license;
 		}
 
+		@Override
 		public Map getProperties() {
 			return this.properties;
 		}
 
+		@Override
 		public String getProperty(String key) {
 			return (String) this.properties.get(key);
 		}
 
+		@Override
 		public List<IProvidedCapability> getProvidedCapabilities() {
 			return providedCapabilities;
 		}
 
+		@Override
 		public List<IRequirement> getRequirements() {
 			return requiredCapabilities;
 		}
 
+		@Override
 		public Collection<ITouchpointData> getTouchpointData() {
 			return touchpointData;
 		}
 
+		@Override
 		public ITouchpointType getTouchpointType() {
 			if (this.touchpointType == null)
 				return ITouchpointType.NONE;
 			return this.touchpointType;
 		}
 
+		@Override
 		public IUpdateDescriptor getUpdateDescriptor() {
 			return this.updateDescriptor;
 		}
 
+		@Override
 		public Version getVersion() {
 			return this.version;
 		}
@@ -295,40 +326,49 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.isFragment;
 		}
 
+		@Override
 		public boolean isResolved() {
 			return this.isResolved;
 		}
 
+		@Override
 		public boolean isSingleton() {
 			return this.isSingleton;
 		}
 
+		@Override
 		public boolean satisfies(IRequirement candidate) {
 			return candidate.isMatch(this);
 		}
 
+		@Override
 		public IInstallableUnit unresolved() {
 			return this;
 		}
 
+		@Override
 		public int compareTo(IInstallableUnit other) {
 			if (getId().compareTo(other.getId()) == 0)
 				return (getVersion().compareTo(other.getVersion()));
 			return getId().compareTo(other.getId());
 		}
 
+		@Override
 		public List<IRequirement> getMetaRequirements() {
 			return Collections.<IRequirement> emptyList();
 		}
 
+		@Override
 		public String getProperty(String key, String locale) {
 			return getProperty(key);
 		}
 
+		@Override
 		public Collection<ILicense> getLicenses(String locale) {
 			return license;
 		}
 
+		@Override
 		public ICopyright getCopyright(String locale) {
 			return copyright;
 		}
@@ -339,6 +379,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		Map instructions = new HashMap();
 
+		@Override
 		public ITouchpointInstruction getInstruction(String instructionKey) {
 			return (ITouchpointInstruction) instructions.get(instructionKey);
 		}
@@ -347,10 +388,12 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.instructions.put(instructionKey, instruction);
 		}
 
+		@Override
 		public Map getInstructions() {
 			return this.instructions;
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
@@ -378,14 +421,17 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.importAttribute = importAttribute;
 		}
 
+		@Override
 		public String getBody() {
 			return this.body;
 		}
 
+		@Override
 		public String getImportAttribute() {
 			return this.importAttribute;
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
@@ -418,14 +464,17 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.version = version;
 		}
 
+		@Override
 		public String getId() {
 			return this.id;
 		}
 
+		@Override
 		public Version getVersion() {
 			return this.version;
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
@@ -450,14 +499,17 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.newValue = newValue2;
 		}
 
+		@Override
 		public IRequiredCapability applyOn() {
 			return applyOn;
 		}
 
+		@Override
 		public IRequiredCapability newValue() {
 			return newValue;
 		}
 
+		@Override
 		public boolean matches(IRequiredCapability toMatch) {
 			if (!toMatch.getNamespace().equals(applyOn.getNamespace()))
 				return false;
@@ -508,6 +560,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 				return null;
 		}
 
+		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
@@ -516,6 +569,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return result;
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
@@ -537,6 +591,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return true;
 		}
 
+		@Override
 		public String toString() {
 			return applyOn + " --> " + newValue; //$NON-NLS-1$
 		}
@@ -554,20 +609,24 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.location = location;
 		}
 
+		@Override
 		public String getBody() {
 			return this.body;
 		}
 
+		@Override
 		public String getUUID() {
 			if (uuid == null)
 				uuid = this.calculateLicenseDigest().toString(16);
 			return uuid;
 		}
 
+		@Override
 		public URI getLocation() {
 			return this.location;
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (obj == this)
 				return true;
@@ -616,16 +675,17 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	class AllAcceptingQuery extends MatchQuery {
+		@Override
 		public boolean isMatch(Object candidate) {
 			return true;
 		}
 	}
 
 	/**
-	 * This test cases creates an SPI implementation of an IU and writes it to a repository.  
+	 * This test cases creates an SPI implementation of an IU and writes it to a repository.
 	 * If the repository is Cached, it reads back the SPI implementation. If the repository is
 	 * not cached, it reads back the default (InstallableUnit) implementation.
-	 * 
+	 *
 	 * @throws ProvisionException
 	 */
 	public void testSPIMetadataIU() throws ProvisionException {
@@ -651,10 +711,10 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * This test cases creates an SPI IU and adds a default provided capability. It ensures that 
+	 * This test cases creates an SPI IU and adds a default provided capability. It ensures that
 	 * you can write this type of repository and read it back again.  If you read it back, and it is cached,
 	 * you get the SPI IU, otherwise you get the default (InstallableUnit) IU.
-	 * 
+	 *
 	 * @throws ProvisionException
 	 */
 	public void testProvidedCapabilitywithSPI_IU() throws ProvisionException {
@@ -690,10 +750,10 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * This test cases creates an IU and adds an SPI  required capability. It ensures that 
+	 * This test cases creates an IU and adds an SPI  required capability. It ensures that
 	 * you can write this type of repository and read it back again.  If you read it back, and it is cached,
 	 * you get the SPI Required Capability, otherwise you get the default RequiredCapability.
-	 * 
+	 *
 	 * @throws ProvisionException
 	 */
 	public void testSPIRequiredCapability() throws ProvisionException {
@@ -822,7 +882,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(patchUnit.getRequirementsChange().get(0), spiRequirementChange);
 		assertEquals(spiRequirementChange, patchUnit.getRequirementsChange().get(0));
 
-		// Check to make sure the actual objects are not equal.  This is because the repo has 
+		// Check to make sure the actual objects are not equal.  This is because the repo has
 		// been refreshed, and re-parsed, thus using the default implementations.
 		assertFalse(spiTouchpointData == unit.getTouchpointData().iterator().next());
 		assertFalse(spiRequiredCapability == unit.getRequirements().iterator().next());

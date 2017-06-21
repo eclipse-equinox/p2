@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010, Cloudsmith Inc.
+ * Copyright (c) 2006, 2017 Cloudsmith Inc. and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -24,6 +24,7 @@ public class ResumeDownloadTest extends AbstractProvisioningTest {
 	private URI repoLoc;
 	private String originalResumeProp;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		repoLoc = new URI(UPDATE_SITE);
@@ -140,16 +141,19 @@ public class ResumeDownloadTest extends AbstractProvisioningTest {
 			//
 		}
 
+		@Override
 		public void onData(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor) {
 			bytesReceived = source.getBytesReceived();
 			if (bytesReceived > 1000)
 				monitor.setCanceled(true);
 		}
 
+		@Override
 		public void onDone(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor) {
 			bytesReceived = source.getBytesReceived();
 		}
 
+		@Override
 		public void onStart(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor) {
 			entireLength = source.getFileLength();
 		}
@@ -162,14 +166,17 @@ public class ResumeDownloadTest extends AbstractProvisioningTest {
 			//
 		}
 
+		@Override
 		public void onData(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor) {
 			resumedReceived = source.getBytesReceived();
 		}
 
+		@Override
 		public void onDone(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor) {
 			/* ignore */
 		}
 
+		@Override
 		public void onStart(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor) {
 			IFileRangeSpecification spec = source.getFileRangeSpecification();
 			resumeStart = spec == null ? 0L : spec.getStartPosition();

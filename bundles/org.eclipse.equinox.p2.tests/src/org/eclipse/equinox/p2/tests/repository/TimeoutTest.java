@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010, Cloudsmith Inc.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -27,10 +27,6 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 	private static final int STREAM = 3;
 
 	protected String authTestFailMessage;
-
-	public void setUp() throws Exception {
-		super.setUp();
-	}
 
 	@Override
 	public void tearDown() throws Exception {
@@ -213,11 +209,13 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 	public class AladdinNotSavedService extends UIServices {
 		public int counter = 0;
 
+		@Override
 		public AuthenticationInfo getUsernamePassword(String location) {
 			counter++;
 			return new AuthenticationInfo("Aladdin", "open sesame", false);
 		}
 
+		@Override
 		public AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo) {
 			counter++;
 			assertEquals("Aladdin", previousInfo.getUserName());
@@ -229,6 +227,7 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 		/**
 		 * Not used
 		 */
+		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
 			return new TrustInfo(null, false, true);
 		}
@@ -243,6 +242,7 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 			theDelay = delay;
 		}
 
+		@Override
 		public void run() {
 			try {
 				Thread.sleep(theDelay);

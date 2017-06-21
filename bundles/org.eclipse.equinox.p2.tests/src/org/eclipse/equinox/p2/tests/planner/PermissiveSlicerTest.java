@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2010 IBM Corporation and others.
+ *  Copyright (c) 2005, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -65,7 +65,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 	}
 
 	public void testSliceRCPWithFilter() {
-		Map<String, String> p = new HashMap<String, String>();
+		Map<String, String> p = new HashMap<>();
 		p.put("osgi.os", "win32");
 		p.put("osgi.ws", "win32");
 		p.put("osgi.arch", "x86");
@@ -81,7 +81,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 	}
 
 	public void testStrictDependency() {
-		Map<String, String> p = new HashMap<String, String>();
+		Map<String, String> p = new HashMap<>();
 		p.put("osgi.os", "win32");
 		p.put("osgi.ws", "win32");
 		p.put("osgi.arch", "x86");
@@ -121,7 +121,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 	}
 
 	public void testValidateIU() {
-		Map<String, String> p = new HashMap<String, String>();
+		Map<String, String> p = new HashMap<>();
 		p.put("osgi.os", "win32");
 		p.put("osgi.ws", "win32");
 		p.put("osgi.arch", "x86");
@@ -142,7 +142,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 	}
 
 	public void testExtractOnlyPlatformSpecificForOnePlatform() {
-		Map<String, String> p = new HashMap<String, String>();
+		Map<String, String> p = new HashMap<>();
 		p.put("osgi.os", "win32");
 		p.put("osgi.ws", "win32");
 		p.put("osgi.arch", "x86");

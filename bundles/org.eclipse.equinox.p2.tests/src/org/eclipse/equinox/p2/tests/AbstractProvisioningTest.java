@@ -1,11 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
  ******************************************************************************/
@@ -502,7 +502,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * 	Create a basic InstallableUnitFragment with the given attributes. 
+	 * 	Create a basic InstallableUnitFragment with the given attributes.
 	 * The self and fragment provided capabilities are added to the IU.
 	 */
 	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version) {
@@ -510,7 +510,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * 	Create a basic InstallableUnitFragment with the given attributes. 
+	 * 	Create a basic InstallableUnitFragment with the given attributes.
 	 * The self and fragment provided capabilities are added to the IU.
 	 */
 	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version, IRequirement[] required, ITouchpointType tpType, ITouchpointData tpData) {
@@ -848,7 +848,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * Adds a test metadata repository to the system that provides the given units. 
+	 * Adds a test metadata repository to the system that provides the given units.
 	 * The repository will automatically be removed in the tearDown method.
 	 */
 	protected IMetadataRepository createTestMetdataRepository(IInstallableUnit[] units) {
@@ -954,6 +954,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return testFolder;
 	}
 
+	@Override
 	protected void runTest() throws Throwable {
 		super.runTest();
 
@@ -967,6 +968,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		//remove all metadata repositories created by this test
@@ -1033,6 +1035,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail(iu + " should not be present in this plan.");
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		IMetadataRepositoryManager repoMan = getMetadataRepositoryManager();
@@ -1245,11 +1248,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Assumes each array does not contain more than one IU with a given name and version.
 	 */
 	public static void assertEquals(String message, IInstallableUnit[] ius1, IInstallableUnit[] ius2) {
-		TreeSet set = new TreeSet(new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return o1.toString().compareTo(o2.toString());
-			}
-		});
+		TreeSet set = new TreeSet((o1, o2) -> o1.toString().compareTo(o2.toString()));
 		set.addAll(Arrays.asList(ius2));
 
 		for (int i = 0; i < ius1.length; i++) {
@@ -1757,6 +1756,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 */
 	public static final class ProvisioningTestRuleAdapter extends AbstractProvisioningTest implements TestRule {
 
+		@Override
 		public Statement apply(final Statement base, Description description) {
 			return new Statement() {
 				@Override

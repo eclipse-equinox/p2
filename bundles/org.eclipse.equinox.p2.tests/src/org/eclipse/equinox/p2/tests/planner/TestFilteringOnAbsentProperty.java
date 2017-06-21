@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,10 +28,11 @@ public class TestFilteringOnAbsentProperty extends AbstractProvisioningTest {
 
 	/*
 	 * This test mimics the metadata structure used to represent the macos distro in bundled shape.
-	 * The idea is that there is one IU that requires a capability. 
+	 * The idea is that there is one IU that requires a capability.
 	 * This capability is provided by two different IUs (iuA and iuABundled) with each guarded by a different filters guaranteeing that only one of the two will ever be selected.
 	 * One of the filter makes use of the (<propertyName>=*) LDAP filter that tests for the presence of a property.
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		//first IU
 		{

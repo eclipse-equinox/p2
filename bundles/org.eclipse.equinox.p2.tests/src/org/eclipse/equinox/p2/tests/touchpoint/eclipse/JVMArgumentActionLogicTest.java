@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -27,6 +27,7 @@ public class JVMArgumentActionLogicTest extends AbstractProvisioningTest {
 	private Map parameters;
 	private LauncherData launcherData;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		tempDir = new File(System.getProperty("java.io.tmpdir"), "JVMArgs");
@@ -49,6 +50,7 @@ public class JVMArgumentActionLogicTest extends AbstractProvisioningTest {
 		launcherData = manipulator.getLauncherData();
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		AbstractProvisioningTest.delete(tempDir);
 		super.tearDown();
@@ -185,7 +187,7 @@ public class JVMArgumentActionLogicTest extends AbstractProvisioningTest {
 		// Simulate a user injected value
 		launcherData.addJvmArg(userValue);
 
-		// Add a larger value 
+		// Add a larger value
 		parameters.put(ActionConstants.PARM_JVM_ARG, largeValue);
 		addAction.execute(Collections.unmodifiableMap(parameters));
 		assertTrue(Arrays.asList(launcherData.getJvmArgs()).contains(largeValue));

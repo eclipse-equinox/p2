@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2010 IBM Corporation and others.
+ *  Copyright (c) 2005, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -27,6 +27,7 @@ public class MD5Tests extends AbstractProvisioningTest {
 	File testRepo = null;
 	IArtifactRepository repo = null;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		testRepo = getTestData("Repository with MD5", "testData/artifactRepo/simpleWithMD5");
@@ -62,6 +63,7 @@ public class MD5Tests extends AbstractProvisioningTest {
 		}
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		getArtifactRepositoryManager().removeRepository(testRepo.toURI());
 		super.tearDown();

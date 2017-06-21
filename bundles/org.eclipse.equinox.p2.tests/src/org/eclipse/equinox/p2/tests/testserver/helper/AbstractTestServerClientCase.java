@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2015 Cloudsmith and others.
+ *  Copyright (c) 2009, 2017 Cloudsmith and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      Cloudsmith - initial API and implementation
  *      Red Hat Inc. - Bug 460967
@@ -28,6 +28,7 @@ public class AbstractTestServerClientCase extends TestCase {
 		super(name);
 	}
 
+	@Override
 	public void run(TestResult result) {
 		Protectable p = new ProtectedRunner(result);
 		result.runProtected(this, p);
@@ -58,11 +59,13 @@ public class AbstractTestServerClientCase extends TestCase {
 		TestServerController.checkTearDown();
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		// if a test is run out or order - this must be done
 		TestServerController.checkTearDown();
 	}
 
+	@Override
 	public void setUp() throws Exception {
 		// if a test is run out or order - this must be done
 		TestServerController.checkSetUp();
@@ -75,6 +78,7 @@ public class AbstractTestServerClientCase extends TestCase {
 			this.result = result;
 		}
 
+		@Override
 		public void protect() throws Exception {
 			oneTimeSetUp();
 			basicRun(result);
@@ -113,10 +117,12 @@ public class AbstractTestServerClientCase extends TestCase {
 
 	public class AladdinNotSavedService extends UIServices {
 
+		@Override
 		public AuthenticationInfo getUsernamePassword(String location) {
 			return new AuthenticationInfo("Aladdin", "open sesame", false);
 		}
 
+		@Override
 		public AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo) {
 			assertEquals("Aladdin", previousInfo.getUserName());
 			assertEquals("open sesame", previousInfo.getPassword());
@@ -127,6 +133,7 @@ public class AbstractTestServerClientCase extends TestCase {
 		/**
 		 * Not used
 		 */
+		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
 			return new TrustInfo(null, false, true);
 		}
@@ -139,10 +146,12 @@ public class AbstractTestServerClientCase extends TestCase {
 	 */
 	public class BadLoginService extends UIServices {
 
+		@Override
 		public AuthenticationInfo getUsernamePassword(String location) {
 			return new AuthenticationInfo("moria", "friend", false);
 		}
 
+		@Override
 		public AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo) {
 			assertEquals("moria", previousInfo.getUserName());
 			assertEquals("friend", previousInfo.getPassword());
@@ -153,6 +162,7 @@ public class AbstractTestServerClientCase extends TestCase {
 		/**
 		 * Not used
 		 */
+		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
 			return new TrustInfo(null, false, true);
 		}

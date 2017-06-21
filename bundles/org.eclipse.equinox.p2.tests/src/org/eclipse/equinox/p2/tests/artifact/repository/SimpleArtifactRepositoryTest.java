@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 compeople AG and others.
+ * Copyright (c) 2007, 2017 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	private File repositoryFile = null;
 	private URI repositoryURI = null;
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		//repository location is not used by all tests
@@ -173,6 +174,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 				this.myStatus = status;
 			}
 
+			@Override
 			public void close() throws IOException {
 				setStatus(myStatus);
 				super.close();
@@ -213,7 +215,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			status = repo.getRawArtifact(descriptor, okStep, new NullProgressMonitor());
 			out.close();
 
-			// The first warning step and the error step should be collected 
+			// The first warning step and the error step should be collected
 			assertFalse(status.isOK());
 			assertTrue("Unexpected Severity", status.matches(IStatus.ERROR));
 			assertEquals(2, status.getChildren().length);
@@ -287,26 +289,32 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			this.artifactKey = key;
 		}
 
+		@Override
 		public IArtifactKey getArtifactKey() {
 			return artifactKey;
 		}
 
+		@Override
 		public IProcessingStepDescriptor[] getProcessingSteps() {
 			return steps;
 		}
 
+		@Override
 		public Map getProperties() {
 			return properties;
 		}
 
+		@Override
 		public String getProperty(String key) {
 			return properties.getProperty(key);
 		}
 
+		@Override
 		public IArtifactRepository getRepository() {
 			return null;
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
@@ -330,6 +338,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			return true;
 		}
 
+		@Override
 		public int hashCode() {
 			String format = getProperty(FORMAT);
 
@@ -384,6 +393,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		long start = System.currentTimeMillis();
 		repo.executeBatch(new IRunnableWithProgress() {
 
+			@Override
 			public void run(IProgressMonitor monitor) throws OperationCanceledException {
 				for (int i = 0; i < 10000; i++) {
 					ArtifactDescriptor d = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a" + i, Version.create("1.0.0")));

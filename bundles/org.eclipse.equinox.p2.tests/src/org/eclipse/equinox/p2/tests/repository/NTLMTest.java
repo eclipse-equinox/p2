@@ -1,11 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010, Cloudsmith Inc.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
  * such license is available at www.eclipse.org.
  ******************************************************************************/
-
 package org.eclipse.equinox.p2.tests.repository;
 
 import java.net.URI;
@@ -23,6 +22,7 @@ public class NTLMTest extends AbstractTestServerClientCase {
 	private URI repoLoc;
 	protected String authTestFailMessage;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		mgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);

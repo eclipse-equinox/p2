@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -25,24 +25,26 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 public class Bug362692 extends AbstractPlannerTest {
 
 	// path to our data
+	@Override
 	protected String getTestDataPath() {
 		return "testData/bug362692";
 	}
 
 	// profile id
+	@Override
 	protected String getProfileId() {
 		return "bootProfile";
 	}
 
 	/*
-	 * Test data registry profiles 1320939990376 
-	 * Already installed - A1.1.1 B1.1.1 C1.1.2 D1.1.4 E1.1.4 
+	 * Test data registry profiles 1320939990376
+	 * Already installed - A1.1.1 B1.1.1 C1.1.2 D1.1.4 E1.1.4
 	 */
 	public void testInstall() {
 		IPlanner planner = createPlanner();
 
 		// this is the set of IUs we expect in the final result - highest version only
-		Set<IInstallableUnit> expected = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> expected = new HashSet<>();
 		IQueryResult queryResult = repo.query(QueryUtil.createIUQuery("PluginA", Version.createOSGi(1, 1, 1, null)), new NullProgressMonitor());
 		expected.addAll(queryResult.toSet());
 		queryResult = repo.query(QueryUtil.createIUQuery("PluginB", Version.createOSGi(1, 1, 2, null)), new NullProgressMonitor());
@@ -55,7 +57,7 @@ public class Bug362692 extends AbstractPlannerTest {
 		expected.addAll(queryResult.toSet());
 
 		// create the actual plan - install everything in the repo as optional (mimic the dropins folder)
-		Set<IInstallableUnit> toAdd = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> toAdd = new HashSet<>();
 		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		// we don't want to re-install units which are already installed in the profile so remove them. (this is what the reconciler does)
 		boolean already = false;
@@ -78,7 +80,7 @@ public class Bug362692 extends AbstractPlannerTest {
 		//		toAdd.addAll(getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toSet());
 
 		// set the metadata repositories on the provisioning context. one for the dropins and one for the shared area
-		Collection<URI> repoURLs = new ArrayList<URI>();
+		Collection<URI> repoURLs = new ArrayList<>();
 		repoURLs.add(repo.getLocation());
 		repoURLs.add(new Path(getTestDataPath()).append("shared").toFile().toURI());
 		ProvisioningContext context = getContext(repoURLs);
@@ -95,7 +97,7 @@ public class Bug362692 extends AbstractPlannerTest {
 	}
 
 	/*
-	 * All of the expected IUs should either already be installed in the profile (and not be removed) 
+	 * All of the expected IUs should either already be installed in the profile (and not be removed)
 	 * or in the list of additions.
 	 */
 	private void validate(Collection<IInstallableUnit> expected, Collection<IInstallableUnit> toAdd) {
@@ -117,7 +119,7 @@ public class Bug362692 extends AbstractPlannerTest {
 	}
 
 	/*
-	 * All of the expected IUs should either already be installed in the profile (and not be removed) 
+	 * All of the expected IUs should either already be installed in the profile (and not be removed)
 	 * or in the plan as an addition.
 	 */
 	private void validate(Collection<IInstallableUnit> expected, IProvisioningPlan plan) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,10 +29,12 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 	static String BUNDLE_JAR_DIRECTORY = "simpleConfiguratorTest/bundlesTxt2";
 	private EmbeddedEquinox equinox = null;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (equinox != null)
@@ -182,11 +184,7 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 	}
 
 	protected File[] getBundleJars(File directory) {
-		FilenameFilter bundleFilter = new FilenameFilter() {
-			public boolean accept(File directoryName, String filename) {
-				return !filename.startsWith(".") && !filename.equals("CVS");
-			}
-		};
+		FilenameFilter bundleFilter = (directoryName, filename) -> !filename.startsWith(".") && !filename.equals("CVS");
 		return directory.listFiles(bundleFilter);
 	}
 }

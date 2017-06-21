@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 Ericsson and others.
+ * Copyright (c) 2012, 2017 Ericsson and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
 
 public class SharedProfilePreferencesTestWithDataInUser extends AbstractProvisioningTest {
+	@Override
 	protected void setUp() throws Exception {
 		//We don't call super.setUp() on purpose
 

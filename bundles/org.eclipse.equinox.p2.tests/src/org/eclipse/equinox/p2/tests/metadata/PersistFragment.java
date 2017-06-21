@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2017 Sonatype, Inc and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *******************************************************************************/
@@ -23,11 +23,11 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class PersistFragment extends AbstractProvisioningTest {
 
 	public void testPersistFragmentIn35Repo() throws ProvisionException {
-		//Pre 3.6, the host requirements were also persisted as part of the requirements 
+		//Pre 3.6, the host requirements were also persisted as part of the requirements
 		IInstallableUnitFragment fragment = createIUFragment(createEclipseIU("A"), "MyHost", Version.createOSGi(1, 0, 0));
 		File repoFolder = getTempFolder();
 		IMetadataRepository repo = createMetadataRepository(repoFolder.toURI(), null);
-		Collection<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> ius = new ArrayList<>();
 		ius.add(fragment);
 		repo.addInstallableUnits(ius);
 
@@ -40,7 +40,7 @@ public class PersistFragment extends AbstractProvisioningTest {
 		assertNoContents(new File(repoFolder, "content.xml"), new String[] {"generation='2'"});
 	}
 
-	//Verify that in a 3.6 formatted IU, the host requirements are not persisted as part of the requirements 
+	//Verify that in a 3.6 formatted IU, the host requirements are not persisted as part of the requirements
 	public void testPersistFragmentIn36Repo() throws ProvisionException {
 		String orExpression = "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && (pc.name == 'org.eclipse.mylyn34' || pc.name == 'org.eclipse.mylyn35'))";
 		IExpression expr = ExpressionUtil.parse(orExpression);
@@ -50,7 +50,7 @@ public class PersistFragment extends AbstractProvisioningTest {
 		IInstallableUnitFragment fragment = createIUFragment(createEclipseIU("A"), "MyHost", Version.createOSGi(1, 0, 0), new IRequirement[] {orRequirement}, null, null);
 		File repoFolder = getTempFolder();
 		IMetadataRepository repo = createMetadataRepository(repoFolder.toURI(), null);
-		Collection<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> ius = new ArrayList<>();
 		ius.add(fragment);
 		repo.addInstallableUnits(ius);
 

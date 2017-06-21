@@ -4,7 +4,7 @@
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -30,7 +30,7 @@ public class FilterTest extends TestCase {
 				return;
 			}
 			this.dictionary = dictionary;
-			List<String> keyList = new ArrayList<String>(dictionary.size());
+			List<String> keyList = new ArrayList<>(dictionary.size());
 			for (Iterator<String> e = dictionary.keySet().iterator(); e.hasNext();) {
 				String key = e.next();
 				for (Iterator i = keyList.iterator(); i.hasNext();) {
@@ -43,14 +43,17 @@ public class FilterTest extends TestCase {
 			this.keys = keyList.toArray(new String[keyList.size()]);
 		}
 
+		@Override
 		public int compareTo(Object reference) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public Bundle getBundle() {
 			return null;
 		}
 
+		@Override
 		public Object getProperty(String k) {
 			for (int i = 0, length = keys.length; i < length; i++) {
 				String key = keys[i];
@@ -61,20 +64,19 @@ public class FilterTest extends TestCase {
 			return null;
 		}
 
+		@Override
 		public String[] getPropertyKeys() {
 			return keys.clone();
 		}
 
+		@Override
 		public Bundle[] getUsingBundles() {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public boolean isAssignableTo(Bundle bundle, String className) {
 			throw new UnsupportedOperationException();
-		}
-
-		public Dictionary getProperties() {
-			return new Hashtable(dictionary);
 		}
 	}
 
@@ -85,10 +87,12 @@ public class FilterTest extends TestCase {
 			this.value = Integer.parseInt(value);
 		}
 
+		@Override
 		public boolean equals(Object o) {
 			return o instanceof SampleComparable && value == ((SampleComparable) o).value;
 		}
 
+		@Override
 		public int compareTo(Object o) {
 			return value - ((SampleComparable) o).value;
 		}
@@ -112,7 +116,7 @@ public class FilterTest extends TestCase {
 	public void testComparable() throws Exception {
 		IFilterExpression f1 = ExpressionUtil.parseLDAP("(comparable=42)"); //$NON-NLS-1$
 		Object comp;
-		Map<String, Object> hash = new HashMap<String, Object>();
+		Map<String, Object> hash = new HashMap<>();
 
 		comp = new SampleComparable("42"); //$NON-NLS-1$
 		hash.put("comparable", comp); //$NON-NLS-1$
@@ -125,7 +129,7 @@ public class FilterTest extends TestCase {
 		assertTrue("does not match filter", f1.match(new DictionaryServiceReference(hash))); //$NON-NLS-1$
 
 		IFilterExpression f2 = ExpressionUtil.parseLDAP("(comparable=42)"); //$NON-NLS-1$
-		hash = new Hashtable<String, Object>();
+		hash = new Hashtable<>();
 
 		comp = new SampleComparable("42"); //$NON-NLS-1$
 		hash.put("comparable", comp); //$NON-NLS-1$

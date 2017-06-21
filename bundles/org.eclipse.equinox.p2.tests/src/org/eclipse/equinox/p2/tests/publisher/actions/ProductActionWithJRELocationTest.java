@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others. All rights reserved. This
+ * Copyright (c) 2011, 2017 SAP AG and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   SAP AG - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
@@ -36,7 +36,7 @@ public class ProductActionWithJRELocationTest extends AbstractProvisioningTest {
 	public void testWithJRELocationFolder() throws Exception {
 		File productFileLocation = TestData.getFile("ProductActionTest", "productWithLicense.product");
 		File jreLocation = TestData.getFile("JREActionTest", "packageVersions");
-		List<IProvidedCapability> expectedProvidedCapabilities = new ArrayList<IProvidedCapability>();
+		List<IProvidedCapability> expectedProvidedCapabilities = new ArrayList<>();
 		expectedProvidedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, "my.package", null));
 		expectedProvidedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, "my.package", Version.create("1.0.0")));
 		testTemplate(productFileLocation, jreLocation, "a.jre.test", Version.create("1.0.0"), expectedProvidedCapabilities);
@@ -45,7 +45,7 @@ public class ProductActionWithJRELocationTest extends AbstractProvisioningTest {
 	public void testWithJREProfile() throws Exception {
 		File productFileLocation = TestData.getFile("ProductActionTest", "productWithLicense.product");
 		File jreLocation = TestData.getFile("JREActionTest", "packageVersions/test-1.0.0.profile");
-		List<IProvidedCapability> expectedProvidedCapabilities = new ArrayList<IProvidedCapability>();
+		List<IProvidedCapability> expectedProvidedCapabilities = new ArrayList<>();
 		expectedProvidedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, "my.package", null));
 		expectedProvidedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, "my.package", Version.create("1.0.0")));
 		testTemplate(productFileLocation, jreLocation, "a.jre.test", Version.create("1.0.0"), expectedProvidedCapabilities);

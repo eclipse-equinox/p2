@@ -1,9 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
@@ -202,17 +202,17 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 		String c2 = "car/c.txt";
 
 		{
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put(ActionConstants.PARM_PATH, "foo");
 			testUnzip(parameters, getTempFolder(), new String[] {b1, c1}, new String[] {a, b, c});
 		}
 		{
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put(ActionConstants.PARM_PATH, "foo/");
 			testUnzip(parameters, getTempFolder(), new String[] {b1, c1}, new String[] {a, b, c});
 		}
 		{
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put(ActionConstants.PARM_PATH, "**/bar");
 			testUnzip(parameters, getTempFolder(), new String[] {c2}, new String[] {a, b, c, b1});
 		}
@@ -228,19 +228,19 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 
 		// full path
 		{
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put(ActionConstants.PARM_INCLUDE, "foo/b.txt");
 			testUnzip(parameters, getTempFolder(), new String[] {b}, new String[] {a, c});
 		}
 		// wildcarded path
 		{
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put(ActionConstants.PARM_INCLUDE, "*/b.txt");
 			testUnzip(parameters, getTempFolder(), new String[] {b}, new String[] {a, c});
 		}
 		// subdir wildcarded path
 		{
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put(ActionConstants.PARM_INCLUDE, "**/c.txt");
 			testUnzip(parameters, getTempFolder(), new String[] {c}, new String[] {a, b});
 		}
@@ -256,19 +256,19 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 
 		// full path
 		{
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put(ActionConstants.PARM_EXCLUDE, "foo/b.txt");
 			testUnzip(parameters, getTempFolder(), new String[] {a, c}, new String[] {b});
 		}
 		// wildcarded path
 		{
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put(ActionConstants.PARM_EXCLUDE, "*/b.txt");
 			testUnzip(parameters, getTempFolder(), new String[] {a, c}, new String[] {b});
 		}
 		// subdir wildcarded path
 		{
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put(ActionConstants.PARM_EXCLUDE, "**/c.txt");
 			testUnzip(parameters, getTempFolder(), new String[] {a, b}, new String[] {c});
 		}
@@ -282,7 +282,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 		String b = "foo/b.txt";
 		String c = "foo/bar/car/c.txt";
 
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_INCLUDE, "*.txt");
 		parameters.put(ActionConstants.PARM_EXCLUDE, "**/c.txt");
 		testUnzip(parameters, getTempFolder(), new String[] {a, b}, new String[] {c});
@@ -290,8 +290,8 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 
 	private void testUnzip(Map<String, String> params, File installFolder, String[] shoudlExistNames, String[] shoudlNotExistNames) {
 
-		ArrayList<File> shoudlExist = new ArrayList<File>();
-		ArrayList<File> shoudlNotExist = new ArrayList<File>();
+		ArrayList<File> shoudlExist = new ArrayList<>();
+		ArrayList<File> shoudlNotExist = new ArrayList<>();
 
 		// first check that are no files in install folder
 		for (String fileName : shoudlExistNames) {

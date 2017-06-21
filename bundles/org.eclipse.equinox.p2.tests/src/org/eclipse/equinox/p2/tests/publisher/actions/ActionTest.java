@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
@@ -26,7 +26,6 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.hamcrest.*;
 import org.junit.Assert;
 
-@SuppressWarnings({"cast", "unchecked"})
 public abstract class ActionTest extends AbstractProvisioningTest {
 	protected static final String COMMA_SEPARATOR = ","; //$NON-NLS-1$
 	protected static final String JAR = "jar";//$NON-NLS-1$
@@ -49,13 +48,13 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	public static String[] getArrayFromString(String list, String separator) {
 		if (list == null || list.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) //$NON-NLS-1$
 				result.add(token);
 		}
-		return (String[]) result.toArray(new String[result.size()]);
+		return result.toArray(new String[result.size()]);
 	}
 
 	protected void verifyProvidedCapability(Collection<IProvidedCapability> prov, String namespace, String name, Version version) {
@@ -199,7 +198,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 
 	/**
 	 * Adds an installable unit in the context visible to actions.
-	 * 
+	 *
 	 * @see AbstractPublisherAction#queryForIU
 	 */
 	protected final void addContextIU(String unitId, String unitVersion) {
@@ -209,7 +208,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 
 	/**
 	 * Adds an installable unit in the context visible to actions.
-	 * 
+	 *
 	 * @see AbstractPublisherAction#queryForIU
 	 */
 	protected final void addContextIU(String unitId, String unitVersion, String filter) {
@@ -231,6 +230,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		final IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id);
 		return new TypeSafeMatcher<IPublisherResult>() {
 
+			@Override
 			public void describeTo(Description description) {
 				description.appendText("contains a unit " + id);
 			}
@@ -247,6 +247,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		final IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id);
 		return new TypeSafeMatcher<IPublisherResult>() {
 
+			@Override
 			public void describeTo(Description description) {
 				description.appendText("contains exactly one unit " + id);
 			}

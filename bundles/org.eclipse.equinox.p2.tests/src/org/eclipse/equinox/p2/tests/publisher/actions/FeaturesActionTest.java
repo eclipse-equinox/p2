@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -49,9 +49,10 @@ public class FeaturesActionTest extends ActionTest {
 	private String FOO = "foo"; //$NON-NLS-1$
 	private Capture<ITouchpointAdvice> tpAdvice;
 
+	@Override
 	public void setUp() throws Exception {
 		testAction = new FeaturesAction(new File[] {root});
-		tpAdvice = new Capture<ITouchpointAdvice>();
+		tpAdvice = new Capture<>();
 		setupPublisherInfo();
 		setupPublisherResult();
 	}
@@ -194,7 +195,7 @@ public class FeaturesActionTest extends ActionTest {
 
 		Collection<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
 		contains(fooProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "foo.feature.jar", fooVersion); //$NON-NLS-1$
-		contains(fooProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$ 
+		contains(fooProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$
 		contains(fooProvidedCapabilities, "org.eclipse.update.feature", FOO, fooVersion); //$NON-NLS-1$
 		assertTrue(fooProvidedCapabilities.size() == 3);
 
@@ -245,8 +246,8 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(barRequiredCapabilities.size() == 0);
 
 		Collection<IProvidedCapability> barProvidedCapabilities = bar.getProvidedCapabilities();
-		contains(barProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", barVersion); //$NON-NLS-1$ 
-		contains(barProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$ 
+		contains(barProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", barVersion); //$NON-NLS-1$
+		contains(barProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$
 		contains(barProvidedCapabilities, "org.eclipse.update.feature", BAR, barVersion); //$NON-NLS-1$
 		assertTrue(barProvidedCapabilities.size() == 3);
 	}
@@ -261,6 +262,7 @@ public class FeaturesActionTest extends ActionTest {
 		TestData.assertContains(expected, actualStream, true);
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		//setup metadataRepository with barIU
 		metadataRepository = new TestMetadataRepository(getAgent(), new IInstallableUnit[] {mockIU(BAR, null)});
@@ -293,7 +295,7 @@ public class FeaturesActionTest extends ActionTest {
 	}
 
 	private ArrayList fillAdvice(ArrayList adviceCollection) {
-		Map<String, String> prop = new HashMap<String, String>();
+		Map<String, String> prop = new HashMap<>();
 		prop.put("key1", "value1"); //$NON-NLS-1$//$NON-NLS-2$
 		prop.put("key2", "value2"); //$NON-NLS-1$//$NON-NLS-2$
 		IPropertyAdvice propertyAdvice = EasyMock.createMock(IPropertyAdvice.class);

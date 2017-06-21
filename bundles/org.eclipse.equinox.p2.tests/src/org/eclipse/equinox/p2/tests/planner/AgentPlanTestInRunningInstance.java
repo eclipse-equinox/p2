@@ -1,17 +1,16 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2009, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -22,6 +21,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 	private IProfile initialProfile = null;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
@@ -32,6 +32,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		setUpSelfProfile();
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		if (initialProfile == null) {
 			tearDownSelfProfile();
@@ -267,7 +268,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(request3, ctx, new NullProgressMonitor());
 		//		assertNull(plan3.getInstallerPlan());	//TODO
 		assertOK("install actions", engine.perform(plan3.getInstallerPlan(), null));
-		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1b}); //At this point there is not 
+		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1b}); //At this point there is not
 		assertOK("install A", engine.perform(plan3, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {c, b, act2});
 	}

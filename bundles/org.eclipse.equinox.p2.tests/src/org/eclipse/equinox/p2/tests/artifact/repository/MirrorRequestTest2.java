@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
  *******************************************************************************/
@@ -53,6 +53,7 @@ public class MirrorRequestTest2 extends AbstractTestServerClientCase {
 		sourceRepository = (SimpleArtifactRepository) mgr.loadRepository(location, null);
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		IArtifactRepositoryManager mgr = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
 		mgr.removeRepository(targetLocation.toURI());
@@ -121,45 +122,54 @@ public class MirrorRequestTest2 extends AbstractTestServerClientCase {
 
 		@Override
 		public synchronized Map<String, String> getProperties() {
-			Map<String, String> newProperties = new HashMap<String, String>(super.getProperties());
+			Map<String, String> newProperties = new HashMap<>(super.getProperties());
 			newProperties.put(IRepository.PROP_MIRRORS_URL, getBaseURL() + "/mirrorrequest/mirrors.xml");
 			newProperties.put(IRepository.PROP_MIRRORS_BASE_URL, getBaseURL() + "/mirrorrequest");
 			return newProperties;
 		}
 
+		@Override
 		public boolean contains(IArtifactDescriptor descriptor) {
 			return delegate.contains(descriptor);
 		}
 
+		@Override
 		public boolean contains(IArtifactKey key) {
 			return delegate.contains(key);
 		}
 
+		@Override
 		public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 			downloadCount++;
 			return delegate.getArtifact(descriptor, destination, monitor);
 		}
 
+		@Override
 		public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 			return delegate.getArtifactDescriptors(key);
 		}
 
+		@Override
 		public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 			return delegate.getArtifacts(requests, monitor);
 		}
 
+		@Override
 		public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 			return delegate.getOutputStream(descriptor);
 		}
 
+		@Override
 		public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 			return delegate.getRawArtifact(descriptor, destination, monitor);
 		}
 
+		@Override
 		public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 			return delegate.descriptorQueryable();
 		}
 
+		@Override
 		public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 			return delegate.query(query, monitor);
 		}

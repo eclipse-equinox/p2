@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.util.ArrayList;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -28,6 +27,7 @@ public class Bug278668 extends AbstractProvisioningTest {
 	private IProfile profile;
 	private IMetadataRepository repo;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		profile = createProfile("test278668");
@@ -69,6 +69,7 @@ public class Bug278668 extends AbstractProvisioningTest {
 		repo = getMetadataRepositoryManager().loadRepository(getTestData("test data bug 278668", "testData/bug278668").toURI(), null);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		getMetadataRepositoryManager().removeRepository(getTestData("test data bug 278668", "testData/bug278668").toURI());
 		super.tearDown();

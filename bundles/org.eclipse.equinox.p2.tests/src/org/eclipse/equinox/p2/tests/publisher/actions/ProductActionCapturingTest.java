@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP AG - ongoing development
@@ -46,6 +46,7 @@ public class ProductActionCapturingTest extends ActionTest {
 		return createNiceMock(IPublisherInfo.class);
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		// capture these calls for assertions
 		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(RootIUAdvice.class), EasyMock.capture(rootIUAdviceCapture)));
@@ -58,15 +59,16 @@ public class ProductActionCapturingTest extends ActionTest {
 		expectLastCall().anyTimes();
 	}
 
+	@Override
 	public void setUp() throws Exception {
-		rootIUAdviceCapture = new Capture<RootIUAdvice>();
-		productFileAdviceCapture = new Capture<ProductFileAdvice>();
+		rootIUAdviceCapture = new Capture<>();
+		productFileAdviceCapture = new Capture<>();
 		setupPublisherInfo();
 		setupPublisherResult();
 	}
 
 	/**
-	 * Tests that a product file containing bundle configuration data produces appropriate 
+	 * Tests that a product file containing bundle configuration data produces appropriate
 	 * IConfigAdvice (start levels, auto-start).
 	 */
 	public void testSetBundleConfigData() throws Exception {

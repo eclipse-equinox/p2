@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2012 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -41,6 +41,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	private URI destinationRepo;
 	private URI artifactRepo, sliceArtifactRepo, sliceRepo, sourceRepo2, zipRepo;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		// Get a random location to create a repository
@@ -52,6 +53,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		zipRepo = getTestData("error loading data", "/testData/mirror/zippedRepo.zip").toURI();
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		// Remove repository manager references
 		getArtifactRepositoryManager().removeRepository(destinationRepo);
@@ -80,7 +82,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	}
 
 	/*
-	 * Test that it is possible to mirror when only specifying a Metadata repository 
+	 * Test that it is possible to mirror when only specifying a Metadata repository
 	 */
 	public void testMirrorMetadataOnly() {
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -754,7 +756,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 			// set verbose
 			mirror.addAttribute("verbose", String.valueOf(true));
 
-			// Create a comparator element 
+			// Create a comparator element
 			AntTaskElement comparator = new AntTaskElement("comparator");
 			comparator.addAttribute("comparator", MD5ArtifactComparator.MD5_COMPARATOR_ID);
 			comparator.addElement(getRepositoryElement(baselineLocation.toURI(), null));
@@ -786,7 +788,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	}
 
 	private Map<String, String> getSliceProperties() {
-		Map<String, String> p = new HashMap<String, String>();
+		Map<String, String> p = new HashMap<>();
 		p.put("osgi.os", "win32");
 		p.put("osgi.ws", "win32");
 		p.put("osgi.arch", "x86");

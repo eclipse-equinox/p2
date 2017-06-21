@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,7 +40,7 @@ public class Counter extends ProcessingStep {
 			return;
 
 		int code;
-		// if there is a descriptor, decide if the "bad case" is an error or info.  If no 
+		// if there is a descriptor, decide if the "bad case" is an error or info.  If no
 		// descriptor then default to error.
 		if (descriptor != null)
 			code = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
@@ -52,6 +52,7 @@ public class Counter extends ProcessingStep {
 			setStatus(new Status(code, Activator.ID, "Counter size not set"));
 	}
 
+	@Override
 	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
 		String data = descriptor.getData();
@@ -72,11 +73,13 @@ public class Counter extends ProcessingStep {
 		basicInitialize(descriptor);
 	}
 
+	@Override
 	public void write(int b) throws IOException {
 		total++;
 		getDestination().write(b);
 	}
 
+	@Override
 	public void close() throws IOException {
 		super.close();
 		if (total != size)

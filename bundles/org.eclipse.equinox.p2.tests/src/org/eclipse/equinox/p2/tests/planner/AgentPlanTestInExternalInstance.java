@@ -1,19 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2009, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
-
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -22,6 +21,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
@@ -41,6 +41,7 @@ public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
 		createProfile("installation", p);
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 		try {
@@ -283,7 +284,7 @@ public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
 		request3.removeInstallableUnits(new IInstallableUnit[] {a111});
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(request3, ctx, new NullProgressMonitor());
 		//		assertOK("install actions", engine.perform(getProfile("agent"), new PhaseSetFactory(), plan3.getInstallerPlan().getOperands(), null, null));
-		//		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1b}); //At this point there is not 
+		//		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1b}); //At this point there is not
 		assertOK("install A", engine.perform(plan3, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {c, b});
 

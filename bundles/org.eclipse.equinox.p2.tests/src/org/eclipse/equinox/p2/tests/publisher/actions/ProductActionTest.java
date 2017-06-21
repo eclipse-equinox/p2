@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP AG - ongoing development
@@ -56,11 +56,13 @@ public class ProductActionTest extends ActionTest {
 		return createNiceMock(IPublisherInfo.class);
 	}
 
+	@Override
 	public void setUp() throws Exception {
 		setupPublisherInfo();
 		setupPublisherResult();
 	}
 
+	@Override
 	public void setupPublisherInfo() {
 		PublisherInfo publisherInfoImpl = new PublisherInfo();
 		publisherInfoImpl.setArtifactRepository(artifactRepository);

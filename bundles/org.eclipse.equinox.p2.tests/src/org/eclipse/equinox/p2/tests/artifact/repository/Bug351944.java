@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2011 Wind River and others.
+ *  Copyright (c) 2011, 2017 Wind River and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Wind River - initial API and implementation
  *******************************************************************************/
@@ -64,7 +64,7 @@ public class Bug351944 extends AbstractProvisioningTest {
 			IQueryResult<IArtifactKey> allArtifactKeys = repo.query(ArtifactKeyQuery.ALL_KEYS, new NullProgressMonitor());
 			Set<IArtifactKey> keySet = allArtifactKeys.toUnmodifiableSet();
 
-			Collection<IArtifactRequest> requests = new ArrayList<IArtifactRequest>();
+			Collection<IArtifactRequest> requests = new ArrayList<>();
 			for (IArtifactKey key : keySet)
 				requests.add(artifactRepositoryManager.createMirrorRequest(key, repo, null, null));
 
@@ -90,7 +90,7 @@ public class Bug351944 extends AbstractProvisioningTest {
 	 * @return
 	 */
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository, IArtifactRequest[] requestsToProcess) {
-		ArrayList<IArtifactRequest> applicable = new ArrayList<IArtifactRequest>();
+		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
 		for (IArtifactRequest request : requestsToProcess) {
 			if (repository.contains(request.getArtifactKey()))
 				applicable.add(request);
@@ -100,7 +100,7 @@ public class Bug351944 extends AbstractProvisioningTest {
 
 	private IArtifactRequest[] getRequestsForRepository2(IArtifactRepository repository, IArtifactRequest[] requestsToProcess) {
 		Set<IArtifactKey> keys = repository.query(ArtifactKeyQuery.ALL_KEYS, new NullProgressMonitor()).toSet();
-		ArrayList<IArtifactRequest> applicable = new ArrayList<IArtifactRequest>();
+		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
 		for (IArtifactRequest request : requestsToProcess) {
 			if (keys.contains(request.getArtifactKey()))
 				applicable.add(request);

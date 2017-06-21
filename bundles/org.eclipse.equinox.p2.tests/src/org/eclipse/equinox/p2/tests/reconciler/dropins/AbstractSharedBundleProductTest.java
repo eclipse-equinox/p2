@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2010, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -40,7 +40,7 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 		//	list.add("org.eclipse.core.net.win32.x86");
 		//	list.add("org.eclipse.equinox.security.win32.x86");
 		final String[] bootstrap = new String[] { //
-		"org.eclipse.core.contenttype", //
+				"org.eclipse.core.contenttype", //
 				"org.eclipse.core.expressions", //
 				"org.eclipse.core.jobs", //
 				"org.eclipse.core.net", //
@@ -111,6 +111,7 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest#initialize()
 	 */
+	@Override
 	public void initialize() throws Exception {
 
 		// extract the platform archive to the output folder
@@ -129,11 +130,7 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 		// move all bundles (except launchers) to the shared location
 		File bundles = new File(output, "eclipse/plugins");
 		File sharedBundleLocation = new File(shared, "plugins");
-		FileFilter filter = new FileFilter() {
-			public boolean accept(File pathname) {
-				return !pathname.getName().contains("equinox.launcher");
-			}
-		};
+		FileFilter filter = pathname -> !pathname.getName().contains("equinox.launcher");
 		move("2.0", bundles, sharedBundleLocation, filter);
 
 		// update the bundles.info file to contain only the boostrap bundles

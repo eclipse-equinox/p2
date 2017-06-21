@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2010, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,17 +19,11 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class Bug302582c extends Bug302582 {
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.planner.Bug302582#getProfileId()
-	 */
 	@Override
 	protected String getProfileId() {
 		return "PlatformProfile";
 	}
 
-	/* (non-Javadoc)
-		 * @see org.eclipse.equinox.p2.tests.planner.Bug302582#getTestDataPath()
-		 */
 	@Override
 	protected String getTestDataPath() {
 		return "testData/bug302582c";
@@ -38,10 +32,11 @@ public class Bug302582c extends Bug302582 {
 	/*
 	 * Profile already contains a single optional singleton IU. Try to install 3 versions of that IU into it. (including the lower
 	 * version which is already installed)
-	 * 
+	 *
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.tests.planner.Bug302582#testInstall()
 	 */
+	@Override
 	public void testInstall() {
 		IPlanner planner = createPlanner();
 

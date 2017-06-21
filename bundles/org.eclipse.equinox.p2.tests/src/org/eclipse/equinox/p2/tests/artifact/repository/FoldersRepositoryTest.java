@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -41,11 +41,13 @@ public class FoldersRepositoryTest extends TestCase {
 		super("");
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		IProvisioningAgent agent = ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.class);
 		manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		manager = null;
 		if (testRepo != null)
@@ -67,12 +69,7 @@ public class FoldersRepositoryTest extends TestCase {
 		File sourceFolder = new File(FileLocator.toFileURL(sourceBase).getPath());
 
 		AbstractProvisioningTest.copy("0.99", sourceFolder, pluginsFolder);
-		FileFilter filter = new FileFilter() {
-
-			public boolean accept(File pathname) {
-				return !pathname.getName().equals("CVS");
-			}
-		};
+		FileFilter filter = pathname -> !pathname.getName().equals("CVS");
 		File[] fileList = pluginsFolder.listFiles(filter);
 		assertEquals(2, fileList.length);
 		for (int i = 0; i < fileList.length; i++) {

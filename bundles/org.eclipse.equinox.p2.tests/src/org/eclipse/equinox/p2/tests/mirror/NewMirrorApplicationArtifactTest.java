@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2016 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -56,9 +56,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	protected File sourceRepo3Location; //helloworldfeature + yetanotherfeature
 	protected File sourceRepo4Location; //helloworldfeature v1.0.1
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
-	 */
+	@Override
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
@@ -73,9 +71,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		delete(destRepoLocation);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#tearDown()
-	 */
+	@Override
 	@After
 	public void tearDown() throws Exception {
 		//remove all the repositories
@@ -1303,14 +1299,17 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 				manager.removeRepository(srcLocation);
 			}
 
+			@Override
 			public synchronized Iterator<IArtifactKey> everything() {
 				return ((SimpleArtifactRepository) source).everything();
 			}
 
+			@Override
 			public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 				return source.getArtifactDescriptors(key);
 			}
 
+			@Override
 			public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 				if (firstAttempt) {
 					firstAttempt = false;
@@ -1320,10 +1319,12 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 				return source.getRawArtifact(descriptor, destination, monitor);
 			}
 
+			@Override
 			public synchronized boolean contains(IArtifactDescriptor descriptor) {
 				return source.contains(descriptor);
 			}
 
+			@Override
 			public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
 				return source.query(query, monitor);
 			}

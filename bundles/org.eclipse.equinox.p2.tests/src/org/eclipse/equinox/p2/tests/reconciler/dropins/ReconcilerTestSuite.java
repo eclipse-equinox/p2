@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -37,9 +37,7 @@ public class ReconcilerTestSuite extends TestSuite {
 		return propertyToPlatformArchive;
 	}
 
-	/* (non-Javadoc)
-	 * @see junit.framework.TestSuite#tests()
-	 */
+	@Override
 	public Enumeration tests() {
 		Vector result = new Vector();
 		result.add(INITIALIZE);
@@ -49,16 +47,12 @@ public class ReconcilerTestSuite extends TestSuite {
 		return result.elements();
 	}
 
-	/* (non-Javadoc)
-	 * @see junit.framework.TestSuite#testCount()
-	 */
+	@Override
 	public int testCount() {
 		return super.testCount() + 2;
 	}
 
-	/* (non-Javadoc)
-	 * @see junit.framework.TestSuite#testAt(int)
-	 */
+	@Override
 	public Test testAt(int index) {
 		if (index == 0)
 			return INITIALIZE;
@@ -77,10 +71,11 @@ public class ReconcilerTestSuite extends TestSuite {
 
 	/**
 	 * Runs the tests and collects their result in a TestResult.
-	 * 
+	 *
 	 * We must override this method in order to run against JUnit4 which doesn't
 	 * invoke tests().
 	 */
+	@Override
 	public void run(TestResult result) {
 		for (Enumeration e = tests(); e.hasMoreElements();) {
 			Test each = (Test) e.nextElement();

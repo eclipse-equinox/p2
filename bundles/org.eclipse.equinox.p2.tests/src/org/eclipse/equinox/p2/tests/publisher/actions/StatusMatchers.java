@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ public class StatusMatchers {
 	public static Matcher<IStatus> errorStatus() {
 		return new TypeSafeMatcher<IStatus>() {
 
+			@Override
 			public void describeTo(Description description) {
 				description.appendText("a status with severity ERROR");
 			}
@@ -32,6 +33,7 @@ public class StatusMatchers {
 	public static Matcher<IStatus> okStatus() {
 		return new TypeSafeMatcher<IStatus>() {
 
+			@Override
 			public void describeTo(Description description) {
 				description.appendText("a status with severity OK");
 			}
@@ -46,6 +48,7 @@ public class StatusMatchers {
 	public static Matcher<IStatus> statusWithMessageWhich(final Matcher<String> messageMatcher) {
 		return new TypeSafeMatcher<IStatus>() {
 
+			@Override
 			public void describeTo(Description description) {
 				description.appendText("a status with a message which is ");
 				description.appendDescriptionOf(messageMatcher);

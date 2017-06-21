@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     martin.kirst@s1998.tu-chemnitz.de - fixed and improved sort algorithm tests
@@ -16,9 +16,6 @@ import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector.MirrorInfo;
 
-/**
- * 
- */
 public class MirrorSelectorTest extends TestCase {
 
 	private List<MirrorInfo> originals;
@@ -31,7 +28,7 @@ public class MirrorSelectorTest extends TestCase {
 		// This is the expected order of mirrors,
 		// doesn't matter how often you're resorting ;-)
 
-		originals = new ArrayList<MirrorSelector.MirrorInfo>();
+		originals = new ArrayList<>();
 		MirrorInfo mi = null;
 
 		mi = new MirrorInfo("http://ftp.wh2.tu-dresden.de/pub/mirrors/eclipse/", 3);
@@ -271,17 +268,17 @@ public class MirrorSelectorTest extends TestCase {
 		// This way we hopefully get sure, that contract of Comparator#compareTo
 		// is fulfilled.
 		for (int x = 0; x < 1000; x++) {
-			ArrayList<MirrorInfo> templist = new ArrayList<MirrorInfo>(originals);
+			ArrayList<MirrorInfo> templist = new ArrayList<>(originals);
 			Collections.shuffle(templist);
 			MirrorInfo[] mirrors = templist.toArray(new MirrorInfo[originals.size()]);
 			Arrays.sort(mirrors, comparator);
 			assertList(originals, mirrors);
 			/*
 			 * ================================================================
-			 * 
-			 * Because of 
+			 *
+			 * Because of
 			 * Bug 317785 - Synchronization problem in mirror selection
-			 * 
+			 *
 			 * We need an implementation of TimSort for this test.
 			 * But because of incompatibility of EPL and GPL, the TimSort
 			 * algorithm was removed.

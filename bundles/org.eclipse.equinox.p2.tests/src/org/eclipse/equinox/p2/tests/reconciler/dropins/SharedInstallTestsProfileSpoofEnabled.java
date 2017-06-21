@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2013 IBM Corporation and others.
+ *  Copyright (c) 2013, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Red Hat, Inc. - initial API and implementation
  *******************************************************************************/
@@ -33,6 +33,7 @@ public class SharedInstallTestsProfileSpoofEnabled extends SharedInstallTests {
 		super(name);
 	}
 
+	@Override
 	public void reconcileReadOnly(String message) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");

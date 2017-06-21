@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2013 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Red Hat, Inc. - fragments support added.
@@ -28,12 +28,14 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 
 	private URI destination, source;
 
+	@Override
 	public void setUp() throws Exception {
 		source = getTestData("Error loading data", "testData/mirror/mirrorSourceRepo1 with space").toURI();
 		destination = getTestFolder(getName()).toURI();
 		super.setUp();
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		getArtifactRepositoryManager().removeRepository(source);
 		getMetadataRepositoryManager().removeRepository(source);
@@ -162,7 +164,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 	}
 
 	/*
-	 * Create an AntTaskElement for the Repo2Runnabletask populated with the default source & destination 
+	 * Create an AntTaskElement for the Repo2Runnabletask populated with the default source & destination
 	 */
 	protected AntTaskElement createRepo2RunnableTaskElement(String type) {
 		AntTaskElement task = createRepo2RunnableTaskElement();

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2013 Landmark Graphics Corporation
+ * Copyright (c) 2013, 2017 Landmark Graphics Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Landmark Graphics Corporation - initial API and implementation
  *******************************************************************************/
@@ -59,8 +59,8 @@ public class VariableTest3 extends AbstractProvisioningTest {
 
 	public static class Action extends ProvisioningAction {
 		public static Object result;
-		public static ArrayList<Object> expectedInputValues = new ArrayList<Object>();
-		public static ArrayList<Object> expectedReturnValues = new ArrayList<Object>();
+		public static ArrayList<Object> expectedInputValues = new ArrayList<>();
+		public static ArrayList<Object> expectedReturnValues = new ArrayList<>();
 		public static int invocationCounter = 0;
 
 		@Override
@@ -71,10 +71,11 @@ public class VariableTest3 extends AbstractProvisioningTest {
 			return Status.OK_STATUS;
 		}
 
+		@Override
 		public Value<Object> getResult() {
 			if (Value.NO_VALUE == result)
 				return Value.NO_VALUE;
-			return new Value<Object>(result);
+			return new Value<>(result);
 		}
 
 		@Override

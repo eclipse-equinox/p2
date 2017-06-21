@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -72,12 +72,14 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		}
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		getServices();
 		//ensure we start in a clean state
 		registry.removeProfile(PROFILE_NAME);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		ungetServices();
@@ -107,7 +109,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testPropertyPeristence() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 		assertTrue(profile.getProperties().containsKey("test"));
@@ -153,7 +155,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	public void testIUPropertyPeristence() throws ProvisionException {
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("test", "test");
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
@@ -186,7 +188,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testTimestampedProfiles() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 		long oldtimestamp = profile.getTimestamp();
@@ -213,7 +215,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testIsCurrent() throws Exception {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 
@@ -300,11 +302,11 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 				simpleRgy.lockProfile(simpleProfile);
 				simpleRgy.unlockProfile(simpleProfile);
 				// Create a lock file to confirm locking
-
+		
 				File lockDirectory = new File(getResourceAsBundleRelFile("testData/engineTest/SimpleRegistry/"), SIMPLE_PROFILE + ".profile");
 				File lockFile = new File(lockDirectory, ".lock");
 				assertTrue("Lock file does not exist", lockFile.exists());
-
+		
 				ProfileLock profileLock = new ProfileLock(lockDirectory);
 				boolean locked = profileLock.lock();
 				try {
@@ -341,6 +343,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		simpleRgy.lockProfile(simpleProfile);
 		final Object lock = new Object();
 		Thread t1 = new Thread() {
+			@Override
 			public void run() {
 				try {
 					simpleRgy.unlockProfile(simpleProfile);
@@ -362,6 +365,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 			}
 		}
 		Thread t2 = new Thread() {
+			@Override
 			public void run() {
 				try {
 					simpleRgy.lockProfile(simpleProfile);
@@ -556,12 +560,14 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		}
 		File profileFolder = new File(folder, getName() + ".profile");
 		File[] filesFound = profileFolder.listFiles(new FileFilter() {
+			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().endsWith(".profile");
 			}
 		});
 		assertEquals(1, filesFound.length);
 		filesFound = profileFolder.listFiles(new FileFilter() {
+			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().endsWith(".profile.gz");
 			}
@@ -606,6 +612,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 				}
 				File profileFolder = new File(folder, getName() + ".profile");
 				profileFolder.listFiles(new FileFilter() {
+					@Override
 					public boolean accept(File pathname) {
 						if (pathname.getName().endsWith(".profile"))
 							assertEquals("2.0." + currentValue, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED, currentValue);
@@ -647,6 +654,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		File profileFolder = new File(folder, getName() + ".profile");
 		File[] filesFound = profileFolder.listFiles(new FileFilter() {
 
+			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().endsWith(".profile.gz");
 			}
@@ -656,7 +664,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testRemoveProfileTimestamps() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 		assertTrue(profile.getProperties().containsKey("test"));
@@ -697,7 +705,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		long[] states = registry.listProfileTimestamps(profile.getProfileId());
 		long goodTimestamp = states[0];
 		long badTimestamp = goodTimestamp + 1;
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("foo", "bar");
 
 		// Test invalid arguments handled as per contract
@@ -786,7 +794,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 
-		Map<String, String> profileProperties = new HashMap<String, String>();
+		Map<String, String> profileProperties = new HashMap<>();
 		profileProperties.put("profileFoo", "profileBar");
 
 		profile.addProperties(profileProperties);
@@ -796,8 +804,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		long[] states = registry.listProfileTimestamps(profile.getProfileId());
 		assertEquals(2, registry.listProfileTimestamps(profile.getProfileId()).length);
 
-		Map<String, String> stateProperties1 = new HashMap<String, String>();
-		Map<String, String> stateProperties2 = new HashMap<String, String>();
+		Map<String, String> stateProperties1 = new HashMap<>();
+		Map<String, String> stateProperties2 = new HashMap<>();
 
 		stateProperties1.put("one", "two");
 		stateProperties1.put("a", "b");
@@ -844,7 +852,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertEquals(0, result.size());
 
 		// Force the states to be pruned by causing a new state to be written.
-		Map<String, String> stateProperties3 = new HashMap<String, String>();
+		Map<String, String> stateProperties3 = new HashMap<>();
 		stateProperties3.put("AmIPruned", "yes");
 		registry.setProfileStateProperties(profile.getProfileId(), states[1], stateProperties3);
 
@@ -868,7 +876,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 
-		Map<String, String> profileProperties = new HashMap<String, String>();
+		Map<String, String> profileProperties = new HashMap<>();
 		profileProperties.put("profileFoo", "profileBar");
 
 		profile.addProperties(profileProperties);
@@ -877,8 +885,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 		long[] states = registry.listProfileTimestamps(profile.getProfileId());
 
-		Map<String, String> stateProperties1 = new HashMap<String, String>();
-		Map<String, String> stateProperties2 = new HashMap<String, String>();
+		Map<String, String> stateProperties1 = new HashMap<>();
+		Map<String, String> stateProperties2 = new HashMap<>();
 
 		stateProperties1.put("one", "two");
 		stateProperties1.put("a", "b");
@@ -923,7 +931,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(getName()));
 		Profile profile = (Profile) registry.addProfile(getName());
 
-		Map<String, String> profileProperties = new HashMap<String, String>();
+		Map<String, String> profileProperties = new HashMap<>();
 		profileProperties.put("profileFoo", "profileBar");
 
 		profile.addProperties(profileProperties);
@@ -932,8 +940,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 		long[] states = registry.listProfileTimestamps(profile.getProfileId());
 
-		Map<String, String> stateProperties1 = new HashMap<String, String>();
-		Map<String, String> stateProperties2 = new HashMap<String, String>();
+		Map<String, String> stateProperties1 = new HashMap<>();
+		Map<String, String> stateProperties2 = new HashMap<>();
 
 		stateProperties1.put("one", "two");
 		stateProperties1.put("a", "b");
@@ -991,7 +999,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(getName()));
 		Profile profile = (Profile) registry.addProfile(getName());
 
-		Map<String, String> profileProperties = new HashMap<String, String>();
+		Map<String, String> profileProperties = new HashMap<>();
 		profileProperties.put("profileFoo", "profileBar");
 
 		profile.addProperties(profileProperties);
@@ -1000,8 +1008,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 		long[] states = registry.listProfileTimestamps(profile.getProfileId());
 
-		Map<String, String> stateProperties1 = new HashMap<String, String>();
-		Map<String, String> stateProperties2 = new HashMap<String, String>();
+		Map<String, String> stateProperties1 = new HashMap<>();
+		Map<String, String> stateProperties2 = new HashMap<>();
 
 		stateProperties1.put("one", "two");
 		stateProperties1.put("a", "b");
@@ -1044,7 +1052,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(getName()));
 		Profile profile = (Profile) registry.addProfile(getName());
 
-		Map<String, String> profileProperties = new HashMap<String, String>();
+		Map<String, String> profileProperties = new HashMap<>();
 		profileProperties.put("profileFoo", "profileBar");
 
 		profile.addProperties(profileProperties);
@@ -1053,8 +1061,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 		long[] states = registry.listProfileTimestamps(profile.getProfileId());
 
-		Map<String, String> stateProperties1 = new HashMap<String, String>();
-		Map<String, String> stateProperties2 = new HashMap<String, String>();
+		Map<String, String> stateProperties1 = new HashMap<>();
+		Map<String, String> stateProperties2 = new HashMap<>();
 
 		stateProperties1.put("one", "two");
 		stateProperties1.put("a", "b");

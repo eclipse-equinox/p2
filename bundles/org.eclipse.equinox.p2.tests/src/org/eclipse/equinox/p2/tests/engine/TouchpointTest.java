@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,21 +37,25 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			testTouchpoint = this;
 		}
 
+		@Override
 		public IStatus completeOperand(IProfile profile, Map parameters) {
 			completeOperand++;
 			return super.completeOperand(profile, parameters);
 		}
 
+		@Override
 		public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 			completePhase++;
 			return super.completePhase(monitor, profile, phaseId, touchpointParameters);
 		}
 
+		@Override
 		public IStatus initializeOperand(IProfile profile, Map parameters) {
 			initializeOperand++;
 			return super.initializeOperand(profile, parameters);
 		}
 
+		@Override
 		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 			initializePhase++;
 			return super.initializePhase(monitor, profile, phaseId, touchpointParameters);
@@ -66,6 +70,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	}
 
 	public static class OperandTestTouchpoint extends TestTouchpoint {
+		@Override
 		public IStatus completeOperand(IProfile profile, Map parameters) {
 			assertEquals(1, initializeOperand);
 			assertEquals(0, completeOperand);
@@ -75,6 +80,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return null;
 		}
 
+		@Override
 		public IStatus initializeOperand(IProfile profile, Map parameters) {
 			assertEquals(0, initializeOperand);
 			assertEquals(0, completeOperand);
@@ -85,12 +91,14 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return null;
 		}
 
+		@Override
 		public String qualifyAction(String actionId) {
 			return "operandtest." + actionId;
 		}
 	}
 
 	public static class PhaseTestTouchpoint extends TestTouchpoint {
+		@Override
 		public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map parameters) {
 			assertEquals(1, initializePhase);
 			assertEquals(0, completePhase);
@@ -100,6 +108,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return null;
 		}
 
+		@Override
 		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map parameters) {
 			assertEquals(0, initializePhase);
 			assertEquals(0, completePhase);
@@ -110,6 +119,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return null;
 		}
 
+		@Override
 		public String qualifyAction(String actionId) {
 			return "phasetest." + actionId;
 		}
@@ -125,10 +135,12 @@ public class TouchpointTest extends AbstractProvisioningTest {
 		super("");
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		engine = getEngine();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		engine = null;
 	}

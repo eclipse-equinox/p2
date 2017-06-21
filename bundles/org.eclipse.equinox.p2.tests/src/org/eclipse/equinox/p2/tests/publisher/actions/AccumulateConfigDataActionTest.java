@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -40,9 +40,10 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 	Capture<ConfigAdvice> configAdviceCapture;
 	Capture<LaunchingAdvice> launchingAdviceCapture;
 
+	@Override
 	public void setUp() throws Exception {
-		configAdviceCapture = new Capture<ConfigAdvice>();
-		launchingAdviceCapture = new Capture<LaunchingAdvice>();
+		configAdviceCapture = new Capture<>();
+		launchingAdviceCapture = new Capture<>();
 		setupPublisherInfo();
 		setupPublisherResult();
 		testAction = new AccumulateConfigDataAction(publisherInfo, configSpec, configLocation, executableLocation);
@@ -95,6 +96,7 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 		fail();
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		ConfigData configData = new ConfigData(fwName, fwVersion, launcherName, launcherVersion);
 		ConfigAdvice configAdvice = new ConfigAdvice(configData, configSpec);

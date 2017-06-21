@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2012,2013 Red Hat, Inc. and others. All rights reserved. This
+ * Copyright (c) 2012,2017 Red Hat, Inc. and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *      Red Hat, Inc. - initial API and implementation
  *      Ericsson AB - ongoing development
  *      Red Hat, Inc. - fragment support
@@ -27,6 +27,7 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 	protected URL[] localConfiguration = new URL[1];
 	protected SimpleConfiguratorImpl configurator;
 
+	@Override
 	public void setUp() throws Exception {
 		relativeURL = new URL("file://bundles.info");
 		File tmp = getTempFolder();

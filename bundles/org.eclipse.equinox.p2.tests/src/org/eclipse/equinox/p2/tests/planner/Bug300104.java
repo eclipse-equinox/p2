@@ -1,19 +1,18 @@
 /*******************************************************************************
- *  Copyright (c) 2010 IBM Corporation and others.
+ *  Copyright (c) 2010, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -31,6 +30,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 	IProvisioningAgent agent = null;
 	private IProfileRegistry profileRegistry;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		File reporegistry1 = getTestData("test data bug 300104", "testData/bug300104/p2");
@@ -143,8 +143,8 @@ public class Bug300104 extends AbstractProvisioningTest {
 	}
 
 	private void applyHelloPatch2() throws ProvisionException {
-		// install newer version of feature patch which updates 
-		// hello to version 1.0.1 with later qualifier and 
+		// install newer version of feature patch which updates
+		// hello to version 1.0.1 with later qualifier and
 		// adds unit hello2 1.0.0
 		/*
 		    <unit id='hellopatch.feature.group' version='1.0.1.200911201358' singleton='false'>

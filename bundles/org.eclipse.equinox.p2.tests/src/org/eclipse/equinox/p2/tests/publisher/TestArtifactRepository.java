@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
@@ -52,6 +52,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 			this.descriptor = descriptor;
 		}
 
+		@Override
 		public void close() throws IOException {
 			if (closed)
 				return;
@@ -79,6 +80,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 			}
 		}
 
+		@Override
 		public IStatus getStatus() {
 			return status;
 		}
@@ -87,20 +89,24 @@ public class TestArtifactRepository implements IArtifactRepository {
 			return destination;
 		}
 
+		@Override
 		public void setStatus(IStatus status) {
 			this.status = status == null ? Status.OK_STATUS : status;
 		}
 
+		@Override
 		public void write(byte[] b) throws IOException {
 			destination.write(b);
 			count += b.length;
 		}
 
+		@Override
 		public void write(byte[] b, int off, int len) throws IOException {
 			destination.write(b, off, len);
 			count += len;
 		}
 
+		@Override
 		public void write(int b) throws IOException {
 			destination.write(b);
 			count++;
@@ -118,6 +124,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 		repo = new HashMap/*<IArtifactDescriptor, byte[]>*/();
 	}
 
+	@Override
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		// Check if the artifact is already in this repository
 		if (contains(descriptor)) {
@@ -126,11 +133,13 @@ public class TestArtifactRepository implements IArtifactRepository {
 		}
 		return new ArtifactOutputStream(new ByteArrayOutputStream(500), descriptor);
 	}
-	
+
+	@Override
 	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		addDescriptor(descriptor, new byte[0]);
 	}
 
+	@Override
 	@Deprecated
 	public final void addDescriptor(IArtifactDescriptor descriptor) {
 		this.addDescriptor(descriptor, new NullProgressMonitor());
@@ -140,20 +149,24 @@ public class TestArtifactRepository implements IArtifactRepository {
 		repo.put(descriptor, bytes);
 	}
 
+	@Override
 	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		for (int i = 0; i < descriptors.length; i++)
 			addDescriptor(descriptors[i]);
 	}
 
+	@Override
 	@Deprecated
 	public final void addDescriptors(IArtifactDescriptor[] descriptors) {
 		this.addDescriptors(descriptors, new NullProgressMonitor());
 	}
 
+	@Override
 	public boolean contains(IArtifactDescriptor descriptor) {
 		return repo.containsKey(descriptor);
 	}
 
+	@Override
 	public synchronized boolean contains(IArtifactKey key) {
 		for (IArtifactDescriptor descriptor : repo.keySet()) {
 			if (descriptor.getArtifactKey().equals(key))
@@ -162,6 +175,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return false;
 	}
 
+	@Override
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		try {
 			byte[] repoContents = repo.get(descriptor);
@@ -175,8 +189,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-		Set<IArtifactDescriptor> result = new HashSet<IArtifactDescriptor>();
+		Set<IArtifactDescriptor> result = new HashSet<>();
 		for (IArtifactDescriptor descriptor : repo.keySet()) {
 			if (descriptor.getArtifactKey().equals(key))
 				result.add(descriptor);
@@ -184,6 +199,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return result.toArray(new IArtifactDescriptor[0]);
 	}
 
+	@Override
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		try {
@@ -203,19 +219,22 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return artifactRequest.getResult();
 	}
 
+	@Override
 	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		repo.remove(descriptor);
 	}
 
+	@Override
 	@Deprecated
 	public final void removeDescriptor(IArtifactDescriptor descriptor) {
 		this.removeDescriptor(descriptor, new NullProgressMonitor());
 	}
 
+	@Override
 	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
-		ArrayList/*<IArtifactDescriptor>*/removeList = new ArrayList/*<IArtifactDescriptor>*/();
-		for (Iterator/*<IArtifactDescriptor>*/iterator = repo.keySet().iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
+		ArrayList<IArtifactDescriptor> removeList = new ArrayList<>();
+		for (Iterator<IArtifactDescriptor> iterator = repo.keySet().iterator(); iterator.hasNext();) {
+			IArtifactDescriptor descriptor = iterator.next();
 			if (descriptor.getArtifactKey().equals(key))
 				removeList.add(descriptor);
 		}
@@ -224,67 +243,82 @@ public class TestArtifactRepository implements IArtifactRepository {
 		}
 	}
 
+	@Override
 	@Deprecated
 	public final void removeDescriptor(IArtifactKey key) {
 		removeDescriptor(key, new NullProgressMonitor());
 	}
 
+	@Override
 	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		for (IArtifactDescriptor descriptor : descriptors)
 			removeDescriptor(descriptor);
 	}
 
+	@Override
 	@Deprecated
 	public final void removeDescriptors(IArtifactDescriptor[] descriptors) {
 		this.removeDescriptors(descriptors, new NullProgressMonitor());
 	}
 
+	@Override
 	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		for (IArtifactKey key : keys)
 			removeDescriptor(key);
 	}
 
+	@Override
 	@Deprecated
 	public final void removeDescriptors(IArtifactKey[] keys) {
 		this.removeDescriptors(keys, new NullProgressMonitor());
 	}
 
+	@Override
 	public String getDescription() {
 		return description;
 	}
 
+	@Override
 	public URI getLocation() {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public Map getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
+	@Override
 	public String getProperty(String key) {
 		return properties.get(key);
 	}
 
+	@Override
 	public String getProvider() {
 		return provider;
 	}
 
+	@Override
 	public IProvisioningAgent getProvisioningAgent() {
 		return agent;
 	}
 
+	@Override
 	public String getType() {
 		return "memoryArtifactRepo"; //$NON-NLS-1$
 	}
 
+	@Override
 	public String getVersion() {
 		return version;
 	}
 
+	@Override
 	public boolean isModifiable() {
 		return true;
 	}
@@ -297,10 +331,12 @@ public class TestArtifactRepository implements IArtifactRepository {
 		this.name = value;
 	}
 
+	@Override
 	public String setProperty(String key, String value, IProgressMonitor monitor) {
 		return (value == null ? properties.remove(key) : properties.put(key, value));
 	}
 
+	@Override
 	public final String setProperty(String key, String value) {
 		return this.setProperty(key, value, new NullProgressMonitor());
 	}
@@ -309,15 +345,18 @@ public class TestArtifactRepository implements IArtifactRepository {
 		provider = value;
 	}
 
+	@Override
 	public void removeAll(IProgressMonitor monitor) {
 		repo.clear();
 	}
 
+	@Override
 	@Deprecated
 	public final void removeAll() {
 		removeAll(new NullProgressMonitor());
 	}
 
+	@Override
 	public Object getAdapter(Class adapter) {
 		return null;
 	}
@@ -342,39 +381,46 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return repo.get(artifactDescriptor);
 	}
 
+	@Override
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		return getArtifact(descriptor, destination, monitor);
 	}
 
+	@Override
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return new ArtifactDescriptor(key);
 	}
 
+	@Override
 	public IArtifactKey createArtifactKey(String classifier, String id, Version keyVersion) {
 		return new ArtifactKey(classifier, id, keyVersion);
 	}
 
+	@Override
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		if (monitor != null && monitor.isCanceled())
 			return Collector.emptyCollector();
 
-		Collector<IArtifactKey> collector = new Collector<IArtifactKey>();
+		Collector<IArtifactKey> collector = new Collector<>();
 		for (IArtifactDescriptor descriptor : repo.keySet()) {
 			collector.accept(descriptor.getArtifactKey());
 		}
 		return collector;
 	}
 
+	@Override
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 		final Collection<IArtifactDescriptor> descs = repo.keySet();
 		return new IQueryable<IArtifactDescriptor>() {
 
+			@Override
 			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
 				return query.perform(descs.iterator());
 			}
 		};
 	}
 
+	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
 			runnable.run(monitor);

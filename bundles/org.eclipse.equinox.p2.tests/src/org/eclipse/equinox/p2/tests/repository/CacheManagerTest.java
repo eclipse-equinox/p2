@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 EclipseSource.
+ * Copyright (c) 2011, 2017 EclipseSource.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -96,10 +96,12 @@ public class CacheManagerTest extends TestCase {
 
 	private class AgentLocationMock implements IAgentLocation {
 
+		@Override
 		public URI getDataArea(final String namespace) {
 			return repositoryLocation;
 		}
 
+		@Override
 		public URI getRootLocation() {
 			// ignore
 			return null;

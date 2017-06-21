@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2013 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -110,6 +110,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 		URI repoLoc = getTestData("Load test data.", "/testData/pausefeature").toURI();
 		final PhaseSet phaseSet = (PhaseSet) PhaseSetFactory.createDefaultPhaseSet();
 		pause = new PauseJob("pause") {
+			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				if (!phaseSet.pause())
 					return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, "pause() failed.");
@@ -144,6 +145,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 			CountDownLatch latch = new CountDownLatch(1);
 			boolean canStart = false;
 
+			@Override
 			public void notify(EventObject o) {
 				if (o instanceof BeginOperationEvent) {
 					canStart = true;
@@ -242,6 +244,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 			}
 		}
 		pause = new PauseJob("pause") {
+			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				if (!phaseSet.pause())
 					return new Status(IStatus.INFO, TestActivator.PI_PROV_TESTS, "pause() failed.");
@@ -268,6 +271,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 		class ProvListener implements ProvisioningListener {
 			boolean hasDownloadEvent = false;
 
+			@Override
 			public void notify(EventObject o) {
 				if (o instanceof DownloadProgressEvent)
 					hasDownloadEvent = true;
@@ -279,6 +283,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 		try {
 
 			pause = new PauseJob("pause") {
+				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					while (!listener.hasDownloadEvent) {
 						try {
@@ -298,7 +303,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 					try {
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
-						// 
+						//
 					}
 					setPause(true);
 					return Status.OK_STATUS;

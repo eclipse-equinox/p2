@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+/*******************************************************************************
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -9,8 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import org.eclipse.equinox.p2.query.MatchQuery;
-
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.equinox.p2.query.*;
@@ -18,7 +16,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
  * This tests both Compound and Composite queries
- * 
+ *
  */
 public class AggregateQueryTest extends TestCase {
 
@@ -40,6 +38,7 @@ public class AggregateQueryTest extends TestCase {
 	public void testSymmetry() {
 		IQuery getLatest = new ContextQuery() {
 
+			@Override
 			public Collector perform(Iterator iterator) {
 				Collector result = new Collector();
 				List list = new ArrayList();
@@ -54,6 +53,7 @@ public class AggregateQueryTest extends TestCase {
 
 		IQuery getAllBut3 = new ContextQuery() {
 
+			@Override
 			public Collector perform(Iterator iterator) {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {
@@ -90,6 +90,7 @@ public class AggregateQueryTest extends TestCase {
 	public void testNonSymmetry() {
 		IQuery getLatest = new ContextQuery() {
 
+			@Override
 			public Collector perform(Iterator iterator) {
 				Collector result = new Collector();
 				List list = new ArrayList();
@@ -104,6 +105,7 @@ public class AggregateQueryTest extends TestCase {
 
 		IQuery getAllBut3 = new ContextQuery() {
 
+			@Override
 			public Collector perform(Iterator iterator) {
 				Collector result = new Collector();
 
@@ -129,6 +131,7 @@ public class AggregateQueryTest extends TestCase {
 
 	public void testIntersection() {
 		IQuery ABC = new MatchQuery() {
+			@Override
 			public boolean isMatch(Object candidate) {
 				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
 					return true;
@@ -137,6 +140,7 @@ public class AggregateQueryTest extends TestCase {
 		};
 
 		IQuery BCDE = new MatchQuery() {
+			@Override
 			public boolean isMatch(Object candidate) {
 				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))
 					return true;
@@ -153,6 +157,7 @@ public class AggregateQueryTest extends TestCase {
 
 	public void testIntersection2() {
 		IQuery ABC = new ContextQuery() {
+			@Override
 			public Collector perform(Iterator iterator) {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {
@@ -165,6 +170,7 @@ public class AggregateQueryTest extends TestCase {
 		};
 
 		IQuery BCDE = new ContextQuery() {
+			@Override
 			public Collector perform(Iterator iterator) {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {
@@ -185,6 +191,7 @@ public class AggregateQueryTest extends TestCase {
 
 	public void testUnion() {
 		IQuery ABC = new MatchQuery() {
+			@Override
 			public boolean isMatch(Object candidate) {
 				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
 					return true;
@@ -193,6 +200,7 @@ public class AggregateQueryTest extends TestCase {
 		};
 
 		IQuery BCDE = new MatchQuery() {
+			@Override
 			public boolean isMatch(Object candidate) {
 				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))
 					return true;
@@ -212,6 +220,7 @@ public class AggregateQueryTest extends TestCase {
 
 	public void testUnion2() {
 		IQuery ABC = new ContextQuery() {
+			@Override
 			public Collector perform(Iterator iterator) {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {
@@ -224,6 +233,7 @@ public class AggregateQueryTest extends TestCase {
 		};
 
 		IQuery BCDE = new ContextQuery() {
+			@Override
 			public Collector perform(Iterator iterator) {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {

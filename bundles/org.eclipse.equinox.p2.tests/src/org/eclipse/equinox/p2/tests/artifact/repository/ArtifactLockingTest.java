@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 EclipseSource and others.
+ * Copyright (c) 2011, 2017 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -31,6 +30,7 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	private SimpleArtifactRepository repo2 = null;
 	private boolean lockingValue = false;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		lockingValue = Activator.getInstance().enableArtifactLocking();
@@ -56,24 +56,17 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	public void testCancelLoad() throws InterruptedException, ProvisionException {
 		this.canContinue = false;
 		final IProgressMonitor progressMonitor = new NullProgressMonitor();
-		new Thread(new Runnable() {
-			public void run() {
-				status = repo1.executeBatch(new IRunnableWithProgress() {
-
-					public void run(IProgressMonitor monitor) throws OperationCanceledException {
-						try {
-							canContinue = true;
-							Thread.sleep(3 * 1000);
-							repo1.addDescriptor(new SimpleArtifactDescriptor(new ArtifactKey("org.eclipse.test", "test2", Version.create("1.0.0"))), new NullProgressMonitor());
-							progressMonitor.setCanceled(true);
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							// Do nothing
-						}
-					}
-				}, new NullProgressMonitor());
+		new Thread(() -> status = repo1.executeBatch(monitor -> {
+			try {
+				canContinue = true;
+				Thread.sleep(3 * 1000);
+				repo1.addDescriptor(new SimpleArtifactDescriptor(new ArtifactKey("org.eclipse.test", "test2", Version.create("1.0.0"))), new NullProgressMonitor());
+				progressMonitor.setCanceled(true);
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// Do nothing
 			}
-		}).start();
+		}, new NullProgressMonitor())).start();
 
 		while (!canContinue) {
 			Thread.sleep(100);
@@ -92,23 +85,16 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 
 	public void testWaitForLoad() throws InterruptedException, ProvisionException {
 		this.canContinue = false;
-		new Thread(new Runnable() {
-			public void run() {
-				status = repo1.executeBatch(new IRunnableWithProgress() {
+		new Thread(() -> status = repo1.executeBatch(monitor -> {
+			try {
+				canContinue = true;
+				Thread.sleep(6 * 1000);
+				repo1.addDescriptor(new SimpleArtifactDescriptor(new ArtifactKey("org.eclipse.test", "test2", Version.create("1.0.0"))), new NullProgressMonitor());
 
-					public void run(IProgressMonitor monitor) throws OperationCanceledException {
-						try {
-							canContinue = true;
-							Thread.sleep(6 * 1000);
-							repo1.addDescriptor(new SimpleArtifactDescriptor(new ArtifactKey("org.eclipse.test", "test2", Version.create("1.0.0"))), new NullProgressMonitor());
-
-						} catch (InterruptedException e) {
-							// Do nothing
-						}
-					}
-				}, new NullProgressMonitor());
+			} catch (InterruptedException e) {
+				// Do nothing
 			}
-		}).start();
+		}, new NullProgressMonitor())).start();
 
 		while (!canContinue) {
 			Thread.sleep(100);
@@ -133,43 +119,33 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 		final IProgressMonitor progressMonitor = new NullProgressMonitor();
 		this.keepRunning = true;
 
-		new Thread(new Runnable() {
-			public void run() {
-				status = repo1.executeBatch(new IRunnableWithProgress() {
-
-					public void run(IProgressMonitor monitor) throws OperationCanceledException {
-						long start = System.currentTimeMillis();
-						while (keepRunning) {
-							long current = System.currentTimeMillis();
-							if (current - start > 1000 * 10) {
-								fail("Test case never finished. Likely keep running was never set to false.");
-								return;
-							}
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								// Do nothing
-							}
-						}
-					}
-				}, new NullProgressMonitor());
-			}
-		}).start();
-
-		// Give the execute batch thread a chance to start
-		Thread.sleep(1000);
-
-		// Create a thread that will stop our progress monitor
-		Thread t = new Thread(new Runnable() {
-
-			public void run() {
+		new Thread(() -> status = repo1.executeBatch(monitor -> {
+			long start = System.currentTimeMillis();
+			while (keepRunning) {
+				long current = System.currentTimeMillis();
+				if (current - start > 1000 * 10) {
+					fail("Test case never finished. Likely keep running was never set to false.");
+					return;
+				}
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					// Do nothing
 				}
-				progressMonitor.setCanceled(true);
 			}
+		}, new NullProgressMonitor())).start();
+
+		// Give the execute batch thread a chance to start
+		Thread.sleep(1000);
+
+		// Create a thread that will stop our progress monitor
+		Thread t = new Thread(() -> {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// Do nothing
+			}
+			progressMonitor.setCanceled(true);
 		});
 		t.start();
 
@@ -186,43 +162,33 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 		final IProgressMonitor progressMonitor = new NullProgressMonitor();
 		this.keepRunning = true;
 
-		new Thread(new Runnable() {
-			public void run() {
-				status = repo1.executeBatch(new IRunnableWithProgress() {
-
-					public void run(IProgressMonitor monitor) throws OperationCanceledException {
-						long start = System.currentTimeMillis();
-						while (keepRunning) {
-							long current = System.currentTimeMillis();
-							if (current - start > 1000 * 10) {
-								fail("Test case never finished. Likely keep running was never set to false.");
-								return;
-							}
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								// Do nothing
-							}
-						}
-					}
-				}, new NullProgressMonitor());
-			}
-		}).start();
-
-		// Give the execute batch thread a chance to start
-		Thread.sleep(1000);
-
-		// Create a thread that will stop our progress monitor
-		Thread t = new Thread(new Runnable() {
-
-			public void run() {
+		new Thread(() -> status = repo1.executeBatch(monitor -> {
+			long start = System.currentTimeMillis();
+			while (keepRunning) {
+				long current = System.currentTimeMillis();
+				if (current - start > 1000 * 10) {
+					fail("Test case never finished. Likely keep running was never set to false.");
+					return;
+				}
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					// Do nothing
 				}
-				progressMonitor.setCanceled(true);
 			}
+		}, new NullProgressMonitor())).start();
+
+		// Give the execute batch thread a chance to start
+		Thread.sleep(1000);
+
+		// Create a thread that will stop our progress monitor
+		Thread t = new Thread(() -> {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// Do nothing
+			}
+			progressMonitor.setCanceled(true);
 		});
 		t.start();
 
@@ -241,55 +207,42 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	boolean lockAcquired = false;
 
 	/**
-	 * This tests that two 'executeBatch' operations are not executed in 
+	 * This tests that two 'executeBatch' operations are not executed in
 	 * parallel, but rather, the second one waits for the first to complete.
 	 * @throws InterruptedException
 	 */
 	public void testMultipleExecuteBatch() throws InterruptedException {
 		this.lockAcquired = false;
-		Thread t1 = new Thread(new Runnable() {
-			public void run() {
-				status1 = repo1.executeBatch(new IRunnableWithProgress() {
-
-					public void run(IProgressMonitor monitor) throws OperationCanceledException {
-						try {
-							if (lockAcquired)
-								throw new RuntimeException("Lock already acquired");
-							lockAcquired = true;
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								// Do nothing
-							}
-						} finally {
-							lockAcquired = false;
-						}
-					}
-				}, new NullProgressMonitor());
+		Thread t1 = new Thread(() -> status1 = repo1.executeBatch(monitor -> {
+			try {
+				if (lockAcquired)
+					throw new RuntimeException("Lock already acquired");
+				lockAcquired = true;
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// Do nothing
+				}
+			} finally {
+				lockAcquired = false;
 			}
-		});
+		}, new NullProgressMonitor()));
 		t1.start();
 
-		Thread t2 = new Thread(new Runnable() {
-			public void run() {
-				status2 = repo2.executeBatch(new IRunnableWithProgress() {
-					public void run(IProgressMonitor monitor) throws OperationCanceledException {
-						try {
-							if (lockAcquired)
-								throw new RuntimeException("Lock already acquired");
-							lockAcquired = true;
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								// Do nothing
-							}
-						} finally {
-							lockAcquired = false;
-						}
-					}
-				}, new NullProgressMonitor());
+		Thread t2 = new Thread(() -> status2 = repo2.executeBatch(monitor -> {
+			try {
+				if (lockAcquired)
+					throw new RuntimeException("Lock already acquired");
+				lockAcquired = true;
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// Do nothing
+				}
+			} finally {
+				lockAcquired = false;
 			}
-		});
+		}, new NullProgressMonitor()));
 		t2.start();
 
 		t1.join();
@@ -305,21 +258,14 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	 */
 	public void testWait() throws InterruptedException {
 
-		new Thread(new Runnable() {
-			public void run() {
-				status = repo1.executeBatch(new IRunnableWithProgress() {
-
-					public void run(IProgressMonitor monitor) throws OperationCanceledException {
-						try {
-							Thread.sleep(5000);
-						} catch (InterruptedException e) {
-							// Do nothing
-						}
-
-					}
-				}, new NullProgressMonitor());
+		new Thread(() -> status = repo1.executeBatch(monitor -> {
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// Do nothing
 			}
-		}).start();
+
+		}, new NullProgressMonitor())).start();
 
 		// Give the execute batch thread a chance to start
 		Thread.sleep(1000);

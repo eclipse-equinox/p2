@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,10 +26,10 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
  * Simple test of the engine API.
- * 
+ *
  * Note:
  * Currently you MUST have previously generated metadata from a 3.3.1 install.
- * There are ordering dependencies for the tests temporarily 
+ * There are ordering dependencies for the tests temporarily
  */
 public class EngineTest extends AbstractProvisioningTest {
 
@@ -45,26 +45,31 @@ public class EngineTest extends AbstractProvisioningTest {
 			this(name, false);
 		}
 
+		@Override
 		protected IStatus completeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 			operandCount--;
 			return super.completeOperand(profile, operand, parameters, monitor);
 		}
 
+		@Override
 		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			phaseCount--;
 			return super.completePhase(monitor, profile, parameters);
 		}
 
+		@Override
 		protected IStatus initializeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 			operandCount++;
 			return super.initializeOperand(profile, operand, parameters, monitor);
 		}
 
+		@Override
 		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			phaseCount++;
 			return super.initializePhase(monitor, profile, parameters);
 		}
 
+		@Override
 		protected List<ProvisioningAction> getActions(Operand operand) {
 			return null;
 		}
@@ -79,11 +84,13 @@ public class EngineTest extends AbstractProvisioningTest {
 			super("NPE");
 		}
 
+		@Override
 		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			super.completePhase(monitor, profile, parameters);
 			throw new NullPointerException();
 		}
 
+		@Override
 		protected List<ProvisioningAction> getActions(Operand operand) {
 			return null;
 		}
@@ -98,13 +105,16 @@ public class EngineTest extends AbstractProvisioningTest {
 			this(false);
 		}
 
+		@Override
 		protected List<ProvisioningAction> getActions(Operand operand) {
 			ProvisioningAction action = new ProvisioningAction() {
 
+				@Override
 				public IStatus undo(Map parameters) {
 					throw new NullPointerException();
 				}
 
+				@Override
 				public IStatus execute(Map parameters) {
 					throw new NullPointerException();
 				}
@@ -148,6 +158,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		return directory.delete();
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		engine = getEngine();
 		testProvisioning = new File(System.getProperty("java.io.tmpdir"), "testProvisioning");
@@ -155,6 +166,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		testProvisioning.mkdir();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		engine = null;
 		deleteDirectory(testProvisioning);
@@ -756,40 +768,49 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testIncompatibleProfile() {
 
 		IProfile profile = new IProfile() {
+			@Override
 			public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-				return new Collector<IInstallableUnit>();
+				return new Collector<>();
 			}
 
+			@Override
 			public Map getInstallableUnitProperties(IInstallableUnit iu) {
 				return null;
 			}
 
+			@Override
 			public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
 				return null;
 			}
 
+			@Override
 			public String getProfileId() {
 				return null;
 			}
 
+			@Override
 			public Map getProperties() {
 				return null;
 			}
 
+			@Override
 			public String getProperty(String key) {
 				return null;
 			}
 
+			@Override
 			public IProvisioningAgent getProvisioningAgent() {
 				return getAgent();
 			}
 
+			@Override
 			public long getTimestamp() {
 				return 0;
 			}
 
+			@Override
 			public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-				return new Collector<IInstallableUnit>();
+				return new Collector<>();
 			}
 		};
 		try {

@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2015 SAP SE and others.
+ *  Copyright (c) 2015, 2017 SAP SE and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      SAP SE - initial API and implementation
  *******************************************************************************/
@@ -53,7 +53,7 @@ public class CheckAndPromptNativePackageWindowsRegistryTest {
 		prefsNode.put(attributeName, attributeValue);
 		prefsNode.flush();
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		NativeTouchpoint touchpoint = createTouchpoint(parameters);
 		parameters.put(ActionConstants.PARM_LINUX_DISTRO, CheckAndPromptNativePackageWindowsRegistry.WINDOWS_DISTRO);
 		parameters.put(ActionConstants.PARM_LINUX_PACKAGE_NAME, "windows package");
@@ -77,7 +77,7 @@ public class CheckAndPromptNativePackageWindowsRegistryTest {
 		prefsNode.put(attributeName, attributeValue);
 		prefsNode.flush();
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		NativeTouchpoint touchpoint = createTouchpoint(parameters);
 		parameters.put(ActionConstants.PARM_LINUX_DISTRO, CheckAndPromptNativePackageWindowsRegistry.WINDOWS_DISTRO);
 		parameters.put(ActionConstants.PARM_LINUX_PACKAGE_NAME, "windows package");
@@ -101,7 +101,7 @@ public class CheckAndPromptNativePackageWindowsRegistryTest {
 		prefsNode.putInt(attributeName, attributeValue);
 		prefsNode.flush();
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		NativeTouchpoint touchpoint = createTouchpoint(parameters);
 		parameters.put(ActionConstants.PARM_LINUX_DISTRO, CheckAndPromptNativePackageWindowsRegistry.WINDOWS_DISTRO);
 		parameters.put(ActionConstants.PARM_LINUX_PACKAGE_NAME, "windows package");
@@ -125,7 +125,7 @@ public class CheckAndPromptNativePackageWindowsRegistryTest {
 		prefsNode.putInt(attributeName, attributeValue);
 		prefsNode.flush();
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		NativeTouchpoint touchpoint = createTouchpoint(parameters);
 		parameters.put(ActionConstants.PARM_LINUX_DISTRO, CheckAndPromptNativePackageWindowsRegistry.WINDOWS_DISTRO);
 		parameters.put(ActionConstants.PARM_LINUX_PACKAGE_NAME, "windows package");
@@ -145,7 +145,7 @@ public class CheckAndPromptNativePackageWindowsRegistryTest {
 
 	@Test
 	public void execute_KeyExistence() throws Exception {
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		NativeTouchpoint touchpoint = createTouchpoint(parameters);
 		parameters.put(ActionConstants.PARM_LINUX_DISTRO, CheckAndPromptNativePackageWindowsRegistry.WINDOWS_DISTRO);
 		parameters.put(ActionConstants.PARM_LINUX_PACKAGE_NAME, "windows package");
@@ -162,7 +162,7 @@ public class CheckAndPromptNativePackageWindowsRegistryTest {
 
 	@Test
 	public void execute_KeyExistence_DifferentKeys() throws Exception {
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 		NativeTouchpoint touchpoint = createTouchpoint(parameters);
 		parameters.put(ActionConstants.PARM_LINUX_DISTRO, CheckAndPromptNativePackageWindowsRegistry.WINDOWS_DISTRO);
 		parameters.put(ActionConstants.PARM_LINUX_PACKAGE_NAME, "windows package");

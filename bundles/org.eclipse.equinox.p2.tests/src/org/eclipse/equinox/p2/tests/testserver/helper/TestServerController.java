@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2016 Cloudsmith and others.
+ *  Copyright (c) 2009, 2017 Cloudsmith and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      Cloudsmith - initial API and implementation
  *      Red Hat Inc. - Bug 460967
@@ -142,12 +142,14 @@ public class TestServerController {
 
 	public static class DelegatingAuthService extends UIServices {
 
+		@Override
 		public AuthenticationInfo getUsernamePassword(String location) {
 			if (hookedAuthDialog != null)
 				return hookedAuthDialog.getUsernamePassword(location);
 			return null;
 		}
 
+		@Override
 		public AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo) {
 			if (hookedAuthDialog != null)
 				return hookedAuthDialog.getUsernamePassword(location, previousInfo);
@@ -157,6 +159,7 @@ public class TestServerController {
 		/**
 		 * Not used
 		 */
+		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
 			return new TrustInfo(null, false, true);
 		}

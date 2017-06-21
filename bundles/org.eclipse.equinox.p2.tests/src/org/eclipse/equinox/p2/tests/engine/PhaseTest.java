@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -60,28 +60,33 @@ public class PhaseTest extends AbstractProvisioningTest {
 			super(phaseId, weight);
 		}
 
+		@Override
 		protected IStatus completeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 			completeOperand = true;
 			return super.completeOperand(profile, operand, parameters, monitor);
 		}
 
+		@Override
 		protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 			parameters.put("TestPhase.initializeOperand", "true");
 			initializeOperand = true;
 			return super.initializeOperand(profile, operand, parameters, monitor);
 		}
 
+		@Override
 		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			completePhase = true;
 			return super.completePhase(monitor, profile, parameters);
 		}
 
+		@Override
 		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			parameters.put("TestPhase.initializePhase", "true");
 			initializePhase = true;
 			return super.initializePhase(monitor, profile, parameters);
 		}
 
+		@Override
 		protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 			IInstallableUnit unit = operand.second();
 			List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
@@ -111,10 +116,12 @@ public class PhaseTest extends AbstractProvisioningTest {
 		super("");
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		engine = getEngine();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		engine = null;
@@ -165,6 +172,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testInitCompletePhase() {
 		TestPhase phase = new TestPhase() {
+			@Override
 			protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 				assertFalse(parameters.containsKey("TestPhase.initializePhase"));
 				assertFalse(completePhase);
@@ -174,6 +182,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 				return null;
 			}
 
+			@Override
 			protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 				assertTrue(parameters.containsKey("TestPhase.initializePhase"));
 				assertFalse(completePhase);
@@ -195,6 +204,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testInitCompleteOperand() {
 		TestPhase phase = new TestPhase() {
+			@Override
 			protected IStatus completeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 				assertTrue(parameters.containsKey("TestPhase.initializeOperand"));
 				assertFalse(completeOperand);
@@ -204,6 +214,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 				return null;
 			}
 
+			@Override
 			protected IStatus initializeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 				assertFalse(parameters.containsKey("TestPhase.initializeOperand"));
 				assertFalse(completeOperand);
@@ -226,6 +237,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testGetProfileDataArea() {
 		TestPhase phase = new TestPhase() {
+			@Override
 			protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 				File profileDataArea = (File) parameters.get("profileDataDirectory");
 				assertTrue(profileDataArea.isDirectory());
@@ -240,6 +252,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 				return super.initializePhase(monitor, profile, parameters);
 			}
 
+			@Override
 			protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 				File profileDataArea = (File) parameters.get("profileDataDirectory");
 				assertTrue(profileDataArea.isDirectory());
@@ -263,10 +276,12 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public static class TestAction extends ProvisioningAction {
 
+		@Override
 		public IStatus execute(Map parameters) {
 			return null;
 		}
 
+		@Override
 		public IStatus undo(Map parameters) {
 			return null;
 		}
@@ -275,6 +290,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 	public void testGetAction() {
 		final ArrayList actionsList1 = new ArrayList();
 		InstallableUnitPhase phase1 = new InstallableUnitPhase("test", 1) {
+			@Override
 			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 				List<ProvisioningAction> actions = getActions(operand.second(), "test1");
 				actionsList1.addAll(actions);
@@ -283,6 +299,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		};
 		final ArrayList actionsList2 = new ArrayList();
 		InstallableUnitPhase phase2 = new InstallableUnitPhase("test", 1) {
+			@Override
 			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 				List<ProvisioningAction> actions = getActions(operand.second(), "test2");
 				actionsList2.addAll(actions);
@@ -349,6 +366,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		class TestListener implements ProvisioningListener {
 			boolean collectEvent = false;
 
+			@Override
 			public void notify(EventObject o) {
 				if (o instanceof CollectEvent)
 					collectEvent = true;

@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -24,7 +24,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
@@ -52,6 +51,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		return new TestSuite(MetadataRepositoryManagerTest.class);
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
@@ -59,6 +59,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		FailingMetadataRepositoryFactory.FAIL = true;
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		for (Iterator it = toDelete.iterator(); it.hasNext();)
@@ -115,7 +116,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	/**
 	 * Adds a repository that has a non-standard (non ECF) scheme.  This should
 	 * return REPOSITORY_NOT_FOUND, since any other status code gets logged.
-	 * 
+	 *
 	 * @throws URISyntaxException
 	 */
 	public void testFailedConnection() throws URISyntaxException {
@@ -221,7 +222,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testLoadContention() {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
 		final URI location = site.toURI();
-		final List<Exception> failures = new ArrayList<Exception>();
+		final List<Exception> failures = new ArrayList<>();
 		final IMetadataRepositoryManager repoManager = getMetadataRepositoryManager();
 		class LoadJob extends Job {
 			LoadJob() {
@@ -471,15 +472,13 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testRepositoryReferenceCompatibility() throws URISyntaxException {
 		File site = getTestData("Repository", "/testData/metadataRepo/unencodedreporeferences/");
 		URI location = site.toURI();
-		final List references = new ArrayList();
-		ProvisioningListener referenceCollector = new SynchronousProvisioningListener() {
-			public void notify(EventObject o) {
-				if (!(o instanceof RepositoryEvent))
-					return;
-				RepositoryEvent event = (RepositoryEvent) o;
-				if (event.getKind() == RepositoryEvent.DISCOVERED)
-					references.add(event.getRepositoryLocation());
-			}
+		final List<URI> references = new ArrayList<>();
+		SynchronousProvisioningListener referenceCollector = o -> {
+			if (!(o instanceof RepositoryEvent))
+				return;
+			RepositoryEvent event = (RepositoryEvent) o;
+			if (event.getKind() == RepositoryEvent.DISCOVERED)
+				references.add(event.getRepositoryLocation());
 		};
 		getEventBus().addListener(referenceCollector);
 		try {

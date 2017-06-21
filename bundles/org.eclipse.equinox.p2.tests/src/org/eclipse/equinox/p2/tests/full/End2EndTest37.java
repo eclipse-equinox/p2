@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2011 IBM Corporation and others.
+ *  Copyright (c) 2011, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.metadata.VersionedId;
  */
 public class End2EndTest37 extends AbstractEnd2EndTest {
 
+	@Override
 	protected void validateInstallContent(File installFolder) {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
@@ -53,14 +54,17 @@ public class End2EndTest37 extends AbstractEnd2EndTest {
 
 	}
 
+	@Override
 	protected URI getRepositoryLocation() {
 		return URI.create("http://download.eclipse.org/eclipse/updates/3.7");
 	}
 
+	@Override
 	protected VersionedId getPlatform() {
 		return new VersionedId("org.eclipse.platform.ide", "3.7.0.I20110613-1736");
 	}
 
+	@Override
 	protected VersionedId getPlatformSource() {
 		return new VersionedId("org.eclipse.platform.source.feature.group", "3.7.0.v20110530-9gF7UHNFFt4cwE-pkZDJ7oz-mj4OSEIlu9SEv0f");
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,6 +76,7 @@ public class EmbeddedEquinox {
 			this.embeddedBundleLoader = parent;
 		}
 
+		@Override
 		protected Class findClass(String name) throws ClassNotFoundException {
 			if (name.startsWith("org.osgi.framework.") || name.startsWith("org.osgi.resource."))
 				// TODO this should call findClass; but then have to use reflection!!
@@ -83,6 +84,7 @@ public class EmbeddedEquinox {
 			return super.findClass(name);
 		}
 
+		@Override
 		public URL findResource(String name) {
 			if (name.startsWith("org/osgi/framework/") || name.startsWith("org/osgi/resource/"))
 				// TODO this should call findResource; but then have to use reflection!!
@@ -90,6 +92,7 @@ public class EmbeddedEquinox {
 			return super.findResource(name);
 		}
 
+		@Override
 		public Enumeration findResources(String name) throws IOException {
 			if (name.startsWith("org/osgi/framework/") || name.startsWith("org/osgi/resource/"))
 				// TODO this should call findResources; but then have to use reflection!!

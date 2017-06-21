@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -49,6 +49,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 	private int childCount = 0;
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		//repository location is not used by all tests
@@ -1019,7 +1020,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	/*
-	 * Test a retry request by a child composite repository 
+	 * Test a retry request by a child composite repository
 	 */
 	public void testChildRetryRequest() {
 		class BadMirrorSite extends TestArtifactRepository {
@@ -1030,16 +1031,19 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 				addToRepositoryManager();
 			}
 
+			@Override
 			public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream out, IProgressMonitor monitor) {
 				if (++downloadAttempts == 1)
 					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {new Status(IStatus.ERROR, "Test", "Test - Download interrupted")}, "Retry another mirror", null);
 				return Status.OK_STATUS;
 			}
 
+			@Override
 			public boolean contains(IArtifactDescriptor desc) {
 				return true;
 			}
 
+			@Override
 			public boolean contains(IArtifactKey desc) {
 				return true;
 			}
@@ -1095,16 +1099,19 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 				super(getAgent(), location);
 			}
 
+			@Override
 			public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream out, IProgressMonitor monitor) {
 				super.getArtifact(descriptor, out, monitor);
 				return new Status(IStatus.ERROR, "Test", "Test - Download interrupted");
 			}
 
+			@Override
 			public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 				super.addDescriptor(descriptor, monitor);
 				super.addArtifact(descriptor.getArtifactKey(), contents);
 			}
 
+			@Override
 			public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 				try {
 					return new FileOutputStream(location);
@@ -1364,10 +1371,12 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	protected IArtifactRepository createChild() {
 		try {
 			TestArtifactRepository repo = new TestArtifactRepository(getAgent(), new URI("memory:/in/memory/" + childCount++)) {
+				@Override
 				public boolean contains(IArtifactDescriptor desc) {
 					return true;
 				}
 
+				@Override
 				public boolean contains(IArtifactKey desc) {
 					return true;
 				}

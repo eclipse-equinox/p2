@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2010 IBM Corporation and others.
+ *  Copyright (c) 2005, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -16,7 +16,8 @@ import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
 import org.eclipse.equinox.internal.p2.jarprocessor.verifier.Verifier;
 import org.eclipse.equinox.internal.p2.jarprocessor.verifier.VerifyStep;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.internal.provisional.equinox.p2.jarprocessor.*;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
 public class JarProcessorTests extends AbstractProvisioningTest {
@@ -25,7 +26,7 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 		if (!VerifyStep.canVerify())
 			return;
 
-		// run verify on 
+		// run verify on
 		File workingDir = getTestFolder("testVerifyStep");
 
 		Verifier verifier = new Verifier() {
@@ -40,15 +41,12 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 				JarProcessor processor = new JarProcessor();
 				processor.setWorkingDirectory(workingDirectory.getAbsolutePath());
 
-				FileFilter filter = new FileFilter() {
-					public boolean accept(File pathname) {
-						String name = pathname.getName();
-						if (pathname.isFile() && name.endsWith(".jar"))
-							if ((name.indexOf("source") == -1) && name.startsWith("org.eclipse.equinox.p2"))
-								return true;
-						return false;
-					}
-
+				FileFilter filter = pathname -> {
+					String name = pathname.getName();
+					if (pathname.isFile() && name.endsWith(".jar"))
+						if ((name.indexOf("source") == -1) && name.startsWith("org.eclipse.equinox.p2"))
+							return true;
+					return false;
 				};
 				for (int i = 0; i < input.length; i++) {
 					File inputFile = new File(input[i]);
@@ -90,15 +88,13 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 
 		String install = Platform.getInstallLocation().getURL().getPath();
 		File plugins = new File(install, "plugins");
-		File[] files = plugins.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				String name = pathname.getName();
-				if (pathname.isFile() && name.endsWith(".jar") && name.indexOf(".source") == -1) {
-					if (name.startsWith("org.eclipse.core.c") || name.startsWith("org.eclipse.core.r"))
-						return true;
-				}
-				return false;
+		File[] files = plugins.listFiles((FileFilter) pathname -> {
+			String name = pathname.getName();
+			if (pathname.isFile() && name.endsWith(".jar") && name.indexOf(".source") == -1) {
+				if (name.startsWith("org.eclipse.core.c") || name.startsWith("org.eclipse.core.r"))
+					return true;
 			}
+			return false;
 		});
 
 		input.mkdirs();

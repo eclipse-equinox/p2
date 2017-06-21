@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
@@ -15,7 +15,8 @@ import java.io.File;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
@@ -36,6 +37,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	private static final String TEST_VALUE = "TestValue";
 	protected File repoLocation;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		String tempDir = System.getProperty("java.io.tmpdir");
@@ -44,6 +46,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		repoLocation.mkdir();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		getMetadataRepositoryManager().removeRepository(repoLocation.toURI());
 		delete(repoLocation);
@@ -174,8 +177,8 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	/**
 	 * Tests loading a repository that has a reference to itself as a disabled repository.
-	 * @throws MalformedURLException 
-	 * @throws ProvisionException 
+	 * @throws MalformedURLException
+	 * @throws ProvisionException
 	 */
 	public void testLoadSelfReference() throws ProvisionException {
 		//setup a repository that has a reference to itself in disabled state
@@ -189,18 +192,16 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		final int[] callCount = new int[] {0};
 		final boolean[] wasEnabled = new boolean[] {false};
 		//add a listener to ensure we receive add events with the repository enabled
-		ProvisioningListener listener = new SynchronousProvisioningListener() {
-			public void notify(EventObject o) {
-				if (!(o instanceof RepositoryEvent))
-					return;
-				RepositoryEvent event = (RepositoryEvent) o;
-				if (event.getKind() != RepositoryEvent.ADDED)
-					return;
-				if (!event.getRepositoryLocation().equals(repoURI))
-					return;
-				wasEnabled[0] = event.isRepositoryEnabled();
-				callCount[0]++;
-			}
+		SynchronousProvisioningListener listener = o -> {
+			if (!(o instanceof RepositoryEvent))
+				return;
+			RepositoryEvent event = (RepositoryEvent) o;
+			if (event.getKind() != RepositoryEvent.ADDED)
+				return;
+			if (!event.getRepositoryLocation().equals(repoURI))
+				return;
+			wasEnabled[0] = event.isRepositoryEnabled();
+			callCount[0]++;
 		};
 		final IProvisioningEventBus eventBus = getEventBus();
 		eventBus.addListener(listener);
@@ -232,18 +233,16 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		final int[] callCount = new int[] {0};
 		final boolean[] wasEnabled = new boolean[] {false};
 		//add a listener to ensure we receive add events with the repository enabled
-		ProvisioningListener listener = new SynchronousProvisioningListener() {
-			public void notify(EventObject o) {
-				if (!(o instanceof RepositoryEvent))
-					return;
-				RepositoryEvent event = (RepositoryEvent) o;
-				if (event.getKind() != RepositoryEvent.ADDED)
-					return;
-				if (!event.getRepositoryLocation().equals(repoURL))
-					return;
-				wasEnabled[0] = event.isRepositoryEnabled();
-				callCount[0]++;
-			}
+		SynchronousProvisioningListener listener = o -> {
+			if (!(o instanceof RepositoryEvent))
+				return;
+			RepositoryEvent event = (RepositoryEvent) o;
+			if (event.getKind() != RepositoryEvent.ADDED)
+				return;
+			if (!event.getRepositoryLocation().equals(repoURL))
+				return;
+			wasEnabled[0] = event.isRepositoryEnabled();
+			callCount[0]++;
 		};
 		getEventBus().addListener(listener);
 		try {

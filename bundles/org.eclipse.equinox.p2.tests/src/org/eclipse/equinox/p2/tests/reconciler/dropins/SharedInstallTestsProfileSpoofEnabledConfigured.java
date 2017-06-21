@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2003 IBM Corporation and others.
+ *  Copyright (c) 2003, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Red Hat, Inc. - initial API and implementation
  *******************************************************************************/
@@ -84,6 +84,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		super.tearDown();
 	}
 
+	@Override
 	public void testBasicStartup() throws IOException {
 		assertInitialized();
 		setupReadOnlyInstall();
@@ -110,6 +111,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		}
 	}
 
+	@Override
 	public void testReadOnlyDropinsStartup() throws IOException {
 		if (Platform.getOS().equals(Platform.OS_MACOSX))
 			return;
@@ -175,6 +177,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		}
 	}
 
+	@Override
 	public void testUserDropinsStartup() throws IOException {
 		if (Platform.getOS().equals(Platform.OS_MACOSX))
 			return;

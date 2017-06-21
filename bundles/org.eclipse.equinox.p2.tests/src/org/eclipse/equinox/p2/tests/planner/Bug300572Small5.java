@@ -1,24 +1,23 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2017 Sonatype, Inc and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-//This test verify that one patch can replace another one. 
+//This test verify that one patch can replace another one.
 public class Bug300572Small5 extends AbstractProvisioningTest {
 	IInstallableUnit a1;
 	IInstallableUnitPatch p1, p2;
@@ -27,6 +26,7 @@ public class Bug300572Small5 extends AbstractProvisioningTest {
 	IPlanner planner;
 	IEngine engine;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		//A depends on B

@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2012 Wind River and others.
+ *  Copyright (c) 2012, 2017 Wind River and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Wind River - initial API and implementation
  *******************************************************************************/
@@ -44,6 +44,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 	private IEngine engine;
 	private File testProvisioning;
 
+	@Override
 	@Before
 	public void setUp() throws Exception {
 		engine = getEngine();
@@ -52,6 +53,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 		testProvisioning.mkdir();
 	}
 
+	@Override
 	@After
 	public void tearDown() throws Exception {
 		engine = null;
@@ -66,6 +68,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			boolean mirrorEevent = false;
 			CountDownLatch latch = new CountDownLatch(1);
 
+			@Override
 			public void notify(EventObject o) {
 				if (o instanceof CollectEvent) {
 					if (((CollectEvent) o).getType() == CollectEvent.TYPE_OVERALL_START && ((CollectEvent) o).getRepository() == null) {
@@ -115,10 +118,11 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 		class ProvTestListener implements ProvisioningListener {
 			String publishUnWantedPhaseEvent = null;
 			int publishUnWantedPhaseType = 0;
-			List<String> phaseStartEventToBePublised = new ArrayList<String>(Arrays.asList(phaseSets));
-			List<String> phaseEndEventToBePublised = new ArrayList<String>(Arrays.asList(phaseSets));
+			List<String> phaseStartEventToBePublised = new ArrayList<>(Arrays.asList(phaseSets));
+			List<String> phaseEndEventToBePublised = new ArrayList<>(Arrays.asList(phaseSets));
 			CountDownLatch latch = new CountDownLatch(1);
 
+			@Override
 			public void notify(EventObject o) {
 				if (o instanceof PhaseEvent) {
 					PhaseEvent event = (PhaseEvent) o;
@@ -170,6 +174,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			int postUnConfigureEvent = 0;
 			CountDownLatch latch = new CountDownLatch(2);
 
+			@Override
 			public void notify(EventObject o) {
 				if (o instanceof InstallableUnitEvent) {
 					InstallableUnitEvent event = (InstallableUnitEvent) o;
@@ -204,8 +209,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			args.put("enabled", "true");
 			new RemoveRepositoryAction().execute(args);
 
-			Map<String, ITouchpointInstruction> data = new HashMap<String, ITouchpointInstruction>();
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, ITouchpointInstruction> data = new HashMap<>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put("location", testLocation);
 			parameters.put("type", Integer.toString(IRepository.TYPE_ARTIFACT));
 			parameters.put("name", "Juno");
@@ -260,6 +265,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			int postUnConfigureEventForUndo = 0;
 			CountDownLatch latch = new CountDownLatch(1);
 
+			@Override
 			public void notify(EventObject o) {
 				if (o instanceof InstallableUnitEvent) {
 					InstallableUnitEvent event = (InstallableUnitEvent) o;
@@ -297,11 +303,11 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 
 			IProfile profile = createProfile("testConfigureEvent");
 			IProvisioningPlan plan = engine.createPlan(profile, null);
-			Map<String, ITouchpointInstruction> data = new HashMap<String, ITouchpointInstruction>();
+			Map<String, ITouchpointInstruction> data = new HashMap<>();
 			data.put(PhaseSetFactory.PHASE_CONFIGURE, MetadataFactory.createTouchpointInstruction("instructionparsertest.goodAction()", null));
 			IInstallableUnit testIU = createResolvedIU(createIU(iuId, Version.create("1.0.0"), null, new IRequirement[0], BUNDLE_CAPABILITY, NO_PROPERTIES, ITouchpointType.NONE, new TouchpointData(data), false));
 			plan.addInstallableUnit(testIU);
-			data = new HashMap<String, ITouchpointInstruction>(1);
+			data = new HashMap<>(1);
 			data.put(PhaseSetFactory.PHASE_CONFIGURE, new TouchpointInstruction("alwaysFail();", null));
 			plan.addInstallableUnit(createResolvedIU(createEclipseIU(failureIU, Version.create("1.0.0"), new IRequirement[0], new TouchpointData(data))));
 			IStatus result = engine.perform(plan, PhaseSetFactory.createDefaultPhaseSet(), new NullProgressMonitor());

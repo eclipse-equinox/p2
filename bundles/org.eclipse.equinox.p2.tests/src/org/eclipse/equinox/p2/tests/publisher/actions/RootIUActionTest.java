@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -24,7 +24,6 @@ import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
-@SuppressWarnings({"unchecked"})
 public class RootIUActionTest extends ActionTest {
 	private static final int CONTAINS_A = 1;
 	private static final int CONTAINS_B = 2;
@@ -230,6 +229,7 @@ public class RootIUActionTest extends ActionTest {
 		rootIUAdviceCollection = new ArrayList();
 		if ((testSpec & CONTAINS_A) > 0) {
 			query = new MatchQuery() {
+				@Override
 				public boolean isMatch(Object candidate) {
 					if (candidate instanceof IInstallableUnit)
 						if (((IInstallableUnit) candidate).getId().equals(iu_A))
@@ -241,6 +241,7 @@ public class RootIUActionTest extends ActionTest {
 		}
 		if ((testSpec & CONTAINS_B) > 0) {
 			query = new MatchQuery() {
+				@Override
 				public boolean isMatch(Object candidate) {
 					if (candidate instanceof IInstallableUnit)
 						if (((IInstallableUnit) candidate).getId().equals(iu_B))
@@ -252,6 +253,7 @@ public class RootIUActionTest extends ActionTest {
 		}
 		if ((testSpec & EMPTY) > 0) {
 			query = new MatchQuery() {
+				@Override
 				public boolean isMatch(Object candidate) {
 					return false;
 				}
@@ -338,6 +340,7 @@ public class RootIUActionTest extends ActionTest {
 		rootIUAdviceCollection.add(new RootIUAdvice(publishIUs));
 	}
 
+	@Override
 	public void insertPublisherInfoBehavior() {
 		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ICapabilityAdvice.class)).andReturn(new ArrayList()).anyTimes();
 		expect(publisherInfo.getAdvice(null, true, null, null, IRootIUAdvice.class)).andReturn(rootIUAdviceCollection).anyTimes();
@@ -351,6 +354,7 @@ public class RootIUActionTest extends ActionTest {
 		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
 	}
 
+	@Override
 	public void cleanup() {
 		super.cleanup();
 		rootIUAdviceCollection = null;

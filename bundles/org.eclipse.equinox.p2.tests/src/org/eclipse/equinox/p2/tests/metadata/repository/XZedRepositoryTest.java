@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015  Rapicorp, Inc and others.
+ * Copyright (c) 2015, 2017 Rapicorp, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,7 +45,7 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testLoadXzBusted() throws ProvisionException, OperationCanceledException {
+	public void testLoadXzBusted() throws OperationCanceledException {
 		boolean repoCanLoad = true;
 		try {
 			getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/xzBusted").toURI(), null);
@@ -95,7 +95,7 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testLoadArtifactsXzBusted() throws ProvisionException, OperationCanceledException {
+	public void testLoadArtifactsXzBusted() throws OperationCanceledException {
 		boolean repoCanLoad = true;
 		try {
 			getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/artifacts/xzBusted").toURI(), null);

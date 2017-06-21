@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -35,6 +35,7 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Collect collectPhase = new Collect(1) {
+			@Override
 			protected boolean isApplicable(InstallableUnitOperand op) {
 				return super.isApplicable(op);
 			}
@@ -51,6 +52,7 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Sizing sizingPhase = new Sizing(1) {
+			@Override
 			protected boolean isApplicable(InstallableUnitOperand op) {
 				return super.isApplicable(op);
 			}
@@ -67,6 +69,7 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Unconfigure unconfigurePhase = new Unconfigure(1) {
+			@Override
 			protected boolean isApplicable(InstallableUnitOperand op) {
 				return super.isApplicable(op);
 			}
@@ -83,6 +86,7 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Uninstall uninstallPhase = new Uninstall(1) {
+			@Override
 			protected boolean isApplicable(InstallableUnitOperand op) {
 				return super.isApplicable(op);
 			}
@@ -99,6 +103,7 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Install installPhase = new Install(1) {
+			@Override
 			protected boolean isApplicable(InstallableUnitOperand op) {
 				return super.isApplicable(op);
 			}
@@ -115,6 +120,7 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
 		Configure configurePhase = new Configure(1) {
+			@Override
 			protected boolean isApplicable(InstallableUnitOperand op) {
 				return super.isApplicable(op);
 			}

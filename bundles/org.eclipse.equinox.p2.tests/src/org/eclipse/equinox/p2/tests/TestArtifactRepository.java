@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -45,18 +45,19 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	/**
 	 * Map of IArtifactKey -> URI (location)
 	 */
-	Map<IArtifactKey, URI> keysToLocations = new HashMap<IArtifactKey, URI>();
+	Map<IArtifactKey, URI> keysToLocations = new HashMap<>();
 	/**
 	 * Map of URI (location) -> byte[] (contents)
 	 */
-	Map<URI, byte[]> locationsToContents = new HashMap<URI, byte[]>();
+	Map<URI, byte[]> locationsToContents = new HashMap<>();
 
 	/**
 	 * 	Set of artifact descriptors
 	 */
-	Set<IArtifactDescriptor> artifactDescriptors = new HashSet<IArtifactDescriptor>();
+	Set<IArtifactDescriptor> artifactDescriptors = new HashSet<>();
 
 	Transport testhandler = new Transport() {
+		@Override
 		public IStatus download(URI toDownload, OutputStream target, IProgressMonitor pm) {
 			byte[] contents = locationsToContents.get(toDownload);
 			if (contents == null)
@@ -130,6 +131,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		return request.getResult();
 	}
 
+	@Override
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		try {
@@ -147,14 +149,17 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		setLocation(repoURL);
 	}
 
+	@Override
 	public boolean contains(IArtifactDescriptor descriptor) {
 		return keysToLocations.get(descriptor.getArtifactKey()) != null;
 	}
 
+	@Override
 	public boolean contains(IArtifactKey key) {
 		return keysToLocations.get(key) != null;
 	}
 
+	@Override
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ProcessingStepHandler handler = new ProcessingStepHandler();
 		destination = handler.createAndLink(getProvisioningAgent(), descriptor.getProcessingSteps(), null, destination, monitor);
@@ -162,36 +167,43 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		return testhandler.download(keysToLocations.get(descriptor.getArtifactKey()), destination, monitor);
 	}
 
+	@Override
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		if (!contains(key))
 			return null;
 		return new IArtifactDescriptor[] {new ArtifactDescriptor(key)};
 	}
 
+	@Override
 	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		((ArtifactDescriptor) descriptor).setRepository(this);
 		artifactDescriptors.add(descriptor);
 		keysToLocations.put(descriptor.getArtifactKey(), null);
 	}
 
+	@Override
 	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		removeDescriptor(descriptor.getArtifactKey(), monitor);
 	}
 
+	@Override
 	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		for (IArtifactDescriptor descriptor : descriptors)
 			removeDescriptor(descriptor, monitor);
 	}
 
+	@Override
 	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		for (IArtifactKey key : keys)
 			removeDescriptor(key, monitor);
 	}
 
+	@Override
 	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		for (IArtifactDescriptor nextDescriptor : artifactDescriptors) {
 			if (key.equals(nextDescriptor.getArtifactKey()))
@@ -204,25 +216,30 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		}
 	}
 
+	@Override
 	public void removeAll(IProgressMonitor monitor) {
 		artifactDescriptors.clear();
 		keysToLocations.clear();
 		locationsToContents.clear();
 	}
 
+	@Override
 	public boolean isModifiable() {
 		return true;
 	}
 
+	@Override
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException("Method is not implemented by this repository");
 	}
 
+	@Override
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		// TODO Auto-generated method stub
 		return null;

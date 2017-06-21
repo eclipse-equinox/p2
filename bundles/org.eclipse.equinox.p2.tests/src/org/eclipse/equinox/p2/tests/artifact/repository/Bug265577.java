@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,6 +32,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 	ProvisioningContext context;
 	IEngine engine;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		profile = createProfile(Bug265577.class.getName());
@@ -102,7 +103,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 		assertTrue(status.getMessage(), status.isOK());
 	}
 
-	// Return expected error message for the attempt to retrieve an artifact if it is a folder from inside a jar 
+	// Return expected error message for the attempt to retrieve an artifact if it is a folder from inside a jar
 	private String getJarFolderMessage(IArtifactKey key) {
 		return "Artifact " + key.toString() + " is a folder but the repository is an archive or remote location.";
 	}

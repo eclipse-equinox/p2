@@ -1,19 +1,18 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatechecker;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.util.ArrayList;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
@@ -60,7 +59,7 @@ public class UpdateCheckerTest extends AbstractProvisioningTest {
 
 	public void testAddListener() {
 		IUpdateChecker checker = getChecker();
-		ArrayList<IInstallableUnit> toUpdate = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> toUpdate = new ArrayList<>();
 		toUpdate.add(toInstallIU);
 		TestUpdateListener listener = new TestUpdateListener(new UpdateEvent(profile.getProfileId(), toUpdate));
 		checker.addUpdateCheck(profile.getProfileId(), QueryUtil.createIUAnyQuery(), IUpdateChecker.ONE_TIME_CHECK, 0, listener);

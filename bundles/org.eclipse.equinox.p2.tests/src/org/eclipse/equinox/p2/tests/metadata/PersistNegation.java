@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2017 Sonatype, Inc and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *******************************************************************************/
@@ -39,7 +39,7 @@ public class PersistNegation extends AbstractProvisioningTest {
 		IInstallableUnit iu1 = MetadataFactory.createInstallableUnit(iud1);
 		File tmpFolder = getTempFolder();
 		IMetadataRepository repo = getMetadataRepositoryManager().createRepository(tmpFolder.toURI(), "NegationRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		ArrayList<IInstallableUnit> iu = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iu = new ArrayList<>();
 		iu.add(iu1);
 		repo.addInstallableUnits(iu);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Sonatype Corporation and others.
+ * Copyright (c) 2010, 2017 Sonatype Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,12 +32,12 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 		repoMgr.addRepository(getTestData("Helios SR0", "testData/helios-sr0/").toURI());
 
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
-		Map<String, String> profileArgs = new HashMap<String, String>();
+		Map<String, String> profileArgs = new HashMap<>();
 		profileArgs.put("osgi.os", "linux");
 		profileArgs.put("osgi.ws", "gtk");
 		profileArgs.put("osgi.arch", "x86");
 
-		Set<IInstallableUnit> iusFromFirstResolution = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> iusFromFirstResolution = new HashSet<>();
 		{
 			IProfile eppProfile1 = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).addProfile("epp.install.1", profileArgs);
 			IProfileChangeRequest request = planner.createChangeRequest(eppProfile1);
@@ -70,7 +70,7 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 			assertOK("plan is not ok", plan.getStatus());
 
 			Set tmp = plan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).query(QueryUtil.ALL_UNITS, null).toSet();
-			Set<IInstallableUnit> iusFromSecondResolution = new HashSet<IInstallableUnit>();
+			Set<IInstallableUnit> iusFromSecondResolution = new HashSet<>();
 			for (Iterator iterator = tmp.iterator(); iterator.hasNext();) {
 				IInstallableUnit iu = (IInstallableUnit) iterator.next();
 				iusFromSecondResolution.add(iu.unresolved());

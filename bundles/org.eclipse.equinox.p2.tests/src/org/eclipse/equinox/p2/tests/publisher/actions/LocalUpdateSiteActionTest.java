@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+/*******************************************************************************
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -20,16 +20,10 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-/**
- *
- */
 public class LocalUpdateSiteActionTest extends ActionTest {
 
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
-	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -37,6 +31,7 @@ public class LocalUpdateSiteActionTest extends ActionTest {
 		setupPublisherInfo();
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		super.insertPublisherInfoBehavior();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
@@ -46,7 +41,7 @@ public class LocalUpdateSiteActionTest extends ActionTest {
 
 	/**
 	 * This test uses a simple site.xml (with a zipped up feature) and ensures
-	 * that the metadata to unzip the feature is available.  
+	 * that the metadata to unzip the feature is available.
 	 * @throws Exception
 	 */
 	public void testUnzipTouchpointAction() throws Exception {

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -28,7 +28,6 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings({"unchecked"})
 public class RootFilesActionTest extends ActionTest {
 	private static final int INCLUDES_ROOT = 1;
 	private static final int ARTIFACT_REPO = 2;
@@ -62,6 +61,7 @@ public class RootFilesActionTest extends ActionTest {
 		}
 	}
 
+	@Override
 	public void insertPublisherInfoBehavior() {
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
@@ -116,7 +116,7 @@ public class RootFilesActionTest extends ActionTest {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return a list of relative files to the rootPath.
 	 */
 	private Map getRepoFiles(Map map) {
@@ -128,6 +128,7 @@ public class RootFilesActionTest extends ActionTest {
 		return map;
 	}
 
+	@Override
 	public void cleanup() {
 		super.cleanup();
 

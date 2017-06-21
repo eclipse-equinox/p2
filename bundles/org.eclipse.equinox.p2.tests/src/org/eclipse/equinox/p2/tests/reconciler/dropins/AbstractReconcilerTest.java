@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2015 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - Ongoing development
@@ -214,11 +214,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				if (parent != null) {
 					parent = parent.getParentFile();
 					if (parent != null) {
-						File[] children = parent.listFiles(new FileFilter() {
-							public boolean accept(File pathname) {
-								String name = pathname.getName();
-								return name.startsWith("eclipse-platform-");
-							}
+						File[] children = parent.listFiles((FileFilter) pathname -> {
+							String name = pathname.getName();
+							return name.startsWith("eclipse-platform-");
 						});
 						if (children != null && children.length == 1)
 							file = children[0];
@@ -386,7 +384,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Run the reconciler to discover changes in the drop-ins folder and update the system state.
 	 */
 	public void reconcile(String message, boolean clean) {
-		List<String> args = new ArrayList<String>();
+		List<String> args = new ArrayList<>();
 		args.add("-application");
 		args.add("org.eclipse.equinox.p2.reconciler.application");
 		if (clean)
@@ -562,7 +560,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	/*
-	 * Assert that a feature with the given id exists in the configuration. If 
+	 * Assert that a feature with the given id exists in the configuration. If
 	 * a version is specified then match the version, otherwise any version will
 	 * do.
 	 */
@@ -628,7 +626,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (!exe.exists())
 			exe = new File(root, "java");
 		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
-		List<String> command = new ArrayList<String>();
+		List<String> command = new ArrayList<>();
 		Collections.addAll(command, new String[] {(new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
 		Collections.addAll(command, args);
 		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
@@ -712,7 +710,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				"-repository", sourceRepo, "-installIU", iuToInstall, //
 				"-destination", installFolder.getAbsolutePath(), //
 				"-bundlepool", installFolder.getAbsolutePath(), //
-				"-roaming", "-profile", "PlatformProfile", "-profileProperties", "org.eclipse.update.install.features=true", // 
+				"-roaming", "-profile", "PlatformProfile", "-profileProperties", "org.eclipse.update.install.features=true", //
 				"-p2.os", Platform.getOS(), "-p2.ws", Platform.getWS(), "-p2.arch", Platform.getOSArch()};
 		return runEclipse(message, command);
 	}
@@ -754,13 +752,10 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (destination == null)
 			destination = output;
 		destination = new File(destination, getRootFolder() + "plugins");
-		File[] verifierBundle = destination.listFiles(new FilenameFilter() {
-
-			public boolean accept(File dir, String name) {
-				if (name.startsWith(VERIFIER_BUNDLE_ID))
-					return true;
-				return false;
-			}
+		File[] verifierBundle = destination.listFiles((FilenameFilter) (dir, name) -> {
+			if (name.startsWith(VERIFIER_BUNDLE_ID))
+				return true;
+			return false;
 		});
 		if (verifierBundle != null && verifierBundle.length > 0)
 			verifierBundle[0].delete();

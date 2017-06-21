@@ -78,7 +78,7 @@ public class StandaloneSerializationTest extends TestCase {
 		MetadataFactory.InstallableUnitDescription iu2 = new MetadataFactory.InstallableUnitDescription();
 		iu2.setId("bar");
 		iu2.setVersion(Version.create("1.0.0"));
-		Collection<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> ius = new ArrayList<>();
 		ius.add(MetadataFactory.createInstallableUnit(iu));
 		ius.add(MetadataFactory.createInstallableUnit(iu2));
 

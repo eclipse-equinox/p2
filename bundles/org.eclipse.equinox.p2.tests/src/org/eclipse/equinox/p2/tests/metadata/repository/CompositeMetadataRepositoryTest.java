@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
@@ -39,12 +39,14 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	private static final String TEST_VALUE = "TestValue";
 	protected File repoLocation;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		repoLocation = new File(getTempFolder(), "CompositeMetadataRepositoryTest");
 		AbstractProvisioningTest.delete(repoLocation);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		getMetadataRepositoryManager().removeRepository(repoLocation.toURI());
 		delete(repoLocation);
@@ -483,6 +485,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
 		IQuery cQuery = QueryUtil.createLatestQuery(new MatchQuery() {
+			@Override
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iInstallableUnit = (IInstallableUnit) candidate;
@@ -582,7 +585,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	/*
 	 * Ensure that we can create a non-local composite repository.
-	 * Note that we had to change this test method when we changed the 
+	 * Note that we had to change this test method when we changed the
 	 * behaviour of the composite repos to aggressively load the children.
 	 */
 	public void testNonLocalRepo() {

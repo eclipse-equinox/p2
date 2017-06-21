@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -41,9 +41,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 
 	protected Exception exception = null;
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
-	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		//load all the repositories
@@ -58,9 +56,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 		AbstractProvisioningTest.delete(destRepoLocation);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#tearDown()
-	 */
+	@Override
 	protected void tearDown() throws Exception {
 		//remove all the repositories
 		getMetadataRepositoryManager().removeRepository(destRepoLocation.toURI());
@@ -76,9 +72,9 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Runs mirror application with default arguments. source is the source repo, 
+	 * Runs mirror application with default arguments. source is the source repo,
 	 * destination is the destination repo, append is if the "-writeMode clean" argument should be excluded
-	 * 
+	 *
 	 * Note: We use URL here because command line applications traffic in unencoded URLs,
 	 * so we can't use java.net.URI which will always use the encoded form
 	 */
@@ -316,7 +312,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests mirroring all metadata in a repository to an empty repository 
+	 * Tests mirroring all metadata in a repository to an empty repository
 	 * Source contains A, B
 	 * Target contains
 	 * Expected is A, B

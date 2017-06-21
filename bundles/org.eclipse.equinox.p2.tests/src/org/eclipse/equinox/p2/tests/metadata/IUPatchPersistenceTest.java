@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -123,7 +123,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 
 	class IUStringWriter extends MetadataWriter {
 
-		public IUStringWriter(ByteArrayOutputStream stream) throws IOException {
+		public IUStringWriter(ByteArrayOutputStream stream) {
 			super(stream, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(IU_TEST_TARGET, IU_TEST_VERSION)});
 		}
 
@@ -166,6 +166,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 				super(rootName, rootHandler);
 			}
 
+			@Override
 			public void processingInstruction(String target, String data) throws SAXException {
 				if (IU_TEST_TARGET.equals(target)) {
 					Version iuTestVersion = extractPIVersion(target, data);
@@ -191,10 +192,12 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 				return iu;
 			}
 
+			@Override
 			protected void handleRootAttributes(Attributes attributes) {
 				parseAttributes(attributes, noAttributes, noAttributes);
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				if (INSTALLABLE_UNIT_ELEMENT.equals(name)) {
 					if (iuHandler == null) {
@@ -207,6 +210,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 				}
 			}
 
+			@Override
 			protected void finished() {
 				if (isValidXML()) {
 					if (iuHandler != null && singleton.size() == 1) {
@@ -216,10 +220,12 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 			}
 		}
 
+		@Override
 		protected String getErrorMessage() {
 			return "Error parsing installable unit string";
 		}
 
+		@Override
 		protected Object getRootObject() {
 			return theIU;
 		}

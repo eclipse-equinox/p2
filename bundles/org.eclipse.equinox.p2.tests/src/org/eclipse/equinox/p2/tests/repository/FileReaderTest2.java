@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2012 Wind River and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2012, 2017 Wind River and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Wind River - initial API and implementation
  *******************************************************************************/
@@ -47,6 +47,7 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 			boolean isPaused = false;
 			float downloadProgressEventAfterPaused = 0;
 
+			@Override
 			public void notify(EventObject event) {
 				if (event instanceof DownloadProgressEvent) {
 					downloadIsOngoing = true;
@@ -196,6 +197,7 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 		ProvisioningListener listener = new ProvisioningListener() {
 			boolean startedPauseJob = false;
 
+			@Override
 			public void notify(EventObject o) {
 				if (!startedPauseJob && o instanceof DownloadProgressEvent) {
 					pauseJob.schedule();

@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+/*******************************************************************************
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,8 +8,6 @@
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
-
-import org.eclipse.equinox.p2.query.MatchQuery;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -30,11 +28,13 @@ public class CompoundQueryableTest extends TestCase {
 		private int assignedWork = 0;
 		private int amountWorked = 0;
 
+		@Override
 		public void beginTask(String name, int totalWork) {
 			super.beginTask(name, totalWork);
 			this.assignedWork += totalWork;
 		}
 
+		@Override
 		public void worked(int work) {
 			amountWorked += work;
 		}
@@ -47,6 +47,7 @@ public class CompoundQueryableTest extends TestCase {
 			return this.isDone;
 		}
 
+		@Override
 		public void done() {
 			super.done();
 			this.isDone = true;
@@ -60,6 +61,7 @@ public class CompoundQueryableTest extends TestCase {
 	IQueryable<Integer> queryable1 = new IQueryable<Integer>() {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5};
 
+		@Override
 		public IQueryResult<Integer> query(IQuery<Integer> query, IProgressMonitor monitor) {
 			IQueryResult<Integer> collector;
 			try {
@@ -76,6 +78,7 @@ public class CompoundQueryableTest extends TestCase {
 	IQueryable<Integer> queryable2 = new IQueryable<Integer>() {
 		Integer[] elements = new Integer[] {4, 6, 8, 10, 12};
 
+		@Override
 		public IQueryResult<Integer> query(IQuery<Integer> query, IProgressMonitor monitor) {
 			IQueryResult<Integer> collector;
 			try {
@@ -92,6 +95,7 @@ public class CompoundQueryableTest extends TestCase {
 	IQueryable queryable3 = new IQueryable() {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 
+		@Override
 		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 			IQueryResult collector;
 			try {
@@ -107,6 +111,7 @@ public class CompoundQueryableTest extends TestCase {
 
 	IQuery matchQuery = new MatchQuery() {
 
+		@Override
 		public boolean isMatch(Object candidate) {
 			if (candidate instanceof Integer) {
 				int x = ((Integer) candidate).intValue();
@@ -118,6 +123,7 @@ public class CompoundQueryableTest extends TestCase {
 	};
 
 	IQuery matchMod4query = new MatchQuery() {
+		@Override
 		public boolean isMatch(Object candidate) {
 			if (candidate instanceof Integer) {
 				int x = ((Integer) candidate).intValue();
@@ -130,6 +136,7 @@ public class CompoundQueryableTest extends TestCase {
 
 	IQuery contextQuery = new ContextQuery() {
 
+		@Override
 		public Collector perform(Iterator iterator) {
 			Collector result = new Collector();
 			while (iterator.hasNext()) {
@@ -144,6 +151,7 @@ public class CompoundQueryableTest extends TestCase {
 	};
 
 	IQuery greatestNumberQuery = new ContextQuery() {
+		@Override
 		public Collector perform(Iterator iterator) {
 			Collector result = new Collector();
 			int greatest = Integer.MIN_VALUE;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,7 @@ import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 
 /**
- * Tests for joint mirroring of units and artifacts. See other test classes for unit-only and artifact-only mirroring tests. 
+ * Tests for joint mirroring of units and artifacts. See other test classes for unit-only and artifact-only mirroring tests.
  */
 public class MirrorApplicationTest {
 
@@ -93,7 +93,7 @@ public class MirrorApplicationTest {
 	}
 
 	private static Set<String> artifactsIn(IArtifactRepository repository) {
-		Set<String> result = new HashSet<String>();
+		Set<String> result = new HashSet<>();
 		for (IArtifactKey artifactKey : repository.query(QueryUtil.createMatchQuery(IArtifactKey.class, "true"), null).toUnmodifiableSet()) {
 			result.add(artifactKey.getId());
 		}

@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -30,6 +30,7 @@ public class PatchTestOptional2 extends AbstractProvisioningTest {
 	private IPlanner planner;
 	private IEngine engine;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		p2Feature = createIU(P2_FEATURE, Version.createOSGi(1, 0, 0), new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, P1, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, P2, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true)});
@@ -53,7 +54,7 @@ public class PatchTestOptional2 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallPatchSettingAMissingOptionalDependency() {
-		//The patch changes the requirement from p2Feature to P1 1.1.1. to be optional, but P1 1.1.1 is missing  
+		//The patch changes the requirement from p2Feature to P1 1.1.1. to be optional, but P1 1.1.1 is missing
 		install(profile1, new IInstallableUnit[] {pp1}, true, planner, engine);
 		assertProfileContainsAll("Profile setup incorrectly", profile1, new IInstallableUnit[] {p2Feature, pp1, p2});
 	}

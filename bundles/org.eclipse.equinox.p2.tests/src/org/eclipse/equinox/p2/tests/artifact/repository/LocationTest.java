@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ public class LocationTest extends AbstractProvisioningTest {
 	private File targetLocation;
 	private IArtifactRepository targetRepository, sourceRepository;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		targetLocation = File.createTempFile("target", ".repo");
@@ -39,6 +40,7 @@ public class LocationTest extends AbstractProvisioningTest {
 
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		getArtifactRepositoryManager().removeRepository(targetLocation.toURI());
 		getArtifactRepositoryManager().removeRepository(sourceRepository.getLocation());

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP AG - allow setting greedy through directive (bug 247099)
@@ -38,7 +38,6 @@ import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings({"unchecked"})
 public class BundlesActionTest extends ActionTest {
 	private static final String OSGI = PublisherHelper.OSGI_BUNDLE_CLASSIFIER;
 	private static final String JAVA_PACKAGE = "java.package";//$NON-NLS-1$
@@ -100,11 +99,11 @@ public class BundlesActionTest extends ActionTest {
 
 	@Override
 	public void setupPublisherInfo() {
-		tpAdvice1 = new MultiCapture<ITouchpointAdvice>();
-		tpAdvice2 = new MultiCapture<ITouchpointAdvice>();
+		tpAdvice1 = new MultiCapture<>();
+		tpAdvice2 = new MultiCapture<>();
 
-		udAdvice3 = new MultiCapture<IUpdateDescriptorAdvice>();
-		capAdvice5 = new MultiCapture<ICapabilityAdvice>();
+		udAdvice3 = new MultiCapture<>();
+		capAdvice5 = new MultiCapture<>();
 
 		super.setupPublisherInfo();
 	}
@@ -286,7 +285,7 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void verifyBundle3() {
-		// also a regression test for bug 393051: manifest headers use uncommon (but valid) capitalization 
+		// also a regression test for bug 393051: manifest headers use uncommon (but valid) capitalization
 		ArrayList ius = new ArrayList(publisherResult.getIUs(TEST3_PROVBUNDLE_NAME, IPublisherResult.ROOT));
 
 		assertTrue(ius.size() == 1);
@@ -338,6 +337,7 @@ public class BundlesActionTest extends ActionTest {
 		assertTrue(max == 7);
 	}
 
+	@Override
 	public void cleanup() {
 		super.cleanup();
 		if (artifactRepository != null) {
@@ -346,14 +346,15 @@ public class BundlesActionTest extends ActionTest {
 		}
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		//super sets publisherInfo.getMetadataRepository and publisherInfo.getContextMetadataRepository
 		super.insertPublisherInfoBehavior();
-		Map<String, String> sarProperties = new HashMap<String, String>();
+		Map<String, String> sarProperties = new HashMap<>();
 		sarProperties.put("key1", "value1");//$NON-NLS-1$//$NON-NLS-2$
 		sarProperties.put("key2", "value2");//$NON-NLS-1$//$NON-NLS-2$
 
-		Map<String, String> sdkProperties = new HashMap<String, String>();
+		Map<String, String> sdkProperties = new HashMap<>();
 		sdkProperties.put("key1", "value1");//$NON-NLS-1$//$NON-NLS-2$
 		sdkProperties.put("key2", "value2");//$NON-NLS-1$//$NON-NLS-2$
 
@@ -401,9 +402,9 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void expectOtherAdviceQueries(String bundleName, Version bundleVersion) {
-		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
-		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
-		expect(publisherInfo.getAdvice(null, true, bundleName, bundleVersion, IBundleShapeAdvice.class)).andReturn(null); //$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST);
+		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST);
+		expect(publisherInfo.getAdvice(null, true, bundleName, bundleVersion, IBundleShapeAdvice.class)).andReturn(null);
 	}
 
 	private void expectCapabilityAdviceQuery(String bundleName, Version bundleVersion, Collection<ICapabilityAdvice> answer) {

@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2011 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     SAP AG - repository atomic loading
@@ -33,6 +33,7 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 	private URI compositeSite;
 	private URI childSite, childSite2;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		// Get a random location to create a repository
@@ -41,6 +42,7 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 		childSite2 = new URI("memory:/in/memory");
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		// Remove repository manager references
 		getArtifactRepositoryManager().removeRepository(compositeSite);
@@ -104,7 +106,7 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 	}
 
 	/*
-	 * Test adding a child to an existing metadata repository 
+	 * Test adding a child to an existing metadata repository
 	 */
 	public void testAddChildToExistingMetadataRepository() {
 		// Create repository

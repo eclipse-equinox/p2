@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+/*******************************************************************************
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.tests.TestData;
 public class LocalUpdatesiteTest extends AbstractProvisioningTest {
 	protected File repoLocation;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		String tempDir = System.getProperty("java.io.tmpdir");
@@ -32,6 +33,7 @@ public class LocalUpdatesiteTest extends AbstractProvisioningTest {
 		repoLocation.mkdir();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		getMetadataRepositoryManager().removeRepository(repoLocation.toURI());
 		delete(repoLocation);
@@ -73,7 +75,7 @@ public class LocalUpdatesiteTest extends AbstractProvisioningTest {
 		IInstallableUnit unit = (IInstallableUnit) iter.next();
 		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(unit);
 		IQueryResult<IInstallableUnit> categoryMembers = repository.query(memberQuery, new NullProgressMonitor());
-		Set<String> membersId = new HashSet<String>();
+		Set<String> membersId = new HashSet<>();
 		for (IInstallableUnit iu : categoryMembers.toUnmodifiableSet()) {
 			membersId.add(iu.getId());
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ public class ProductContentTypeTest extends ActionTest {
 	private IInstallableUnit featureIU = createIU("TestFeature.feature.group");
 	private IInstallableUnit bundleIU = createIU("TestBundle");
 
+	@Override
 	public void setUp() throws Exception {
 		setupPublisherResult();
 		initCUsList();
@@ -72,7 +73,7 @@ public class ProductContentTypeTest extends ActionTest {
 	}
 
 	/**
-	 * Publish product with invalid value for attribute <code>type</code>. 
+	 * Publish product with invalid value for attribute <code>type</code>.
 	 */
 	public void test04PublishWithInvalidContentType() throws Exception {
 		File productFileLocation = TestData.getFile(TEST_DATA_FOLDER, "InvalidContentType.product");
@@ -100,7 +101,7 @@ public class ProductContentTypeTest extends ActionTest {
 	/**
 	 * Publish product with attributes <code>type="bundles"</code> and <code>useFeatures="true"</code>.
 	 * Check that the generated product IU
-	 * requires the default CU list + CU for the product + bundle IU. 
+	 * requires the default CU list + CU for the product + bundle IU.
 	 */
 	public void test06OverrideUseFeaturesAttr() throws Exception {
 		testTemplate("OverrideUseFeaturesAttr.product", "1", cusList.size() + 2, bundleIU);
@@ -116,7 +117,7 @@ public class ProductContentTypeTest extends ActionTest {
 	}
 
 	private void initCUsList() {
-		cusList = new ArrayList<IInstallableUnit>();
+		cusList = new ArrayList<>();
 		cusList.add(createIU(flavor + ".source.default"));
 		cusList.add(createIU(flavor + ".osgi.bundle.default"));
 		cusList.add(createIU(flavor + ".org.eclipse.update.feature.default"));
@@ -151,7 +152,7 @@ public class ProductContentTypeTest extends ActionTest {
 
 	private void verifyRequirementsForConfigurationUnits(Collection<IRequirement> requirements, String productName, String productVersion) {
 
-		List<IInstallableUnit> cusListCopy = new ArrayList<IInstallableUnit>(cusList);
+		List<IInstallableUnit> cusListCopy = new ArrayList<>(cusList);
 		cusListCopy.add(createIU(flavor + productName + ".configuration", Version.create(productVersion)));
 		for (Iterator<IInstallableUnit> cusIterator = cusListCopy.iterator(); cusIterator.hasNext();) {
 			IInstallableUnit cu = cusIterator.next();

@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+/*******************************************************************************
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -33,7 +33,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 
 	protected Collection<IInstallableUnit> createIUInCollection(String id, Version version) {
 		IInstallableUnit iu = createIU(id, version);
-		Collection<IInstallableUnit> result = new ArrayList<IInstallableUnit>(1);
+		Collection<IInstallableUnit> result = new ArrayList<>(1);
 		result.add(iu);
 		return result;
 	}
@@ -62,14 +62,12 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					repo.addInstallableUnits(createIUInCollection("foo", Version.emptyVersion));
-					try {
-						assertFalse("1.0", fileContainsString(contentXML, "foo"));
-					} catch (IOException e) {
-						fail("0.99");
-					}
+			IStatus status = repo.executeBatch(monitor -> {
+				repo.addInstallableUnits(createIUInCollection("foo", Version.emptyVersion));
+				try {
+					assertFalse("1.0", fileContainsString(contentXML, "foo"));
+				} catch (IOException e) {
+					fail("0.99");
 				}
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
@@ -90,18 +88,16 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					repo.addInstallableUnits(createIUInCollection("foo", Version.emptyVersion));
-					repo.addInstallableUnits(createIUInCollection("bar", Version.emptyVersion));
-					repo.addInstallableUnits(createIUInCollection("baz", Version.emptyVersion));
-					try {
-						assertFalse("1.0", fileContainsString(contentXML, "foo"));
-						assertFalse("1.0", fileContainsString(contentXML, "bar"));
-						assertFalse("1.0", fileContainsString(contentXML, "baz"));
-					} catch (IOException e) {
-						fail("0.99");
-					}
+			IStatus status = repo.executeBatch(monitor -> {
+				repo.addInstallableUnits(createIUInCollection("foo", Version.emptyVersion));
+				repo.addInstallableUnits(createIUInCollection("bar", Version.emptyVersion));
+				repo.addInstallableUnits(createIUInCollection("baz", Version.emptyVersion));
+				try {
+					assertFalse("1.0", fileContainsString(contentXML, "foo"));
+					assertFalse("1.0", fileContainsString(contentXML, "bar"));
+					assertFalse("1.0", fileContainsString(contentXML, "baz"));
+				} catch (IOException e) {
+					fail("0.99");
 				}
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
@@ -126,12 +122,10 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					repo.addInstallableUnits(createIUInCollection("foo", Version.emptyVersion));
-					repo.addInstallableUnits(createIUInCollection("bar", Version.emptyVersion));
-					throw new RuntimeException();
-				}
+			IStatus status = repo.executeBatch(monitor -> {
+				repo.addInstallableUnits(createIUInCollection("foo", Version.emptyVersion));
+				repo.addInstallableUnits(createIUInCollection("bar", Version.emptyVersion));
+				throw new RuntimeException();
 			}, new NullProgressMonitor());
 			assertFalse(status.isOK());
 			assertEquals("1.0", 1, repo.query(QueryUtil.createIUQuery("foo"), new NullProgressMonitor()).toSet().size());
@@ -153,13 +147,11 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					Collection<IInstallableUnit> foo = createIUInCollection("foo", Version.emptyVersion);
-					repo.addInstallableUnits(foo);
-					repo.addInstallableUnits(createIUInCollection("bar", Version.emptyVersion));
-					repo.removeInstallableUnits(foo);
-				}
+			IStatus status = repo.executeBatch(monitor -> {
+				Collection<IInstallableUnit> foo = createIUInCollection("foo", Version.emptyVersion);
+				repo.addInstallableUnits(foo);
+				repo.addInstallableUnits(createIUInCollection("bar", Version.emptyVersion));
+				repo.removeInstallableUnits(foo);
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
 			assertEquals("1.0", 0, repo.query(QueryUtil.createIUQuery("foo"), new NullProgressMonitor()).toSet().size());
@@ -181,16 +173,14 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					repo.addInstallableUnits(createIUInCollection("1", Version.emptyVersion));
-					repo.addInstallableUnits(createIUInCollection("2", Version.emptyVersion));
-					repo.addInstallableUnits(createIUInCollection("3", Version.emptyVersion));
-					Collection<IInstallableUnit> foo = createIUInCollection("foo", Version.emptyVersion);
-					repo.addInstallableUnits(foo);
-					repo.addInstallableUnits(createIUInCollection("bar", Version.emptyVersion));
-					repo.removeInstallableUnits(foo);
-				}
+			IStatus status = repo.executeBatch(monitor -> {
+				repo.addInstallableUnits(createIUInCollection("1", Version.emptyVersion));
+				repo.addInstallableUnits(createIUInCollection("2", Version.emptyVersion));
+				repo.addInstallableUnits(createIUInCollection("3", Version.emptyVersion));
+				Collection<IInstallableUnit> foo = createIUInCollection("foo", Version.emptyVersion);
+				repo.addInstallableUnits(foo);
+				repo.addInstallableUnits(createIUInCollection("bar", Version.emptyVersion));
+				repo.removeInstallableUnits(foo);
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
 			assertEquals("1.0", 4, repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toSet().size());
@@ -209,10 +199,8 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			repositoryURI = repositoryFile.toURI();
 			Map properties = new HashMap();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					// empty
-				}
+			IStatus status = repo.executeBatch(monitor -> {
+				// empty
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
 		} catch (Exception e) {
@@ -232,11 +220,13 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			super(getAgent());
 		}
 
+		@Override
 		public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 			executeBatch = true;
 			return super.executeBatch(runnable, monitor);
 		}
 
+		@Override
 		public void save() {
 			if (executeBatch)
 				throw new RuntimeException("foo");
@@ -244,16 +234,14 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 	}
 
 	/*
-	 * This tests that exceptions are properly propagated for a SimpleMetadataRepository 
+	 * This tests that exceptions are properly propagated for a SimpleMetadataRepository
 	 */
 	public void testBatchProcessingExceptionsSimple() {
 		try {
 			LocalMetadataRepository simpleMetadataRepository = new FailingSimpleMetadataRepository();
 
-			IStatus status = simpleMetadataRepository.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					throw new RuntimeException("bar");
-				}
+			IStatus status = simpleMetadataRepository.executeBatch(monitor -> {
+				throw new RuntimeException("bar");
 			}, new NullProgressMonitor());
 			assertFalse(status.isOK());
 			assertEquals("foo", status.getException().getMessage());
@@ -271,10 +259,8 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		try {
 			LocalMetadataRepository simpleMetadataRepository = new FailingSimpleMetadataRepository();
 
-			IStatus status = simpleMetadataRepository.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					// empty
-				}
+			IStatus status = simpleMetadataRepository.executeBatch(monitor -> {
+				// empty
 			}, new NullProgressMonitor());
 			assertFalse(status.isOK());
 			assertEquals("foo", status.getException().getMessage());
@@ -296,11 +282,13 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			super(getAgent());
 		}
 
+		@Override
 		public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 			executeBatch = true;
 			return super.executeBatch(runnable, monitor);
 		}
 
+		@Override
 		public void save() {
 			if (executeBatch)
 				didSave = true;
@@ -314,10 +302,8 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 	public void testBatchProcessingTrackSaving() {
 		try {
 			TrackSavignSimpleMetadataRepository simpleMetadataRepository = new TrackSavignSimpleMetadataRepository();
-			simpleMetadataRepository.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					//do nothing;
-				}
+			simpleMetadataRepository.executeBatch(monitor -> {
+				//do nothing;
 			}, new NullProgressMonitor());
 			assertTrue(simpleMetadataRepository.didSave);
 		} catch (Exception e) {
@@ -332,10 +318,8 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 	public void testBatchProcessingTrackSavingException() {
 		try {
 			TrackSavignSimpleMetadataRepository simpleMetadataRepository = new TrackSavignSimpleMetadataRepository();
-			simpleMetadataRepository.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					throw new RuntimeException();
-				}
+			simpleMetadataRepository.executeBatch(monitor -> {
+				throw new RuntimeException();
 			}, new NullProgressMonitor());
 			assertTrue(simpleMetadataRepository.didSave);
 		} catch (Exception e) {
@@ -353,10 +337,8 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			repositoryURI = repositoryFile.toURI();
 			Map properties = new HashMap();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			repo.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					throw new RuntimeException();
-				}
+			repo.executeBatch(monitor -> {
+				throw new RuntimeException();
 			}, new NullProgressMonitor());
 			Field field = LocalMetadataRepository.class.getDeclaredField("disableSave");
 			field.setAccessible(true);
@@ -369,7 +351,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 	}
 
 	/*
-	 * This test ensure that the simple metadata repository disables the 
+	 * This test ensure that the simple metadata repository disables the
 	 * save flag during the batch process
 	 */
 	public void testDisableSaveFlagDuringExecutionSimple() {
@@ -378,24 +360,22 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 			repositoryURI = repositoryFile.toURI();
 			Map properties = new HashMap();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			repo.executeBatch(new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					Field field;
-					try {
-						field = LocalMetadataRepository.class.getDeclaredField("disableSave");
-						field.setAccessible(true);
-						boolean disableSave = field.getBoolean(repo);
-						assertTrue("1.0", disableSave);
-					} catch (SecurityException e) {
-						fail("1.1" + e.getMessage());
-					} catch (NoSuchFieldException e) {
-						// TODO Auto-generated catch block
-						fail("1.2" + e.getMessage());
-					} catch (IllegalArgumentException e) {
-						fail("1.2" + e.getMessage());
-					} catch (IllegalAccessException e) {
-						fail("1.2" + e.getMessage());
-					}
+			repo.executeBatch(monitor -> {
+				Field field;
+				try {
+					field = LocalMetadataRepository.class.getDeclaredField("disableSave");
+					field.setAccessible(true);
+					boolean disableSave = field.getBoolean(repo);
+					assertTrue("1.0", disableSave);
+				} catch (SecurityException e1) {
+					fail("1.1" + e1.getMessage());
+				} catch (NoSuchFieldException e2) {
+					// TODO Auto-generated catch block
+					fail("1.2" + e2.getMessage());
+				} catch (IllegalArgumentException e3) {
+					fail("1.2" + e3.getMessage());
+				} catch (IllegalAccessException e4) {
+					fail("1.2" + e4.getMessage());
 				}
 			}, new NullProgressMonitor());
 

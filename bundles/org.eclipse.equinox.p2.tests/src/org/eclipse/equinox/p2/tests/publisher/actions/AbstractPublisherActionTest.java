@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -49,10 +49,12 @@ public final class AbstractPublisherActionTest extends AbstractProvisioningTest 
 			this.updateDescriptor = updateDescriptor;
 		}
 
+		@Override
 		public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
 			return id.equals("test");
 		}
 
+		@Override
 		public IUpdateDescriptor getUpdateDescriptor(InstallableUnitDescription iu) {
 			return this.updateDescriptor;
 		}
@@ -69,6 +71,7 @@ public final class AbstractPublisherActionTest extends AbstractProvisioningTest 
 			this.metaRequiredCapability = metaRequiredCapability;
 		}
 
+		@Override
 		public IProvidedCapability[] getProvidedCapabilities(InstallableUnitDescription iu) {
 			if (providedCapability == null)
 				return null;
@@ -76,6 +79,7 @@ public final class AbstractPublisherActionTest extends AbstractProvisioningTest 
 			return new IProvidedCapability[] {providedCapability};
 		}
 
+		@Override
 		public IRequirement[] getRequiredCapabilities(InstallableUnitDescription iu) {
 			if (requiredCapability == null)
 				return null;
@@ -83,6 +87,7 @@ public final class AbstractPublisherActionTest extends AbstractProvisioningTest 
 			return new IRequirement[] {requiredCapability};
 		}
 
+		@Override
 		public IRequirement[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
 			if (metaRequiredCapability == null)
 				return null;
@@ -90,6 +95,7 @@ public final class AbstractPublisherActionTest extends AbstractProvisioningTest 
 			return new IRequirement[] {metaRequiredCapability};
 		}
 
+		@Override
 		public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
 			return id.equals("test");
 		}

@@ -18,6 +18,7 @@ public class ResolvedIUInPCR extends AbstractProvisioningTest {
 
 	private IProfile profile;
 
+	@Override
 	protected void setUp() throws Exception {
 		IULoader.loadIUs(this);
 		profile = createProfile("ResolvedIUInPCR." + getName());
@@ -33,7 +34,7 @@ public class ResolvedIUInPCR extends AbstractProvisioningTest {
 	}
 
 	public void testNoResolvedIUInBulkAddition() {
-		Collection<IInstallableUnit> riusToAdd = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> riusToAdd = new ArrayList<>();
 		ResolvedInstallableUnit riu1 = new ResolvedInstallableUnit(iu1);
 		riusToAdd.add(riu1);
 
@@ -68,7 +69,7 @@ public class ResolvedIUInPCR extends AbstractProvisioningTest {
 	}
 
 	public void testNoResolvedIUInBulkRemoval() {
-		Collection<IInstallableUnit> riusToAdd = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> riusToAdd = new ArrayList<>();
 		ResolvedInstallableUnit riu1 = new ResolvedInstallableUnit(iu1);
 		riusToAdd.add(riu1);
 

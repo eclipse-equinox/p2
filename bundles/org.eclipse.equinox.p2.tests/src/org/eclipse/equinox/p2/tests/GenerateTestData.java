@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
+ * Copyright (c) 2010, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,8 +34,8 @@ public class GenerateTestData {
 	static File outputFile = null;
 	static Random random = new Random(System.currentTimeMillis());
 
-	Set<TestFeature> features = new HashSet<TestFeature>();
-	List<TestBundle> bundles = new ArrayList<TestBundle>();
+	Set<TestFeature> features = new HashSet<>();
+	List<TestBundle> bundles = new ArrayList<>();
 
 	/*
 	 * Abstract class representing a feature or a bundle.
@@ -45,8 +45,9 @@ public class GenerateTestData {
 		String id;
 		Version version;
 		// use a set to avoid duplicates
-		Set<TestObject> requires = new HashSet<TestObject>();
+		Set<TestObject> requires = new HashSet<>();
 
+		@Override
 		public boolean equals(Object obj) {
 			if (!(obj instanceof TestBundle))
 				return false;
@@ -54,6 +55,7 @@ public class GenerateTestData {
 			return id.equals(other.id) && version.equals(other.version);
 		}
 
+		@Override
 		public int hashCode() {
 			return id.hashCode() + version.hashCode();
 		}
@@ -64,6 +66,7 @@ public class GenerateTestData {
 
 	static class TestBundle extends TestObject {
 
+		@Override
 		String getManifest() {
 			StringBuffer manifest = new StringBuffer();
 			manifest.append("Manifest-Version: 1.0\n");
@@ -90,6 +93,7 @@ public class GenerateTestData {
 
 	static class TestFeature extends TestObject {
 
+		@Override
 		String getManifest() {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -115,7 +115,7 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 
 		List<BundleInfo> installedAndExtendedL = Arrays.asList(installedAndExtendedInfo);
 		List<BundleInfo> installedL = Arrays.asList(installedInfo);
-		List<BundleInfo> extendedL = new ArrayList<BundleInfo>(installedAndExtendedL);
+		List<BundleInfo> extendedL = new ArrayList<>(installedAndExtendedL);
 		extendedL.removeAll(installedL);
 
 		assertTrue(installedAndExtendedL.containsAll(installedL));

@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2011 SAP AG. and others.
+ *  Copyright (c) 2011, 2017 SAP AG. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      SAP AG. - initial API and implementation
  *******************************************************************************/
@@ -22,6 +22,7 @@ public class ExplanationTest extends AbstractProvisioningTest {
 	IInstallableUnit c;
 	IPlanner planner;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		root = createIU("root", Version.create("1.0.0"), new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "missing", new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true)}, NO_PROPERTIES, true);

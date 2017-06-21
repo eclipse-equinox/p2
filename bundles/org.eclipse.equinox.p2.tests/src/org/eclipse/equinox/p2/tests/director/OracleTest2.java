@@ -1,16 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -27,6 +26,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 	IDirector director;
 	IProfile profile;
 
+	@Override
 	protected void setUp() throws Exception {
 		IRequirement[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"));
 		a1 = createIU("A", requires, true);
@@ -61,14 +61,14 @@ public class OracleTest2 extends AbstractProvisioningTest {
 
 	/* I'm not sure what this test should look like now
 	 *
-	 
+
 	public void testInstallA1() {
 		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null).getSeverity(), IStatus.OK);
-
+	
 		createTestMetdataRepository(new IInstallableUnit[] {a2, c2, b1});
 		Collection brokenEntryPoint = (Collection) new Oracle().canInstall(new IInstallableUnit[] {b1}, profile, null);
 		//		assertNotNull(brokenEntryPoint.getProperty("entryPoint"));
-
+	
 		new Oracle().hasUpdate(a1);
 		System.out.println(new Oracle().canInstall(new IInstallableUnit[] {b1}, (IInstallableUnit[]) brokenEntryPoint.toArray(new IInstallableUnit[brokenEntryPoint.size()]), profile, null));
 	}

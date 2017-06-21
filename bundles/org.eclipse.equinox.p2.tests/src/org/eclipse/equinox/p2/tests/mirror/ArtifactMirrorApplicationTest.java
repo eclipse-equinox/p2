@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2015 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -47,9 +47,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	protected File sourceRepo3Location; //helloworldfeature + yetanotherfeature
 	protected File sourceRepo4Location; //helloworldfeature v1.0.1
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
-	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		//load all the repositories
@@ -63,9 +61,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		delete(destRepoLocation);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#tearDown()
-	 */
+	@Override
 	protected void tearDown() throws Exception {
 		//remove all the repositories
 		getArtifactRepositoryManager().removeRepository(destRepoLocation.toURI());
@@ -104,9 +100,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Runs mirror application with default arguments. source is the source repo, 
+	 * Runs mirror application with default arguments. source is the source repo,
 	 * destination is the destination repo, append is if the "-writeMode clean" argument should be excluded
-	 * 
+	 *
 	 * Note: We use URL here because command line applications traffic in unencoded URLs,
 	 * so we can't use java.net.URI which will always use the encoded form
 	 */
@@ -1192,14 +1188,17 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 				manager.removeRepository(srcLocation);
 			}
 
+			@Override
 			public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 				return source.getArtifactDescriptors(key);
 			}
 
+			@Override
 			public Iterator<IArtifactKey> everything() {
 				return ((SimpleArtifactRepository) source).everything();
 			}
 
+			@Override
 			public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 				if (firstAttempt) {
 					firstAttempt = false;
@@ -1209,10 +1208,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 				return source.getRawArtifact(descriptor, destination, monitor);
 			}
 
+			@Override
 			public synchronized boolean contains(IArtifactDescriptor descriptor) {
 				return source.contains(descriptor);
 			}
 
+			@Override
 			public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
 				return source.query(query, monitor);
 			}

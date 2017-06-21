@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2016 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -62,7 +62,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	public void testAddRemoveProperty() throws ProvisionException {
 		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 		assertTrue(profile.getProperties().containsKey("test"));
@@ -111,7 +111,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		profile.addInstallableUnit(createIU("test"));
 		assertNull(profile.getInstallableUnitProperty(createIU("test"), "test"));
 		assertNull(profile.removeInstallableUnitProperty(createIU("test"), "test"));
-		Map<String, String> iuProperties = new HashMap<String, String>();
+		Map<String, String> iuProperties = new HashMap<>();
 		iuProperties.put("test", "test");
 		profile.addInstallableUnitProperties(createIU("test"), iuProperties);
 		assertEquals("test", profile.getInstallableUnitProperty(createIU("test"), "test"));
@@ -130,14 +130,17 @@ public class ProfileTest extends AbstractProvisioningTest {
 		profile.addInstallableUnit(createIU("test"));
 		assertEquals(1, queryResultSize(profile.available(QueryUtil.createIUAnyQuery(), null)));
 		profile.setSurrogateProfileHandler(new ISurrogateProfileHandler() {
+			@Override
 			public IProfile createProfile(String id) {
 				return null;
 			}
 
+			@Override
 			public boolean isSurrogate(IProfile profile) {
 				return false;
 			}
 
+			@Override
 			public IQueryResult queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor) {
 				return new Collector();
 			}
@@ -211,6 +214,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 				super(rootName, rootHandler);
 			}
 
+			@Override
 			public void processingInstruction(String target, String data) throws SAXException {
 				if (PROFILE_TEST_TARGET.equals(target)) {
 					Version profileTestVersion = extractPIVersion(target, data);
@@ -226,9 +230,11 @@ public class ProfileTest extends AbstractProvisioningTest {
 			private ProfilesHandler profilesHandler;
 			IProfile[] profiles;
 
+			@Override
 			protected void handleRootAttributes(Attributes attributes) {
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				if (PROFILES_ELEMENT.equals(name)) {
 					if (profilesHandler == null) {
@@ -241,6 +247,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 				}
 			}
 
+			@Override
 			protected void finished() {
 				if (isValidXML()) {
 					if (profilesHandler != null) {
@@ -308,6 +315,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 				profileMap.put(profileId, profile);
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				if (name.equals(PROFILE_ELEMENT)) {
 					new ProfilesProfileHandler(this, attributes, profileHandlers);
@@ -327,6 +335,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 				handleRootAttributes(attributes);
 			}
 
+			@Override
 			protected void finished() {
 				if (isValidXML()) {
 					profileHandlers.put(getProfileId(), this);
@@ -334,10 +343,12 @@ public class ProfileTest extends AbstractProvisioningTest {
 			}
 		}
 
+		@Override
 		protected String getErrorMessage() {
 			return "Error parsing profile string";
 		}
 
+		@Override
 		protected Object getRootObject() {
 			Map result = new HashMap();
 			for (int i = 0; i < profiles.length; i++) {

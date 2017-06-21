@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -127,6 +127,7 @@ public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfigu
 	}
 
 	//on adding extension master must be selected in order to create new profile with extensions!
+	@Override
 	public void testSharedConfigurationMasterUnmodified() throws IOException {
 		storeTimestamp(new File(masterConfguration, relativeURL.getFile()).lastModified());
 		assertEquals(sharedConfiguration[1], configurator.chooseConfigurationURL(relativeURL, sharedConfiguration));

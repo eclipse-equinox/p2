@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2010, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -46,11 +46,11 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 	}
 
 	/*
-	 * Take the given plan and compress additons/removals so they look like updates. 
+	 * Take the given plan and compress additons/removals so they look like updates.
 	 * Good for viewing while debugging.
 	 */
 	protected Collection compress(IProvisioningPlan plan) {
-		Map<String, InstallableUnitOperand> result = new HashMap<String, InstallableUnitOperand>();
+		Map<String, InstallableUnitOperand> result = new HashMap<>();
 		Operand[] operands = ((ProvisioningPlan) plan).getOperands();
 		for (int i = 0; i < operands.length; i++) {
 			if (!(operands[i] instanceof InstallableUnitOperand))
@@ -79,6 +79,7 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		File reporegistry1 = getTestData("loading planner test data", getTestDataPath());
@@ -101,6 +102,7 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 		repo = loadMetadataRepository(getTestData("planner test repo", getTestDataPath() + "/repo").toURI());
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP and others. All rights reserved. This
+ * Copyright (c) 2011, 2017 SAP and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   SAP - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
@@ -42,6 +42,7 @@ public class ANYConfigCUsActionTest extends ActionTest {
 	private IMetadataRepository metadataRepo;
 	private DataLoader loader;
 
+	@Override
 	public void setUp() throws Exception {
 
 		// configuration spec for creation of filterless CUs
@@ -171,6 +172,7 @@ public class ANYConfigCUsActionTest extends ActionTest {
 		assertTrue("my.property", body.indexOf("setProgramProperty(propName:my.property,propValue:${#123}a${#44}b${#58}c${#59}${#36}d${#125});") > -1); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	protected void insertPublisherInfoBehavior() {
 		loader = new DataLoader(configLocation, executableLocation);
 

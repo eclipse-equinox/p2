@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2012 Landmark Graphics Corporation
+ * Copyright (c) 2012, 2017 Landmark Graphics Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Landmark Graphics Corporation - initial API and implementation
  *******************************************************************************/
@@ -78,12 +78,12 @@ public class VariableTest extends AbstractProvisioningTest {
 		private static int count = 0;
 		private static final int failAt = 3;
 
-		public static ArrayList<String> inputValues = new ArrayList<String>();
-		public static ArrayList<String> undoValues = new ArrayList<String>();
+		public static ArrayList<String> inputValues = new ArrayList<>();
+		public static ArrayList<String> undoValues = new ArrayList<>();
 
 		public static void reinitForNextTest() {
-			inputValues = new ArrayList<String>();
-			undoValues = new ArrayList<String>();
+			inputValues = new ArrayList<>();
+			undoValues = new ArrayList<>();
 			failMode = false;
 			count = 0;
 		}
@@ -108,8 +108,9 @@ public class VariableTest extends AbstractProvisioningTest {
 			return Status.OK_STATUS;
 		}
 
+		@Override
 		public Value<String> getResult() {
-			return new Value<String>(result);
+			return new Value<>(result);
 		}
 	}
 }

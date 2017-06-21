@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,6 +65,7 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 		final List list = Collections.synchronizedList(new ArrayList());
 		DirectoryChangeListener listener = new DirectoryChangeListener() {
 
+			@Override
 			public boolean added(File file) {
 				if (file.getName().equals("CVS"))
 					return false;
@@ -72,10 +73,12 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 				return true;
 			}
 
+			@Override
 			public boolean changed(File file) {
 				return false;
 			}
 
+			@Override
 			public boolean removed(File file) {
 				if (file.getName().equals("CVS"))
 					return false;
@@ -83,18 +86,22 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 				return true;
 			}
 
+			@Override
 			public boolean isInterested(File file) {
 				return true;
 			}
 
+			@Override
 			public Long getSeenFile(File file) {
 				return null;
 			}
 
+			@Override
 			public void startPoll() {
 
 			}
 
+			@Override
 			public void stopPoll() {
 			}
 

@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2015 IBM Corporation and others.
+ *  Copyright (c) 2005, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -134,7 +134,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
 		bundlePool.addDescriptor(descriptor);
 
-		Map<String, String> extraProperties = new HashMap<String, String>();
+		Map<String, String> extraProperties = new HashMap<>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 
 		Dictionary mockManifest = new Properties();
@@ -172,7 +172,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
 		bundlePool.addDescriptor(descriptor);
 
-		Map<String, String> extraProperties = new HashMap<String, String>();
+		Map<String, String> extraProperties = new HashMap<>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 
 		Dictionary mockManifest = new Properties();

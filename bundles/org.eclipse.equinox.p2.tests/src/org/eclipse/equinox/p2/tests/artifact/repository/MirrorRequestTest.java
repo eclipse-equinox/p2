@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2010 IBM Corporation and others.
+ *  Copyright (c) 2005, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -41,6 +41,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	IArtifactRepository targetRepository, sourceRepository;
 	URI destination, failedOptimized, pakedRepositoryLocation;
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		targetLocation = File.createTempFile("target", ".repo");
@@ -55,6 +56,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		destination = getTempFolder().toURI();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		getArtifactRepositoryManager().removeRepository(destination);
 		getArtifactRepositoryManager().removeRepository(failedOptimized);
@@ -67,7 +69,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 	public void testInvalidZipFileInTheSource() {
 		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "HelloWorldFeature", Version.createOSGi(1, 0, 0));
-		Map<String, String> targetProperties = new HashMap<String, String>();
+		Map<String, String> targetProperties = new HashMap<>();
 		targetProperties.put("artifact.folder", "true");
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties, (Transport) getAgent().getService(Transport.SERVICE_NAME));
 		request.perform(sourceRepository, new NullProgressMonitor());
@@ -78,7 +80,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 	public void testMissingArtifact() {
 		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "Missing", Version.createOSGi(1, 0, 0));
-		Map<String, String> targetProperties = new HashMap<String, String>();
+		Map<String, String> targetProperties = new HashMap<>();
 		targetProperties.put("artifact.folder", "true");
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties, getTransport());
 		request.perform(sourceRepository, new NullProgressMonitor());
@@ -86,7 +88,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertTrue(request.getResult().matches(IStatus.ERROR));
 	}
 
-	// Test that if MirrorRequest fails to download a packed artifact it attempts the canonical version 
+	// Test that if MirrorRequest fails to download a packed artifact it attempts the canonical version
 	public void testFailToCanonical() {
 		RemoteRepo src = new RemoteRepo((SimpleArtifactRepository) sourceRepository);
 
@@ -99,7 +101,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertTrue("Number of downloads differs from expected attempts.", src.downloadCount == 2);
 	}
 
-	// Test that SimpleArtifactRepository & MirrorRequest use mirrors in the event of a failure. 
+	// Test that SimpleArtifactRepository & MirrorRequest use mirrors in the event of a failure.
 	public void testMirrorFailOver() {
 		OrderedMirrorSelector selector = new OrderedMirrorSelector(sourceRepository);
 		try {
@@ -138,7 +140,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
 		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
-		// Set Status sequence 
+		// Set Status sequence
 		seq.add(new Status(IStatus.ERROR, "Activator", "Message"));
 		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
@@ -147,7 +149,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key);
-		// Set Status sequence 
+		// Set Status sequence
 		req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
 		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
@@ -158,7 +160,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key);
-		// Set Status sequence 
+		// Set Status sequence
 		req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
@@ -168,12 +170,13 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	}
 
 	/*
-	 * 
+	 *
 	 */
 	public void testFailedOptimizedMissingCanonical() {
 
 		try {
 			IArtifactRepository source = new AbstractWrappedArtifactRepository(getArtifactRepositoryManager().loadRepository(failedOptimized, new NullProgressMonitor())) {
+				@Override
 				public URI getLocation() {
 					try {
 						return new URI("http://nowhere");
@@ -211,6 +214,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			super(repo);
 		}
 
+		@Override
 		public URI getLocation() {
 			// Lie about the location so packed files are used
 			try {
@@ -220,6 +224,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			}
 		}
 
+		@Override
 		public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 			try {
 				destination.write(new byte[] {1, 1, 2});
@@ -260,6 +265,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			delegate = repo;
 		}
 
+		@Override
 		public synchronized URI getLocation() {
 			try {
 				return new URI("http://test/");
@@ -270,39 +276,48 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			}
 		}
 
+		@Override
 		public boolean contains(IArtifactDescriptor descriptor) {
 			return delegate.contains(descriptor);
 		}
 
+		@Override
 		public boolean contains(IArtifactKey key) {
 			return delegate.contains(key);
 		}
 
+		@Override
 		public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 			downloadCount++;
 			return delegate.getArtifact(descriptor, destination, monitor);
 		}
 
+		@Override
 		public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 			return delegate.getArtifactDescriptors(key);
 		}
 
+		@Override
 		public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 			return delegate.getArtifacts(requests, monitor);
 		}
 
+		@Override
 		public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 			return delegate.getOutputStream(descriptor);
 		}
 
+		@Override
 		public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 			return delegate.getRawArtifact(descriptor, destination, monitor);
 		}
 
+		@Override
 		public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 			return delegate.descriptorQueryable();
 		}
 
+		@Override
 		public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 			return delegate.query(query, monitor);
 		}
@@ -329,7 +344,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			mirrors = computeMirrors("file:///" + getTestData("Mirror Location", testDataLocation + '/' + repo.getProperties().get(IRepository.PROP_MIRRORS_URL)).toString().replace('\\', '/'));
 		}
 
-		// Hijack the source repository's MirrorSelector 
+		// Hijack the source repository's MirrorSelector
 		private void setSelector() {
 			Field mirrorField = null;
 			try {
@@ -424,7 +439,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 						|| mirrorsURL.startsWith("https://") //$NON-NLS-1$
 						|| mirrorsURL.startsWith("file://") //$NON-NLS-1$
 						|| mirrorsURL.startsWith("ftp://") //$NON-NLS-1$
-				|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
+						|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
 					fail("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
 				return null;
 			}

@@ -44,10 +44,10 @@ public class TychoUsage extends AbstractProvisioningTest {
 	public void testTychoUsage() throws ProvisionException, URISyntaxException {
 		IMetadataRepository repo = loadMetadataRepository(URIUtil.fromString("http://download.eclipse.org/releases/indigo"));
 		IInstallableUnit newRoot1 = repo.query(QueryUtil.createIUQuery("org.eclipse.emf.sdk.feature.group", Version.create("2.7.2.v20120130-0943")), new NullProgressMonitor()).iterator().next();
-		Collection<IInstallableUnit> newRoots = new ArrayList<IInstallableUnit>();
+		Collection<IInstallableUnit> newRoots = new ArrayList<>();
 		newRoots.add(newRoot1);
 
-		Map<String, String> context = new HashMap<String, String>();
+		Map<String, String> context = new HashMap<>();
 		context.put("osgi.ws", "win32");
 		context.put("osgi.os", "win32");
 		context.put("osgi.arch", "x86_64");

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -36,7 +36,7 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 */
 	public static TestRepositoryWatcher createWatcher(File folder) {
 		RepositoryListener listener = new RepositoryListener(AbstractProvisioningTest.getUniqueString(), null);
-		Map<String, String> props = new Hashtable<String, String>();
+		Map<String, String> props = new Hashtable<>();
 		props.put(DirectoryWatcher.DIR, folder.getAbsolutePath());
 		props.put(DirectoryWatcher.POLL, "500");
 		TestRepositoryWatcher result = new TestRepositoryWatcher(props, TestActivator.getContext());
@@ -51,9 +51,6 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 		super(props, context);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher#addListener(org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener)
-	 */
 	public synchronized void addListener(RepositoryListener repoListener) {
 		super.addListener(repoListener);
 		this.listener = repoListener;
