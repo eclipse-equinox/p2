@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2008, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2008, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -10,10 +10,12 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import java.io.*;
+import java.io.File;
+import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -584,12 +586,10 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			try {
 				MessageDigest algorithm = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
 				algorithm.reset();
-				algorithm.update(message.getBytes("UTF-8")); //$NON-NLS-1$
+				algorithm.update(message.getBytes(StandardCharsets.UTF_8));
 				byte[] digestBytes = algorithm.digest();
 				return new BigInteger(1, digestBytes);
 			} catch (NoSuchAlgorithmException e) {
-				throw new RuntimeException(e);
-			} catch (UnsupportedEncodingException e) {
 				throw new RuntimeException(e);
 			}
 		}

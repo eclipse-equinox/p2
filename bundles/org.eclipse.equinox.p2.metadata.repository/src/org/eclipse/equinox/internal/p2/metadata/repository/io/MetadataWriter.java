@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -25,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.expression.*;
 
 public class MetadataWriter extends XMLWriter implements XMLConstants {
 
-	public MetadataWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
+	public MetadataWriter(OutputStream output, ProcessingInstruction[] piElements) {
 		super(output, piElements);
 		// TODO: add a processing instruction for the metadata version
 	}

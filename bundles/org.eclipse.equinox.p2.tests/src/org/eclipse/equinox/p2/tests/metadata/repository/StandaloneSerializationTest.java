@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype, Inc. and others.
+ * Copyright (c) 2011, 2017 Sonatype, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,8 +21,7 @@ public class StandaloneSerializationTest extends TestCase {
 	public void testNothingToWrite() {
 		try {
 			File f = File.createTempFile(getName(), "iu");
-			OutputStream os;
-			os = new FileOutputStream(f);
+			OutputStream os = new FileOutputStream(f);
 			new IUSerializer(os).write(Collections.EMPTY_LIST);
 			os.close();
 			assertTrue(f.length() > 0);
@@ -41,8 +40,7 @@ public class StandaloneSerializationTest extends TestCase {
 		File f = null;
 		try {
 			f = File.createTempFile(getName(), "iu");
-			OutputStream os;
-			os = new FileOutputStream(f);
+			OutputStream os = new FileOutputStream(f);
 			new IUSerializer(os).write(Collections.EMPTY_LIST);
 			os.close();
 		} catch (FileNotFoundException e) {
@@ -56,8 +54,7 @@ public class StandaloneSerializationTest extends TestCase {
 		//Read file written
 		boolean exceptionRaised = false;
 		try {
-			InputStream is;
-			is = new FileInputStream(f);
+			InputStream is = new FileInputStream(f);
 			Collection<IInstallableUnit> ius = new IUDeserializer().read(is);
 			assertEquals(0, ius.size());
 			is.close();
@@ -88,8 +85,7 @@ public class StandaloneSerializationTest extends TestCase {
 		File f = null;
 		try {
 			f = File.createTempFile(getName(), "iu");
-			OutputStream os;
-			os = new FileOutputStream(f);
+			OutputStream os = new FileOutputStream(f);
 			new IUSerializer(os).write(ius);
 			os.close();
 		} catch (FileNotFoundException e) {

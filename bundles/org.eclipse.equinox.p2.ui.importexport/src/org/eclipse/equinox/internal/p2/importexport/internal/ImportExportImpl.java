@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,8 +105,7 @@ public class ImportExportImpl implements P2ImportExport {
 		IStatus status = exportP2F(output, rootsToExport, subMonitor);
 		if (status.isOK() && queryRepoResult.isOK())
 			return status;
-		MultiStatus rt = new MultiStatus(Constants.Bundle_ID, 0, new IStatus[] {queryRepoResult, status}, null, null);
-		return rt;
+		return new MultiStatus(Constants.Bundle_ID, 0, new IStatus[] {queryRepoResult, status}, null, null);
 	}
 
 	private boolean isContainedInLocalRepo(IInstallableUnit iu) {
@@ -134,8 +133,6 @@ public class ImportExportImpl implements P2ImportExport {
 			P2FWriter writer = new P2FWriter(output, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(P2FConstants.P2F_ELEMENT, P2FConstants.CURRENT_VERSION)});
 			writer.write(ius);
 			return Status.OK_STATUS;
-		} catch (UnsupportedEncodingException e) {
-			return new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e);
 		} finally {
 			sub.worked(100);
 		}

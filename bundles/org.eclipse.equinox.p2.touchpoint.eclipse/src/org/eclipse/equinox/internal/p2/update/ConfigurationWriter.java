@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,8 +55,6 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			}
 
 			writer.endTag(ELEMENT_CONFIG);
-		} catch (UnsupportedEncodingException e) {
-			throw new ProvisionException(NLS.bind(Messages.error_saving_config, location), e);
 		} catch (FileNotFoundException e) {
 			throw new ProvisionException(NLS.bind(Messages.error_saving_config, location), e);
 		} finally {

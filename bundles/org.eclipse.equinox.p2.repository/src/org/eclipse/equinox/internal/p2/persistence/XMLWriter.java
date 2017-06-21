@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.*;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Stack;
+import org.eclipse.equinox.p2.metadata.Version;
 
 public class XMLWriter implements XMLConstants {
 
@@ -59,8 +60,8 @@ public class XMLWriter implements XMLConstants {
 
 	private PrintWriter pw;
 
-	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
-		this.pw = new PrintWriter(new OutputStreamWriter(output, "UTF8"), false); //$NON-NLS-1$
+	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements) {
+		this.pw = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), false);
 		println(ProcessingInstruction.XML_UTF8);
 		this.elements = new Stack<String>();
 		this.open = false;

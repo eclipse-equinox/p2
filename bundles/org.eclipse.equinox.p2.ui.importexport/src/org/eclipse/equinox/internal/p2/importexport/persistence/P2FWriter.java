@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.importexport.persistence;
 
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.List;
 import java.util.Locale;
@@ -22,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public class P2FWriter extends XMLWriter implements P2FConstants {
 
-	public P2FWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
+	public P2FWriter(OutputStream output, ProcessingInstruction[] piElements) {
 		super(output, piElements);
 	}
 

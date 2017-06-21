@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /*
  * Class used to persist a composite repository.
@@ -25,7 +23,7 @@ public class CompositeWriter extends XMLWriter implements XMLConstants {
 	private static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
 	private static final Version CURRENT_VERSION = Version.createOSGi(1, 0, 0);
 
-	public CompositeWriter(OutputStream output, String type) throws UnsupportedEncodingException {
+	public CompositeWriter(OutputStream output, String type) {
 		super(output, new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(type, CURRENT_VERSION)});
 		// TODO: add a processing instruction for the metadata version
 	}
