@@ -183,11 +183,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				copy(message, children[i], new File(target, children[i].getName()));
 			return;
 		}
-		InputStream input = null;
-		OutputStream output = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(source));
-			output = new BufferedOutputStream(new FileOutputStream(target));
+		try (InputStream input = new BufferedInputStream(new FileInputStream(source)); OutputStream output = new BufferedOutputStream(new FileOutputStream(target));) {
 
 			byte[] buffer = new byte[8192];
 			int bytesRead = 0;
@@ -195,23 +191,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				output.write(buffer, 0, bytesRead);
 		} catch (IOException e) {
 			fail(message, e);
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					System.err.println("Exception while trying to close input stream on: " + source.getAbsolutePath());
-					e.printStackTrace();
-				}
-			}
-			if (output != null) {
-				try {
-					output.close();
-				} catch (IOException e) {
-					System.err.println("Exception while trying to close output stream on: " + target.getAbsolutePath());
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -696,26 +675,16 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static void writeBuffer(File outputFile, StringBuffer buffer) throws IOException {
-		FileOutputStream stream = null;
-		try {
-			outputFile.getParentFile().mkdirs();
-			stream = new FileOutputStream(outputFile);
+		outputFile.getParentFile().mkdirs();
+		try (FileOutputStream stream = new FileOutputStream(outputFile)) {
 			stream.write(buffer.toString().getBytes());
-		} finally {
-			if (stream != null)
-				stream.close();
 		}
 	}
 
 	public static void writeProperties(File outputFile, Properties properties) throws IOException {
-		FileOutputStream stream = null;
-		try {
-			outputFile.getParentFile().mkdirs();
-			stream = new FileOutputStream(outputFile);
+		outputFile.getParentFile().mkdirs();
+		try (FileOutputStream stream = new FileOutputStream(outputFile)) {
 			properties.store(stream, "");
-		} finally {
-			if (stream != null)
-				stream.close();
 		}
 	}
 
@@ -1126,22 +1095,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * @param content
 	 */
 	public static void assertFileContent(String message, File f, String content) {
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)))) {
 			String line = reader.readLine();
 			assertEquals(message, content, line);
 		} catch (FileNotFoundException e) {
 			fail("Getting copy target", e);
 		} catch (IOException e) {
 			fail("reading copy target", e);
-		} finally {
-			try {
-				if (reader != null)
-					reader.close();
-			} catch (IOException e) {
-				//ignore
-			}
 		}
 	}
 
@@ -1448,8 +1408,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		assertTrue(log.exists());
 		assertTrue(log.length() > 0);
 		assertNotNull(parts);
-		BufferedReader reader = new BufferedReader(new FileReader(log));
-		try {
+		try (BufferedReader reader = new BufferedReader(new FileReader(log))) {
 			while (reader.ready()) {
 				String line = reader.readLine();
 				boolean found = true;
@@ -1459,8 +1418,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				if (found)
 					return;
 			}
-		} finally {
-			reader.close();
 		}
 		assertTrue(false);
 	}
@@ -1483,8 +1440,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		assertTrue(log.length() > 0);
 
 		int idx = 0;
-		BufferedReader reader = new BufferedReader(new FileReader(log));
-		try {
+		try (BufferedReader reader = new BufferedReader(new FileReader(log))) {
 			while (reader.ready()) {
 				String line = reader.readLine();
 				if (line.indexOf(lines[idx]) >= 0) {
@@ -1493,8 +1449,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 					}
 				}
 			}
-		} finally {
-			reader.close();
 		}
 		fail(String.format("Log file %s doesn't contain lines %s", log.getCanonicalPath(), Arrays.toString(lines)));
 	}
@@ -1517,8 +1471,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		assertTrue(log.length() > 0);
 
 		int idx = 0;
-		BufferedReader reader = new BufferedReader(new FileReader(log));
-		try {
+		try (BufferedReader reader = new BufferedReader(new FileReader(log))) {
 			while (reader.ready()) {
 				String line = reader.readLine();
 				if (line.indexOf(lines[idx]) >= 0) {
@@ -1527,8 +1480,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 					}
 				}
 			}
-		} finally {
-			reader.close();
 		}
 	}
 
@@ -1627,18 +1578,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail("File: " + file.toString() + " can't be found.");
 		int idx = 0;
 		try {
-			BufferedReader reader = null;
-			try {
-				reader = new BufferedReader(new FileReader(file));
+			try (BufferedReader reader = new BufferedReader(new FileReader(file));) {
 				while (reader.ready()) {
 					String line = reader.readLine();
 					if (line.indexOf(lines[idx]) > 0) {
 						fail("String: " + lines[idx] + " should not be in " + file.getAbsolutePath());
 					}
 				}
-			} finally {
-				if (reader != null)
-					reader.close();
 			}
 		} catch (FileNotFoundException e) {
 			//ignore, caught before
@@ -1652,9 +1598,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail("File: " + file.toString() + " can't be found.");
 		int idx = 0;
 		try {
-			BufferedReader reader = null;
-			try {
-				reader = new BufferedReader(new FileReader(file));
+			try (BufferedReader reader = new BufferedReader(new FileReader(file));) {
 				while (reader.ready()) {
 					String line = reader.readLine();
 					if (line.indexOf(lines[idx]) >= 0) {
@@ -1662,9 +1606,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 							return;
 					}
 				}
-			} finally {
-				if (reader != null)
-					reader.close();
 			}
 		} catch (FileNotFoundException e) {
 			//ignore, caught before

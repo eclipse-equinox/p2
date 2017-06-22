@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2013 Ericsson AB and others. All rights reserved. This
+ * Copyright (c) 2013, 2017 Ericsson AB and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     Ericsson AB - initial API and implementation
  *     Red Hat, Inc. - fragments support
  ******************************************************************************/
@@ -196,12 +196,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	public static void reallyReadOnly(File folder, boolean recurse) {
 		reallyReadOnly(folder);
 		if (folder.exists() && recurse) {
-			File[] dirs = folder.listFiles(new FileFilter() {
-				@Override
-				public boolean accept(File pathname) {
-					return pathname.isDirectory();
-				}
-			});
+			File[] dirs = folder.listFiles((FileFilter) pathname -> pathname.isDirectory());
 			for (File dir : dirs) {
 				reallyReadOnly(dir, true);
 			}
@@ -228,12 +223,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	public static void removeReallyReadOnly(File folder, boolean recurse) {
 		removeReallyReadOnly(folder);
 		if (folder.exists() && recurse) {
-			File[] dirs = folder.listFiles(new FileFilter() {
-				@Override
-				public boolean accept(File pathname) {
-					return pathname.isDirectory();
-				}
-			});
+			File[] dirs = folder.listFiles((FileFilter) pathname -> pathname.isDirectory());
 			for (File dir : dirs) {
 				removeReallyReadOnly(dir, true);
 			}
@@ -311,15 +301,8 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		Properties newProps = new Properties();
 		newProps.put("id", id);
 		newProps.put("version", version);
-		OutputStream os = null;
-		try {
-			try {
-				os = new FileOutputStream(eclipseProductFile);
-				newProps.save(os, "file generated for tests " + getName());
-			} finally {
-				if (os != null)
-					os.close();
-			}
+		try (OutputStream os = new FileOutputStream(eclipseProductFile)) {
+			newProps.save(os, "file generated for tests " + getName());
 		} catch (IOException e) {
 			fail("Failing setting up the .eclipseproduct file at:" + eclipseProductFile.getAbsolutePath());
 		}

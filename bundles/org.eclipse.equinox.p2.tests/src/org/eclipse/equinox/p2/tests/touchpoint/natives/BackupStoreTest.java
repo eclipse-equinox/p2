@@ -61,11 +61,9 @@ public class BackupStoreTest extends AbstractProvisioningTest {
 	private void writeToFile(File file, String content) throws IOException {
 		file.getParentFile().mkdirs();
 		file.createNewFile();
-		Writer writer = new BufferedWriter(new FileWriter(file));
-		try {
+
+		try (Writer writer = new BufferedWriter(new FileWriter(file))) {
 			writer.write(content);
-		} finally {
-			writer.close();
 		}
 	}
 

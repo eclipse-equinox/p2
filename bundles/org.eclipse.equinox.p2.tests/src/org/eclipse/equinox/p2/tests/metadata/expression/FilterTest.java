@@ -79,6 +79,7 @@ public class FilterTest extends TestCase {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public Dictionary getProperties() {
 			return new Hashtable(dictionary);
 		}

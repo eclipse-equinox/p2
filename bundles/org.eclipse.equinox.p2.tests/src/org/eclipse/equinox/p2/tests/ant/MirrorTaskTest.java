@@ -607,22 +607,22 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		IArtifactKey key = new ArtifactKey("osgi.bundle", "a", Version.parseVersion("1.0.0"));
 		IArtifactRepository[] repos = new IArtifactRepository[] {createArtifactRepository(base.toURI(), null), createArtifactRepository(source.toURI(), null)};
 		for (int i = 0; i < 2; i++) {
-			ZipOutputStream stream = new ZipOutputStream(repos[i].getOutputStream(repos[i].createArtifactDescriptor(key)));
-			ZipEntry entry = new ZipEntry("file.properties");
-			stream.putNextEntry(entry);
-			props.store(stream, String.valueOf(i));
-			stream.closeEntry();
-			stream.close();
+			try (ZipOutputStream stream = new ZipOutputStream(repos[i].getOutputStream(repos[i].createArtifactDescriptor(key)))) {
+				ZipEntry entry = new ZipEntry("file.properties");
+				stream.putNextEntry(entry);
+				props.store(stream, String.valueOf(i));
+				stream.closeEntry();
+			}
 		}
 		key = new ArtifactKey("osgi.bundle", "b", Version.parseVersion("1.0.0"));
 		for (int i = 0; i < 2; i++) {
-			ZipOutputStream stream = new ZipOutputStream(repos[i].getOutputStream(repos[i].createArtifactDescriptor(key)));
-			ZipEntry entry = new ZipEntry("file.properties");
-			stream.putNextEntry(entry);
-			props.put("boo", String.valueOf(i));
-			props.store(stream, String.valueOf(i));
-			stream.closeEntry();
-			stream.close();
+			try (ZipOutputStream stream = new ZipOutputStream(repos[i].getOutputStream(repos[i].createArtifactDescriptor(key)))) {
+				ZipEntry entry = new ZipEntry("file.properties");
+				stream.putNextEntry(entry);
+				props.put("boo", String.valueOf(i));
+				props.store(stream, String.valueOf(i));
+				stream.closeEntry();
+			}
 		}
 
 		AntTaskElement mirror = createMirrorTask(TYPE_ARTIFACT);
@@ -738,7 +738,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		PrintStream oldOut = System.out;
 		PrintStream newOut = null;
 		try {
-			(new File(destinationRepo)).mkdir();
+			new File(destinationRepo).mkdir();
 			newErr = new PrintStream(new FileOutputStream(new File(new File(destinationRepo), "sys.err")));
 			newOut = new PrintStream(new FileOutputStream(new File(new File(destinationRepo), "sys.out")));
 		} catch (FileNotFoundException e) {

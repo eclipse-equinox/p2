@@ -165,15 +165,10 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	 * Write the build script to disk
 	 */
 	private void writeBuildScript() throws Exception {
-		FileOutputStream outputStream = null;
-		try {
-			outputStream = new FileOutputStream(buildScript);
+		try (FileOutputStream outputStream = new FileOutputStream(buildScript);) {
 			XMLWriter writer = new XMLWriter(outputStream, null);
 			writeElement(writer, root);
 			writer.flush();
-		} finally {
-			if (outputStream != null)
-				outputStream.close();
 		}
 	}
 

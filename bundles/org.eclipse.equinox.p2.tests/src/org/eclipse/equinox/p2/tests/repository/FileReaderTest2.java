@@ -189,8 +189,6 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 
 	private void doFileReaderTest(final PauseJob pauseJob, IProgressMonitor monitor) throws IOException, CoreException {
 		final String testRemoteFileURL = "http://download.eclipse.org/releases/juno/201206270900/content.jar";
-		OutputStream out = null;
-		OutputStream out1 = null;
 		File tmpFolder = getTempFolder();
 		File tmpFile = new File(tmpFolder, "testDownloadPauseResume.zip");
 		File tmpFile1 = new File(tmpFolder, "testDownloadWithoutPause.zip");
@@ -209,25 +207,23 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 		getEventBus().addListener(listener);
 		try {
 			tmpFile1.createNewFile();
-			out1 = new FileOutputStream(tmpFile1);
-			FileReader readerWithoutPausing = new FileReader(null, null);
-			readerWithoutPausing.readInto(URI.create(testRemoteFileURL), out1, null);
-			assertNotNull(readerWithoutPausing.getResult());
-			assertTrue(readerWithoutPausing.getResult().isOK());
-			tmpFile.createNewFile();
-			out = new FileOutputStream(tmpFile);
-			FileReader reader = pauseJob.getReader();
-			reader.readInto(URI.create(testRemoteFileURL), out, monitor);
-			assertNotNull(reader.getResult());
-			assertTrue(reader.getResult().isOK());
-			assertEquals("File with pausing/resuming is not identical with file without pausing.", tmpFile1.length(), tmpFile.length());
+			try (OutputStream out1 = new FileOutputStream(tmpFile1)) {
+				FileReader readerWithoutPausing = new FileReader(null, null);
+				readerWithoutPausing.readInto(URI.create(testRemoteFileURL), out1, null);
+				assertNotNull(readerWithoutPausing.getResult());
+				assertTrue(readerWithoutPausing.getResult().isOK());
+				tmpFile.createNewFile();
+				try (OutputStream out = new FileOutputStream(tmpFile)) {
+					FileReader reader = pauseJob.getReader();
+					reader.readInto(URI.create(testRemoteFileURL), out, monitor);
+					assertNotNull(reader.getResult());
+					assertTrue(reader.getResult().isOK());
+					assertEquals("File with pausing/resuming is not identical with file without pausing.", tmpFile1.length(), tmpFile.length());
+				}
+			}
 		} finally {
 			getEventBus().removeListener(listener);
-			if (out1 != null)
-				out1.close();
 			tmpFile1.delete();
-			if (out != null)
-				out.close();
 			tmpFile.delete();
 			delete(tmpFolder);
 		}

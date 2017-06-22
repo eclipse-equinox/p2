@@ -153,36 +153,18 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 	private void updateConfigIni(Map<String, BundleInfo> infos) {
 		File location = new File(output, "eclipse/configuration/config.ini");
 		Properties ini = new Properties();
-		InputStream input = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(location));
+		try (InputStream input = new BufferedInputStream(new FileInputStream(location))) {
 			ini.load(input);
 		} catch (IOException e) {
 			fail("Exception while loading config.ini from: " + location.getAbsolutePath(), e);
-		} finally {
-			if (input != null)
-				try {
-					input.close();
-				} catch (IOException e) {
-					// ignore
-				}
 		}
 		BundleInfo framework = infos.get("org.eclipse.osgi");
 		assertNotNull("Unable to find framework in list of bootstrap bundles.", framework);
 		ini.put("osgi.framework", framework.getLocation().toString());
-		OutputStream out = null;
-		try {
-			out = new BufferedOutputStream(new FileOutputStream(location));
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(location));) {
 			ini.store(out, null);
 		} catch (IOException e) {
 			fail("Exception while saving config.ini to: " + location.getAbsolutePath(), e);
-		} finally {
-			if (out != null)
-				try {
-					out.close();
-				} catch (IOException e) {
-					// ignore
-				}
 		}
 	}
 

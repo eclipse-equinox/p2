@@ -65,14 +65,12 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 		File plugins = new File(install, "plugins");
 
 		PrintStream oldOut = System.out;
-		PrintStream newOut = new PrintStream(new FileOutputStream(workingDir + "/out.out"));
-		System.setOut(newOut);
+		try (PrintStream newOut = new PrintStream(new FileOutputStream(workingDir + "/out.out"))) {
+			System.setOut(newOut);
 
-		try {
 			verifier.verify(workingDir, new String[] {plugins.getAbsolutePath()});
 		} finally {
 			System.setOut(oldOut);
-			newOut.close();
 		}
 
 	}
@@ -108,17 +106,15 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 		options.input = input;
 
 		PrintStream oldOut = System.out;
-		PrintStream newOut = new PrintStream(new FileOutputStream(workingDir + "/out.out"));
-		System.setOut(newOut);
+		try (PrintStream newOut = new PrintStream(new FileOutputStream(workingDir + "/out.out"))) {
+			System.setOut(newOut);
 
-		try {
 			JarProcessorExecutor executor = new JarProcessorExecutor();
 			executor.runJarProcessor(options);
 
 			Verifier.main(new String[] {"-dir", packed.getAbsolutePath(), packed.getAbsolutePath()});
 		} finally {
 			System.setOut(oldOut);
-			newOut.close();
 		}
 	}
 }

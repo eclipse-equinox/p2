@@ -117,16 +117,16 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 		File bundlesTxt = File.createTempFile("bundles", ".txt");
 		bundlesTxt.deleteOnExit();
 
-		BufferedWriter bundlesTxtOut = new BufferedWriter(new FileWriter(bundlesTxt));
+		try (BufferedWriter bundlesTxtOut = new BufferedWriter(new FileWriter(bundlesTxt))) {
 
-		for (int i = 0; i < jars.length; i++) {
-			File bundleJar = jars[i];
-			bundlesTxtOut.write(getBundlesTxtEntry(bundleJar) + "\n");
+			for (int i = 0; i < jars.length; i++) {
+				File bundleJar = jars[i];
+				bundlesTxtOut.write(getBundlesTxtEntry(bundleJar) + "\n");
+			}
+			bundlesTxtOut.write(getBundlesTxtEntry(getLocation("org.eclipse.equinox.simpleconfigurator")) + "\n");
+			bundlesTxtOut.write(getBundlesTxtEntry(getLocation("org.eclipse.osgi")) + "\n");
+
 		}
-		bundlesTxtOut.write(getBundlesTxtEntry(getLocation("org.eclipse.equinox.simpleconfigurator")) + "\n");
-		bundlesTxtOut.write(getBundlesTxtEntry(getLocation("org.eclipse.osgi")) + "\n");
-
-		bundlesTxtOut.close();
 
 		return bundlesTxt;
 	}
@@ -143,21 +143,14 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 			String value = null;
 			if (bundleFile.isDirectory()) {
 				File m = new File(bundleFile, "META-INF/MANIFEST.MF");
-				InputStream os;
-				os = new FileInputStream(m);
-				Manifest mf;
-				mf = new Manifest(os);
-				value = mf.getMainAttributes().getValue(entry);
-				os.close();
+				try (InputStream os = new FileInputStream(m)) {
+					Manifest mf;
+					mf = new Manifest(os);
+					value = mf.getMainAttributes().getValue(entry);
+				}
 			} else {
-				JarFile bundleJar = null;
-				try {
-					bundleJar = new JarFile(bundleFile);
+				try (JarFile bundleJar = new JarFile(bundleFile)) {
 					value = bundleJar.getManifest().getMainAttributes().getValue(entry);
-				} finally {
-					if (bundleJar != null) {
-						bundleJar.close();
-					}
 				}
 			}
 			if (value.indexOf(";") > -1) {

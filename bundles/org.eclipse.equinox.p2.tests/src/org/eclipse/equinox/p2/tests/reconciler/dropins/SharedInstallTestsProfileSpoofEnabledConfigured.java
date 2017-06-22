@@ -98,11 +98,8 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			assertTrue("0.4", userConfigIni.exists());
 
 			Properties props = new Properties();
-			InputStream is = new BufferedInputStream(new FileInputStream(userConfigIni));
-			try {
+			try (InputStream is = new BufferedInputStream(new FileInputStream(userConfigIni))) {
 				props.load(is);
-			} finally {
-				is.close();
 			}
 			assertTrue("0.5", props.containsKey("osgi.sharedConfiguration.area"));
 			assertTrue("0.6", props.size() == 1);

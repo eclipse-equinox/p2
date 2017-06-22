@@ -886,20 +886,15 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 					properties.remove(IArtifactDescriptor.FORMAT);
 					((ArtifactDescriptor) newDescriptor).addProperties(properties);
 					//create appropriate descriptor
-					try {
-						OutputStream repositoryStream = null;
-						try {
-							//System.out.println("Mirroring: " + srcDescriptors[j].getArtifactKey() + " (Descriptor: " + srcDescriptors[j] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							repositoryStream = destinationRepo.getOutputStream(newDescriptor);
-							if (repositoryStream == null)
-								return;
-							// TODO Is that ok to ignore the result?
-							//TODO MAKE THIS WORK PROPERLY
-							packedRepo.getArtifact(srcDescriptors[j], repositoryStream, new NullProgressMonitor());
-						} finally {
-							if (repositoryStream != null)
-								repositoryStream.close();
-						}
+
+					try (OutputStream repositoryStream = destinationRepo.getOutputStream(newDescriptor)) {
+						//System.out.println("Mirroring: " + srcDescriptors[j].getArtifactKey() + " (Descriptor: " + srcDescriptors[j] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+						if (repositoryStream == null)
+							return;
+						// TODO Is that ok to ignore the result?
+						//TODO MAKE THIS WORK PROPERLY
+						packedRepo.getArtifact(srcDescriptors[j], repositoryStream, new NullProgressMonitor());
 					} catch (ProvisionException e) {
 						fail("27.1", e);
 					} catch (IOException e) {

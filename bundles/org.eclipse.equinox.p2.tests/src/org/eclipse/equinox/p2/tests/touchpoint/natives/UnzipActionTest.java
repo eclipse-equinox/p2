@@ -25,10 +25,9 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 	private static void writeToFile(File file, String content) throws IOException {
 		file.getParentFile().mkdirs();
 		file.createNewFile();
-		FileWriter writer = new FileWriter(file);
-		BufferedWriter out = new BufferedWriter(writer);
-		out.write(content);
-		out.close();
+		try (FileWriter writer = new FileWriter(file); BufferedWriter out = new BufferedWriter(writer)) {
+			out.write(content);
+		}
 	}
 
 	public UnzipActionTest() {

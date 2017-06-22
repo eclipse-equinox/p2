@@ -1,11 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype, Inc. and others. All rights reserved.
+ * Copyright (c) 2011, 2017 Sonatype, Inc. and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
- * Sonatype, Inc. - initial implementation and ideas 
+ *
+ * Contributors:
+ * Sonatype, Inc. - initial implementation and ideas
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
@@ -31,11 +31,9 @@ public class IULoader {
 				if (a[j] instanceof IUDescription) {
 					IUDescription ml = (IUDescription) a[j]; // here it is !!!
 					ReducedCUDFParser parser = new ReducedCUDFParser();
-					InputStream is = new ByteArrayInputStream(ml.content().getBytes());
-					parser.parse(is, false, null);
-					try {
+					try (InputStream is = new ByteArrayInputStream(ml.content().getBytes())) {
+						parser.parse(is, false, null);
 						fields[i].set(o, parser.getIU());
-						is.close();
 					} catch (IllegalArgumentException e) {
 						throw new RuntimeException(e);
 					} catch (IllegalAccessException e) {

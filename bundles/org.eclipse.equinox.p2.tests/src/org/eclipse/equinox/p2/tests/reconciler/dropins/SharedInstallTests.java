@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2013 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat, Inc. - fragments support added.
@@ -95,11 +95,8 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 			assertTrue("0.4", userConfigIni.exists());
 
 			Properties props = new Properties();
-			InputStream is = new BufferedInputStream(new FileInputStream(userConfigIni));
-			try {
+			try (InputStream is = new BufferedInputStream(new FileInputStream(userConfigIni))) {
 				props.load(is);
-			} finally {
-				is.close();
 			}
 			assertTrue("0.5", props.containsKey("osgi.sharedConfiguration.area"));
 			assertTrue("0.6", props.size() == 1);

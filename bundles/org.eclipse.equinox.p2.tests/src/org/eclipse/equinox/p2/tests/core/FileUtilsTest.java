@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008,2009 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2008,2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - Bug fix
@@ -211,9 +211,7 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 	private static void assertExists(String message, File archive, String entry) {
 		if (!archive.exists())
 			fail(message + " file does not exist.");
-		ZipFile zip = null;
-		try {
-			zip = new ZipFile(archive);
+		try (ZipFile zip = new ZipFile(archive)) {
 			boolean found = false;
 			for (Enumeration e = zip.entries(); !found && e.hasMoreElements();) {
 				ZipEntry zipEntry = (ZipEntry) e.nextElement();
@@ -223,13 +221,6 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 			assertTrue(message, found);
 		} catch (IOException e) {
 			fail(message, e);
-		} finally {
-			if (zip != null)
-				try {
-					zip.close();
-				} catch (IOException e) {
-					// ignore
-				}
 		}
 	}
 

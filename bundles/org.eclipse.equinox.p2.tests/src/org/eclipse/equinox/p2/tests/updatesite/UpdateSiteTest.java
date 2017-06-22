@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -777,11 +777,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		// Should have a packed & canonical version
 		assertEquals(2, descriptors.length);
 		IArtifactDescriptor desc = IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT)) ? descriptors[0] : descriptors[1];
-		OutputStream out = null;
-		try {
-			out = new FileOutputStream(output);
+		try (OutputStream out = new FileOutputStream(output)) {
+
 			IStatus status = repo.getRawArtifact(desc, out, new NullProgressMonitor());
-			out.close();
 			// Transfer should succeed
 			assertTrue(status.isOK());
 			// Length should be as expected
@@ -790,12 +788,6 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("Failed", e);
 		} finally {
 			getArtifactRepositoryManager().removeRepository(siteURI);
-			if (out != null)
-				try {
-					out.close();
-				} catch (IOException e) {
-					// Don't care
-				}
 		}
 	}
 
@@ -941,7 +933,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 						|| mirrorsURL.startsWith("https://") //$NON-NLS-1$
 						|| mirrorsURL.startsWith("file://") //$NON-NLS-1$
 						|| mirrorsURL.startsWith("ftp://") //$NON-NLS-1$
-				|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
+						|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
 					fail("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
 				return null;
 			}

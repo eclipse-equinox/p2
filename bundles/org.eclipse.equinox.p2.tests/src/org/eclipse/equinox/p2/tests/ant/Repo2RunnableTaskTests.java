@@ -66,10 +66,10 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		assertTrue("Missing content.jar", new File(f, "content.jar").exists());
 		assertTrue("Missing artifacts.jar", new File(f, "artifacts.jar").exists());
 		assertTrue("Missing fragment.info", new File(f, "fragment.info").exists());
-		BufferedReader br = new BufferedReader(new FileReader(new File(f, "fragment.info")));
-		while (br.ready())
-			System.out.println(br.readLine());
-		br.close();
+		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "fragment.info")))) {
+			while (br.ready())
+				System.out.println(br.readLine());
+		}
 	}
 
 	/*

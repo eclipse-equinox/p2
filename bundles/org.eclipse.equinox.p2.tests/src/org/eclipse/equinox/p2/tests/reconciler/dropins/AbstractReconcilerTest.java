@@ -117,20 +117,18 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	protected static int run(String message, String[] commandArray, File outputFile) {
 		PrintStream out = System.out;
 		PrintStream err = System.err;
-		PrintStream fileStream = null;
 		try {
 			outputFile.getParentFile().mkdirs();
-			fileStream = new PrintStream(new FileOutputStream(outputFile));
-			System.setErr(fileStream);
-			System.setOut(fileStream);
-			return run(message, commandArray);
+			try (PrintStream fileStream = new PrintStream(new FileOutputStream(outputFile))) {
+				System.setErr(fileStream);
+				System.setOut(fileStream);
+				return run(message, commandArray);
+			}
 		} catch (FileNotFoundException e) {
 			return -1;
 		} finally {
 			System.setOut(out);
 			System.setErr(err);
-			if (fileStream != null)
-				fileStream.close();
 		}
 	}
 
@@ -258,19 +256,10 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		file.getParentFile().mkdirs();
 		Properties properties = new Properties();
 		properties.put("path", extensionLocation);
-		OutputStream stream = null;
-		try {
-			stream = new BufferedOutputStream(new FileOutputStream(file));
+		try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(file));) {
 			properties.store(stream, null);
 		} catch (IOException e) {
 			fail(message, e);
-		} finally {
-			try {
-				if (stream != null)
-					stream.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 	}
 
@@ -337,17 +326,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
 	public BundleInfo[] loadBundlesInfo(File location) throws IOException {
 		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
-		InputStream input = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(location));
+		try (InputStream input = new BufferedInputStream(new FileInputStream(location));) {
 			return manipulator.loadConfiguration(input, new File(output, "eclipse").toURI());
-		} finally {
-			try {
-				if (input != null)
-					input.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 	}
 
@@ -672,22 +652,13 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (!file.exists())
 			return null;
 		StringBuffer buffer = new StringBuffer();
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(file));
+		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 				buffer.append(line);
 				buffer.append('\n');
 			}
 		} catch (IOException e) {
 			// TODO
-		} finally {
-			if (reader != null)
-				try {
-					reader.close();
-				} catch (IOException e) {
-					// ignore
-				}
 		}
 		return buffer.toString();
 	}
@@ -774,12 +745,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 						return;
 					archiveAndRepositoryProperties = new Properties();
 					try {
-						InputStream is = null;
-						try {
-							is = new BufferedInputStream(new FileInputStream(propertiesFile));
+						try (InputStream is = new BufferedInputStream(new FileInputStream(propertiesFile))) {
 							archiveAndRepositoryProperties.load(is);
-						} finally {
-							is.close();
 						}
 					} catch (IOException e) {
 						return;

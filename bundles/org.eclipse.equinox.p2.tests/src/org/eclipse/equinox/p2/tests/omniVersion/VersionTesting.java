@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
  * Base class for version testing. Adds useful assert methods.
- * 
+ *
  */
 public class VersionTesting extends TestCase {
 	/**
@@ -42,7 +42,7 @@ public class VersionTesting extends TestCase {
 		assertFalse(message, range.isIncluded(Version.parseVersion(versionString)));
 	}
 
-	/** 
+	/**
 	 * A strict assertion of order.
 	 * asserts that b > a, a < b, a !=b, b != a
 	 * @param a
@@ -103,24 +103,8 @@ public class VersionTesting extends TestCase {
 
 	public static VersionRange getSerialized(VersionRange range) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutputStream os = null;
-		try {
-			os = new ObjectOutputStream(out);
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail("IOException creating ObjectOutputStream");
-		}
-		try {
+		try (ObjectOutputStream os = new ObjectOutputStream(out);) {
 			os.writeObject(range);
-
-		} catch (NotSerializableException e) {
-			fail("Impl of VersionRange is wrong - it is not serializeable");
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail("write of objectfailed");
-		}
-		try {
-			os.close();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			fail("close of output stream failed");
@@ -156,22 +140,8 @@ public class VersionTesting extends TestCase {
 
 	public static Version getSerialized(Version v) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutputStream os = null;
-		try {
-			os = new ObjectOutputStream(out);
-		} catch (IOException e) {
-			fail("IOException creating ObjectOutputStream");
-		}
-		try {
+		try (ObjectOutputStream os = new ObjectOutputStream(out);) {
 			os.writeObject(v);
-		} catch (NotSerializableException e) {
-			e.printStackTrace();
-			fail("Impl of Version is wrong - it is not serializeable");
-		} catch (IOException e) {
-			fail("write of objectfailed");
-		}
-		try {
-			os.close();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			fail("close of output stream failed");

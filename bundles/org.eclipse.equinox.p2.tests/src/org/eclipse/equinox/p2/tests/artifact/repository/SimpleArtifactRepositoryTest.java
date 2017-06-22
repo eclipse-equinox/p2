@@ -28,7 +28,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.repository.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
@@ -359,9 +360,9 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
 		TestDescriptor descriptor = new TestDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")));
-		OutputStream stream = repo.getOutputStream(descriptor);
-		stream.write("I am an artifact\n".getBytes());
-		stream.close();
+		try (OutputStream stream = repo.getOutputStream(descriptor)) {
+			stream.write("I am an artifact\n".getBytes());
+		}
 
 		assertTrue(repo.contains(descriptor));
 
@@ -391,14 +392,10 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		final IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
 
 		long start = System.currentTimeMillis();
-		repo.executeBatch(new IRunnableWithProgress() {
-
-			@Override
-			public void run(IProgressMonitor monitor) throws OperationCanceledException {
-				for (int i = 0; i < 10000; i++) {
-					ArtifactDescriptor d = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a" + i, Version.create("1.0.0")));
-					repo.addDescriptor(d);
-				}
+		repo.executeBatch(monitor -> {
+			for (int i = 0; i < 10000; i++) {
+				ArtifactDescriptor d = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a" + i, Version.create("1.0.0")));
+				repo.addDescriptor(d);
 			}
 		}, new NullProgressMonitor());
 

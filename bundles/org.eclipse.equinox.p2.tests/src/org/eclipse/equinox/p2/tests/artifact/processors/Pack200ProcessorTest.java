@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,7 +83,7 @@ public class Pack200ProcessorTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests the case where we are unpacking a file that was not packed by 
+	 * Tests the case where we are unpacking a file that was not packed by
 	 * our own pack step. In this case the eclipse.inf may not be present
 	 * and we must not attempt to modify it.
 	 * @throws IOException
@@ -96,14 +96,14 @@ public class Pack200ProcessorTest extends AbstractProvisioningTest {
 		ProcessingStep step = new Pack200ProcessorStep();
 
 		File destinationFile = new File(tempFolder, "testUnpackFileNotPackedByJarProcessor.jar");
-		OutputStream destination = new BufferedOutputStream(new FileOutputStream(destinationFile));
-		step.link(destination, new NullProgressMonitor());
+		try (OutputStream destination = new BufferedOutputStream(new FileOutputStream(destinationFile))) {
+			step.link(destination, new NullProgressMonitor());
 
-		// drive the source data through the step
-		Bundle bundle = TestActivator.getContext().getBundle();
-		InputStream inputStream = bundle.getEntry("testData/optimizers/bug387557.bundle_1.0.0.201208200951.jar.pack.gz").openStream();
-		FileUtils.copyStream(inputStream, true, step, true);
-		destination.close();
+			// drive the source data through the step
+			Bundle bundle = TestActivator.getContext().getBundle();
+			InputStream inputStream = bundle.getEntry("testData/optimizers/bug387557.bundle_1.0.0.201208200951.jar.pack.gz").openStream();
+			FileUtils.copyStream(inputStream, true, step, true);
+		}
 
 		// Get the expected result
 		File expected = getTestData("Missing test data", "testData/optimizers/bug387557.bundle_1.0.0.201208200951.jar");

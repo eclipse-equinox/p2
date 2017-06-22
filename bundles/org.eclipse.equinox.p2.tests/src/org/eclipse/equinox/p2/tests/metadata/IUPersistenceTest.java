@@ -341,73 +341,74 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	public void testIUPatchPersistence() throws IOException {
 		IInstallableUnit iu0 = createPatchIU();
 		validateIU(iu0);
-		ByteArrayOutputStream output0 = new ByteArrayOutputStream(3072);
-		IUStringWriter writer0 = new IUStringWriter(output0);
-		writer0.writeTest(iu0);
-		String iuText0 = output0.toString();
-		output0.close();
+		try (ByteArrayOutputStream output0 = new ByteArrayOutputStream(3072)) {
+			IUStringWriter writer0 = new IUStringWriter(output0);
+			writer0.writeTest(iu0);
+			String iuText0 = output0.toString();
 
-		IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
-		parser.parse(iuText0);
-		assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
-		InstallableUnitPatch iu1 = (InstallableUnitPatch) parser.getRootObject();
-		validateIU(iu1);
-		validateIUPatch(iu1);
-		ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492);
-		IUStringWriter writer = new IUStringWriter(output1);
-		writer.writeTest(iu1);
-		String iuText1 = output1.toString();
-		output1.close();
-		assertTrue("Installable unit write after read after write produced different XML", iuText1.equals(iuText0));
+			IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
+			parser.parse(iuText0);
+			assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
+			InstallableUnitPatch iu1 = (InstallableUnitPatch) parser.getRootObject();
+			validateIU(iu1);
+			validateIUPatch(iu1);
+			try (ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492)) {
+				IUStringWriter writer = new IUStringWriter(output1);
+				writer.writeTest(iu1);
+				String iuText1 = output1.toString();
+				output1.close();
+				assertTrue("Installable unit write after read after write produced different XML", iuText1.equals(iuText0));
+			}
+		}
 
 	}
 
 	public void testIUPatchPersistence2() throws IOException {
 		IInstallableUnit iu0 = createPatchWithEmptyScope();
 		validateIU(iu0);
-		ByteArrayOutputStream output0 = new ByteArrayOutputStream(3072);
-		IUStringWriter writer0 = new IUStringWriter(output0);
-		writer0.writeTest(iu0);
-		String iuText0 = output0.toString();
-		output0.close();
+		try (ByteArrayOutputStream output0 = new ByteArrayOutputStream(3072)) {
+			IUStringWriter writer0 = new IUStringWriter(output0);
+			writer0.writeTest(iu0);
+			String iuText0 = output0.toString();
 
-		IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
-		parser.parse(iuText0);
-		assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
-		InstallableUnitPatch iu1 = (InstallableUnitPatch) parser.getRootObject();
-		validateIU(iu1);
-		validateIUPatchWithEmptyScope(iu1);
-		ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492);
-		IUStringWriter writer = new IUStringWriter(output1);
-		writer.writeTest(iu1);
-		output1.close();
-		//the content on disk is not the same but it is normal because a RequiredCapability array of RequiredCapability[0][0] is not persisted the same
-		// than RequiredCapability[][] {{}}
-		//assertTrue("Installable unit write after read after write produced different XML", iuText1.equals(iuText0));
+			IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
+			parser.parse(iuText0);
+			assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
+			InstallableUnitPatch iu1 = (InstallableUnitPatch) parser.getRootObject();
+			validateIU(iu1);
+			validateIUPatchWithEmptyScope(iu1);
+			try (ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492)) {
+				IUStringWriter writer = new IUStringWriter(output1);
+				writer.writeTest(iu1);
+			}
+			//the content on disk is not the same but it is normal because a RequiredCapability array of RequiredCapability[0][0] is not persisted the same
+			// than RequiredCapability[][] {{}}
+			//assertTrue("Installable unit write after read after write produced different XML", iuText1.equals(iuText0));
+		}
 
 	}
 
 	public void testIUPersistence() throws IOException {
 		IInstallableUnit iu0 = createPersistenceTestIU();
 		validateIU(iu0);
-		ByteArrayOutputStream output0 = new ByteArrayOutputStream(3072);
-		IUStringWriter writer0 = new IUStringWriter(output0);
-		writer0.writeTest(iu0);
-		String iuText0 = output0.toString();
-		output0.close();
+		try (ByteArrayOutputStream output0 = new ByteArrayOutputStream(3072)) {
+			IUStringWriter writer0 = new IUStringWriter(output0);
+			writer0.writeTest(iu0);
+			String iuText0 = output0.toString();
 
-		IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
-		parser.parse(iuText0);
-		assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
-		InstallableUnit iu1 = (InstallableUnit) parser.getRootObject();
-		validateIU(iu1);
-		assertEquals(2, iu1.getLicenses().size());
-		ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492);
-		IUStringWriter writer = new IUStringWriter(output1);
-		writer.writeTest(iu1);
-		String iuText1 = output1.toString();
-		output1.close();
-		assertTrue("Installable unit write after read after write produced different XML", iuText1.equals(iuText0));
+			IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
+			parser.parse(iuText0);
+			assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
+			InstallableUnit iu1 = (InstallableUnit) parser.getRootObject();
+			validateIU(iu1);
+			assertEquals(2, iu1.getLicenses().size());
+			try (ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492)) {
+				IUStringWriter writer = new IUStringWriter(output1);
+				writer.writeTest(iu1);
+				String iuText1 = output1.toString();
+				assertTrue("Installable unit write after read after write produced different XML", iuText1.equals(iuText0));
+			}
+		}
 	}
 
 	private void validateIU(IInstallableUnit iu) {

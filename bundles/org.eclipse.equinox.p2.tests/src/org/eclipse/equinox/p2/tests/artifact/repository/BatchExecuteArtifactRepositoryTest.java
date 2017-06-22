@@ -73,19 +73,16 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
-					repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
-					repo.addDescriptor(createDescriptor("baz", "baz", Version.emptyVersion));
-					try {
-						assertFalse("1.0", fileContainsString(artifactXML, "foo"));
-						assertFalse("1.0", fileContainsString(artifactXML, "bar"));
-						assertFalse("1.0", fileContainsString(artifactXML, "baz"));
-					} catch (IOException e) {
-						fail("0.99");
-					}
+			IStatus status = repo.executeBatch(monitor -> {
+				repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
+				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
+				repo.addDescriptor(createDescriptor("baz", "baz", Version.emptyVersion));
+				try {
+					assertFalse("1.0", fileContainsString(artifactXML, "foo"));
+					assertFalse("1.0", fileContainsString(artifactXML, "bar"));
+					assertFalse("1.0", fileContainsString(artifactXML, "baz"));
+				} catch (IOException e) {
+					fail("0.99");
 				}
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
@@ -110,13 +107,10 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
-					repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
-					throw new RuntimeException();
-				}
+			IStatus status = repo.executeBatch(monitor -> {
+				repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
+				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
+				throw new RuntimeException();
 			}, new NullProgressMonitor());
 			assertFalse(status.isOK());
 			assertEquals("1.0", 1, repo.query(new ArtifactKeyQuery("foo", "foo", null), new NullProgressMonitor()).toSet().size());
@@ -138,14 +132,11 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					IArtifactDescriptor foo = createDescriptor("foo", "foo", Version.emptyVersion);
-					repo.addDescriptor(foo);
-					repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
-					repo.removeDescriptor(foo);
-				}
+			IStatus status = repo.executeBatch(monitor -> {
+				IArtifactDescriptor foo = createDescriptor("foo", "foo", Version.emptyVersion);
+				repo.addDescriptor(foo);
+				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
+				repo.removeDescriptor(foo);
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
 			assertEquals("1.0", 1, repo.query(new ArtifactKeyQuery("bar", "bar", null), new NullProgressMonitor()).toSet().size());
@@ -167,17 +158,14 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			Map properties = new HashMap();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					repo.addDescriptor(createDescriptor("1", "1", Version.emptyVersion));
-					repo.addDescriptor(createDescriptor("2", "2", Version.emptyVersion));
-					repo.addDescriptor(createDescriptor("3", "3", Version.emptyVersion));
-					IArtifactDescriptor foo = createDescriptor("foo", "foo", Version.emptyVersion);
-					repo.addDescriptor(foo);
-					repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
-					repo.removeDescriptor(foo);
-				}
+			IStatus status = repo.executeBatch(monitor -> {
+				repo.addDescriptor(createDescriptor("1", "1", Version.emptyVersion));
+				repo.addDescriptor(createDescriptor("2", "2", Version.emptyVersion));
+				repo.addDescriptor(createDescriptor("3", "3", Version.emptyVersion));
+				IArtifactDescriptor foo = createDescriptor("foo", "foo", Version.emptyVersion);
+				repo.addDescriptor(foo);
+				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
+				repo.removeDescriptor(foo);
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
 			assertEquals("1.0", 4, repo.query(new ArtifactKeyQuery(null, null, null), new NullProgressMonitor()).toSet().size());
@@ -189,15 +177,11 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 
 	boolean fileContainsString(URI location, String string) throws IOException {
 		StringBuffer buffer = new StringBuffer();
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(new File(location)));
+		try (BufferedReader reader = new BufferedReader(new FileReader(new File(location)))) {
+
 			while (reader.ready())
 				buffer.append(reader.readLine());
 			return buffer.toString().contains(string);
-		} finally {
-			if (reader != null)
-				reader.close();
 		}
 	}
 
@@ -210,11 +194,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			repositoryURI = repositoryFile.toURI();
 			Map properties = new HashMap();
 			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					// empty
-				}
+			IStatus status = repo.executeBatch(monitor -> {
+				// empty
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
 		} catch (Exception e) {
@@ -279,11 +260,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			SimpleArtifactRepository simpleArtifactRepository = new FailingSimpleArtifactRepository("foo", new URI("http://foo.bar"), null);
 
-			IStatus status = simpleArtifactRepository.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					throw new RuntimeException("bar");
-				}
+			IStatus status = simpleArtifactRepository.executeBatch(monitor -> {
+				throw new RuntimeException("bar");
 			}, new NullProgressMonitor());
 			assertFalse(status.isOK());
 			assertEquals("foo", status.getException().getMessage());
@@ -301,11 +279,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			SimpleArtifactRepository simpleArtifactRepository = new FailingSimpleArtifactRepository("foo", new URI("http://foo.bar"), null);
 
-			IStatus status = simpleArtifactRepository.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					// empty
-				}
+			IStatus status = simpleArtifactRepository.executeBatch(monitor -> {
+				// empty
 			}, new NullProgressMonitor());
 			assertFalse(status.isOK());
 			assertEquals("foo", status.getException().getMessage());
@@ -326,12 +301,9 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			IProgressMonitor monitor = new NullProgressMonitor();
 			monitor.setCanceled(true);
 
-			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					if (monitor.isCanceled())
-						throw new OperationCanceledException();
-				}
+			IStatus status = repo.executeBatch(monitor1 -> {
+				if (monitor1.isCanceled())
+					throw new OperationCanceledException();
 			}, monitor);
 
 			assertTrue(status.getSeverity() == IStatus.CANCEL);
@@ -347,12 +319,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			FailingCompositeArtifactRepository compositeArtifactRepository = new FailingCompositeArtifactRepository(getArtifactRepositoryManager(), "foo", new URI("http://foo.bar"), null);
 
-			IStatus status = compositeArtifactRepository.executeBatch(new IRunnableWithProgress() {
-
-				@Override
-				public void run(IProgressMonitor monitor) {
-					throw new RuntimeException("bar");
-				}
+			IStatus status = compositeArtifactRepository.executeBatch(monitor -> {
+				throw new RuntimeException("bar");
 			}, new NullProgressMonitor());
 			assertFalse(status.isOK());
 			assertEquals("foo", status.getException().getMessage());
@@ -370,11 +338,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			FailingCompositeArtifactRepository compositeArtifactRepository = new FailingCompositeArtifactRepository(getArtifactRepositoryManager(), "foo", new URI("http://foo.bar"), null);
 
-			IStatus status = compositeArtifactRepository.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					// empty
-				}
+			IStatus status = compositeArtifactRepository.executeBatch(monitor -> {
+				// empty
 			}, new NullProgressMonitor());
 			assertFalse(status.isOK());
 			assertEquals("foo", status.getException().getMessage());
@@ -416,11 +381,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 	public void testBatchProcessingTrackSaving() {
 		try {
 			TrackSavignSimpleArtifactRepository simpleArtifactRepository = new TrackSavignSimpleArtifactRepository("foo", new URI("http://foo.bar"), null);
-			simpleArtifactRepository.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					//do nothing;
-				}
+			simpleArtifactRepository.executeBatch(monitor -> {
+				//do nothing;
 			}, new NullProgressMonitor());
 			assertTrue(simpleArtifactRepository.didSave);
 		} catch (Exception e) {
@@ -435,11 +397,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 	public void testBatchProcessingTrackSavingException() {
 		try {
 			TrackSavignSimpleArtifactRepository simpleArtifactRepository = new TrackSavignSimpleArtifactRepository("foo", new URI("http://foo.bar"), null);
-			simpleArtifactRepository.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					throw new RuntimeException();
-				}
+			simpleArtifactRepository.executeBatch(monitor -> {
+				throw new RuntimeException();
 			}, new NullProgressMonitor());
 			assertTrue(simpleArtifactRepository.didSave);
 		} catch (Exception e) {
@@ -457,11 +416,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			repositoryURI = repositoryFile.toURI();
 			Map properties = new HashMap();
 			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					throw new RuntimeException();
-				}
+			repo.executeBatch(monitor -> {
+				throw new RuntimeException();
 			}, new NullProgressMonitor());
 			Field field = SimpleArtifactRepository.class.getDeclaredField("disableSave");
 			field.setAccessible(true);
@@ -483,25 +439,22 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			repositoryURI = repositoryFile.toURI();
 			Map properties = new HashMap();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					Field field;
-					try {
-						field = SimpleArtifactRepository.class.getDeclaredField("disableSave");
-						field.setAccessible(true);
-						boolean disableSave = field.getBoolean(repo);
-						assertTrue("1.0", disableSave);
-					} catch (SecurityException e) {
-						fail("1.1" + e.getMessage());
-					} catch (NoSuchFieldException e) {
-						// TODO Auto-generated catch block
-						fail("1.2" + e.getMessage());
-					} catch (IllegalArgumentException e) {
-						fail("1.2" + e.getMessage());
-					} catch (IllegalAccessException e) {
-						fail("1.2" + e.getMessage());
-					}
+			repo.executeBatch(monitor -> {
+				Field field;
+				try {
+					field = SimpleArtifactRepository.class.getDeclaredField("disableSave");
+					field.setAccessible(true);
+					boolean disableSave = field.getBoolean(repo);
+					assertTrue("1.0", disableSave);
+				} catch (SecurityException e1) {
+					fail("1.1" + e1.getMessage());
+				} catch (NoSuchFieldException e2) {
+					// TODO Auto-generated catch block
+					fail("1.2" + e2.getMessage());
+				} catch (IllegalArgumentException e3) {
+					fail("1.2" + e3.getMessage());
+				} catch (IllegalAccessException e4) {
+					fail("1.2" + e4.getMessage());
 				}
 			}, new NullProgressMonitor());
 
@@ -520,11 +473,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			repositoryURI = repositoryFile.toURI();
 			Map properties = new HashMap();
 			CompositeArtifactRepository repo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, properties);
-			repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					throw new RuntimeException();
-				}
+			repo.executeBatch(monitor -> {
+				throw new RuntimeException();
 			}, new NullProgressMonitor());
 			Field field = CompositeArtifactRepository.class.getDeclaredField("disableSave");
 			field.setAccessible(true);
@@ -545,25 +495,22 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			repositoryURI = repositoryFile.toURI();
 			Map properties = new HashMap();
 			final CompositeArtifactRepository repo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, properties);
-			repo.executeBatch(new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					Field field;
-					try {
-						field = CompositeArtifactRepository.class.getDeclaredField("disableSave");
-						field.setAccessible(true);
-						boolean disableSave = field.getBoolean(repo);
-						assertTrue("1.0", disableSave);
-					} catch (SecurityException e) {
-						fail("1.1" + e.getMessage());
-					} catch (NoSuchFieldException e) {
-						// TODO Auto-generated catch block
-						fail("1.2" + e.getMessage());
-					} catch (IllegalArgumentException e) {
-						fail("1.2" + e.getMessage());
-					} catch (IllegalAccessException e) {
-						fail("1.2" + e.getMessage());
-					}
+			repo.executeBatch(monitor -> {
+				Field field;
+				try {
+					field = CompositeArtifactRepository.class.getDeclaredField("disableSave");
+					field.setAccessible(true);
+					boolean disableSave = field.getBoolean(repo);
+					assertTrue("1.0", disableSave);
+				} catch (SecurityException e1) {
+					fail("1.1" + e1.getMessage());
+				} catch (NoSuchFieldException e2) {
+					// TODO Auto-generated catch block
+					fail("1.2" + e2.getMessage());
+				} catch (IllegalArgumentException e3) {
+					fail("1.2" + e3.getMessage());
+				} catch (IllegalAccessException e4) {
+					fail("1.2" + e4.getMessage());
 				}
 			}, new NullProgressMonitor());
 

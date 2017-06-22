@@ -186,17 +186,13 @@ public class BundlesActionTest extends ActionTest {
 			canonicalIdx = 0;
 		}
 
-		ZipInputStream actual = artifactRepository.getZipInputStream(descriptors[canonicalIdx]);
-		ZipInputStream expected = new ZipInputStream(new FileInputStream(TEST_FILE2));
-		TestData.assertEquals(expected, actual);
-		actual.close();
-		expected.close();
+		try (ZipInputStream actual = artifactRepository.getZipInputStream(descriptors[canonicalIdx]); ZipInputStream expected = new ZipInputStream(new FileInputStream(TEST_FILE2))) {
+			TestData.assertEquals(expected, actual);
+		}
 
 		InputStream packedActual = artifactRepository.getRawInputStream(descriptors[packedIdx]);
 		InputStream packedExpected = new BufferedInputStream(new FileInputStream(TEST_FILE2_PACKED));
 		TestData.assertEquals(packedExpected, packedActual);
-		actual.close();
-		expected.close();
 
 		IArtifactKey key1 = ArtifactKey.parse("osgi.bundle,test1,0.1.0");//$NON-NLS-1$
 		ZipInputStream zis = artifactRepository.getZipInputStream(key1);

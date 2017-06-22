@@ -34,27 +34,27 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 	public void testExecuteNoPSs() throws IOException {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[0];
 		OutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.createAndLink(getAgent(), descriptors, null, result, monitor);
-		testStream.write("Test".getBytes());
-		testStream.close();
+		try (OutputStream testStream = handler.createAndLink(getAgent(), descriptors, null, result, monitor)) {
+			testStream.write("Test".getBytes());
+		}
 		assertEquals("Test", result.toString());
 	}
 
 	public void testExecuteOneByteShifterPS() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new ByteShifter(1)};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.link(steps, result, monitor);
-		testStream.write(new byte[] {1});
-		testStream.close();
+		try (OutputStream testStream = handler.link(steps, result, monitor)) {
+			testStream.write(new byte[] {1});
+		}
 		assertTrue(Arrays.equals(new byte[] {2}, result.toByteArray()));
 	}
 
 	public void testExecuteTwoByteShifterPSs() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new ByteShifter(1), new ByteShifter(2)};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.link(steps, result, monitor);
-		testStream.write(new byte[] {1});
-		testStream.close();
+		try (OutputStream testStream = handler.link(steps, result, monitor)) {
+			testStream.write(new byte[] {1});
+		}
 		assertTrue(Arrays.equals(new byte[] {8}, result.toByteArray()));
 	}
 
@@ -109,19 +109,21 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 	public void testAssureOrderingOfPSs1() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new Adder(1), new Multiplier(2)};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.link(steps, result, monitor);
-		testStream.write(new byte[] {1, 2, 3, 4, 5});
-		testStream.close();
+		try (OutputStream testStream = handler.link(steps, result, monitor)) {
+			testStream.write(new byte[] {1, 2, 3, 4, 5});
+		}
 		assertTrue(Arrays.equals(new byte[] {4, 6, 8, 10, 12}, result.toByteArray()));
 	}
 
 	public void testAssureOrderingOfPSs2() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new Multiplier(2), new Adder(1)};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.link(steps, result, monitor);
-		testStream.write(new byte[] {1, 2, 3, 4, 5});
-		testStream.close();
+		try (OutputStream testStream = handler.link(steps, result, monitor)) {
+			testStream.write(new byte[] {1, 2, 3, 4, 5});
+		}
+
 		assertTrue(Arrays.equals(new byte[] {3, 5, 7, 9, 11}, result.toByteArray()));
+
 	}
 
 	public void testExecuteOnePack200UnpackerPS() throws IOException {
@@ -186,9 +188,9 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {adder, multiplier};
 		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.link(steps, result, monitor);
-		testStream.write(new byte[] {1, 2, 3, 4, 5});
-		testStream.close();
+		try (OutputStream testStream = handler.link(steps, result, monitor)) {
+			testStream.write(new byte[] {1, 2, 3, 4, 5});
+		}
 		assertTrue(Arrays.equals(new byte[] {4, 6, 8, 10, 12}, result.toByteArray()));
 	}
 
@@ -198,9 +200,9 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {multiplier, adder};
 		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.link(steps, result, monitor);
-		testStream.write(new byte[] {1, 2, 3, 4, 5});
-		testStream.close();
+		try (OutputStream testStream = handler.link(steps, result, monitor)) {
+			testStream.write(new byte[] {1, 2, 3, 4, 5});
+		}
 		assertTrue(Arrays.equals(new byte[] {3, 5, 7, 9, 11}, result.toByteArray()));
 	}
 
@@ -209,9 +211,9 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {adder, multiplier};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.createAndLink(getAgent(), descriptors, null, result, monitor);
-		testStream.write(new byte[] {1, 2, 3, 4, 5});
-		testStream.close();
+		try (OutputStream testStream = handler.createAndLink(getAgent(), descriptors, null, result, monitor)) {
+			testStream.write(new byte[] {1, 2, 3, 4, 5});
+		}
 		assertTrue(Arrays.equals(new byte[] {4, 6, 8, 10, 12}, result.toByteArray()));
 	}
 

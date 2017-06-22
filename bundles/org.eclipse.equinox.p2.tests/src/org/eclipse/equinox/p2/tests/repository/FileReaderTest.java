@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2009, 2017 Cloudsmith Inc and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Cloudsmith Inc - initial API and implementation
  *******************************************************************************/
@@ -50,8 +50,9 @@ public class FileReaderTest extends AbstractTestServerClientCase {
 		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI(getBaseURL() + "/public/index.html");
 		final NullProgressMonitor monitor = new NullProgressMonitor();
-		InputStream stream = transport.stream(toDownload, monitor);
-		stream.close();
+		try (InputStream stream = transport.stream(toDownload, monitor)) {
+			//
+		}
 		assertFalse("1.0", monitor.isCanceled());
 	}
 
@@ -72,5 +73,5 @@ public class FileReaderTest extends AbstractTestServerClientCase {
 	// redirected many times = login
 
 	// handling of incorrect file size
-	// 
+	//
 }

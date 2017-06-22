@@ -21,9 +21,9 @@ public class StandaloneSerializationTest extends TestCase {
 	public void testNothingToWrite() {
 		try {
 			File f = File.createTempFile(getName(), "iu");
-			OutputStream os = new FileOutputStream(f);
-			new IUSerializer(os).write(Collections.EMPTY_LIST);
-			os.close();
+			try (OutputStream os = new FileOutputStream(f)) {
+				new IUSerializer(os).write(Collections.EMPTY_LIST);
+			}
 			assertTrue(f.length() > 0);
 			f.delete();
 		} catch (FileNotFoundException e) {
@@ -40,9 +40,9 @@ public class StandaloneSerializationTest extends TestCase {
 		File f = null;
 		try {
 			f = File.createTempFile(getName(), "iu");
-			OutputStream os = new FileOutputStream(f);
-			new IUSerializer(os).write(Collections.EMPTY_LIST);
-			os.close();
+			try (OutputStream os = new FileOutputStream(f)) {
+				new IUSerializer(os).write(Collections.EMPTY_LIST);
+			}
 		} catch (FileNotFoundException e) {
 			fail("problem writing: " + e.getCause().getMessage());
 		} catch (UnsupportedEncodingException e) {
@@ -53,11 +53,9 @@ public class StandaloneSerializationTest extends TestCase {
 
 		//Read file written
 		boolean exceptionRaised = false;
-		try {
-			InputStream is = new FileInputStream(f);
+		try (InputStream is = new FileInputStream(f)) {
 			Collection<IInstallableUnit> ius = new IUDeserializer().read(is);
 			assertEquals(0, ius.size());
-			is.close();
 		} catch (FileNotFoundException e) {
 			fail("problem writing: " + e.getCause().getMessage());
 		} catch (UnsupportedEncodingException e) {
@@ -85,9 +83,9 @@ public class StandaloneSerializationTest extends TestCase {
 		File f = null;
 		try {
 			f = File.createTempFile(getName(), "iu");
-			OutputStream os = new FileOutputStream(f);
-			new IUSerializer(os).write(ius);
-			os.close();
+			try (OutputStream os = new FileOutputStream(f)) {
+				new IUSerializer(os).write(ius);
+			}
 		} catch (FileNotFoundException e) {
 			fail("problem writing: " + e.getCause().getMessage());
 		} catch (UnsupportedEncodingException e) {
@@ -96,9 +94,7 @@ public class StandaloneSerializationTest extends TestCase {
 			fail("problem writing: " + e.getCause().getMessage());
 		}
 
-		InputStream is = null;
-		try {
-			is = new FileInputStream(f);
+		try (InputStream is = new FileInputStream(f)) {
 			assertEquals(2, new IUDeserializer().read(is).size());
 		} catch (FileNotFoundException e) {
 			fail("problem writing: " + e.getCause().getMessage());
@@ -107,12 +103,7 @@ public class StandaloneSerializationTest extends TestCase {
 		} catch (IOException e) {
 			fail("problem writing: " + e.getCause().getMessage());
 		} finally {
-			try {
-				is.close();
-				f.delete();
-			} catch (IOException e) {
-				//ignore
-			}
+			f.delete();
 		}
 	}
 }

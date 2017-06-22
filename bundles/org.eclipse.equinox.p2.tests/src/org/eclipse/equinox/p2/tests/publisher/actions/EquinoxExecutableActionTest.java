@@ -188,24 +188,19 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	private void checkExecutableContents(IArtifactKey key) throws IOException {
 		File file = File.createTempFile("exec", ".zip");
-		FileOutputStream fos = new FileOutputStream(file);
-		try {
+
+		try (FileOutputStream fos = new FileOutputStream(file)) {
 			IArtifactDescriptor ad = artifactRepository.createArtifactDescriptor(key);
 			IStatus result = artifactRepository.getArtifact(ad, fos, new NullProgressMonitor());
 			assertTrue("executable not published?", result.isOK());
-		} finally {
-			fos.close();
 		}
 
-		ZipFile zip = new ZipFile(file);
-		try {
+		try (ZipFile zip = new ZipFile(file)) {
 			for (String path : expectedExecutablesContents) {
 				assertNotNull("executable zip missing " + path, zip.getEntry(path));
 			}
 			if (key.getId().contains("macosx"))
 				checkInfoPlist(zip);
-		} finally {
-			zip.close();
 		}
 
 		// cleanup
@@ -247,21 +242,14 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	}
 
 	private String readContentsAndClose(InputStream inputStream) throws IOException {
-		try {
-			StringBuilder sb = new StringBuilder();
-			Reader is = new InputStreamReader(inputStream);
+		StringBuilder sb = new StringBuilder();
+		try (Reader is = new InputStreamReader(inputStream)) {
 			char[] buf = new char[1024];
 			int rc;
 			while ((rc = is.read(buf)) >= 0) {
 				sb.append(buf, 0, rc - 1);
 			}
 			return sb.toString();
-		} finally {
-			try {
-				inputStream.close();
-			} catch (IOException e) {
-				/* ignored */
-			}
 		}
 	}
 

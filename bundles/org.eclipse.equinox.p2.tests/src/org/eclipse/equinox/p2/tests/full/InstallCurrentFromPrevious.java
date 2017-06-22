@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2011 IBM Corporation and others.
+ *  Copyright (c) 2011, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -41,10 +41,10 @@ public class InstallCurrentFromPrevious extends AbstractReconcilerTest {
 			File logFile = new File(installFolder, "log.log");
 			if (logFile.exists()) {
 				StringBuffer fileContents = new StringBuffer();
-				BufferedReader reader = new BufferedReader(new FileReader(logFile));
-				while (reader.ready())
-					fileContents.append(reader.readLine());
-				reader.close();
+				try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
+					while (reader.ready())
+						fileContents.append(reader.readLine());
+				}
 				fail("runDirector returned " + result + "\n" + fileContents.toString());
 			} else {
 				fail("runDirector returned " + result);

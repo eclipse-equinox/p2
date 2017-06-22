@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2012 WindRiver Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2012, 2017 WindRiver Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Wind River Corporation - initial API and implementation
  *******************************************************************************/
@@ -135,8 +135,8 @@ public class StatsTest extends AbstractTestServerClientCase {
 
 	protected void checkStatsResult(final String checkpoint) throws FileNotFoundException, CoreException, AuthenticationFailedException, IOException {
 		final Transport transport = (Transport) getAgent().getService(Transport.SERVICE_NAME);
-		BufferedReader statsResult = new BufferedReader(new InputStreamReader(transport.stream(statsURL, null)));
-		try {
+
+		try (BufferedReader statsResult = new BufferedReader(new InputStreamReader(transport.stream(statsURL, null)))) {
 			String line = statsResult.readLine();
 			while (line != null) {
 				if (line.startsWith(checkpoint))
@@ -144,8 +144,6 @@ public class StatsTest extends AbstractTestServerClientCase {
 				line = statsResult.readLine();
 			}
 			fail("Didn't get expected stats result.");
-		} finally {
-			statsResult.close();
 		}
 	}
 

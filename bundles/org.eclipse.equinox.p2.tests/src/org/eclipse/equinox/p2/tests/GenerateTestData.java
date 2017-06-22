@@ -228,17 +228,8 @@ public class GenerateTestData {
 		if (parent == null)
 			throw new RuntimeException("Unable to write to: " + location.getAbsolutePath() + "due to null parent.");
 		parent.mkdirs();
-		OutputStream output = null;
-		try {
-			output = new BufferedOutputStream(new FileOutputStream(location));
+		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(location))) {
 			output.write(data.getBytes());
-		} finally {
-			if (output != null)
-				try {
-					output.close();
-				} catch (IOException e) {
-					// ignore
-				}
 		}
 	}
 

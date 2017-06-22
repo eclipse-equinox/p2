@@ -441,16 +441,10 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		properties.remove(IArtifactDescriptor.FORMAT);
 		((ArtifactDescriptor) newDescriptor).addProperties(properties);
 		try {
-			OutputStream repositoryStream = null;
-			try {
-				//System.out.println("Getting Artifact: " + descriptors[0].getArtifactKey() + " (Descriptor: " + descriptors[0] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				repositoryStream = destinationRepo.getOutputStream(newDescriptor);
+			try (OutputStream repositoryStream = destinationRepo.getOutputStream(newDescriptor);) {
 				if (repositoryStream == null)
 					fail("Error while obtaining OutputStream");
 				compRepo.getArtifact(descriptors[0], repositoryStream, new NullProgressMonitor());
-			} finally {
-				if (repositoryStream != null)
-					repositoryStream.close();
 			}
 		} catch (ProvisionException e) {
 			fail("Error while obtaining OutputStream", e);
@@ -546,17 +540,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		requests[0] = request1;
 		requests[1] = request2;
 
-		try {
-			OutputStream repositoryStream = null;
-			try {
-				compRepo.getArtifacts(requests, new NullProgressMonitor());
-			} finally {
-				if (repositoryStream != null)
-					repositoryStream.close();
-			}
-		} catch (IOException e) {
-			fail("Error while downloading artifacts", e);
-		}
+		compRepo.getArtifacts(requests, new NullProgressMonitor());
 		//corresponding keys should now be in the destination
 		assertTrue("Expected Key is not in destination", destinationRepo.contains(key1));
 		assertTrue("Expected Key is not in destination", destinationRepo.contains(key2));
@@ -977,11 +961,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	 */
 	public void testRetryRequest() {
 		URI childLocation = getTestData("Loading test data", "testData/artifactRepo/missingArtifact").toURI();
-		File destination = null;
-		OutputStream out = null;
-		try {
-			destination = new File(getTempFolder(), getUniqueString());
-			out = new FileOutputStream(destination);
+		File destination = new File(getTempFolder(), getUniqueString());
+		try (OutputStream out = new FileOutputStream(destination)) {
 
 			CompositeArtifactRepository repository = createRepository(new URI("memory:/in/memory"), "in memory test");
 
@@ -1008,12 +989,6 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Exception occurred", e);
 		} finally {
 			getArtifactRepositoryManager().removeRepository(childLocation);
-			if (out != null)
-				try {
-					out.close();
-				} catch (IOException e) {
-					// Don't care
-				}
 			if (destination != null)
 				delete(destination.getParentFile());
 		}
@@ -1124,11 +1099,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		BadSite childOne = null;
 		BadSite dest = null;
 		CompositeArtifactRepository source = null;
-		File destination = null;
-		OutputStream out = null;
-		try {
-			destination = new File(getTempFolder(), getUniqueString());
-			out = new FileOutputStream(destination);
+		File destination = new File(getTempFolder(), getUniqueString());
+		try (OutputStream out = new FileOutputStream(destination);) {
 
 			source = createRepository(new URI("memory:/in/memory"), "in memory test");
 			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", Version.create("1.5.1.v200803061910")));
@@ -1161,12 +1133,6 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("Exception occurred", e);
 		} finally {
-			if (out != null)
-				try {
-					out.close();
-				} catch (IOException e) {
-					// Don't care
-				}
 			if (source != null)
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
 			if (childOne != null)
