@@ -78,6 +78,10 @@ public class FilterTest extends TestCase {
 		public boolean isAssignableTo(Bundle bundle, String className) {
 			throw new UnsupportedOperationException();
 		}
+
+		public Dictionary getProperties() {
+			return new Hashtable(dictionary);
+		}
 	}
 
 	private static class SampleComparable implements Comparable {
