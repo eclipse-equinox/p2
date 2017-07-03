@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -19,7 +21,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	public static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 
-	protected Map<String, String> repositoryProperties = new OrderedProperties();
+	protected Map<String, String> repositoryProperties;
 
 	public SimpleArtifactDescriptor(IArtifactKey key) {
 		super(key);
@@ -30,18 +32,33 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	}
 
 	public String getRepositoryProperty(String propertyKey) {
-		return repositoryProperties.get(propertyKey);
+		return repositoryProperties != null ? repositoryProperties.get(propertyKey) : null;
 	}
 
 	public void setRepositoryProperty(String key, String value) {
-		if (value == null)
+		if (value == null && repositoryProperties != null) {
 			repositoryProperties.remove(key);
-		else
-			repositoryProperties.put(key, value);
+		} else {
+			if (repositoryProperties == null) {
+				// first value => store in singletonMap (most repositoryProperties have at most 1 entry)
+				repositoryProperties = Collections.singletonMap(key.intern(), value);
+			} else {
+				// if current size is 1 then it is an immutable singletonMap 
+				// => copy to mutable map for more entries
+				if (repositoryProperties.size() == 1) {
+					repositoryProperties = new OrderedProperties(repositoryProperties);
+				}
+				repositoryProperties.put(key, value);
+			}
+		}
 	}
 
 	public void addRepositoryProperties(Map<String, String> additionalProperties) {
-		repositoryProperties.putAll(additionalProperties);
+		if (additionalProperties.isEmpty())
+			return;
+		for (Entry<String, String> entry : additionalProperties.entrySet()) {
+			setRepositoryProperty(entry.getKey(), entry.getValue());
+		}
 	}
 
 	/**
@@ -49,6 +66,9 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	 * @return the repository properties of this artifact descriptor.
 	 */
 	public Map<String, String> getRepositoryProperties() {
+		if (repositoryProperties == null) {
+			return Collections.<String, String> emptyMap();
+		}
 		return OrderedProperties.unmodifiableProperties(repositoryProperties);
 	}
 

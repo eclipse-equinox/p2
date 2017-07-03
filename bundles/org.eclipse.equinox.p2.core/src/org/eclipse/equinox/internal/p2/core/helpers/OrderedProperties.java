@@ -43,6 +43,12 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 		propertyMap = new LinkedHashMap<>(size);
 	}
 
+	public OrderedProperties(Map<String, String> properties) {
+		super();
+		propertyMap = new LinkedHashMap<>(properties.size());
+		putAll(properties);
+	}
+
 	/**
 	 * Set the property value.
 	 * <p>
@@ -57,7 +63,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 	 */
 	public Object setProperty(String key, String value) {
 		init();
-		return propertyMap.put(key, value);
+		return propertyMap.put(key.intern(), value);
 	}
 
 	public String getProperty(String key) {
@@ -91,7 +97,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 	@Override
 	public String put(String key, String value) {
 		init();
-		return propertyMap.put(key, value);
+		return propertyMap.put(key.intern(), value);
 	}
 
 	@Override
