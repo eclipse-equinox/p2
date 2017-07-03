@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -185,13 +185,10 @@ public class TrustCertificateDialog extends SelectionDialog {
 	}
 
 	private ISelectionChangedListener getChainSelectionListener() {
-		return new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				ISelection selection = event.getSelection();
-				if (selection instanceof StructuredSelection) {
-					selectedCertificate = ((StructuredSelection) selection).getFirstElement();
-				}
+		return event -> {
+			ISelection selection = event.getSelection();
+			if (selection instanceof StructuredSelection) {
+				selectedCertificate = ((StructuredSelection) selection).getFirstElement();
 			}
 		};
 	}
@@ -201,32 +198,26 @@ public class TrustCertificateDialog extends SelectionDialog {
 	}
 
 	private IDoubleClickListener getDoubleClickListener() {
-		return new IDoubleClickListener() {
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				StructuredSelection selection = (StructuredSelection) event.getSelection();
-				Object selectedElement = selection.getFirstElement();
-				if (selectedElement instanceof TreeNode) {
-					TreeNode treeNode = (TreeNode) selectedElement;
-					// create and open dialog for certificate chain
-					X509CertificateViewDialog certificateViewDialog = new X509CertificateViewDialog(getShell(), (X509Certificate) treeNode.getValue());
-					certificateViewDialog.open();
-				}
+		return event -> {
+			StructuredSelection selection = (StructuredSelection) event.getSelection();
+			Object selectedElement = selection.getFirstElement();
+			if (selectedElement instanceof TreeNode) {
+				TreeNode treeNode = (TreeNode) selectedElement;
+				// create and open dialog for certificate chain
+				X509CertificateViewDialog certificateViewDialog = new X509CertificateViewDialog(getShell(), (X509Certificate) treeNode.getValue());
+				certificateViewDialog.open();
 			}
 		};
 	}
 
 	private ISelectionChangedListener getParentSelectionListener() {
-		return new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				ISelection selection = event.getSelection();
-				if (selection instanceof StructuredSelection) {
-					TreeNode firstElement = (TreeNode) ((StructuredSelection) selection).getFirstElement();
-					getCertificateChainViewer().setInput(new TreeNode[] {firstElement});
-					getOkButton().setEnabled(listViewer.getChecked(firstElement));
-					getCertificateChainViewer().refresh();
-				}
+		return event -> {
+			ISelection selection = event.getSelection();
+			if (selection instanceof StructuredSelection) {
+				TreeNode firstElement = (TreeNode) ((StructuredSelection) selection).getFirstElement();
+				getCertificateChainViewer().setInput(new TreeNode[] {firstElement});
+				getOkButton().setEnabled(listViewer.getChecked(firstElement));
+				getCertificateChainViewer().refresh();
 			}
 		};
 	}
