@@ -13,3 +13,4 @@ Bug 432209 - needs to touch 3 equinox/p2 features, for qualifier change in org.s
 Bug 458346 - Unusual, hard to decipher error in I-build
 Bug 506597 - Build failure on I20161026-2000
 Bug 510206 - Please update to xz-java 1.5
+Bug 518051 - Update to xz-java 1.6 
