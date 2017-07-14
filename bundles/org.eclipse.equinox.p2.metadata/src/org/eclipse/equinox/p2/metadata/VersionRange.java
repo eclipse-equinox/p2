@@ -271,7 +271,7 @@ public class VersionRange implements Serializable {
 	 *         an empty string.
 	 * @throws IllegalArgumentException If <code>versionRange</code> is improperly
 	 *         formatted.
-	 * @since 2.3
+	 * @since 2.4
 	 */
 	public static VersionRange create(String versionRange) {
 		VersionRange v = null;
