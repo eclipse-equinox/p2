@@ -583,7 +583,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("greaterOrEqual")) //$NON-NLS-1$
-			return new VersionRange(version, true, VersionRange.create(null).getMaximum(), true);
+			return new VersionRange(version, true, Version.MAX_VERSION, true);
 		return null;
 	}
 
