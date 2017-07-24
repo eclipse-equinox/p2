@@ -126,6 +126,38 @@ public class FeaturesActionTest extends ActionTest {
 		}
 	}
 
+	public void testMatchGreaterOrEqual() throws Exception {
+		File testFolder = getTestFolder("FeaturesAction.testFilters");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<feature id=\"test.feature\" version=\"1.0.0\" >                                       \n");
+		buffer.append("   <requires>                                                                          \n");
+		buffer.append("      <import plugin=\"org.plug\" version=\"1.0.0\" match=\"greaterOrEqual\" />        \n");
+		buffer.append("      <import feature=\"org.foo\" version=\"1.0.0\" match=\"greaterOrEqual\" />        \n");
+		buffer.append("   </requires>                                                                         \n");
+		buffer.append("</feature>                                                                             \n");
+		File featureXML = new File(testFolder, "feature.xml");
+		writeBuffer(featureXML, buffer);
+
+		publisherInfo = new PublisherInfo();
+		FeaturesAction action = new FeaturesAction(new File[] {testFolder});
+		action.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+
+		IInstallableUnit iu = publisherResult.getIU("test.feature.feature.group", Version.parseVersion("1.0.0"), null);
+		Collection<IRequirement> requires = iu.getRequirements();
+		assertEquals(3, requires.size());
+		for (IRequirement require : requires) {
+			if (((IRequiredCapability) require).getName().equals("org.foo.feature.group")) {
+				IMatchExpression<IInstallableUnit> matches = require.getMatches();
+				assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2)", matches.toString());
+				assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+			} else if (((IRequiredCapability) require).getName().equals("org.plug")) {
+				IMatchExpression<IInstallableUnit> matches = require.getMatches();
+				assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2)", matches.toString());
+				assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+			}
+		}
+	}
+
 	public void testFilters() throws Exception {
 		File testFolder = getTestFolder("FeaturesAction.testFilters");
 		StringBuffer buffer = new StringBuffer();
