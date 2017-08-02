@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
@@ -727,6 +728,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		ByteArrayOutputStream index = new ByteArrayOutputStream();
 		IStatus indexFileStatus = null;
 		indexFileStatus = getTransport().download(indexFileURI, index, monitor);
+		while (indexFileStatus.getCode() == IArtifactRepository.CODE_RETRY) {
+			indexFileStatus = getTransport().download(indexFileURI, index, monitor);
+		}
 		if (indexFileStatus != null && indexFileStatus.isOK())
 			return LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
 		return LocationProperties.createEmptyIndexFile();

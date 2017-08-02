@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -189,7 +190,7 @@ public class CacheManager {
 			// bug 269588 - server may return 0 when file exists, so extra flag is needed
 			boolean useJar = true;
 			try {
-				lastModifiedRemote = transport.getLastModified(jarLocation, submonitor.newChild(1));
+				lastModifiedRemote = getLastModified(jarLocation, submonitor.newChild(1));
 				if (lastModifiedRemote <= 0)
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + jarLocation)); //$NON-NLS-1$
 			} catch (AuthenticationFailedException e) {
@@ -226,7 +227,7 @@ public class CacheManager {
 				// (Status is reported based on finding the XML file as giving up on certain errors
 				// when checking for the jar may not be correct).
 				try {
-					lastModifiedRemote = transport.getLastModified(xmlLocation, submonitor.newChild(1));
+					lastModifiedRemote = getLastModified(xmlLocation, submonitor.newChild(1));
 					// if lastModifiedRemote is 0 - something is wrong in the communication stack, as 
 					// a FileNotFound exception should have been thrown.
 					// bug 269588 - server may return 0 when file exists - site is not correctly configured
@@ -265,6 +266,24 @@ public class CacheManager {
 		} finally {
 			submonitor.done();
 		}
+	}
+
+	private long getLastModified(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException {
+		CoreException exception = null;
+		long lastModifiedRemote = -1L;
+		do {
+			try {
+				lastModifiedRemote = transport.getLastModified(location, monitor);
+			} catch (CoreException e) {
+				if (e.getStatus() == null) {
+					throw e;
+				}
+				exception = e;
+			}
+		} while (exception != null && exception.getStatus() != null && exception.getStatus().getCode() == IArtifactRepository.CODE_RETRY);
+		if (exception != null)
+			throw exception;
+		return lastModifiedRemote;
 	}
 
 	/**
@@ -402,6 +421,9 @@ public class CacheManager {
 		try {
 			submonitor.setWorkRemaining(1000);
 			result = transport.download(remoteFile, stream, submonitor.newChild(1000));
+			while (result.getCode() == IArtifactRepository.CODE_RETRY) {
+				result = transport.download(remoteFile, stream, submonitor.newChild(1000));
+			}
 		} catch (OperationCanceledException e) {
 			// need to pick up the status - a new operation canceled exception is thrown at the end
 			// as status will be CANCEL.

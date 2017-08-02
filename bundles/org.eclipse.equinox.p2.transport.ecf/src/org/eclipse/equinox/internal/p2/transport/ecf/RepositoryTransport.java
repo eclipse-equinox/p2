@@ -192,8 +192,8 @@ public class RepositoryTransport extends Transport {
 				// must translate this core exception as it is most likely not informative to a
 				// user
 				if (e.getStatus().getException() == null)
-					throw new CoreException(RepositoryStatus.forException(e, toDownload));
-				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
+					throw new CoreException(forException(e, toDownload));
+				throw new CoreException(forStatus(e.getStatus(), toDownload));
 			} catch (LoginCanceledException e) {
 				// i.e. same behavior when user cancels as when failing n attempts.
 				throw new AuthenticationFailedException();
@@ -253,8 +253,8 @@ public class RepositoryTransport extends Transport {
 				// must translate this core exception as it is most likely not informative to a
 				// user
 				if (e.getStatus().getException() == null)
-					throw new CoreException(RepositoryStatus.forException(e, toDownload));
-				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
+					throw new CoreException(forException(e, toDownload));
+				throw new CoreException(forStatus(e.getStatus(), toDownload));
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
 			} catch (LoginCanceledException e) {
@@ -277,6 +277,8 @@ public class RepositoryTransport extends Transport {
 		if (t instanceof SocketTimeoutException)
 			return true;
 		else if (t instanceof SocketException)
+			return true;
+		else if (t instanceof IncomingFileTransferException && ((IncomingFileTransferException) t).getErrorCode() == 503)
 			return true;
 		return false;
 	}
@@ -308,7 +310,7 @@ public class RepositoryTransport extends Transport {
 								retryCount = Integer.valueOf(alreadyRetryCount.intValue() + 1);
 							}
 						}
-						if (retryCount != null) {
+						if (retryCount != null && retryCount.intValue() <= retry) {
 							socketExceptionRetry.put(toDownload, retryCount);
 							return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY,
 									NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {
