@@ -282,7 +282,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 		final String selectedFileName = dialog.open();
 
 		if (selectedFileName != null) {
-			setDestinationValue(selectedFileName);
+			modifyDestinationValue(selectedFileName);
 			handleDestinationChanged(selectedFileName);
 		}
 	}
@@ -322,6 +322,24 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 		} catch (InterruptedException e) {
 			// won't happen
 		}
+	}
+
+	@Override
+	void modifyDestinationValue(String selectedFileName) {
+		/*
+		 * If the destination file is a Mac app bundle, modify the destination 
+		 * to *.app/Contents/Eclipse if the path exists.
+		 */
+		if ("cocoa".equals(SWT.getPlatform())) { //$NON-NLS-1$
+			Path nPath = new Path(selectedFileName);
+			if (nPath.lastSegment().endsWith(".app")) { //$NON-NLS-1$
+				IPath appendedPath = nPath.append("Contents").append("Eclipse");//$NON-NLS-1$ //$NON-NLS-2$
+				if (appendedPath.toFile().exists()) {
+					selectedFileName = appendedPath.toOSString();
+				}
+			}
+		}
+		setDestinationValue(selectedFileName);
 	}
 
 	@Override
