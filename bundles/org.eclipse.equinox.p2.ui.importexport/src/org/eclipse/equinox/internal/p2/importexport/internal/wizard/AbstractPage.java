@@ -324,6 +324,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			public void keyPressed(KeyEvent e) {
 				if (e.character == SWT.CR) {
 					entryChanged = false;
+					modifyDestinationValue(getDestinationValue());
 					handleDestinationChanged(getDestinationValue());
 				}
 			}
@@ -757,4 +758,9 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	protected void addDestinationItem(String value) {
 		destinationNameField.add(value);
 	}
+
+	void modifyDestinationValue(String destinationValue) {
+		//Do nothing
+	}
+
 }
