@@ -170,6 +170,7 @@ public class ProvUIMessages extends NLS {
 	public static String AddRepositoryDialog_LocationLabel;
 	public static String AddRepositoryDialog_NameLabel;
 	public static String AddRepositoryDialog_Title;
+	public static String AddRepositoryDialog_addButtonLabel;
 	public static String AvailableIUGroup_LoadingRepository;
 	public static String AvailableIUGroup_NoSitesConfiguredDescription;
 	public static String AvailableIUGroup_NoSitesConfiguredExplanation;

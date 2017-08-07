@@ -17,8 +17,9 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.*;
@@ -51,7 +52,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+		okButton = createButton(parent, IDialogConstants.OK_ID, ProvUIMessages.AddRepositoryDialog_addButtonLabel, true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 	}
 
