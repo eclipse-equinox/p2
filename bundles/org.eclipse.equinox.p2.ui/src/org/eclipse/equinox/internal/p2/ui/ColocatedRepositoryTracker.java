@@ -22,9 +22,11 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -135,7 +137,8 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 						if (workbench.isClosing())
 							return;
 						Shell shell = ProvUI.getDefaultParentShell();
-						if (MessageDialog.openQuestion(shell, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFoundTitle, NLS.bind(ProvUIMessages.ColocatedRepositoryTracker_PromptForSiteLocationEdit, URIUtil.toUnencodedString(location)))) {
+						int result = MessageDialog.open(MessageDialog.QUESTION, shell, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFoundTitle, NLS.bind(ProvUIMessages.ColocatedRepositoryTracker_PromptForSiteLocationEdit, URIUtil.toUnencodedString(location)), SWT.NONE, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFound_EditButtonLabel, IDialogConstants.NO_LABEL);
+						if (result == 0) {
 							RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(shell, ui) {
 								@Override
 								protected String getInitialLocationText() {

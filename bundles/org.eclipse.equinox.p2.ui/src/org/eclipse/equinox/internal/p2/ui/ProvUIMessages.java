@@ -44,6 +44,7 @@ public class ProvUIMessages extends NLS {
 	public static String ColocatedRepositoryManipulator_AddSiteOperationLabel;
 	public static String ColocatedRepositoryTracker_PromptForSiteLocationEdit;
 	public static String ColocatedRepositoryTracker_SiteNotFoundTitle;
+	public static String ColocatedRepositoryTracker_SiteNotFound_EditButtonLabel;
 	public static String RevertProfilePage_ConfirmDeleteMultipleConfigs;
 	public static String RevertProfilePage_ConfirmDeleteSingleConfig;
 	public static String RevertProfilePage_Delete;
