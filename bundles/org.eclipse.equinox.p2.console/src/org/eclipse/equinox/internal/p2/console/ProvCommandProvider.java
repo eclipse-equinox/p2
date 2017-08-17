@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -211,7 +211,7 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		String environments = interpreter.nextArgument();
-		Map<String, String> props = new HashMap<String, String>();
+		Map<String, String> props = new HashMap<>();
 		props.put(IProfile.PROP_INSTALL_FOLDER, location);
 		if (environments != null)
 			props.put(IProfile.PROP_ENVIRONMENTS, environments);
@@ -517,11 +517,7 @@ public class ProvCommandProvider implements CommandProvider {
 
 	private IInstallableUnit[] sort(IQueryResult<IInstallableUnit> queryResult) {
 		IInstallableUnit[] units = queryResult.toArray(IInstallableUnit.class);
-		Arrays.sort(units, new Comparator<IInstallableUnit>() {
-			public int compare(IInstallableUnit arg0, IInstallableUnit arg1) {
-				return arg0.toString().compareTo(arg1.toString());
-			}
-		});
+		Arrays.sort(units, (arg0, arg1) -> arg0.toString().compareTo(arg1.toString()));
 		return units;
 	}
 
@@ -676,6 +672,7 @@ public class ProvCommandProvider implements CommandProvider {
 		interpreter.println("--End Error Status--");
 	}
 
+	@Override
 	public String getHelp() {
 		return getHelp(null);
 	}
@@ -729,7 +726,7 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	private void initializeCommandsHelp() {
-		commandsHelp = new HashMap<String, String>();
+		commandsHelp = new HashMap<>();
 
 		// add commands for repository
 		commandsHelp.put("provaddrepo", Messages.Console_help_provaddrepo_description); //$NON-NLS-1$
@@ -759,12 +756,11 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	private void initializeCommandGroups() {
-		commandGroups = new LinkedHashMap<String, String[]>();
-		commandGroups.put(Messages.Console_help_repository_header,
-				new String[] {"provaddrepo", "provdelrepo", "provaddmetadatarepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						"provdelmetadatarepo", "provaddartifactrepo", "provdelartifactrepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						"provlg", "provlr", "provlar", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						"provliu", "provlquery"}); //$NON-NLS-1$ //$NON-NLS-2$
+		commandGroups = new LinkedHashMap<>();
+		commandGroups.put(Messages.Console_help_repository_header, new String[] {"provaddrepo", "provdelrepo", "provaddmetadatarepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				"provdelmetadatarepo", "provaddartifactrepo", "provdelartifactrepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				"provlg", "provlr", "provlar", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				"provliu", "provlquery"}); //$NON-NLS-1$ //$NON-NLS-2$
 
 		commandGroups.put(Messages.Console_help_profile_registry_header, new String[] {"provaddprofile", "provdelprofile", //$NON-NLS-1$ //$NON-NLS-2$
 				"provlp", "provlgp", "provlpts", "provlpquery"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

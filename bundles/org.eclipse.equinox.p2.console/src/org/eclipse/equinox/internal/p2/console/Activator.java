@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<IPro
 		super();
 	}
 
+	@Override
 	public void start(BundleContext ctxt) throws Exception {
 		Activator.context = ctxt;
 		boolean registerCommands = true;
@@ -46,11 +47,12 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<IPro
 		}
 
 		if (registerCommands) {
-			agentTracker = new ServiceTracker<IProvisioningAgent, IProvisioningAgent>(context, IProvisioningAgent.class, this);
+			agentTracker = new ServiceTracker<>(context, IProvisioningAgent.class, this);
 			agentTracker.open();
 		}
 	}
 
+	@Override
 	public void stop(BundleContext ctxt) throws Exception {
 		agentTracker.close();
 		if (providerRegistration != null)
@@ -60,6 +62,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<IPro
 		Activator.context = null;
 	}
 
+	@Override
 	public IProvisioningAgent addingService(ServiceReference<IProvisioningAgent> reference) {
 		if (providerRegistration != null) {
 			return null;
@@ -77,10 +80,12 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<IPro
 		return agent;
 	}
 
+	@Override
 	public void modifiedService(ServiceReference<IProvisioningAgent> reference, IProvisioningAgent service) {
 		// nothing
 	}
 
+	@Override
 	public void removedService(ServiceReference<IProvisioningAgent> reference, IProvisioningAgent service) {
 		if (provAgent != service) {
 			return;
