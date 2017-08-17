@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2014 SAP AG and others.
+ *  Copyright (c) 2014, 2017 SAP AG and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -77,7 +77,7 @@ public class IUListFormatter {
 	 * Finds all IU properties in the format string
 	 */
 	private static Collection<String> parse(String string) {
-		Set<String> properties = new HashSet<String>(5);
+		Set<String> properties = new HashSet<>(5);
 		int start = 0;
 		while (start < string.length() && (start = string.indexOf(PREFIX, start)) > -1) {
 			int end = string.indexOf('}', start + PREFIX.length());

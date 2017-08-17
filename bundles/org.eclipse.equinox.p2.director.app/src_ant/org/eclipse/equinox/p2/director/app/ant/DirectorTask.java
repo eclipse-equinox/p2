@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,7 +40,7 @@ public class DirectorTask extends Task implements ILog {
 	private String extraArguments;
 	private File destination, bundlePool, agentLocation;
 	private URI metadataRepository, artifactRepository;
-	private List<IUDescription> ius = new ArrayList<IUDescription>();
+	private List<IUDescription> ius = new ArrayList<>();
 	private String outputProperty;
 	private StringBuffer outputBuffer = null;
 	private File logFile = null;
@@ -67,6 +67,7 @@ public class DirectorTask extends Task implements ILog {
 	 * (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()
 	 */
+	@Override
 	public void execute() throws BuildException {
 		Object result = null;
 		try {
@@ -94,7 +95,7 @@ public class DirectorTask extends Task implements ILog {
 	}
 
 	private String[] getArguments() {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		if (roaming)
 			result.add("-roaming"); //$NON-NLS-1$
 		if (profile != null) {
@@ -249,6 +250,7 @@ public class DirectorTask extends Task implements ILog {
 			agentLocation = new File(value);
 	}
 
+	@Override
 	public void log(String msg) {
 		if (outputBuffer != null) {
 			outputBuffer.append(msg);
@@ -258,6 +260,7 @@ public class DirectorTask extends Task implements ILog {
 		super.log(msg, Project.MSG_INFO);
 	}
 
+	@Override
 	public void log(IStatus status) {
 		log(0, status);
 		if (status.isMultiStatus()) {
@@ -294,21 +297,12 @@ public class DirectorTask extends Task implements ILog {
 			if (parentFile != null && !parentFile.exists())
 				parentFile.mkdirs();
 
-			FileWriter writer = null;
-			try {
-				writer = new FileWriter(logFile);
+			try (FileWriter writer = new FileWriter(logFile)) {
+
 				writer.write(logString);
 
 			} catch (IOException e) {
 				getProject().log(NLS.bind(Messages.unableToWriteLogFile, logFile.getAbsolutePath()), e, Project.MSG_WARN);
-			} finally {
-				if (writer != null) {
-					try {
-						writer.close();
-					} catch (IOException e) {
-						//ignore
-					}
-				}
 			}
 		}
 	}
@@ -326,6 +320,7 @@ public class DirectorTask extends Task implements ILog {
 		}
 	}
 
+	@Override
 	public void close() {
 		// ILog#close(),  nothing to do here
 	}

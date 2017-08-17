@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype, Inc. and others.
+ * Copyright (c) 2011, 2017 Sonatype, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,14 +27,17 @@ public class PrettyQuery<T> implements IQuery<T> {
 		userString = userReadable;
 	}
 
+	@Override
 	public IQueryResult<T> perform(Iterator<T> iterator) {
 		return decorated.perform(iterator);
 	}
 
+	@Override
 	public IExpression getExpression() {
 		return decorated.getExpression();
 	}
 
+	@Override
 	public String toString() {
 		if (userString != null)
 			return userString;

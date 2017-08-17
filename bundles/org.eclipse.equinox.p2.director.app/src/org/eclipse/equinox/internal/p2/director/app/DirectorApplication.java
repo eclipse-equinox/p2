@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,6 +86,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			Assert.isNotNull(location);
 		}
 
+		@Override
 		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 			return getInstallableUnits(location, query, monitor);
 		}
@@ -210,17 +211,17 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		String[] roots = StringHelper.getArrayFromString(arg, ',');
 		for (int i = 0; i < roots.length; ++i) {
 			if (roots[i].equalsIgnoreCase(LIST_GROUPS_SHORTCUT)) {
-				vnames.add(new PrettyQuery<IInstallableUnit>(QueryUtil.createIUGroupQuery(), "All groups")); //$NON-NLS-1$
+				vnames.add(new PrettyQuery<>(QueryUtil.createIUGroupQuery(), "All groups")); //$NON-NLS-1$
 				continue;
 			}
 			if (roots[i].startsWith(QUERY_SEPARATOR) || roots[i].startsWith(QUERY_SEPARATOR_SMALL)) {
 				String queryString = roots[i].substring(2);
-				vnames.add(new PrettyQuery<IInstallableUnit>(QueryUtil.createQuery(queryString, new Object[0]), queryString));
+				vnames.add(new PrettyQuery<>(QueryUtil.createQuery(queryString, new Object[0]), queryString));
 				continue;
 			}
 			IVersionedId vId = VersionedId.parse(roots[i]);
 			Version v = vId.getVersion();
-			IQuery<IInstallableUnit> query = new PrettyQuery<IInstallableUnit>(QueryUtil.createIUQuery(vId.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true)), roots[i]);
+			IQuery<IInstallableUnit> query = new PrettyQuery<>(QueryUtil.createIUQuery(vId.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true)), roots[i]);
 			vnames.add(query);
 		}
 	}
@@ -239,11 +240,11 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private URI[] artifactReposForRemoval;
 	private URI[] metadataReposForRemoval;
 
-	private final List<URI> artifactRepositoryLocations = new ArrayList<URI>();
-	private final List<URI> metadataRepositoryLocations = new ArrayList<URI>();
-	private final List<IQuery<IInstallableUnit>> rootsToInstall = new ArrayList<IQuery<IInstallableUnit>>();
-	private final List<IQuery<IInstallableUnit>> rootsToUninstall = new ArrayList<IQuery<IInstallableUnit>>();
-	private final List<IQuery<IInstallableUnit>> rootsToList = new ArrayList<IQuery<IInstallableUnit>>();
+	private final List<URI> artifactRepositoryLocations = new ArrayList<>();
+	private final List<URI> metadataRepositoryLocations = new ArrayList<>();
+	private final List<IQuery<IInstallableUnit>> rootsToInstall = new ArrayList<>();
+	private final List<IQuery<IInstallableUnit>> rootsToUninstall = new ArrayList<>();
+	private final List<IQuery<IInstallableUnit>> rootsToList = new ArrayList<>();
 
 	private File bundlePool = null;
 	private File destination;
@@ -302,20 +303,11 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			return null;
 		}
 		Properties properties = new Properties();
-		InputStream input = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(file));
+		try (InputStream input = new BufferedInputStream(new FileInputStream(file))){
 			properties.load(input);
 		} catch (IOException e) {
 			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Problem_loading_file, file.getAbsolutePath()), e));
 			return null;
-		} finally {
-			if (input != null)
-				try {
-					input.close();
-				} catch (IOException e) {
-					// ignore
-				}
 		}
 		return properties;
 	}
@@ -337,7 +329,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		// id is the IU id
 		// keyword is either "key" or "value"
 		// uniqueNumber is used to group keys and values together
-		Set<String> alreadyProcessed = new HashSet<String>();
+		Set<String> alreadyProcessed = new HashSet<>();
 		for (Iterator<Object> iter = properties.keySet().iterator(); iter.hasNext();) {
 			String line = (String) iter.next();
 			int index = line.lastIndexOf('.');
@@ -420,14 +412,14 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (top == 0)
 			return getInstallableUnits(null, query, nullMonitor);
 
-		List<IQueryable<IInstallableUnit>> locationQueryables = new ArrayList<IQueryable<IInstallableUnit>>(top);
+		List<IQueryable<IInstallableUnit>> locationQueryables = new ArrayList<>(top);
 		for (int i = 0; i < top; i++)
 			locationQueryables.add(new LocationQueryable(metadataRepositoryLocations.get(i)));
 		return QueryUtil.compoundQueryable(locationQueryables).query(query, nullMonitor);
 	}
 
 	private Collection<IInstallableUnit> collectRoots(IProfile profile, List<IQuery<IInstallableUnit>> rootNames, boolean forInstall) throws CoreException {
-		ArrayList<IInstallableUnit> allRoots = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> allRoots = new ArrayList<>();
 		for (IQuery<IInstallableUnit> rootQuery : rootNames) {
 			IQueryResult<IInstallableUnit> roots = null;
 			if (forInstall)
@@ -463,7 +455,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private String getEnvironmentProperty() {
-		HashMap<String, String> values = new HashMap<String, String>();
+		HashMap<String, String> values = new HashMap<>();
 		if (os != null)
 			values.put("osgi.os", os); //$NON-NLS-1$
 		if (nl != null)
@@ -492,7 +484,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			if (flavor == null)
 				flavor = System.getProperty("eclipse.p2.configurationFlavor", FLAVOR_DEFAULT); //$NON-NLS-1$
 
-			Map<String, String> props = new HashMap<String, String>();
+			Map<String, String> props = new HashMap<>();
 			props.put(IProfile.PROP_INSTALL_FOLDER, destination.toString());
 			if (bundlePool == null)
 				props.put(IProfile.PROP_CACHE, sharedLocation == null ? destination.getAbsolutePath() : sharedLocation.getAbsolutePath());
@@ -632,21 +624,12 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (profileId == null) {
 			if (destination != null) {
 				File configIni = new File(destination, "configuration/config.ini"); //$NON-NLS-1$
-				InputStream in = null;
-				try {
-					Properties ciProps = new Properties();
-					in = new BufferedInputStream(new FileInputStream(configIni));
+				Properties ciProps = new Properties();
+				try (InputStream in = new BufferedInputStream(new FileInputStream(configIni));) {
 					ciProps.load(in);
 					profileId = ciProps.getProperty(PROP_P2_PROFILE);
 				} catch (IOException e) {
 					// Ignore
-				} finally {
-					if (in != null)
-						try {
-							in.close();
-						} catch (IOException e) {
-							// Ignore;
-						}
 				}
 				if (profileId == null)
 					profileId = destination.toString();
@@ -685,6 +668,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	 * Using the event bus to detect whether or not a repository was added in a touchpoint action. 
 	 * If it was, then (if it exists) remove it from our list of repos to remove after we complete our install.
 	 */
+	@Override
 	public void notify(EventObject o) {
 		if (!(o instanceof RepositoryEvent))
 			return;
@@ -755,7 +739,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (metadataRepositoryLocations.isEmpty())
 			missingArgument("metadataRepository"); //$NON-NLS-1$
 
-		ArrayList<IInstallableUnit> allRoots = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> allRoots = new ArrayList<>();
 		if (rootsToList.size() == 0) {
 			Iterator<IInstallableUnit> roots = collectRootIUs(QueryUtil.createIUAnyQuery()).iterator();
 			while (roots.hasNext())
@@ -1302,6 +1286,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 	}
 
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
@@ -1362,6 +1347,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			throw new CoreException(new MultiStatus(org.eclipse.equinox.internal.p2.director.app.Activator.ID, IStatus.ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
 	}
 
+	@Override
 	public void stop() {
 		IProvisioningEventBus eventBus = (IProvisioningEventBus) targetAgent.getService(IProvisioningEventBus.SERVICE_NAME);
 		if (eventBus != null)
@@ -1377,7 +1363,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private void performListInstalledRoots() throws CoreException {
 		IProfile profile = initializeProfile();
 		IQueryResult<IInstallableUnit> roots = profile.query(new UserVisibleRootQuery(), null);
-		Set<IInstallableUnit> sorted = new TreeSet<IInstallableUnit>(roots.toUnmodifiableSet());
+		Set<IInstallableUnit> sorted = new TreeSet<>(roots.toUnmodifiableSet());
 		for (IInstallableUnit iu : sorted)
 			System.out.println(iu.getId() + '/' + iu.getVersion());
 	}
@@ -1387,7 +1373,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
 		Map<String, String> tags = registry.getProfileStateProperties(profile.getProfileId(), IProfile.STATE_PROP_TAG);
 		//Sort the tags from the most recent to the oldest
-		List<String> timeStamps = new ArrayList<String>(tags.keySet());
+		List<String> timeStamps = new ArrayList<>(tags.keySet());
 		Collections.sort(timeStamps, Collections.reverseOrder());
 		for (String timestamp : timeStamps) {
 			System.out.println(tags.get(timestamp));
