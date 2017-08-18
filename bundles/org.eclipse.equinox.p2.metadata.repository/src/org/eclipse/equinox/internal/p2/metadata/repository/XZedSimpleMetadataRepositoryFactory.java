@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015  Rapicorp, Inc and others.
+ * Copyright (c) 2015, 2017 Rapicorp, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ public class XZedSimpleMetadataRepositoryFactory extends MetadataRepositoryFacto
 	private static final String REPOSITORY_FILENAME = "content.xml.xz"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
+	@Override
 	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		if (location.getScheme().equals("file")) //$NON-NLS-1$
 			return new LocalMetadataRepository(getAgent(), location, name, properties);
@@ -63,9 +64,7 @@ public class XZedSimpleMetadataRepositoryFactory extends MetadataRepositoryFacto
 		return localFile;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		long time = 0;
 		final String debugMsg = "Validating and loading metadata repository "; //$NON-NLS-1$

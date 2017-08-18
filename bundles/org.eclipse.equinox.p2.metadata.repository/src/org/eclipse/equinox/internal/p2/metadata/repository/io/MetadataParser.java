@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,9 +52,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public RepositoryReferencesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REPOSITORY_REFERENCES_ELEMENT);
-			references = new HashSet<IRepositoryReference>(getOptionalSize(attributes, 4));
+			references = new HashSet<>(getOptionalSize(attributes, 4));
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(REPOSITORY_REFERENCE_ELEMENT)) {
 				new RepositoryReferenceHandler(this, attributes, references);
@@ -83,6 +84,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				references.add(new RepositoryReference(location, name, type, options));
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			invalidElement(name, attributes);
 		}
@@ -93,7 +95,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public InstallableUnitsHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, INSTALLABLE_UNITS_ELEMENT);
-			units = new ArrayList<InstallableUnitDescription>(getOptionalSize(attributes, 4));
+			units = new ArrayList<>(getOptionalSize(attributes, 4));
 		}
 
 		public IInstallableUnit[] getUnits() {
@@ -105,6 +107,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			return result;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(INSTALLABLE_UNIT_ELEMENT)) {
 				new InstallableUnitHandler(this, attributes, units);
@@ -157,6 +160,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			return MetadataFactory.createInstallableUnit(currentUnit);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			checkCancel();
 			if (PROPERTIES_ELEMENT.equals(name)) {
@@ -254,6 +258,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			}
 		}
 
+		@Override
 		protected void finished() {
 			if (isValidXML()) {
 				if (requirementChangesHandler != null) {
@@ -335,9 +340,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public ApplicabilityScopesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, APPLICABILITY_SCOPE);
-			scopes = new ArrayList<IRequirement[]>(getOptionalSize(attributes, 4));
+			scopes = new ArrayList<>(getOptionalSize(attributes, 4));
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (APPLY_ON.equals(name)) {
 				new ApplicabilityScopeHandler(this, attributes, scopes);
@@ -360,6 +366,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			this.scopes = scopes;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (REQUIREMENTS_ELEMENT.equals(name)) {
 				children = new RequiredCapabilitiesHandler(this, attributes);
@@ -368,6 +375,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			}
 		}
 
+		@Override
 		protected void finished() {
 			if (children != null) {
 				scopes.add(children.getRequiredCapabilities());
@@ -380,9 +388,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public RequirementsChangeHandler(InstallableUnitHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REQUIREMENT_CHANGES);
-			requirementChanges = new ArrayList<IRequirementChange>(getOptionalSize(attributes, 4));
+			requirementChanges = new ArrayList<>(getOptionalSize(attributes, 4));
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(REQUIREMENT_CHANGE)) {
 				new RequirementChangeHandler(this, attributes, requirementChanges);
@@ -403,11 +412,12 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public RequirementChangeHandler(AbstractHandler parentHandler, Attributes attributes, List<IRequirementChange> requirementChanges) {
 			super(parentHandler, REQUIREMENT_CHANGE);
-			from = new ArrayList<IRequirement>(1);
-			to = new ArrayList<IRequirement>(1);
+			from = new ArrayList<>(1);
+			to = new ArrayList<>(1);
 			this.requirementChanges = requirementChanges;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(REQUIREMENT_FROM)) {
 				new RequirementChangeEltHandler(this, REQUIREMENT_FROM, attributes, from);
@@ -421,6 +431,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			invalidElement(name, attributes);
 		}
 
+		@Override
 		protected void finished() {
 			requirementChanges.add(MetadataFactory.createRequirementChange(from.size() == 0 ? null : (IRequirement) from.get(0), to.size() == 0 ? null : (IRequirement) to.get(0)));
 		}
@@ -434,6 +445,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			requirement = from;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (REQUIREMENT_ELEMENT.equals(name))
 				new RequirementHandler(this, attributes, requirement);
@@ -449,7 +461,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public LifeCycleHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, LIFECYCLE);
-			lifeCycleRequirement = new ArrayList<IRequirement>(1);
+			lifeCycleRequirement = new ArrayList<>(1);
 		}
 
 		public IRequirement getLifeCycleRequirement() {
@@ -458,6 +470,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			return lifeCycleRequirement.get(0);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (REQUIREMENT_ELEMENT.equals(name)) {
 				new RequirementHandler(this, attributes, lifeCycleRequirement);
@@ -472,13 +485,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public ProvidedCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, PROVIDED_CAPABILITIES_ELEMENT);
-			providedCapabilities = new ArrayList<IProvidedCapability>(getOptionalSize(attributes, 4));
+			providedCapabilities = new ArrayList<>(getOptionalSize(attributes, 4));
 		}
 
 		public IProvidedCapability[] getProvidedCapabilities() {
 			return providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(PROVIDED_CAPABILITY_ELEMENT)) {
 				new ProvidedCapabilityHandler(this, attributes, providedCapabilities);
@@ -497,6 +511,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			capabilities.add(MetadataFactory.createProvidedCapability(values[0], values[1], version));
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			invalidElement(name, attributes);
 		}
@@ -507,13 +522,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public HostRequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, HOST_REQUIREMENTS_ELEMENT);
-			requiredCapabilities = new ArrayList<IRequirement>(getOptionalSize(attributes, 4));
+			requiredCapabilities = new ArrayList<>(getOptionalSize(attributes, 4));
 		}
 
 		public IRequirement[] getHostRequiredCapabilities() {
 			return requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(REQUIREMENT_ELEMENT)) {
 				new RequirementHandler(this, attributes, requiredCapabilities);
@@ -528,13 +544,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public MetaRequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, META_REQUIREMENTS_ELEMENT);
-			requiredCapabilities = new ArrayList<IRequirement>(getOptionalSize(attributes, 4));
+			requiredCapabilities = new ArrayList<>(getOptionalSize(attributes, 4));
 		}
 
 		public IRequirement[] getMetaRequiredCapabilities() {
 			return requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(REQUIREMENT_ELEMENT)) {
 				new RequirementHandler(this, attributes, requiredCapabilities);
@@ -549,13 +566,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public RequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REQUIREMENTS_ELEMENT);
-			requiredCapabilities = new ArrayList<IRequirement>(getOptionalSize(attributes, 4));
+			requiredCapabilities = new ArrayList<>(getOptionalSize(attributes, 4));
 		}
 
 		public IRequirement[] getRequiredCapabilities() {
 			return requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(REQUIREMENT_ELEMENT)) {
 				new RequirementHandler(this, attributes, requiredCapabilities);
@@ -604,6 +622,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			}
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(CAPABILITY_FILTER_ELEMENT)) {
 				filterHandler = new TextHandler(this, CAPABILITY_FILTER_ELEMENT, attributes);
@@ -614,6 +633,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			}
 		}
 
+		@Override
 		protected void finished() {
 			if (!isValidXML())
 				return;
@@ -658,13 +678,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public ArtifactsHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, ARTIFACT_KEYS_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			artifacts = (size != null ? new ArrayList<IArtifactKey>(Integer.parseInt(size)) : new ArrayList<IArtifactKey>(4));
+			artifacts = (size != null ? new ArrayList<>(Integer.parseInt(size)) : new ArrayList<>(4));
 		}
 
 		public IArtifactKey[] getArtifactKeys() {
 			return artifacts.toArray(new IArtifactKey[artifacts.size()]);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(ARTIFACT_KEY_ELEMENT)) {
 				new ArtifactHandler(this, attributes, artifacts);
@@ -685,6 +706,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			artifacts.add(new ArtifactKey(values[0], values[1], version));
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			invalidElement(name, attributes);
 		}
@@ -707,6 +729,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			return touchpointType;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			invalidElement(name, attributes);
 		}
@@ -721,7 +744,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public TouchpointDataHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, TOUCHPOINT_DATA_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			data = (size != null ? new ArrayList<TouchpointInstructionsHandler>(Integer.parseInt(size)) : new ArrayList<TouchpointInstructionsHandler>(4));
+			data = (size != null ? new ArrayList<>(Integer.parseInt(size)) : new ArrayList<>(4));
 		}
 
 		public ITouchpointData[] getTouchpointData() {
@@ -731,6 +754,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			return result;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT)) {
 				data.add(new TouchpointInstructionsHandler(this, attributes, data));
@@ -747,13 +771,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public TouchpointInstructionsHandler(AbstractHandler parentHandler, Attributes attributes, List<TouchpointInstructionsHandler> data) {
 			super(parentHandler, TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			instructions = (size != null ? new LinkedHashMap<String, ITouchpointInstruction>(Integer.parseInt(size)) : new LinkedHashMap<String, ITouchpointInstruction>(4));
+			instructions = (size != null ? new LinkedHashMap<>(Integer.parseInt(size)) : new LinkedHashMap<>(4));
 		}
 
 		public ITouchpointData getTouchpointData() {
 			return MetadataFactory.createTouchpointData(instructions);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT)) {
 				new TouchpointInstructionHandler(this, attributes, instructions);
@@ -780,6 +805,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			this.instructions = instructions;
 		}
 
+		@Override
 		protected void finished() {
 			if (isValidXML()) {
 				if (key != null) {
@@ -850,7 +876,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public LicensesHandler(ContentHandler parentHandler, Attributes attributes) {
 			super(parentHandler, LICENSES_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			licenses = (size != null ? new ArrayList<ILicense>(Integer.parseInt(size)) : new ArrayList<ILicense>(2));
+			licenses = (size != null ? new ArrayList<>(Integer.parseInt(size)) : new ArrayList<>(2));
 		}
 
 		public ILicense[] getLicenses() {
@@ -859,6 +885,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			return licenses.toArray(new ILicense[licenses.size()]);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(LICENSE_ELEMENT)) {
 				new LicenseHandler(this, attributes, licenses);
@@ -884,6 +911,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			this.licenses = licenses;
 		}
 
+		@Override
 		protected void finished() {
 			if (isValidXML()) {
 				licenses.add(MetadataFactory.createLicense(location, getText()));
@@ -904,6 +932,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			location = parseURIAttribute(attributes, false);
 		}
 
+		@Override
 		protected void finished() {
 			if (isValidXML()) {
 				copyright = MetadataFactory.createCopyright(location, getText());

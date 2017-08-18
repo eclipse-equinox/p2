@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,11 +46,11 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	// keep a list of the child URIs. they can be absolute or relative. they may or may not point
 	// to a valid reachable repo
-	private List<URI> childrenURIs = new ArrayList<URI>();
+	private List<URI> childrenURIs = new ArrayList<>();
 	// keep a list of the repositories that we have successfully loaded
-	private List<IMetadataRepository> loadedRepos = new ArrayList<IMetadataRepository>();
+	private List<IMetadataRepository> loadedRepos = new ArrayList<>();
 	private IMetadataRepositoryManager manager;
-	private IPool<IInstallableUnit> iuPool = new WeakPool<IInstallableUnit>();
+	private IPool<IInstallableUnit> iuPool = new WeakPool<>();
 
 	/**
 	 * Create a Composite repository in memory.
@@ -89,6 +89,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return "file".equalsIgnoreCase(getLocation().getScheme()); //$NON-NLS-1$
 	}
 
+	@Override
 	public boolean isModifiable() {
 		return isLocal();
 	}
@@ -100,7 +101,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		super(manager.getAgent(), state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
 		this.manager = manager;
 		SubMonitor sub = SubMonitor.convert(monitor, 100 * state.getChildren().length);
-		List<URI> repositoriesToBeRemovedOnFailure = new ArrayList<URI>();
+		List<URI> repositoriesToBeRemovedOnFailure = new ArrayList<>();
 		boolean failOnChildFailure = shouldFailOnChildFailure(state);
 		for (URI child : state.getChildren())
 			addChild(child, false, sub.newChild(100), failOnChildFailure, repositoriesToBeRemovedOnFailure);
@@ -132,9 +133,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
@@ -187,9 +186,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#addChild(java.net.URI)
-	 */
+	@Override
 	public void addChild(URI childURI) {
 		try {
 			addChild(childURI, true, null, false, null);
@@ -198,9 +195,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#removeChild(java.net.URI)
-	 */
+	@Override
 	public void removeChild(URI childURI) {
 		boolean removed = childrenURIs.remove(childURI);
 		// if the child wasn't there make sure and try the other permutation
@@ -225,34 +220,23 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#removeAllChildren()
-	 */
+	@Override
 	public void removeAllChildren() {
 		childrenURIs.clear();
 		loadedRepos.clear();
 		save();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addInstallableUnits(java.util.Collection)
-	 */
 	@Override
 	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		throw new UnsupportedOperationException("Cannot add IUs to a composite repository"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeAll()
-	 */
 	@Override
 	public synchronized void removeAll() {
 		throw new UnsupportedOperationException("Cannot remove IUs from a composite repository"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeInstallableUnits(java.util.Collection)
-	 */
 	@Override
 	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		throw new UnsupportedOperationException("Cannot remove IUs from a composite repository"); //$NON-NLS-1$
@@ -277,18 +261,14 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return getActualLocation(location, XML_EXTENSION);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addReferences(java.util.Collection)
-	 */
+	@Override
 	public synchronized void addReferences(Collection<? extends IRepositoryReference> references) {
 		throw new UnsupportedOperationException("Cannot add References to a composite repository"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
-	 */
+	@Override
 	public Collection<IRepositoryReference> getReferences() {
-		HashSet<IRepositoryReference> allRefs = new HashSet<IRepositoryReference>();
+		HashSet<IRepositoryReference> allRefs = new HashSet<>();
 		for (IMetadataRepository child : loadedRepos)
 			allRefs.addAll(child.getReferences());
 		return allRefs;
@@ -333,11 +313,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#getChildren()
-	 */
+	@Override
 	public List<URI> getChildren() {
-		List<URI> result = new ArrayList<URI>();
+		List<URI> result = new ArrayList<>();
 		for (URI childURI : childrenURIs)
 			result.add(URIUtil.makeAbsolute(childURI, getLocation()));
 		return result;
@@ -350,6 +328,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	//TODO this should never be called. What do we do?
+	@Override
 	public void initialize(RepositoryState state) {
 		setName(state.Name);
 		setType(state.Type);
@@ -360,9 +339,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		setProperties(state.Properties);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#getIndex(java.lang.String)
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public IIndex<IInstallableUnit> getIndex(String memberName) {
 		IQueryable<IInstallableUnit> queryable = QueryUtil.compoundQueryable(loadedRepos);
@@ -372,9 +349,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#everything()
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public Iterator<IInstallableUnit> everything() {
 		IQueryable<IInstallableUnit> queryable = QueryUtil.compoundQueryable(loadedRepos);
@@ -384,9 +359,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return Collections.EMPTY_LIST.iterator();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#getManagedProperty(java.lang.Object, java.lang.String, java.lang.Object)
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public Object getManagedProperty(Object client, String memberName, Object key) {
 		IQueryable<IInstallableUnit> queryable = QueryUtil.compoundQueryable(loadedRepos);

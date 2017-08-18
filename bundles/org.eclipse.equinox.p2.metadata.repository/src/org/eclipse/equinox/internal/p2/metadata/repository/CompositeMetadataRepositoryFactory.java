@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 	public static final String CONTENT_FILENAME = "compositeContent"; //$NON-NLS-1$
 
+	@Override
 	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return new CompositeMetadataRepository(getManager(), location, name, properties);
 	}
@@ -79,9 +80,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 		return localFile;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		long time = 0;
 		final String debugMsg = "Validating and loading metadata repository "; //$NON-NLS-1$

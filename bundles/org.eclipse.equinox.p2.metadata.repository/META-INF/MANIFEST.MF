@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.metadata.repository;singleton:=true
-Bundle-Version: 1.2.400.qualifier
+Bundle-Version: 1.3.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.metadata.repository.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -45,4 +45,4 @@ Import-Package: javax.xml.parsers,
  org.xml.sax
 Service-Component: OSGI-INF/repositoryManager.xml
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

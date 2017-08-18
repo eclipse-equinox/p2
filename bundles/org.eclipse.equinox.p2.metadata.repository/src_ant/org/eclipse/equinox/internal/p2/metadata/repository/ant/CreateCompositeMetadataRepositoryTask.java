@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,11 +33,9 @@ public class CreateCompositeMetadataRepositoryTask extends AbstractMDRTask {
 	boolean atomic = false;
 	boolean compressed = true; // compress by default
 	boolean failOnExists = false; // should we fail if one already exists?
-	Map<String, String> properties = new HashMap<String, String>();
+	Map<String, String> properties = new HashMap<>();
 
-	/* (non-Javadoc)
-	 * @see org.apache.tools.ant.Task#execute()
-	 */
+	@Override
 	public void execute() {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)

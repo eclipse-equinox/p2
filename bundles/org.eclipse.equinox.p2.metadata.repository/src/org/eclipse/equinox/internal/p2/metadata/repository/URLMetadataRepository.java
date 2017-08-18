@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 		return content;
 	}
 
+	@Override
 	public synchronized void initialize(RepositoryState state) {
 		setName(state.Name);
 		setType(state.Type);
@@ -88,18 +89,22 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 		content = getActualLocation(repoLocation);
 	}
 
+	@Override
 	public Collection<IRepositoryReference> getReferences() {
 		return references;
 	}
 
+	@Override
 	public boolean isModifiable() {
 		return false;
 	}
 
+	@Override
 	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return IndexProvider.query(this, query, monitor);
 	}
 
+	@Override
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
 		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
 			if (idIndex == null)
@@ -115,6 +120,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 		return null;
 	}
 
+	@Override
 	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
 		if (!(client instanceof IInstallableUnit))
 			return null;
@@ -127,6 +133,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 		return null;
 	}
 
+	@Override
 	public Iterator<IInstallableUnit> everything() {
 		return units.iterator();
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2016 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -47,7 +47,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	static final private String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
 	protected IUMap units = new IUMap();
-	protected HashSet<IRepositoryReference> repositories = new HashSet<IRepositoryReference>();
+	protected HashSet<IRepositoryReference> repositories = new HashSet<>();
 	private IIndex<IInstallableUnit> idIndex;
 	private IIndex<IInstallableUnit> capabilityIndex;
 	private TranslationSupport translationSupport;
@@ -110,9 +110,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		save();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addReferences(java.util.Collection)
-	 */
 	@Override
 	public void addReferences(Collection<? extends IRepositoryReference> references) {
 		assertModifiable();
@@ -121,16 +118,12 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			save();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
-	 */
+	@Override
 	public Collection<IRepositoryReference> getReferences() {
 		return Collections.unmodifiableCollection(repositories);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#getIndex(java.lang.String)
-	 */
+	@Override
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
 		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
 			snapshotNeeded = true;
@@ -148,6 +141,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		return null;
 	}
 
+	@Override
 	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
 		if (!(client instanceof IInstallableUnit))
 			return null;
@@ -160,9 +154,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#initialize(org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState)
-	 */
 	@Override
 	public void initialize(RepositoryState state) {
 		synchronized (this) {
@@ -197,7 +188,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	private synchronized List<IRepositoryReference> createRepositoriesSnapshot() {
 		if (repositories.isEmpty())
 			return Collections.<IRepositoryReference> emptyList();
-		return new ArrayList<IRepositoryReference>(repositories);
+		return new ArrayList<>(repositories);
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
@@ -205,32 +196,22 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		setLocation(aLocation);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#isModifiable()
-	 */
 	@Override
 	public boolean isModifiable() {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return IndexProvider.query(this, query, monitor);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#everything()
-	 */
+	@Override
 	public synchronized Iterator<IInstallableUnit> everything() {
 		snapshotNeeded = true;
 		return units.iterator();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeAll()
-	 */
 	@Override
 	public synchronized void removeAll() {
 		if (snapshotNeeded) {
@@ -243,9 +224,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		save();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeInstallableUnits(java.util.Collection)
-	 */
 	@Override
 	public synchronized boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		boolean changed = false;
@@ -308,9 +286,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#setProperty(java.lang.String, java.lang.String)
-	 */
 	@Override
 	public String setProperty(String key, String newValue, IProgressMonitor monitor) {
 		try {
@@ -332,6 +307,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		}
 	}
 
+	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		IStatus result = null;
 		synchronized (this) {
@@ -359,9 +335,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#compress(IPool<IInstallableUnit> iuPool)
-	 */
+	@Override
 	public void compress(IPool<IInstallableUnit> iuPool) {
 		units.compress(iuPool);
 	}

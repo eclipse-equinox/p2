@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -230,6 +230,7 @@ public class MetadataRepositoryIO {
 			return theRepository;
 		}
 
+		@Override
 		protected Object getRootObject() {
 			return theRepository;
 		}
@@ -240,6 +241,7 @@ public class MetadataRepositoryIO {
 				super(rootName, rootHandler);
 			}
 
+			@Override
 			public void processingInstruction(String target, String data) throws SAXException {
 				if (PI_REPOSITORY_TARGET.equals(target)) {
 					Version repositoryVersion = extractPIVersion(target, data);
@@ -272,6 +274,7 @@ public class MetadataRepositoryIO {
 				return repository;
 			}
 
+			@Override
 			protected void handleRootAttributes(Attributes attributes) {
 				String[] values = parseAttributes(attributes, required, optional);
 				Version version = checkVersion(this.elementHandled, VERSION_ATTRIBUTE, values[2]);
@@ -283,6 +286,7 @@ public class MetadataRepositoryIO {
 				state.Location = null;
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				checkCancel();
 				if (PROPERTIES_ELEMENT.equals(name)) {
@@ -308,6 +312,7 @@ public class MetadataRepositoryIO {
 				}
 			}
 
+			@Override
 			protected void finished() {
 				if (isValidXML()) {
 					state.Properties = (propertiesHandler == null ? new OrderedProperties(0) //
@@ -335,10 +340,12 @@ public class MetadataRepositoryIO {
 			}
 		}
 
+		@Override
 		protected String getErrorMessage() {
 			return Messages.io_parseError;
 		}
 
+		@Override
 		public String toString() {
 			// TODO:
 			return null;

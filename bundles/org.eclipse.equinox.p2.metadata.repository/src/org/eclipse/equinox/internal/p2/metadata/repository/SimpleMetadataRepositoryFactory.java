@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.p2.repository.CacheManager;
-
 import java.io.*;
 import java.net.URI;
 import java.util.Map;
@@ -20,6 +18,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -32,6 +31,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
+	@Override
 	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		if (location.getScheme().equals("file")) //$NON-NLS-1$
 			return new LocalMetadataRepository(getAgent(), location, name, properties);
@@ -73,9 +73,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 		return localFile;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		long time = 0;
 		final String debugMsg = "Validating and loading metadata repository "; //$NON-NLS-1$

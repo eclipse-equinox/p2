@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype, Inc. and others.
+ * Copyright (c) 2011, 2017 Sonatype, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,6 +76,7 @@ public class IUDeserializer {
 			}
 		}
 
+		@Override
 		protected SAXParser getParser() throws ParserConfigurationException, SAXException {
 			if (parserFactory == null) {
 				throw new SAXException(Messages.XMLParser_No_SAX_Parser);
@@ -103,10 +104,12 @@ public class IUDeserializer {
 				// default
 			}
 
+			@Override
 			protected void handleRootAttributes(Attributes attributes) {
 				//Nothing to do
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				if (INSTALLABLE_UNITS_ELEMENT.equals(name)) {
 					if (unitsHandler == null) {

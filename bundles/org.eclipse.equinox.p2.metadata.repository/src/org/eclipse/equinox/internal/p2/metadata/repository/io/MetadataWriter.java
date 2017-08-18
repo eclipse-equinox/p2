@@ -75,7 +75,7 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeMetaRequirements(iu.getMetaRequirements());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
 		if (simpleRequirements && iu instanceof IInstallableUnitFragment) {
-			Collection<IRequirement> mergedRequirementsAndFragmentHostForPre36Compatibility = new LinkedHashSet<IRequirement>(iu.getRequirements());
+			Collection<IRequirement> mergedRequirementsAndFragmentHostForPre36Compatibility = new LinkedHashSet<>(iu.getRequirements());
 			mergedRequirementsAndFragmentHostForPre36Compatibility.addAll(((IInstallableUnitFragment) iu).getHost());
 			writeRequirements(mergedRequirementsAndFragmentHostForPre36Compatibility);
 		} else {
