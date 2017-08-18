@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -21,12 +21,11 @@ public class FileUtils {
 
 	private static File[] untarFile(File source, File outputDir) throws IOException, TarException {
 		TarFile tarFile = new TarFile(source);
-		List<File> untarredFiles = new ArrayList<File>();
+		List<File> untarredFiles = new ArrayList<>();
 		try {
 			for (Enumeration<TarEntry> e = tarFile.entries(); e.hasMoreElements();) {
 				TarEntry entry = e.nextElement();
-				InputStream input = tarFile.getInputStream(entry);
-				try {
+				try (InputStream input = tarFile.getInputStream(entry)) {
 					File outFile = new File(outputDir, entry.getName());
 					outFile = outFile.getCanonicalFile(); //bug 266844
 					untarredFiles.add(outFile);
@@ -45,8 +44,6 @@ public class FileUtils {
 						}
 						outFile.setLastModified(entry.getTime());
 					}
-				} finally {
-					input.close();
 				}
 			}
 		} finally {
@@ -69,16 +66,13 @@ public class FileUtils {
 				throw ioException;
 			}
 		}
-		InputStream in = new FileInputStream(zipFile);
-		try {
+		try (InputStream in = new FileInputStream(zipFile)) {
 			return unzipStream(in, zipFile.length(), outputDir, null, null);
 		} catch (IOException e) {
 			// add the file name to the message
 			IOException ioException = new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
 			ioException.initCause(e);
 			throw ioException;
-		} finally {
-			in.close();
 		}
 	}
 
@@ -87,16 +81,13 @@ public class FileUtils {
 	 * monitor may be null.
 	 */
 	public static File[] unzipFile(File zipFile, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
-		InputStream in = new FileInputStream(zipFile);
-		try {
+		try (InputStream in = new FileInputStream(zipFile)) {
 			return unzipStream(in, zipFile.length(), outputDir, taskName, monitor);
 		} catch (IOException e) {
 			// add the file name to the message
 			IOException ioException = new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
 			ioException.initCause(e);
 			throw ioException;
-		} finally {
-			in.close();
 		}
 	}
 
@@ -105,37 +96,37 @@ public class FileUtils {
 	 */
 	public static File[] unzipStream(InputStream stream, long size, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
 		InputStream is = monitor == null ? stream : stream; // new ProgressMonitorInputStream(stream, size, size, taskName, monitor); TODO Commented code
-		ZipInputStream in = new ZipInputStream(new BufferedInputStream(is));
-		ZipEntry ze = in.getNextEntry();
-		if (ze == null) {
-			// There must be at least one entry in a zip file.
-			// When there isn't getNextEntry returns null.
-			in.close();
-			throw new IOException(Messages.Util_Invalid_Zip_File_Format);
-		}
-		ArrayList<File> unzippedFiles = new ArrayList<File>();
-		do {
-			File outFile = new File(outputDir, ze.getName());
-			unzippedFiles.add(outFile);
-			if (ze.isDirectory()) {
-				outFile.mkdirs();
-			} else {
-				if (outFile.exists()) {
-					outFile.delete();
-				} else {
-					outFile.getParentFile().mkdirs();
-				}
-				try {
-					copyStream(in, false, new FileOutputStream(outFile), true);
-				} catch (FileNotFoundException e) {
-					// TEMP: ignore this for now in case we're trying to replace
-					// a running eclipse.exe
-				}
-				outFile.setLastModified(ze.getTime());
+		ArrayList<File> unzippedFiles = new ArrayList<>();
+		try (ZipInputStream in = new ZipInputStream(new BufferedInputStream(is))) {
+			ZipEntry ze = in.getNextEntry();
+			if (ze == null) {
+				// There must be at least one entry in a zip file.
+				// When there isn't getNextEntry returns null.
+				in.close();
+				throw new IOException(Messages.Util_Invalid_Zip_File_Format);
 			}
-			in.closeEntry();
-		} while ((ze = in.getNextEntry()) != null);
-		in.close();
+			do {
+				File outFile = new File(outputDir, ze.getName());
+				unzippedFiles.add(outFile);
+				if (ze.isDirectory()) {
+					outFile.mkdirs();
+				} else {
+					if (outFile.exists()) {
+						outFile.delete();
+					} else {
+						outFile.getParentFile().mkdirs();
+					}
+					try {
+						copyStream(in, false, new FileOutputStream(outFile), true);
+					} catch (FileNotFoundException e) {
+						// TEMP: ignore this for now in case we're trying to replace
+						// a running eclipse.exe
+					}
+					outFile.setLastModified(ze.getTime());
+				}
+				in.closeEntry();
+			} while ((ze = in.getNextEntry()) != null);
+		}
 
 		return unzippedFiles.toArray(new File[unzippedFiles.size()]);
 	}
@@ -211,20 +202,8 @@ public class FileUtils {
 				copy(source, destination, new File(root, list[i].getName()), false);
 		} else {
 			destinationFile.getParentFile().mkdirs();
-			InputStream in = null;
-			OutputStream out = null;
-			try {
-				in = new BufferedInputStream(new FileInputStream(sourceFile));
-				out = new BufferedOutputStream(new FileOutputStream(destinationFile));
+			try (InputStream in = new BufferedInputStream(new FileInputStream(sourceFile)); OutputStream out = new BufferedOutputStream(new FileOutputStream(destinationFile));) {
 				copyStream(in, false, out, false);
-			} finally {
-				try {
-					if (in != null)
-						in.close();
-				} finally {
-					if (out != null)
-						out.close();
-				}
 			}
 		}
 	}
@@ -247,26 +226,12 @@ public class FileUtils {
 	 * @throws IOException if there is an IO issue during this operation.
 	 */
 	public static void zip(File[] inclusions, File[] exclusions, File destinationArchive, IPathComputer pathComputer) throws IOException {
-		FileOutputStream fileOutput = new FileOutputStream(destinationArchive);
-		ZipOutputStream output = new ZipOutputStream(fileOutput);
-		HashSet<File> exclusionSet = exclusions == null ? new HashSet<File>() : new HashSet<File>(Arrays.asList(exclusions));
-		HashSet<IPath> directoryEntries = new HashSet<IPath>();
-		try {
+		try (FileOutputStream fileOutput = new FileOutputStream(destinationArchive); ZipOutputStream output = new ZipOutputStream(fileOutput)) {
+			HashSet<File> exclusionSet = exclusions == null ? new HashSet<>() : new HashSet<>(Arrays.asList(exclusions));
+			HashSet<IPath> directoryEntries = new HashSet<>();
 			for (int i = 0; i < inclusions.length; i++) {
 				pathComputer.reset();
 				zip(output, inclusions[i], exclusionSet, pathComputer, directoryEntries);
-			}
-		} finally {
-			try {
-				output.close();
-			} catch (IOException e) {
-				// closing a zip file with no entries apparently fails on some JREs.
-				// if we failed closing the zip, try closing the raw file.  
-				try {
-					fileOutput.close();
-				} catch (IOException e2) {
-					// give up.
-				}
 			}
 		}
 	}
@@ -332,22 +297,20 @@ public class FileUtils {
 		// foo/bar.txt
 		// foo/something/bar2.txt
 		// foo/something/else/bar3.txt
-		Arrays.sort(files, new Comparator<File>() {
-			public int compare(File arg0, File arg1) {
-				Path a = new Path(arg0.getAbsolutePath());
-				Path b = new Path(arg1.getAbsolutePath());
-				if (a.segmentCount() == b.segmentCount()) {
-					if (arg0.isDirectory() && arg1.isFile())
-						return 1;
-					else if (arg0.isDirectory() && arg1.isDirectory())
-						return 0;
-					else if (arg0.isFile() && arg1.isDirectory())
-						return -1;
-					else
-						return 0;
-				}
-				return a.segmentCount() - b.segmentCount();
+		Arrays.sort(files, (arg0, arg1) -> {
+			Path a = new Path(arg0.getAbsolutePath());
+			Path b = new Path(arg1.getAbsolutePath());
+			if (a.segmentCount() == b.segmentCount()) {
+				if (arg0.isDirectory() && arg1.isFile())
+					return 1;
+				else if (arg0.isDirectory() && arg1.isDirectory())
+					return 0;
+				else if (arg0.isFile() && arg1.isDirectory())
+					return -1;
+				else
+					return 0;
 			}
+			return a.segmentCount() - b.segmentCount();
 		});
 
 		for (int i = 0; i < files.length; i++)
@@ -360,8 +323,7 @@ public class FileUtils {
 	 */
 	private static void zipFile(ZipOutputStream output, File source, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
 		boolean isManifest = false; //manifest files are special
-		InputStream input = new BufferedInputStream(new FileInputStream(source));
-		try {
+		try (InputStream input = new BufferedInputStream(new FileInputStream(source))) {
 			IPath entryPath = pathComputer.computePath(source);
 			if (entryPath.isAbsolute())
 				throw new IOException(Messages.Util_Absolute_Entry);
@@ -383,11 +345,6 @@ public class FileUtils {
 		} catch (ZipException ze) {
 			//TODO: something about duplicate entries, and rethrow other exceptions
 		} finally {
-			try {
-				input.close();
-			} catch (IOException e) {
-				// ignore
-			}
 			try {
 				output.closeEntry();
 			} catch (IOException e) {
@@ -430,6 +387,7 @@ public class FileUtils {
 	 */
 	public static IPathComputer createRootPathComputer(final File root) {
 		return new IPathComputer() {
+			@Override
 			public IPath computePath(File source) {
 				IPath result = new Path(source.getAbsolutePath());
 				IPath rootPath = new Path(root.getAbsolutePath());
@@ -437,6 +395,7 @@ public class FileUtils {
 				return result.setDevice(null);
 			}
 
+			@Override
 			public void reset() {
 				//nothing
 			}
@@ -467,6 +426,7 @@ public class FileUtils {
 		return new IPathComputer() {
 			IPathComputer computer = null;
 
+			@Override
 			public IPath computePath(File source) {
 				if (computer == null) {
 					IPath sourcePath = new Path(source.getAbsolutePath());
@@ -476,6 +436,7 @@ public class FileUtils {
 				return computer.computePath(source);
 			}
 
+			@Override
 			public void reset() {
 				computer = null;
 			}
@@ -489,12 +450,14 @@ public class FileUtils {
 	 */
 	public static IPathComputer createParentPrefixComputer(final int segmentsToKeep) {
 		return new IPathComputer() {
+			@Override
 			public IPath computePath(File source) {
 				IPath sourcePath = new Path(source.getAbsolutePath());
 				sourcePath = sourcePath.removeFirstSegments(Math.max(0, sourcePath.segmentCount() - segmentsToKeep));
 				return sourcePath.setDevice(null);
 			}
 
+			@Override
 			public void reset() {
 				//nothing
 			}

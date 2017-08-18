@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -155,7 +155,7 @@ public class Activator implements BundleActivator {
 		//lazy init if the bundle has been started
 		if (context == null)
 			return null;
-		logTracker = new ServiceTracker<FrameworkLog, FrameworkLog>(context, FrameworkLog.class, null);
+		logTracker = new ServiceTracker<>(context, FrameworkLog.class, null);
 		logTracker.open();
 		return logTracker;
 	}
@@ -231,12 +231,13 @@ public class Activator implements BundleActivator {
 		}
 	}
 
+	@Override
 	public void start(BundleContext aContext) throws Exception {
 		instance = this;
 		Activator.context = aContext;
 		URI defaultLocation = URIUtil.fromString(aContext.getProperty(PROP_CONFIG_DIR) + DEFAULT_AGENT_LOCATION + '/');
 		agentDataLocation = buildLocation(PROP_AGENT_DATA_AREA, defaultLocation, false, true);
-		Dictionary<String, Object> locationProperties = new Hashtable<String, Object>();
+		Dictionary<String, Object> locationProperties = new Hashtable<>();
 		if (agentDataLocation != null) {
 			locationProperties.put("type", PROP_AGENT_DATA_AREA); //$NON-NLS-1$
 			agentLocationRegistration = aContext.registerService(IAgentLocation.class, agentDataLocation, locationProperties);
@@ -244,6 +245,7 @@ public class Activator implements BundleActivator {
 		registerAgent();
 	}
 
+	@Override
 	public void stop(BundleContext aContext) throws Exception {
 		unregisterAgent();
 		instance = null;

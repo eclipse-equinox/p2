@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,11 +24,9 @@ import java.util.Map;
  * @since 2.1
  */
 public class StrongPool<T> implements IPool<T> {
-	private Map<T, T> pool = new HashMap<T, T>();
+	private Map<T, T> pool = new HashMap<>();
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.IPool#add(T)
-	 */
+	@Override
 	public T add(T newObject) {
 		if (newObject == null) {
 			return null;

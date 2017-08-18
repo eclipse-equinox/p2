@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 IBM Corporation and others.
+ * Copyright (c) 2004, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,14 +25,17 @@ public class AgentLocation implements IAgentLocation {
 		this.location = location;
 	}
 
+	@Override
 	public synchronized URI getRootLocation() {
 		return location;
 	}
 
+	@Override
 	public URI getDataArea(String touchpointId) {
 		return URIUtil.append(getRootLocation(), touchpointId + '/');
 	}
 
+	@Override
 	public String toString() {
 		if (location == null)
 			return "No location specified"; //$NON-NLS-1$

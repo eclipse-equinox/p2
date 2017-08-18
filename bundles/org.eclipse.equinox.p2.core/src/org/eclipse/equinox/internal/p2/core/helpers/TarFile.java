@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,10 +72,12 @@ public class TarFile {
 	 */
 	public Enumeration<TarEntry> entries() {
 		return new Enumeration<TarEntry>() {
+			@Override
 			public boolean hasMoreElements() {
 				return (curEntry != null);
 			}
 
+			@Override
 			public TarEntry nextElement() {
 				TarEntry oldEntry = curEntry;
 				try {
@@ -114,6 +116,7 @@ public class TarFile {
 				internalEntryStream = new FileInputStream(file);
 			}
 			entryStream = new TarInputStream(internalEntryStream, entry) {
+				@Override
 				public void close() {
 					// Ignore close() since we want to reuse the stream.
 				}
@@ -131,10 +134,7 @@ public class TarFile {
 		return file.getPath();
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.zip.ZipFile#finalize()
-	 * 
-	 */
+	@Override
 	protected void finalize() throws Throwable {
 		close();
 	}

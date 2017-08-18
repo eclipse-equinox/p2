@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -40,12 +40,12 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 
 	public OrderedProperties(int size) {
 		super();
-		propertyMap = new LinkedHashMap<String, String>(size);
+		propertyMap = new LinkedHashMap<>(size);
 	}
 
 	public OrderedProperties(OrderedProperties properties) {
 		super();
-		propertyMap = new LinkedHashMap<String, String>(properties.size());
+		propertyMap = new LinkedHashMap<>(properties.size());
 		putAll(properties);
 	}
 
@@ -79,60 +79,73 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 	 */
 	private void init() {
 		if (propertyMap == null) {
-			propertyMap = new LinkedHashMap<String, String>();
+			propertyMap = new LinkedHashMap<>();
 		}
 	}
 
+	@Override
 	public int size() {
 		return propertyMap == null ? 0 : propertyMap.size();
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return propertyMap == null ? true : propertyMap.isEmpty();
 	}
 
+	@Override
 	public synchronized void clear() {
 		propertyMap = null;
 	}
 
+	@Override
 	public String put(String key, String value) {
 		init();
 		return propertyMap.put(key, value);
 	}
 
+	@Override
 	public boolean containsKey(Object key) {
 		return propertyMap != null ? propertyMap.containsKey(key) : false;
 	}
 
+	@Override
 	public boolean containsValue(Object value) {
 		return propertyMap != null ? propertyMap.containsValue(value) : false;
 	}
 
+	@Override
 	public Set<Map.Entry<String, String>> entrySet() {
 		return propertyMap != null ? propertyMap.entrySet() : Collections.<Map.Entry<String, String>> emptySet();
 	}
 
+	@Override
 	public String get(Object key) {
 		return propertyMap != null ? propertyMap.get(key) : null;
 	}
 
+	@Override
 	public Set<String> keySet() {
 		return propertyMap != null ? propertyMap.keySet() : Collections.<String> emptySet();
 	}
 
+	@Override
 	public void putAll(Map<? extends String, ? extends String> arg0) {
 		init();
 		propertyMap.putAll(arg0);
 	}
 
+	@Override
 	public String remove(Object key) {
 		return propertyMap != null ? propertyMap.remove(key) : null;
 	}
 
+	@Override
 	public Collection<String> values() {
 		return propertyMap != null ? propertyMap.values() : Collections.<String> emptyList();
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (o == this)
 			return true;
@@ -154,10 +167,12 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 		return this.propertyMap.equals(o);
 	}
 
+	@Override
 	public int hashCode() {
 		return propertyMap == null || propertyMap.isEmpty() ? 0 : propertyMap.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(propertyMap);
@@ -172,19 +187,23 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 			this.iterator = elems.iterator();
 		}
 
+		@Override
 		public boolean hasMoreElements() {
 			return iterator.hasNext();
 		}
 
+		@Override
 		public String nextElement() {
 			return iterator.next();
 		}
 	}
 
+	@Override
 	public Enumeration<String> elements() {
 		return new StringsEnum(propertyMap.values());
 	}
 
+	@Override
 	public Enumeration<String> keys() {
 		return new StringsEnum(propertyMap.keySet());
 	}
@@ -198,22 +217,27 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 			}
 		}
 
+		@Override
 		public synchronized Object setProperty(String key, String value) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public synchronized String put(String key, String value) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public synchronized String remove(Object key) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public synchronized void putAll(Map<? extends String, ? extends String> t) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public synchronized void clear() {
 			throw new UnsupportedOperationException();
 		}

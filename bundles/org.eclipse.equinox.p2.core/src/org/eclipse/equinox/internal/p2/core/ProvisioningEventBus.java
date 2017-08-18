@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,8 +22,8 @@ import org.eclipse.osgi.framework.eventmgr.*;
  * Default implementation of the {@link IProvisioningEventBus} service.
  */
 public class ProvisioningEventBus implements EventDispatcher<ProvisioningListener, ProvisioningListener, EventObject>, IProvisioningEventBus, IAgentService {
-	private final CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener> syncListeners = new CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener>();
-	private final CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener> asyncListeners = new CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener>();
+	private final CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener> syncListeners = new CopyOnWriteIdentityMap<>();
+	private final CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener> asyncListeners = new CopyOnWriteIdentityMap<>();
 	private EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
 
 	private Object dispatchEventLock = new Object();
@@ -36,9 +36,7 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 		super();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#addListener(org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener)
-	 */
+	@Override
 	public void addListener(ProvisioningListener toAdd) {
 		if (toAdd instanceof SynchronousProvisioningListener) {
 			synchronized (syncListeners) {
@@ -51,9 +49,7 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#removeListener(org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener)
-	 */
+	@Override
 	public void removeListener(ProvisioningListener toRemove) {
 		if (toRemove instanceof SynchronousProvisioningListener) {
 			synchronized (syncListeners) {
@@ -66,16 +62,14 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#publishEvent(java.util.EventObject)
-	 */
+	@Override
 	public void publishEvent(EventObject event) {
 		synchronized (dispatchEventLock) {
 			if (closed)
 				return;
 		}
 		/* queue to hold set of listeners */
-		ListenerQueue<ProvisioningListener, ProvisioningListener, EventObject> listeners = new ListenerQueue<ProvisioningListener, ProvisioningListener, EventObject>(eventManager);
+		ListenerQueue<ProvisioningListener, ProvisioningListener, EventObject> listeners = new ListenerQueue<>(eventManager);
 
 		/* synchronize while building the listener list */
 		synchronized (syncListeners) {
@@ -85,7 +79,7 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 			listeners.dispatchEventSynchronous(0, event);
 		}
 
-		listeners = new ListenerQueue<ProvisioningListener, ProvisioningListener, EventObject>(eventManager);
+		listeners = new ListenerQueue<>(eventManager);
 		synchronized (asyncListeners) {
 			listeners.queueListeners(asyncListeners.entrySet(), this);
 			synchronized (dispatchEventLock) {
@@ -95,9 +89,7 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#dispatchEvent(java.lang.Object, java.lang.Object, int, java.lang.Object)
-	 */
+	@Override
 	public void dispatchEvent(ProvisioningListener eventListener, ProvisioningListener listenerObject, int eventAction, EventObject eventObject) {
 		synchronized (dispatchEventLock) {
 			if (closed)
@@ -117,9 +109,7 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#close()
-	 */
+	@Override
 	public void close() {
 		boolean interrupted = false;
 		synchronized (dispatchEventLock) {
@@ -139,16 +129,12 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 			Thread.currentThread().interrupt();
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#start()
-	 */
+	@Override
 	public void start() {
 		//nothing to do
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#stop()
-	 */
+	@Override
 	public void stop() {
 		close();
 	}

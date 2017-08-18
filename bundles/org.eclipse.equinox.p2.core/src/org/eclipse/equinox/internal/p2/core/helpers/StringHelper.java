@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ public class StringHelper {
 				if (spec.length() > 0)
 					resultArr = new String[] {spec};
 			} else {
-				List<String> result = new ArrayList<String>();
+				List<String> result = new ArrayList<>();
 				while (splitIdx >= 0) {
 					String part = spec.substring(0, splitIdx).trim();
 					if (part.length() > 0)

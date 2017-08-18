@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,14 +31,17 @@ public class CollectionUtils {
 			this.array = array;
 		}
 
+		@Override
 		public boolean contains(Object o) {
 			return indexOf(o) != -1;
 		}
 
+		@Override
 		public E get(int index) {
 			return array[index];
 		}
 
+		@Override
 		public int indexOf(Object o) {
 			int size = array.length;
 			if (o == null) {
@@ -53,6 +56,7 @@ public class CollectionUtils {
 			return -1;
 		}
 
+		@Override
 		public Iterator<E> iterator() {
 			return listIterator();
 		}
@@ -61,24 +65,29 @@ public class CollectionUtils {
 		 * Rapid iterator, motivated by the fact that we don't need to check
 		 * for concurrent modifications.
 		 */
+		@Override
 		public ListIterator<E> listIterator() {
 			return new ListIterator<E>() {
 				private int index = 0;
 
+				@Override
 				public boolean hasNext() {
 					return index < array.length;
 				}
 
+				@Override
 				public E next() {
 					if (index >= array.length)
 						throw new NoSuchElementException();
 					return array[index++];
 				}
 
+				@Override
 				public boolean hasPrevious() {
 					return index > 0;
 				}
 
+				@Override
 				public E previous() {
 					if (--index < 0) {
 						++index;
@@ -87,28 +96,34 @@ public class CollectionUtils {
 					return array[index];
 				}
 
+				@Override
 				public int nextIndex() {
 					return index;
 				}
 
+				@Override
 				public int previousIndex() {
 					return index - 1;
 				}
 
+				@Override
 				public void remove() {
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public void set(E e) {
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public void add(E e) {
 					throw new UnsupportedOperationException();
 				}
 			};
 		}
 
+		@Override
 		public int lastIndexOf(Object o) {
 			int idx = array.length;
 			if (o == null) {
@@ -123,18 +138,22 @@ public class CollectionUtils {
 			return -1;
 		}
 
+		@Override
 		public E set(int index, E element) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public int size() {
 			return array.length;
 		}
 
+		@Override
 		public Object[] toArray() {
 			return array.clone();
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
 		public <T> T[] toArray(T[] a) {
 			int size = array.length;
@@ -172,7 +191,7 @@ public class CollectionUtils {
 	 * @return The unmodifiable list
 	 */
 	public static <T> List<T> unmodifiableList(T[] array) {
-		return array == null || array.length == 0 ? Collections.<T> emptyList() : new UnmodifiableArrayList<T>(array);
+		return array == null || array.length == 0 ? Collections.<T> emptyList() : new UnmodifiableArrayList<>(array);
 	}
 
 	/**
@@ -197,7 +216,7 @@ public class CollectionUtils {
 		if (properties == null || properties.isEmpty())
 			return Collections.<String, String> emptyMap();
 
-		Map<String, String> props = new HashMap<String, String>(properties.size());
+		Map<String, String> props = new HashMap<>(properties.size());
 		putAll(properties, props);
 		return props;
 	}

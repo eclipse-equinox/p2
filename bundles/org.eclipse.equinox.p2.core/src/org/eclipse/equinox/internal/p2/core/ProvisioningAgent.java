@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,9 +40,7 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		registerService(IProvisioningAgent.INSTALLER_PROFILEID, "_SELF_"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.IProvisioningAgent#getService(java.lang.String)
-	 */
+	@Override
 	public Object getService(String serviceName) {
 		//synchronize so concurrent gets always obtain the same service
 		synchronized (agentServices) {
@@ -62,7 +60,7 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 				return null;
 			ServiceReference<IAgentServiceFactory> firstRef = Collections.max(refs);
 			//track the factory so that we can automatically remove the service when the factory goes away
-			ServiceTracker<IAgentServiceFactory, Object> tracker = new ServiceTracker<IAgentServiceFactory, Object>(context, firstRef, this);
+			ServiceTracker<IAgentServiceFactory, Object> tracker = new ServiceTracker<>(context, firstRef, this);
 			tracker.open();
 			IAgentServiceFactory factory = (IAgentServiceFactory) tracker.getService();
 			if (factory == null) {
@@ -85,6 +83,7 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 			throw new IllegalStateException("Attempt to access stopped agent: " + this); //$NON-NLS-1$
 	}
 
+	@Override
 	public void registerService(String serviceName, Object service) {
 		checkRunning();
 		agentServices.put(serviceName, service);
@@ -111,6 +110,7 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		registerService(IAgentLocation.SERVICE_NAME, agentLocation);
 	}
 
+	@Override
 	public void unregisterService(String serviceName, Object service) {
 		synchronized (agentServices) {
 			if (stopped)
@@ -122,10 +122,11 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 			((IAgentService) service).stop();
 	}
 
+	@Override
 	public void stop() {
 		List<Object> toStop;
 		synchronized (agentServices) {
-			toStop = new ArrayList<Object>(agentServices.values());
+			toStop = new ArrayList<>(agentServices.values());
 		}
 		//give services a chance to do their own shutdown
 		for (Object service : toStop) {
@@ -150,25 +151,19 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		this.reg = reg;
 	}
 
-	/*(non-Javadoc)
-	 * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
-	 */
+	@Override
 	public Object addingService(ServiceReference<IAgentServiceFactory> reference) {
 		if (stopped)
 			return null;
 		return context.getService(reference);
 	}
 
-	/*(non-Javadoc)
-	 * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference, java.lang.Object)
-	 */
+	@Override
 	public void modifiedService(ServiceReference<IAgentServiceFactory> reference, Object service) {
 		//nothing to do
 	}
 
-	/*(non-Javadoc)
-	 * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference, java.lang.Object)
-	 */
+	@Override
 	public void removedService(ServiceReference<IAgentServiceFactory> reference, Object factoryService) {
 		if (stopped)
 			return;
