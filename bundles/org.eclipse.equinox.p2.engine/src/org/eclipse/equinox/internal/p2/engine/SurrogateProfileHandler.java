@@ -163,7 +163,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 		final Profile profile = (Profile) registry.getProfile(id, currentTimestamp);
 		if (profile != null)
-			cachedProfile = new SoftReference<IProfile>(profile);
+			cachedProfile = new SoftReference<>(profile);
 
 		if (!EngineActivator.EXTENDED) {
 			return profile;

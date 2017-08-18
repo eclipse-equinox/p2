@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.engine;singleton:=true
-Bundle-Version: 2.5.0.qualifier
+Bundle-Version: 2.6.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.engine.EngineActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry,
  org.eclipse.core.jobs;bundle-version="[3.4.0,4.0.0)"
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.metadata.repository
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/profileRegistry.xml, OSGI-INF/engine.xml
 Import-Package: javax.xml.parsers,

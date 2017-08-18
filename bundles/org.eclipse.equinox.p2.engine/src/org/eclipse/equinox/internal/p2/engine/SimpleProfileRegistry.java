@@ -1054,19 +1054,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			lastAccessedProperties = new ProfileStateProperties(id, file, properties);
 			return properties;
 		}
-		InputStream input = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(file));
+		try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
 			properties.load(input);
 		} catch (IOException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, Messages.SimpleProfileRegistry_States_Error_Reading_File, e));
-		} finally {
-			if (input != null)
-				try {
-					input.close();
-				} catch (IOException e) {
-					// Ignore
-				}
 		}
 
 		//cache the value before we return
@@ -1083,22 +1074,13 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 		File profileDirectory = getProfileFolder(id);
 		File file = new File(profileDirectory, PROFILE_PROPERTIES_FILE);
-		OutputStream output = null;
 		Properties prunedProperties = properties;
-		try {
-			output = new BufferedOutputStream(new FileOutputStream(file));
+		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(file));) {
 			prunedProperties = pruneStateProperties(id, properties);
 			prunedProperties.store(output, null);
 			output.flush();
 		} catch (IOException e) {
 			return new Status(IStatus.ERROR, EngineActivator.ID, Messages.SimpleProfileRegistry_States_Error_Writing_File, e);
-		} finally {
-			try {
-				if (output != null)
-					output.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 		// cache the value
 		lastAccessedProperties = new ProfileStateProperties(id, file, prunedProperties);
