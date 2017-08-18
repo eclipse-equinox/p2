@@ -91,6 +91,7 @@ public interface IPublisherResult extends IQueryable<IInstallableUnit> {
 	 * @deprecated This method should be removed as it essentially returns a random IU
 	 * with the given ID.  There are some uses for this but not many and they can use #getIUs
 	 */
+	@Deprecated
 	public IInstallableUnit getIU(String id, String type);
 
 	/**

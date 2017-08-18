@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2009, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -68,13 +68,13 @@ public class AdviceFileParser {
 	public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
 	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
-	private Map<String, String> adviceProperties = new HashMap<String, String>();
-	private List<IProvidedCapability> adviceProvides = new ArrayList<IProvidedCapability>();
-	private List<IRequirement> adviceRequires = new ArrayList<IRequirement>();
-	private List<IRequirement> adviceMetaRequires = new ArrayList<IRequirement>();
+	private Map<String, String> adviceProperties = new HashMap<>();
+	private List<IProvidedCapability> adviceProvides = new ArrayList<>();
+	private List<IRequirement> adviceRequires = new ArrayList<>();
+	private List<IRequirement> adviceMetaRequires = new ArrayList<>();
 	private IUpdateDescriptor adviceUpdateDescriptor = null;
-	private Map<String, ITouchpointInstruction> adviceInstructions = new HashMap<String, ITouchpointInstruction>();
-	private List<InstallableUnitDescription> adviceOtherIUs = new ArrayList<InstallableUnitDescription>();
+	private Map<String, ITouchpointInstruction> adviceInstructions = new HashMap<>();
+	private List<InstallableUnitDescription> adviceOtherIUs = new ArrayList<>();
 
 	private final Map<String, String> advice;
 	private Iterator<String> keysIterator;
@@ -93,7 +93,7 @@ public class AdviceFileParser {
 		if (adviceVersion != null)
 			checkAdviceVersion(adviceVersion);
 
-		List<String> keys = new ArrayList<String>(advice.keySet());
+		List<String> keys = new ArrayList<>(advice.keySet());
 		Collections.sort(keys);
 
 		keysIterator = keys.iterator();
@@ -194,7 +194,7 @@ public class AdviceFileParser {
 			//When update.match is specified, versionRange and id are ignored
 			IExpression expr = ExpressionUtil.parse(substituteVersionAndQualifier(match));
 			IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
-			Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<IMatchExpression<IInstallableUnit>>(1);
+			Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<>(1);
 			descriptors.add(matchExpression);
 			return MetadataFactory.createUpdateDescriptor(descriptors, Integer.valueOf(severity), description, (URI) null);
 		}
@@ -376,14 +376,14 @@ public class AdviceFileParser {
 		int unitUpdateSeverity = 0;
 		String unitUpdateDescription = null;
 
-		List<IArtifactKey> unitArtifacts = new ArrayList<IArtifactKey>();
-		Map<String, String> unitProperties = new HashMap<String, String>();
-		List<IRequirement> unitHostRequirements = new ArrayList<IRequirement>();
-		List<IProvidedCapability> unitProvides = new ArrayList<IProvidedCapability>();
-		List<IRequirement> unitRequires = new ArrayList<IRequirement>();
-		List<IRequirement> unitMetaRequirements = new ArrayList<IRequirement>();
-		List<ILicense> unitLicenses = new ArrayList<ILicense>();
-		Map<String, ITouchpointInstruction> unitInstructions = new HashMap<String, ITouchpointInstruction>();
+		List<IArtifactKey> unitArtifacts = new ArrayList<>();
+		Map<String, String> unitProperties = new HashMap<>();
+		List<IRequirement> unitHostRequirements = new ArrayList<>();
+		List<IProvidedCapability> unitProvides = new ArrayList<>();
+		List<IRequirement> unitRequires = new ArrayList<>();
+		List<IRequirement> unitMetaRequirements = new ArrayList<>();
+		List<ILicense> unitLicenses = new ArrayList<>();
+		Map<String, ITouchpointInstruction> unitInstructions = new HashMap<>();
 		//		updatedescriptor ??
 
 		while (current != null && current.startsWith(prefix)) {

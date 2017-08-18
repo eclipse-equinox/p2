@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -16,8 +16,8 @@ import java.util.*;
 public class FileSetDescriptor {
 	private final String key;
 	private String configSpec = null;
-	private HashSet<File> fileset = new HashSet<File>();
-	private final ArrayList<String[]> permissions = new ArrayList<String[]>();
+	private HashSet<File> fileset = new HashSet<>();
+	private final ArrayList<String[]> permissions = new ArrayList<>();
 	private String links = ""; //$NON-NLS-1$
 
 	public FileSetDescriptor(String key, String configSpec) {

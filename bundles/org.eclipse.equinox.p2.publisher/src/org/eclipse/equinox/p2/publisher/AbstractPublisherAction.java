@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -17,8 +17,9 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
@@ -47,7 +48,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	public static String[] getArrayFromString(String list, String separator) {
 		if (list == null || list.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for (QuotedTokenizer tokens = new QuotedTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) //$NON-NLS-1$
@@ -154,7 +155,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @return a collection of RequiredCapabilities representing the given IUs
 	 */
 	protected Collection<IRequirement> createIURequirements(Collection<? extends IVersionedId> children) {
-		ArrayList<IRequirement> result = new ArrayList<IRequirement>(children.size());
+		ArrayList<IRequirement> result = new ArrayList<>(children.size());
 		for (IVersionedId next : children) {
 			if (next instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) next;
@@ -229,7 +230,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (advice.isEmpty())
 			return null;
 
-		List<InstallableUnitDescription> ius = new ArrayList<InstallableUnitDescription>();
+		List<InstallableUnitDescription> ius = new ArrayList<>();
 		for (IAdditionalInstallableUnitAdvice entry : advice) {
 			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
 			if (others != null)
@@ -311,7 +312,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			IRequirement[] requiredAdvice = entry.getRequiredCapabilities(iu);
 			if (requiredAdvice != null) {
 				List<IRequirement> current = iu.getRequirements();
-				Set<IRequirement> resultRequiredCapabilities = new HashSet<IRequirement>(current);
+				Set<IRequirement> resultRequiredCapabilities = new HashSet<>(current);
 
 				// remove current required capabilities that match (same name and namespace) advice.
 				for (int j = 0; j < current.size(); j++) {
@@ -342,7 +343,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			IRequirement[] metaRequiredAdvice = entry.getMetaRequiredCapabilities(iu);
 			if (metaRequiredAdvice != null) {
 				Collection<IRequirement> current = iu.getMetaRequirements();
-				Set<IRequirement> resultMetaRequiredCapabilities = new HashSet<IRequirement>(current);
+				Set<IRequirement> resultMetaRequiredCapabilities = new HashSet<>(current);
 
 				// remove current meta-required capabilities that match (same name and namespace) advice.
 				for (IRequirement curr : current) {
@@ -373,7 +374,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
 				Collection<IProvidedCapability> current = iu.getProvidedCapabilities();
-				Set<IProvidedCapability> resultProvidedCapabilities = new HashSet<IProvidedCapability>(current);
+				Set<IProvidedCapability> resultProvidedCapabilities = new HashSet<>(current);
 				for (IProvidedCapability currentProvidedCapability : current) {
 					for (int k = 0; k < providedAdvice.length; k++) {
 						IProvidedCapability providedCapability = providedAdvice[k];
@@ -553,6 +554,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		return queryResult;
 	}
 
+	@Override
 	public abstract IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor);
 
 	public void setPublisherInfo(IPublisherInfo info) {

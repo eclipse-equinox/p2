@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
 public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 
-	Map<String, Map<String, Version>> versions = new HashMap<String, Map<String, Version>>(11);
+	Map<String, Map<String, Version>> versions = new HashMap<>(11);
 
 	/**
 	 * Load the given namespace with version mappings from the properties file at 
@@ -41,19 +41,10 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 			namespace = "null"; //$NON-NLS-1$
 
 		Map<String, String> properties;
-		InputStream stream = null;
-		try {
-			stream = new BufferedInputStream(new FileInputStream(file));
+		try (InputStream stream = new BufferedInputStream(new FileInputStream(file))) {
 			properties = CollectionUtils.loadProperties(stream);
 		} catch (IOException e) {
 			return;
-		} finally {
-			if (stream != null)
-				try {
-					stream.close();
-				} catch (IOException e) {
-					//nothing
-				}
 		}
 		for (Entry<String, String> entry : properties.entrySet()) {
 			String key = entry.getKey();
@@ -69,6 +60,7 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 	 * @param id the item for which advice is sought
 	 * @return the version advice found or <code>null</code> if none
 	 */
+	@Override
 	public Version getVersion(String namespace, String id) {
 		Map<String, Version> values = versions.get(namespace);
 		// if no one says anything then don't say anything.  someone else might have an opinion
@@ -96,7 +88,7 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 			// if we are clearing values then there is nothing to do
 			if (version == null)
 				return;
-			values = new HashMap<String, Version>();
+			values = new HashMap<>();
 			versions.put(namespace, values);
 		}
 		if (version == null)
@@ -121,7 +113,7 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 	}
 
 	private Map<String, Version> merge(Map<String, Version> myValues, Map<String, Version> sourceValues) {
-		Map<String, Version> result = new HashMap<String, Version>(myValues);
+		Map<String, Version> result = new HashMap<>(myValues);
 		for (String key : sourceValues.keySet()) {
 			if (result.get(key) == null)
 				result.put(key, sourceValues.get(key));

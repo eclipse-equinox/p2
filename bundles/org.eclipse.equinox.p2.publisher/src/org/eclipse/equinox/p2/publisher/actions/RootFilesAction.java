@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -48,6 +48,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		this.createParent = createParent;
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		setPublisherInfo(publisherInfo);
 		IPublisherResult innerResult = new PublisherResult();
@@ -111,7 +112,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, version)});
 
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -142,8 +143,8 @@ public class RootFilesAction extends AbstractPublisherAction {
 	 */
 	private IRootFilesAdvice getAdvice(String configSpec) {
 		Collection<IRootFilesAdvice> advice = info.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class);
-		ArrayList<File> inclusions = new ArrayList<File>();
-		ArrayList<File> exclusions = new ArrayList<File>();
+		ArrayList<File> inclusions = new ArrayList<>();
+		ArrayList<File> exclusions = new ArrayList<>();
 		File root = null;
 		for (IRootFilesAdvice entry : advice) {
 			// TODO for now we simply get root from the first advice that has one

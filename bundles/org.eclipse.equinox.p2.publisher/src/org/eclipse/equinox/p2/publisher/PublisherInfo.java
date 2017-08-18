@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -23,8 +23,9 @@ public class PublisherInfo implements IPublisherInfo {
 	private IMetadataRepository contextMetadataRepository;
 	private IArtifactRepository contextArtifactRepository;
 	private String[] configurations = new String[0];
-	private List<IPublisherAdvice> adviceList = new ArrayList<IPublisherAdvice>(11);
+	private List<IPublisherAdvice> adviceList = new ArrayList<>(11);
 
+	@Override
 	public void addAdvice(IPublisherAdvice advice) {
 		adviceList.add(advice);
 	}
@@ -33,9 +34,10 @@ public class PublisherInfo implements IPublisherInfo {
 		return adviceList;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends IPublisherAdvice> Collection<T> getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class<T> type) {
-		ArrayList<T> result = new ArrayList<T>();
+		ArrayList<T> result = new ArrayList<>();
 		for (IPublisherAdvice advice : adviceList) {
 			if (type.isInstance(advice) && advice.isApplicable(configSpec, includeDefault, id, version))
 				// Ideally, we would use Class.cast here but it was introduced in Java 1.5
@@ -44,22 +46,27 @@ public class PublisherInfo implements IPublisherInfo {
 		return result;
 	}
 
+	@Override
 	public IArtifactRepository getArtifactRepository() {
 		return artifactRepository;
 	}
 
+	@Override
 	public IMetadataRepository getMetadataRepository() {
 		return metadataRepository;
 	}
 
+	@Override
 	public IArtifactRepository getContextArtifactRepository() {
 		return contextArtifactRepository;
 	}
 
+	@Override
 	public IMetadataRepository getContextMetadataRepository() {
 		return contextMetadataRepository;
 	}
 
+	@Override
 	public int getArtifactOptions() {
 		return artifactOptions;
 	}
@@ -84,6 +91,7 @@ public class PublisherInfo implements IPublisherInfo {
 		artifactOptions = value;
 	}
 
+	@Override
 	public String[] getConfigurations() {
 		return configurations;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -40,6 +40,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		this.name = name;
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		this.info = publisherInfo;
 		return generateRootIU(results);
@@ -121,7 +122,7 @@ public class RootIUAction extends AbstractPublisherAction {
 	private Collection<? extends IVersionedId> getChildren(IPublisherResult result) {
 		// get any roots that we have accummulated so far and search for
 		// children from the advice.
-		HashSet<IVersionedId> children = new HashSet<IVersionedId>();
+		HashSet<IVersionedId> children = new HashSet<>();
 		Collection<IRootIUAdvice> rootAdvice = info.getAdvice(null, true, null, null, IRootIUAdvice.class);
 		if (rootAdvice == null)
 			return children;

@@ -55,6 +55,7 @@ public class JREAction extends AbstractPublisherAction {
 		this.environment = environment;
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		String problemMessage = NLS.bind(Messages.message_problemsWhilePublishingEE, jreLocation != null ? jreLocation : environment);
 		resultStatus = new MultiStatus(Activator.ID, 0, problemMessage, null);
@@ -100,7 +101,7 @@ public class JREAction extends AbstractPublisherAction {
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configId, iu.getVersion())});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 
 		if (jreLocation == null || !jreLocation.isDirectory()) {
 			touchpointData.put("install", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -131,7 +132,7 @@ public class JREAction extends AbstractPublisherAction {
 		if (profileProperties == null)
 			return Collections.emptyList();
 
-		List<IProvidedCapability> result = new ArrayList<IProvidedCapability>();
+		List<IProvidedCapability> result = new ArrayList<>();
 		result.add(PublisherHelper.createSelfCapability(id, version));
 		generateProvidedPackages(result);
 		generateOsgiEESystemCapabilities(result);
@@ -300,11 +301,7 @@ public class JREAction extends AbstractPublisherAction {
 
 			if (jreLocation.isDirectory()) {
 				//Look for a JRE profile file to set version and capabilities
-				File[] profiles = jreLocation.listFiles(new FileFilter() {
-					public boolean accept(File pathname) {
-						return pathname.getAbsolutePath().endsWith(".profile"); //$NON-NLS-1$
-					}
-				});
+				File[] profiles = jreLocation.listFiles((FileFilter) pathname -> pathname.getAbsolutePath().endsWith(".profile"));
 				if (profiles != null && profiles.length > 0) {
 					javaProfile = profiles[0];
 				}

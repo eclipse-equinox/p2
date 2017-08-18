@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,7 +66,7 @@ public final class LocalizationHelper {
 		HashMap<Locale, Map<String, String>> localizations = null;
 
 		if (localizationFiles != null && localizationFiles.length > 0) {
-			localizations = new HashMap<Locale, Map<String, String>>(localizationFiles.length);
+			localizations = new HashMap<>(localizationFiles.length);
 			for (int i = 0; i < localizationFiles.length; i++) {
 				String nextFile = localizationFiles[i];
 				Locale nextLocale = getLocale(LocalizationHelper.getLocaleString(nextFile, localizationFile));
@@ -90,10 +90,8 @@ public final class LocalizationHelper {
 	}
 
 	public static Map<Locale, Map<String, String>> getJarPropertyLocalizations(File root, String localizationPath, Locale defaultLocale, String[] propertyKeys) {
-		ZipFile jarFile = null;
-		Map<Locale, Map<String, String>> localizations = new HashMap<Locale, Map<String, String>>(4);
-		try {
-			jarFile = new ZipFile(root, ZipFile.OPEN_READ);
+		Map<Locale, Map<String, String>> localizations = new HashMap<>(4);
+		try (ZipFile jarFile = new ZipFile(root, ZipFile.OPEN_READ)) {
 			for (Enumeration<? extends ZipEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
 				ZipEntry nextEntry = entries.nextElement();
 				String nextName = nextEntry.getName();
@@ -101,9 +99,7 @@ public final class LocalizationHelper {
 
 				if (!nextEntry.isDirectory() && localeString != null) {
 					Locale nextLocale = LocalizationHelper.getLocale(localeString);
-					InputStream stream = null;
-					try {
-						stream = jarFile.getInputStream(nextEntry);
+					try (InputStream stream = jarFile.getInputStream(nextEntry)) {
 						Map<String, String> properties = CollectionUtils.loadProperties(stream);
 						Map<String, String> localizedStrings = LocalizationHelper.getLocalizedProperties(propertyKeys, properties);
 						if (localizedStrings.size() > 0) {
@@ -112,22 +108,11 @@ public final class LocalizationHelper {
 								localizations.put(nextLocale, localizedStrings);
 							}
 						}
-					} finally {
-						if (stream != null)
-							stream.close();
 					}
 				}
 			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-		} finally {
-			if (jarFile != null) {
-				try {
-					jarFile.close();
-				} catch (IOException ioe) {
-					// do nothing
-				}
-			}
 		}
 
 		return localizations;
@@ -159,7 +144,7 @@ public final class LocalizationHelper {
 	// Given a list of keys and the corresponding localized property set,
 	// return a new property set with those keys and the localized values. 
 	static public Map<String, String> getLocalizedProperties(String[] propertyKeys, Map<String, String> properties) {
-		Map<String, String> localizedProperties = new HashMap<String, String>();
+		Map<String, String> localizedProperties = new HashMap<>();
 		for (int i = 0; i < propertyKeys.length; i++) {
 			String key = propertyKeys[i];
 			if (key != null) {
@@ -173,6 +158,7 @@ public final class LocalizationHelper {
 
 	public static String[] getLocalizationFiles(File localizationDir, final String filenamePrefix) {
 		return localizationDir.list(instance.new FileFilter() {
+			@Override
 			public boolean accept(File directory, String filename) {
 				return (getLocaleString(filename, filenamePrefix) != null ? true : false);
 			}
@@ -185,9 +171,7 @@ public final class LocalizationHelper {
 			// Nothing to do
 		}
 
-		/* (non-Javadoc)
-		 * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
-		 */
+		@Override
 		public abstract boolean accept(File directory, String filename);
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	// of an eclipse installation; in the future the default artifact mapping declared in
 	// SimpleArtifactRepository may change, for example, to not have a 'bundles' directory
 	// instead of a 'plugins' directory, so a separate constant is defined and used here.
-	static final protected String[][] INPLACE_MAPPING_RULES = { {"(& (classifier=osgi.bundle) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
+	static final protected String[][] INPLACE_MAPPING_RULES = {{"(& (classifier=osgi.bundle) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
@@ -194,7 +194,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (list == null || list.length == 0)
 			return null;
 
-		List<URI> result = new ArrayList<URI>(list.length);
+		List<URI> result = new ArrayList<>(list.length);
 		if (result != null) {
 			for (int i = 0; i < list.length; i++) {
 				try {
@@ -316,10 +316,12 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		return new Publisher(publisherInfo);
 	}
 
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
 
+	@Override
 	public void stop() {
 		if (agentRef != null) {
 			Activator.getContext().ungetService(agentRef);

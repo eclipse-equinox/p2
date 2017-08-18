@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -28,6 +28,7 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 
 	private IIndex<IInstallableUnit> idIndex;
 
+	@Override
 	public void addIU(IInstallableUnit iu, String type) {
 		if (type == ROOT)
 			rootIUs.add(iu);
@@ -35,11 +36,13 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 			nonRootIUs.add(iu);
 	}
 
+	@Override
 	public void addIUs(Collection<IInstallableUnit> ius, String type) {
 		for (IInstallableUnit iu : ius)
 			addIU(iu, type);
 	}
 
+	@Override
 	public IInstallableUnit getIU(String id, Version version, String type) {
 		if (type == null || type == ROOT) {
 			IInstallableUnit result = rootIUs.get(id, version);
@@ -56,6 +59,8 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 
 	// TODO this method really should not be needed as it just returns the first
 	// matching IU non-deterministically.
+	@Deprecated
+	@Override
 	public IInstallableUnit getIU(String id, String type) {
 		if (type == null || type == ROOT) {
 			IQueryResult<IInstallableUnit> ius = rootIUs.get(id);
@@ -73,10 +78,11 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 	/**
 	 * Returns the IUs in this result with the given id.
 	 */
+	@Override
 	public Collection<IInstallableUnit> getIUs(String id, String type) {
 		if (type == null) {
 			// TODO can this be optimized?
-			ArrayList<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+			ArrayList<IInstallableUnit> result = new ArrayList<>();
 			result.addAll(rootIUs.get(id).toUnmodifiableSet());
 			result.addAll(nonRootIUs.get(id).toUnmodifiableSet());
 			return result;
@@ -88,6 +94,7 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 		return null;
 	}
 
+	@Override
 	public void merge(IPublisherResult result, int mode) {
 		if (mode == MERGE_MATCHING) {
 			addIUs(result.getIUs(null, ROOT), ROOT);
@@ -101,26 +108,29 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 		}
 	}
 
+	@Override
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
 		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
 			if (idIndex == null) {
-				ArrayList<IIndex<IInstallableUnit>> indexes = new ArrayList<IIndex<IInstallableUnit>>();
+				ArrayList<IIndex<IInstallableUnit>> indexes = new ArrayList<>();
 				indexes.add(new IdIndex(nonRootIUs));
 				indexes.add(new IdIndex(rootIUs));
-				idIndex = new CompoundIndex<IInstallableUnit>(indexes);
+				idIndex = new CompoundIndex<>(indexes);
 			}
 			return idIndex;
 		}
 		return null;
 	}
 
+	@Override
 	public Iterator<IInstallableUnit> everything() {
-		ArrayList<Iterator<IInstallableUnit>> iterators = new ArrayList<Iterator<IInstallableUnit>>();
+		ArrayList<Iterator<IInstallableUnit>> iterators = new ArrayList<>();
 		iterators.add(nonRootIUs.iterator());
 		iterators.add(rootIUs.iterator());
-		return new CompoundIterator<IInstallableUnit>(iterators.iterator());
+		return new CompoundIterator<>(iterators.iterator());
 	}
 
+	@Override
 	public Object getManagedProperty(Object client, String memberName, Object key) {
 		return null;
 	}
