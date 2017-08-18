@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2009, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -22,9 +22,10 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 
 public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
-	private ArrayList<Object> features = new ArrayList<Object>();
-	private ArrayList<Object> bundles = new ArrayList<Object>();
+	private final ArrayList<Object> features = new ArrayList<>();
+	private final ArrayList<Object> bundles = new ArrayList<>();
 
+	@Override
 	public void execute() throws BuildException {
 		try {
 			initializeRepositories(getInfo());
@@ -35,7 +36,7 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 		File[] f = getLocations(features);
 		File[] b = getLocations(bundles);
 
-		ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
+		ArrayList<IPublisherAction> actions = new ArrayList<>();
 		if (f.length > 0)
 			actions.add(new FeaturesAction(f));
 		if (b.length > 0)
@@ -46,7 +47,7 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 	}
 
 	private File[] getLocations(List<Object> collection) {
-		ArrayList<Object> results = new ArrayList<Object>();
+		ArrayList<Object> results = new ArrayList<>();
 		for (Object obj : collection) {
 			if (obj instanceof FileSet) {
 				FileSet set = (FileSet) obj;

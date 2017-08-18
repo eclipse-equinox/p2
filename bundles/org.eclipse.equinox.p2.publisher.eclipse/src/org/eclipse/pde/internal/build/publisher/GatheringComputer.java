@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -17,8 +17,9 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 
 public class GatheringComputer implements IPathComputer {
 	private static final String PROVIDED_PATH = ":PROVIDED:"; //$NON-NLS-1$
-	private final LinkedHashMap<File, String> filesMap = new LinkedHashMap<File, String>();
+	private final LinkedHashMap<File, String> filesMap = new LinkedHashMap<>();
 
+	@Override
 	public IPath computePath(File source) {
 		String prefix = filesMap.get(source);
 
@@ -35,6 +36,7 @@ public class GatheringComputer implements IPathComputer {
 		return result.setDevice(null);
 	}
 
+	@Override
 	public void reset() {
 		// nothing
 

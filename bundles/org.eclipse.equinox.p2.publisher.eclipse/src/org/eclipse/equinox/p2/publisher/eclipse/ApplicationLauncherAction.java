@@ -103,7 +103,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	}
 
 	private Collection<IInstallableUnit> getIUs(Collection<IInstallableUnit> ius, String prefix) {
-		Set<IInstallableUnit> result = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> result = new HashSet<>();
 		for (IInstallableUnit tmp : ius) {
 			if (tmp.getId().startsWith(prefix))
 				result.add(tmp);
@@ -121,14 +121,14 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	}
 
 	private Collection<IPublisherAction> createActions(IPublisherInfo publisherInfo) {
-		Collection<IPublisherAction> actions = new ArrayList<IPublisherAction>();
+		Collection<IPublisherAction> actions = new ArrayList<>();
 		actions.add(new EquinoxLauncherCUAction(flavor, configSpecs));
 		actions.addAll(createExecutablesActions(configSpecs));
 		return actions;
 	}
 
 	protected Collection<IPublisherAction> createExecutablesActions(String[] configs) {
-		Collection<IPublisherAction> actions = new ArrayList<IPublisherAction>(configs.length);
+		Collection<IPublisherAction> actions = new ArrayList<>(configs.length);
 		for (int i = 0; i < configs.length; i++) {
 			ExecutablesDescriptor executables = computeExecutables(configs[i]);
 			IPublisherAction action = new EquinoxExecutableAction(executables, configs[i], id, version, flavor);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -39,6 +39,7 @@ public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApp
 		// nothing to do
 	}
 
+	@Override
 	protected void processParameter(String arg, String parameter, PublisherInfo pinfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, pinfo);
 
@@ -63,8 +64,9 @@ public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApp
 		return result;
 	}
 
+	@Override
 	protected IPublisherAction[] createActions() {
-		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
+		ArrayList<IPublisherAction> result = new ArrayList<>();
 		if (features == null)
 			features = new File[] {new File(source, "features")}; //$NON-NLS-1$
 		result.add(new FeaturesAction(features));

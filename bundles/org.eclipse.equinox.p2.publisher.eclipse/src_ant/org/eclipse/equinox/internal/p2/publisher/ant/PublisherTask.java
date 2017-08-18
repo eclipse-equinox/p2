@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,6 +44,7 @@ public class PublisherTask extends AbstractPublishTask {
 	/* (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()
 	 */
+	@Override
 	public void execute() throws BuildException {
 		try {
 			initialize(getInfo());
@@ -122,6 +123,7 @@ public class PublisherTask extends AbstractPublishTask {
 	/**
 	 * @deprecated
 	 */
+	@Deprecated
 	public void setExe(String value) {
 		executableName = value;
 	}
@@ -137,6 +139,7 @@ public class PublisherTask extends AbstractPublishTask {
 	/**
 	 * @deprecated
 	 */
+	@Deprecated
 	public void setLauncherConfig(String value) {
 		//TODO Remove - currently exists for compatibility with generator task
 	}
@@ -148,6 +151,7 @@ public class PublisherTask extends AbstractPublishTask {
 	/**
 	 * @deprecated
 	 */
+	@Deprecated
 	public void setP2OS(String value) {
 		//TODO Remove - currently exists for compatibility with generator task
 	}
@@ -160,6 +164,7 @@ public class PublisherTask extends AbstractPublishTask {
 		getInfo().setArtifactOptions(getInfo().getArtifactOptions() | IPublisherInfo.A_INDEX);
 	}
 
+	@Override
 	public void setPublishArtifacts(String value) {
 		getInfo().setArtifactOptions(getInfo().getArtifactOptions() | IPublisherInfo.A_PUBLISH);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2015 Rapicorp, Inc and others.
+ *  Copyright (c) 2015, 2017 Rapicorp, Inc and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -147,7 +147,7 @@ public class InfoPListEditor {
 	private List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
 		NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
 
-		List<String> result = new ArrayList<String>(nodeList.getLength());
+		List<String> result = new ArrayList<>(nodeList.getLength());
 		for (int ix = 0; ix < nodeList.getLength(); ++ix) {
 			result.add(nodeList.item(ix).getNodeValue());
 		}
@@ -157,7 +157,7 @@ public class InfoPListEditor {
 	private List<Node> removeNodes(Object startingPoint, String expression) throws XPathExpressionException {
 		NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
 
-		List<Node> result = new ArrayList<Node>(nodeList.getLength());
+		List<Node> result = new ArrayList<>(nodeList.getLength());
 		for (int ix = 0; ix < nodeList.getLength(); ++ix) {
 			result.add(nodeList.item(ix).getParentNode().removeChild(nodeList.item(ix)));
 		}

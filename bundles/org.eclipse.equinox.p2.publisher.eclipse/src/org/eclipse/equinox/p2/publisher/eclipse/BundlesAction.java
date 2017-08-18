@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -140,7 +140,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, cuVersion), MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment)); //$NON-NLS-1$
@@ -174,7 +174,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Process the required bundles
 		BundleSpecification requiredBundles[] = bd.getRequiredBundles();
-		ArrayList<IRequirement> reqsDeps = new ArrayList<IRequirement>();
+		ArrayList<IRequirement> reqsDeps = new ArrayList<>();
 		//		if (requiresAFragment)
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
@@ -198,7 +198,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		iu.setRequirements(reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
 		// Create set of provided capabilities
-		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>();
 		providedCapabilities.add(PublisherHelper.createSelfCapability(bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
 		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
 
@@ -249,7 +249,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Define the immutable metadata for this IU. In this case immutable means
 		// that this is something that will not impact the configuration.
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
 		if (isDir(bd, info))
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -319,7 +319,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 
 		// Create a provided capability for each locale and add the translated properties.
-		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>(hostLocalizations.keySet().size());
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>(hostLocalizations.keySet().size());
 		providedCapabilities.add(PublisherHelper.createSelfCapability(fragmentId, fragment.getVersion()));
 		for (Entry<Locale, Map<String, String>> localeEntry : hostLocalizations.entrySet()) {
 			Locale locale = localeEntry.getKey();
@@ -380,7 +380,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		// Create a required capability on bundles
 		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
 		cu.setHost(reqs);
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -765,7 +765,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private File[] expandLocations(File[] list) {
-		ArrayList<File> result = new ArrayList<File>();
+		ArrayList<File> result = new ArrayList<>();
 		expandLocations(list, result);
 		return result.toArray(new File[result.size()]);
 	}
@@ -892,7 +892,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations, IProgressMonitor monitor) {
 		if (bundleLocations == null)
 			return new BundleDescription[0];
-		List<BundleDescription> result = new ArrayList<BundleDescription>(bundleLocations.length);
+		List<BundleDescription> result = new ArrayList<>(bundleLocations.length);
 		for (int i = 0; i < bundleLocations.length; i++) {
 			if (monitor.isCanceled())
 				throw new OperationCanceledException();

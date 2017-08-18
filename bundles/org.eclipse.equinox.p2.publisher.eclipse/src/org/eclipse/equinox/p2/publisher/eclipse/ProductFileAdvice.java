@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -79,6 +79,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	/**
 	 * Returns the program arguments for this product.  
 	 */
+	@Override
 	public String[] getProgramArguments() {
 		String line = product.getProgramArguments(os, arch);
 		return AbstractPublisherAction.getArrayFromString(line, " "); //$NON-NLS-1$
@@ -87,6 +88,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	/**
 	 * Returns the VM arguments for this product.
 	 */
+	@Override
 	public String[] getVMArguments() {
 		String line = product.getVMArguments(os, arch);
 		return AbstractPublisherAction.getArrayFromString(line, " "); //$NON-NLS-1$
@@ -97,6 +99,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	 * bundles may be specified in the .product file, .product file configuration
 	 * area, config.ini file, or a combination of these three places.
 	 */
+	@Override
 	public BundleInfo[] getBundles() {
 		return configData.getBundles();
 	}
@@ -106,8 +109,9 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	 * properties may be defined in the .product file, the config.ini
 	 * file, or both.
 	 */
+	@Override
 	public Map<String, String> getProperties() {
-		Map<String, String> result = new HashMap<String, String>();
+		Map<String, String> result = new HashMap<>();
 		CollectionUtils.putAll(configData.getProperties(), result);
 		result.putAll(product.getConfigurationProperties(os, arch));
 		return result;
@@ -119,6 +123,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	 * 
 	 * @return the name of the branded launcher or <code>null</code> if none.
 	 */
+	@Override
 	public String getExecutableName() {
 		return product.getLauncherName();
 	}
@@ -133,6 +138,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	/**
 	 * Returns the icons defined for this product
 	 */
+	@Override
 	public String[] getIcons() {
 		return product.getIcons(os);
 	}
@@ -140,6 +146,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	/**
 	 * Returns the operating system that this advice is configured to work with.
 	 */
+	@Override
 	public String getOS() {
 		return this.os;
 	}
@@ -147,6 +154,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	/**
 	 * Returns the license text for this product
 	 */
+	@Override
 	public String getLicenseURL() {
 		return product.getLicenseURL();
 	}
@@ -154,6 +162,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	/**
 	 * Returns the license URL for this product
 	 */
+	@Override
 	public String getLicenseText() {
 		return product.getLicenseText();
 	}
@@ -186,8 +195,8 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 	}
 
 	private void addProductFileConfigBundles(ConfigData data) {
-		Set<BundleInfo> versionBoundBundles = new HashSet<BundleInfo>();
-		Map<String, List<BundleInfo>> unboundedBundles = new HashMap<String, List<BundleInfo>>();
+		Set<BundleInfo> versionBoundBundles = new HashSet<>();
+		Map<String, List<BundleInfo>> unboundedBundles = new HashMap<>();
 
 		BundleInfo[] bundles = data.getBundles();
 		for (int i = 0; i < bundles.length; i++) {
@@ -238,7 +247,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 
 	private void addProductFileBundles(ConfigData data) {
 		List<IVersionedId> bundles = product.getBundles(true);
-		Set<BundleInfo> set = new HashSet<BundleInfo>();
+		Set<BundleInfo> set = new HashSet<>();
 		set.addAll(Arrays.asList(data.getBundles()));
 
 		for (IVersionedId vid : bundles) {

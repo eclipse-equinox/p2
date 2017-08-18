@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2009, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -96,7 +96,7 @@ public abstract class AbstractPublishTask extends Task {
 	protected URI artifactLocation;
 	protected String artifactRepoName;
 	protected PublisherInfo provider = null;
-	protected List<RepoEntry> contextRepositories = new ArrayList<RepoEntry>();
+	protected List<RepoEntry> contextRepositories = new ArrayList<>();
 
 	protected IProvisioningAgent getProvisioningAgent() {
 		return ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.class);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,7 +69,7 @@ public class IconExe {
 		}
 		ImageLoader loader = new ImageLoader();
 
-		List<ImageData> images = new ArrayList<ImageData>();
+		List<ImageData> images = new ArrayList<>();
 		for (int i = 1; i < args.length; i++) {
 			try {
 				//An ICO should contain 7 images, a BMP will contain 1
@@ -175,7 +175,7 @@ public class IconExe {
 	static List<IconResInfo> unloadIcons(String program, ImageData[] icons) throws FileNotFoundException, IOException {
 		RandomAccessFile raf = new RandomAccessFile(program, "rw"); //$NON-NLS-1$
 		IconExe iconExe = new IconExe();
-		List<IconResInfo> iconInfo = new ArrayList<IconExe.IconResInfo>(Arrays.asList(iconExe.getIcons(raf)));
+		List<IconResInfo> iconInfo = new ArrayList<>(Arrays.asList(iconExe.getIcons(raf)));
 		// Display an error if  no icons found in target executable.
 		if (iconInfo.isEmpty()) {
 			System.err.println("Warning - no icons detected in \"" + program + "\"."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1515,7 +1515,7 @@ public class IconExe {
 		/**
 		 * Scaled 8x8 Bayer dither matrix.
 		 */
-		static final int[][] DITHER_MATRIX = { {0xfc0000, 0x7c0000, 0xdc0000, 0x5c0000, 0xf40000, 0x740000, 0xd40000, 0x540000}, {0x3c0000, 0xbc0000, 0x1c0000, 0x9c0000, 0x340000, 0xb40000, 0x140000, 0x940000}, {0xcc0000, 0x4c0000, 0xec0000, 0x6c0000, 0xc40000, 0x440000, 0xe40000, 0x640000}, {0x0c0000, 0x8c0000, 0x2c0000, 0xac0000, 0x040000, 0x840000, 0x240000, 0xa40000}, {0xf00000, 0x700000, 0xd00000, 0x500000, 0xf80000, 0x780000, 0xd80000, 0x580000}, {0x300000, 0xb00000, 0x100000, 0x900000, 0x380000, 0xb80000, 0x180000, 0x980000}, {0xc00000, 0x400000, 0xe00000, 0x600000, 0xc80000, 0x480000, 0xe80000, 0x680000}, {0x000000, 0x800000, 0x200000, 0xa00000, 0x080000, 0x880000, 0x280000, 0xa80000}};
+		static final int[][] DITHER_MATRIX = {{0xfc0000, 0x7c0000, 0xdc0000, 0x5c0000, 0xf40000, 0x740000, 0xd40000, 0x540000}, {0x3c0000, 0xbc0000, 0x1c0000, 0x9c0000, 0x340000, 0xb40000, 0x140000, 0x940000}, {0xcc0000, 0x4c0000, 0xec0000, 0x6c0000, 0xc40000, 0x440000, 0xe40000, 0x640000}, {0x0c0000, 0x8c0000, 0x2c0000, 0xac0000, 0x040000, 0x840000, 0x240000, 0xa40000}, {0xf00000, 0x700000, 0xd00000, 0x500000, 0xf80000, 0x780000, 0xd80000, 0x580000}, {0x300000, 0xb00000, 0x100000, 0x900000, 0x380000, 0xb80000, 0x180000, 0x980000}, {0xc00000, 0x400000, 0xe00000, 0x600000, 0xc80000, 0x480000, 0xe80000, 0x680000}, {0x000000, 0x800000, 0x200000, 0xa00000, 0x080000, 0x880000, 0x280000, 0xa80000}};
 
 		/**
 		 * Constructs a new, empty ImageData with the given width, height,

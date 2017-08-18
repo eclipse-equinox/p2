@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010, 2015 IBM Corporation and others.
+ *  Copyright (c) 2010, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -31,10 +31,12 @@ public class GeneratorApplication implements IApplication {
 	public static final String INSTALL_APPLICATION = "org.eclipse.equinox.p2.publisher.InstallPublisher"; //$NON-NLS-1$
 	public static final String FEATURES_BUNDLES_APPLICATION = "org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"; //$NON-NLS-1$
 
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		return run((String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS));
 	}
 
+	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 	}
@@ -62,8 +64,8 @@ public class GeneratorApplication implements IApplication {
 	}
 
 	private Map<String, Object> parseArguments(String[] arguments) {
-		Map<String, Object> applicationMap = new HashMap<String, Object>();
-		Map<String, String> args = new HashMap<String, String>(arguments.length);
+		Map<String, Object> applicationMap = new HashMap<>();
+		Map<String, String> args = new HashMap<>(arguments.length);
 		for (int i = 0; i < arguments.length; i++) {
 			if (i == arguments.length - 1 || arguments[i + 1].startsWith(IGeneratorConstants.DASH))
 				args.put(arguments[i], null);
@@ -125,7 +127,7 @@ public class GeneratorApplication implements IApplication {
 	}
 
 	private String[] flattenMap(Map<String, String> map) {
-		ArrayList<String> list = new ArrayList<String>(map.size());
+		ArrayList<String> list = new ArrayList<>(map.size());
 		for (Iterator<String> iterator = map.keySet().iterator(); iterator.hasNext();) {
 			String key = iterator.next();
 			String value = map.get(key);

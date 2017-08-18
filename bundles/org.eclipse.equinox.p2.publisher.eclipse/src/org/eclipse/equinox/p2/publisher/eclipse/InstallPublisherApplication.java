@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -31,6 +31,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 		//hidden
 	}
 
+	@Override
 	protected void processFlag(String arg, PublisherInfo publisherInfo) {
 		super.processFlag(arg, publisherInfo);
 
@@ -38,6 +39,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 			start = true;
 	}
 
+	@Override
 	protected void initialize(PublisherInfo publisherInfo) throws ProvisionException {
 		super.initialize(publisherInfo);
 
@@ -45,6 +47,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 			publisherInfo.setConfigurations(new String[] {""}); //$NON-NLS-1$
 	}
 
+	@Override
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, publisherInfo);
 
@@ -78,8 +81,9 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 		return result;
 	}
 
+	@Override
 	protected IPublisherAction[] createActions() {
-		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
+		ArrayList<IPublisherAction> result = new ArrayList<>();
 		result.add(createEclipseInstallAction());
 		return result.toArray(new IPublisherAction[result.size()]);
 	}

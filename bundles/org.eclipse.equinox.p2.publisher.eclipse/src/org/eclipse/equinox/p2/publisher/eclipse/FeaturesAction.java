@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -102,7 +102,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			iu.setProperty(PublisherHelper.ECLIPSE_INSTALL_HANDLER_PROP, installHandlerProperty);
 		}
 
-		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>();
 		providedCapabilities.add(PublisherHelper.createSelfCapability(id, version));
 		providedCapabilities.add(PublisherHelper.FEATURE_CAPABILITY);
 		providedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version));
@@ -110,7 +110,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version), PublisherHelper.FEATURE_CAPABILITY, MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version)});
 		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
 
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 
@@ -199,7 +199,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (configSpec != null && configSpec.length() > 0)
 			iu.setFilter(createFilterSpec(configSpec));
 
-		Map<String, String> touchpointData = new HashMap<String, String>(2);
+		Map<String, String> touchpointData = new HashMap<>(2);
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -240,7 +240,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, BundlesAction.computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
-		List<IRequirement> required = new ArrayList<IRequirement>(entries.length + (childIUs == null ? 0 : childIUs.size()));
+		List<IRequirement> required = new ArrayList<>(entries.length + (childIUs == null ? 0 : childIUs.size()));
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
 			String requiredId = getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true);
@@ -268,7 +268,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setFilter(getFilter(entry));
 
 		// Create set of provided capabilities
-		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>();
 		providedCapabilities.add(createSelfCapability(id, version));
 
 		Map<Locale, Map<String, String>> localizations = feature.getLocalizations();
@@ -313,9 +313,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, BundlesAction.computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
-		ArrayList<IRequirement> applicabilityScope = new ArrayList<IRequirement>();
-		ArrayList<IRequirement> patchRequirements = new ArrayList<IRequirement>();
-		ArrayList<IRequirementChange> requirementChanges = new ArrayList<IRequirementChange>();
+		ArrayList<IRequirement> applicabilityScope = new ArrayList<>();
+		ArrayList<IRequirement> patchRequirements = new ArrayList<>();
+		ArrayList<IRequirementChange> requirementChanges = new ArrayList<>();
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
 			IRequirement req = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
@@ -355,7 +355,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		// iu.setFilter(filter);
 
 		// Create set of provided capabilities
-		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>();
 		providedCapabilities.add(createSelfCapability(id, version));
 
 		Map<Locale, Map<String, String>> localizations = feature.getLocalizations();
@@ -377,7 +377,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	private File[] expandLocations(File[] list) {
-		ArrayList<File> result = new ArrayList<File>();
+		ArrayList<File> result = new ArrayList<>();
 		expandLocations(list, result);
 		return result.toArray(new File[result.size()]);
 	}
@@ -407,7 +407,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 			createBundleShapeAdvice(feature, info);
 			createAdviceFileAdvice(feature, info);
 
-			ArrayList<IInstallableUnit> childIUs = new ArrayList<IInstallableUnit>();
+			ArrayList<IInstallableUnit> childIUs = new ArrayList<>();
 
 			IInstallableUnit featureJarIU = queryForIU(result, getTransformedId(feature.getId(), false, false), Version.parseVersion(feature.getVersion()));
 			if (featureJarIU == null)
@@ -440,7 +440,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	protected ArrayList<IInstallableUnit> generateRootFileIUs(Feature feature, IPublisherResult result, IPublisherInfo publisherInfo) {
-		ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> ius = new ArrayList<>();
 
 		Collection<IFeatureRootAdvice> collection = publisherInfo.getAdvice(null, false, feature.getId(), Version.parseVersion(feature.getVersion()), IFeatureRootAdvice.class);
 		if (collection.size() == 0)
@@ -503,7 +503,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		URLEntry updateURL = feature.getUpdateSite();
 		//don't enable feature update sites by default since this results in too many
 		//extra sites being loaded and searched (Bug 234177)
-		List<IRepositoryReference> collector = new ArrayList<IRepositoryReference>();
+		List<IRepositoryReference> collector = new ArrayList<>();
 		if (updateURL != null)
 			generateSiteReference(updateURL.getURL(), updateURL.getAnnotation(), feature.getId(), collector);
 		URLEntry[] discoverySites = feature.getDiscoverySites();
@@ -514,7 +514,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	protected Feature[] getFeatures(File[] featureLocations) {
-		ArrayList<Feature> result = new ArrayList<Feature>(featureLocations.length);
+		ArrayList<Feature> result = new ArrayList<>(featureLocations.length);
 		for (int i = 0; i < featureLocations.length; i++) {
 			Feature feature = new FeatureParser().parse(featureLocations[i]);
 			if (feature != null) {
@@ -644,7 +644,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		if (linkActions.length() > 0) {
-			Map<String, String> touchpointData = new HashMap<String, String>();
+			Map<String, String> touchpointData = new HashMap<>();
 			//we do ln during configure to avoid complicating branding which uses the install phase
 			touchpointData.put("configure", linkActions.toString()); //$NON-NLS-1$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -652,7 +652,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	private void setupPermissions(InstallableUnitDescription iu, FileSetDescriptor descriptor) {
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		String[][] permsList = descriptor.getPermissions();
 		for (int i = 0; i < permsList.length; i++) {
 			String[] permSpec = permsList[i];

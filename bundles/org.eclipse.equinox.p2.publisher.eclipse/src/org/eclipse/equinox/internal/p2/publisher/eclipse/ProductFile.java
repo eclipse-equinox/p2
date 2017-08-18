@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 IBM Corporation and others.
+ * Copyright (c) 2005, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -174,18 +174,18 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private SAXParser parser;
 	private String launcherName = null;
 	//	private boolean useIco = false;
-	private final Map<String, Collection<String>> icons = new HashMap<String, Collection<String>>(6);
+	private final Map<String, Collection<String>> icons = new HashMap<>(6);
 	private String configPath = null;
-	private final Map<String, String> platformSpecificConfigPaths = new HashMap<String, String>();
+	private final Map<String, String> platformSpecificConfigPaths = new HashMap<>();
 	private String configPlatform = null;
 	private String platformConfigPath = null;
 	private String id = null;
 	private String uid = null;
 	private ProductContentType productContentType = null;
-	protected List<FeatureEntry> plugins = new ArrayList<FeatureEntry>();
-	protected List<FeatureEntry> fragments = new ArrayList<FeatureEntry>();
-	private final List<FeatureEntry> features = new ArrayList<FeatureEntry>();
-	private final List<FeatureEntry> rootFeatures = new ArrayList<FeatureEntry>();
+	protected List<FeatureEntry> plugins = new ArrayList<>();
+	protected List<FeatureEntry> fragments = new ArrayList<>();
+	private final List<FeatureEntry> features = new ArrayList<>();
+	private final List<FeatureEntry> rootFeatures = new ArrayList<>();
 	private String splashLocation = null;
 	private String productName = null;
 	private String application = null;
@@ -199,7 +199,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private String licenseURL;
 	private String licenseText = null;
 	private String currentOS;
-	private final List<IRepositoryReference> repositories = new ArrayList<IRepositoryReference>();
+	private final List<IRepositoryReference> repositories = new ArrayList<>();
 
 	private static String normalize(String text) {
 		if (text == null || text.trim().length() == 0)
@@ -271,6 +271,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Gets the name of the launcher specified in the .product file.
 	 */
+	@Override
 	public String getLauncherName() {
 		return launcherName;
 	}
@@ -278,6 +279,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Gets the location of the .product file.
 	 */
+	@Override
 	public File getLocation() {
 		return location;
 	}
@@ -286,6 +288,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * Returns the properties found in .product file.  Properties
 	 * are located in the <configurations> block of the file
 	 */
+	@Override
 	public Map<String, String> getConfigurationProperties() {
 		return getConfigurationProperties(null, null);
 	}
@@ -297,9 +300,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * that are not filtered by the unspecified os and/or arch. 
 	 * Properties are located in the <configurations> block of the file
 	 */
+	@Override
 	public Map<String, String> getConfigurationProperties(String os, String arch) {
 		// add all generic properties
-		Map<String, String> result = properties != null ? properties : new HashMap<String, String>();
+		Map<String, String> result = properties != null ? properties : new HashMap<>();
 		// add any properties filtered on os and/or arch
 		if (filteredProperties != null) {
 			String[] filteredKeys = new String[3]; // ".arch", "os.", "os.arch"
@@ -346,8 +350,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * @param includeFragments Indicates whether or not fragments should
 	 * be included in the list
 	 */
+	@Override
 	public List<IVersionedId> getBundles(boolean includeFragments) {
-		List<IVersionedId> result = new LinkedList<IVersionedId>();
+		List<IVersionedId> result = new LinkedList<>();
 
 		for (FeatureEntry plugin : plugins) {
 			result.add(new VersionedId(plugin.getId(), plugin.getVersion()));
@@ -362,13 +367,14 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return result;
 	}
 
+	@Override
 	public boolean hasBundles(boolean includeFragments) {
 		// implement directly; don't call the potentially overridden getBundles
 		return !plugins.isEmpty() || (includeFragments && !fragments.isEmpty());
 	}
 
 	private List<FeatureEntry> getBundleEntries(boolean includeFragments) {
-		List<FeatureEntry> result = new LinkedList<FeatureEntry>();
+		List<FeatureEntry> result = new LinkedList<>();
 		result.addAll(plugins);
 		if (includeFragments)
 			result.addAll(fragments);
@@ -380,6 +386,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * in the product file.
 	 * @return A List<BundleInfo>
 	 */
+	@Override
 	public List<BundleInfo> getBundleInfos() {
 		return bundleInfos != null ? bundleInfos : Collections.<BundleInfo> emptyList();
 	}
@@ -387,8 +394,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Returns a list<VersionedName> of fragments that constitute this product.
 	 */
+	@Override
 	public List<IVersionedId> getFragments() {
-		List<IVersionedId> result = new LinkedList<IVersionedId>();
+		List<IVersionedId> result = new LinkedList<>();
 
 		for (FeatureEntry fragment : fragments) {
 			result.add(new VersionedId(fragment.getId(), fragment.getVersion()));
@@ -400,17 +408,20 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Returns a List<VersionedName> of features that constitute this product.
 	 */
+	@Override
 	public List<IVersionedId> getFeatures() {
 		return getFeatures(INCLUDED_FEATURES);
 	}
 
+	@Override
 	public boolean hasFeatures() {
 		// implement directly; don't call the potentially overridden getFeatures
 		return !features.isEmpty();
 	}
 
+	@Override
 	public List<IVersionedId> getFeatures(int options) {
-		List<IVersionedId> result = new LinkedList<IVersionedId>();
+		List<IVersionedId> result = new LinkedList<>();
 
 		if ((options & INCLUDED_FEATURES) != 0) {
 			for (FeatureEntry feature : features) {
@@ -447,6 +458,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return getIcons(currentOS);
 	}
 
+	@Override
 	public String[] getIcons(String os) {
 		Collection<String> result = icons.get(os);
 		if (result == null)
@@ -454,6 +466,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return result.toArray(new String[result.size()]);
 	}
 
+	@Override
 	public String getConfigIniPath(String os) {
 		String specific = platformSpecificConfigPaths.get(os);
 		return specific == null ? configPath : specific;
@@ -470,12 +483,14 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Returns the ID for this product.
 	 */
+	@Override
 	public String getId() {
 		if (uid != null)
 			return uid;
 		return id;
 	}
 
+	@Override
 	public String getProductId() {
 		return id;
 	}
@@ -483,6 +498,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Returns the location (the bundle) that defines the splash screen
 	 */
+	@Override
 	public String getSplashLocation() {
 		return splashLocation;
 	}
@@ -490,6 +506,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Returns the product name.
 	 */
+	@Override
 	public String getProductName() {
 		return productName;
 	}
@@ -497,6 +514,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Returns the application identifier for this product.
 	 */
+	@Override
 	public String getApplication() {
 		return application;
 	}
@@ -505,6 +523,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * Returns true if this product is built using feature, 
 	 * false otherwise.
 	 */
+	@Override
 	public boolean useFeatures() {
 		return productContentType == ProductContentType.FEATURES;
 	}
@@ -512,16 +531,18 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Returns the version of the product
 	 */
+	@Override
 	public String getVersion() {
 		return (version == null || version.length() == 0) ? "0.0.0" : version; //$NON-NLS-1$
 	}
 
+	@Override
 	public boolean includeLaunchers() {
 		return includeLaunchers;
 	}
 
 	public Map<String, BundleInfo> getConfigurationInfo() {
-		Map<String, BundleInfo> result = new HashMap<String, BundleInfo>();
+		Map<String, BundleInfo> result = new HashMap<>();
 		for (BundleInfo info : getBundleInfos()) {
 			result.put(info.getSymbolicName(), info);
 		}
@@ -541,6 +562,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * If the empty string is used for the OS, this returns
 	 * the default VM arguments
 	 */
+	@Override
 	public String getVMArguments(String os) {
 		return getVMArguments(os, null);
 	}
@@ -551,6 +573,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * returns the default arguments for the platform.  If the empty string is
 	 * used for the OS, this returns the default VM arguments.
 	 */
+	@Override
 	public String getVMArguments(String os, String arch) {
 		os = os == null ? "" : os; //$NON-NLS-1$
 		String key = null;
@@ -621,6 +644,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * If the empty string is used for the OS, this returns
 	 * the default program arguments
 	 */
+	@Override
 	public String getProgramArguments(String os) {
 		return getProgramArguments(os, null);
 	}
@@ -630,6 +654,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * If the empty string is used for the OS, this returns
 	 * the default program arguments
 	 */
+	@Override
 	public String getProgramArguments(String os, String arch) {
 		os = os == null ? "" : os; //$NON-NLS-1$
 		String key = null;
@@ -695,14 +720,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return normalize(args);
 	}
 
+	@Override
 	public String getLicenseText() {
 		return licenseText;
 	}
 
+	@Override
 	public String getLicenseURL() {
 		return licenseURL;
 	}
 
+	@Override
 	public List<IRepositoryReference> getRepositoryEntries() {
 		return repositories;
 	}
@@ -916,15 +944,15 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		if (propOSArchKey.length() <= 1) {
 			// this is a generic property for all platforms and arch
 			if (properties == null)
-				properties = new HashMap<String, String>();
+				properties = new HashMap<>();
 			properties.put(name, value);
 		} else {
 			// store the property in the filtered map, keyed by "os.arch"
 			if (filteredProperties == null)
-				filteredProperties = new HashMap<String, HashMap<String, String>>();
+				filteredProperties = new HashMap<>();
 			HashMap<String, String> filteredMap = filteredProperties.get(propOSArchKey);
 			if (filteredMap == null) {
-				filteredMap = new HashMap<String, String>();
+				filteredMap = new HashMap<>();
 				filteredProperties.put(propOSArchKey, filteredMap);
 			}
 			filteredMap.put(name, value);
@@ -945,7 +973,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		if (value != null)
 			info.setMarkedAsStarted(Boolean.parseBoolean(value));
 		if (bundleInfos == null)
-			bundleInfos = new ArrayList<BundleInfo>();
+			bundleInfos = new ArrayList<>();
 		bundleInfos.add(info);
 	}
 
@@ -1211,7 +1239,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 		Collection<String> list = icons.get(os);
 		if (list == null) {
-			list = new ArrayList<String>(6);
+			list = new ArrayList<>(6);
 			icons.put(os, list);
 		}
 		list.add(iconFile.getAbsolutePath());
@@ -1251,6 +1279,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		addIcon(OS_MACOSX, attributes.getValue(ATTRIBUTE_ICON));
 	}
 
+	@Override
 	public ProductContentType getProductContentType() {
 		return productContentType;
 	}

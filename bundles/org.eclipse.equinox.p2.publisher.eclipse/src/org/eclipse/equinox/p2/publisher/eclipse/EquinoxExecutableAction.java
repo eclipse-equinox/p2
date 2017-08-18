@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -88,7 +88,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iud.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 		iud.setCapabilities(new IProvidedCapability[] {createSelfCapability(id, version)});
 		iud.setFilter(createFilterSpec(configSpec));
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("configure", "setLauncherName(name:" + executableName + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		touchpointData.put("unconfigure", "setLauncherName()"); //$NON-NLS-1$ //$NON-NLS-2$
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -181,7 +181,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		if (Constants.OS_MACOSX.equals(os))
 			return computeMacInstallActions(execDescriptor);
 
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		if (!Constants.OS_WIN32.equals(os)) {
 			// We are on linux/unix.  by default set all of the files to be executable.
@@ -196,10 +196,10 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	}
 
 	private Map<String, String> computeMacInstallActions(ExecutablesDescriptor execDescriptor) {
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder}/../);"; //$NON-NLS-1$
 		String execName = execDescriptor.getExecutableName();
-		configurationData += " chmod(targetDir:${installFolder}/../MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		configurationData += " chmod(targetDir:${installFolder}/../MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder}/../);"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$

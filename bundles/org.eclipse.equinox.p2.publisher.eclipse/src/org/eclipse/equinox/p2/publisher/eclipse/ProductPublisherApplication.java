@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -33,8 +33,9 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 		//hidden
 	}
 
+	@Override
 	protected IPublisherAction[] createActions() {
-		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
+		ArrayList<IPublisherAction> result = new ArrayList<>();
 		result.add(createProductAction());
 		return result.toArray(new IPublisherAction[result.size()]);
 	}
@@ -51,6 +52,7 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 		return new ProductAction(source, productDescriptor, flavor, executablesFeature, jreLocationFile);
 	}
 
+	@Override
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, publisherInfo);
 

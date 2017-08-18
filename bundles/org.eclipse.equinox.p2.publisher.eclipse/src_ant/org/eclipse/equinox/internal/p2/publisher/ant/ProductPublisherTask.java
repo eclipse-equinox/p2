@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2009, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -40,6 +40,7 @@ public class ProductPublisherTask extends AbstractPublishTask {
 			this.arch = arch;
 		}
 
+		@Override
 		public String toString() {
 			return ws + '.' + os + '.' + arch;
 		}
@@ -62,9 +63,10 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	private String productFile;
 	private String executables;
 	private String jreLocation;
-	private final List<ConfigElement> configurations = new ArrayList<ConfigElement>(3);
-	private final List<AdviceElement> advice = new ArrayList<AdviceElement>(3);
+	private final List<ConfigElement> configurations = new ArrayList<>(3);
+	private final List<AdviceElement> advice = new ArrayList<>(3);
 
+	@Override
 	public void execute() throws BuildException {
 		try {
 			initializeRepositories(getInfo());
@@ -87,6 +89,7 @@ public class ProductPublisherTask extends AbstractPublishTask {
 		new Publisher(getInfo()).publish(new IPublisherAction[] {action}, new NullProgressMonitor());
 	}
 
+	@Override
 	protected PublisherInfo getInfo() {
 		String[] configStrings = new String[configurations.size()];
 		for (int i = 0; i < configurations.size(); i++) {

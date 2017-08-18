@@ -48,7 +48,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	// TODO consider moving this filtering to the LaunchingAdvice and ConfigAdvice so 
 	// it is not hardcoded in the action.
 	static {
-		PROPERTIES_TO_SKIP = new HashSet<String>();
+		PROPERTIES_TO_SKIP = new HashSet<>();
 		PROPERTIES_TO_SKIP.add("osgi.frameworkClassPath"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("osgi.framework"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("osgi.bundles"); //$NON-NLS-1$
@@ -58,7 +58,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		PROPERTIES_TO_SKIP.add("org.eclipse.update.reconcile"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("org.eclipse.equinox.simpleconfigurator.configUrl"); //$NON-NLS-1$
 
-		PROGRAM_ARGS_TO_SKIP = new HashSet<String>();
+		PROGRAM_ARGS_TO_SKIP = new HashSet<>();
 		PROGRAM_ARGS_TO_SKIP.add("--launcher.library"); //$NON-NLS-1$
 		PROGRAM_ARGS_TO_SKIP.add("-startup"); //$NON-NLS-1$
 		PROGRAM_ARGS_TO_SKIP.add("-configuration"); //$NON-NLS-1$
@@ -125,7 +125,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	// there seem to be cases where the bundle infos are not filled in with symbolic name and version.
 	// fill in the missing data.
 	private BundleInfo[] fillInBundles(Collection<IConfigAdvice> configAdvice, IPublisherResult results) {
-		ArrayList<BundleInfo> result = new ArrayList<BundleInfo>();
+		ArrayList<BundleInfo> result = new ArrayList<>();
 		for (IConfigAdvice advice : configAdvice) {
 
 			int defaultStart = BundleInfo.NO_LEVEL;
@@ -188,7 +188,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		if (configureData.length() == 0 && unconfigureData.length() == 0)
 			return;
 
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("configure", configureData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigureData); //$NON-NLS-1$
 		IInstallableUnit cu = createCU(id, version, "ini", flavor, configSpec, touchpointData); //$NON-NLS-1$
@@ -213,7 +213,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		if (configureData.length() == 0 && unconfigureData.length() == 0)
 			return;
 
-		Map<String, String> touchpointData = new HashMap<String, String>();
+		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("configure", configureData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigureData); //$NON-NLS-1$
 		IInstallableUnit cu = createCU(id, version, "config", flavor, configSpec, touchpointData); //$NON-NLS-1$
@@ -245,13 +245,13 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	protected String[] getConfigurationStrings(Collection<IConfigAdvice> configAdvice) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
-		Set<String> properties = new HashSet<String>();
+		Set<String> properties = new HashSet<>();
 		for (IConfigAdvice advice : configAdvice) {
 			for (Entry<String, String> aProperty : advice.getProperties().entrySet()) {
 				String key = aProperty.getKey();
 				if (shouldPublishProperty(key) && !properties.contains(key)) {
 					properties.add(key);
-					Map<String, String> parameters = new LinkedHashMap<String, String>();
+					Map<String, String> parameters = new LinkedHashMap<>();
 					parameters.put("propName", key); //$NON-NLS-1$
 					parameters.put("propValue", aProperty.getValue()); //$NON-NLS-1$
 					configurationData += TouchpointInstruction.encodeAction("setProgramProperty", parameters); //$NON-NLS-1$
@@ -261,7 +261,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			}
 			if (advice instanceof ProductFileAdvice) {
 				for (IRepositoryReference repo : ((ProductFileAdvice) advice).getUpdateRepositories()) {
-					Map<String, String> parameters = new LinkedHashMap<String, String>();
+					Map<String, String> parameters = new LinkedHashMap<>();
 					parameters.put("type", Integer.toString(repo.getType())); //$NON-NLS-1$
 					parameters.put("location", repo.getLocation().toString()); //$NON-NLS-1$
 					parameters.put("enabled", Boolean.toString((repo.getOptions() & IRepository.ENABLED) == IRepository.ENABLED)); //$NON-NLS-1$
@@ -290,9 +290,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
 
-		Map<String, String> touchpointParameters = new LinkedHashMap<String, String>();
-		Set<String> jvmSet = new HashSet<String>();
-		Set<String> programSet = new HashSet<String>();
+		Map<String, String> touchpointParameters = new LinkedHashMap<>();
+		Set<String> jvmSet = new HashSet<>();
+		Set<String> programSet = new HashSet<>();
 		for (IExecutableAdvice advice : launchingAdvice) {
 			String[] jvmArgs = advice.getVMArguments();
 			for (int i = 0; i < jvmArgs.length; i++)

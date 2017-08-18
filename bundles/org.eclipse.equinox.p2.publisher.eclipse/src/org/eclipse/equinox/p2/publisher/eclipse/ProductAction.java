@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -55,7 +55,7 @@ public class ProductAction extends AbstractPublisherAction {
 		createAdvice();
 
 		// create all the actions needed to publish a product
-		ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
+		ArrayList<IPublisherAction> actions = new ArrayList<>();
 		// products include the executable so add actions to publish them
 		if (getExecutablesLocation() != null && this.product.includeLaunchers())
 			actions.add(createApplicationExecutableAction(info.getConfigurations()));
@@ -168,7 +168,7 @@ public class ProductAction extends AbstractPublisherAction {
 
 	private Collection<IVersionedId> versionElements(Collection<IVersionedId> elements, String namespace) {
 		Collection<IVersionAdvice> versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);
-		List<IVersionedId> result = new ArrayList<IVersionedId>();
+		List<IVersionedId> result = new ArrayList<>();
 		for (IVersionedId element : elements) {
 			Version elementVersion = element.getVersion();
 			if (elementVersion == null || Version.emptyVersion.equals(elementVersion)) {
@@ -200,7 +200,7 @@ public class ProductAction extends AbstractPublisherAction {
 	private Collection<IVersionedId> listElements(List<IVersionedId> elements, String suffix) {
 		if (suffix == null || suffix.length() == 0)
 			return elements;
-		ArrayList<IVersionedId> result = new ArrayList<IVersionedId>(elements.size());
+		ArrayList<IVersionedId> result = new ArrayList<>(elements.size());
 		for (IVersionedId elementName : elements) {
 			result.add(new VersionedId(elementName.getId() + suffix, elementName.getVersion()));
 		}

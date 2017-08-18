@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.pde.internal.build.publisher;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -24,7 +22,7 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 	private static final int IDX_DESCRIPTOR = 1;
 
 	// String config -> Object[] { GatheringComputer, Map: permission -> Set, String }
-	private final Map<String, Object[]> advice = new HashMap<String, Object[]>();
+	private final Map<String, Object[]> advice = new HashMap<>();
 	private String featureId;
 	private Version featureVersion;
 
@@ -55,6 +53,7 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 	 * @param config
 	 * @return GatheringComputer
 	 */
+	@Override
 	public IPathComputer getRootFileComputer(String config) {
 		if (advice.containsKey(config))
 			return (GatheringComputer) advice.get(config)[IDX_COMPUTER];
@@ -95,6 +94,7 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 		return configAdvice;
 	}
 
+	@Override
 	public FileSetDescriptor getDescriptor(String config) {
 		Object[] configAdvice = getConfigAdvice(config);
 		FileSetDescriptor descriptor = null;
@@ -119,6 +119,7 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 		this.featureVersion = featureVersion;
 	}
 
+	@Override
 	public String[] getConfigurations() {
 		Set<String> keys = advice.keySet();
 		return keys.toArray(new String[keys.size()]);

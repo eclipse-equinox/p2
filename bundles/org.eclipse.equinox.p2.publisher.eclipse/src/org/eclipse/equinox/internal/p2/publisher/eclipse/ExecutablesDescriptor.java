@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 EclipseSource and others.
+ *  Copyright (c) 2008, 2017 EclipseSource and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -111,6 +111,7 @@ public class ExecutablesDescriptor {
 
 	private static ExecutablesDescriptor createMacDescriptor(String os, String executable, File location) {
 		File files[] = location.listFiles(new FilenameFilter() {
+			@Override
 			public boolean accept(File dir, String name) {
 				int length = name.length();
 				return length > 3 && name.substring(length - 4, length).equalsIgnoreCase(".app"); //$NON-NLS-1$
@@ -126,9 +127,9 @@ public class ExecutablesDescriptor {
 		this.executableName = executable;
 		this.location = location;
 		if (files == null)
-			this.files = new HashSet<File>(11);
+			this.files = new HashSet<>(11);
 		else {
-			this.files = new HashSet<File>(files.length);
+			this.files = new HashSet<>(files.length);
 			for (int i = 0; i < files.length; i++)
 				addAllFiles(files[i]);
 		}
@@ -139,7 +140,7 @@ public class ExecutablesDescriptor {
 		this.location = descriptor.location;
 		this.executableName = descriptor.executableName;
 		this.temporary = descriptor.temporary;
-		this.files = new HashSet<File>(descriptor.files);
+		this.files = new HashSet<>(descriptor.files);
 	}
 
 	public void addAllFiles(File file) {
@@ -246,7 +247,7 @@ public class ExecutablesDescriptor {
 		String targetExecutable = executableName;
 		String executableExtension = Constants.OS_WIN32.equals(os) ? ".exe" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 		targetExecutable = executableName + executableExtension;
-		Set<File> filesCopy = new HashSet<File>(files);
+		Set<File> filesCopy = new HashSet<>(files);
 		for (File file : filesCopy) {
 			String base = file.getParent();
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 
 public class EclipsePublisherHelper {
 	public static IInstallableUnit[] createEclipseIU(BundleDescription bd, boolean isFolderPlugin, IArtifactKey key, Map<String, String> extraProperties) {
-		ArrayList<IInstallableUnit> iusCreated = new ArrayList<IInstallableUnit>(1);
+		ArrayList<IInstallableUnit> iusCreated = new ArrayList<>(1);
 		IPublisherInfo info = new PublisherInfo();
 		String shape = isFolderPlugin ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
 		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion()), shape));

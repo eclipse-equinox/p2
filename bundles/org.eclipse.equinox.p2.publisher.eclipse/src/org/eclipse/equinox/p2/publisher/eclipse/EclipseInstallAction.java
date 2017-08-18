@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -46,6 +46,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		this.start = start;
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		monitor = SubMonitor.convert(monitor);
 		this.info = publisherInfo;
@@ -63,7 +64,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 
 	protected IPublisherAction[] createActions() {
 		createAdvice();
-		ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
+		ArrayList<IPublisherAction> actions = new ArrayList<>();
 		// create an action that just publishes the raw bundles and features
 		IPublisherAction action = new MergeResultsAction(new IPublisherAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_ROOT);
 		actions.add(action);
@@ -113,7 +114,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		if (!configuration.exists())
 			configuration = null;
 
-		Collection<IPublisherAction> result = new ArrayList<IPublisherAction>(configs.length);
+		Collection<IPublisherAction> result = new ArrayList<>(configs.length);
 		for (int i = 0; i < configs.length; i++) {
 			String configSpec = configs[i];
 			String os = AbstractPublisherAction.parseConfigSpec(configSpec)[1];
@@ -136,7 +137,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 	}
 
 	protected Collection<IPublisherAction> createExecutablesActions(String[] configSpecs) {
-		Collection<IPublisherAction> result = new ArrayList<IPublisherAction>(configSpecs.length);
+		Collection<IPublisherAction> result = new ArrayList<>(configSpecs.length);
 		for (int i = 0; i < configSpecs.length; i++) {
 			ExecutablesDescriptor executables = computeExecutables(configSpecs[i]);
 			IPublisherAction action = new EquinoxExecutableAction(executables, configSpecs[i], id, version, flavor);
@@ -177,7 +178,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 	protected File[] computeRootFileExclusions() {
 		if (nonRootFiles == null || nonRootFiles.length == 0)
 			return null;
-		ArrayList<File> result = new ArrayList<File>();
+		ArrayList<File> result = new ArrayList<>();
 		for (int i = 0; i < nonRootFiles.length; i++) {
 			String filename = nonRootFiles[i];
 			File file = new File(filename);
