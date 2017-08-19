@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,6 +63,7 @@ public class ExportPage extends AbstractPage {
 			final OutputStream out = stream;
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
+				@Override
 				public void run(IProgressMonitor monitor) throws InterruptedException {
 					try {
 						IInstallableUnit[] units = new IInstallableUnit[checked.length];
@@ -84,12 +85,9 @@ public class ExportPage extends AbstractPage {
 							}
 							sb.append(Messages.ExportPage_FixSuggestion);
 							sb.append(Messages.ExportPage_TryAgainQuestion);
-							Runnable runnable = new Runnable() {
-
-								public void run() {
-									String title = Messages.ExportPage_Title;
-									tryAgain = StyledErrorDialog.openQuestion(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, sb.toString());
-								}
+							Runnable runnable = () -> {
+								String title = Messages.ExportPage_Title;
+								tryAgain = StyledErrorDialog.openQuestion(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, sb.toString());
 							};
 							Display.getDefault().syncExec(runnable);
 							if (tryAgain)

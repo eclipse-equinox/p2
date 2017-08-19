@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -96,7 +95,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 	private IProvisioningAgentProvider getAgentProvider() {
 		if (agentProvider == null) {
-			ServiceTracker<IProvisioningAgentProvider, IProvisioningAgentProvider> tracker = new ServiceTracker<IProvisioningAgentProvider, IProvisioningAgentProvider>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), IProvisioningAgentProvider.class, null);
+			ServiceTracker<IProvisioningAgentProvider, IProvisioningAgentProvider> tracker = new ServiceTracker<>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), IProvisioningAgentProvider.class, null);
 			tracker.open();
 			agentProvider = tracker.getService();
 			tracker.close();
@@ -112,12 +111,9 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 			Callable<Boolean> getSuperValidateDest = new Callable<Boolean>() {
 				Boolean validated;
 
+				@Override
 				public Boolean call() throws Exception {
-					Display.getDefault().syncExec(new Runnable() {
-						public void run() {
-							validated = ImportFromInstallationPage.super.validateDestinationGroup();
-						}
-					});
+					Display.getDefault().syncExec(() -> validated = ImportFromInstallationPage.super.validateDestinationGroup());
 					return validated;
 				}
 			};
@@ -141,13 +137,10 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 					Callable<String> getDestinationValue = new Callable<String>() {
 						String des;
 
+						@Override
 						public String call() throws Exception {
 							if (Display.findDisplay(Thread.currentThread()) == null) {
-								Display.getDefault().syncExec(new Runnable() {
-									public void run() {
-										des = getDestinationValue();
-									}
-								});
+								Display.getDefault().syncExec(() -> des = getDestinationValue());
 							} else
 								des = getDestinationValue();
 							return des;
@@ -251,11 +244,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 						throw new Exception();
 				}
 			} catch (Exception e) {
-				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						setErrorMessage(getInvalidDestinationMessage());
-					}
-				});
+				Display.getDefault().asyncExec(() -> setErrorMessage(getInvalidDestinationMessage()));
 				rt = false;
 				if (otherInstanceAgent != null)
 					otherInstanceAgent.stop();
@@ -290,31 +279,25 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 	@Override
 	protected void handleDestinationChanged(String newDestination) {
 		try {
-			getContainer().run(true, false, new IRunnableWithProgress() {
-
-				public void run(IProgressMonitor monitor) {
-					Object input = null;
-					if (validateDestinationGroup(monitor)) {
-						final IProfile currentProfile = toBeImportedProfile;
-						final ProfileElement element = new ProfileElement(null, currentProfile.getProfileId()) {
-							@Override
-							public org.eclipse.equinox.p2.query.IQueryable<?> getQueryable() {
-								return currentProfile;
-							}
-						};
-						element.setQueryable(currentProfile);
-						input = element;
-
-					}
-					final Object viewerInput = input;
-					Display.getDefault().asyncExec(new Runnable() {
-
-						public void run() {
-							viewer.setInput(viewerInput);
-							updatePageCompletion();
+			getContainer().run(true, false, monitor -> {
+				Object input = null;
+				if (validateDestinationGroup(monitor)) {
+					final IProfile currentProfile = toBeImportedProfile;
+					final ProfileElement element = new ProfileElement(null, currentProfile.getProfileId()) {
+						@Override
+						public org.eclipse.equinox.p2.query.IQueryable<?> getQueryable() {
+							return currentProfile;
 						}
-					});
+					};
+					element.setQueryable(currentProfile);
+					input = element;
+
 				}
+				final Object viewerInput = input;
+				Display.getDefault().asyncExec(() -> {
+					viewer.setInput(viewerInput);
+					updatePageCompletion();
+				});
 			});
 		} catch (InvocationTargetException e) {
 			setErrorMessage(e.getLocalizedMessage());
@@ -400,15 +383,18 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 		}
 	}
 
+	@Override
 	public Object[] getCheckedIUElements() {
 		return viewer.getCheckedElements();
 	}
 
+	@Override
 	public Object[] getSelectedIUElements() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public void setCheckedElements(Object[] elements) {
 		new UnsupportedOperationException();
 	}

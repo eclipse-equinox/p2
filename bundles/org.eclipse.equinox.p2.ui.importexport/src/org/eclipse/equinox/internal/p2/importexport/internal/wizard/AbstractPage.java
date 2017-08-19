@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,7 +76,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	 *
 	 */
 	final class ImportExportFilteredTree extends FilteredTree {
-		ArrayList<Object> checkState = new ArrayList<Object>();
+		ArrayList<Object> checkState = new ArrayList<>();
 
 		ImportExportFilteredTree(Composite parent, int treeStyle, PatternFilter filter, boolean useNewLook) {
 			super(parent, treeStyle, filter, useNewLook);
@@ -93,42 +93,36 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			job.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void aboutToRun(IJobChangeEvent event) {
-					Display.getDefault().syncExec(new Runnable() {
-
-						public void run() {
-							Object[] checked = viewer.getCheckedElements();
-							if (checkState == null)
-								checkState = new ArrayList<Object>(checked.length);
-							for (int i = 0; i < checked.length; i++)
-								if (!viewer.getGrayed(checked[i]))
-									if (!checkState.contains(checked[i]))
-										checkState.add(checked[i]);
-						}
+					Display.getDefault().syncExec(() -> {
+						Object[] checked = viewer.getCheckedElements();
+						if (checkState == null)
+							checkState = new ArrayList<>(checked.length);
+						for (int i = 0; i < checked.length; i++)
+							if (!viewer.getGrayed(checked[i]))
+								if (!checkState.contains(checked[i]))
+									checkState.add(checked[i]);
 					});
 				}
 
 				@Override
 				public void done(IJobChangeEvent event) {
 					if (event.getResult().isOK()) {
-						Display.getDefault().asyncExec(new Runnable() {
+						Display.getDefault().asyncExec(() -> {
+							if (viewer == null || viewer.getTree().isDisposed())
+								return;
+							if (checkState == null)
+								return;
 
-							public void run() {
-								if (viewer == null || viewer.getTree().isDisposed())
-									return;
-								if (checkState == null)
-									return;
-
-								viewer.setCheckedElements(new Object[0]);
-								viewer.setGrayedElements(new Object[0]);
-								// Now we are only going to set the check state of the leaf nodes
-								// and rely on our container checked code to update the parents properly.
-								Iterator<Object> iter = checkState.iterator();
-								while (iter.hasNext()) {
-									viewer.setChecked(iter.next(), true);
-								}
-
-								updatePageCompletion();
+							viewer.setCheckedElements(new Object[0]);
+							viewer.setGrayedElements(new Object[0]);
+							// Now we are only going to set the check state of the leaf nodes
+							// and rely on our container checked code to update the parents properly.
+							Iterator<Object> iter = checkState.iterator();
+							while (iter.hasNext()) {
+								viewer.setChecked(iter.next(), true);
 							}
+
+							updatePageCompletion();
 						});
 					}
 				}
@@ -215,7 +209,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	static {
 		BundleContext context = Platform.getBundle(Constants.Bundle_ID).getBundleContext();
-		ServiceTracker<IProvisioningAgent, IProvisioningAgent> tracker = new ServiceTracker<IProvisioningAgent, IProvisioningAgent>(context, IProvisioningAgent.class, null);
+		ServiceTracker<IProvisioningAgent, IProvisioningAgent> tracker = new ServiceTracker<>(context, IProvisioningAgent.class, null);
 		tracker.open();
 		agent = tracker.getService();
 		tracker.close();
@@ -274,6 +268,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	protected abstract void createContents(Composite composite);
 
+	@Override
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 		initializeService();
@@ -312,15 +307,14 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
 		destinationNameField.setLayoutData(data);
 		destinationNameField.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				handleDestinationChanged(getDestinationValue());
 			}
 		});
-		destinationNameField.addKeyListener(new KeyListener() {
+		destinationNameField.addKeyListener(new KeyAdapter() {
 
-			/*
-			 * @see KeyListener.keyPressed
-			 */
+			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.character == SWT.CR) {
 					entryChanged = false;
@@ -328,27 +322,10 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 					handleDestinationChanged(getDestinationValue());
 				}
 			}
-
-			public void keyReleased(KeyEvent e) {
-				// do nothing
-			}
 		});
-		destinationNameField.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				entryChanged = true;
-			}
-		});
-		destinationNameField.addFocusListener(new FocusListener() {
-			/*
-			 * @see FocusListener.focusGained(FocusEvent)
-			 */
-			public void focusGained(FocusEvent e) {
-				//Do nothing when getting focus
-			}
-
-			/*
-			 * @see FocusListener.focusLost(FocusEvent)
-			 */
+		destinationNameField.addModifyListener(e -> entryChanged = true);
+		destinationNameField.addFocusListener(new FocusAdapter() {
+			@Override
 			public void focusLost(FocusEvent e) {
 				//Clear the flag to prevent constant update
 				if (entryChanged) {
@@ -401,40 +378,37 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		final ITreeContentProvider contentProvider = getContentProvider();
 		viewer.setContentProvider(contentProvider);
 		viewer.setLabelProvider(getLabelProvider());
-		viewer.addCheckStateListener(new ICheckStateListener() {
-
-			public void checkStateChanged(CheckStateChangedEvent event) {
-				if (!event.getChecked() && filteredTree.checkState != null) {
-					ArrayList<Object> toRemove = new ArrayList<Object>(1);
-					// See bug 258117.  Ideally we would get check state changes 
-					// for children when the parent state changed, but we aren't, so
-					// we need to remove all children from the additive check state
-					// cache.
-					if (contentProvider.hasChildren(event.getElement())) {
-						Set<Object> unchecked = new HashSet<Object>();
-						Object[] children = contentProvider.getChildren(event.getElement());
-						for (int i = 0; i < children.length; i++) {
-							unchecked.add(children[i]);
-						}
-						Iterator<Object> iter = filteredTree.checkState.iterator();
-						while (iter.hasNext()) {
-							Object current = iter.next();
-							if (current != null && unchecked.contains(current)) {
-								toRemove.add(current);
-							}
-						}
-					} else {
-						for (Object element : filteredTree.checkState) {
-							if (viewer.getComparer().equals(element, event.getElement())) {
-								toRemove.add(element);
-								// Do not break out of the loop.  We may have duplicate equal
-								// elements in the cache.  Since the cache is additive, we want
-								// to be sure we've gotten everything.
-							}
+		viewer.addCheckStateListener(event -> {
+			if (!event.getChecked() && filteredTree.checkState != null) {
+				ArrayList<Object> toRemove = new ArrayList<>(1);
+				// See bug 258117.  Ideally we would get check state changes 
+				// for children when the parent state changed, but we aren't, so
+				// we need to remove all children from the additive check state
+				// cache.
+				if (contentProvider.hasChildren(event.getElement())) {
+					Set<Object> unchecked = new HashSet<>();
+					Object[] children = contentProvider.getChildren(event.getElement());
+					for (int i = 0; i < children.length; i++) {
+						unchecked.add(children[i]);
+					}
+					Iterator<Object> iter = filteredTree.checkState.iterator();
+					while (iter.hasNext()) {
+						Object current = iter.next();
+						if (current != null && unchecked.contains(current)) {
+							toRemove.add(current);
 						}
 					}
-					filteredTree.checkState.removeAll(toRemove);
+				} else {
+					for (Object element : filteredTree.checkState) {
+						if (viewer.getComparer().equals(element, event.getElement())) {
+							toRemove.add(element);
+							// Do not break out of the loop.  We may have duplicate equal
+							// elements in the cache.  Since the cache is additive, we want
+							// to be sure we've gotten everything.
+						}
+					}
 				}
+				filteredTree.checkState.removeAll(toRemove);
 			}
 		});
 		parent.addControlListener(new ControlAdapter() {
@@ -482,11 +456,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		if (provider != null)
 			viewer.setCheckStateProvider(provider);
 		else
-			viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-				public void selectionChanged(SelectionChangedEvent event) {
-					updatePageCompletion();
-				}
-			});
+			viewer.addSelectionChangedListener(event -> updatePageCompletion());
 		viewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		viewer.getControl().setSize(300, 200);
 		viewer.setInput(getInput());
@@ -629,6 +599,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		}
 	}
 
+	@Override
 	public void handleEvent(Event event) {
 		Widget source = event.widget;
 
@@ -643,7 +614,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	protected void initializeService() {
-		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<P2ImportExport, P2ImportExport>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), P2ImportExport.class.getName(), null);
+		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), P2ImportExport.class.getName(), null);
 		tracker.open();
 		importexportService = tracker.getService();
 		tracker.close();
@@ -709,7 +680,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	protected String[] addToHistory(String[] history, String newEntry) {
-		List<String> l = new ArrayList<String>(Arrays.asList(history));
+		List<String> l = new ArrayList<>(Arrays.asList(history));
 		addToHistory(l, newEntry);
 		String[] r = new String[l.size()];
 		l.toArray(r);

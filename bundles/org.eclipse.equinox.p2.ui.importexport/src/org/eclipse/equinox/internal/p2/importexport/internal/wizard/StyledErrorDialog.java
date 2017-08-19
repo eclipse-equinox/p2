@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 WindRiver Corporation and others.
+ * Copyright (c) 2015, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -114,11 +114,12 @@ public class StyledErrorDialog extends MessageDialog {
 			text.setBackground(composite.getBackground());
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).hint(convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH), SWT.DEFAULT).applyTo(toolkitComp);
 			text.addHyperlinkListener(new HyperlinkAdapter() {
+				@Override
 				public void linkActivated(HyperlinkEvent event) {
 					try {
 						URI uri = URI.create((String) event.data);
 						if ("pref".equals(uri.getScheme())) { //$NON-NLS-1$
-							Map<String, String> para = new HashMap<String, String>();
+							Map<String, String> para = new HashMap<>();
 							para.put(IWorkbenchCommandConstants.WINDOW_PREFERENCES_PARM_PAGEID, uri.getAuthority());
 							Command prefCommand = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ICommandService.class).getCommand(IWorkbenchCommandConstants.WINDOW_PREFERENCES);
 							prefCommand.executeWithChecks(new ExecutionEvent(prefCommand, para, null, null));

@@ -46,12 +46,14 @@ public class ImportExportImpl implements P2ImportExport {
 		}
 	}
 
+	@Override
 	public List<IUDetail> importP2F(InputStream input) throws IOException {
 		P2FParser parser = new P2FParser(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), Constants.Bundle_ID);
 		parser.parse(input);
 		return parser.getIUs();
 	}
 
+	@Override
 	public IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, boolean allowEntriesWithoutRepo, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
@@ -60,7 +62,7 @@ public class ImportExportImpl implements P2ImportExport {
 		//Collect repos where the IUs are going to be searched
 		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		URI[] uris = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_LOCAL | IRepositoryManager.REPOSITORIES_NON_SYSTEM);
-		List<IMetadataRepository> repos = new ArrayList<IMetadataRepository>(uris.length);
+		List<IMetadataRepository> repos = new ArrayList<>(uris.length);
 		for (URI uri : uris) {
 			try {
 				IMetadataRepository repo = repoManager.loadRepository(uri, subMonitor.newChild(500 / uris.length, SubMonitor.SUPPRESS_ALL_LABELS));
@@ -70,12 +72,12 @@ public class ImportExportImpl implements P2ImportExport {
 			}
 		}
 		subMonitor.setWorkRemaining(500);
-		List<IUDetail> rootsToExport = new ArrayList<IUDetail>(ius.length);
+		List<IUDetail> rootsToExport = new ArrayList<>(ius.length);
 		SubMonitor sub2 = subMonitor.newChild(450, SubMonitor.SUPPRESS_ALL_LABELS);
 		sub2.setWorkRemaining(ius.length * 100);
 		MultiStatus queryRepoResult = new MultiStatus(Constants.Bundle_ID, 0, null, null);
 		for (IInstallableUnit iu : ius) {
-			List<URI> referredRepos = new ArrayList<URI>(1);
+			List<URI> referredRepos = new ArrayList<>(1);
 			if (sub2.isCanceled())
 				throw new OperationCanceledException();
 			SubMonitor sub3 = sub2.newChild(100);
@@ -123,6 +125,7 @@ public class ImportExportImpl implements P2ImportExport {
 		return false;
 	}
 
+	@Override
 	public IStatus exportP2F(OutputStream output, List<IUDetail> ius, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,7 @@ public abstract class AbstractImportPage extends AbstractPage {
 		super.createInstallationTable(parent);
 		viewer.getTree().addListener(SWT.Selection, new Listener() {
 
+			@Override
 			public void handleEvent(Event event) {
 				if (event.detail == SWT.CHECK) {
 					if (hasInstalled(ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class))) {
@@ -97,10 +98,12 @@ public abstract class AbstractImportPage extends AbstractPage {
 	protected ICheckStateProvider getViewerDefaultState() {
 		return new ICheckStateProvider() {
 
+			@Override
 			public boolean isGrayed(Object element) {
 				return false;
 			}
 
+			@Override
 			public boolean isChecked(Object element) {
 				if (profile != null) {
 					IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);

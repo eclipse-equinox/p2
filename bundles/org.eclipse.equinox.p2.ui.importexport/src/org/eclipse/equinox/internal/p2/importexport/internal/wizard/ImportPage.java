@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,26 +49,32 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 	class InstallationContentProvider implements ITreeContentProvider {
 
+		@Override
 		public void dispose() {
 			//
 		}
 
+		@Override
 		public Object[] getElements(Object inputElement) {
 			return (Object[]) inputElement;
 		}
 
+		@Override
 		public void inputChanged(Viewer viewer1, Object oldInput, Object newInput) {
 			//
 		}
 
+		@Override
 		public Object[] getChildren(Object parentElement) {
 			return new Object[0];
 		}
 
+		@Override
 		public Object getParent(Object element) {
 			return null;
 		}
 
+		@Override
 		public boolean hasChildren(Object element) {
 			return false;
 		}
@@ -77,10 +83,12 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 	class InstallationLabelProvider extends LabelProvider implements ITableLabelProvider, IColorProvider {
 
+		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
 		}
 
+		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			IInstallableUnit iu = ((IUDetail) element).getIU();
 			switch (columnIndex) {
@@ -96,12 +104,14 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 		}
 
+		@Override
 		public Color getForeground(Object element) {
 			if (hasInstalled(ProvUI.getAdapter(element, IInstallableUnit.class)))
 				return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
 			return null;
 		}
 
+		@Override
 		public Color getBackground(Object element) {
 			return null;
 		}
@@ -129,10 +139,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * @see org.eclipse.ui.internal.dialogs.PatternFilter#isElementSelectable(java.lang.Object)
-		 */
+		@Override
 		public boolean isElementSelectable(Object element) {
 			return element instanceof IUDetail;
 		}
@@ -143,6 +150,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		 * (non-Javadoc)
 		 * @see org.eclipse.ui.dialogs.PatternFilter#setPattern(java.lang.String)
 		 */
+		@Override
 		public void setPattern(String patternString) {
 			super.setPattern(patternString);
 			this.patternString = patternString;
@@ -154,15 +162,14 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		 * (non-Javadoc)
 		 * @see org.eclipse.ui.dialogs.PatternFilter#isParentMatch(org.eclipse.jface.viewers.Viewer, java.lang.Object)
 		 */
+		@Override
 		protected boolean isParentMatch(Viewer viewer1, Object element) {
 			if (patternString == null || patternString.length() == 0)
 				return true;
 			return super.isParentMatch(viewer1, element);
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.ui.dialogs.PatternFilter#isElementMatch(org.eclipse.jface.viewers.Viewer, java.lang.Object)
-		 */
+		@Override
 		protected boolean isLeafMatch(Viewer viewer1, Object element) {
 			String text = null;
 			if (element instanceof IUDetail) {
@@ -191,8 +198,8 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	}
 
 	private List<IUDetail> features;
-	private final List<URI> loadRepos = new ArrayList<URI>();
-	private final Map<IUDetail, IUDetail[]> newProposedFeature = new HashMap<IUDetail, IUDetail[]>();
+	private final List<URI> loadRepos = new ArrayList<>();
+	private final Map<IUDetail, IUDetail[]> newProposedFeature = new HashMap<>();
 	private Button contactAll;
 	private Button installLatest;
 	private String oldDestination;
@@ -319,9 +326,10 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		return super.validDestination() && target.exists() && target.canRead();
 	}
 
+	@Override
 	public Object[] getCheckedIUElements() {
 		Object[] checked = viewer.getCheckedElements();
-		List<IUDetail> checkedFeatures = new ArrayList<IUDetail>(checked.length);
+		List<IUDetail> checkedFeatures = new ArrayList<>(checked.length);
 		for (int i = 0; i < checked.length; i++) {
 			IUDetail feature = (IUDetail) checked[i];
 			IUDetail[] existingFeatures = newProposedFeature.get(feature);
@@ -348,11 +356,13 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		return checkedFeatures.toArray(new IUDetail[checkedFeatures.size()]);
 	}
 
+	@Override
 	public Object[] getSelectedIUElements() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public void setCheckedElements(Object[] elements) {
 		new UnsupportedOperationException();
 	}
@@ -360,7 +370,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	public ProvisioningContext getProvisioningContext() {
 		if (agent != null) {
 			Object[] checked = viewer.getCheckedElements();
-			List<URI> referredRepos = new ArrayList<URI>(checked.length);
+			List<URI> referredRepos = new ArrayList<>(checked.length);
 			for (Object checkItem : checked) {
 				IUDetail feature = (IUDetail) checkItem;
 				for (URI uri : feature.getReferencedRepositories()) {
@@ -390,6 +400,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	class GetCheckedElement implements Runnable {
 		Object[] checkedElements = null;
 
+		@Override
 		public void run() {
 			checkedElements = viewer.getCheckedElements();
 		}
@@ -417,7 +428,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 						throw new InterruptedException();
 					SubMonitor sub2 = sub.newChild(100, SubMonitor.SUPPRESS_ALL_LABELS);
 					sub2.setWorkRemaining(feature.getReferencedRepositories().size() * 500 + 100);
-					List<IRepository<IInstallableUnit>> repos = new ArrayList<IRepository<IInstallableUnit>>();
+					List<IRepository<IInstallableUnit>> repos = new ArrayList<>();
 					for (URI uri : feature.getReferencedRepositories()) {
 						if (!metaManager.contains(uri)) {
 							metaManager.addRepository(uri);
@@ -442,7 +453,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 					// see bug 423628. Find a way to change the code to not produce
 					// the warning.
 					Set<IInstallableUnit> result = new CompoundQueryable<IInstallableUnit>(repos.toArray(new IRepository[repos.size()])).query(QueryUtil.createIUQuery(feature.getIU().getId(), new VersionRange(feature.getIU().getVersion(), true, null, false)), sub2.newChild(100)).toSet();
-					List<IUDetail> existingFeatures = new ArrayList<IUDetail>(result.size());
+					List<IUDetail> existingFeatures = new ArrayList<>(result.size());
 					for (IInstallableUnit iu : result) {
 						existingFeatures.add(new IUDetail(iu, feature.getReferencedRepositories()));
 					}
@@ -456,6 +467,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		}
 	}
 
+	@Override
 	protected PatternFilter getPatternFilter() {
 		return new P2ImportIUPatternFilter(getColumnConfig());
 	}
