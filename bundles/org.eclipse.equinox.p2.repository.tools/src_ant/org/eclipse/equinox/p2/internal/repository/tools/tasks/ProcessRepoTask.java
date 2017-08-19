@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,11 +61,11 @@ public class ProcessRepoTask extends Task {
 	private SigningOptions signing = null;
 	private JarProcessorTask jarProcessor = null;
 
+	@Override
 	public void execute() throws BuildException {
 		File file = URIUtil.toFile(repository);
 		if (file == null || !file.exists()) {
-			throw new BuildException(NLS.bind(
-					Messages.ProcessRepo_must_be_local, repository.toString()));
+			throw new BuildException(NLS.bind(Messages.ProcessRepo_must_be_local, repository.toString()));
 		}
 		if (pack | repack | signing != null) {
 			if (jarProcessor == null)
@@ -77,8 +77,7 @@ public class ProcessRepoTask extends Task {
 				jarProcessor.setStorepass(signing.storepass);
 				jarProcessor.setUnsign(signing.unsign);
 
-				if (signing.alias != null && signing.alias.length() > 0
-						&& !signing.alias.startsWith("${")) //$NON-NLS-1$
+				if (signing.alias != null && signing.alias.length() > 0 && !signing.alias.startsWith("${")) //$NON-NLS-1$
 					jarProcessor.setSign(true);
 			}
 			jarProcessor.setPack(pack);
@@ -106,8 +105,7 @@ public class ProcessRepoTask extends Task {
 		try {
 			this.repository = URIUtil.fromString(repository);
 		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(NLS.bind(
-					Messages.ProcessRepo_location_not_url, repository));
+			throw new IllegalArgumentException(NLS.bind(Messages.ProcessRepo_location_not_url, repository));
 		}
 	}
 

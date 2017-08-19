@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,11 +32,11 @@ import org.osgi.framework.ServiceReference;
 public abstract class AbstractApplication {
 	protected boolean removeAddedRepositories = true;
 
-	protected List<RepositoryDescriptor> sourceRepositories = new ArrayList<RepositoryDescriptor>(); //List of repository descriptors
-	protected List<URI> artifactReposToRemove = new ArrayList<URI>();
-	protected List<URI> metadataReposToRemove = new ArrayList<URI>();
-	protected List<IInstallableUnit> sourceIUs = new ArrayList<IInstallableUnit>();
-	private List<RepositoryDescriptor> destinationRepos = new ArrayList<RepositoryDescriptor>();
+	protected List<RepositoryDescriptor> sourceRepositories = new ArrayList<>(); //List of repository descriptors
+	protected List<URI> artifactReposToRemove = new ArrayList<>();
+	protected List<URI> metadataReposToRemove = new ArrayList<>();
+	protected List<IInstallableUnit> sourceIUs = new ArrayList<>();
+	private List<RepositoryDescriptor> destinationRepos = new ArrayList<>();
 
 	protected IArtifactRepository destinationArtifactRepository = null;
 	protected IMetadataRepository destinationMetadataRepository = null;

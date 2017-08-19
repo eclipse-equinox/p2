@@ -52,10 +52,7 @@ public class XMLMirrorLog implements IArtifactMirrorLog {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.artifact.mirror.IArtifactMirrorLog#log(org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor, org.eclipse.core.runtime.IStatus)
-	 */
+	@Override
 	public void log(IArtifactDescriptor descriptor, IStatus status) {
 		if (status.getSeverity() < minStatus)
 			return;
@@ -80,10 +77,7 @@ public class XMLMirrorLog implements IArtifactMirrorLog {
 			writer.end();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.artifact.mirror.IArtifactMirrorLog#log(org.eclipse.core.runtime.IStatus)
-	 */
+	@Override
 	public void log(IStatus status) {
 		if (status.getSeverity() < minStatus)
 			return;
@@ -128,10 +122,7 @@ public class XMLMirrorLog implements IArtifactMirrorLog {
 			writer.end();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.artifact.mirror.IArtifactMirrorLog#close()
-	 */
+	@Override
 	public void close() {
 		try {
 			if (writer != null) {

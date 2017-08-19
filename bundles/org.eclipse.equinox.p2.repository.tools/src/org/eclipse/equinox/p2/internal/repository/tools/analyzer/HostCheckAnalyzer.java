@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2011 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -28,6 +28,7 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 
 	private IMetadataRepository repository;
 
+	@Override
 	public void analyzeIU(IInstallableUnit iu) {
 		if (iu instanceof IInstallableUnitFragment) {
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
@@ -49,6 +50,7 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 
 	}
 
+	@Override
 	public void preAnalysis(IMetadataRepository repository) {
 		this.repository = repository;
 	}

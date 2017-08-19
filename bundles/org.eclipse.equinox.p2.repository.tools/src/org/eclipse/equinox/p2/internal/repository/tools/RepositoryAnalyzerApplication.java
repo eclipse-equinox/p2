@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2015 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -20,16 +20,11 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
-/**
- *
- */
 public class RepositoryAnalyzerApplication implements IApplication {
 
 	private URI uri = null;
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
-	 */
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 
 		long start = System.currentTimeMillis();
@@ -76,9 +71,7 @@ public class RepositoryAnalyzerApplication implements IApplication {
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "-metadataRepository <metadataURI> must be specified"));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.app.IApplication#stop()
-	 */
+	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 

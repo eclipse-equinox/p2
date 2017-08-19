@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009,2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -32,13 +32,11 @@ public abstract class IUAnalyzer implements IIUAnalyzer {
 
 	protected void error(IInstallableUnit iu, String error) {
 		if (errors == null)
-			errors = new ArrayList<IStatus>();
+			errors = new ArrayList<>();
 		errors.add(new Status(IStatus.ERROR, Activator.ID, error));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.tools.verifier.IIUAnalysis#postAnalysis()
-	 */
+	@Override
 	public IStatus postAnalysis() {
 		if (errors == null || errors.size() == 0)
 			return Status.OK_STATUS;

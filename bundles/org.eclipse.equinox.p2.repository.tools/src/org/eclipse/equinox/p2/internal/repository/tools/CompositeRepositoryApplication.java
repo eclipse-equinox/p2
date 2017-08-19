@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,12 +28,13 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeRepositoryApplication extends AbstractApplication {
-	private List<RepositoryDescriptor> childrenToAdd = new ArrayList<RepositoryDescriptor>();
-	private List<RepositoryDescriptor> childrenToRemove = new ArrayList<RepositoryDescriptor>();
+	private List<RepositoryDescriptor> childrenToAdd = new ArrayList<>();
+	private List<RepositoryDescriptor> childrenToRemove = new ArrayList<>();
 	private boolean removeAllChildren = false;
 	private boolean failOnExists = false;
 	private String comparatorID = null;
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		try {
@@ -91,6 +92,7 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 		failOnExists = value;
 	}
 
+	@Override
 	protected IArtifactRepository initializeDestination(RepositoryDescriptor toInit, IArtifactRepositoryManager mgr) throws ProvisionException {
 		// remove the repo first.
 		mgr.removeRepository(toInit.getRepoLocation());
@@ -129,6 +131,7 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 		}
 	}
 
+	@Override
 	protected IMetadataRepository initializeDestination(RepositoryDescriptor toInit, IMetadataRepositoryManager mgr) throws ProvisionException {
 		// remove the repo first.
 		mgr.removeRepository(toInit.getRepoLocation());

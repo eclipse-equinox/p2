@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,6 +84,7 @@ public class IUDescription extends DataType {
 		return version;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer("Installable Unit ["); //$NON-NLS-1$
 		if (id != null) {
@@ -103,7 +104,7 @@ public class IUDescription extends DataType {
 	}
 
 	public IQuery<IInstallableUnit> createQuery() {
-		List<IQuery<IInstallableUnit>> queries = new ArrayList<IQuery<IInstallableUnit>>();
+		List<IQuery<IInstallableUnit>> queries = new ArrayList<>();
 		if (id != null) {
 			if (version == null || version.length() == 0) {
 				// Get the latest version of the iu
@@ -151,7 +152,7 @@ public class IUDescription extends DataType {
 		if (attributes == null || attributes.length() == 0)
 			return Collections.<String, String> emptyMap();
 
-		Map<String, String> result = new HashMap<String, String>();
+		Map<String, String> result = new HashMap<>();
 		int start = 0;
 		int idx = 0;
 		while ((idx = attributes.indexOf('@', start)) > -1) {

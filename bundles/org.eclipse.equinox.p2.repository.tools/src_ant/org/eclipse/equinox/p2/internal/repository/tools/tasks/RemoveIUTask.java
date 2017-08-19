@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 
 	protected static class RemoveIUApplication extends AbstractApplication {
 		//Only need the application to reuse super's repo management.
+		@Override
 		public IStatus run(IProgressMonitor monitor) {
 			return null;
 		}
@@ -48,6 +49,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 		this.application = new RemoveIUApplication();
 	}
 
+	@Override
 	public void execute() throws BuildException {
 		try {
 			if (iuTasks == null || iuTasks.isEmpty())
@@ -60,7 +62,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			IMetadataRepository repository = application.getDestinationMetadataRepository();
 			IArtifactRepository artifacts = application.getDestinationArtifactRepository();
 
-			final Set<IInstallableUnit> toRemove = new HashSet<IInstallableUnit>();
+			final Set<IInstallableUnit> toRemove = new HashSet<>();
 			for (IUDescription iu : iuTasks) {
 				IQuery<IInstallableUnit> iuQuery = iu.createQuery();
 
@@ -117,7 +119,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 	}
 
 	private Dictionary<String, Object> createDictionary(IArtifactDescriptor descriptor) {
-		Hashtable<String, Object> result = new Hashtable<String, Object>(5);
+		Hashtable<String, Object> result = new Hashtable<>(5);
 		result.putAll(descriptor.getProperties());
 		IArtifactKey key = descriptor.getArtifactKey();
 		result.put(CLASSIFIER, key.getClassifier());

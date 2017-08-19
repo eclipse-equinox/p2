@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,11 +34,9 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 	boolean atomic = true; // bug 356561: newly created repositories shall be atomic (by default)
 	boolean compressed = true;
 	boolean failOnExists = false; // should we fail if a repo already exists?
-	Map<String, String> properties = new HashMap<String, String>();
+	Map<String, String> properties = new HashMap<>();
 
-	/* (non-Javadoc)
-	 * @see org.apache.tools.ant.Task#execute()
-	 */
+	@Override
 	public void execute() {
 		validate();
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) AbstractRepositoryTask.getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);

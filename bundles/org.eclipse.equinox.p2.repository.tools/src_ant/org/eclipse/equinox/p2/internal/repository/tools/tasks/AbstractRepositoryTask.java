@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,9 +31,9 @@ import org.eclipse.osgi.util.NLS;
 public abstract class AbstractRepositoryTask extends Task {
 	protected static final String ANT_PREFIX = "${"; //$NON-NLS-1$
 	protected AbstractApplication application;
-	protected List<IUDescription> iuTasks = new ArrayList<IUDescription>();
-	protected List<FileSet> sourceRepos = new ArrayList<FileSet>();
-	protected List<DestinationRepository> destinations = new ArrayList<DestinationRepository>();
+	protected List<IUDescription> iuTasks = new ArrayList<>();
+	protected List<FileSet> sourceRepos = new ArrayList<>();
+	protected List<DestinationRepository> destinations = new ArrayList<>();
 
 	protected void addMetadataSourceRepository(URI repoLocation, boolean optional) {
 		RepositoryDescriptor source = new RepositoryDescriptor();
@@ -177,7 +177,7 @@ public abstract class AbstractRepositoryTask extends Task {
 			return null;
 
 		IMetadataRepository repository = application.getCompositeMetadataRepository();
-		List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> result = new ArrayList<>();
 		for (IUDescription iu : iuTasks) {
 			IQuery<IInstallableUnit> iuQuery = iu.createQuery();
 

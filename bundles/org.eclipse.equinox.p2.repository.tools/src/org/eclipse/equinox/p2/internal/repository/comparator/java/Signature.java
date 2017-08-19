@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -577,7 +577,7 @@ public final class Signature {
 			if (methodOrTypeSignature[0] != C_GENERIC_START)
 				return CharOperation.NO_CHAR_CHAR;
 
-			ArrayList<char[]> paramList = new ArrayList<char[]>(1);
+			ArrayList<char[]> paramList = new ArrayList<>(1);
 			int paramStart = 1, i = 1; // start after leading '<'
 			while (i < length) {
 				if (methodOrTypeSignature[i] == C_GENERIC_END) {

@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
  */
 public class VersionAnalyzer extends IUAnalyzer {
 
+	@Override
 	public void analyzeIU(IInstallableUnit iu) {
 		if (iu.getVersion().equals(Version.emptyVersion)) {
 			error(iu, "[ERROR] IU: " + iu.getId() + " has not replaced its qualifiier");
@@ -46,6 +47,7 @@ public class VersionAnalyzer extends IUAnalyzer {
 		return new org.osgi.framework.Version(version.toString());
 	}
 
+	@Override
 	public void preAnalysis(IMetadataRepository repo) {
 		// Do nothing
 	}

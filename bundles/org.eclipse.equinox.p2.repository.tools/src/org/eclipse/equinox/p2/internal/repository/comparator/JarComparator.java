@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -96,6 +96,7 @@ public class JarComparator implements IArtifactComparator {
 
 	private String sourceLocation, destinationLocation, descriptorString;
 
+	@Override
 	public IStatus compare(IArtifactRepository source, IArtifactDescriptor sourceDescriptor, IArtifactRepository destination, IArtifactDescriptor destinationDescriptor) {
 		// Cache information for potential error messages
 		sourceLocation = URIUtil.toUnencodedString(sourceDescriptor.getRepository().getLocation());
@@ -140,7 +141,7 @@ public class JarComparator implements IArtifactComparator {
 		if (!feature1.getVersion().equals(feature2.getVersion()))
 			parent.add(newErrorStatus(NLS.bind(Messages.featureVersionsDontMatch, feature1.getVersion(), feature2.getVersion())));
 
-		Map<FeatureEntryWrapper, FeatureEntry> entryMap = new HashMap<FeatureEntryWrapper, FeatureEntry>();
+		Map<FeatureEntryWrapper, FeatureEntry> entryMap = new HashMap<>();
 		FeatureEntry[] entries1 = feature1.getEntries();
 		FeatureEntry[] entries2 = feature2.getEntries();
 

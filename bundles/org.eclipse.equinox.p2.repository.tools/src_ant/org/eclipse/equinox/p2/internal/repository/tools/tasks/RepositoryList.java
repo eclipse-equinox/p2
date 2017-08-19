@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,8 @@ import org.apache.tools.ant.types.FileSet;
 
 public class RepositoryList extends RepositoryFileSet {
 	// TODO this class should extend DataType, currently RepoFileSet to support <source location="xxx" /> 
-	List<DestinationRepository> repositories = new ArrayList<DestinationRepository>();
-	List<FileSet> sourceFileSets = new ArrayList<FileSet>();
+	List<DestinationRepository> repositories = new ArrayList<>();
+	List<FileSet> sourceFileSets = new ArrayList<>();
 
 	public DestinationRepository createRepository() {
 		DestinationRepository repo = new DestinationRepository();

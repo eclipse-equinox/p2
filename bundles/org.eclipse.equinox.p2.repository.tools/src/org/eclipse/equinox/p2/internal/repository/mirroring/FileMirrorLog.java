@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,10 +42,7 @@ public class FileMirrorLog implements IArtifactMirrorLog {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.artifact.mirror.IArtifactMirrorLog#log(org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor, org.eclipse.core.runtime.IStatus)
-	 */
+	@Override
 	public void log(IArtifactDescriptor descriptor, IStatus status) {
 		if (status.getSeverity() >= minSeverity) {
 			log(descriptor.toString());
@@ -53,10 +50,7 @@ public class FileMirrorLog implements IArtifactMirrorLog {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.artifact.mirror.IArtifactMirrorLog#log(org.eclipse.core.runtime.IStatus)
-	 */
+	@Override
 	public void log(IStatus status) {
 		log(status, ""); //$NON-NLS-1$
 	}
@@ -96,10 +90,7 @@ public class FileMirrorLog implements IArtifactMirrorLog {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.artifact.mirror.IArtifactMirrorLog#close()
-	 */
+	@Override
 	public void close() {
 		try {
 			if (out != null)

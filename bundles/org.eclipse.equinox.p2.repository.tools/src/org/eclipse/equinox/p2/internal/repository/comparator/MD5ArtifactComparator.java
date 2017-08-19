@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2012 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ public class MD5ArtifactComparator implements IArtifactComparator {
 
 	public static String MD5_COMPARATOR_ID = "org.eclipse.equinox.artifact.md5.comparator"; //$NON-NLS-1$
 
+	@Override
 	public IStatus compare(IArtifactRepository source, IArtifactDescriptor sourceDescriptor, IArtifactRepository destination, IArtifactDescriptor destDescriptor) {
 		String sourceMD5 = sourceDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5);
 		String destMD5 = destDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5);

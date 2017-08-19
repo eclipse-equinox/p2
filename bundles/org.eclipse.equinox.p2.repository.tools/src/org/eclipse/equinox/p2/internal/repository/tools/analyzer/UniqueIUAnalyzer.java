@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -22,6 +22,7 @@ public class UniqueIUAnalyzer extends IUAnalyzer {
 
 	Set<String> versionedNames = null;
 
+	@Override
 	public void analyzeIU(IInstallableUnit iu) {
 		// Create a unique name / version pair and cache it
 		String uniqueID = iu.getId() + ":" + iu.getVersion().toString();
@@ -32,7 +33,8 @@ public class UniqueIUAnalyzer extends IUAnalyzer {
 		versionedNames.add(uniqueID);
 	}
 
+	@Override
 	public void preAnalysis(IMetadataRepository repo) {
-		versionedNames = new HashSet<String>();
+		versionedNames = new HashSet<>();
 	}
 }

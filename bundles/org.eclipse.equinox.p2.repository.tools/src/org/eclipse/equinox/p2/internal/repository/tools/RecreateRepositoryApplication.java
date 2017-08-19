@@ -38,6 +38,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 	private Map<String, String> repoProperties = null;
 	private Map<IArtifactKey, IArtifactDescriptor[]> repoMap = null;
 
+	@Override
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		try {
 			IArtifactRepository repository = initialize(monitor);
@@ -71,7 +72,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		repoName = repository.getName();
 		repoProperties = repository.getProperties();
 
-		repoMap = new HashMap<IArtifactKey, IArtifactDescriptor[]>();
+		repoMap = new HashMap<>();
 		IQueryResult<IArtifactKey> keys = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = iterator.next();
@@ -97,7 +98,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
 		//add pack200 mappings, the existing repoProperties is not modifiable 
-		Map<String, String> newProperties = new HashMap<String, String>(repoProperties);
+		Map<String, String> newProperties = new HashMap<>(repoProperties);
 		newProperties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 		IArtifactRepository repository = manager.createRepository(repoLocation, repoName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, newProperties);
 		if (!(repository instanceof IFileArtifactRepository))
@@ -109,7 +110,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 
 			String unpackedSize = null;
 			File packFile = null;
-			Set<File> files = new HashSet<File>();
+			Set<File> files = new HashSet<>();
 			for (IArtifactDescriptor descriptor : descriptors) {
 				File artifactFile = simple.getArtifactFile(descriptor);
 				files.add(artifactFile);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -821,24 +820,22 @@ public class Disassembler {
 		InnerClassesAttributeEntry innerClassesAttributeEntry;
 		if (length > 1) {
 			final char[] EMPTY_CHAR_ARRAY = Utility.EMPTY_STRING.toCharArray();
-			Arrays.sort(innerClassesAttributeEntries, new Comparator<InnerClassesAttributeEntry>() {
-				public int compare(InnerClassesAttributeEntry o1, InnerClassesAttributeEntry o2) {
-					final char[] innerClassName1 = o1.getInnerClassName();
-					final char[] innerClassName2 = o2.getInnerClassName();
-					final char[] innerName1 = o1.getInnerName();
-					final char[] innerName2 = o2.getInnerName();
-					final char[] outerClassName1 = o1.getOuterClassName();
-					final char[] outerClassName2 = o2.getOuterClassName();
-					StringBuffer buffer1 = new StringBuffer();
-					buffer1.append(innerClassName1 == null ? EMPTY_CHAR_ARRAY : innerClassName1);
-					buffer1.append(innerName1 == null ? EMPTY_CHAR_ARRAY : innerName1);
-					buffer1.append(outerClassName1 == null ? EMPTY_CHAR_ARRAY : outerClassName1);
-					StringBuffer buffer2 = new StringBuffer();
-					buffer2.append(innerClassName2 == null ? EMPTY_CHAR_ARRAY : innerClassName2);
-					buffer2.append(innerName2 == null ? EMPTY_CHAR_ARRAY : innerName2);
-					buffer2.append(outerClassName2 == null ? EMPTY_CHAR_ARRAY : outerClassName2);
-					return buffer1.toString().compareTo(buffer2.toString());
-				}
+			Arrays.sort(innerClassesAttributeEntries, (o1, o2) -> {
+				final char[] innerClassName1 = o1.getInnerClassName();
+				final char[] innerClassName2 = o2.getInnerClassName();
+				final char[] innerName1 = o1.getInnerName();
+				final char[] innerName2 = o2.getInnerName();
+				final char[] outerClassName1 = o1.getOuterClassName();
+				final char[] outerClassName2 = o2.getOuterClassName();
+				StringBuffer buffer1 = new StringBuffer();
+				buffer1.append(innerClassName1 == null ? EMPTY_CHAR_ARRAY : innerClassName1);
+				buffer1.append(innerName1 == null ? EMPTY_CHAR_ARRAY : innerName1);
+				buffer1.append(outerClassName1 == null ? EMPTY_CHAR_ARRAY : outerClassName1);
+				StringBuffer buffer2 = new StringBuffer();
+				buffer2.append(innerClassName2 == null ? EMPTY_CHAR_ARRAY : innerClassName2);
+				buffer2.append(innerName2 == null ? EMPTY_CHAR_ARRAY : innerName2);
+				buffer2.append(outerClassName2 == null ? EMPTY_CHAR_ARRAY : outerClassName2);
+				return buffer1.toString().compareTo(buffer2.toString());
 			});
 		}
 		for (int i = 0; i < length; i++) {
@@ -1062,14 +1059,12 @@ public class Disassembler {
 	private void disassembleTypeMembers(ClassFileReader classFileReader, char[] className, StringBuffer buffer, String lineSeparator, int tabNumber, int mode, boolean isEnum) {
 		FieldInfo[] fields = classFileReader.getFieldInfos();
 		// sort fields
-		Arrays.sort(fields, new Comparator<FieldInfo>() {
-			public int compare(FieldInfo fieldInfo1, FieldInfo fieldInfo2) {
-				int compare = new String(fieldInfo1.getName()).compareTo(new String(fieldInfo2.getName()));
-				if (compare == 0) {
-					return new String(fieldInfo1.getDescriptor()).compareTo(new String(fieldInfo2.getDescriptor()));
-				}
-				return compare;
+		Arrays.sort(fields, (fieldInfo1, fieldInfo2) -> {
+			int compare = new String(fieldInfo1.getName()).compareTo(new String(fieldInfo2.getName()));
+			if (compare == 0) {
+				return new String(fieldInfo1.getDescriptor()).compareTo(new String(fieldInfo2.getDescriptor()));
 			}
+			return compare;
 		});
 		for (int i = 0, max = fields.length; i < max; i++) {
 			writeNewLine(buffer, lineSeparator, tabNumber);
@@ -1077,14 +1072,12 @@ public class Disassembler {
 		}
 		MethodInfo[] methods = classFileReader.getMethodInfos();
 		// sort methods
-		Arrays.sort(methods, new Comparator<MethodInfo>() {
-			public int compare(MethodInfo methodInfo1, MethodInfo methodInfo2) {
-				int compare = new String(methodInfo1.getName()).compareTo(new String(methodInfo2.getName()));
-				if (compare == 0) {
-					return new String(methodInfo1.getDescriptor()).compareTo(new String(methodInfo2.getDescriptor()));
-				}
-				return compare;
+		Arrays.sort(methods, (methodInfo1, methodInfo2) -> {
+			int compare = new String(methodInfo1.getName()).compareTo(new String(methodInfo2.getName()));
+			if (compare == 0) {
+				return new String(methodInfo1.getDescriptor()).compareTo(new String(methodInfo2.getDescriptor()));
 			}
+			return compare;
 		});
 		for (int i = 0, max = methods.length; i < max; i++) {
 			writeNewLine(buffer, lineSeparator, tabNumber);

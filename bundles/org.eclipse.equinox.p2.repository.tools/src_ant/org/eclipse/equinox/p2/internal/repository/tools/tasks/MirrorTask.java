@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ public class MirrorTask extends AbstractRepositoryTask {
 		application = new MirrorApplication();
 	}
 
+	@Override
 	public void execute() throws BuildException {
 		try {
 			if (mirrorLog != null)
@@ -75,7 +76,7 @@ public class MirrorTask extends AbstractRepositoryTask {
 			return null;
 
 		List<ArtifactDescription> artifacts = comparator.getExcluded();
-		List<IQuery<IArtifactDescriptor>> queries = new ArrayList<IQuery<IArtifactDescriptor>>();
+		List<IQuery<IArtifactDescriptor>> queries = new ArrayList<>();
 		for (ArtifactDescription artifactDescription : artifacts)
 			queries.add(artifactDescription.createDescriptorQuery());
 

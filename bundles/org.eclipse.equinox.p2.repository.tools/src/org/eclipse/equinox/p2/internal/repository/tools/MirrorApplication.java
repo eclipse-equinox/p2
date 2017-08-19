@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,7 +66,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	public static String[] getArrayArgsFromString(String list, String separator) {
 		if (list == null || list.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) { //$NON-NLS-1$
@@ -79,6 +79,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		return result.toArray(new String[result.size()]);
 	}
 
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		Map<?, ?> args = context.getArguments();
 		initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
@@ -86,6 +87,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		return IApplication.EXIT_OK;
 	}
 
+	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 
@@ -95,6 +97,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	 * The old "org.eclipse.equinox.p2.artifact.repository.mirrorApplication" application only does artifacts
 	 * Similary, "org.eclipse.equinox.p2.metadata.repository.mirrorApplication" only does metadata
 	 */
+	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) {
 		if (data instanceof Map<?, ?> && ((Map<?, ?>) data).containsKey(MIRROR_MODE)) {
 			metadataOrArtifacts = (String) ((Map<?, ?>) data).get(MIRROR_MODE);
@@ -183,6 +186,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			comparatorLog = getLog(comparatorLogLocation, comparatorID);
 	}
 
+	@Override
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		IStatus mirrorStatus = Status.OK_STATUS;
 		try {
@@ -223,7 +227,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		// Obtain ArtifactKeys from IUs
 		IQueryResult<IInstallableUnit> ius = slice.query(QueryUtil.createIUAnyQuery(), monitor);
 		boolean iusSpecified = !ius.isEmpty(); // call before ius.iterator() to avoid bug 420318
-		ArrayList<IArtifactKey> keys = new ArrayList<IArtifactKey>();
+		ArrayList<IArtifactKey> keys = new ArrayList<>();
 		for (Iterator<IInstallableUnit> iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
 			keys.addAll(iu.getArtifacts());
@@ -289,7 +293,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		IMetadataRepository metadataRepo = getCompositeMetadataRepository();
 
 		if (rootIUs != null) {
-			sourceIUs = new ArrayList<IInstallableUnit>();
+			sourceIUs = new ArrayList<>();
 			for (int i = 0; i < rootIUs.length; i++) {
 				String[] segments = getArrayArgsFromString(rootIUs[i], "/"); //$NON-NLS-1$
 				VersionRange range = segments.length > 1 ? VersionRange.create(segments[1]) : null;
@@ -298,7 +302,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 					sourceIUs.add(queryResult.next());
 			}
 		} else if (sourceIUs == null || sourceIUs.isEmpty()) {
-			sourceIUs = new ArrayList<IInstallableUnit>();
+			sourceIUs = new ArrayList<>();
 			Iterator<IInstallableUnit> queryResult = metadataRepo.query(QueryUtil.createIUAnyQuery(), null).iterator();
 			while (queryResult.hasNext())
 				sourceIUs.add(queryResult.next());
@@ -354,7 +358,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		arr[0] = plan.getAdditions();
 		if (plan.getInstallerPlan() != null)
 			arr[1] = plan.getInstallerPlan().getAdditions();
-		return new CompoundQueryable<IInstallableUnit>(arr);
+		return new CompoundQueryable<>(arr);
 	}
 
 	private IQueryable<IInstallableUnit> slice(IProgressMonitor monitor) throws ProvisionException {

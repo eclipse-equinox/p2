@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	private boolean flagAsRunnable = false;
 
 	protected class CollectNativesAction extends ProvisioningAction {
+		@Override
 		public IStatus execute(Map<String, Object> parameters) {
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit installableUnit = operand.second();
@@ -76,6 +77,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			return Status.OK_STATUS;
 		}
 
+		@Override
 		public IStatus undo(Map<String, Object> parameters) {
 			// nothing to do for now
 			return Status.OK_STATUS;
@@ -87,6 +89,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			super(NATIVE_ARTIFACTS, weight);
 		}
 
+		@Override
 		protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 			IInstallableUnit unit = operand.second();
 			if (unit.getTouchpointType().getId().equals(NATIVE_TYPE)) {
@@ -95,11 +98,13 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			return null;
 		}
 
+		@Override
 		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
-			parameters.put(NATIVE_ARTIFACTS, new ArrayList<Object>());
+			parameters.put(NATIVE_ARTIFACTS, new ArrayList<>());
 			return null;
 		}
 
+		@Override
 		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 			@SuppressWarnings("unchecked")
 			List<IArtifactRequest> artifactRequests = (List<IArtifactRequest>) parameters.get(NATIVE_ARTIFACTS);
@@ -115,11 +120,12 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 
 	// the list of IUs that we actually transformed... could have come from the repo 
 	// or have been user-specified.
-	private Collection<IInstallableUnit> processedIUs = new ArrayList<IInstallableUnit>();
+	private Collection<IInstallableUnit> processedIUs = new ArrayList<>();
 
 	/*
 	 * Perform the transformation.
 	 */
+	@Override
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor progress = SubMonitor.convert(monitor, 5);
 
@@ -159,7 +165,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 				File parentDir = new File(destinationArtifactRepository.getLocation().toString().substring(5));
 				File pluginsDir = new File(parentDir, "plugins");
 				File fragmentInfo = new File(parentDir, "fragment.info");
-				HashSet<BundleInfo> bundles = new HashSet<BundleInfo>();
+				HashSet<BundleInfo> bundles = new HashSet<>();
 				try {
 					for (Iterator<IInstallableUnit> iterator = processedIUs.iterator(); iterator.hasNext();) {
 						IInstallableUnit unit = iterator.next();
@@ -213,7 +219,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	}
 
 	protected URI[] getRepositories(boolean metadata) {
-		List<URI> repos = new ArrayList<URI>();
+		List<URI> repos = new ArrayList<>();
 		for (RepositoryDescriptor repo : sourceRepositories) {
 			if (metadata ? repo.isMetadata() : repo.isArtifact())
 				repos.add(repo.getRepoLocation());
@@ -285,16 +291,14 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	 * Create and return a new profile.
 	 */
 	private IProfile createProfile() throws ProvisionException {
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_CACHE, URIUtil.toFile(destinationArtifactRepository.getLocation()).getAbsolutePath());
 		properties.put(IProfile.PROP_INSTALL_FOLDER, URIUtil.toFile(destinationArtifactRepository.getLocation()).getAbsolutePath());
 		IProfileRegistry registry = Activator.getProfileRegistry();
 		return registry.addProfile(System.currentTimeMillis() + "-" + Math.random(), properties); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
-	 */
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 		processCommandLineArgs(args);
@@ -355,9 +359,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			throw new ProvisionException(Messages.exception_needDestinationRepo);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.app.IApplication#stop()
-	 */
+	@Override
 	public void stop() {
 		// nothing to do
 	}

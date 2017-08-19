@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
  */
 public class UnzipFeatureJarAnalyzer extends IUAnalyzer {
 
+	@Override
 	public void analyzeIU(IInstallableUnit iu) {
 		if (iu.getId().indexOf("feature.jar") > -1) {
 			Collection<ITouchpointData> touchpointData = iu.getTouchpointData();
@@ -39,6 +40,7 @@ public class UnzipFeatureJarAnalyzer extends IUAnalyzer {
 
 	}
 
+	@Override
 	public void preAnalysis(IMetadataRepository repository) {
 		// Do nothing
 	}

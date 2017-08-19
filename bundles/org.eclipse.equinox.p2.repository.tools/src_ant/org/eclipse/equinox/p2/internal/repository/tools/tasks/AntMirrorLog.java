@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
+import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public class AntMirrorLog implements IArtifactMirrorLog {
@@ -33,11 +32,13 @@ public class AntMirrorLog implements IArtifactMirrorLog {
 		}
 	}
 
+	@Override
 	public void log(IArtifactDescriptor descriptor, IStatus status) {
 		log(descriptor.toString(), status.getSeverity());
 		log(status);
 	}
 
+	@Override
 	public void log(IStatus status) {
 		int severity = status.getSeverity();
 		// Log the status message
@@ -53,6 +54,7 @@ public class AntMirrorLog implements IArtifactMirrorLog {
 				log(nestedStatus[i]);
 	}
 
+	@Override
 	public void close() {
 		// nothing to do here
 	}
