@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2000, 2010 IBM Corporation and others.
+ *  Copyright (c) 2000, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -37,19 +37,16 @@ public class SiteCategory {
 	 */
 	public static Comparator<SiteCategory> getComparator() {
 		if (comp == null) {
-			comp = new Comparator<SiteCategory>() {
-				/*
-				 * @see Comparator#compare(Object,Object)
-				 * Returns 0 if versions are equal.
-				 * Returns -1 if object1 is after than object2.
-				 * Returns +1 if object1 is before than object2.
-				 */
-				public int compare(SiteCategory cat1, SiteCategory cat2) {
+			/*
+			 * Returns 0 if versions are equal.
+			 * Returns -1 if object1 is after than object2.
+			 * Returns +1 if object1 is before than object2.
+			 */
+			comp = (cat1, cat2) -> {
 
-					if (cat1.equals(cat2))
-						return 0;
-					return cat1.getName().compareTo(cat2.getName());
-				}
+				if (cat1.equals(cat2))
+					return 0;
+				return cat1.getName().compareTo(cat2.getName());
 			};
 		}
 		return comp;
@@ -70,6 +67,7 @@ public class SiteCategory {
 	 * @see Object#equals(Object)
 	 * @since 2.0
 	 */
+	@Override
 	public boolean equals(Object obj) {
 		boolean result = false;
 		if (obj instanceof SiteCategory) {
@@ -126,6 +124,7 @@ public class SiteCategory {
 	 * @see Object#hashCode()
 	 * @since 2.0
 	 */
+	@Override
 	public int hashCode() {
 		return getName().hashCode();
 	}
@@ -202,7 +201,7 @@ public class SiteCategory {
 	 */
 	public void addCategoryName(String categoryName) {
 		if (this.categoryNames == null) {
-			this.categoryNames = new ArrayList<String>();
+			this.categoryNames = new ArrayList<>();
 		}
 		if (!this.categoryNames.contains(categoryName)) {
 			this.categoryNames.add(categoryName);

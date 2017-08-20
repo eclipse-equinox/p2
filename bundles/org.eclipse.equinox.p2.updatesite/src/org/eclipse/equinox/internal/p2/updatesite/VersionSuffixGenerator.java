@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2000, 2010 IBM Corporation and others.
+ *  Copyright (c) 2000, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -183,7 +183,7 @@ public class VersionSuffixGenerator {
 		// changes.
 		//
 		majorSum += QUALIFIER_SUFFIX_VERSION;
-		ArrayList<String> qualifiers = new ArrayList<String>();
+		ArrayList<String> qualifiers = new ArrayList<>();
 
 		// Loop through the included features, adding the version number parts
 		// to the running totals and storing the qualifier suffixes.

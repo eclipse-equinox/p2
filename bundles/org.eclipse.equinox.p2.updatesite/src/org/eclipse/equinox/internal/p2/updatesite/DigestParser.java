@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2000, 2010 IBM Corporation and others.
+ *  Copyright (c) 2000, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -36,7 +36,7 @@ public class DigestParser extends DefaultHandler {
 
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private SAXParser parser;
-	private final List<Feature> features = new ArrayList<Feature>();
+	private final List<Feature> features = new ArrayList<>();
 	private final FeatureManifestParser featureHandler = new FeatureManifestParser(false);
 
 	public DigestParser() {
@@ -51,10 +51,12 @@ public class DigestParser extends DefaultHandler {
 		}
 	}
 
+	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		featureHandler.characters(ch, start, length);
 	}
 
+	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if ("digest".equals(localName)) { //$NON-NLS-1$
 			return;
@@ -104,6 +106,7 @@ public class DigestParser extends DefaultHandler {
 		return null;
 	}
 
+	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		if ("digest".equals(localName)) { //$NON-NLS-1$
 			return;

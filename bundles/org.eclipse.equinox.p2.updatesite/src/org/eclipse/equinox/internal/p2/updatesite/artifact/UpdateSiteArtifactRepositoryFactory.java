@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,9 +33,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
-	 */
+	@Override
 	public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return null;
 	}
@@ -45,9 +43,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		//return null if the caller wanted a modifiable repo
 		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
@@ -115,7 +111,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 
 	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
 		final String PACK_EXT = ".pack.gz"; //$NON-NLS-1$
-		Set<IArtifactDescriptor> allSiteArtifacts = new HashSet<IArtifactDescriptor>();
+		Set<IArtifactDescriptor> allSiteArtifacts = new HashSet<>();
 		boolean packSupported = updateSite.getSite().isPack200Supported();
 		{
 			Feature[] features = updateSite.loadFeatures(monitor);

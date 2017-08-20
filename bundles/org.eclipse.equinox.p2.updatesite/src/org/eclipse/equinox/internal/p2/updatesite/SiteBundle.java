@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, Red Hat Inc. and others
+ * Copyright (c) 2012, 2017 Red Hat Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,7 +93,7 @@ public class SiteBundle {
 	 */
 	public void addCategoryName(String categoryName) {
 		if (this.categoryNames == null)
-			this.categoryNames = new ArrayList<String>();
+			this.categoryNames = new ArrayList<>();
 		if (!this.categoryNames.contains(categoryName))
 			this.categoryNames.add(categoryName);
 	}
@@ -119,6 +119,7 @@ public class SiteBundle {
 	 * @return <code>true</code> if the two models are equal, 
 	 * <code>false</code> otherwise
 	 */
+	@Override
 	public boolean equals(Object object) {
 		if (object == null)
 			return false;
@@ -146,6 +147,7 @@ public class SiteBundle {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -331,7 +333,7 @@ public class SiteBundle {
 		if (categoryNames == null)
 			this.categoryNames = null;
 		else
-			this.categoryNames = new ArrayList<String>(Arrays.asList(categoryNames));
+			this.categoryNames = new ArrayList<>(Arrays.asList(categoryNames));
 	}
 
 	/**
@@ -433,6 +435,7 @@ public class SiteBundle {
 	/**
 	 * @see Object#toString()
 	 */
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(getClass().toString() + " :"); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -28,6 +28,7 @@ public class UpdateSitePublisherApplication extends AbstractPublisherApplication
 		// nothing todo
 	}
 
+	@Override
 	protected void processParameter(String arg, String parameter, PublisherInfo pinfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, pinfo);
 
@@ -38,6 +39,7 @@ public class UpdateSitePublisherApplication extends AbstractPublisherApplication
 			categoryVersion = parameter;
 	}
 
+	@Override
 	protected IPublisherAction[] createActions() {
 		LocalUpdateSiteAction action = new LocalUpdateSiteAction(source, categoryQualifier);
 		action.setCategoryVersion(categoryVersion);
@@ -53,6 +55,7 @@ public class UpdateSitePublisherApplication extends AbstractPublisherApplication
 	/**
 	 * Detect the flag -addJREIU to turn on the generation of the JREIU.
 	 */
+	@Override
 	protected void processFlag(String flag, PublisherInfo publisherInfo) {
 		super.processFlag(flag, publisherInfo);
 		if (flag.equalsIgnoreCase("-addJREIU"))//$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -9,8 +9,6 @@
  *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
-
-import org.eclipse.equinox.p2.publisher.IPublisherAction;
 
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
@@ -39,6 +37,7 @@ public class RemoteUpdateSiteAction implements IPublisherAction {
 		this.categoryQualifier = categoryQualifier;
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		if (Tracing.DEBUG_PUBLISHING)
 			Tracing.debug("Generating metadata for update site: " + updateSite.getLocation()); //$NON-NLS-1$
@@ -57,7 +56,7 @@ public class RemoteUpdateSiteAction implements IPublisherAction {
 	}
 
 	protected IPublisherAction[] createActions() {
-		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
+		ArrayList<IPublisherAction> result = new ArrayList<>();
 		result.add(new RemoteFeaturesAction(updateSite));
 		result.add(createSiteXMLAction());
 		return result.toArray(new IPublisherAction[result.size()]);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2000, 2016 IBM Corporation and others.
+ *  Copyright (c) 2000, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -62,15 +62,15 @@ public class DefaultSiteParser extends DefaultHandler {
 	private boolean DESCRIPTION_SITE_ALREADY_SEEN = false;
 	// Current object stack (used to hold the current object we are
 	// populating in this plugin descriptor
-	Stack<Object> objectStack = new Stack<Object>();
+	Stack<Object> objectStack = new Stack<>();
 
 	private SAXParser parser;
 
 	// Current State Information
-	Stack<Integer> stateStack = new Stack<Integer>();
+	Stack<Integer> stateStack = new Stack<>();
 
 	// List of string keys for translated strings
-	private final List<String> messageKeys = new ArrayList<String>(4);
+	private final List<String> messageKeys = new ArrayList<>(4);
 
 	private MultiStatus status;
 	private final URI siteLocation;
@@ -134,8 +134,8 @@ public class DefaultSiteParser extends DefaultHandler {
 	public DefaultSiteParser(URI siteLocation) {
 		super();
 		this.siteLocation = siteLocation;
-		stateStack = new Stack<Integer>();
-		objectStack = new Stack<Object>();
+		stateStack = new Stack<>();
+		objectStack = new Stack<>();
 		status = null;
 		DESCRIPTION_SITE_ALREADY_SEEN = false;
 		try {
@@ -156,6 +156,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	 * @see DefaultHandler#characters(char[], int, int)
 	 * @since 2.0
 	 */
+	@Override
 	public void characters(char[] ch, int start, int length) {
 		String text = new String(ch, start, length);
 		//only push if description
@@ -170,6 +171,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	 * @see DefaultHandler#endElement(String, String, String)
 	 * @since 2.0
 	 */
+	@Override
 	public void endElement(String uri, String localName, String qName) {
 
 		String text = null;
@@ -307,6 +309,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	 * @see DefaultHandler#error(SAXParseException)
 	 * @since 2.0
 	 */
+	@Override
 	public void error(SAXParseException ex) {
 		logStatus(ex);
 	}
@@ -317,6 +320,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	 * @exception SAXException
 	 * @since 2.0
 	 */
+	@Override
 	public void fatalError(SAXParseException ex) throws SAXException {
 		logStatus(ex);
 		throw ex;
@@ -871,6 +875,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	 * @see DefaultHandler#startElement(String, String, String, Attributes)
 	 * @since 2.0
 	 */
+	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
 		if (Tracing.DEBUG_GENERATOR_PARSING) {

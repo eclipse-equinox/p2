@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -88,10 +88,11 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		defaultCategory.setDescription("Default category for otherwise uncategorized features"); //$NON-NLS-1$
 		defaultCategory.setLabel("Uncategorized"); //$NON-NLS-1$
 		defaultCategory.setName("Default"); //$NON-NLS-1$
-		defaultCategorySet = new HashSet<SiteCategory>(1);
+		defaultCategorySet = new HashSet<>(1);
 		defaultCategorySet.add(defaultCategory);
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		if (updateSite == null) {
 			try {
@@ -126,7 +127,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 						IArtifactKey key = FeaturesAction.createFeatureArtifactKey(feature.getFeatureIdentifier(), iu.getVersion().toString());
 						IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(key);
 						if (descriptors.length > 0 && descriptors[0] instanceof ArtifactDescriptor) {
-							HashMap<String, String> map = new HashMap<String, String>();
+							HashMap<String, String> map = new HashMap<>();
 							map.put(P_STATS_MARKER, feature.getFeatureIdentifier());
 							((ArtifactDescriptor) descriptors[0]).addProperties(map);
 						}
@@ -146,7 +147,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 						IArtifactKey key = BundlesAction.createBundleArtifactKey(iu.getId(), iu.getVersion().toString());
 						IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(key);
 						if (descriptors.length > 0 && descriptors[0] instanceof ArtifactDescriptor) {
-							HashMap<String, String> map = new HashMap<String, String>();
+							HashMap<String, String> map = new HashMap<>();
 							map.put(P_STATS_MARKER, iu.getId());
 							((ArtifactDescriptor) descriptors[0]).addProperties(map);
 						}
@@ -165,7 +166,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	private IStatus generateCategories(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
-		Map<SiteCategory, Set<IInstallableUnit>> categoriesToIUs = new HashMap<SiteCategory, Set<IInstallableUnit>>();
+		Map<SiteCategory, Set<IInstallableUnit>> categoriesToIUs = new HashMap<>();
 		Map<SiteFeature, Set<SiteCategory>> featuresToCategories = getFeatureToCategoryMappings(publisherInfo);
 		for (SiteFeature feature : featuresToCategories.keySet()) {
 			if (monitor.isCanceled())
@@ -180,7 +181,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			for (SiteCategory category : categories) {
 				Set<IInstallableUnit> iusInCategory = categoriesToIUs.get(category);
 				if (iusInCategory == null) {
-					iusInCategory = new HashSet<IInstallableUnit>();
+					iusInCategory = new HashSet<>();
 					categoriesToIUs.put(category, iusInCategory);
 				}
 				iusInCategory.addAll(ius);
@@ -201,7 +202,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			for (SiteCategory category : categories) {
 				Set<IInstallableUnit> iusInCategory = categoriesToIUs.get(category);
 				if (iusInCategory == null) {
-					iusInCategory = new HashSet<IInstallableUnit>();
+					iusInCategory = new HashSet<>();
 					categoriesToIUs.put(category, iusInCategory);
 				}
 				iusInCategory.addAll(ius);
@@ -230,7 +231,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			for (SiteCategory category : categories) {
 				Set<IInstallableUnit> iusInCategory = categoriesToIUs.get(category);
 				if (iusInCategory == null) {
-					iusInCategory = new HashSet<IInstallableUnit>();
+					iusInCategory = new HashSet<>();
 					categoriesToIUs.put(category, iusInCategory);
 				}
 				iusInCategory.addAll(ius);
@@ -239,7 +240,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	private Map<SiteIU, Set<SiteCategory>> getIUToCategoryMappings(IPublisherInfo publisherInfo) {
-		HashMap<SiteIU, Set<SiteCategory>> mappings = new HashMap<SiteIU, Set<SiteCategory>>();
+		HashMap<SiteIU, Set<SiteCategory>> mappings = new HashMap<>();
 		if (updateSite == null)
 			return mappings;
 		SiteModel site = updateSite.getSite();
@@ -250,7 +251,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		for (int i = 0; i < ius.length; i++) {
 			//add a mapping for each category this feature belongs to
 			String[] categoryNames = ius[i].getCategoryNames();
-			Set<SiteCategory> categories = new HashSet<SiteCategory>();
+			Set<SiteCategory> categories = new HashSet<>();
 			mappings.put(ius[i], categories);
 			for (int j = 0; j < categoryNames.length; j++) {
 				SiteCategory category = site.getCategory(categoryNames[j]);
@@ -392,7 +393,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * @return A map of SiteFeature -> Set<SiteCategory>.
 	 */
 	protected Map<SiteFeature, Set<SiteCategory>> getFeatureToCategoryMappings(IPublisherInfo publisherInfo) {
-		HashMap<SiteFeature, Set<SiteCategory>> mappings = new HashMap<SiteFeature, Set<SiteCategory>>();
+		HashMap<SiteFeature, Set<SiteCategory>> mappings = new HashMap<>();
 		if (updateSite == null)
 			return mappings;
 		SiteModel site = updateSite.getSite();
@@ -405,7 +406,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			String[] categoryNames = features[i].getCategoryNames();
 			Set<SiteCategory> categories = mappings.get(features[i]);
 			if (categories == null) {
-				categories = new HashSet<SiteCategory>();
+				categories = new HashSet<>();
 				mappings.put(features[i], categories);
 			}
 			for (int j = 0; j < categoryNames.length; j++) {
@@ -423,7 +424,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * @return A map of SiteBundle -> Set<SiteCategory>.
 	 */
 	protected Map<SiteBundle, Set<SiteCategory>> getBundleToCategoryMappings(IPublisherInfo publisherInfo) {
-		HashMap<SiteBundle, Set<SiteCategory>> mappings = new HashMap<SiteBundle, Set<SiteCategory>>();
+		HashMap<SiteBundle, Set<SiteCategory>> mappings = new HashMap<>();
 		if (updateSite == null)
 			return mappings;
 		SiteModel site = updateSite.getSite();
@@ -434,7 +435,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		for (int i = 0; i < bundles.length; i++) {
 			//add a mapping for each category this feature belongs to
 			String[] categoryNames = bundles[i].getCategoryNames();
-			Set<SiteCategory> categories = new HashSet<SiteCategory>();
+			Set<SiteCategory> categories = new HashSet<>();
 			mappings.put(bundles[i], categories);
 			for (int j = 0; j < categoryNames.length; j++) {
 				SiteCategory category = site.getCategory(categoryNames[j]);
@@ -467,7 +468,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		//publish associate sites as repository references
 		URLEntry[] associatedSites = site.getAssociatedSites();
 		if (associatedSites != null) {
-			ArrayList<IRepositoryReference> refs = new ArrayList<IRepositoryReference>(associatedSites.length * 2);
+			ArrayList<IRepositoryReference> refs = new ArrayList<>(associatedSites.length * 2);
 			for (int i = 0; i < associatedSites.length; i++) {
 				URLEntry associatedSite = associatedSites[i];
 				String siteLocation = associatedSite.getURL();
@@ -487,7 +488,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		//publish repository references from category file
 		IRepositoryReference[] refs = site.getRepositoryReferences();
 		if (refs != null) {
-			ArrayList<IRepositoryReference> toAdd = new ArrayList<IRepositoryReference>(Arrays.asList(refs));
+			ArrayList<IRepositoryReference> toAdd = new ArrayList<>(Arrays.asList(refs));
 			publisherInfo.getMetadataRepository().addReferences(toAdd);
 		}
 
@@ -518,11 +519,11 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * @param result The generator result being built
 	 */
 	protected void generateCategoryIUs(Map<SiteCategory, Set<IInstallableUnit>> categoriesToIUs, IPublisherResult result) {
-		Map<String, SiteCategory> nameToCategory = new HashMap<String, SiteCategory>();
+		Map<String, SiteCategory> nameToCategory = new HashMap<>();
 		for (SiteCategory category : this.updateSite.getSite().getCategories()) {
 			nameToCategory.put(category.getName(), category);
 		}
-		final Map<SiteCategory, Set<SiteCategory>> categoryToNestedCategories = new HashMap<SiteCategory, Set<SiteCategory>>();
+		final Map<SiteCategory, Set<SiteCategory>> categoryToNestedCategories = new HashMap<>();
 		for (SiteCategory category : this.updateSite.getSite().getCategories()) {
 			for (String parentCategoryName : category.getCategoryNames()) {
 				SiteCategory parentCategory = nameToCategory.get(parentCategoryName);
@@ -533,11 +534,12 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			}
 		}
 
-		List<SiteCategory> categories = new ArrayList<SiteCategory>(Arrays.asList(this.updateSite.getSite().getCategories()));
+		List<SiteCategory> categories = new ArrayList<>(Arrays.asList(this.updateSite.getSite().getCategories()));
 		categories.add(this.defaultCategory);
 		// sort category so they are processed in reverse order of dependency
 		// (Nested categories go first)
 		Comparator<SiteCategory> isNestedCategoryComparator = new Comparator<SiteCategory>() {
+			@Override
 			public int compare(SiteCategory category1, SiteCategory category2) {
 				Set<SiteCategory> childrenOfCategory1 = categoryToNestedCategories.get(category1);
 				Set<SiteCategory> childrenOfCategory2 = categoryToNestedCategories.get(category2);
@@ -572,11 +574,11 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		Collections.sort(categories, isNestedCategoryComparator);
 
 		// Then create categories in the right order
-		Map<String, IInstallableUnit> nameToCategoryIU = new HashMap<String, IInstallableUnit>();
+		Map<String, IInstallableUnit> nameToCategoryIU = new HashMap<>();
 		for (SiteCategory category : categories) {
 			Set<IInstallableUnit> units = categoriesToIUs.get(category);
 			if (units == null) {
-				units = new HashSet<IInstallableUnit>();
+				units = new HashSet<>();
 			}
 			Set<SiteCategory> nestedCategories = categoryToNestedCategories.get(category);
 			if (nestedCategories != null) {
@@ -605,7 +607,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 */
 	@Deprecated
 	public IInstallableUnit createCategoryIU(SiteCategory category, Set<IInstallableUnit> childrenIUs, IInstallableUnit nestedCategory) {
-		Set<IInstallableUnit> allIUs = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> allIUs = new HashSet<>();
 		if (childrenIUs != null) {
 			allIUs.addAll(childrenIUs);
 		}
@@ -645,7 +647,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		cat.setProperty(IInstallableUnit.PROP_NAME, label != null ? label : category.getName());
 		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
 
-		ArrayList<IRequirement> reqsConfigurationUnits = new ArrayList<IRequirement>(childrenIUs.size());
+		ArrayList<IRequirement> reqsConfigurationUnits = new ArrayList<>(childrenIUs.size());
 		for (IInstallableUnit iu : childrenIUs) {
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 			reqsConfigurationUnits.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
@@ -653,7 +655,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		cat.setRequirements(reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
 
 		// Create set of provided capabilities
-		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>();
 		providedCapabilities.add(PublisherHelper.createSelfCapability(categoryId, cat.getVersion()));
 
 		Map<Locale, Map<String, String>> localizations = category.getLocalizations();

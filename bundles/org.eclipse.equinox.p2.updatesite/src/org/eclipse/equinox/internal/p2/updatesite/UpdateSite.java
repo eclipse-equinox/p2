@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -51,13 +51,13 @@ public class UpdateSite {
 	 * Some variables for caching.
 	 */
 	// map of String (URI.toString()) to UpdateSite
-	private static Map<String, SoftReference<UpdateSite>> siteCache = new HashMap<String, SoftReference<UpdateSite>>();
+	private static Map<String, SoftReference<UpdateSite>> siteCache = new HashMap<>();
 	// map of String (URI.toString()) to UpdateSite (for category xmls)
-	private static Map<String, SoftReference<UpdateSite>> categoryCache = new HashMap<String, SoftReference<UpdateSite>>();
+	private static Map<String, SoftReference<UpdateSite>> categoryCache = new HashMap<>();
 	// map of String (featureID_featureVersion) to Feature
-	private Map<String, Feature> featureCache = new HashMap<String, Feature>();
+	private Map<String, Feature> featureCache = new HashMap<>();
 	// map of String (bundleID_featureVersion) to BundleDescriptr
-	private Map<String, BundleDescription> bundleCache = new HashMap<String, BundleDescription>();
+	private Map<String, BundleDescription> bundleCache = new HashMap<>();
 	private Transport transport;
 
 	/*
@@ -106,7 +106,7 @@ public class UpdateSite {
 			String checksumString = Long.toString(checksum.getValue());
 			result = new UpdateSite(siteModel, location, transport, checksumString);
 			if (!PROTOCOL_FILE.equals(location.getScheme()))
-				categoryCache.put(location.toString(), new SoftReference<UpdateSite>(result));
+				categoryCache.put(location.toString(), new SoftReference<>(result));
 			return result;
 		} catch (SAXException e) {
 			String msg = NLS.bind(Messages.ErrorReadingSite, location);
@@ -153,7 +153,7 @@ public class UpdateSite {
 			String checksumString = Long.toString(checksum.getValue());
 			result = new UpdateSite(siteModel, getSiteURI(location), transport, checksumString);
 			if (!PROTOCOL_FILE.equals(location.getScheme()))
-				siteCache.put(location.toString(), new SoftReference<UpdateSite>(result));
+				siteCache.put(location.toString(), new SoftReference<>(result));
 			return result;
 		} catch (SAXException e) {
 			String msg = NLS.bind(Messages.ErrorReadingSite, location);
@@ -520,7 +520,7 @@ public class UpdateSite {
 			Feature[] features = new DigestParser().parse(digestFile, digestURI);
 			if (features == null)
 				return null;
-			Map<String, Feature> tmpFeatureCache = new HashMap<String, Feature>(features.length);
+			Map<String, Feature> tmpFeatureCache = new HashMap<>(features.length);
 			for (int i = 0; i < features.length; i++) {
 				String key = features[i].getId() + VERSION_SEPARATOR + features[i].getVersion();
 				tmpFeatureCache.put(key, features[i]);
@@ -561,7 +561,7 @@ public class UpdateSite {
 	private Feature[] loadFeaturesFromSite(IProgressMonitor monitor) throws ProvisionException {
 		SiteFeature[] siteFeatures = site.getFeatures();
 		FeatureParser featureParser = new FeatureParser();
-		Map<String, Feature> tmpFeatureCache = new HashMap<String, Feature>(siteFeatures.length);
+		Map<String, Feature> tmpFeatureCache = new HashMap<>(siteFeatures.length);
 
 		for (int i = 0; i < siteFeatures.length; i++) {
 			if (monitor.isCanceled()) {
@@ -624,7 +624,7 @@ public class UpdateSite {
 	 */
 	private BundleDescription[] loadBundlesFromSite(IProgressMonitor monitor) {
 		SiteBundle[] siteBundles = site.getBundles();
-		Map<String, BundleDescription> tmpBundleCache = new HashMap<String, BundleDescription>(siteBundles.length);
+		Map<String, BundleDescription> tmpBundleCache = new HashMap<>(siteBundles.length);
 
 		for (int i = 0; i < siteBundles.length; i++) {
 			if (monitor.isCanceled()) {

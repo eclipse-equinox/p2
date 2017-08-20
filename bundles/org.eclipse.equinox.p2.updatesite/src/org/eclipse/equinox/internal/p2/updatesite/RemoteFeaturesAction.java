@@ -33,6 +33,7 @@ public class RemoteFeaturesAction extends FeaturesAction {
 		throw new IllegalArgumentException();
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		try {
 			this.info = publisherInfo;
@@ -46,8 +47,9 @@ public class RemoteFeaturesAction extends FeaturesAction {
 
 	}
 
+	@Override
 	protected void generateFeatureIUs(Feature[] featureList, IPublisherResult result) {
-		Map<String, String> extraProperties = new HashMap<String, String>();
+		Map<String, String> extraProperties = new HashMap<>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 		for (int i = 0; i < featureList.length; i++) {
 			Feature feature = featureList[i];
@@ -55,7 +57,7 @@ public class RemoteFeaturesAction extends FeaturesAction {
 			for (int j = 0; j < featureEntries.length; j++) {
 				FeatureEntry entry = featureEntries[j];
 				if (entry.isPlugin() && !entry.isRequires()) {
-					Dictionary<String, String> mockManifest = new Hashtable<String, String>();
+					Dictionary<String, String> mockManifest = new Hashtable<>();
 					mockManifest.put("Manifest-Version", "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
 					mockManifest.put("Bundle-ManifestVersion", "2"); //$NON-NLS-1$ //$NON-NLS-2$
 					mockManifest.put("Bundle-SymbolicName", entry.getId()); //$NON-NLS-1$
@@ -68,7 +70,7 @@ public class RemoteFeaturesAction extends FeaturesAction {
 				}
 			}
 			IInstallableUnit featureIU = createFeatureJarIU(feature, new PublisherInfo());
-			List<IInstallableUnit> childIUs = new ArrayList<IInstallableUnit>();
+			List<IInstallableUnit> childIUs = new ArrayList<>();
 			childIUs.add(featureIU);
 			IInstallableUnit groupIU = createGroupIU(feature, childIUs, new PublisherInfo());
 			result.addIU(featureIU, IPublisherResult.ROOT);

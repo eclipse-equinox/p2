@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -61,6 +61,7 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 		categoryVersion = version;
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherAction[] actions = createActions();
 		MultiStatus finalStatus = new MultiStatus(LocalUpdateSiteAction.class.getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toString() : "Unknown")), null); //$NON-NLS-1$
@@ -76,7 +77,7 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 
 	protected IPublisherAction[] createActions() {
 		createAdvice();
-		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
+		ArrayList<IPublisherAction> result = new ArrayList<>();
 		// create an action that just publishes the raw bundles and features
 		IPublisherAction action = new MergeResultsAction(new IPublisherAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
 		result.add(action);

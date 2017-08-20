@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2015 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -43,30 +43,22 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addInstallableUnits(java.util.Collection)
-	 */
+	@Override
 	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addReferences(java.util.Collection)
-	 */
+	@Override
 	public void addReferences(Collection<? extends IRepositoryReference> references) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
-	 */
+	@Override
 	public Collection<IRepositoryReference> getReferences() {
 		return delegate.getReferences();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#removeAll()
-	 */
+	@Override
 	public void removeAll() {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
@@ -76,136 +68,99 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#removeInstallableUnits(java.util.Collection)
-	 */
+	@Override
 	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#getDescription()
-	 */
+	@Override
 	public String getDescription() {
 		return delegate.getDescription();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#getLocation()
-	 */
+	@Override
 	public URI getLocation() {
 		return location;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#getName()
-	 */
+	@Override
 	public String getName() {
 		return delegate.getName();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#getProperties()
-	 */
+	@Override
 	public Map<String, String> getProperties() {
 		return delegate.getProperties();
 	}
 
+	@Override
 	public String getProperty(String key) {
 		return delegate.getProperty(key);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#getProvider()
-	 */
+	@Override
 	public String getProvider() {
 		return delegate.getProvider();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#getProvisioningAgent()
-	 */
+	@Override
 	public IProvisioningAgent getProvisioningAgent() {
 		return delegate.getProvisioningAgent();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#getType()
-	 */
+	@Override
 	public String getType() {
 		return TYPE;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#getVersion()
-	 */
+	@Override
 	public String getVersion() {
 		return VERSION;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#isModifiable()
-	 */
+	@Override
 	public boolean isModifiable() {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#setDescription(java.lang.String)
-	 */
 	public void setDescription(String description) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#setName(java.lang.String)
-	 */
 	public void setName(String name) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#setProperty(java.lang.String, java.lang.String)
-	 */
+	@Override
 	public String setProperty(String key, String value, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#setProperty(java.lang.String, java.lang.String)
-	 */
+	@Override
 	public String setProperty(String key, String value) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.IRepository#setProvider(java.lang.String)
-	 */
 	public void setProvider(String provider) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
+	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		return delegate.getAdapter(adapter);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return delegate.query(query, monitor);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		return delegate.executeBatch(runnable, monitor);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#compress(IPool<IInstallableUnit> iuPool)
-	 */
+	@Override
 	public void compress(IPool<IInstallableUnit> iuPool) {
 		delegate.compress(iuPool);
 	}

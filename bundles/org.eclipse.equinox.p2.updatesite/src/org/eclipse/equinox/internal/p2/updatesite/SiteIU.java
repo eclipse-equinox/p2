@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
+ * Copyright (c) 2010, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -124,7 +124,7 @@ public class SiteIU {
 	 */
 	public void addCategoryName(String categoryName) {
 		if (this.categoryNames == null)
-			this.categoryNames = new ArrayList<String>();
+			this.categoryNames = new ArrayList<>();
 		if (!this.categoryNames.contains(categoryName))
 			this.categoryNames.add(categoryName);
 	}
@@ -136,7 +136,7 @@ public class SiteIU {
 	 */
 	public void addQueryParams(String queryParam) {
 		if (this.queryParams == null)
-			this.queryParams = new ArrayList<String>();
+			this.queryParams = new ArrayList<>();
 		// don't do contains check, order matters and there may be duplicates
 		this.queryParams.add(queryParam);
 	}

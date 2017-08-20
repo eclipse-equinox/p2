@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,7 +67,7 @@ public class SiteModel {
 	 */
 	public void addArchive(URLEntry archiveReference) {
 		if (this.archiveReferences == null)
-			this.archiveReferences = new ArrayList<URLEntry>();
+			this.archiveReferences = new ArrayList<>();
 		if (!this.archiveReferences.contains(archiveReference))
 			this.archiveReferences.add(archiveReference);
 	}
@@ -79,7 +79,7 @@ public class SiteModel {
 	 */
 	public void addCategory(SiteCategory category) {
 		if (categories == null)
-			categories = new HashMap<String, SiteCategory>();
+			categories = new HashMap<>();
 		if (!categories.containsKey(category.getName())) {
 			categories.put(category.getName(), category);
 			if (localizations != null && !localizations.isEmpty())
@@ -94,7 +94,7 @@ public class SiteModel {
 	 */
 	public void addFeature(SiteFeature featureReference) {
 		if (this.features == null)
-			this.features = new ArrayList<SiteFeature>();
+			this.features = new ArrayList<>();
 		this.features.add(featureReference);
 	}
 
@@ -105,7 +105,7 @@ public class SiteModel {
 	 */
 	public void addBundle(SiteBundle bundleReference) {
 		if (this.bundles == null)
-			this.bundles = new ArrayList<SiteBundle>();
+			this.bundles = new ArrayList<>();
 		this.bundles.add(bundleReference);
 	}
 
@@ -116,7 +116,7 @@ public class SiteModel {
 	 */
 	public void addStatsFeature(SiteFeature featureReference) {
 		if (this.statsFeatures == null)
-			this.statsFeatures = new ArrayList<SiteFeature>();
+			this.statsFeatures = new ArrayList<>();
 		this.statsFeatures.add(featureReference);
 	}
 
@@ -127,7 +127,7 @@ public class SiteModel {
 	 */
 	public void addStatsBundle(SiteBundle bundleReference) {
 		if (this.statsBundles == null)
-			this.statsBundles = new ArrayList<SiteBundle>();
+			this.statsBundles = new ArrayList<>();
 		this.statsBundles.add(bundleReference);
 	}
 
@@ -138,7 +138,7 @@ public class SiteModel {
 	 */
 	public void addIU(SiteIU iu) {
 		if (this.ius == null)
-			this.ius = new ArrayList<SiteIU>();
+			this.ius = new ArrayList<>();
 		this.ius.add(iu);
 	}
 
@@ -149,7 +149,7 @@ public class SiteModel {
 	 */
 	public void addRepositoryReference(RepositoryReference ref) {
 		if (this.repositoryReferences == null)
-			this.repositoryReferences = new ArrayList<RepositoryReference>();
+			this.repositoryReferences = new ArrayList<>();
 		this.repositoryReferences.add(ref);
 	}
 

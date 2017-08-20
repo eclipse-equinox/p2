@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+ * Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -35,6 +35,7 @@ public class CategoryPublisherApplication extends AbstractPublisherApplication {
 	/*
 	 * Check to see if an existing repository already has the "compressed" flag set
 	 */
+	@Override
 	protected void initializeRepositories(PublisherInfo publisherInfo) throws ProvisionException {
 		try {
 			if (metadataLocation != null) {
@@ -57,6 +58,7 @@ public class CategoryPublisherApplication extends AbstractPublisherApplication {
 		super.initializeRepositories(publisherInfo);
 	}
 
+	@Override
 	protected void processParameter(String arg, String parameter, PublisherInfo pinfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, pinfo);
 
@@ -70,6 +72,7 @@ public class CategoryPublisherApplication extends AbstractPublisherApplication {
 
 	}
 
+	@Override
 	protected IPublisherAction[] createActions() {
 		return new IPublisherAction[] {new CategoryXMLAction(categoryDefinition, categoryQualifier)};
 	}
