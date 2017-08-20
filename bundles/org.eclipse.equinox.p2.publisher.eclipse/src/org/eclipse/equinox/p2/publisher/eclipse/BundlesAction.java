@@ -21,7 +21,6 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
@@ -38,8 +37,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.framework.util.Headers;
-import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
-import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
@@ -91,9 +88,6 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final int BUNDLE_LOCALIZATION_INDEX = PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length - 1;
 	public static final String DIR = "dir"; //$NON-NLS-1$
 	public static final String JAR = "jar"; //$NON-NLS-1$
-	private static final String FEATURE_FILENAME_DESCRIPTOR = "feature.xml"; //$NON-NLS-1$
-	private static final String PLUGIN_FILENAME_DESCRIPTOR = "plugin.xml"; //$NON-NLS-1$
-	private static final String FRAGMENT_FILENAME_DESCRIPTOR = "fragment.xml"; //$NON-NLS-1$
 	public static final String BUNDLE_SHAPE = "Eclipse-BundleShape"; //$NON-NLS-1$
 
 	/**
@@ -510,34 +504,6 @@ public class BundlesAction extends AbstractPublisherAction {
 		return localizations;
 	}
 
-	private static PluginConverter acquirePluginConverter() {
-		return ServiceHelper.getService(Activator.getContext(), PluginConverter.class);
-	}
-
-	private static Dictionary<String, String> convertPluginManifest(File bundleLocation, boolean logConversionException) {
-		PluginConverter converter;
-		try {
-			converter = acquirePluginConverter();
-			if (converter == null) {
-				String message = NLS.bind(Messages.exception_noPluginConverter, bundleLocation);
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
-				return null;
-			}
-			return converter.convertManifest(bundleLocation, false, null, true, null);
-		} catch (PluginConversionException convertException) {
-			// only log the exception if we had a plugin.xml or fragment.xml and we failed conversion
-			if (bundleLocation.getName().equals(FEATURE_FILENAME_DESCRIPTOR))
-				return null;
-			if (!new File(bundleLocation, PLUGIN_FILENAME_DESCRIPTOR).exists() && !new File(bundleLocation, FRAGMENT_FILENAME_DESCRIPTOR).exists())
-				return null;
-			if (logConversionException) {
-				IStatus status = new Status(IStatus.WARNING, Activator.ID, 0, NLS.bind(Messages.exception_errorConverting, bundleLocation.getAbsolutePath()), convertException);
-				LogHelper.log(status);
-			}
-			return null;
-		}
-	}
-
 	public static BundleDescription createBundleDescription(Dictionary<String, String> enhancedManifest, File bundleLocation) {
 		try {
 			BundleDescription descriptor = StateObjectFactory.defaultFactory.createBundleDescription(null, enhancedManifest, bundleLocation == null ? null : bundleLocation.getAbsolutePath(), 1); //TODO Do we need to have a real bundle id
@@ -640,16 +606,6 @@ public class BundlesAction extends AbstractPublisherAction {
 		try {
 			if (manifestStream != null) {
 				manifest = parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(manifestStream);
-			} else {
-				// Bug 437466 - erroneous PluginConverter message caused by a directory in "dropins"
-				// We might need the Eclipse 2.0 converter, if and only if
-				// there is a 'plugin.xml' file or "fragment.xml" file at bundle 
-				// location. If there is none, it is probably "just a directory", 
-				// perhaps with other bundles under it (but, drilling down in the 
-				// directory is handled elsewhere, if we return null manifest here. 
-				if (bundleLocation.isDirectory() && (new File(bundleLocation, PLUGIN_FILENAME_DESCRIPTOR).exists() || new File(bundleLocation, FRAGMENT_FILENAME_DESCRIPTOR).exists())) {
-					manifest = convertPluginManifest(bundleLocation, true);
-				}
 			}
 		} finally {
 			try {
@@ -660,12 +616,6 @@ public class BundlesAction extends AbstractPublisherAction {
 			}
 		}
 
-		if (manifest == null)
-			return null;
-
-		//Deal with the pre-3.0 plug-in shape who have a default jar manifest.mf
-		if (manifest.get(org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME) == null)
-			manifest = convertPluginManifest(bundleLocation, true);
 		return manifest;
 
 	}

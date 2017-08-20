@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,20 +17,15 @@ import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
-import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
 public class Utils {
-	private static final String FEATURE_MANIFEST = "feature.xml"; //$NON-NLS-1$
 	private static final String FILE_SCHEME = "file"; //$NON-NLS-1$
-	private static final String FRAGMENT_MANIFEST = "fragment.xml"; //$NON-NLS-1$
 	private static final String PATH_SEP = "/"; //$NON-NLS-1$
-	private static final String PLUGIN_MANIFEST = "plugin.xml"; //$NON-NLS-1$
 
 	/**
 	 * Overwrite all properties of from to the properties of to. Return the result of to.
@@ -79,13 +74,13 @@ public class Utils {
 			}
 			// we were unable to get an OSGi manifest file so try and convert an old-style manifest
 			if (manifestStream == null)
-				return convertPluginManifest(bundleLocation, true);
+				return null;
 
 			try {
 				Map<String, String> manifest = ManifestElement.parseBundleManifest(manifestStream, null);
 				// add this check to handle the case were we read a non-OSGi manifest
 				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null)
-					return convertPluginManifest(bundleLocation, true);
+					return null;
 				return manifestToProperties(manifest);
 			} catch (IOException ioe) {
 				return null;
@@ -140,33 +135,6 @@ public class Utils {
 			return getUrl("file", null, PATH_SEP + file.getAbsolutePath()); //$NON-NLS-1$
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException(urlName + "(" + "file:" + PATH_SEP + file.getAbsolutePath() + ") is not fully quallified"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-	}
-
-	/*
-	 * Copied from BundleDescriptionFactory in the metadata generator.
-	 */
-	private static Dictionary<String, String> convertPluginManifest(File bundleLocation, boolean logConversionException) {
-		PluginConverter converter;
-		try {
-			converter = org.eclipse.equinox.internal.frameworkadmin.utils.Activator.acquirePluginConverter();
-			if (converter == null) {
-				new RuntimeException("Unable to aquire PluginConverter service during generation for: " + bundleLocation).printStackTrace(); //$NON-NLS-1$
-				return null;
-			}
-			return converter.convertManifest(bundleLocation, false, null, true, null);
-		} catch (PluginConversionException convertException) {
-			// only log the exception if we had a plugin.xml or fragment.xml and we failed conversion
-			if (bundleLocation.getName().equals(FEATURE_MANIFEST))
-				return null;
-			if (!new File(bundleLocation, PLUGIN_MANIFEST).exists() && !new File(bundleLocation, FRAGMENT_MANIFEST).exists())
-				return null;
-			if (logConversionException) {
-				IStatus status = new Status(IStatus.WARNING, "org.eclipse.equinox.frameworkadmin", 0, "Error converting bundle manifest.", convertException); //$NON-NLS-1$ //$NON-NLS-2$
-				System.out.println(status);
-				//TODO Need to find a way to get a logging service to log
-			}
-			return null;
 		}
 	}
 
@@ -230,11 +198,6 @@ public class Utils {
 				// if we have a JAR'd bundle that has a non-OSGi manifest file (like
 				// the ones produced by Ant, then try and convert the plugin.xml
 				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null) {
-					String jarName = jar.getName();
-					File file = jarName != null ? new File(jarName) : null;
-					if (file != null && file.exists()) {
-						return convertPluginManifest(file, true);
-					}
 					return null;
 				}
 				return manifestToProperties(manifest);

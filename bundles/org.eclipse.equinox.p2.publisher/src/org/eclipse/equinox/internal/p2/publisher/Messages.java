@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -15,13 +15,11 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.publisher.messages";//$NON-NLS-1$
 
-	public static String exception_errorConverting;
 	public static String exception_stateAddition;
 	public static String exception_errorReadingManifest;
 	public static String exception_errorLoadingManifest;
 	public static String exception_errorPublishingBundle;
 	public static String exception_errorLoadingProductFile;
-	public static String exception_noPluginConverter;
 	public static String exception_noArtifactRepo;
 	public static String exception_noMetadataRepo;
 	public static String exception_noBundlesOrLocations;
