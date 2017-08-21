@@ -26,4 +26,3 @@ Export-Package: org.eclipse.equinox.frameworkadmin;version="2.0.0",
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"
 Bundle-ActivationPolicy: lazy
-Bundle-Activator: org.eclipse.equinox.internal.frameworkadmin.utils.Activator
