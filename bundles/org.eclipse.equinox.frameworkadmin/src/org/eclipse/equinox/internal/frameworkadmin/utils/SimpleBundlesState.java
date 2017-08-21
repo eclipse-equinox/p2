@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,7 +58,7 @@ public class SimpleBundlesState implements BundlesState {
 	private final String systemBundleName;
 
 	private final String systemBundleVendor;
-	List<BundleInfo> bundleInfosList = new LinkedList<BundleInfo>();
+	List<BundleInfo> bundleInfosList = new LinkedList<>();
 
 	FrameworkAdmin fwAdmin = null;
 
@@ -108,6 +108,7 @@ public class SimpleBundlesState implements BundlesState {
 		initialize();
 	}
 
+	@Override
 	public BundleInfo[] getExpectedState() throws FrameworkAdminRuntimeException {
 		if (!fwAdmin.isActive())
 			throw new FrameworkAdminRuntimeException("FrameworkAdmin creates this object is no more available.", FrameworkAdminRuntimeException.FRAMEWORKADMIN_UNAVAILABLE); //$NON-NLS-1$
@@ -119,6 +120,7 @@ public class SimpleBundlesState implements BundlesState {
 	 * 
 	 * @see org.eclipse.equinox.internal.provisional.frameworkadmin.BundlesState#getPrerequisteBundles(org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo)
 	 */
+	@Override
 	public BundleInfo[] getPrerequisteBundles(BundleInfo bInfo) {
 		URI location = bInfo.getLocation();
 		final String requiredBundles = Utils.getManifestMainAttributes(location, Constants.REQUIRE_BUNDLE);
@@ -126,11 +128,11 @@ public class SimpleBundlesState implements BundlesState {
 			return new BundleInfo[] {this.getSystemBundle()};
 
 		String[] clauses = Utils.getClauses(requiredBundles);
-		List<String> list = new LinkedList<String>();
+		List<String> list = new LinkedList<>();
 		for (int i = 0; i < clauses.length; i++)
 			list.add(Utils.getPathFromClause(clauses[i]));
 
-		List<BundleInfo> ret = new LinkedList<BundleInfo>();
+		List<BundleInfo> ret = new LinkedList<>();
 		ret.add(this.getSystemBundle());
 		for (Iterator<BundleInfo> ite = this.bundleInfosList.iterator(); ite.hasNext();) {
 			BundleInfo currentBInfo = ite.next();
@@ -150,6 +152,7 @@ public class SimpleBundlesState implements BundlesState {
 		return Utils.getBundleInfosFromList(ret);
 	}
 
+	@Override
 	public BundleInfo getSystemBundle() {
 		if (this.systemBundleSymbolicName == null) {
 			for (Iterator<BundleInfo> ite = this.bundleInfosList.iterator(); ite.hasNext();) {
@@ -177,6 +180,7 @@ public class SimpleBundlesState implements BundlesState {
 		return null;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public BundleInfo[] getSystemFragmentedBundles() {
 		BundleInfo systemBInfo = this.getSystemBundle();
@@ -212,6 +216,7 @@ public class SimpleBundlesState implements BundlesState {
 		return Utils.getBundleInfosFromList(list);
 	}
 
+	@Override
 	public String[] getUnsatisfiedConstraints(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		throw new FrameworkAdminRuntimeException("getUnsatisfiedConstraints(BundleInfo bInfo) is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION); //$NON-NLS-1$
 	}
@@ -237,6 +242,7 @@ public class SimpleBundlesState implements BundlesState {
 		}
 	}
 
+	@Override
 	public void installBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 
 		URI newLocation = bInfo.getLocation();
@@ -297,22 +303,27 @@ public class SimpleBundlesState implements BundlesState {
 	//		return sb.toString();
 	//	}
 
+	@Override
 	public boolean isFullySupported() {
 		return false;
 	}
 
+	@Override
 	public boolean isResolved() throws FrameworkAdminRuntimeException {
 		throw new FrameworkAdminRuntimeException("isResolved() is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION); //$NON-NLS-1$
 	}
 
+	@Override
 	public boolean isResolved(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		throw new FrameworkAdminRuntimeException("isResolved(BundleInfo bInfo) is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION); //$NON-NLS-1$
 	}
 
+	@Override
 	public void resolve(boolean increment) throws FrameworkAdminRuntimeException {
 		throw new FrameworkAdminRuntimeException("resolve(boolean increment) is not supported in this implementation", FrameworkAdminRuntimeException.UNSUPPORTED_OPERATION); //$NON-NLS-1$
 	}
 
+	@Override
 	public void uninstallBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		URI targetLocation = bInfo.getLocation();
 		int index = -1;

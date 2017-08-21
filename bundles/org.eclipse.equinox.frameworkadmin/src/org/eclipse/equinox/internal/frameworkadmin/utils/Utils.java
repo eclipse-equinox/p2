@@ -157,7 +157,7 @@ public class Utils {
 
 	public static String[] getClauses(String header) {
 		StringTokenizer token = new StringTokenizer(header, ","); //$NON-NLS-1$
-		List<String> list = new LinkedList<String>();
+		List<String> list = new LinkedList<>();
 		while (token.hasMoreTokens()) {
 			list.add(token.nextToken());
 		}
@@ -276,7 +276,7 @@ public class Utils {
 	public static String[] getTokens(String msg, String delim, boolean returnDelims) {
 		StringTokenizer targetST = new StringTokenizer(msg, delim, returnDelims);
 		String[] tokens = new String[targetST.countTokens()];
-		ArrayList<String> list = new ArrayList<String>(targetST.countTokens());
+		ArrayList<String> list = new ArrayList<>(targetST.countTokens());
 		while (targetST.hasMoreTokens()) {
 			list.add(targetST.nextToken());
 		}
@@ -304,7 +304,7 @@ public class Utils {
 
 	private static Dictionary<String, String> manifestToProperties(Map<String, String> d) {
 		Iterator<String> iter = d.keySet().iterator();
-		Dictionary<String, String> result = new Hashtable<String, String>();
+		Dictionary<String, String> result = new Hashtable<>();
 		while (iter.hasNext()) {
 			String key = iter.next();
 			result.put(key, d.get(key));
@@ -357,21 +357,21 @@ public class Utils {
 	 * @return sorted array of BundleInfos
 	 */
 	public static BundleInfo[] sortBundleInfos(BundleInfo[] bInfos, int initialBSL) {
-		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<Integer, List<BundleInfo>>();
+		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<>();
 		for (int i = 0; i < bInfos.length; i++) {
 			Integer sL = Integer.valueOf(bInfos[i].getStartLevel());
 			if (sL.intValue() == BundleInfo.NO_LEVEL)
 				sL = Integer.valueOf(initialBSL);
 			List<BundleInfo> list = bslToList.get(sL);
 			if (list == null) {
-				list = new LinkedList<BundleInfo>();
+				list = new LinkedList<>();
 				bslToList.put(sL, list);
 			}
 			list.add(bInfos[i]);
 		}
 
 		// bslToList is sorted by the key (StartLevel).
-		List<BundleInfo> bundleInfoList = new LinkedList<BundleInfo>();
+		List<BundleInfo> bundleInfoList = new LinkedList<>();
 		for (Iterator<Integer> ite = bslToList.keySet().iterator(); ite.hasNext();) {
 			Integer sL = ite.next();
 			List<BundleInfo> list = bslToList.get(sL);

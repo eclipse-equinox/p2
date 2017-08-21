@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -25,8 +25,8 @@ import java.util.*;
 public class LauncherData {
 	private File fwPersistentDataLocation = null;
 	private File jvm = null;
-	private List<String> jvmArgs = new LinkedList<String>();
-	private List<String> programArgs = new LinkedList<String>();
+	private List<String> jvmArgs = new LinkedList<>();
+	private List<String> programArgs = new LinkedList<>();
 
 	private boolean clean;
 	private File fwConfigLocation;

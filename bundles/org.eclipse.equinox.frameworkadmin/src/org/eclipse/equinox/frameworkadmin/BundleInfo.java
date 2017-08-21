@@ -248,9 +248,6 @@ public class BundleInfo {
 		this.fragmentHost = fragmentHost;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
