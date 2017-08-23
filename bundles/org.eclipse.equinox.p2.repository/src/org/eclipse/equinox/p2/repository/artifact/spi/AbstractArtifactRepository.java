@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -59,7 +59,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	}
 
 	/**
-	 * @deprecated 
+	 * @deprecated Use {@link #addDescriptor(IArtifactDescriptor, IProgressMonitor)} instead.
 	 */
 	public void addDescriptor(IArtifactDescriptor descriptor) {
 		this.addDescriptor(descriptor, new NullProgressMonitor());
@@ -74,7 +74,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	}
 
 	/**
-	 * @deprecated 
+	 * @deprecated Use {@link #addDescriptor(IArtifactDescriptor[], IProgressMonitor)} instead.
 	 */
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		this.addDescriptors(descriptors, new NullProgressMonitor());
@@ -89,7 +89,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated Use {@link #removeDescriptor(IArtifactDescriptor, IProgressMonitor)} instead.
 	 */
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
 		this.removeDescriptor(descriptor, new NullProgressMonitor());
@@ -106,7 +106,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	/**
 	 * {@inheritDoc}
 	 * @since 2.1
-	 * @deprecated ?? Strange that we added an API and then deprecated it
+	 * @deprecated Use {@link #removeDescriptors(IArtifactDescriptor[], IProgressMonitor)} instead.
 	 */
 	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
 		this.removeDescriptors(descriptors, new NullProgressMonitor());
@@ -121,7 +121,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated Use {@link #removeDescriptor(IArtifactKey, IProgressMonitor)} instead.
 	 */
 	public void removeDescriptor(IArtifactKey key) {
 		this.removeDescriptor(key, new NullProgressMonitor());
@@ -138,7 +138,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	/**
 	 * {@inheritDoc}
 	 * @since 2.1
-	 * @deprecated ?? Strange that we added an API and then deprecated it
+	 * @deprecated Use {@link #removeDescriptors(IArtifactKey[], IProgressMonitor)} instead.
 	 */
 	public void removeDescriptors(IArtifactKey[] keys) {
 		this.removeDescriptors(keys, new NullProgressMonitor());
@@ -152,7 +152,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated Use {@link #removeAll(IProgressMonitor)} instead.
 	 */
 	public void removeAll() {
 		this.removeAll(new NullProgressMonitor());
