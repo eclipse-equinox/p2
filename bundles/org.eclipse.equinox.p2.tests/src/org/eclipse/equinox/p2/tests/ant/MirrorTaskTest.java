@@ -817,7 +817,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	 */
 	protected IArtifactRepository createRepositoryWithIU(URI repoLocation, IArtifactDescriptor descriptor) throws ProvisionException {
 		IArtifactRepository artifactRepository = getArtifactRepositoryManager().createRepository(repoLocation, "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		artifactRepository.addDescriptor(descriptor);
+		artifactRepository.addDescriptor(descriptor, new NullProgressMonitor());
 
 		IMetadataRepository metaRepo = getMetadataRepositoryManager().createRepository(repoLocation, "Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		InstallableUnit iu = new InstallableUnit();

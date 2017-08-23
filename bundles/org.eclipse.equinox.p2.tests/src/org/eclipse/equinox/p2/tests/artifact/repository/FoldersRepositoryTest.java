@@ -16,7 +16,7 @@ import java.io.FileFilter;
 import java.net.URL;
 import java.util.Iterator;
 import junit.framework.TestCase;
-import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -72,6 +72,7 @@ public class FoldersRepositoryTest extends TestCase {
 		FileFilter filter = pathname -> !pathname.getName().equals("CVS");
 		File[] fileList = pluginsFolder.listFiles(filter);
 		assertEquals(2, fileList.length);
+		IProgressMonitor monitor = new NullProgressMonitor();
 		for (int i = 0; i < fileList.length; i++) {
 			File file = fileList[i];
 			String fileName = file.getName();
@@ -85,13 +86,13 @@ public class FoldersRepositoryTest extends TestCase {
 			if (file.isDirectory())
 				descriptor.setProperty("artifact.folder", "true");
 
-			repo.addDescriptor(descriptor);
+			repo.addDescriptor(descriptor, monitor);
 		}
 		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertEquals(2, AbstractProvisioningTest.queryResultSize(keys));
 		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
-			repo.removeDescriptor(key);
+			repo.removeDescriptor(key, monitor);
 		}
 
 		keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);

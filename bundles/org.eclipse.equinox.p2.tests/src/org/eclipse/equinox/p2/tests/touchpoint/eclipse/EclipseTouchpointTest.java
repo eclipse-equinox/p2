@@ -132,7 +132,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
-		bundlePool.addDescriptor(descriptor);
+		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
 		Map<String, String> extraProperties = new HashMap<>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
@@ -170,7 +170,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
-		bundlePool.addDescriptor(descriptor);
+		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
 		Map<String, String> extraProperties = new HashMap<>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());

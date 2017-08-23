@@ -114,7 +114,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
 
 		try {
-			compRepo.addDescriptor(descriptor);
+			compRepo.addDescriptor(descriptor, new NullProgressMonitor());
 			fail("Should not be able to add Artifact Descriptor");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through
@@ -134,7 +134,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		descriptors[0] = descriptor;
 
 		try {
-			compRepo.addDescriptors(descriptors);
+			compRepo.addDescriptors(descriptors, new NullProgressMonitor());
 			fail("Should not be able to add Artifact Descriptors using an array");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through
@@ -150,7 +150,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
 
 		try {
-			compRepo.removeDescriptor(descriptor);
+			compRepo.removeDescriptor(descriptor, new NullProgressMonitor());
 			fail("Should not be able to remove Artifact Descriptor using a Artifact Descriptor");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through
@@ -165,7 +165,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 
 		try {
-			compRepo.removeDescriptor(key);
+			compRepo.removeDescriptor(key, new NullProgressMonitor());
 			fail("Should not be able to remove Artifact Descriptor using an Artifact Key");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through
@@ -177,7 +177,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		CompositeArtifactRepository compRepo = createRepo(false);
 
 		try {
-			compRepo.removeAll();
+			compRepo.removeAll(new NullProgressMonitor());
 			fail("Should not be able to Remove All");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through
@@ -713,9 +713,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		CompositeArtifactRepository compRepo = null;
 		try {
 			repo1 = getArtifactRepositoryManager().createRepository(repo1Location.toURI(), "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			repo1.addDescriptor(descriptor1);
+			repo1.addDescriptor(descriptor1, new NullProgressMonitor());
 			repo2 = getArtifactRepositoryManager().createRepository(repo2Location.toURI(), "Repo 2", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			repo2.addDescriptor(descriptor2);
+			repo2.addDescriptor(descriptor2, new NullProgressMonitor());
 			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(compRepoLocation.toURI(), "Composite Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
 			getArtifactRepositoryManager().removeRepository(repo1Location.toURI());
 			getArtifactRepositoryManager().removeRepository(repo2Location.toURI());
@@ -752,9 +752,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		CompositeArtifactRepository compRepo = null;
 		try {
 			repo1 = getArtifactRepositoryManager().createRepository(repo1Location.toURI(), "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			repo1.addDescriptor(descriptor1);
+			repo1.addDescriptor(descriptor1, new NullProgressMonitor());
 			repo2 = getArtifactRepositoryManager().createRepository(repo2Location.toURI(), "Repo 2", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			repo2.addDescriptor(descriptor2);
+			repo2.addDescriptor(descriptor2, new NullProgressMonitor());
 			getArtifactRepositoryManager().removeRepository(repo1Location.toURI());
 			getArtifactRepositoryManager().removeRepository(repo2Location.toURI());
 			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(compRepoLocation.toURI(), "Composite Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
@@ -1100,20 +1100,20 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		BadSite dest = null;
 		CompositeArtifactRepository source = null;
 		File destination = new File(getTempFolder(), getUniqueString());
-		try (OutputStream out = new FileOutputStream(destination);) {
+		try (OutputStream out = new FileOutputStream(destination)) {
 
 			source = createRepository(new URI("memory:/in/memory"), "in memory test");
 			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", Version.create("1.5.1.v200803061910")));
 
 			// Create 'bad' child which returns an error in transfer
 			childOne = new BadSite(new URI("memory:/in/memory/one"));
-			childOne.addDescriptor(descriptor);
+			childOne.addDescriptor(descriptor, new NullProgressMonitor());
 			childOne.addToRepositoryManager();
 			source.addChild(childOne.getLocation());
 
 			// Create 'good' child which downloads successfully
 			TestArtifactRepository childTwo = new TestArtifactRepository(getAgent(), new URI("memory:/in/memory/two"));
-			childTwo.addDescriptor(descriptor);
+			childTwo.addDescriptor(descriptor, new NullProgressMonitor());
 			childTwo.addArtifact(descriptor.getArtifactKey(), contents);
 			childTwo.addToRepositoryManager();
 			source.addChild(childTwo.getLocation());
@@ -1269,7 +1269,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			IArtifactDescriptor desc = new ArtifactDescriptor(key);
 
 			childOne = createChild();
-			childOne.addDescriptor(desc);
+			childOne.addDescriptor(desc, new NullProgressMonitor());
 			((TestArtifactRepository) childOne).addArtifact(key, new byte[] {});
 			source.addChild(childOne.getLocation());
 
@@ -1278,7 +1278,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			assertFalse("Composite repo contains descriptor but child is marked bad", Arrays.asList(source.getArtifactDescriptors(key)).contains(desc));
 
 			childTwo = createChild();
-			childOne.addDescriptor(desc);
+			childOne.addDescriptor(desc, new NullProgressMonitor());
 			((TestArtifactRepository) childTwo).addArtifact(key, new byte[] {});
 			source.addChild(childTwo.getLocation());
 

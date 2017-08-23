@@ -133,7 +133,7 @@ public class RootFilesActionTest extends ActionTest {
 		super.cleanup();
 
 		if (artifactRepository != null)
-			artifactRepository.removeAll();
+			artifactRepository.removeAll(new NullProgressMonitor());
 		artifactRepository = null;
 
 		excludedFiles = null;

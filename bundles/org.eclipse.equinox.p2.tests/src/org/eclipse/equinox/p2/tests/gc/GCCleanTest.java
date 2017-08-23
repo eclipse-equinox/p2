@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
+ * Copyright (c) 2010, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -13,6 +13,8 @@ package org.eclipse.equinox.p2.tests.gc;
 import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.garbagecollector.CoreGarbageCollector;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -35,10 +37,10 @@ public class GCCleanTest extends AbstractProvisioningTest {
 		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
 		ArtifactDescriptor d3 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
 		d3.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
-
-		repo.addDescriptor(d1);
-		repo.addDescriptor(d2);
-		repo.addDescriptor(d3);
+		IProgressMonitor monitor = new NullProgressMonitor();
+		repo.addDescriptor(d1, monitor);
+		repo.addDescriptor(d2, monitor);
+		repo.addDescriptor(d3, monitor);
 		return repo;
 	}
 

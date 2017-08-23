@@ -1,9 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
@@ -12,6 +12,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
@@ -63,7 +64,7 @@ public class InstallFeatureActionTest extends AbstractProvisioningTest {
 		((SimpleArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
 		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, info);
 
-		bundlePool.addDescriptor(descriptor);
+		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
@@ -116,7 +117,7 @@ public class InstallFeatureActionTest extends AbstractProvisioningTest {
 		((SimpleArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
 		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, info);
 
-		bundlePool.addDescriptor(descriptor);
+		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());

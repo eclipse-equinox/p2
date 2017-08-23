@@ -148,7 +148,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
 
 		// Remove key from repo so the same one can be used
-		targetRepository.removeDescriptor(key);
+		targetRepository.removeDescriptor(key, new NullProgressMonitor());
 		// Set Status sequence
 		req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
@@ -159,7 +159,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertEquals("Expected INFO status", IStatus.INFO, req.getResult().getSeverity());
 
 		// Remove key from repo so the same one can be used
-		targetRepository.removeDescriptor(key);
+		targetRepository.removeDescriptor(key, new NullProgressMonitor());
 		// Set Status sequence
 		req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 

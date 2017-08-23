@@ -48,7 +48,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
-				repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
+				repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion), monitor);
 				try {
 					assertFalse("1.0", fileContainsString(artifactXML, "foo"));
 				} catch (IOException e) {
@@ -74,9 +74,9 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
-				repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
-				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
-				repo.addDescriptor(createDescriptor("baz", "baz", Version.emptyVersion));
+				repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion), monitor);
+				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion), monitor);
+				repo.addDescriptor(createDescriptor("baz", "baz", Version.emptyVersion), monitor);
 				try {
 					assertFalse("1.0", fileContainsString(artifactXML, "foo"));
 					assertFalse("1.0", fileContainsString(artifactXML, "bar"));
@@ -108,8 +108,8 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
-				repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion));
-				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
+				repo.addDescriptor(createDescriptor("foo", "foo", Version.emptyVersion), monitor);
+				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion), monitor);
 				throw new RuntimeException();
 			}, new NullProgressMonitor());
 			assertFalse(status.isOK());
@@ -134,9 +134,9 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
 				IArtifactDescriptor foo = createDescriptor("foo", "foo", Version.emptyVersion);
-				repo.addDescriptor(foo);
-				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
-				repo.removeDescriptor(foo);
+				repo.addDescriptor(foo, monitor);
+				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion), monitor);
+				repo.removeDescriptor(foo, monitor);
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
 			assertEquals("1.0", 1, repo.query(new ArtifactKeyQuery("bar", "bar", null), new NullProgressMonitor()).toSet().size());
@@ -159,13 +159,13 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
-				repo.addDescriptor(createDescriptor("1", "1", Version.emptyVersion));
-				repo.addDescriptor(createDescriptor("2", "2", Version.emptyVersion));
-				repo.addDescriptor(createDescriptor("3", "3", Version.emptyVersion));
+				repo.addDescriptor(createDescriptor("1", "1", Version.emptyVersion), monitor);
+				repo.addDescriptor(createDescriptor("2", "2", Version.emptyVersion), monitor);
+				repo.addDescriptor(createDescriptor("3", "3", Version.emptyVersion), monitor);
 				IArtifactDescriptor foo = createDescriptor("foo", "foo", Version.emptyVersion);
-				repo.addDescriptor(foo);
-				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion));
-				repo.removeDescriptor(foo);
+				repo.addDescriptor(foo, monitor);
+				repo.addDescriptor(createDescriptor("bar", "bar", Version.emptyVersion), monitor);
+				repo.removeDescriptor(foo, monitor);
 			}, new NullProgressMonitor());
 			assertTrue(status.isOK());
 			assertEquals("1.0", 4, repo.query(new ArtifactKeyQuery(null, null, null), new NullProgressMonitor()).toSet().size());

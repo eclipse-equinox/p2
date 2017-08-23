@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Cloudsmith Inc - ongoing development
@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
@@ -122,7 +123,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, dirBundleTarget);
 		IInstallableUnit iu = createBundleIU(bundleDescription, dirBundleTarget.isDirectory(), key);
-		bundlePool.addDescriptor(descriptor);
+		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
@@ -200,7 +201,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, dirBundleTarget);
 		IInstallableUnit iu = createBundleIU(bundleDescription, dirBundleTarget.isDirectory(), key);
-		bundlePool.addDescriptor(descriptor);
+		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());

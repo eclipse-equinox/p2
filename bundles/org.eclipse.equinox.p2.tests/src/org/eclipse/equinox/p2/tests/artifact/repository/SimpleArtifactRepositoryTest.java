@@ -87,7 +87,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
-		repo.addDescriptor(descriptor);
+		repo.addDescriptor(descriptor, new NullProgressMonitor());
 
 		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
@@ -120,7 +120,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
-		repo.addDescriptor(descriptor);
+		repo.addDescriptor(descriptor, new NullProgressMonitor());
 
 		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
@@ -377,9 +377,10 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
 
 		long start = System.currentTimeMillis();
+		IProgressMonitor monitor = new NullProgressMonitor();
 		for (int i = 0; i < 10000; i++) {
 			ArtifactDescriptor d = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a" + i, Version.create("1.0.0")));
-			repo.addDescriptor(d);
+			repo.addDescriptor(d, monitor);
 		}
 		long end = System.currentTimeMillis();
 		System.out.println("Total time: " + (end - start));
@@ -395,7 +396,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		repo.executeBatch(monitor -> {
 			for (int i = 0; i < 10000; i++) {
 				ArtifactDescriptor d = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a" + i, Version.create("1.0.0")));
-				repo.addDescriptor(d);
+				repo.addDescriptor(d, monitor);
 			}
 		}, new NullProgressMonitor());
 
@@ -413,10 +414,10 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
 		ArtifactDescriptor d3 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
 		d3.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
-
-		repo.addDescriptor(d1);
-		repo.addDescriptor(d2);
-		repo.addDescriptor(d3);
+		IProgressMonitor monitor = new NullProgressMonitor();
+		repo.addDescriptor(d1, monitor);
+		repo.addDescriptor(d2, monitor);
+		repo.addDescriptor(d3, monitor);
 
 		IQueryable<IArtifactDescriptor> descQueryable = repo.descriptorQueryable();
 		IQueryResult<IArtifactDescriptor> result = descQueryable.query(new ArtifactDescriptorQuery("a", null, null), null);

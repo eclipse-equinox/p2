@@ -1078,9 +1078,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		IArtifactRepository repo2 = null;
 		try {
 			repo1 = getArtifactRepositoryManager().createRepository(repo1Location.toURI(), "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			repo1.addDescriptor(descriptor1);
+			repo1.addDescriptor(descriptor1, new NullProgressMonitor());
 			repo2 = getArtifactRepositoryManager().createRepository(repo2Location.toURI(), "Repo 2", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			repo2.addDescriptor(descriptor2);
+			repo2.addDescriptor(descriptor2, new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			fail("Error creating repositories", e);
 		}
@@ -1130,9 +1130,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		IArtifactRepository baseline = null;
 		try {
 			repo = getArtifactRepositoryManager().createRepository(repoLocation.toURI(), "Repo 1", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			repo.addDescriptor(descriptor1);
+			repo.addDescriptor(descriptor1, new NullProgressMonitor());
 			baseline = getArtifactRepositoryManager().createRepository(baselineLocation.toURI(), "Repo 2", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-			baseline.addDescriptor(descriptor2);
+			baseline.addDescriptor(descriptor2, new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			fail("Error creating repositories", e);
 		}

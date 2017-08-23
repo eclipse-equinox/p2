@@ -52,8 +52,8 @@ public class ArtifactRepositoryWithReferenceDescriptors extends AbstractProvisio
 		descriptor2.setRepositoryProperty("file.name", fileLocation.getAbsolutePath());
 		descriptor2.setRepositoryProperty("file.lastModified", Long.toString(fileLocation.lastModified()));
 
-		repo.addDescriptor(descriptor1);
-		repo.addDescriptor(descriptor2);
+		repo.addDescriptor(descriptor1, new NullProgressMonitor());
+		repo.addDescriptor(descriptor2, new NullProgressMonitor());
 	}
 
 	public void testOldStyleReference() {

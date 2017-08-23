@@ -337,7 +337,7 @@ public class BundlesActionTest extends ActionTest {
 	public void cleanup() {
 		super.cleanup();
 		if (artifactRepository != null) {
-			artifactRepository.removeAll();
+			artifactRepository.removeAll(new NullProgressMonitor());
 			artifactRepository = null;
 		}
 	}
