@@ -25,8 +25,7 @@ import java.util.Map.Entry;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
@@ -67,7 +66,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
 	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
 
-	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 
 	private static final String PROGRAM_ARGS = "programArgs"; //$NON-NLS-1$
 	private static final String PROGRAM_ARGS_LINUX = "programArgsLin"; //$NON-NLS-1$

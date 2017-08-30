@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.*;
@@ -177,7 +178,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 	 */
 	private Document load(InputStream input) throws ParserConfigurationException, IOException, SAXException {
 		// load the feature xml
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory factory = SecureXMLUtil.newSecureDocumentBuilderFactory();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		input = new BufferedInputStream(input);
 		try {

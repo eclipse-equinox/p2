@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Vector;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -41,7 +42,6 @@ public class UpdateManagerCompatibility {
 
 	// This value was copied from MetadataGeneratorHelper.  Must be the same.
 	private static final String ECLIPSE_INSTALL_HANDLER_PROP = "org.eclipse.update.installHandler"; //$NON-NLS-1$
-	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
 	private static void parse(String fileName, Vector<MetadataRepositoryElement> bookmarks) {
 		File file = new File(fileName);
@@ -49,6 +49,7 @@ public class UpdateManagerCompatibility {
 			return;
 
 		try {
+			DocumentBuilderFactory documentBuilderFactory = SecureXMLUtil.newSecureDocumentBuilderFactory();
 			documentBuilderFactory.setNamespaceAware(true);
 			DocumentBuilder parser = documentBuilderFactory.newDocumentBuilder();
 			Document doc = parser.parse(file);

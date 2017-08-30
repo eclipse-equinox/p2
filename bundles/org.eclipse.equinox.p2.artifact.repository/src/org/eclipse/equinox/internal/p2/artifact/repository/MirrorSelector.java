@@ -24,8 +24,7 @@ import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -266,7 +265,7 @@ public class MirrorSelector {
 			}
 			mirrorsURL = mirrorsURL + "countryCode=" + countryCode + "&timeZone=" + timeZone + "&format=xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory domFactory = SecureXMLUtil.newSecureDocumentBuilderFactory();
 			DocumentBuilder builder = domFactory.newDocumentBuilder();
 			Document document = null;
 			// Use Transport to read the mirrors list (to benefit from proxy support, authentication, etc)
@@ -292,7 +291,7 @@ public class MirrorSelector {
 					|| mirrorsURL.startsWith("https://") //$NON-NLS-1$
 					|| mirrorsURL.startsWith("file://") //$NON-NLS-1$
 					|| mirrorsURL.startsWith("ftp://") //$NON-NLS-1$
-			|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
+					|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
 				log("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
 			return null;
 		}

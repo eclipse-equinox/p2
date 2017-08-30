@@ -16,8 +16,7 @@ import java.net.URI;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.*;
@@ -42,7 +41,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	private static final String BUNDLE = "bundle"; //$NON-NLS-1$
 	private static final String FEATURES = "features/"; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins/"; //$NON-NLS-1$
-	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 	private static final String PLUGIN_ID = Activator.ID;
 	private static final String SITE = "site"; //$NON-NLS-1$
 
@@ -85,7 +84,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	private static URLEntry[] getAssociateSites(String associateSitesURL) {
 
 		try {
-			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory domFactory = SecureXMLUtil.newSecureDocumentBuilderFactory();
 			DocumentBuilder builder = domFactory.newDocumentBuilder();
 			Document document = builder.parse(associateSitesURL);
 			if (document == null)

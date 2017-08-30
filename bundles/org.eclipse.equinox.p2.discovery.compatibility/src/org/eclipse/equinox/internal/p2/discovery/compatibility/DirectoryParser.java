@@ -13,12 +13,12 @@ package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
 import java.io.IOException;
 import java.io.Reader;
+import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.Directory.Entry;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.util.DefaultSaxErrorHandler;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.util.IOWithCauseException;
 import org.eclipse.osgi.util.NLS;
 import org.xml.sax.*;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * A parser for {@link Directory directories}.
@@ -38,7 +38,7 @@ public class DirectoryParser {
 	public Directory parse(Reader directoryContents) throws IOException {
 		XMLReader xmlReader;
 		try {
-			xmlReader = XMLReaderFactory.createXMLReader();
+			xmlReader = SecureXMLUtil.newSecureXMLReader();
 		} catch (SAXException e) {
 			throw new IOWithCauseException(e.getMessage(), e);
 		}

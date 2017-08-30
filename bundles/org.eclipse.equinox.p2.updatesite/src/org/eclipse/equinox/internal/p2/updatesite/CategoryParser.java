@@ -18,8 +18,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
@@ -32,7 +31,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * This class was initially copied from org.eclipse.update.core.model.DefaultSiteParser.
  */
 public class CategoryParser extends DefaultHandler {
-	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 	private static final String PLUGIN_ID = Activator.ID;
 
 	private static final String ARCHIVE = "archive"; //$NON-NLS-1$

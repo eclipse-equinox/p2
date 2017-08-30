@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
@@ -33,7 +34,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class FeatureManifestParser extends DefaultHandler {
 
-	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 	private SAXParser parser;
 	protected Feature result;
 	private URL url;

@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import javax.xml.parsers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.persistence.Messages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -33,7 +34,7 @@ public class IUDeserializer {
 	 * Construct a new instance of the deserializer.
 	 */
 	public IUDeserializer() {
-		deserializer = new IUDeserializerParser(SAXParserFactory.newInstance());
+		deserializer = new IUDeserializerParser(SecureXMLUtil.newSecureSAXParserFactory());
 	}
 
 	/**
