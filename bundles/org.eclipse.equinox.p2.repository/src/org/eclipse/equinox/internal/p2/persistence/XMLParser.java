@@ -15,8 +15,7 @@ import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
-import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -72,7 +71,16 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			xmlTracker = new ServiceTracker<SAXParserFactory, SAXParserFactory>(context, SAXParserFactory.class, null);
 			xmlTracker.open();
 		}
-		return xmlTracker.getService();
+		// FEATURE_SECURE_PROCESSING is documented as must be supported by all implementations
+		SAXParserFactory factory = xmlTracker.getService();
+		try {
+			factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		} catch (ParserConfigurationException e) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Feature not supported", e)); //$NON-NLS-1$
+		} catch (SAXException e) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Feature not supported", e)); //$NON-NLS-1$
+		}
+		return factory;
 	}
 
 	protected synchronized static void releaseXMLParsing() {

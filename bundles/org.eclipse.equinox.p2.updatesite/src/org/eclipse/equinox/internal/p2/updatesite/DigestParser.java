@@ -20,6 +20,7 @@ import javax.xml.parsers.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureManifestParser;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.osgi.util.NLS;
@@ -34,7 +35,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class DigestParser extends DefaultHandler {
 
-	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 	private SAXParser parser;
 	private final List<Feature> features = new ArrayList<Feature>();
 	private final FeatureManifestParser featureHandler = new FeatureManifestParser(false);
