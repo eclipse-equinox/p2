@@ -32,7 +32,6 @@ import org.xml.sax.helpers.DefaultHandler;
  * This class was initially copied from org.eclipse.update.core.model.DefaultSiteParser.
  */
 public class CategoryParser extends DefaultHandler {
-	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 	private static final String PLUGIN_ID = Activator.ID;
 
 	private static final String ARCHIVE = "archive"; //$NON-NLS-1$
@@ -110,8 +109,9 @@ public class CategoryParser extends DefaultHandler {
 		status = null;
 		DESCRIPTION_SITE_ALREADY_SEEN = false;
 		try {
-			parserFactory.setNamespaceAware(true);
-			this.parser = parserFactory.newSAXParser();
+			SAXParserFactory parserfactory = SecureXMLUtil.newSecureSAXParserFactory();
+			parserfactory.setNamespaceAware(true);
+			this.parser = parserfactory.newSAXParser();
 		} catch (ParserConfigurationException e) {
 			log(e);
 		} catch (SAXException e) {

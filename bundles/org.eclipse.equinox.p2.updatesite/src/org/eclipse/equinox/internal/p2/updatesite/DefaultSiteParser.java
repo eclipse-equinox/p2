@@ -41,7 +41,6 @@ public class DefaultSiteParser extends DefaultHandler {
 	private static final String BUNDLE = "bundle"; //$NON-NLS-1$
 	private static final String FEATURES = "features/"; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins/"; //$NON-NLS-1$
-	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 	private static final String PLUGIN_ID = Activator.ID;
 	private static final String SITE = "site"; //$NON-NLS-1$
 
@@ -138,6 +137,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		status = null;
 		DESCRIPTION_SITE_ALREADY_SEEN = false;
 		try {
+			SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 			parserFactory.setNamespaceAware(true);
 			this.parser = parserFactory.newSAXParser();
 		} catch (ParserConfigurationException e) {

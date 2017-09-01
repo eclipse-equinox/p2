@@ -34,12 +34,16 @@ public class IUDeserializer {
 	 * Construct a new instance of the deserializer.
 	 */
 	public IUDeserializer() {
-		deserializer = new IUDeserializerParser(SecureXMLUtil.newSecureSAXParserFactory());
+		try {
+			deserializer = new IUDeserializerParser(SecureXMLUtil.newSecureSAXParserFactory());
+		} catch (SAXNotRecognizedException | SAXNotSupportedException | ParserConfigurationException e) {
+			throw new FactoryConfigurationError(e);
+		}
 	}
 
 	/**
 	 * Deserialize a set of {@link IInstallableUnit} from the input stream.
-	 * @param input the input stream to deserialize {@link IInstallableUnit}s from. 
+	 * @param input the input stream to deserialize {@link IInstallableUnit}s from.
 	 * @return the collection of {@link IInstallableUnit}s read from the input stream.
 	 * @throws IOException
 	 */

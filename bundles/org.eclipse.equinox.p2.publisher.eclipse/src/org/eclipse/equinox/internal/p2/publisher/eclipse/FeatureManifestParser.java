@@ -34,7 +34,6 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class FeatureManifestParser extends DefaultHandler {
 
-	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 	private SAXParser parser;
 	protected Feature result;
 	private URL url;
@@ -53,6 +52,7 @@ public class FeatureManifestParser extends DefaultHandler {
 		if (!createParser)
 			return;
 		try {
+			SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 			parserFactory.setNamespaceAware(true);
 			this.parser = parserFactory.newSAXParser();
 		} catch (ParserConfigurationException e) {

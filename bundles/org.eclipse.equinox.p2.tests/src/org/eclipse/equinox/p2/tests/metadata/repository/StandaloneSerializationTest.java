@@ -12,10 +12,13 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.*;
 import java.util.*;
+import javax.xml.parsers.ParserConfigurationException;
 import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.io.IUDeserializer;
 import org.eclipse.equinox.p2.metadata.io.IUSerializer;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 public class StandaloneSerializationTest extends TestCase {
 	public void testNothingToWrite() {
@@ -35,7 +38,7 @@ public class StandaloneSerializationTest extends TestCase {
 		}
 	}
 
-	public void testNoContent() {
+	public void testNoContent() throws SAXNotRecognizedException, SAXNotSupportedException, ParserConfigurationException {
 		//Write file w/o content
 		File f = null;
 		try {
@@ -68,7 +71,7 @@ public class StandaloneSerializationTest extends TestCase {
 		f.delete();
 	}
 
-	public void testWritingThenLoading() {
+	public void testWritingThenLoading() throws SAXNotRecognizedException, SAXNotSupportedException, ParserConfigurationException {
 		MetadataFactory.InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId("foo");
 		iu.setVersion(Version.create("1.0.0"));

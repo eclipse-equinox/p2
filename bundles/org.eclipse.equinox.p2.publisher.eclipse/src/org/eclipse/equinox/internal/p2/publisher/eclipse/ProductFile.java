@@ -66,8 +66,6 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
 	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
 
-	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
-
 	private static final String PROGRAM_ARGS = "programArgs"; //$NON-NLS-1$
 	private static final String PROGRAM_ARGS_LINUX = "programArgsLin"; //$NON-NLS-1$
 	private static final String PROGRAM_ARGS_MAC = "programArgsMac"; //$NON-NLS-1$
@@ -225,6 +223,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		this.currentOS = os;
 		this.location = new File(location);
 		try {
+			SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 			parserFactory.setNamespaceAware(true);
 			parser = parserFactory.newSAXParser();
 			InputStream in = new BufferedInputStream(new FileInputStream(location));

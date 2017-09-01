@@ -35,7 +35,6 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class DigestParser extends DefaultHandler {
 
-	private final static SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 	private SAXParser parser;
 	private final List<Feature> features = new ArrayList<>();
 	private final FeatureManifestParser featureHandler = new FeatureManifestParser(false);
@@ -43,6 +42,7 @@ public class DigestParser extends DefaultHandler {
 	public DigestParser() {
 		super();
 		try {
+			SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 			parserFactory.setNamespaceAware(true);
 			this.parser = parserFactory.newSAXParser();
 		} catch (ParserConfigurationException e) {
