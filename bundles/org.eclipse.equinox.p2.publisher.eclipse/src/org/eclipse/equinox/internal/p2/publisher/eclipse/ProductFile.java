@@ -197,7 +197,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private boolean includeLaunchers = true;
 	private String licenseURL;
 	private String licenseText = null;
-	private String currentOS;
+	private final String currentOS;
 	private final List<IRepositoryReference> repositories = new ArrayList<>();
 
 	private static String normalize(String text) {
@@ -222,7 +222,6 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	public ProductFile(String location, String os) throws CoreException {
-		super();
 		this.currentOS = os;
 		this.location = new File(location);
 		try {
@@ -253,18 +252,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * Constructs a product file parser.
 	 */
 	public ProductFile(String location) throws Exception {
-		super();
-		this.location = new File(location);
-
-		parserFactory.setNamespaceAware(true);
-		parser = parserFactory.newSAXParser();
-		InputStream in = new BufferedInputStream(new FileInputStream(location));
-		try {
-			parser.parse(new InputSource(in), this);
-		} finally {
-			in.close();
-		}
-		parser = null;
+		this(location, null);
 	}
 
 	/**
