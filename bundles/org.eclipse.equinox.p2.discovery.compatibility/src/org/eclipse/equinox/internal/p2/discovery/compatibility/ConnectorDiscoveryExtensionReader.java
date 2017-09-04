@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ public class ConnectorDiscoveryExtensionReader {
 
 	public static final Tag[] DEFAULT_TAGS = new Tag[] {DOCUMENT, TASK, VCS};
 
-	private Map<String, Tag> tagById = new HashMap<String, Tag>();
+	private Map<String, Tag> tagById = new HashMap<>();
 
 	public ConnectorDiscoveryExtensionReader() {
 		// constructor
@@ -76,7 +76,7 @@ public class ConnectorDiscoveryExtensionReader {
 	}
 
 	public Set<Tag> getTags() {
-		return new HashSet<Tag>(tagById.values());
+		return new HashSet<>(tagById.values());
 	}
 
 	private Tag getTag(String id) {

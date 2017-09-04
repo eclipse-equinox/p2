@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,11 +27,11 @@ import org.osgi.framework.Bundle;
  */
 class DiscoveryRegistryStrategy extends RegistryStrategy {
 
-	private final List<JarFile> jars = new ArrayList<JarFile>();
+	private final List<JarFile> jars = new ArrayList<>();
 
-	private final Map<IContributor, File> contributorToJarFile = new HashMap<IContributor, File>();
+	private final Map<IContributor, File> contributorToJarFile = new HashMap<>();
 
-	private final Map<IContributor, Entry> contributorToDirectoryEntry = new HashMap<IContributor, Entry>();
+	private final Map<IContributor, Entry> contributorToDirectoryEntry = new HashMap<>();
 
 	private final Object token;
 
@@ -58,11 +58,8 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 			Bundle bundle = Platform.getBundle("org.eclipse.equinox.p2.discovery.compatibility"); //$NON-NLS-1$
 			IContributor contributor = new RegistryContributor(bundle.getSymbolicName(), bundle.getSymbolicName(), null, null);
 
-			InputStream inputStream = bundle.getEntry("plugin.xml").openStream(); //$NON-NLS-1$
-			try {
+			try (InputStream inputStream = bundle.getEntry("plugin.xml").openStream()) { //$NON-NLS-1$
 				registry.addContribution(inputStream, contributor, false, bundle.getSymbolicName(), null, token);
-			} finally {
-				inputStream.close();
 			}
 		} catch (IOException e) {
 			throw new IllegalStateException();
@@ -100,11 +97,8 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 
 		ResourceBundle translationBundle = loadTranslationBundle(jarFile);
 
-		InputStream inputStream = jarFile.getInputStream(pluginXmlEntry);
-		try {
+		try (InputStream inputStream = jarFile.getInputStream(pluginXmlEntry)) {
 			registry.addContribution(inputStream, contributor, false, bundleFile.getPath(), translationBundle, token);
-		} finally {
-			inputStream.close();
 		}
 	}
 
@@ -113,12 +107,9 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 		for (String bundleName : bundleNames) {
 			ZipEntry entry = jarFile.getEntry(bundleName);
 			if (entry != null) {
-				InputStream inputStream = jarFile.getInputStream(entry);
-				try {
+				try (InputStream inputStream = jarFile.getInputStream(entry)) {
 					PropertyResourceBundle resourceBundle = new PropertyResourceBundle(inputStream);
 					return resourceBundle;
-				} finally {
-					inputStream.close();
 				}
 			}
 		}
@@ -128,7 +119,7 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 	private List<String> computeBundleNames(String baseName) {
 		String suffix = ".properties"; //$NON-NLS-1$
 		String name = baseName;
-		List<String> bundleNames = new ArrayList<String>();
+		List<String> bundleNames = new ArrayList<>();
 		Locale locale = Locale.getDefault();
 		bundleNames.add(name + suffix);
 		if (locale.getLanguage() != null && locale.getLanguage().length() > 0) {

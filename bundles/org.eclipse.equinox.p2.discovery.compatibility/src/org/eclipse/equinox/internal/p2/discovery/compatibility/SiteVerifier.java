@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ public class SiteVerifier {
 	public void verifySiteAvailability(IProgressMonitor monitor) {
 		// NOTE: we don't put java.net.URLs in the map since it involves DNS activity when
 		//       computing the hash code.
-		Map<String, Collection<CatalogItem>> urlToDescriptors = new HashMap<String, Collection<CatalogItem>>();
+		Map<String, Collection<CatalogItem>> urlToDescriptors = new HashMap<>();
 
 		for (CatalogItem descriptor : catalog.getItems()) {
 			String url = descriptor.getSiteUrl();
@@ -55,7 +55,7 @@ public class SiteVerifier {
 			}
 			Collection<CatalogItem> collection = urlToDescriptors.get(url);
 			if (collection == null) {
-				collection = new ArrayList<CatalogItem>();
+				collection = new ArrayList<>();
 				urlToDescriptors.put(url, collection);
 			}
 			collection.add(descriptor);
@@ -66,7 +66,7 @@ public class SiteVerifier {
 			if (!urlToDescriptors.isEmpty()) {
 				ExecutorService executorService = Executors.newFixedThreadPool(Math.min(urlToDescriptors.size(), 4));
 				try {
-					List<Future<VerifyUpdateSiteJob>> futures = new ArrayList<Future<VerifyUpdateSiteJob>>(urlToDescriptors.size());
+					List<Future<VerifyUpdateSiteJob>> futures = new ArrayList<>(urlToDescriptors.size());
 					for (String url : urlToDescriptors.keySet()) {
 						futures.add(executorService.submit(new VerifyUpdateSiteJob(url)));
 					}
@@ -126,9 +126,10 @@ public class SiteVerifier {
 			this.url = url;
 		}
 
+		@Override
 		public VerifyUpdateSiteJob call() throws Exception {
 			URL baseUrl = new URL(url);
-			List<URI> locations = new ArrayList<URI>();
+			List<URI> locations = new ArrayList<>();
 			for (String location : new String[] {"content.jar", "content.xml", "site.xml", "compositeContent.jar", "compositeContent.xml"}) { //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 				locations.add(new URL(baseUrl, location).toURI());
 			}

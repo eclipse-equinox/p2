@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.discovery.compatibility.util;
 
 import java.io.*;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.Activator;
@@ -102,13 +103,10 @@ public class TransportUtil {
 		if (cacheFile == null) {
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.TransportUtil_InternalError));
 		}
-		InputStream in = new BufferedInputStream(new FileInputStream(cacheFile));
-		try {
+		try (InputStream in = new BufferedInputStream(new FileInputStream(cacheFile))) {
 			// FIXME how can the charset be determined?
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8")); //$NON-NLS-1$
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 			processor.process(reader);
-		} finally {
-			in.close();
 		}
 	}
 

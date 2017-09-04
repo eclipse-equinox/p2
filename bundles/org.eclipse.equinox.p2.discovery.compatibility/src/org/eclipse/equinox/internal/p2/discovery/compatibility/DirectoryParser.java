@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,6 +67,7 @@ public class DirectoryParser {
 		/**
 		 * @throws SAXException - required by contract, not really thrown 
 		 */
+		@Override
 		public void characters(char[] ch, int start, int length) throws SAXException {
 			// ignore
 		}
@@ -74,6 +75,7 @@ public class DirectoryParser {
 		/**
 		 * @throws SAXException - required by contract, not really thrown 
 		 */
+		@Override
 		public void endDocument() throws SAXException {
 			// ignore
 		}
@@ -81,6 +83,7 @@ public class DirectoryParser {
 		/**
 		 * @throws SAXException - required by contract, not really thrown 
 		 */
+		@Override
 		public void endElement(String uri, String localName, String qName) throws SAXException {
 			// ignore
 		}
@@ -88,6 +91,7 @@ public class DirectoryParser {
 		/**
 		 * @throws SAXException - required by contract, not really thrown 
 		 */
+		@Override
 		public void endPrefixMapping(String prefix) throws SAXException {
 			// ignore
 		}
@@ -95,6 +99,7 @@ public class DirectoryParser {
 		/**
 		 * @throws SAXException - required by contract, not really thrown 
 		 */
+		@Override
 		public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
 			// ignore
 		}
@@ -102,10 +107,12 @@ public class DirectoryParser {
 		/**
 		 * @throws SAXException - required by contract, not really thrown 
 		 */
+		@Override
 		public void processingInstruction(String target, String data) throws SAXException {
 			// ignore
 		}
 
+		@Override
 		public void setDocumentLocator(Locator locator) {
 			// ignore
 		}
@@ -113,6 +120,7 @@ public class DirectoryParser {
 		/**
 		 * @throws SAXException - required by contract, not really thrown 
 		 */
+		@Override
 		public void skippedEntity(String name) throws SAXException {
 			// ignore
 		}
@@ -120,10 +128,12 @@ public class DirectoryParser {
 		/**
 		 * @throws SAXException - required by contract, not really thrown 
 		 */
+		@Override
 		public void startDocument() throws SAXException {
 			// ignore
 		}
 
+		@Override
 		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 			if ("directory".equals(localName)) { //$NON-NLS-1$
 				if (directory != null) {
@@ -149,6 +159,7 @@ public class DirectoryParser {
 		/**
 		 * @throws SAXException - required by contract, not really thrown 
 		 */
+		@Override
 		public void startPrefixMapping(String prefix, String uri) throws SAXException {
 			// ignore
 		}

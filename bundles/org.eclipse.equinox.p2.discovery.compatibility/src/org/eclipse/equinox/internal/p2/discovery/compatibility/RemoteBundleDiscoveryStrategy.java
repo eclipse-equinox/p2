@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -21,7 +22,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.discovery.*;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.Directory.Entry;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.util.TransportUtil;
-import org.eclipse.equinox.internal.p2.discovery.compatibility.util.TransportUtil.TextContentProcessor;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -78,11 +78,9 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 			Directory directory;
 			try {
 				final Directory[] temp = new Directory[1];
-				TransportUtil.readResource(new URI(directoryUrl), new TextContentProcessor() {
-					public void process(Reader reader) throws IOException {
-						DirectoryParser parser = new DirectoryParser();
-						temp[0] = parser.parse(reader);
-					}
+				TransportUtil.readResource(new URI(directoryUrl), reader -> {
+					DirectoryParser parser = new DirectoryParser();
+					temp[0] = parser.parse(reader);
 				}, new SubProgressMonitor(monitor, ticksTenPercent));
 				directory = temp[0];
 				if (directory == null) {
@@ -102,11 +100,11 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_empty_directory));
 			}
 
-			Map<File, Directory.Entry> bundleFileToDirectoryEntry = new HashMap<File, Directory.Entry>();
+			Map<File, Directory.Entry> bundleFileToDirectoryEntry = new HashMap<>();
 
 			ExecutorService executorService = createExecutorService(directory.getEntries().size());
 			try {
-				List<Future<DownloadBundleJob>> futures = new ArrayList<Future<DownloadBundleJob>>();
+				List<Future<DownloadBundleJob>> futures = new ArrayList<>();
 				// submit jobs
 				for (Directory.Entry entry : directory.getEntries()) {
 					futures.add(executorService.submit(new DownloadBundleJob(entry, monitor)));
@@ -188,6 +186,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 			this.monitor = monitor;
 		}
 
+		@Override
 		public DownloadBundleJob call() {
 
 			String bundleUrl = entry.getLocation();
