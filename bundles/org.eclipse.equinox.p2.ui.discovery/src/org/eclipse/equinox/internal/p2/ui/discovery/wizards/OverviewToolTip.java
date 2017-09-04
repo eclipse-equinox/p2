@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,8 @@ import org.eclipse.jface.window.ToolTip;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.*;
@@ -66,11 +67,7 @@ class OverviewToolTip extends GradientToolTip {
 			image = computeImage(source, overview.getScreenshot());
 			if (image != null) {
 				final Image fimage = image;
-				container.addDisposeListener(new DisposeListener() {
-					public void widgetDisposed(DisposeEvent e) {
-						fimage.dispose();
-					}
-				});
+				container.addDisposeListener(e -> fimage.dispose());
 			}
 		}
 		final boolean hasLearnMoreLink = overview.getUrl() != null && overview.getUrl().length() > 0;
@@ -141,10 +138,12 @@ class OverviewToolTip extends GradientToolTip {
 			link.setBackground(null);
 			link.setToolTipText(NLS.bind(Messages.ConnectorDescriptorToolTip_detailsLink_tooltip, overview.getUrl()));
 			link.addSelectionListener(new SelectionListener() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					WorkbenchUtil.openUrl(overview.getUrl(), IWorkbenchBrowserSupport.AS_EXTERNAL);
 				}
 
+				@Override
 				public void widgetDefaultSelected(SelectionEvent e) {
 					widgetSelected(e);
 				}
@@ -160,11 +159,9 @@ class OverviewToolTip extends GradientToolTip {
 		}
 		// hack: cause the tooltip to gain focus so that we can capture the escape key
 		//       this must be done async since the tooltip is not yet visible.
-		Display.getCurrent().asyncExec(new Runnable() {
-			public void run() {
-				if (!parent.isDisposed()) {
-					parent.setFocus();
-				}
+		Display.getCurrent().asyncExec(() -> {
+			if (!parent.isDisposed()) {
+				parent.setFocus();
 			}
 		});
 		return container;

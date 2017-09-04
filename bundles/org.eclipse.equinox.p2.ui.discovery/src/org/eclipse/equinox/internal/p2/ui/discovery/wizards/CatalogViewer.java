@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,12 +30,12 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableContext;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -61,6 +61,7 @@ public class CatalogViewer extends FilteredViewer {
 			this.hasCategories = hasCategories;
 		}
 
+		@Override
 		public void dispose() {
 			catalog = null;
 		}
@@ -69,6 +70,7 @@ public class CatalogViewer extends FilteredViewer {
 			return catalog;
 		}
 
+		@Override
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof CatalogCategory) {
 				return ((CatalogCategory) parentElement).getItems().toArray();
@@ -76,9 +78,10 @@ public class CatalogViewer extends FilteredViewer {
 			return null;
 		}
 
+		@Override
 		public Object[] getElements(Object inputElement) {
 			if (catalog != null) {
-				List<Object> elements = new ArrayList<Object>();
+				List<Object> elements = new ArrayList<>();
 				if (hasCategories()) {
 					elements.addAll(catalog.getCategories());
 				}
@@ -88,6 +91,7 @@ public class CatalogViewer extends FilteredViewer {
 			return new Object[0];
 		}
 
+		@Override
 		public Object getParent(Object element) {
 			if (element instanceof CatalogCategory) {
 				return catalog;
@@ -98,6 +102,7 @@ public class CatalogViewer extends FilteredViewer {
 			return null;
 		}
 
+		@Override
 		public boolean hasChildren(Object element) {
 			if (element instanceof CatalogCategory) {
 				return ((CatalogCategory) element).getItems().size() > 0;
@@ -105,6 +110,7 @@ public class CatalogViewer extends FilteredViewer {
 			return false;
 		}
 
+		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			this.catalog = (Catalog) newInput;
 		}
@@ -182,7 +188,7 @@ public class CatalogViewer extends FilteredViewer {
 
 	final Catalog catalog;
 
-	private final List<CatalogItem> checkedItems = new ArrayList<CatalogItem>();
+	private final List<CatalogItem> checkedItems = new ArrayList<>();
 
 	private boolean complete;
 
@@ -223,9 +229,9 @@ public class CatalogViewer extends FilteredViewer {
 		this.showInstalled = configuration.isShowInstalled();
 		this.showCategories = configuration.isShowCategories();
 		if (configuration.getSelectedTags() != null) {
-			this.visibleTags = new HashSet<Tag>(configuration.getSelectedTags());
+			this.visibleTags = new HashSet<>(configuration.getSelectedTags());
 		} else {
-			this.visibleTags = new HashSet<Tag>();
+			this.visibleTags = new HashSet<>();
 		}
 		setMinimumHeight(DEFAULT_HEIGHT);
 		setComplete(false);
@@ -284,10 +290,12 @@ public class CatalogViewer extends FilteredViewer {
 			showInstalledCheckbox.setText(Messages.DiscoveryViewer_Show_Installed);
 			showInstalledCheckbox.addSelectionListener(new SelectionListener() {
 
+				@Override
 				public void widgetDefaultSelected(SelectionEvent e) {
 					widgetSelected(e);
 				}
 
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if (ignoreUpdates) {
 						return;
@@ -305,10 +313,12 @@ public class CatalogViewer extends FilteredViewer {
 				checkbox.setSelection(visibleTags.contains(tag));
 				checkbox.setText(tag.getLabel());
 				checkbox.addSelectionListener(new SelectionListener() {
+					@Override
 					public void widgetDefaultSelected(SelectionEvent e) {
 						widgetSelected(e);
 					}
 
+					@Override
 					public void widgetSelected(SelectionEvent e) {
 						boolean selection = checkbox.getSelection();
 						if (selection) {
@@ -388,12 +398,10 @@ public class CatalogViewer extends FilteredViewer {
 		});
 
 		resources = new DiscoveryResources(container.getDisplay());
-		_viewer.getControl().addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				resources.dispose();
-				if (catalog != null)
-					catalog.dispose();
-			}
+		_viewer.getControl().addDisposeListener(e -> {
+			resources.dispose();
+			if (catalog != null)
+				catalog.dispose();
 		});
 		_viewer.addFilter(new Filter());
 		return _viewer;
@@ -436,7 +444,7 @@ public class CatalogViewer extends FilteredViewer {
 	}
 
 	public List<CatalogItem> getCheckedItems() {
-		return new ArrayList<CatalogItem>(checkedItems);
+		return new ArrayList<>(checkedItems);
 	}
 
 	public CatalogConfiguration getConfiguration() {
@@ -444,7 +452,7 @@ public class CatalogViewer extends FilteredViewer {
 	}
 
 	protected Set<String> getInstalledFeatures(IProgressMonitor monitor) {
-		Set<String> features = new HashSet<String>();
+		Set<String> features = new HashSet<>();
 		IProfile profile = ProvUI.getProfileRegistry(ProvisioningUI.getDefaultUI().getSession()).getProfile(ProvisioningUI.getDefaultUI().getProfileId());
 		if (profile != null) {
 			IQueryResult<IInstallableUnit> result = profile.available(QueryUtil.createIUGroupQuery(), monitor);
@@ -529,7 +537,7 @@ public class CatalogViewer extends FilteredViewer {
 	}
 
 	public void setSelection(IStructuredSelection selection) {
-		Set<CatalogItem> selected = new HashSet<CatalogItem>();
+		Set<CatalogItem> selected = new HashSet<>();
 		for (Object descriptor : selection.toArray()) {
 			if (descriptor instanceof CatalogItem) {
 				selected.add((CatalogItem) descriptor);
@@ -560,19 +568,17 @@ public class CatalogViewer extends FilteredViewer {
 		boolean wasError = false;
 		try {
 			final IStatus[] result = new IStatus[1];
-			context.run(true, true, new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) throws InterruptedException {
-					if (installedFeatures == null) {
-						installedFeatures = getInstalledFeatures(monitor);
-					}
-
-					result[0] = catalog.performDiscovery(monitor);
-					if (monitor.isCanceled()) {
-						throw new InterruptedException();
-					}
-
-					postDiscovery();
+			context.run(true, true, monitor -> {
+				if (installedFeatures == null) {
+					installedFeatures = getInstalledFeatures(monitor);
 				}
+
+				result[0] = catalog.performDiscovery(monitor);
+				if (monitor.isCanceled()) {
+					throw new InterruptedException();
+				}
+
+				postDiscovery();
 			});
 
 			if (result[0] != null && !result[0].isOK()) {
@@ -598,11 +604,9 @@ public class CatalogViewer extends FilteredViewer {
 	protected void verifyUpdateSiteAvailability() {
 		if (configuration.isVerifyUpdateSiteAvailability() && !catalog.getItems().isEmpty()) {
 			try {
-				context.run(true, true, new IRunnableWithProgress() {
-					public void run(IProgressMonitor monitor) {
-						SiteVerifier verifier = new SiteVerifier(catalog);
-						verifier.verifySiteAvailability(monitor);
-					}
+				context.run(true, true, monitor -> {
+					SiteVerifier verifier = new SiteVerifier(catalog);
+					verifier.verifySiteAvailability(monitor);
 				});
 			} catch (InvocationTargetException e) {
 				IStatus status = computeStatus(e, Messages.ConnectorDiscoveryWizardMainPage_unexpectedException);

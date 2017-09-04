@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,24 +43,29 @@ public class SelectionProviderAdapter extends EventManager implements ISelection
 	public SelectionProviderAdapter() {
 	}
 
+	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
 		addListenerObject(listener);
 	}
 
+	@Override
 	public ISelection getSelection() {
 		return selection;
 	}
 
+	@Override
 	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
 		removeListenerObject(listener);
 	}
 
+	@Override
 	public void selectionChanged(final SelectionChangedEvent event) {
 		this.selection = event.getSelection();
 		Object[] listeners = getListeners();
 		for (int i = 0; i < listeners.length; ++i) {
 			final ISelectionChangedListener listener = (ISelectionChangedListener) listeners[i];
 			SafeRunner.run(new SafeRunnable() {
+				@Override
 				public void run() {
 					listener.selectionChanged(event);
 				}
@@ -68,6 +73,7 @@ public class SelectionProviderAdapter extends EventManager implements ISelection
 		}
 	}
 
+	@Override
 	public void setSelection(ISelection selection) {
 		selectionChanged(new SelectionChangedEvent(this, selection));
 	}

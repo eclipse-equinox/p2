@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,10 +79,12 @@ public abstract class ControlListViewer extends StructuredViewer {
 		control.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		control.setBackgroundMode(SWT.INHERIT_FORCE);
 		control.addControlListener(new ControlListener() {
+			@Override
 			public void controlMoved(ControlEvent e) {
 				updateVisibleItems();
 			}
 
+			@Override
 			public void controlResized(ControlEvent e) {
 				updateVisibleItems();
 			}
@@ -105,6 +107,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		control.addTraverseListener(new TraverseListener() {
 			private boolean handleEvent = true;
 
+			@Override
 			public void keyTraversed(TraverseEvent event) {
 				if (!handleEvent) {
 					return;
@@ -178,7 +181,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		ViewerComparator sorter = getComparator();
 
 		// Use a Set in case we are getting something added that exists
-		Set<Object> newItems = new HashSet<Object>(elements.length);
+		Set<Object> newItems = new HashSet<>(elements.length);
 
 		Control[] existingChildren = control.getChildren();
 		for (Control element : existingChildren) {
@@ -253,6 +256,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		//			}
 		//		});
 		item.setIndexListener(new ControlListItem.IndexListener() {
+			@Override
 			public void selectNext() {
 				Control[] children = control.getChildren();
 				for (int i = 0; i < children.length; i++) {
@@ -265,6 +269,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 				}
 			}
 
+			@Override
 			public void selectPrevious() {
 				Control[] children = control.getChildren();
 				for (int i = 0; i < children.length; i++) {
@@ -277,11 +282,13 @@ public abstract class ControlListViewer extends StructuredViewer {
 				}
 			}
 
+			@Override
 			public void select() {
 				setSelection(new StructuredSelection(item.getData()));
 				setFocus();
 			}
 
+			@Override
 			public void open() {
 				handleOpen();
 			}
@@ -330,7 +337,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 	@Override
 	protected List<?> getSelectionFromWidget() {
 		Control[] children = control.getChildren();
-		ArrayList<Object> selection = new ArrayList<Object>(children.length);
+		ArrayList<Object> selection = new ArrayList<>(children.length);
 		for (Control child : children) {
 			ControlListItem<?> item = (ControlListItem<?>) child;
 			if (item.isSelected() && item.getData() != null) {

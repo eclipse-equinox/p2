@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Tasktop Technologies and others.
+ * Copyright (c) 2010, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,52 +46,44 @@ public abstract class AbstractDiscoveryItem<T> extends ControlListItem<T> {
 
 	protected void hookTooltip(final Control parent, final Widget tipActivator, final Control exitControl, final Control titleControl, AbstractCatalogSource source, Overview overview, Image image) {
 		final OverviewToolTip toolTip = new OverviewToolTip(parent, source, overview, image);
-		Listener listener = new Listener() {
-			public void handleEvent(Event event) {
-				switch (event.type) {
-					case SWT.MouseHover :
-						toolTip.show(titleControl);
-						break;
-					case SWT.Dispose :
-					case SWT.MouseWheel :
-						toolTip.hide();
-						break;
-				}
-
+		Listener listener = event -> {
+			switch (event.type) {
+				case SWT.MouseHover :
+					toolTip.show(titleControl);
+					break;
+				case SWT.Dispose :
+				case SWT.MouseWheel :
+					toolTip.hide();
+					break;
 			}
+
 		};
 		tipActivator.addListener(SWT.Dispose, listener);
 		tipActivator.addListener(SWT.MouseWheel, listener);
 		if (image != null) {
 			tipActivator.addListener(SWT.MouseHover, listener);
 		}
-		Listener selectionListener = new Listener() {
-			public void handleEvent(Event event) {
-				toolTip.show(titleControl);
-			}
-		};
+		Listener selectionListener = event -> toolTip.show(titleControl);
 		tipActivator.addListener(SWT.Selection, selectionListener);
-		Listener exitListener = new Listener() {
-			public void handleEvent(Event event) {
-				switch (event.type) {
-					case SWT.MouseWheel :
-						toolTip.hide();
+		Listener exitListener = event -> {
+			switch (event.type) {
+				case SWT.MouseWheel :
+					toolTip.hide();
+					break;
+				case SWT.MouseExit :
+					/*
+					 * Check if the mouse exit happened because we move over the
+					 * tooltip
+					 */
+					Rectangle containerBounds = exitControl.getBounds();
+					Point displayLocation = exitControl.getParent().toDisplay(containerBounds.x, containerBounds.y);
+					containerBounds.x = displayLocation.x;
+					containerBounds.y = displayLocation.y;
+					if (containerBounds.contains(Display.getCurrent().getCursorLocation())) {
 						break;
-					case SWT.MouseExit :
-						/*
-						 * Check if the mouse exit happened because we move over the
-						 * tooltip
-						 */
-						Rectangle containerBounds = exitControl.getBounds();
-						Point displayLocation = exitControl.getParent().toDisplay(containerBounds.x, containerBounds.y);
-						containerBounds.x = displayLocation.x;
-						containerBounds.y = displayLocation.y;
-						if (containerBounds.contains(Display.getCurrent().getCursorLocation())) {
-							break;
-						}
-						toolTip.hide();
-						break;
-				}
+					}
+					toolTip.hide();
+					break;
 			}
 		};
 		hookRecursively(exitControl, exitListener);

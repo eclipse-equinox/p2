@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,8 +34,9 @@ public class ShowBundleCatalogCommandHandler extends AbstractHandler {
 
 	private static final String ID_PARAMETER_TAGS = "org.eclipse.equinox.p2.ui.discovery.commands.TagsParameter"; //$NON-NLS-1$
 
+	@Override
 	public Object execute(ExecutionEvent event) {
-		Set<Tag> tags = new LinkedHashSet<Tag>();
+		Set<Tag> tags = new LinkedHashSet<>();
 		String tagString = event.getParameter(ID_PARAMETER_TAGS);
 		if (tagString != null) {
 			String[] tagIds = tagString.split("\\s*,\\s*"); //$NON-NLS-1$
@@ -66,7 +67,7 @@ public class ShowBundleCatalogCommandHandler extends AbstractHandler {
 
 		catalog.setEnvironment(DiscoveryCore.createEnvironment());
 		catalog.setVerifyUpdateSiteAvailability(true);
-		catalog.setTags(new ArrayList<Tag>(tags));
+		catalog.setTags(new ArrayList<>(tags));
 
 		CatalogConfiguration configuration = new CatalogConfiguration();
 		configuration.setShowTagFilter(tags.size() > 0);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ public class ShowRepositoryCatalogCommandHandler extends AbstractHandler {
 
 	private static final String ID_PARAMETER_REPOSITORY = "org.eclipse.equinox.p2.ui.discovery.commands.RepositoryParameter"; //$NON-NLS-1$
 
+	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String location = event.getParameter(ID_PARAMETER_REPOSITORY);
 		if (location == null) {

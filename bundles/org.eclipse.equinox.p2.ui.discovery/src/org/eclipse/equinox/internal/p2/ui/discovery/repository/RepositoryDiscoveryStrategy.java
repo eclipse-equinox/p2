@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Tasktop Technologies and others.
+ * Copyright (c) 2010, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,10 +48,10 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 	private final Map<String, CatalogItem> catalogItemById;
 
 	public RepositoryDiscoveryStrategy() {
-		this.locations = new ArrayList<URI>();
-		this.sourceByRepository = new HashMap<IMetadataRepository, RepositorySource>();
-		this.categoryById = new HashMap<String, CatalogCategory>();
-		this.catalogItemById = new HashMap<String, CatalogItem>();
+		this.locations = new ArrayList<>();
+		this.sourceByRepository = new HashMap<>();
+		this.categoryById = new HashMap<>();
+		this.catalogItemById = new HashMap<>();
 	}
 
 	public void addLocation(URI location) {
@@ -106,7 +106,7 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		}
 
 		// fetch meta-data for these repositories
-		ArrayList<IMetadataRepository> repositories = new ArrayList<IMetadataRepository>();
+		ArrayList<IMetadataRepository> repositories = new ArrayList<>();
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) session.getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		for (URI uri : locations) {
 			IMetadataRepository repository = manager.loadRepository(uri, monitor.newChild(1));

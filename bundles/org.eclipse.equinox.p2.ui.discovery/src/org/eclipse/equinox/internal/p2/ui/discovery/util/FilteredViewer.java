@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2011 IBM Corporation and others.
+ * Copyright (c) 2004, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,8 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.progress.WorkbenchJob;
@@ -67,11 +68,9 @@ public abstract class FilteredViewer {
 	public void createControl(Composite parent) {
 		container = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().margins(0, 0).applyTo(container);
-		container.addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				if (refreshJob != null) {
-					refreshJob.cancel();
-				}
+		container.addDisposeListener(e -> {
+			if (refreshJob != null) {
+				refreshJob.cancel();
 			}
 		});
 
@@ -99,18 +98,12 @@ public abstract class FilteredViewer {
 
 		filterText = new TextSearchControl(parent, automaticFind);
 		if (automaticFind) {
-			filterText.addModifyListener(new ModifyListener() {
-				public void modifyText(ModifyEvent e) {
-					filterTextChanged();
-				}
-			});
+			filterText.addModifyListener(e -> filterTextChanged());
 		} else {
-			filterText.getTextControl().addTraverseListener(new TraverseListener() {
-				public void keyTraversed(TraverseEvent e) {
-					if (e.detail == SWT.TRAVERSE_RETURN) {
-						e.doit = false;
-						filterTextChanged();
-					}
+			filterText.getTextControl().addTraverseListener(e -> {
+				if (e.detail == SWT.TRAVERSE_RETURN) {
+					e.doit = false;
+					filterTextChanged();
 				}
 			});
 		}

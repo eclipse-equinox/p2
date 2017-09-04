@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Tasktop Technologies and others.
+ * Copyright (c) 2010, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,11 +60,7 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 		this.item = item;
 		this.viewer = viewer;
 		item.addPropertyChangeListener(this);
-		this.addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				item.removePropertyChangeListener(DiscoveryItem.this);
-			}
-		});
+		this.addDisposeListener(e -> item.removePropertyChangeListener(DiscoveryItem.this));
 		createContent();
 		initializeListeners();
 	}
@@ -170,10 +166,12 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 
 	public void initializeListeners() {
 		checkbox.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				widgetSelected(e);
 			}
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				boolean selected = checkbox.getSelection();
 				maybeModifySelection(selected);
@@ -212,13 +210,12 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 		return true;
 	}
 
+	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (!isDisposed()) {
-			getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					if (!isDisposed()) {
-						refresh();
-					}
+			getDisplay().asyncExec(() -> {
+				if (!isDisposed()) {
+					refresh();
 				}
 			});
 		}

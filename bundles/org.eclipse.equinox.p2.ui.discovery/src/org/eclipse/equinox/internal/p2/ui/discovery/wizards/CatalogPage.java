@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,6 @@ package org.eclipse.equinox.internal.p2.ui.discovery.wizards;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.discovery.Catalog;
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.widgets.Composite;
@@ -48,13 +46,10 @@ public class CatalogPage extends WizardPage implements IShellProvider {
 		setDescription(Messages.ConnectorDiscoveryWizardMainPage_pageDescription);
 	}
 
+	@Override
 	public void createControl(Composite parent) {
 		viewer = doCreateViewer(parent);
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				setPageComplete(!viewer.getCheckedItems().isEmpty());
-			}
-		});
+		viewer.addSelectionChangedListener(event -> setPageComplete(!viewer.getCheckedItems().isEmpty()));
 		setControl(viewer.getControl());
 	}
 
@@ -72,11 +67,9 @@ public class CatalogPage extends WizardPage implements IShellProvider {
 	protected void doUpdateCatalog() {
 		if (!updated) {
 			updated = true;
-			Display.getCurrent().asyncExec(new Runnable() {
-				public void run() {
-					if (!getControl().isDisposed() && isCurrentPage()) {
-						viewer.updateCatalog();
-					}
+			Display.getCurrent().asyncExec(() -> {
+				if (!getControl().isDisposed() && isCurrentPage()) {
+					viewer.updateCatalog();
 				}
 			});
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Tasktop Technologies and others.
+ * Copyright (c) 2010, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.discovery.model.Tag;
  */
 public class CatalogConfiguration {
 
-	private final List<CatalogFilter> filters = new ArrayList<CatalogFilter>();
+	private final List<CatalogFilter> filters = new ArrayList<>();
 
 	private boolean showCategories = true;
 
@@ -101,7 +101,7 @@ public class CatalogConfiguration {
 
 	public void setSelectedTags(Collection<Tag> selectedTags) {
 		if (selectedTags != null) {
-			this.selectedTags = new HashSet<Tag>(selectedTags);
+			this.selectedTags = new HashSet<>(selectedTags);
 		} else {
 			this.selectedTags = null;
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,8 @@ import java.util.Hashtable;
 import java.util.Map;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
 
 /**
  * Based on org.eclipse.ui.internal.forms.widgets.FormHeading.
@@ -45,7 +46,7 @@ public class GradientCanvas extends Canvas {
 
 	private Image gradientImage;
 
-	Map<String, Color> colors = new Hashtable<String, Color>();
+	Map<String, Color> colors = new Hashtable<>();
 
 	private int flags;
 
@@ -74,25 +75,17 @@ public class GradientCanvas extends Canvas {
 		super(parent, style);
 		setBackgroundMode(SWT.INHERIT_DEFAULT);
 		setSeparatorAlignment(SWT.BOTTOM);
-		addListener(SWT.Paint, new Listener() {
-			public void handleEvent(Event e) {
-				onPaint(e.gc);
+		addListener(SWT.Paint, e -> onPaint(e.gc));
+		addListener(SWT.Dispose, e -> {
+			if (gradientImage != null) {
+				// TODO e3.4 FormImages.getInstance().markFinished(gradientImage);
+				gradientImage.dispose();
+				gradientImage = null;
 			}
 		});
-		addListener(SWT.Dispose, new Listener() {
-			public void handleEvent(Event e) {
-				if (gradientImage != null) {
-					// TODO e3.4 FormImages.getInstance().markFinished(gradientImage);
-					gradientImage.dispose();
-					gradientImage = null;
-				}
-			}
-		});
-		addListener(SWT.Resize, new Listener() {
-			public void handleEvent(Event e) {
-				if (gradientInfo != null || (backgroundImage != null && !isBackgroundImageTiled())) {
-					updateGradientImage();
-				}
+		addListener(SWT.Resize, e -> {
+			if (gradientInfo != null || (backgroundImage != null && !isBackgroundImageTiled())) {
+				updateGradientImage();
 			}
 		});
 	}

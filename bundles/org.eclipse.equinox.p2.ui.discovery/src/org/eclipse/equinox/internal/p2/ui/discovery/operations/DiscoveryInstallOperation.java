@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,10 +54,11 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		if (installableConnectors == null || installableConnectors.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
-		this.installableConnectors = new ArrayList<CatalogItem>(installableConnectors);
+		this.installableConnectors = new ArrayList<>(installableConnectors);
 		this.provisioningUI = ProvisioningUI.getDefaultUI();
 	}
 
+	@Override
 	public void run(IProgressMonitor progressMonitor) throws InvocationTargetException, InterruptedException {
 		try {
 			SubMonitor monitor = SubMonitor.convert(progressMonitor, Messages.InstallConnectorsJob_task_configuring, 150);
@@ -74,17 +75,9 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 					monitor.setTaskName(ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation);
 					final RemediationOperation remediationOperation = new RemediationOperation(provisioningUI.getSession(), installOperation.getProfileChangeRequest());
 					remediationOperation.resolveModal(monitor.newChild(50));
-					Display.getDefault().asyncExec(new Runnable() {
-						public void run() {
-							provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, remediationOperation, null);
-						}
-					});
+					Display.getDefault().asyncExec(() -> provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, remediationOperation, null));
 				} else {
-					Display.getDefault().asyncExec(new Runnable() {
-						public void run() {
-							provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, null);
-						}
-					});
+					Display.getDefault().asyncExec(() -> provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, null));
 				}
 			} finally {
 				monitor.done();
@@ -158,7 +151,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 	 */
 	private void checkForUnavailable(final List<IInstallableUnit> installableUnits) throws CoreException {
 		// at least one selected connector could not be found in a repository
-		Set<String> foundIds = new HashSet<String>();
+		Set<String> foundIds = new HashSet<>();
 		for (IInstallableUnit unit : installableUnits) {
 			foundIds.add(unit.getId());
 		}
@@ -194,11 +187,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			// instead of aborting here we ask the user if they wish to proceed anyways
 			final boolean[] okayToProceed = new boolean[1];
 			final String finalMessage = message;
-			Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					okayToProceed[0] = MessageDialog.openQuestion(WorkbenchUtil.getShell(), Messages.InstallConnectorsJob_questionProceed, NLS.bind(Messages.InstallConnectorsJob_questionProceed_long, new Object[] {finalMessage}));
-				}
-			});
+			Display.getDefault().syncExec(() -> okayToProceed[0] = MessageDialog.openQuestion(WorkbenchUtil.getShell(), Messages.InstallConnectorsJob_questionProceed, NLS.bind(Messages.InstallConnectorsJob_questionProceed_long, new Object[] {finalMessage})));
 			if (!okayToProceed[0]) {
 				throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(Messages.InstallConnectorsJob_connectorsNotAvailable, detailedMessage), null));
 			}
@@ -211,7 +200,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 	 * highest version.
 	 */
 	private void removeOldVersions(final List<IInstallableUnit> installableUnits) {
-		Map<String, Version> symbolicNameToVersion = new HashMap<String, Version>();
+		Map<String, Version> symbolicNameToVersion = new HashMap<>();
 		for (IInstallableUnit unit : installableUnits) {
 			Version version = symbolicNameToVersion.get(unit.getId());
 			if (version == null || version.compareTo(unit.getVersion()) < 0) {
@@ -219,7 +208,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			}
 		}
 		if (symbolicNameToVersion.size() != installableUnits.size()) {
-			for (IInstallableUnit unit : new ArrayList<IInstallableUnit>(installableUnits)) {
+			for (IInstallableUnit unit : new ArrayList<>(installableUnits)) {
 				Version version = symbolicNameToVersion.get(unit.getId());
 				if (!version.equals(unit.getVersion())) {
 					installableUnits.remove(unit);
@@ -235,7 +224,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 	 * ensure that the user gets the one that they asked for.
 	 */
 	private List<IInstallableUnit> queryInstallableUnits(SubMonitor monitor, List<IMetadataRepository> repositories) throws URISyntaxException {
-		final List<IInstallableUnit> installableUnits = new ArrayList<IInstallableUnit>();
+		final List<IInstallableUnit> installableUnits = new ArrayList<>();
 
 		monitor.setWorkRemaining(repositories.size());
 		for (final IMetadataRepository repository : repositories) {
@@ -260,7 +249,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		// tell p2 that it's okay to use these repositories
 		ProvisioningSession session = ProvisioningUI.getDefaultUI().getSession();
 		RepositoryTracker repositoryTracker = ProvisioningUI.getDefaultUI().getRepositoryTracker();
-		repositoryLocations = new HashSet<URI>();
+		repositoryLocations = new HashSet<>();
 		monitor.setWorkRemaining(installableConnectors.size() * 5);
 		for (CatalogItem descriptor : installableConnectors) {
 			URI uri = new URL(descriptor.getSiteUrl()).toURI();
@@ -275,7 +264,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		}
 
 		// fetch meta-data for these repositories
-		ArrayList<IMetadataRepository> repositories = new ArrayList<IMetadataRepository>();
+		ArrayList<IMetadataRepository> repositories = new ArrayList<>();
 		monitor.setWorkRemaining(repositories.size());
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) session.getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		for (URI uri : repositoryLocations) {
@@ -287,7 +276,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 	}
 
 	private Set<String> getDescriptorIds(final IMetadataRepository repository) throws URISyntaxException {
-		final Set<String> installableUnitIdsThisRepository = new HashSet<String>();
+		final Set<String> installableUnitIdsThisRepository = new HashSet<>();
 		// determine all installable units for this repository
 		for (CatalogItem descriptor : installableConnectors) {
 			try {
