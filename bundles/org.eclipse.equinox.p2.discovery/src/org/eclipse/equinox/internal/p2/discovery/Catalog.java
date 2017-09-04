@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class Catalog {
 
 	private List<CatalogItem> filteredItems = Collections.emptyList();
 
-	private final List<AbstractDiscoveryStrategy> discoveryStrategies = new ArrayList<AbstractDiscoveryStrategy>();
+	private final List<AbstractDiscoveryStrategy> discoveryStrategies = new ArrayList<>();
 
 	private List<Tag> tags = Collections.emptyList();
 
@@ -63,10 +63,10 @@ public class Catalog {
 		if (discoveryStrategies.isEmpty()) {
 			throw new IllegalStateException();
 		}
-		List<CatalogItem> newItems = new ArrayList<CatalogItem>();
-		List<CatalogCategory> newCategories = new ArrayList<CatalogCategory>();
-		List<Certification> newCertifications = new ArrayList<Certification>();
-		List<Tag> newTags = new ArrayList<Tag>();
+		List<CatalogItem> newItems = new ArrayList<>();
+		List<CatalogCategory> newCategories = new ArrayList<>();
+		List<Certification> newCertifications = new ArrayList<>();
+		List<Tag> newTags = new ArrayList<>();
 
 		final int totalTicks = 100000;
 		final int discoveryTicks = totalTicks - (totalTicks / 10);
@@ -100,7 +100,7 @@ public class Catalog {
 		this.items = newItems;
 		this.certifications = newCertifications;
 		this.tags = newTags;
-		this.filteredItems = new ArrayList<CatalogItem>();
+		this.filteredItems = new ArrayList<>();
 
 		filterDescriptors();
 		connectCategoriesToDescriptors();
@@ -203,7 +203,7 @@ public class Catalog {
 	}
 
 	private void connectCertificationsToDescriptors() {
-		Map<String, Certification> idToCertification = new HashMap<String, Certification>();
+		Map<String, Certification> idToCertification = new HashMap<>();
 		for (Certification certification : certifications) {
 			Certification previous = idToCertification.put(certification.getId(), certification);
 			if (previous != null) {
@@ -226,7 +226,7 @@ public class Catalog {
 	}
 
 	private void connectCategoriesToDescriptors() {
-		Map<String, CatalogCategory> idToCategory = new HashMap<String, CatalogCategory>();
+		Map<String, CatalogCategory> idToCategory = new HashMap<>();
 		for (CatalogCategory category : categories) {
 			CatalogCategory previous = idToCategory.put(category.getId(), category);
 			if (previous != null) {
@@ -250,7 +250,7 @@ public class Catalog {
 	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void filterDescriptors() {
-		for (CatalogItem connector : new ArrayList<CatalogItem>(items)) {
+		for (CatalogItem connector : new ArrayList<>(items)) {
 			if (connector.getPlatformFilter() != null && connector.getPlatformFilter().trim().length() > 0) {
 				boolean match = false;
 				try {
@@ -288,7 +288,7 @@ public class Catalog {
 	}
 
 	private Map<String, Version> computeFeatureToVersion() {
-		Map<String, Version> map = new HashMap<String, Version>();
+		Map<String, Version> map = new HashMap<>();
 		for (IBundleGroupProvider provider : Platform.getBundleGroupProviders()) {
 			for (IBundleGroup bundleGroup : provider.getBundleGroups()) {
 				for (Bundle bundle : bundleGroup.getBundles()) {
@@ -303,10 +303,12 @@ public class Catalog {
 		for (final AbstractDiscoveryStrategy strategy : discoveryStrategies) {
 			SafeRunner.run(new ISafeRunnable() {
 
+				@Override
 				public void run() throws Exception {
 					strategy.dispose();
 				}
 
+				@Override
 				public void handleException(Throwable exception) {
 					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.Catalog_exception_disposing + strategy.getClass().getName(), exception));
 				}
@@ -315,7 +317,7 @@ public class Catalog {
 	}
 
 	public void setTags(List<Tag> tags) {
-		this.tags = new ArrayList<Tag>(tags);
+		this.tags = new ArrayList<>(tags);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,9 +55,9 @@ public class CatalogItem extends AbstractCatalogItem {
 
 	protected String groupId;
 
-	protected java.util.List<FeatureFilter> featureFilter = new java.util.ArrayList<FeatureFilter>();
+	protected List<FeatureFilter> featureFilter = new ArrayList<>();
 
-	protected java.util.List<String> installableUnits = new java.util.ArrayList<String>();
+	protected List<String> installableUnits = new ArrayList<>();
 
 	protected Icon icon;
 
@@ -340,9 +340,8 @@ public class CatalogItem extends AbstractCatalogItem {
 	public Set<Tag> getTags() {
 		if (tags == null) {
 			return Collections.emptySet();
-		} else {
-			return Collections.unmodifiableSet(tags);
 		}
+		return Collections.unmodifiableSet(tags);
 	}
 
 	public boolean hasTag(Tag tag) {
@@ -351,7 +350,7 @@ public class CatalogItem extends AbstractCatalogItem {
 
 	public void addTag(Tag tag) {
 		if (tags == null) {
-			tags = new HashSet<Tag>();
+			tags = new HashSet<>();
 		}
 		tags.add(tag);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ public class CatalogCategory extends AbstractCatalogItem {
 
 	private AbstractCatalogSource source;
 
-	private final List<CatalogItem> items = new ArrayList<CatalogItem>();
+	private final List<CatalogItem> items = new ArrayList<>();
 
 	protected String id;
 
@@ -35,7 +35,7 @@ public class CatalogCategory extends AbstractCatalogItem {
 
 	protected Overview overview;
 
-	protected java.util.List<Group> group = new java.util.ArrayList<Group>();
+	protected java.util.List<Group> group = new ArrayList<>();
 
 	public List<CatalogItem> getItems() {
 		return items;

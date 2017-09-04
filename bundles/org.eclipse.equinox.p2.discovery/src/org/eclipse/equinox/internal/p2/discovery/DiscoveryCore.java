@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ public abstract class DiscoveryCore {
 	}
 
 	public static Dictionary<Object, Object> createEnvironment() {
-		Dictionary<Object, Object> environment = new Hashtable<Object, Object>(System.getProperties());
+		Dictionary<Object, Object> environment = new Hashtable<>(System.getProperties());
 		// add the installed Mylyn version to the environment so that we can
 		// have
 		// connectors that are filtered based on version of Mylyn
