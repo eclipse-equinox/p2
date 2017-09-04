@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 compeople AG and others.
+ * Copyright (c) 2007, 2017 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ public class MD5Verifier extends ProcessingStep {
 	}
 
 	//This handle the case where the MD5 verification is initiated by a processing step
+	@Override
 	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
 		String data = descriptor.getData();
@@ -63,11 +64,13 @@ public class MD5Verifier extends ProcessingStep {
 		}
 	}
 
+	@Override
 	public void write(int b) throws IOException {
 		md5.update((byte) b);
 		getDestination().write(b);
 	}
 
+	@Override
 	public void close() throws IOException {
 		byte[] digest = md5.digest();
 		StringBuffer buf = new StringBuffer();

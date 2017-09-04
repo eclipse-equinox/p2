@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 		this.transport = transport;
 	}
 
+	@Override
 	public IArtifactKey getArtifactKey() {
 		return artifact;
 	}
@@ -43,6 +44,7 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	 * 
 	 * @return The result of the previous perform call.
 	 */
+	@Override
 	public IStatus getResult() {
 		if (result == DEFAULT_STATUS)
 			return new Status(IStatus.ERROR, Activator.ID, "No repository found containing: " + getArtifactKey().toString());
@@ -61,6 +63,7 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
+	@Override
 	abstract public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor);
 
 	/**

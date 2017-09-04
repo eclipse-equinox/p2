@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,9 +83,9 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 	/**
 	 Constructor that accepts the bytes to use for the instance.&nbsp;&nbsp; The format
 	 of the byte array is compatible with the <code>toBytes()</code> method.
-
+	
 	 <p>The constructor returns the undefined uuid if the byte array is invalid.
-
+	
 	 @see #toBytes()
 	 @see #BYTES_SIZE
 	 */
@@ -119,6 +119,7 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 	 Simply increases the visibility of <code>Object</code>'s clone.
 	 Otherwise, no new behaviour.
 	 */
+	@Override
 	public Object clone() {
 		try {
 			return super.clone();
@@ -174,6 +175,7 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 		return address;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -195,7 +197,7 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 	/**
 	 Answers the IP address of the local machine using the
 	 Java API class <code>InetAddress</code>.
-
+	
 	 @return byte[] the network address in network order
 	 @see    java.net.InetAddress#getLocalHost()
 	 @see    java.net.InetAddress#getAddress()
@@ -214,6 +216,7 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 		return nodeAddress;
 	}
 
+	@Override
 	public int hashCode() {
 		return fBits[0] + fBits[3] + fBits[7] + fBits[11] + fBits[15];
 	}
@@ -319,7 +322,7 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 
 	/** 
 	 This representation is compatible with the (byte[]) constructor.
-
+	
 	 @see #UniversalUniqueIdentifier(byte[])
 	 */
 	public byte[] toBytes() {
@@ -329,6 +332,7 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 		return result;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < fBits.length; i++)

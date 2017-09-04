@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2015 compeople AG and others.
+* Copyright (c) 2007, 2017 compeople AG and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -33,10 +33,12 @@ public class SignatureVerifier extends ProcessingStep {
 		return true;
 	}
 
+	@Override
 	public void write(int b) throws IOException {
 		getOutputStream().write(b);
 	}
 
+	@Override
 	public void write(byte[] bytes, int off, int len) throws IOException {
 		getOutputStream().write(bytes, off, len);
 	}
@@ -86,7 +88,7 @@ public class SignatureVerifier extends ProcessingStep {
 			// will be detected for the invalid artifact later.
 			return Status.OK_STATUS;
 		}
-		ArrayList<IStatus> allStatus = new ArrayList<IStatus>(0);
+		ArrayList<IStatus> allStatus = new ArrayList<>(0);
 		SignedContentEntry[] entries = signedContent.getSignedEntries();
 		for (int i = 0; i < entries.length; i++)
 			try {
@@ -102,6 +104,7 @@ public class SignatureVerifier extends ProcessingStep {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public void close() throws IOException {
 		// When we go to close we must have seen all the content we are going to see
 		// So before closing, verify and write the result to the destination

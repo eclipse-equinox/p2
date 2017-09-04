@@ -122,6 +122,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			this.file = file;
 		}
 
+		@Override
 		public void close() throws IOException {
 			if (closed)
 				return;
@@ -151,6 +152,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				delete(file);
 		}
 
+		@Override
 		public IStatus getStatus() {
 			return status;
 		}
@@ -159,20 +161,24 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return destination;
 		}
 
+		@Override
 		public void setStatus(IStatus status) {
 			this.status = status == null ? Status.OK_STATUS : status;
 		}
 
+		@Override
 		public void write(byte[] b) throws IOException {
 			destination.write(b);
 			count += b.length;
 		}
 
+		@Override
 		public void write(byte[] b, int off, int len) throws IOException {
 			destination.write(b, off, len);
 			count += len;
 		}
 
+		@Override
 		public void write(int b) throws IOException {
 			destination.write(b);
 			count++;
@@ -197,6 +203,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			fos = new FileOutputStream(zipFile);
 		}
 
+		@Override
 		public void close() throws IOException {
 			fos.close();
 			try {
@@ -206,22 +213,27 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			}
 		}
 
+		@Override
 		public void flush() throws IOException {
 			fos.flush();
 		}
 
+		@Override
 		public String toString() {
 			return fos.toString();
 		}
 
+		@Override
 		public void write(byte[] b) throws IOException {
 			fos.write(b);
 		}
 
+		@Override
 		public void write(byte[] b, int off, int len) throws IOException {
 			fos.write(b, off, len);
 		}
 
+		@Override
 		public void write(int b) throws IOException {
 			fos.write(b);
 		}
@@ -244,11 +256,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	static final private Integer REPOSITORY_VERSION = 1;
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
-	protected Set<SimpleArtifactDescriptor> artifactDescriptors = new HashSet<SimpleArtifactDescriptor>();
+	protected Set<SimpleArtifactDescriptor> artifactDescriptors = new HashSet<>();
 	/**
 	 * Map<IArtifactKey,List<IArtifactDescriptor>> containing the index of artifacts in the repository.
 	 */
-	private Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<IArtifactKey, List<IArtifactDescriptor>>();
+	private Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<>();
 	private transient BlobStore blobStore;
 	transient private Mapper mapper = new Mapper();
 	private KeyIndex keyIndex;
@@ -307,7 +319,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null) {
-			descriptors = new ArrayList<IArtifactDescriptor>();
+			descriptors = new ArrayList<>();
 			artifactMap.put(key, descriptors);
 		}
 		descriptors.add(descriptor);
@@ -332,9 +344,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private void cloneAritfactMap() {
-		HashMap<IArtifactKey, List<IArtifactDescriptor>> clone = new HashMap<IArtifactKey, List<IArtifactDescriptor>>(artifactMap.size());
+		HashMap<IArtifactKey, List<IArtifactDescriptor>> clone = new HashMap<>(artifactMap.size());
 		for (Entry<IArtifactKey, List<IArtifactDescriptor>> entry : artifactMap.entrySet())
-			clone.put(entry.getKey(), new ArrayList<IArtifactDescriptor>(entry.getValue()));
+			clone.put(entry.getKey(), new ArrayList<>(entry.getValue()));
 		artifactMap = clone;
 	}
 
@@ -371,6 +383,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
+	@Override
 	public synchronized void addDescriptor(IArtifactDescriptor toAdd, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
@@ -393,6 +406,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
+	@Override
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return new SimpleArtifactDescriptor(key);
 	}
@@ -418,6 +432,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return internal;
 	}
 
+	@Override
 	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
@@ -442,7 +457,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-		ArrayList<ProcessingStep> steps = new ArrayList<ProcessingStep>();
+		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		steps.add(new SignatureVerifier());
 		if (ARTIFACT_MD5_CHECKSUM_ENABLED && descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5) != null)
 			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5)));
@@ -454,7 +469,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private OutputStream addPreSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-		ArrayList<ProcessingStep> steps = new ArrayList<ProcessingStep>();
+		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
 		if (DOWNLOAD_MD5_CHECKSUM_ENABLED && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
@@ -491,6 +506,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return buffer.toString();
 	}
 
+	@Override
 	public synchronized boolean contains(IArtifactDescriptor descriptor) {
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
@@ -499,6 +515,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return artifactDescriptors.contains(simpleDescriptor);
 	}
 
+	@Override
 	public synchronized boolean contains(IArtifactKey key) {
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
@@ -648,15 +665,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		IStatus status = new DownloadStatus(IStatus.OK, Activator.ID, Status.OK_STATUS.getMessage());
 		try {
 			long start = System.currentTimeMillis();
-			FileInputStream stream = new FileInputStream(in);
-			try {
+
+			try (FileInputStream stream = new FileInputStream(in)) {
 				int len;
 				while ((len = stream.read(buffer)) != -1) {
 					out.write(buffer, 0, len);
 					sub.worked(1);
 				}
-			} finally {
-				stream.close();
 			}
 			long end = System.currentTimeMillis();
 			((DownloadStatus) status).setFileSize(in.length());
@@ -704,6 +719,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return mirrors.getMirrorLocation(baseLocation, monitor);
 	}
 
+	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		// if we are adapting to file or writable repositories then make sure we have a file location
 		if (adapter == IFileArtifactRepository.class)
@@ -717,6 +733,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return request.getResult();
 	}
 
+	@Override
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
@@ -732,6 +749,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return downloadArtifact(descriptor, destination, monitor);
 	}
 
+	@Override
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
@@ -741,6 +759,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return downloadArtifact(descriptor, destination, monitor);
 	}
 
+	@Override
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
@@ -753,6 +772,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return result.toArray(new IArtifactDescriptor[result.size()]);
 	}
 
+	@Override
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
 		URI result = getLocation(descriptor);
 		if (result == null || !URIUtil.isFileURI(result))
@@ -760,6 +780,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return URIUtil.toFile(result);
 	}
 
+	@Override
 	public File getArtifactFile(IArtifactKey key) {
 		IArtifactDescriptor descriptor = getCompleteArtifactDescriptor(key);
 		if (descriptor == null)
@@ -767,6 +788,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return getArtifactFile(descriptor);
 	}
 
+	@Override
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
@@ -775,7 +797,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return Status.CANCEL_STATUS;
 
 		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, NLS.bind(Messages.message_problemReadingArtifact, getLocation()), null);
-		LinkedList<IArtifactRequest> requestsPending = new LinkedList<IArtifactRequest>(Arrays.asList(requests));
+		LinkedList<IArtifactRequest> requestsPending = new LinkedList<>(Arrays.asList(requests));
 
 		int numberOfJobs = Math.min(requests.length, getMaximumThreads());
 		if (numberOfJobs <= 1 || (!isForceThreading() && isLocal())) {
@@ -926,6 +948,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return Math.min(repoMaxThreads, userMaxThreads);
 	}
 
+	@Override
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
@@ -1067,6 +1090,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return "file".equalsIgnoreCase(getLocation().getScheme()); //$NON-NLS-1$
 	}
 
+	@Override
 	public boolean isModifiable() {
 		return isLocal();
 	}
@@ -1078,6 +1102,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return destination;
 	}
 
+	@Override
 	public synchronized void removeAll(IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
@@ -1099,6 +1124,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
+	@Override
 	public synchronized void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
@@ -1116,6 +1142,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
+	@Override
 	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
@@ -1136,6 +1163,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
+	@Override
 	public synchronized void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
@@ -1159,6 +1187,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
+	@Override
 	public synchronized void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
@@ -1290,6 +1319,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return oldValue;
 	}
 
+	@Override
 	public String setProperty(String key, String newValue, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
@@ -1309,26 +1339,28 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		mappingRules = rules;
 	}
 
+	@Override
 	public String toString() {
 		return getLocation().toString();
 	}
 
+	@Override
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
-		return new IQueryable<IArtifactDescriptor>() {
-			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
-				synchronized (SimpleArtifactRepository.this) {
-					snapshotNeeded = true;
-					Collection<List<IArtifactDescriptor>> descs = SimpleArtifactRepository.this.artifactMap.values();
-					return query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
-				}
+		return (query, monitor) -> {
+			synchronized (SimpleArtifactRepository.this) {
+				snapshotNeeded = true;
+				Collection<List<IArtifactDescriptor>> descs = SimpleArtifactRepository.this.artifactMap.values();
+				return query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
 			}
 		};
 	}
 
+	@Override
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		return IndexProvider.query(this, query, monitor);
 	}
 
+	@Override
 	public synchronized Iterator<IArtifactKey> everything() {
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
@@ -1337,6 +1369,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return artifactMap.keySet().iterator();
 	}
 
+	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		IStatus result = null;
 
@@ -1375,6 +1408,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return result;
 	}
 
+	@Override
 	public synchronized IIndex<IArtifactKey> getIndex(String memberName) {
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
@@ -1388,6 +1422,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return null;
 	}
 
+	@Override
 	public Object getManagedProperty(Object client, String memberName, Object key) {
 		return null;
 	}

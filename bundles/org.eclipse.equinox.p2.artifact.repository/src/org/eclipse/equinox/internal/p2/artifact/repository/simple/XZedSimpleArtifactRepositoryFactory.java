@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015  Rapicorp, Inc and others.
+ * Copyright (c) 2015, 2017 Rapicorp, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,10 +29,12 @@ public class XZedSimpleArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	private static final String REPOSITORY_FILENAME = "artifacts.xml.xz"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
+	@Override
 	public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return new SimpleArtifactRepository(getAgent(), name, location, properties);
 	}
 
+	@Override
 	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		return load(location, flags, monitor, true);
 	}

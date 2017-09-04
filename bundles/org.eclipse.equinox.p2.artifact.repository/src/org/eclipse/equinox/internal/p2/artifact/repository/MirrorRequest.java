@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,24 +83,22 @@ public class MirrorRequest extends ArtifactRequest {
 		if (targetDescriptorProperties == null || targetDescriptorProperties.isEmpty()) {
 			this.targetDescriptorProperties = null;
 		} else {
-			this.targetDescriptorProperties = new HashMap<String, String>();
+			this.targetDescriptorProperties = new HashMap<>();
 			this.targetDescriptorProperties.putAll(targetDescriptorProperties);
 		}
 
 		if (targetRepositoryProperties == null || targetRepositoryProperties.isEmpty()) {
 			this.targetRepositoryProperties = null;
 		} else {
-			this.targetRepositoryProperties = new HashMap<String, String>();
+			this.targetRepositoryProperties = new HashMap<>();
 			this.targetRepositoryProperties.putAll(targetRepositoryProperties);
 		}
 		this.downloadStatsParamters = statsParameters;
 	}
 
 	@Override
-	protected void setSourceRepository(IArtifactRepository value)
-	{
-		if (value != getSourceRepository())
-		{
+	protected void setSourceRepository(IArtifactRepository value) {
+		if (value != getSourceRepository()) {
 			// This refreshes the descriptor from the new repository as it might be different.
 			// If a MirrorRequest fails for a local repository the descriptor might indicate a "folder based" artifact
 			// which causes the MirrorRequest to fail again with a remote repository if the descriptor is not fetched again.
@@ -110,6 +108,7 @@ public class MirrorRequest extends ArtifactRequest {
 		super.setSourceRepository(value);
 	}
 
+	@Override
 	public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
 		monitor.subTask(NLS.bind(Messages.downloading, getArtifactKey().getId()));
 		setSourceRepository(sourceRepository);
@@ -222,8 +221,7 @@ public class MirrorRequest extends ArtifactRequest {
 		do {
 			lastResult = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
 			allResults.add(lastResult);
-			if (lastResult.getException() instanceof Error)
-			{
+			if (lastResult.getException() instanceof Error) {
 				// Error is more severe than Exception - e.g. an OutOfMemoryError should not be ignored and might hinder further processing
 				throw (Error) lastResult.getException();
 			}
@@ -292,8 +290,7 @@ public class MirrorRequest extends ArtifactRequest {
 				Throwable e = root != null ? root.getException() : null;
 				((IStateful) destination).setStatus(new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status, destStatus}, status.getMessage(), e));
 			}
-		} catch (RuntimeException e)
-		{
+		} catch (RuntimeException e) {
 			priorException = e;
 			throw e;
 		} catch (Error e) {
@@ -348,6 +345,7 @@ public class MirrorRequest extends ArtifactRequest {
 		return status.getSeverity() == IStatus.ERROR && status.getException() != null ? status : null;
 	}
 
+	@Override
 	public String toString() {
 		return Messages.mirroring + getArtifactKey() + " into " + target; //$NON-NLS-1$
 	}

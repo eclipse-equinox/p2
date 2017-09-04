@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -225,6 +225,7 @@ public class MirrorSelector {
 			this.qel = sqrt(qBytesPerSeconds * qBytesPerSeconds + (qFailureCount * 1d) * (qFailureCount * 1d) + qRank * qRank);
 		}
 
+		@Override
 		public int compare(MirrorInfo o1, MirrorInfo o2) {
 			if (o1 == o2) {
 				return 0; // shortest way

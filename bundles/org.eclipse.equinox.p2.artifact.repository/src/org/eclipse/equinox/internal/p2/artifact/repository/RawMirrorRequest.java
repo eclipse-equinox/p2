@@ -36,6 +36,7 @@ public class RawMirrorRequest extends MirrorRequest {
 		this.targetDescriptor = targetDescriptor;
 	}
 
+	@Override
 	public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
 		monitor.subTask(NLS.bind(Messages.downloading, getArtifactKey().getId()));
 		setSourceRepository(sourceRepository);
@@ -77,6 +78,7 @@ public class RawMirrorRequest extends MirrorRequest {
 	}
 
 	// Perform the mirror operation without any processing steps
+	@Override
 	protected IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ProcessingStepHandler handler = new ProcessingStepHandler();
 		if (SimpleArtifactRepository.DOWNLOAD_MD5_CHECKSUM_ENABLED && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ public class KeyIndex extends Index<IArtifactKey> {
 	private final Map<String, Object> artifactMap;
 
 	public KeyIndex(Collection<IArtifactKey> artifactKeys) {
-		artifactMap = new HashMap<String, Object>(artifactKeys.size());
+		artifactMap = new HashMap<>(artifactKeys.size());
 		for (IArtifactKey ak : artifactKeys) {
 			Object prev = artifactMap.put(ak.getId(), ak);
 			if (prev != null) {
@@ -45,6 +45,7 @@ public class KeyIndex extends Index<IArtifactKey> {
 		}
 	}
 
+	@Override
 	public Iterator<IArtifactKey> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
 		Object queriedKeys = getQueriedIDs(ctx, variable, ArtifactKey.MEMBER_ID, booleanExpr, null);
 		if (queriedKeys == null)
@@ -59,7 +60,7 @@ public class KeyIndex extends Index<IArtifactKey> {
 				if (v == null)
 					continue;
 				if (collector == null)
-					collector = new ArrayList<IArtifactKey>();
+					collector = new ArrayList<>();
 				if (v instanceof IArtifactKey)
 					collector.add((IArtifactKey) v);
 				else {

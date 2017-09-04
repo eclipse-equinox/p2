@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2017 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 		super();
 	}
 
+	@Override
 	public void write(int b) throws IOException {
 		OutputStream stream = getOutputStream();
 		stream.write(b);
@@ -49,6 +50,7 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 
 	protected abstract OutputStream createIncomingStream() throws IOException;
 
+	@Override
 	public void close() throws IOException {
 		// When we go to close we must have seen all the content we are going to see.
 		// If no one wrote to the temp stream then we return an error. If there is 

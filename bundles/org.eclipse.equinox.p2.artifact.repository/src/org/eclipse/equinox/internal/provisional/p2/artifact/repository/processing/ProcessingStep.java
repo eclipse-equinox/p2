@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2010 compeople AG and others.
+* Copyright (c) 2007, 2017 compeople AG and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -60,6 +60,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 * Process the given byte and pass the result on to the configured destination stream
 	 * @param b the byte being written
 	 */
+	@Override
 	public void write(int b) throws IOException {
 		// nothing to do here!
 	}
@@ -67,6 +68,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	/** 
 	 * Flush any unwritten data from this stream.
 	 */
+	@Override
 	public void flush() throws IOException {
 		super.flush();
 		if (destination != null)
@@ -79,6 +81,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 * output stream.  Implementors of this method should ensure they set the 
 	 * status of the step.
 	 */
+	@Override
 	public void close() throws IOException {
 		super.close();
 		if (destination instanceof ProcessingStep)
@@ -86,10 +89,12 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 		monitor = null;
 	}
 
+	@Override
 	public IStatus getStatus() {
 		return status;
 	}
 
+	@Override
 	public void setStatus(IStatus value) {
 		if (value == null)
 			value = Status.OK_STATUS;

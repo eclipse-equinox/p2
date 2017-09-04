@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -41,14 +41,17 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 		super.addRepository(repository, true, null);
 	}
 
+	@Override
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties) {
 		return createMirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties, null);
 	}
 
+	@Override
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties, String downloadStatsParameters) {
 		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties, getTransport(), downloadStatsParameters);
 	}
 
+	@Override
 	public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		return (IArtifactRepository) doCreateRepository(location, name, type, properties);
 	}
@@ -57,6 +60,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 		return (IArtifactRepository) basicGetRepository(location);
 	}
 
+	@Override
 	protected IRepository<IArtifactKey> factoryCreate(URI location, String name, String type, Map<String, String> properties, IExtension extension) throws ProvisionException {
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
@@ -65,6 +69,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 		return factory.create(location, name, type, properties);
 	}
 
+	@Override
 	protected IRepository<IArtifactKey> factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
@@ -73,14 +78,17 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 		return factory.load(location, flags, monitor);
 	}
 
+	@Override
 	protected String getBundleId() {
 		return Activator.ID;
 	}
 
+	@Override
 	protected String getDefaultSuffix() {
 		return "artifacts.xml"; //$NON-NLS-1$
 	}
 
+	@Override
 	protected String getRepositoryProviderExtensionPointId() {
 		return Activator.REPO_PROVIDER_XPT;
 	}
@@ -88,26 +96,32 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	/**
 	 * Restores metadata repositories specified as system properties.
 	 */
+	@Override
 	protected String getRepositorySystemProperty() {
 		return "eclipse.p2.artifactRepository"; //$NON-NLS-1$
 	}
 
+	@Override
 	protected int getRepositoryType() {
 		return IRepository.TYPE_ARTIFACT;
 	}
 
+	@Override
 	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return loadRepository(location, 0, monitor);
 	}
 
+	@Override
 	public IArtifactRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		return (IArtifactRepository) loadRepository(location, monitor, null, flags);
 	}
 
+	@Override
 	public IArtifactRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return (IArtifactRepository) basicRefreshRepository(location, monitor);
 	}
 
+	@Override
 	protected String[] getPreferredRepositorySearchOrder(LocationProperties properties) {
 		return properties.getArtifactFactorySearchOrder();
 	}
@@ -115,6 +129,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	/**
 	 * Restore the download cache
 	 */
+	@Override
 	protected void restoreSpecialRepositories() {
 		// TODO while recreating, we may want to have proxies on repo instead of the real repo object to limit what is activated.
 		IAgentLocation location = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
@@ -132,7 +147,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading download cache.", e)); //$NON-NLS-1$
 		}
 		try {
-			Map<String, String> properties = new HashMap<String, String>(1);
+			Map<String, String> properties = new HashMap<>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			createRepository(cacheLocation, "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 		} catch (ProvisionException e) {

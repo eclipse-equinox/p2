@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,9 +44,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	// keep a list of the child URIs. they can be absolute or relative. they may or may not point
 	// to a valid reachable repo
-	private List<URI> childrenURIs = new ArrayList<URI>();
+	private List<URI> childrenURIs = new ArrayList<>();
 	// keep a list of the repositories that we have successfully loaded
-	private List<ChildInfo> loadedRepos = new ArrayList<ChildInfo>();
+	private List<ChildInfo> loadedRepos = new ArrayList<>();
 	private IArtifactRepositoryManager manager;
 	private boolean disableSave;
 
@@ -90,7 +90,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		super(manager.getAgent(), state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
 		this.manager = manager;
 		SubMonitor sub = SubMonitor.convert(monitor, 100 * state.getChildren().length);
-		List<URI> repositoriesToBeRemovedOnFailure = new ArrayList<URI>();
+		List<URI> repositoriesToBeRemovedOnFailure = new ArrayList<>();
 		boolean failOnChildFailure = shouldFailOnChildFailure(state);
 		for (URI child : state.getChildren())
 			addChild(child, false, sub.newChild(100), failOnChildFailure, repositoriesToBeRemovedOnFailure);
@@ -144,10 +144,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return "file".equalsIgnoreCase(getLocation().getScheme()); //$NON-NLS-1$
 	}
 
+	@Override
 	public boolean isModifiable() {
 		return isLocal();
 	}
 
+	@Override
 	public void addChild(URI childURI) {
 		try {
 			addChild(childURI, true, null, false, null);
@@ -200,6 +202,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	//		return false;
 	//	}
 
+	@Override
 	public void removeChild(URI childURI) {
 		boolean removed = childrenURIs.remove(childURI);
 		// if the child wasn't there make sure and try the other permutation
@@ -224,21 +227,23 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 	}
 
+	@Override
 	public void removeAllChildren() {
 		childrenURIs.clear();
 		loadedRepos.clear();
 		save();
 	}
 
+	@Override
 	public List<URI> getChildren() {
-		List<URI> result = new ArrayList<URI>();
+		List<URI> result = new ArrayList<>();
 		for (URI uri : childrenURIs)
 			result.add(URIUtil.makeAbsolute(uri, getLocation()));
 		return result;
 	}
 
 	public List<IArtifactRepository> getLoadedChildren() {
-		List<IArtifactRepository> result = new ArrayList<IArtifactRepository>(loadedRepos.size());
+		List<IArtifactRepository> result = new ArrayList<>(loadedRepos.size());
 		for (ChildInfo info : loadedRepos) {
 			result.add(info.repo);
 		}
@@ -248,6 +253,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
+	@Override
 	public synchronized void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedAddToComposite);
 	}
@@ -255,6 +261,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
+	@Override
 	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedAddToComposite);
 	}
@@ -262,6 +269,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
+	@Override
 	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
@@ -269,6 +277,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
+	@Override
 	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
@@ -276,6 +285,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
+	@Override
 	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
@@ -283,6 +293,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
+	@Override
 	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
@@ -290,6 +301,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
+	@Override
 	public synchronized void removeAll(IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
@@ -299,10 +311,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * Composite repositories should not have their own content.
 	 * Therefore, they should not be allowed to have OutputStreams
 	 */
+	@Override
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedGetOutputStream);
 	}
 
+	@Override
 	public boolean contains(IArtifactKey key) {
 		for (ChildInfo current : loadedRepos) {
 			if (current.isGood() && current.repo.contains(key))
@@ -311,6 +325,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return false;
 	}
 
+	@Override
 	public boolean contains(IArtifactDescriptor descriptor) {
 		for (ChildInfo current : loadedRepos) {
 			if (current.isGood() && current.repo.contains(descriptor))
@@ -319,8 +334,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return false;
 	}
 
+	@Override
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-		ArrayList<IArtifactDescriptor> result = new ArrayList<IArtifactDescriptor>();
+		ArrayList<IArtifactDescriptor> result = new ArrayList<>();
 		for (ChildInfo current : loadedRepos) {
 			if (current.isGood()) {
 				IArtifactDescriptor[] tempResult = current.repo.getArtifactDescriptors(key);
@@ -331,6 +347,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return result.toArray(new IArtifactDescriptor[result.size()]);
 	}
 
+	@Override
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_artifactsFromChildRepos, null);
@@ -352,10 +369,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return multiStatus;
 	}
 
+	@Override
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		return getRawOrNormalArtifact(descriptor, destination, monitor, false);
 	}
 
+	@Override
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		return getRawOrNormalArtifact(descriptor, destination, monitor, true);
 	}
@@ -401,7 +420,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	private IArtifactRequest[] filterUnfetched(IArtifactRequest[] requests) {
-		ArrayList<IArtifactRequest> filteredRequests = new ArrayList<IArtifactRequest>();
+		ArrayList<IArtifactRequest> filteredRequests = new ArrayList<>();
 		for (int i = 0; i < requests.length; i++) {
 			if (requests[i].getResult() == null || !requests[i].getResult().isOK()) {
 				filteredRequests.add(requests[i]);
@@ -414,7 +433,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository, IArtifactRequest[] requests) {
-		ArrayList<IArtifactRequest> applicable = new ArrayList<IArtifactRequest>();
+		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
 		for (int i = 0; i < requests.length; i++) {
 			if (repository.contains(requests[i].getArtifactKey()))
 				applicable.add(requests[i]);
@@ -566,9 +585,10 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 	}
 
+	@Override
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		// Query all the all the repositories this composite repo contains
-		List<IArtifactRepository> repos = new ArrayList<IArtifactRepository>();
+		List<IArtifactRepository> repos = new ArrayList<>();
 		for (ChildInfo info : loadedRepos) {
 			if (info.isGood())
 				repos.add(info.repo);
@@ -577,9 +597,10 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return queryable.query(query, monitor);
 	}
 
+	@Override
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 		// Query all the all the repositories this composite repo contains
-		List<IQueryable<IArtifactDescriptor>> repos = new ArrayList<IQueryable<IArtifactDescriptor>>();
+		List<IQueryable<IArtifactDescriptor>> repos = new ArrayList<>();
 		for (ChildInfo info : loadedRepos) {
 			if (info.isGood())
 				repos.add(info.repo.descriptorQueryable());
@@ -587,6 +608,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return QueryUtil.compoundQueryable(repos);
 	}
 
+	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		IStatus result = null;
 		synchronized (this) {

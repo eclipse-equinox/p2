@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2010 compeople AG and others.
+* Copyright (c) 2007, 2017 compeople AG and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -62,7 +62,7 @@ public class ProcessingStepHandler {
 	public static IStatus getStatus(OutputStream stream, boolean deep) {
 		if (!deep)
 			return getStatus(stream);
-		ArrayList<IStatus> list = new ArrayList<IStatus>();
+		ArrayList<IStatus> list = new ArrayList<>();
 		int severity = collectStatus(stream, list);
 		if (severity == IStatus.OK)
 			return Status.OK_STATUS;
@@ -76,7 +76,7 @@ public class ProcessingStepHandler {
 	 * @return the requested status
 	 */
 	public static IStatus getErrorStatus(OutputStream stream) {
-		ArrayList<IStatus> list = new ArrayList<IStatus>();
+		ArrayList<IStatus> list = new ArrayList<>();
 		int severity = collectErrorStatus(stream, list);
 		if (severity == IStatus.OK)
 			return Status.OK_STATUS;

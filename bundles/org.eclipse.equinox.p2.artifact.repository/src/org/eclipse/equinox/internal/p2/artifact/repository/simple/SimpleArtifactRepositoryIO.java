@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -330,6 +330,7 @@ public class SimpleArtifactRepositoryIO {
 			return theRepository;
 		}
 
+		@Override
 		protected Object getRootObject() {
 			return theRepository;
 		}
@@ -340,6 +341,7 @@ public class SimpleArtifactRepositoryIO {
 				super(rootName, rootHandler);
 			}
 
+			@Override
 			public void processingInstruction(String target, String data) throws SAXException {
 				if (PI_REPOSITORY_TARGET.equals(target)) {
 					// TODO: should the root handler be constructed based on class
@@ -376,11 +378,13 @@ public class SimpleArtifactRepositoryIO {
 				return repository;
 			}
 
+			@Override
 			protected void handleRootAttributes(Attributes attributes) {
 				attrValues = parseAttributes(attributes, required, optional);
 				attrValues[2] = checkVersion(REPOSITORY_ELEMENT, VERSION_ATTRIBUTE, attrValues[2]).toString();
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				if (MAPPING_RULES_ELEMENT.equals(name)) {
 					if (mappingRulesHandler == null) {
@@ -405,13 +409,14 @@ public class SimpleArtifactRepositoryIO {
 				}
 			}
 
+			@Override
 			protected void finished() {
 				if (isValidXML()) {
 					String[][] mappingRules = (mappingRulesHandler == null ? new String[0][0] //
 							: mappingRulesHandler.getMappingRules());
 					Map<String, String> properties = (propertiesHandler == null ? new OrderedProperties(0) //
 							: propertiesHandler.getProperties());
-					Set<SimpleArtifactDescriptor> artifacts = (artifactsHandler == null ? new HashSet<SimpleArtifactDescriptor>(0) //
+					Set<SimpleArtifactDescriptor> artifacts = (artifactsHandler == null ? new HashSet<>(0) //
 							: artifactsHandler.getArtifacts());
 					repository = new SimpleArtifactRepository(agent, attrValues[0], attrValues[1], attrValues[2], attrValues[3], //
 							attrValues[4], artifacts, mappingRules, properties);
@@ -426,7 +431,7 @@ public class SimpleArtifactRepositoryIO {
 			public MappingRulesHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, MAPPING_RULES_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				mappingRules = (size != null ? new ArrayList<String[]>(Integer.parseInt(size)) : new ArrayList<String[]>(4));
+				mappingRules = (size != null ? new ArrayList<>(Integer.parseInt(size)) : new ArrayList<>(4));
 			}
 
 			public String[][] getMappingRules() {
@@ -438,6 +443,7 @@ public class SimpleArtifactRepositoryIO {
 				return rules;
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				if (name.equals(MAPPING_RULE_ELEMENT)) {
 					new MappingRuleHandler(this, attributes, mappingRules);
@@ -456,6 +462,7 @@ public class SimpleArtifactRepositoryIO {
 				mappingRules.add(parseRequiredAttributes(attributes, required));
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				invalidElement(name, attributes);
 			}
@@ -468,13 +475,14 @@ public class SimpleArtifactRepositoryIO {
 			public ArtifactsHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, ARTIFACTS_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				artifacts = (size != null ? new LinkedHashSet<SimpleArtifactDescriptor>(Integer.parseInt(size)) : new LinkedHashSet<SimpleArtifactDescriptor>(4));
+				artifacts = (size != null ? new LinkedHashSet<>(Integer.parseInt(size)) : new LinkedHashSet<>(4));
 			}
 
 			public Set<SimpleArtifactDescriptor> getArtifacts() {
 				return artifacts;
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				if (name.equals(ARTIFACT_ELEMENT)) {
 					new ArtifactHandler(this, attributes, artifacts);
@@ -504,6 +512,7 @@ public class SimpleArtifactRepositoryIO {
 				currentArtifact = new SimpleArtifactDescriptor(new ArtifactKey(values[0], values[1], version));
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				if (PROCESSING_STEPS_ELEMENT.equals(name)) {
 					if (processingStepsHandler == null) {
@@ -528,6 +537,7 @@ public class SimpleArtifactRepositoryIO {
 				}
 			}
 
+			@Override
 			protected void finished() {
 				if (isValidXML() && currentArtifact != null) {
 					Map<String, String> properties = (propertiesHandler == null ? new OrderedProperties(0) : propertiesHandler.getProperties());
@@ -551,13 +561,14 @@ public class SimpleArtifactRepositoryIO {
 			public ProcessingStepsHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, PROCESSING_STEPS_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				processingSteps = (size != null ? new ArrayList<IProcessingStepDescriptor>(Integer.parseInt(size)) : new ArrayList<IProcessingStepDescriptor>(4));
+				processingSteps = (size != null ? new ArrayList<>(Integer.parseInt(size)) : new ArrayList<>(4));
 			}
 
 			public IProcessingStepDescriptor[] getProcessingSteps() {
 				return processingSteps.isEmpty() ? EMPTY_STEPS : processingSteps.toArray(new ProcessingStepDescriptor[processingSteps.size()]);
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				if (name.equals(PROCESSING_STEP_ELEMENT)) {
 					new ProcessingStepHandler(this, attributes, processingSteps);
@@ -578,15 +589,18 @@ public class SimpleArtifactRepositoryIO {
 				processingSteps.add(new ProcessingStepDescriptor(attributeValues[0], attributeValues[2], checkBoolean(PROCESSING_STEP_ELEMENT, STEP_REQUIRED_ATTRIBUTE, attributeValues[1]).booleanValue()));
 			}
 
+			@Override
 			public void startElement(String name, Attributes attributes) {
 				invalidElement(name, attributes);
 			}
 		}
 
+		@Override
 		protected String getErrorMessage() {
 			return Messages.io_parseError;
 		}
 
+		@Override
 		public String toString() {
 			// TODO:
 			return null;
