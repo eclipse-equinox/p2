@@ -192,7 +192,7 @@ public class JREAction extends AbstractPublisherAction {
 			for (int namespaceIx = 0; namespaceIx < namespaces.length; namespaceIx++) {
 				String namespace = namespaces[namespaceIx];
 
-				if ("osgi.ee".equals(namespace)) { // this is the OSGi capability namespace "osgi.ee"  //$NON-NLS-1$
+				if (NAMESPACE_OSGI_EE.equals(namespace)) { // this is the OSGi capability namespace "osgi.ee"
 					parseEECapability(systemCapability, parsingStatus, parsingResult);
 
 				} else {
@@ -204,7 +204,7 @@ public class JREAction extends AbstractPublisherAction {
 	}
 
 	private static void parseEECapability(ManifestElement eeCapability, MultiStatus parsingStatus, List<IProvidedCapability> parsingResult) {
-		String eeName = eeCapability.getAttribute("osgi.ee"); // this is an attribute required for capabilities in the "osgi.ee" namespace //$NON-NLS-1$
+		String eeName = eeCapability.getAttribute(NAMESPACE_OSGI_EE); // this is an attribute required for capabilities in the "osgi.ee" namespace
 		if (eeName == null) {
 			parsingStatus.add(newErrorStatus(NLS.bind(Messages.message_eeMissingNameAttribute, eeCapability), null));
 			return;
@@ -222,7 +222,11 @@ public class JREAction extends AbstractPublisherAction {
 				Version parsedVersion = Version.parseVersion(rawVersion);
 
 				// complete record -> store
-				parsingResult.add(MetadataFactory.createProvidedCapability(NAMESPACE_OSGI_EE, eeName, parsedVersion));
+				Map<String, Object> capAttrs = new HashMap<String, Object>();
+				capAttrs.put(NAMESPACE_OSGI_EE, eeName);
+				capAttrs.put("version", parsedVersion);
+
+				parsingResult.add(MetadataFactory.createProvidedCapability(NAMESPACE_OSGI_EE, capAttrs));
 
 			} catch (IllegalArgumentException e) {
 				parsingStatus.add(newErrorStatus(NLS.bind(Messages.message_eeInvalidVersionAttribute, rawVersion), e));

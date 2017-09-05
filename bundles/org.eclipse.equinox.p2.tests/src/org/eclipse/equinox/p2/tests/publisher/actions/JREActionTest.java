@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
@@ -130,11 +129,11 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction("J2SE-1.5"));
 
 		Collection<IProvidedCapability> capabilities = getPublishedCapabilitiesOf("a.jre.j2se");
-		assertThat(capabilities, not(hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.6")))));
-		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.5"))));
-		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "OSGi/Minimum", Version.parseVersion("1.0"))));
+		assertThat(capabilities, not(hasItem(createEECapability("JavaSE", "1.6"))));
+		assertThat(capabilities, hasItem(createEECapability("JavaSE", "1.5")));
+		assertThat(capabilities, hasItem(createEECapability("OSGi/Minimum", "1.0")));
 
-		assertThat(capabilities, not(hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "J2SE", Version.parseVersion("1.5")))));
+		assertThat(capabilities, not(hasItem(createEECapability("J2SE", "1.5"))));
 	}
 
 	public void testSingleOsgiEECapability() {
@@ -142,8 +141,8 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction("OSGi/Minimum-1.0"));
 
 		Collection<IProvidedCapability> capabilities = getPublishedCapabilitiesOf("a.jre.osgi.minimum");
-		assertThat(capabilities, not(hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "JavaSE", Version.parseVersion("1.5")))));
-		assertThat(capabilities, hasItem((IProvidedCapability) new ProvidedCapability("osgi.ee", "OSGi/Minimum", Version.parseVersion("1.0"))));
+		assertThat(capabilities, not(hasItem(createEECapability("JavaSE", "1.5"))));
+		assertThat(capabilities, hasItem(createEECapability("OSGi/Minimum", "1.0")));
 	}
 
 	public void testInvalidOsgiEECapabilitySpec() {
@@ -226,10 +225,17 @@ public class JREActionTest extends ActionTest {
 		return iu.getProvidedCapabilities();
 	}
 
+	private static IProvidedCapability createEECapability(String ee, String version) {
+		Map<String, Object> attrs = new HashMap<>();
+		attrs.put("osgi.ee", ee);
+		attrs.put("version", Version.parseVersion(version));
+
+		return MetadataFactory.createProvidedCapability("osgi.ee", attrs);
+	}
+
 	@Override
 	protected void insertPublisherInfoBehavior() {
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();
 	}
-
 }
