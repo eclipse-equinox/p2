@@ -74,7 +74,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	}
 
 	/**
-	 * @deprecated Use {@link #addDescriptor(IArtifactDescriptor[], IProgressMonitor)} instead.
+	 * @deprecated Use {@link #addDescriptors(IArtifactDescriptor[], IProgressMonitor)} instead.
 	 */
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		this.addDescriptors(descriptors, new NullProgressMonitor());
