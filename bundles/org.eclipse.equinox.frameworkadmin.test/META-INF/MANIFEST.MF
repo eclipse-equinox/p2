@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Test Plug-in for Framework Admin
 Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin.test
-Bundle-Version: 1.1.100.qualifier
+Bundle-Version: 1.2.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.frameworkadmin.equinox;bundle-version="1.0.100",
@@ -10,6 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-Activator: org.eclipse.equinox.frameworkadmin.tests.Activator
 Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.equinox.frameworkadmin.tests
 Eclipse-BundleShape: dir

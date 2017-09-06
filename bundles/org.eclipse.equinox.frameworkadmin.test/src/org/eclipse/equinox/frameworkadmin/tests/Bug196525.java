@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ public class Bug196525 extends AbstractFwkAdminTest {
 		super(name);
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		startSimpleConfiguratorManipulator();
 		//create a configuration with osgi and simpleconfigurator in it
@@ -91,10 +92,6 @@ public class Bug196525 extends AbstractFwkAdminTest {
 		assertContent(bundleTXT, "org.eclipse.equinox.simpleconfigurator");
 		assertContent(configINI, "org.eclipse.equinox.simpleconfigurator");
 		assertContent(bundleTXT, "bundle_1");
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
 	}
 
 }

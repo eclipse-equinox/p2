@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ public class ReaderTestBug267850 extends AbstractFwkAdminTest {
 	public ReaderTestBug267850(String name) {
 		super(name);
 	}
-
 
 	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
 		startSimpleConfiguratorManipulator();
@@ -49,10 +48,6 @@ public class ReaderTestBug267850 extends AbstractFwkAdminTest {
 		assertEquals("org.eclipse.platform", args[5]);
 		assertEquals("--launcher.XXMaxPermSize", args[6]);
 		assertEquals("256m", args[7]);
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
 	}
 
 }

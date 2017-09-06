@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,9 +38,9 @@ public class ManipulatorTests extends AbstractFwkAdminTest {
 		manipulator.save(false);
 
 		Properties configIni = new Properties();
-		InputStream in = new BufferedInputStream(new FileInputStream(new File(configurationFolder, "config.ini")));
-		configIni.load(in);
-		in.close();
+		try (InputStream in = new BufferedInputStream(new FileInputStream(new File(configurationFolder, "config.ini")))) {
+			configIni.load(in);
+		}
 
 		String bundles = (String) configIni.get("osgi.bundles");
 		assertTrue(bundles.indexOf("org.eclipse.osgi") == -1);

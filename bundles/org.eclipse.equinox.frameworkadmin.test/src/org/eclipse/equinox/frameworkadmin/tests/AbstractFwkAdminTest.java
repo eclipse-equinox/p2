@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			Filter filter;
 			try {
 				filter = Activator.getContext().createFilter(filterFwAdmin);
-				fwAdminTracker = new ServiceTracker<Object, FrameworkAdmin>(Activator.getContext(), filter, null);
+				fwAdminTracker = new ServiceTracker<>(Activator.getContext(), filter, null);
 				fwAdminTracker.open();
 			} catch (InvalidSyntaxException e) {
 				// never happens
@@ -163,11 +163,9 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		if (!file.exists())
 			fail("File: " + file.toString() + " can't be found.");
 		try {
-			BufferedReader reader = null;
-			try {
-				String failure = null;
-				StringBuilder fileContent = new StringBuilder();
-				reader = new BufferedReader(new FileReader(file));
+			String failure = null;
+			StringBuilder fileContent = new StringBuilder();
+			try (BufferedReader reader = new BufferedReader(new FileReader(file)) ){
 				while (reader.ready()) {
 					String line = reader.readLine();
 					fileContent.append(line).append('\n');
@@ -179,9 +177,6 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 					// dump whole file content
 					fail((message != null ? message : failure) + "\n" + fileContent);
 				}
-			} finally {
-				if (reader != null)
-					reader.close();
 			}
 		} catch (FileNotFoundException e) {
 			//ignore, caught before
@@ -206,21 +201,12 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 
 	private String getProperty(File file, String property) {
 		Properties p = new Properties();
-		FileInputStream fis = null;
-		try {
-			fis = new FileInputStream(file);
+		try (FileInputStream fis = new FileInputStream(file)) {
 			p.load(fis);			
 		} catch (FileNotFoundException e) {
 			fail("Can't find file " + file);
 		} catch (IOException e) {
 			fail("Error reading " + file);
-		} finally {
-			if (fis != null)
-				try {
-					fis.close();
-				} catch (IOException e) {
-					//ignore
-				}
 		}
 		return p.getProperty(property);
 	}
@@ -267,9 +253,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		int idx = 0;
 		StringBuilder fileContent = new StringBuilder();
 		try {
-			BufferedReader reader = null;
-			try {
-				reader = new BufferedReader(new FileReader(file));
+			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 				while (reader.ready()) {
 					String line = reader.readLine();
 					fileContent.append(line).append('\n');
@@ -278,9 +262,6 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 							return;
 					}
 				}
-			} finally {
-				if (reader != null)
-					reader.close();
 			}
 		} catch (FileNotFoundException e) {
 			//ignore, caught before
@@ -333,11 +314,8 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 				copy(message, children[i], new File(target, children[i].getName()));
 			return;
 		}
-		InputStream input = null;
-		OutputStream output = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(source));
-			output = new BufferedOutputStream(new FileOutputStream(target));
+		try (InputStream input = new BufferedInputStream(new FileInputStream(source)); 
+				OutputStream output = new BufferedOutputStream(new FileOutputStream(target))) {
 
 			byte[] buffer = new byte[8192];
 			int bytesRead = 0;
@@ -345,23 +323,6 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 				output.write(buffer, 0, bytesRead);
 		} catch (IOException e) {
 			fail(message + ": " + e);
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					System.err.println("Exception while trying to close input stream on: " + source.getAbsolutePath());
-					e.printStackTrace();
-				}
-			}
-			if (output != null) {
-				try {
-					output.close();
-				} catch (IOException e) {
-					System.err.println("Exception while trying to close output stream on: " + target.getAbsolutePath());
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -402,9 +363,8 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 	//This is a dumb helper writing out the values as they have been passed to it.
 	protected void writeEclipseIni(File location, String[] lines) {
 		location.getParentFile().mkdirs();
-		BufferedWriter bw = null;
-		try {
-			bw = new BufferedWriter(new FileWriter(location));
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(location))){
+			
 			for (int j = 0; j < lines.length; j++) {
 				bw.write(lines[j]);
 				bw.newLine();
@@ -412,14 +372,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			bw.flush();
 
 		} catch (IOException e) {
-			fail("Fail writing eclipse.ini file");
-		} finally {
-			if (bw != null)
-				try {
-					bw.close();
-				} catch (IOException e) {
-					fail("Fail writing eclipse.ini file in " + location);
-				}
+			fail("Fail writing eclipse.ini file in " + location);
 		}
 	}
 

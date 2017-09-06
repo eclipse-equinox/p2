@@ -23,7 +23,7 @@ public class ParserUtilsTest extends AbstractFwkAdminTest {
 		super(name);
 	}
 	public void testGetValueForArgument() throws Exception {
-		List args = new ArrayList();
+		List<String> args = new ArrayList<>();
 		args.add("-foo");
 		args.add("bar");
 		assertEquals( "bar", ParserUtils.getValueForArgument("-foo", args));
@@ -47,7 +47,7 @@ public class ParserUtilsTest extends AbstractFwkAdminTest {
 	}
 	
 	public void testSetValueForArgument() throws Exception {
-		List args = new ArrayList();
+		List<String> args = new ArrayList<>();
 		ParserUtils.setValueForArgument("-foo", "bar", args);
 		assertTrue(args.size() == 2);
 		assertEquals(args.get(0), "-foo");
