@@ -183,7 +183,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		public SPIProvidedCapability(String namespace, String name, Version version) {
 			this.namespace = namespace;
 
-			this.attributes = new HashMap<String, Object>();
+			this.attributes = new HashMap<>();
 			attributes.put(ProvidedCapability.MEMBER_NAME, name);
 			attributes.put(ProvidedCapability.MEMBER_VERSION, version);
 		}
@@ -221,6 +221,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return false;
 		}
 
+		@Override
 		public Map<String, Object> getAttributes() {
 			return attributes;
 		}

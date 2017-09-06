@@ -222,9 +222,9 @@ public class JREAction extends AbstractPublisherAction {
 				Version parsedVersion = Version.parseVersion(rawVersion);
 
 				// complete record -> store
-				Map<String, Object> capAttrs = new HashMap<String, Object>();
+				Map<String, Object> capAttrs = new HashMap<>();
 				capAttrs.put(NAMESPACE_OSGI_EE, eeName);
-				capAttrs.put("version", parsedVersion);
+				capAttrs.put("version", parsedVersion); //$NON-NLS-1$
 
 				parsingResult.add(MetadataFactory.createProvidedCapability(NAMESPACE_OSGI_EE, capAttrs));
 
@@ -305,7 +305,7 @@ public class JREAction extends AbstractPublisherAction {
 
 			if (jreLocation.isDirectory()) {
 				//Look for a JRE profile file to set version and capabilities
-				File[] profiles = jreLocation.listFiles((FileFilter) pathname -> pathname.getAbsolutePath().endsWith(".profile"));
+				File[] profiles = jreLocation.listFiles((FileFilter) pathname -> pathname.getAbsolutePath().endsWith(".profile")); //$NON-NLS-1$
 				if (profiles != null && profiles.length > 0) {
 					javaProfile = profiles[0];
 				}
