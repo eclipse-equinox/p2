@@ -46,7 +46,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 	public void testInitializeCompletePhaseCommit() {
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		IProfile profile = createProfile("test");
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 
@@ -91,7 +91,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 	 * Tests loading cache extensions from a profile whose install directory contains spaces
 	 */
 	public void testBug262073() throws MalformedURLException {
-		Map properties = new HashMap();
+		Map<String, Object> properties = new HashMap<>();
 		File site = getTestData("Repository", "/testData/artifactRepo/simple with spaces/");
 		//use URL here so spaces are not encoded
 		URL spacesLocation = site.toURL();
@@ -101,13 +101,13 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		properties.put("org.eclipse.equinox.p2.cache.extensions", location.toString() + "|" + spacesLocation.toString());
 		IProfile profile = createProfile("testBug262073", properties);
 		AggregatedBundleRepository repo = (AggregatedBundleRepository) Util.getAggregatedBundleRepository(getAgent(), profile);
-		Collection repos = repo.testGetBundleRepositories();
+		Collection<IFileArtifactRepository> repos = repo.testGetBundleRepositories();
 		assertEquals("1.0", 3, repos.size());
 	}
 
 	public void testInitializeCompleteOperand() {
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		IProfile profile = createProfile("test");
 
 		// need a partial iu test here
@@ -137,7 +137,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		Map<String, String> extraProperties = new HashMap<>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 
-		Dictionary mockManifest = new Properties();
+		Dictionary<String, String> mockManifest = new Hashtable<>();
 		mockManifest.put("Manifest-Version", "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
 		mockManifest.put("Bundle-ManifestVersion", "2"); //$NON-NLS-1$ //$NON-NLS-2$
 		mockManifest.put("Bundle-SymbolicName", key.getId()); //$NON-NLS-1$
@@ -175,7 +175,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		Map<String, String> extraProperties = new HashMap<>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 
-		Dictionary mockManifest = new Properties();
+		Dictionary<String, String> mockManifest = new Hashtable<>();
 		mockManifest.put("Manifest-Version", "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
 		mockManifest.put("Bundle-ManifestVersion", "2"); //$NON-NLS-1$ //$NON-NLS-2$
 		mockManifest.put("Bundle-SymbolicName", key.getId()); //$NON-NLS-1$
@@ -187,7 +187,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = bundleIUs[0];
 		assertTrue(Boolean.parseBoolean(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)));
 
-		Iterator iterator = profile.query(QueryUtil.createIUQuery(iu.getId()), null).iterator();
+		Iterator<IInstallableUnit> iterator = profile.query(QueryUtil.createIUQuery(iu.getId()), null).iterator();
 		assertFalse(iterator.hasNext());
 
 		IEngine engine = getEngine();
@@ -200,7 +200,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 
 		iterator = profile.query(QueryUtil.createIUQuery(iu.getId()), null).iterator();
 		assertTrue(iterator.hasNext());
-		IInstallableUnit installedIU = (IInstallableUnit) iterator.next();
+		IInstallableUnit installedIU = iterator.next();
 		assertTrue(installedIU.getId().equals(iu.getId()));
 		assertFalse(Boolean.parseBoolean(installedIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)));
 	}

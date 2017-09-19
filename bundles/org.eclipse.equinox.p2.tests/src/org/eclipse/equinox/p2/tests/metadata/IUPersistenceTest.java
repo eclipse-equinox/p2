@@ -183,7 +183,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private static Version version = Version.create("3.1.200.v20070605");
 
-	private Map propertyMap;
+	private Map<String, String> propertyMap;
 
 	private static String[][] addSelfCapability(IInstallableUnit iu, String[][] provideTuples) {
 		String[][] augmentedProvides = new String[provideTuples.length + 1][3];
@@ -195,7 +195,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		return augmentedProvides;
 	}
 
-	private static Map createProperties(String[][] keyValuePairs) {
+	private static Map<String, String> createProperties(String[][] keyValuePairs) {
 		OrderedProperties props = new OrderedProperties(keyValuePairs.length);
 		for (int i = 0; i < keyValuePairs.length; i++) {
 			String[] nextPair = keyValuePairs[i];
@@ -320,9 +320,9 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		for (int i = 0; i < additionalProvides.length; i++) {
 			provides1[i + 1] = additionalProvides[i];
 		}
-		for (Iterator iter = propertyMap.keySet().iterator(); iter.hasNext();) {
-			String nextKey = (String) iter.next();
-			String nextValue = (String) propertyMap.get(nextKey);
+		for (Iterator<String> iter = propertyMap.keySet().iterator(); iter.hasNext();) {
+			String nextKey = iter.next();
+			String nextValue = propertyMap.get(nextKey);
 			iu1.setProperty(nextKey, nextValue);
 		}
 		iu1.setCapabilities(provides1);

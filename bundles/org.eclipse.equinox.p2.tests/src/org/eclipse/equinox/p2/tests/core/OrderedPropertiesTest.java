@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -34,7 +34,7 @@ public class OrderedPropertiesTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Ordered properties guarantees that iteration order is the same as the 
+	 * Ordered properties guarantees that iteration order is the same as the
 	 * insertion order. This test verifies the claim is true.
 	 */
 	public void testIterationOrder() {
@@ -42,14 +42,14 @@ public class OrderedPropertiesTest extends AbstractProvisioningTest {
 		OrderedProperties props = new OrderedProperties();
 		props.setProperty("one", "one");
 		props.setProperty("two", "two");
-		for (Iterator it = props.keySet().iterator(); it.hasNext();) {
+		for (Iterator<String> it = props.keySet().iterator(); it.hasNext();) {
 			assertEquals("one", it.next());
 			assertEquals("two", it.next());
 		}
 		props = new OrderedProperties();
 		props.setProperty("two", "two");
 		props.setProperty("one", "one");
-		for (Iterator it = props.keySet().iterator(); it.hasNext();) {
+		for (Iterator<String> it = props.keySet().iterator(); it.hasNext();) {
 			assertEquals("two", it.next());
 			assertEquals("one", it.next());
 		}
@@ -57,7 +57,7 @@ public class OrderedPropertiesTest extends AbstractProvisioningTest {
 		//removing and re-adding a property should move it to the back of the insertion order
 		props.remove("two");
 		props.setProperty("two", "two");
-		for (Iterator it = props.keySet().iterator(); it.hasNext();) {
+		for (Iterator<String> it = props.keySet().iterator(); it.hasNext();) {
 			assertEquals("one", it.next());
 			assertEquals("two", it.next());
 		}

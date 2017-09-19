@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public abstract class AbstractDirectoryWatcherTest extends AbstractProvisioningTest {
 
 	// list of File objects to remove later during teardown
-	protected Set toRemove = new HashSet();
+	protected Set<File> toRemove = new HashSet<>();
 
 	/*
 	 * Constructor for the class.
@@ -32,9 +32,9 @@ public abstract class AbstractDirectoryWatcherTest extends AbstractProvisioningT
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		for (Iterator iter = toRemove.iterator(); iter.hasNext();)
-			delete((File) iter.next());
-		toRemove = new HashSet();
+		for (Iterator<File> iter = toRemove.iterator(); iter.hasNext();)
+			delete(iter.next());
+		toRemove = new HashSet<>();
 	}
 
 }

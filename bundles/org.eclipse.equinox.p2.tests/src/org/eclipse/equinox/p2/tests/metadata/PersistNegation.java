@@ -30,10 +30,10 @@ public class PersistNegation extends AbstractProvisioningTest {
 		iud1.setVersion(Version.create("1.0.0"));
 
 		RequiredCapability req1 = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.rap.rwt", new VersionRange("[1.0.0, 2.0.0)"), null, 0, 0, false, null);
-		Collection requirements = new ArrayList();
+		Collection<IRequirement> requirements = new ArrayList<>();
 		requirements.add(req1);
 		iud1.addRequirements(requirements);
-		Collection capabilities = new ArrayList();
+		Collection<IProvidedCapability> capabilities = new ArrayList<>();
 		capabilities.add(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "NegateRWT", Version.create("1.0.0")));
 		iud1.addProvidedCapabilities(capabilities);
 		IInstallableUnit iu1 = MetadataFactory.createInstallableUnit(iud1);

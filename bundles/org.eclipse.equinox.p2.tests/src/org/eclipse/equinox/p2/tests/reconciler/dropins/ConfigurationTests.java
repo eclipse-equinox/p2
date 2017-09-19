@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /*
  * Tests related to the platform configuration before and after reconciliation.
- * 
+ *
  * Tests to add and regression tests to add:
  * - ensure there is a platform:base: entry
  * - 222505 - IUs in the dropins only rely on each other and not on things already in the install
@@ -384,8 +384,8 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		assertFalse("7.3", isInstalled("ccc", "1.0.0"));
 		assertFalse("7.4", isInstalled("bbb.feature.feature.group", "1.0.0"));
 		boolean found = false;
-		for (Iterator iter = getConfiguration().getSites().iterator(); iter.hasNext();) {
-			Site site = (Site) iter.next();
+		for (Iterator<Site> iter = getConfiguration().getSites().iterator(); iter.hasNext();) {
+			Site site = iter.next();
 			String link = site.getLinkFile();
 			if (link != null && link.contains("myLink"))
 				found = true;

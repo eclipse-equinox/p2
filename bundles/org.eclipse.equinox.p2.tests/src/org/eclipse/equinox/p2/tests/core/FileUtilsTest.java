@@ -213,8 +213,8 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 			fail(message + " file does not exist.");
 		try (ZipFile zip = new ZipFile(archive)) {
 			boolean found = false;
-			for (Enumeration e = zip.entries(); !found && e.hasMoreElements();) {
-				ZipEntry zipEntry = (ZipEntry) e.nextElement();
+			for (Enumeration<? extends ZipEntry> e = zip.entries(); !found && e.hasMoreElements();) {
+				ZipEntry zipEntry = e.nextElement();
 				if (entry.equals(zipEntry.getName()))
 					found = true;
 			}

@@ -49,9 +49,9 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 			assertOK("plan is not ok", plan.getStatus());
 
 			//Extract all the unresolved IUs.
-			Set tmp = plan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).query(QueryUtil.ALL_UNITS, null).toSet();
-			for (Iterator iterator = tmp.iterator(); iterator.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			Set<IInstallableUnit> tmp = plan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).query(QueryUtil.ALL_UNITS, null).toSet();
+			for (Iterator<IInstallableUnit> iterator = tmp.iterator(); iterator.hasNext();) {
+				IInstallableUnit iu = iterator.next();
 				iusFromFirstResolution.add(iu.unresolved());
 			}
 		}
@@ -64,15 +64,15 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 			ProvisioningContext pc = new ProvisioningContext(agent);
 			pc.setMetadataRepositories(new URI[0]);
 			pc.setArtifactRepositories(new URI[0]);
-			pc.setExtraInstallableUnits(new ArrayList(iusFromFirstResolution));
+			pc.setExtraInstallableUnits(new ArrayList<>(iusFromFirstResolution));
 
 			IProvisioningPlan plan = planner.getProvisioningPlan(request, pc, new NullProgressMonitor());
 			assertOK("plan is not ok", plan.getStatus());
 
-			Set tmp = plan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).query(QueryUtil.ALL_UNITS, null).toSet();
+			Set<IInstallableUnit> tmp = plan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).query(QueryUtil.ALL_UNITS, null).toSet();
 			Set<IInstallableUnit> iusFromSecondResolution = new HashSet<>();
-			for (Iterator iterator = tmp.iterator(); iterator.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			for (Iterator<IInstallableUnit> iterator = tmp.iterator(); iterator.hasNext();) {
+				IInstallableUnit iu = iterator.next();
 				iusFromSecondResolution.add(iu.unresolved());
 			}
 

@@ -61,26 +61,26 @@ public class PhaseTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		protected IStatus completeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+		protected IStatus completeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 			completeOperand = true;
 			return super.completeOperand(profile, operand, parameters, monitor);
 		}
 
 		@Override
-		protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+		protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 			parameters.put("TestPhase.initializeOperand", "true");
 			initializeOperand = true;
 			return super.initializeOperand(profile, operand, parameters, monitor);
 		}
 
 		@Override
-		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 			completePhase = true;
 			return super.completePhase(monitor, profile, parameters);
 		}
 
 		@Override
-		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 			parameters.put("TestPhase.initializePhase", "true");
 			initializePhase = true;
 			return super.initializePhase(monitor, profile, parameters);
@@ -173,7 +173,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 	public void testInitCompletePhase() {
 		TestPhase phase = new TestPhase() {
 			@Override
-			protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 				assertFalse(parameters.containsKey("TestPhase.initializePhase"));
 				assertFalse(completePhase);
 				super.initializePhase(monitor, profile, parameters);
@@ -183,7 +183,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 				assertTrue(parameters.containsKey("TestPhase.initializePhase"));
 				assertFalse(completePhase);
 				super.completePhase(monitor, profile, parameters);
@@ -205,7 +205,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 	public void testInitCompleteOperand() {
 		TestPhase phase = new TestPhase() {
 			@Override
-			protected IStatus completeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+			protected IStatus completeOperand(IProfile profile, Operand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 				assertTrue(parameters.containsKey("TestPhase.initializeOperand"));
 				assertFalse(completeOperand);
 				super.completeOperand(profile, operand, parameters, monitor);
@@ -215,7 +215,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			protected IStatus initializeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+			protected IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 				assertFalse(parameters.containsKey("TestPhase.initializeOperand"));
 				assertFalse(completeOperand);
 				super.initializeOperand(profile, operand, parameters, monitor);
@@ -238,7 +238,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 	public void testGetProfileDataArea() {
 		TestPhase phase = new TestPhase() {
 			@Override
-			protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 				File profileDataArea = (File) parameters.get("profileDataDirectory");
 				assertTrue(profileDataArea.isDirectory());
 				File test = new File(profileDataArea, "test");
@@ -253,7 +253,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+			protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 				File profileDataArea = (File) parameters.get("profileDataDirectory");
 				assertTrue(profileDataArea.isDirectory());
 				File test = new File(profileDataArea, "test");
@@ -277,18 +277,18 @@ public class PhaseTest extends AbstractProvisioningTest {
 	public static class TestAction extends ProvisioningAction {
 
 		@Override
-		public IStatus execute(Map parameters) {
+		public IStatus execute(Map<String, Object> parameters) {
 			return null;
 		}
 
 		@Override
-		public IStatus undo(Map parameters) {
+		public IStatus undo(Map<String, Object> parameters) {
 			return null;
 		}
 	}
 
 	public void testGetAction() {
-		final ArrayList actionsList1 = new ArrayList();
+		final ArrayList<ProvisioningAction> actionsList1 = new ArrayList<>();
 		InstallableUnitPhase phase1 = new InstallableUnitPhase("test", 1) {
 			@Override
 			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
@@ -297,7 +297,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 				return actions;
 			}
 		};
-		final ArrayList actionsList2 = new ArrayList();
+		final ArrayList<ProvisioningAction> actionsList2 = new ArrayList<>();
 		InstallableUnitPhase phase2 = new InstallableUnitPhase("test", 1) {
 			@Override
 			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
@@ -310,7 +310,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new TestPhaseSet(new Phase[] {phase1, phase2});
 		IProfile profile = createProfile("PhaseTest");
 
-		Map instructions = new HashMap();
+		Map<String, Object> instructions = new HashMap<>();
 		instructions.put("test1", MetadataFactory.createTouchpointInstruction("test1.test()", null));
 		instructions.put("test2", MetadataFactory.createTouchpointInstruction("test2.test()", null));
 		ITouchpointData touchpointData = MetadataFactory.createTouchpointData(instructions);

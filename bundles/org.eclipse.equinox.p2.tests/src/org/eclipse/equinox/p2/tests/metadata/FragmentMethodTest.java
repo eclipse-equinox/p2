@@ -34,12 +34,12 @@ public class FragmentMethodTest extends TestCase {
 		iu3 = createIUFragment("iu.fragment");
 		iu1Caps = iu1.getProvidedCapabilities();
 		iu3Caps = iu3.getProvidedCapabilities();
-		HashSet hash = new HashSet();
+		HashSet<IInstallableUnit> hash = new HashSet<>();
 		hash.add(iu1);
 		hash.add(iu3);
 		//		Collection result = new ResolutionHelper(new Hashtable(), null).attachCUs(hash);
-		for (Iterator iterator = hash.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		for (Iterator<IInstallableUnit> iterator = hash.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
 			if (iu.getId().equals(iu1.getId()))
 				iu1 = iu;
 			if (iu.getId().equals(iu3.getId()))

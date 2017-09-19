@@ -39,7 +39,7 @@ public class TestFilteringOnAbsentProperty extends AbstractProvisioningTest {
 			MetadataFactory.InstallableUnitDescription desc_iuA = new MetadataFactory.InstallableUnitDescription();
 			desc_iuA.setId(N);
 			desc_iuA.setVersion(Version.create("1.0.0"));
-			Collection capabilities = new ArrayList();
+			Collection<IProvidedCapability> capabilities = new ArrayList<>();
 			capabilities.add(MetadataFactory.createProvidedCapability(NS, N, Version.create("1.0.0")));
 			desc_iuA.addProvidedCapabilities(capabilities);
 			desc_iuA.setFilter("(&(osgi.os=macosx) (!(macosx-bundled=*)) )");
@@ -51,7 +51,7 @@ public class TestFilteringOnAbsentProperty extends AbstractProvisioningTest {
 			MetadataFactory.InstallableUnitDescription desc_iuA_bundled = new MetadataFactory.InstallableUnitDescription();
 			desc_iuA_bundled.setId("A-bundled");
 			desc_iuA_bundled.setVersion(Version.create("1.0.0"));
-			Collection capabilities2 = new ArrayList();
+			Collection<IProvidedCapability> capabilities2 = new ArrayList<>();
 			capabilities2.add(MetadataFactory.createProvidedCapability(NS, "A-bundled", Version.create("1.0.0")));
 			capabilities2.add(MetadataFactory.createProvidedCapability(NS, N, Version.create("1.0.0")));
 			desc_iuA_bundled.addProvidedCapabilities(capabilities2);
@@ -64,7 +64,7 @@ public class TestFilteringOnAbsentProperty extends AbstractProvisioningTest {
 			MetadataFactory.InstallableUnitDescription desc_top = new MetadataFactory.InstallableUnitDescription();
 			desc_top.setId("Top");
 			desc_top.setVersion(Version.create("1.0.0"));
-			Collection capabilitiesTop = new ArrayList();
+			Collection<IProvidedCapability> capabilitiesTop = new ArrayList<>();
 			capabilitiesTop.add(MetadataFactory.createProvidedCapability(NS, "Top", Version.create("1.0.0")));
 			desc_top.addProvidedCapabilities(capabilitiesTop);
 			desc_top.setRequirements(new IRequirement[] {MetadataFactory.createRequirement(NS, N, new VersionRange("[1.0.0, 2.0.0)"), null, false, false, true)});

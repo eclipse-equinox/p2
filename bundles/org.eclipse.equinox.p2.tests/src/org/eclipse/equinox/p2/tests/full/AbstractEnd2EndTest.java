@@ -62,7 +62,7 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 			throw new RuntimeException("Profile registry service not available");
 		}
 
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, installFolder);
 		EnvironmentInfo info = ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class);
 		if (info != null)
@@ -101,10 +101,10 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 	}
 
 	private void attemptToUninstallRCP(IProfile profile2, File installFolder) {
-		IQueryResult collect = profile2.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> collect = profile2.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(collect));
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
-		request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) collect.iterator().next()});
+		request.removeInstallableUnits(new IInstallableUnit[] {collect.iterator().next()});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		assertOK("Can not uninstall RCP", s);
 		assertEquals(1, queryResultSize(profile2.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor())));
@@ -112,11 +112,11 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 
 	protected void uninstallPlatform(IProfile profile2, File installFolder) {
 		System.out.println("Uninstall the platform");
-		IQueryResult collect = profile2.query(QueryUtil.createIUQuery(getPlatform().getId()), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> collect = profile2.query(QueryUtil.createIUQuery(getPlatform().getId()), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(collect));
 		//		Collector collect2 = profile2.query(new InstallableUnitQuery("org.eclipse.platform.source.feature.group"), new Collector(), new NullProgressMonitor());
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
-		request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) collect.iterator().next()});//, (IInstallableUnit) collect2.iterator().next()});
+		request.removeInstallableUnits(new IInstallableUnit[] {collect.iterator().next()});//, (IInstallableUnit) collect2.iterator().next()});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		assertOK("Can not uninstall platform", s);
 	}
@@ -154,7 +154,7 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 		iud.setId("org.eclipse.equinox.p2.tests.bogusIU.end2end");
 		iud.setVersion(Version.create("1.0.0"));
 		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.p2.tests.bogusIU.end2end", Version.create("1.0.0"))});
-		Map data = new HashMap();
+		Map<String, Object> data = new HashMap<>();
 		data.put("install", "org.eclipse.equinox.p2.osgi.removeJvmArg(programArg:-XX:+UnlockDiagnosticVMOptions);");
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(data));
 		IInstallableUnit bogusIU = MetadataFactory.createInstallableUnit(iud);
@@ -189,9 +189,9 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 	 */
 	public IInstallableUnit getIU(String id, Version v) {
 		final IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, v);
-		Iterator it = metadataRepoManager.query(query, null).iterator();
+		Iterator<IInstallableUnit> it = metadataRepoManager.query(query, null).iterator();
 		if (it.hasNext())
-			return (IInstallableUnit) it.next();
+			return it.next();
 		//try the repository location directly - retry because eclipse.org can be flaky
 		Exception failure = null;
 		for (int i = 0; i < 3; i++) {
@@ -199,7 +199,7 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 				IMetadataRepository repo = metadataRepoManager.loadRepository(getRepositoryLocation(), null);
 				it = repo.query(query, null).iterator();
 				if (it.hasNext())
-					return (IInstallableUnit) it.next();
+					return it.next();
 			} catch (ProvisionException e) {
 				failure = e;
 			}

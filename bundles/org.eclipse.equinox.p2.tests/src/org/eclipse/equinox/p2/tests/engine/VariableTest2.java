@@ -25,7 +25,7 @@ public class VariableTest2 extends AbstractProvisioningTest {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("artifactWithZip");
 		description.setVersion(Version.create("1.0.0"));
-		Map touchpointData = new HashMap();
+		Map<String, Object> touchpointData = new HashMap<>();
 		touchpointData.put("install", "test.actionForVariableTesting2( arg1: expectedValue ); test.actionForVariableTesting2( arg1: ${lastResult} );");
 
 		description.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -39,7 +39,7 @@ public class VariableTest2 extends AbstractProvisioningTest {
 		properties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().getAbsolutePath());
 		IProfile profile = createProfile(this.getName(), properties);
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = getEngine().createPlan(profile, null);

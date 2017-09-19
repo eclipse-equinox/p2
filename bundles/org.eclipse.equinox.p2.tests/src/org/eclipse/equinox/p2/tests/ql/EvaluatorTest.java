@@ -284,14 +284,14 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IExpression everything = factory.variable("everything");
 		IExpression lambda = factory.lambda(item, cmp1);
 
-		IContextExpression e3 = factory.contextExpression(factory.select(everything, lambda));
+		IContextExpression<Object> e3 = factory.contextExpression(factory.select(everything, lambda));
 
 		IContextExpression<Object> contextExpression = factory.contextExpression(parser.parseQuery(e3.toString()), "ian bull");
 		IQuery<Object> query = QueryUtil.createQuery(Object.class, contextExpression);
 		System.out.println(e3);
 
 		IQueryResult<Object> queryResult = query.perform(items.iterator());
-		Iterator iterator = queryResult.iterator();
+		Iterator<Object> iterator = queryResult.iterator();
 		while (iterator.hasNext()) {
 			System.out.println(iterator.next());
 		}

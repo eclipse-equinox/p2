@@ -42,7 +42,7 @@ public class VariableTest3 extends AbstractProvisioningTest {
 		properties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().getAbsolutePath());
 		IProfile profile = createProfile(this.getName(), properties);
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = getEngine().createPlan(profile, null);

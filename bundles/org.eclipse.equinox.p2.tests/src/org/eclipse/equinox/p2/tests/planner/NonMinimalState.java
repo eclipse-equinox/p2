@@ -32,7 +32,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	IProfile profile = null;
 	IMetadataRepository repo = null;
 	private String searchedId;
-	private Set visited = new HashSet();
+	private Set<IInstallableUnit> visited = new HashSet<>();
 
 	@Override
 	protected void setUp() throws Exception {
@@ -70,11 +70,11 @@ public class NonMinimalState extends AbstractProvisioningTest {
 
 	private void why(String id) {
 		System.out.println("=-=-=" + id + "=-=-=");
-		visited = new HashSet();
-		IQueryResult roots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", "true"), null);
+		visited = new HashSet<>();
+		IQueryResult<IInstallableUnit> roots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", "true"), null);
 		searchedId = id;
-		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
-			IInstallableUnit type = (IInstallableUnit) iterator.next();
+		for (Iterator<IInstallableUnit> iterator = roots.iterator(); iterator.hasNext();) {
+			IInstallableUnit type = iterator.next();
 			if (type instanceof IInstallableUnitFragment) {
 				visited.add(type);
 				continue;
@@ -102,9 +102,9 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	}
 
 	private boolean expandRequirement(IInstallableUnit iu, IRequirement req) {
-		IQueryResult matches = profile.query(QueryUtil.createMatchQuery(req.getMatches()), null);
-		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = (IInstallableUnit) iterator.next();
+		IQueryResult<IInstallableUnit> matches = profile.query(QueryUtil.createMatchQuery(req.getMatches()), null);
+		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
+			IInstallableUnit match = iterator.next();
 			if (match.getId().equals(searchedId))
 				return true;
 			if (!visited.contains(match)) {

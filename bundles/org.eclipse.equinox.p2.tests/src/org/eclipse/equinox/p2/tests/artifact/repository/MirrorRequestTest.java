@@ -208,7 +208,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	}
 
 	class StatusSequenceRepository extends AbstractWrappedArtifactRepository {
-		Queue sequence;
+		Queue<IStatus> sequence;
 
 		public StatusSequenceRepository(IArtifactRepository repo) {
 			super(repo);
@@ -233,10 +233,10 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			}
 			if (sequence.isEmpty())
 				return Status.OK_STATUS;
-			return (IStatus) sequence.remove();
+			return sequence.remove();
 		}
 
-		public void setSequence(Queue queue) {
+		public void setSequence(Queue<IStatus> queue) {
 			sequence = queue;
 		}
 	}

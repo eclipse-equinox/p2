@@ -104,7 +104,7 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		final RequestStatus requestStatus = ((PlannerStatus) plan3.getStatus()).getRequestStatus();
 		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 		// System.out.println(plan3.getRequestStatus().getExplanations());
-		Set conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
+		Set<IInstallableUnit> conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
 		assertTrue(conflictingRoot.contains(a1));
 		assertEquals(1, conflictingRoot.size());
 	}
@@ -118,7 +118,7 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		final RequestStatus requestStatus = ((PlannerStatus) plan5.getStatus()).getRequestStatus();
 		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 		// System.out.println(plan5.getRequestStatus().getExplanations());
-		Set conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
+		Set<IInstallableUnit> conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
 		assertTrue(conflictingRoot.contains(a1));
 		assertEquals(1, conflictingRoot.size());
 	}

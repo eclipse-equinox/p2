@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.equinox.internal.p2.repository.Messages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -137,7 +138,7 @@ public class HttpStatusTest extends ServerBasedTestCase {
 
 	private static String getMessageForCode(int code) throws Exception {
 		// use reflection on Messages class to get the string in use
-		Class c = org.eclipse.equinox.internal.p2.repository.Messages.class;
+		Class<Messages> c = org.eclipse.equinox.internal.p2.repository.Messages.class;
 		try {
 			Field field = c.getDeclaredField("TransportErrorTranslator_" + Integer.valueOf(code).toString());
 			return (String) field.get(null);

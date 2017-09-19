@@ -103,20 +103,20 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	}
 
 	private void verifyResults(String idBase, String confSpec) {
-		ArrayList iuList = new ArrayList(publisherResult.getIUs(null, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> iuList = new ArrayList<>(publisherResult.getIUs(null, IPublisherResult.ROOT));
 		verifyEclipseIU(iuList, idBase, confSpec);
 		verifyCU(iuList, idBase, confSpec);
 		verifyExecIU(iuList, idBase, confSpec);
 		assertTrue(iuList.size() == 3);
 	}
 
-	private void verifyCU(ArrayList iuList, String idBase, String confSpec) {
+	private void verifyCU(ArrayList<IInstallableUnit> iuList, String idBase, String confSpec) {
 		String[] config = AbstractPublisherAction.parseConfigSpec(confSpec);
 		String _ws = config[0];
 		String _os = config[1];
 		String _arch = config[2];
 		for (int i = 0; i < iuList.size(); i++) {
-			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
+			IInstallableUnit possibleEclipse = iuList.get(i);
 			if (possibleEclipse.getId().equals(flavorArg + idBase + ".executable." + confSpec)) {//$NON-NLS-1$
 				IInstallableUnitFragment fragment = (IInstallableUnitFragment) iuList.get(i);
 				Collection<IProvidedCapability> providedCapability = fragment.getProvidedCapabilities();
@@ -136,9 +136,9 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		fail();
 	}
 
-	private void verifyEclipseIU(ArrayList iuList, String idBase, String confSpec) {
+	private void verifyEclipseIU(ArrayList<IInstallableUnit> iuList, String idBase, String confSpec) {
 		for (int i = 0; i < iuList.size(); i++) {
-			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
+			IInstallableUnit possibleEclipse = iuList.get(i);
 			if (possibleEclipse.getId().equals((idBase + ".executable." + confSpec + "." + EXECUTABLE_NAME))) { //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(possibleEclipse.getVersion().equals(version));
 				Collection<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
@@ -152,13 +152,13 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		fail();
 	}
 
-	private void verifyExecIU(ArrayList iuList, String idBase, String confSpec) {
+	private void verifyExecIU(ArrayList<IInstallableUnit> iuList, String idBase, String confSpec) {
 		String[] config = AbstractPublisherAction.parseConfigSpec(confSpec);
 		String _ws = config[0];
 		String _os = config[1];
 		String _arch = config[2];
 		for (int i = 0; i < iuList.size(); i++) {
-			IInstallableUnit possibleExec = (IInstallableUnit) iuList.get(i);
+			IInstallableUnit possibleExec = iuList.get(i);
 			if (possibleExec.getId().equals(idBase + ".executable." + confSpec)) { //$NON-NLS-1$
 				//keep checking
 				assertTrue(possibleExec.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=" + _ws + ")(osgi.os=" + _os + ")(osgi.arch=" + _arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
@@ -258,7 +258,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		setupArtifactRepository();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();
-		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class) anyObject())).andReturn(brandingAdvice);
+		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class<IBrandingAdvice>) anyObject())).andReturn(brandingAdvice);
 	}
 
 	private void setupBrandingAdvice(final String osArg, final String config, final File exec, final File icon) {

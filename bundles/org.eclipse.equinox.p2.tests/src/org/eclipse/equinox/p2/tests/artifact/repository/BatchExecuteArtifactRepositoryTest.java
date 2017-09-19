@@ -44,7 +44,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -70,7 +70,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -104,7 +104,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -129,7 +129,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -155,7 +155,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI artifactXML = new URI(repositoryFile.toURI().toString() + "/artifacts.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -192,7 +192,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			IStatus status = repo.executeBatch(monitor -> {
 				// empty
@@ -211,7 +211,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		 * @param location
 		 * @param properties
 		 */
-		public FailingSimpleArtifactRepository(String repositoryName, URI location, Map properties) {
+		public FailingSimpleArtifactRepository(String repositoryName, URI location, Map<String, String> properties) {
 			super(getAgent(), repositoryName, location, properties);
 		}
 
@@ -236,7 +236,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		 * @param location
 		 * @param properties
 		 */
-		public FailingCompositeArtifactRepository(IArtifactRepositoryManager manager, String repositoryName, URI location, Map properties) {
+		public FailingCompositeArtifactRepository(IArtifactRepositoryManager manager, String repositoryName, URI location, Map<String, String> properties) {
 			super(manager, location, repositoryName, properties);
 		}
 
@@ -294,7 +294,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 	 */
 	public void testBatchProcessingCancelled() {
 		try {
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
 			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
@@ -357,7 +357,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		 * @param location
 		 * @param properties
 		 */
-		public TrackSavignSimpleArtifactRepository(String repositoryName, URI location, Map properties) {
+		public TrackSavignSimpleArtifactRepository(String repositoryName, URI location, Map<String, String> properties) {
 			super(getAgent(), repositoryName, location, properties);
 		}
 
@@ -414,7 +414,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			repo.executeBatch(monitor -> {
 				throw new RuntimeException();
@@ -437,7 +437,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			repo.executeBatch(monitor -> {
 				Field field;
@@ -471,7 +471,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			CompositeArtifactRepository repo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, properties);
 			repo.executeBatch(monitor -> {
 				throw new RuntimeException();
@@ -493,7 +493,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final CompositeArtifactRepository repo = (CompositeArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, properties);
 			repo.executeBatch(monitor -> {
 				Field field;

@@ -109,7 +109,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan1.getStatus()).getRequestStatus();
 		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
-		Set conflictingRoots = requestStatus.getConflictsWithInstalledRoots();
+		Set<IInstallableUnit> conflictingRoots = requestStatus.getConflictsWithInstalledRoots();
 		assertEquals(1, conflictingRoots.size());
 		assertTrue(conflictingRoots.contains(a1) || conflictingRoots.contains(c1));
 	}

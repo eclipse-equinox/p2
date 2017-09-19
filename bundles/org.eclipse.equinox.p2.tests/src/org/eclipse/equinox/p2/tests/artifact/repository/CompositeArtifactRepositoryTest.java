@@ -212,7 +212,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Cannot create repository: ", e);
 		}
-		Map properties = repo.getProperties();
+		Map<String, String> properties = repo.getProperties();
 		assertTrue("1.0", !properties.containsKey(TEST_KEY));
 		repo.setProperty(TEST_KEY, TEST_VALUE);
 
@@ -1303,9 +1303,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			Field field = CompositeArtifactRepository.class.getDeclaredField("loadedRepos");
 			field.setAccessible(true);
 
-			Class[] classes = CompositeArtifactRepository.class.getDeclaredClasses();
+			Class<?>[] classes = CompositeArtifactRepository.class.getDeclaredClasses();
 
-			Class childInfo = null;
+			Class<?> childInfo = null;
 			for (int i = 0; i < classes.length && childInfo == null; i++) {
 				if (classes[i].getName().equals("org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository$ChildInfo"))
 					childInfo = classes[i];
@@ -1317,8 +1317,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			Field good = childInfo.getDeclaredField("good");
 			good.setAccessible(true);
 
-			List list = (List) field.get(parent);
-			for (Iterator listIter = list.iterator(); listIter.hasNext();) {
+			List<?> list = (List<?>) field.get(parent);
+			for (Iterator<?> listIter = list.iterator(); listIter.hasNext();) {
 				Object obj = listIter.next();
 				if (child.equals(repo.get(obj))) {
 					good.set(obj, false);

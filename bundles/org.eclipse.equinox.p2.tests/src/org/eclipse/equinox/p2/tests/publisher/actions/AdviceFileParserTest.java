@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,7 +32,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testAdviceVersion() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("advice.version", "1.0");
 		AdviceFileParser parser = new AdviceFileParser("id", Version.emptyVersion, map);
 		parser.parse();
@@ -48,7 +48,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testUpdateDescriptorAdvice() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("update.id", "testName");
 		map.put("update.severity", "10");
 		map.put("update.description", "Test Description");
@@ -68,7 +68,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testUpdateDescriptorAdviceDefaultBound() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("update.id", "testName");
 		map.put("update.severity", "10");
 		map.put("update.description", "Test Description");
@@ -88,7 +88,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testUpdateDescriptorWithMatch() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("update.matchExp", "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && (pc.name == 'B' || pc.name == 'C'))");
 		map.put("update.severity", "10");
 		map.put("update.description", "Test Description");
@@ -110,7 +110,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testUpdateDescriptorAdviceDefaultBound2() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("update.id", "testName");
 		map.put("update.severity", "10");
 		map.put("update.description", "Test Description");
@@ -129,7 +129,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testUpdateDescriptorAdviceDefaultID() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("update.severity", "10");
 		map.put("update.description", "Test Description");
 
@@ -147,7 +147,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testUpdateDescriptorAdviceDefaults() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("update.id", "id");
 
 		AdviceFileParser parser = new AdviceFileParser("id", Version.parseVersion("9.10.11"), map);
@@ -164,7 +164,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testPropertyAdvice() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("properties.0.name", "testName1");
 		map.put("properties.0.value", "testValue1");
 		map.put("properties.1.name", "testName2");
@@ -177,7 +177,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testProvidesAdvice() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("provides.0.namespace", "testNamespace1");
 		map.put("provides.0.name", "testName1");
 		map.put("provides.0.version", "1.2.3.$qualifier$");
@@ -207,7 +207,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testRequiresAdvice() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("requires.0.namespace", "testNamespace1");
 		map.put("requires.0.name", "testName1");
 		map.put("requires.0.range", "[1.2.3.$qualifier$, 2)");
@@ -228,7 +228,7 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("requires.1.range", "$version$");
 		map.put("requires.1.greedy", Boolean.FALSE.toString());
 		map.put("requires.1.optional", Boolean.FALSE.toString());
-		//default 
+		//default
 		//		map.put("requires.1.multiple", Boolean.FALSE.toString());
 
 		parser = new AdviceFileParser("id", Version.emptyVersion, map);
@@ -248,7 +248,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testRequireWithExpression() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		String matchExp = "properties[abc] == 'def'";
 		map.put("requires.0.matchExp", matchExp);
 		map.put("requires.0.greedy", Boolean.TRUE.toString());
@@ -266,7 +266,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testRequireWithExpressionAndOptional() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		String matchExp = "properties[abc] == 'def'";
 		map.put("requires.0.matchExp", matchExp);
 		map.put("requires.0.greedy", Boolean.TRUE.toString());
@@ -285,7 +285,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testMetaRequiresAdvice() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("metaRequirements.0.namespace", "testNamespace1");
 		map.put("metaRequirements.0.name", "testName1");
 		map.put("metaRequirements.0.range", "[1.2.3.$qualifier$, 2)");
@@ -306,7 +306,7 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("metaRequirements.1.range", "$version$");
 		map.put("metaRequirements.1.greedy", Boolean.FALSE.toString());
 		map.put("metaRequirements.1.optional", Boolean.FALSE.toString());
-		//default 
+		//default
 		//		map.put("requires.1.multiple", Boolean.FALSE.toString());
 
 		parser = new AdviceFileParser("id", Version.emptyVersion, map);
@@ -326,7 +326,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testInstructionsAdvice() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("instructions.configure", "addProgramArg(programArg:-startup); addProgramArg(programArg:@artifact);");
 
 		map.put("instructions.unconfigure", "removeProgramArg(programArg:-startup); removeProgramArg(programArg:@artifact);)");
@@ -344,7 +344,7 @@ public class AdviceFileParserTest extends TestCase {
 	}
 
 	public void testAdditionalInstallableUnitDescriptionsAdvice() {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("units.0.id", "testid0");
 		map.put("units.0.version", "1.2.3");
 
@@ -441,9 +441,9 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(Version.create("1.2.4"), iu1.getVersion());
 		assertTrue(iu1.isSingleton());
 		assertEquals(2, iu1.getArtifacts().size());
-		Iterator it = iu1.getArtifacts().iterator();
-		IArtifactKey key0 = (IArtifactKey) it.next();
-		IArtifactKey key1 = (IArtifactKey) it.next();
+		Iterator<IArtifactKey> it = iu1.getArtifacts().iterator();
+		IArtifactKey key0 = it.next();
+		IArtifactKey key1 = it.next();
 		assertEquals("testArtifact1", key0.getId());
 		assertEquals(Version.create("1.2.6"), key0.getVersion());
 		assertEquals("testClassifier1", key0.getClassifier());
@@ -459,9 +459,9 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testValue2", iu1.getProperty("testName2"));
 
 		Collection<IRequirement> reqs = iu1.getRequirements();
-		Iterator it2 = reqs.iterator();
-		IRequirement req0 = (IRequirement) it2.next();
-		IRequirement req1 = (IRequirement) it2.next();
+		Iterator<IRequirement> it2 = reqs.iterator();
+		IRequirement req0 = it2.next();
+		IRequirement req1 = it2.next();
 		assertEquals(2, reqs.size());
 		assertEquals("testNamespace1", RequiredCapability.extractNamespace(req0.getMatches()));
 		assertEquals("testName1", RequiredCapability.extractName(req0.getMatches()));
@@ -488,9 +488,9 @@ public class AdviceFileParserTest extends TestCase {
 
 		Collection<IRequirement> metarequirements = iu1.getMetaRequirements();
 		assertEquals(2, metarequirements.size());
-		Iterator it3 = metarequirements.iterator();
-		IRequirement metaReq0 = (IRequirement) it3.next();
-		IRequirement metaReq1 = (IRequirement) it3.next();
+		Iterator<IRequirement> it3 = metarequirements.iterator();
+		IRequirement metaReq0 = it3.next();
+		IRequirement metaReq1 = it3.next();
 
 		assertEquals("testNamespace1", RequiredCapability.extractNamespace(metaReq0.getMatches()));
 		assertEquals("testName1", RequiredCapability.extractName(metaReq0.getMatches()));

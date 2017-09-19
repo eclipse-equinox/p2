@@ -85,7 +85,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 			super.completePhase(monitor, profile, parameters);
 			throw new NullPointerException();
 		}
@@ -110,12 +110,12 @@ public class EngineTest extends AbstractProvisioningTest {
 			ProvisioningAction action = new ProvisioningAction() {
 
 				@Override
-				public IStatus undo(Map parameters) {
+				public IStatus undo(Map<String, Object> parameters) {
 					throw new NullPointerException();
 				}
 
 				@Override
-				public IStatus execute(Map parameters) {
+				public IStatus execute(Map<String, Object> parameters) {
 					throw new NullPointerException();
 				}
 			};
@@ -327,9 +327,9 @@ public class EngineTest extends AbstractProvisioningTest {
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
 		IProfile profile = createProfile("testPerformSizing", properties);
-		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
+		for (Iterator<IInstallableUnit> it = getInstallableUnits(profile); it.hasNext();) {
 			IProvisioningPlan plan = engine.createPlan(profile, null);
-			IInstallableUnit doomed = (IInstallableUnit) it.next();
+			IInstallableUnit doomed = it.next();
 			plan.removeInstallableUnit(doomed);
 			engine.perform(plan, new NullProgressMonitor());
 		}
@@ -366,9 +366,9 @@ public class EngineTest extends AbstractProvisioningTest {
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
 		IProfile profile = createProfile("testPerformInstallOSGiFramework", properties);
-		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
+		for (Iterator<IInstallableUnit> it = getInstallableUnits(profile); it.hasNext();) {
 			IProvisioningPlan plan = engine.createPlan(profile, null);
-			IInstallableUnit doomed = (IInstallableUnit) it.next();
+			IInstallableUnit doomed = it.next();
 			plan.removeInstallableUnit(doomed);
 			engine.perform(plan, new NullProgressMonitor());
 		}
@@ -376,7 +376,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		plan.addInstallableUnit(createOSGiIU());
 		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
 	}
 
@@ -392,7 +392,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		plan.addInstallableUnit(iu33);
 		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		Iterator ius = profile.query(QueryUtil.createIUQuery(iu33), null).iterator();
+		Iterator<IInstallableUnit> ius = profile.query(QueryUtil.createIUQuery(iu33), null).iterator();
 		assertTrue(ius.hasNext());
 
 		plan = engine.createPlan(profile, null);
@@ -422,7 +422,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformRollback", properties);
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -462,7 +462,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformMissingAction", properties);
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -482,7 +482,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		NPEPhase phase = new NPEPhase();
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -504,7 +504,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		ActionNPEPhase phase = new ActionNPEPhase();
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -523,7 +523,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		ActionNPEPhase phase = new ActionNPEPhase(true);
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -545,7 +545,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		// forcedUninstall is false by default
 		IPhaseSet phaseSet = PhaseSetFactory.createDefaultPhaseSet();
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -582,7 +582,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		// forcedUninstall is false by default
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -638,7 +638,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		description.setId("org.eclipse.osgi");
 		description.setVersion(Version.create(version));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
-		Map touchpointData = new HashMap();
+		Map<String, Object> touchpointData = new HashMap<>();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
 				+ " er;version=\"1.1\",org.eclipse.osgi.service.runnable;version=\"1.0\",org.\r\n" + " eclipse.osgi.service.urlconversion;version=\"1.0\",org.eclipse.osgi.sto\r\n" + " ragemanager;version=\"1.0\",org.eclipse.osgi.util;version=\"1.0\",org.osg\r\n" + " i.framework;version=\"1.3\",org.osgi.service.condpermadmin;version=\"1.0\r\n" + " \",org.osgi.service.packageadmin;version=\"1.2\",org.osgi.service.permis\r\n" + " sionadmin;version=\"1.2\",org.osgi.service.startlevel;version=\"1.0\",org\r\n" + " .osgi.service.url;version=\"1.0\",org.osgi.util.tracker;version=\"1.3.2\"\r\n" + " ,org.eclipse.core.runtime.adaptor;x-friends:=\"org.eclipse.core.runtim\r\n" + " e\",org.eclipse.core.runtime.internal.adaptor;x-internal:=true,org.ecl\r\n"
 				+ " ipse.core.runtime.internal.stats;x-friends:=\"org.eclipse.core.runtime\r\n" + " \",org.eclipse.osgi.baseadaptor;x-internal:=true,org.eclipse.osgi.base\r\n" + " adaptor.bundlefile;x-internal:=true,org.eclipse.osgi.baseadaptor.hook\r\n" + " s;x-internal:=true,org.eclipse.osgi.baseadaptor.loader;x-internal:=tr\r\n" + " ue,org.eclipse.osgi.framework.adaptor;x-internal:=true,org.eclipse.os\r\n" + " gi.framework.debug;x-internal:=true,org.eclipse.osgi.framework.intern\r\n" + " al.core;x-internal:=true,org.eclipse.osgi.framework.internal.protocol\r\n" + " ;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.bundle\r\n" + " entry;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.b\r\n"
@@ -666,7 +666,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		description.setId("org.eclipse.osgi.bad");
 		description.setVersion(Version.create("3.3.1.R33x_v20070828"));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
-		Map touchpointData = new HashMap();
+		Map<String, Object> touchpointData = new HashMap<>();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
 				+ " er;version=\"1.1\",org.eclipse.osgi.service.runnable;version=\"1.0\",org.\r\n" + " eclipse.osgi.service.urlconversion;version=\"1.0\",org.eclipse.osgi.sto\r\n" + " ragemanager;version=\"1.0\",org.eclipse.osgi.util;version=\"1.0\",org.osg\r\n" + " i.framework;version=\"1.3\",org.osgi.service.condpermadmin;version=\"1.0\r\n" + " \",org.osgi.service.packageadmin;version=\"1.2\",org.osgi.service.permis\r\n" + " sionadmin;version=\"1.2\",org.osgi.service.startlevel;version=\"1.0\",org\r\n" + " .osgi.service.url;version=\"1.0\",org.osgi.util.tracker;version=\"1.3.2\"\r\n" + " ,org.eclipse.core.runtime.adaptor;x-friends:=\"org.eclipse.core.runtim\r\n" + " e\",org.eclipse.core.runtime.internal.adaptor;x-internal:=true,org.ecl\r\n"
 				+ " ipse.core.runtime.internal.stats;x-friends:=\"org.eclipse.core.runtime\r\n" + " \",org.eclipse.osgi.baseadaptor;x-internal:=true,org.eclipse.osgi.base\r\n" + " adaptor.bundlefile;x-internal:=true,org.eclipse.osgi.baseadaptor.hook\r\n" + " s;x-internal:=true,org.eclipse.osgi.baseadaptor.loader;x-internal:=tr\r\n" + " ue,org.eclipse.osgi.framework.adaptor;x-internal:=true,org.eclipse.os\r\n" + " gi.framework.debug;x-internal:=true,org.eclipse.osgi.framework.intern\r\n" + " al.core;x-internal:=true,org.eclipse.osgi.framework.internal.protocol\r\n" + " ;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.bundle\r\n" + " entry;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.b\r\n"
@@ -692,7 +692,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		description.setId("org.eclipse.osgi.bad");
 		description.setVersion(Version.create("3.3.1.R33x_v20070828"));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
-		Map touchpointData = new HashMap();
+		Map<String, Object> touchpointData = new HashMap<>();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
 				+ " er;version=\"1.1\",org.eclipse.osgi.service.runnable;version=\"1.0\",org.\r\n" + " eclipse.osgi.service.urlconversion;version=\"1.0\",org.eclipse.osgi.sto\r\n" + " ragemanager;version=\"1.0\",org.eclipse.osgi.util;version=\"1.0\",org.osg\r\n" + " i.framework;version=\"1.3\",org.osgi.service.condpermadmin;version=\"1.0\r\n" + " \",org.osgi.service.packageadmin;version=\"1.2\",org.osgi.service.permis\r\n" + " sionadmin;version=\"1.2\",org.osgi.service.startlevel;version=\"1.0\",org\r\n" + " .osgi.service.url;version=\"1.0\",org.osgi.util.tracker;version=\"1.3.2\"\r\n" + " ,org.eclipse.core.runtime.adaptor;x-friends:=\"org.eclipse.core.runtim\r\n" + " e\",org.eclipse.core.runtime.internal.adaptor;x-internal:=true,org.ecl\r\n"
 				+ " ipse.core.runtime.internal.stats;x-friends:=\"org.eclipse.core.runtime\r\n" + " \",org.eclipse.osgi.baseadaptor;x-internal:=true,org.eclipse.osgi.base\r\n" + " adaptor.bundlefile;x-internal:=true,org.eclipse.osgi.baseadaptor.hook\r\n" + " s;x-internal:=true,org.eclipse.osgi.baseadaptor.loader;x-internal:=tr\r\n" + " ue,org.eclipse.osgi.framework.adaptor;x-internal:=true,org.eclipse.os\r\n" + " gi.framework.debug;x-internal:=true,org.eclipse.osgi.framework.intern\r\n" + " al.core;x-internal:=true,org.eclipse.osgi.framework.internal.protocol\r\n" + " ;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.bundle\r\n" + " entry;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.b\r\n"
@@ -718,7 +718,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		description.setId("org.eclipse.osgi.bad");
 		description.setVersion(Version.create("3.3.1.R33x_v20070828"));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
-		Map touchpointData = new HashMap();
+		Map<String, Object> touchpointData = new HashMap<>();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
 				+ " er;version=\"1.1\",org.eclipse.osgi.service.runnable;version=\"1.0\",org.\r\n" + " eclipse.osgi.service.urlconversion;version=\"1.0\",org.eclipse.osgi.sto\r\n" + " ragemanager;version=\"1.0\",org.eclipse.osgi.util;version=\"1.0\",org.osg\r\n" + " i.framework;version=\"1.3\",org.osgi.service.condpermadmin;version=\"1.0\r\n" + " \",org.osgi.service.packageadmin;version=\"1.2\",org.osgi.service.permis\r\n" + " sionadmin;version=\"1.2\",org.osgi.service.startlevel;version=\"1.0\",org\r\n" + " .osgi.service.url;version=\"1.0\",org.osgi.util.tracker;version=\"1.3.2\"\r\n" + " ,org.eclipse.core.runtime.adaptor;x-friends:=\"org.eclipse.core.runtim\r\n" + " e\",org.eclipse.core.runtime.internal.adaptor;x-internal:=true,org.ecl\r\n"
 				+ " ipse.core.runtime.internal.stats;x-friends:=\"org.eclipse.core.runtime\r\n" + " \",org.eclipse.osgi.baseadaptor;x-internal:=true,org.eclipse.osgi.base\r\n" + " adaptor.bundlefile;x-internal:=true,org.eclipse.osgi.baseadaptor.hook\r\n" + " s;x-internal:=true,org.eclipse.osgi.baseadaptor.loader;x-internal:=tr\r\n" + " ue,org.eclipse.osgi.framework.adaptor;x-internal:=true,org.eclipse.os\r\n" + " gi.framework.debug;x-internal:=true,org.eclipse.osgi.framework.intern\r\n" + " al.core;x-internal:=true,org.eclipse.osgi.framework.internal.protocol\r\n" + " ;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.bundle\r\n" + " entry;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.b\r\n"
@@ -744,7 +744,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		description.setId("org.eclipse.osgi.bad");
 		description.setVersion(Version.create("3.3.1.R33x_v20070828"));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
-		Map touchpointData = new HashMap();
+		Map<String, Object> touchpointData = new HashMap<>();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
 				+ " er;version=\"1.1\",org.eclipse.osgi.service.runnable;version=\"1.0\",org.\r\n" + " eclipse.osgi.service.urlconversion;version=\"1.0\",org.eclipse.osgi.sto\r\n" + " ragemanager;version=\"1.0\",org.eclipse.osgi.util;version=\"1.0\",org.osg\r\n" + " i.framework;version=\"1.3\",org.osgi.service.condpermadmin;version=\"1.0\r\n" + " \",org.osgi.service.packageadmin;version=\"1.2\",org.osgi.service.permis\r\n" + " sionadmin;version=\"1.2\",org.osgi.service.startlevel;version=\"1.0\",org\r\n" + " .osgi.service.url;version=\"1.0\",org.osgi.util.tracker;version=\"1.3.2\"\r\n" + " ,org.eclipse.core.runtime.adaptor;x-friends:=\"org.eclipse.core.runtim\r\n" + " e\",org.eclipse.core.runtime.internal.adaptor;x-internal:=true,org.ecl\r\n"
 				+ " ipse.core.runtime.internal.stats;x-friends:=\"org.eclipse.core.runtime\r\n" + " \",org.eclipse.osgi.baseadaptor;x-internal:=true,org.eclipse.osgi.base\r\n" + " adaptor.bundlefile;x-internal:=true,org.eclipse.osgi.baseadaptor.hook\r\n" + " s;x-internal:=true,org.eclipse.osgi.baseadaptor.loader;x-internal:=tr\r\n" + " ue,org.eclipse.osgi.framework.adaptor;x-internal:=true,org.eclipse.os\r\n" + " gi.framework.debug;x-internal:=true,org.eclipse.osgi.framework.intern\r\n" + " al.core;x-internal:=true,org.eclipse.osgi.framework.internal.protocol\r\n" + " ;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.bundle\r\n" + " entry;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.b\r\n"

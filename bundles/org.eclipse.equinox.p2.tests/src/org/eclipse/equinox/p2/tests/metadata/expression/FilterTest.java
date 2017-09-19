@@ -33,8 +33,8 @@ public class FilterTest extends TestCase {
 			List<String> keyList = new ArrayList<>(dictionary.size());
 			for (Iterator<String> e = dictionary.keySet().iterator(); e.hasNext();) {
 				String key = e.next();
-				for (Iterator i = keyList.iterator(); i.hasNext();) {
-					if (key.equalsIgnoreCase((String) i.next())) {
+				for (Iterator<String> i = keyList.iterator(); i.hasNext();) {
+					if (key.equalsIgnoreCase(i.next())) {
 						throw new IllegalArgumentException();
 					}
 				}
@@ -80,12 +80,12 @@ public class FilterTest extends TestCase {
 		}
 
 		@Override
-		public Dictionary getProperties() {
-			return new Hashtable(dictionary);
+		public Dictionary<String, Object> getProperties() {
+			return new Hashtable<>(dictionary);
 		}
 	}
 
-	private static class SampleComparable implements Comparable {
+	private static class SampleComparable implements Comparable<SampleComparable> {
 		private int value = -1;
 
 		public SampleComparable(String value) {
@@ -98,8 +98,8 @@ public class FilterTest extends TestCase {
 		}
 
 		@Override
-		public int compareTo(Object o) {
-			return value - ((SampleComparable) o).value;
+		public int compareTo(SampleComparable o) {
+			return value - o.value;
 		}
 
 		@Override
@@ -150,7 +150,7 @@ public class FilterTest extends TestCase {
 	}
 
 	public void testFilter() {
-		Properties props = new Properties();
+		Dictionary<String, Object> props = new Hashtable<>();
 		props.put("room", "bedroom"); //$NON-NLS-1$ //$NON-NLS-2$
 		props.put("channel", Integer.valueOf(34)); //$NON-NLS-1$
 		props.put("status", "(on\\)*"); //$NON-NLS-1$//$NON-NLS-2$
@@ -162,7 +162,7 @@ public class FilterTest extends TestCase {
 		props.put("doublevalue", Double.valueOf(2.01)); //$NON-NLS-1$
 		props.put("charvalue", Character.valueOf('A')); //$NON-NLS-1$
 		props.put("booleanvalue", Boolean.FALSE); //$NON-NLS-1$
-		props.put("weirdvalue", new Hashtable()); //$NON-NLS-1$
+		props.put("weirdvalue", new Hashtable<>()); //$NON-NLS-1$
 		try {
 			props.put("bigintvalue", new BigInteger("4123456")); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (NoClassDefFoundError e) {
@@ -264,8 +264,8 @@ public class FilterTest extends TestCase {
 
 	}
 
-	private void testFilter(String query, Dictionary<?, ?> props, int expect) {
-		final ServiceReference ref = new DictionaryServiceReference((Map) props);
+	private void testFilter(String query, Dictionary<String, Object> props, int expect) {
+		final ServiceReference ref = new DictionaryServiceReference((Map<String, ? extends Object>) props);
 		Filter f1;
 		try {
 			f1 = ExpressionUtil.parseLDAP(query);
@@ -283,7 +283,7 @@ public class FilterTest extends TestCase {
 
 		// TODO Doing raw conversion here for simplicity; could convert to Dictionary<String, ?>
 		// but the filter impl must still handle cases where non String keys are used.
-		boolean val = f1.match((Dictionary) props);
+		boolean val = f1.match(props);
 		assertEquals("wrong result", expect == ISTRUE, val); //$NON-NLS-1$
 
 		val = f1.match(ref);

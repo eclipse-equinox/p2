@@ -62,10 +62,10 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testQualifier() {
-		IQueryResult results = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
-		Iterator iter = results.iterator();
+		IQueryResult<IInstallableUnit> results = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		Iterator<IInstallableUnit> iter = results.iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit unit = (IInstallableUnit) iter.next();
+			IInstallableUnit unit = iter.next();
 			String sitelocation = URIUtil.toUnencodedString(siteLocation);
 			assertTrue("1.0", unit.getId().startsWith(sitelocation));
 			assertEquals("2.0", "Test Category Label", unit.getProperty(IInstallableUnit.PROP_NAME));
@@ -81,11 +81,11 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 	 * Tests that associate sites are generated correctly.
 	 */
 	public void testAssociateSite() {
-		Collection references = metadataRepository.getReferences();
+		Collection<IRepositoryReference> references = metadataRepository.getReferences();
 		assertEquals("1.0", 2, references.size());
 		boolean metadataFound = false, artifactFound = false;
-		for (Iterator it = references.iterator(); it.hasNext();) {
-			IRepositoryReference ref = (IRepositoryReference) it.next();
+		for (Iterator<IRepositoryReference> it = references.iterator(); it.hasNext();) {
+			IRepositoryReference ref = it.next();
 			assertEquals("1.1", "http://download.eclipse.org/eclipse/updates/3.5", ref.getLocation().toString());
 			assertEquals("1.2", IRepository.ENABLED, ref.getOptions());
 			assertEquals("1.3", "Eclipse Project Update Site", ref.getNickname());
@@ -105,10 +105,10 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testBundleInCategory() {
-		IQueryResult results = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
-		Iterator iter = results.iterator();
+		IQueryResult<IInstallableUnit> results = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		Iterator<IInstallableUnit> iter = results.iterator();
 
-		IInstallableUnit unit = (IInstallableUnit) iter.next();
+		IInstallableUnit unit = iter.next();
 		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(unit);
 		IQueryResult<IInstallableUnit> categoryMembers = actionResult.query(memberQuery, new NullProgressMonitor());
 		Set<String> membersId = new HashSet<>();

@@ -92,7 +92,7 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
-		Set conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
+		Set<IInstallableUnit> conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
 		assertEquals(1, conflictingRoot.size());
 		assertTrue(conflictingRoot.contains(p2Feature20));
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());

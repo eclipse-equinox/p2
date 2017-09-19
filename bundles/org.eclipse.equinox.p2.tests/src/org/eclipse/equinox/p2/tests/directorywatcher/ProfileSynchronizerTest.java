@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -41,20 +41,20 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 
 	/*
 	 * Test that we only try to install bundles with matching platform filters.
-	 * 
+	 *
 	 * TODO we don't want to test to see if the bundles are in the repo, but if
 	 * the bundles are filtered when they are installed into a profile.
 	 */
 	public void _testPlatformFilter() {
 		String base = "/testData/profileSynchronizer/";
 		String[] extensions = new String[] {"bbb_1.0.0.jar", "bbb.linux_1.0.0.jar", "bbb.win32_1.0.0.jar"};
-		Set jars = new HashSet();
+		Set<File> jars = new HashSet<>();
 		for (int i = 0; i < extensions.length; i++)
 			jars.add(getTestData("0.99", base + extensions[i]));
 		File folder = getTempFolder();
 		toRemove.add(folder);
-		for (Iterator iter = jars.iterator(); iter.hasNext();) {
-			File next = (File) iter.next();
+		for (Iterator<File> iter = jars.iterator(); iter.hasNext();) {
+			File next = iter.next();
 			copy("1.0 " + next.getAbsolutePath(), next, new File(folder, next.getName()));
 		}
 
@@ -66,7 +66,7 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 		watcher.poll();
 
 		// which IUs we are expecting is dependent on which OS we are running
-		Set expected = new HashSet();
+		Set<String> expected = new HashSet<>();
 		expected.add("bbb");
 		String os = System.getProperty("osgi.os");
 		if ("win32".equals(os)) {
@@ -85,7 +85,7 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 	/*
 	 * Test to ensure that we only try to install the highest version of singleton bundles
 	 * where multiple versions exist.
-	 * 
+	 *
 	 * TODO we don't want to test to see if the bundles are in the repo, but if
 	 * the bundles are filtered when they are installed into a profile.
 	 */

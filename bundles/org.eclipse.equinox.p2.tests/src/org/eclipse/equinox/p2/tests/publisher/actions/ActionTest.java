@@ -70,7 +70,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	}
 
 	protected void verifyRequiredCapability(Collection<IRequirement> requirement, String namespace, String name, VersionRange range, int min, int max, boolean greedy) {
-		for (Iterator iterator = requirement.iterator(); iterator.hasNext();) {
+		for (Iterator<IRequirement> iterator = requirement.iterator(); iterator.hasNext();) {
 			IRequiredCapability required = (IRequiredCapability) iterator.next();
 			if (required.getName().equalsIgnoreCase(name) && required.getNamespace().equalsIgnoreCase(namespace) && required.getRange().equals(range)) {
 				String requirementDescr = "RequiredCapability " + name + " " + range.toString();
@@ -128,7 +128,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 
 	protected void contains(Collection<IRequirement> capabilities, String namespace, String name, VersionRange range, String filterStr, boolean optional, boolean multiple) {
 		IMatchExpression<IInstallableUnit> filter = InstallableUnit.parseFilter(filterStr);
-		for (Iterator iterator = capabilities.iterator(); iterator.hasNext();) {
+		for (Iterator<IRequirement> iterator = capabilities.iterator(); iterator.hasNext();) {
 			IRequiredCapability capability = (IRequiredCapability) iterator.next();
 			if (filter == null) {
 				if (capability.getFilter() != null)

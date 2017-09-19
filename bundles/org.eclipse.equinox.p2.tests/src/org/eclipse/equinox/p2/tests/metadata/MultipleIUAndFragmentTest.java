@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.metadata.*;
@@ -27,8 +26,6 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 	IInstallableUnit iu1;
 	IInstallableUnit iu2;
 	IInstallableUnit iu3;
-
-	Collection result;
 
 	@Override
 	protected void tearDown() throws Exception {

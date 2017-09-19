@@ -54,7 +54,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		File zipTarget2 = new File(subDir, "a.zip");
 		copy("3.0", zipSource, zipTarget2);
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -63,7 +63,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_TARGET_DIR, installFolder.getAbsolutePath());
 		parameters.put(ActionConstants.PARM_TARGET_FILE, "a.zip");
 		parameters.put(ActionConstants.PARM_PERMISSIONS, "+x");
-		Map xparameters = Collections.unmodifiableMap(parameters);
+		Map<String, Object> xparameters = Collections.unmodifiableMap(parameters);
 
 		// TODO: We need a way to verify
 		// one idea is to run an executable here (or chmod with -w, -r and then test that files are unreadable
@@ -125,7 +125,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, dirBundleTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -138,7 +138,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_TARGET_DIR, "@artifact");
 		parameters.put(ActionConstants.PARM_TARGET_FILE, "plugin.xml");
 		parameters.put(ActionConstants.PARM_PERMISSIONS, "+x");
-		Map xparameters = Collections.unmodifiableMap(parameters);
+		Map<String, Object> xparameters = Collections.unmodifiableMap(parameters);
 
 		// TODO: We need a way to verify
 		// one idea is to run an executable here (or chmod with -w, -r and then test that files are unreadable
@@ -203,7 +203,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, dirBundleTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -216,7 +216,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_TARGET_DIR, parameters.get("artifact.location"));
 		parameters.put(ActionConstants.PARM_TARGET_FILE, "plugin.xml");
 		parameters.put(ActionConstants.PARM_PERMISSIONS, "+x");
-		Map xparameters = Collections.unmodifiableMap(parameters);
+		Map<String, Object> xparameters = Collections.unmodifiableMap(parameters);
 
 		// TODO: We need a way to verify
 		// one idea is to run an executable here (or chmod with -w, -r and then test that files are unreadable

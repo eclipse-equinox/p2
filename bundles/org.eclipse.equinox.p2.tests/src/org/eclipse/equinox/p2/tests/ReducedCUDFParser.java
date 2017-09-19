@@ -23,15 +23,13 @@ public class ReducedCUDFParser {
 	private static final boolean TIMING = true; //TO SET TO FALSE FOR COMPETITION
 	private InstallableUnitDescription currentIU = null;
 	//	private ProfileChangeRequest currentRequest = null;
-	private List allIUs = new ArrayList();
+	private List<IInstallableUnit> allIUs = new ArrayList<>();
 	//	private QueryableArray query = null;
-	private List currentKeepRequests = new ArrayList();
 
 	class Tuple {
 		String name;
 		String version;
 		String operator;
-		Set extraData;
 
 		Tuple(String line) {
 			String[] tuple = new String[3];
@@ -148,7 +146,7 @@ public class ReducedCUDFParser {
 		if (TIMING)
 			//			Log.println("Time to parse:" + (System.currentTimeMillis() - start));
 			if (DEBUG)
-				for (Iterator iter = allIUs.iterator(); iter.hasNext();)
+				for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();)
 					debug((InstallableUnit) iter.next());
 		//		if (FORCE_QUERY) {
 		//			if (query == null)
@@ -222,7 +220,6 @@ public class ReducedCUDFParser {
 		allIUs.add(MetadataFactory.createInstallableUnit(currentIU));
 		// reset to be ready for the next stanza
 		currentIU = null;
-		currentKeepRequests.clear();
 	}
 
 	//	private void handleInstalled(String line) {
@@ -369,9 +366,9 @@ public class ReducedCUDFParser {
 	 * If there is more than one entry for a particular package, the extra entries are included
 	 * in the extraData field of the Tuple.
 	 */
-	private List createPackageList(String line) {
+	private List<Tuple> createPackageList(String line) {
 		StringTokenizer tokenizer = new StringTokenizer(line, ",");
-		List result = new ArrayList(tokenizer.countTokens());
+		List<Tuple> result = new ArrayList<>(tokenizer.countTokens());
 		while (tokenizer.hasMoreElements()) {
 			result.add(new Tuple(tokenizer.nextToken()));
 		}
@@ -439,7 +436,7 @@ public class ReducedCUDFParser {
 			//			if (expandNotEquals) {
 			//				return new ORRequirement(new IRequiredCapability[] {new RequiredCapability(id, createRange3("<", version), optional), new RequiredCapability(id, createRange3(">", version), optional)}, optional);
 			//			}
-			ArrayList res = new ArrayList(2);
+			ArrayList<IRequirement> res = new ArrayList<>(2);
 			res.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, createRange3("<", version), null, optional, false, true));
 			res.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, createRange3(">", version), null, optional, false, true));
 			return res;
@@ -470,7 +467,6 @@ public class ReducedCUDFParser {
 
 	private IProvidedCapability createProvidedCapability(Tuple tuple) {
 		//At this point the parser only deal with standard provided capabilities and not ranges like cudf does.
-		assert tuple.extraData == null;
 		assert tuple.operator == null;
 		return MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, tuple.name, Version.create(tuple.version));
 		//		Set extraData = tuple.extraData;
@@ -537,11 +533,11 @@ public class ReducedCUDFParser {
 
 	private void handleProvides(String line) {
 		line = line.substring("provides: ".length());
-		List pkgs = createPackageList(line);
+		List<Tuple> pkgs = createPackageList(line);
 		IProvidedCapability[] providedCapabilities = new ProvidedCapability[pkgs.size() + 2];
 		int i = 0;
-		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
-			providedCapabilities[i++] = createProvidedCapability((Tuple) iter.next());
+		for (Iterator<Tuple> iter = pkgs.iterator(); iter.hasNext();) {
+			providedCapabilities[i++] = createProvidedCapability(iter.next());
 		}
 		providedCapabilities[i++] = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, currentIU.getId(), currentIU.getVersion());
 		providedCapabilities[i++] = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, currentIU.getId(), currentIU.getVersion());
@@ -604,6 +600,6 @@ public class ReducedCUDFParser {
 
 	public IInstallableUnit getIU() {
 		assert allIUs.size() == 1;
-		return (IInstallableUnit) allIUs.get(0);
+		return allIUs.get(0);
 	}
 }

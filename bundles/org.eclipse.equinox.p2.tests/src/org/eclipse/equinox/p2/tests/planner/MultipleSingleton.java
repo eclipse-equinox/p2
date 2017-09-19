@@ -151,7 +151,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
-		Set explanation = requestStatus.getExplanations();
+		Set<Explanation> explanation = requestStatus.getExplanations();
 		// System.out.println(explanation);
 		assertFalse(explanation.isEmpty());
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
@@ -180,7 +180,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
-		Set explanation = requestStatus.getExplanations();
+		Set<Explanation> explanation = requestStatus.getExplanations();
 		// System.out.println(explanation);
 		assertFalse(explanation.isEmpty());
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
@@ -215,7 +215,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
-		Set explanation = requestStatus.getExplanations();
+		Set<Explanation> explanation = requestStatus.getExplanations();
 		assertFalse(explanation.isEmpty());
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
 		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(u));

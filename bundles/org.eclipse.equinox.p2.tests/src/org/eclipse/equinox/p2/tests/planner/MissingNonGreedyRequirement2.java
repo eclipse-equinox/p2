@@ -59,7 +59,7 @@ public class MissingNonGreedyRequirement2 extends AbstractProvisioningTest {
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
-		Set explanation = requestStatus.getExplanations();
+		Set<Explanation> explanation = requestStatus.getExplanations();
 		assertFalse(explanation.isEmpty());
 		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(a1));
 		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());

@@ -80,12 +80,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Tracks the metadata repositories created by this test instance. The repositories
 	 * will be removed automatically at the end of the test.
 	 */
-	private List metadataRepos = new ArrayList();
+	private List<IMetadataRepository> metadataRepos = new ArrayList<>();
 	/**
 	 * Tracks the profile ids created by this test instance. The profiles
 	 * will be removed automatically at the end of the test.
 	 */
-	protected List profilesToRemove = new ArrayList();
+	protected List<String> profilesToRemove = new ArrayList<>();
 
 	private File testFolder = null;
 	protected Object previousSelfValue = null;
@@ -935,17 +935,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#tearDown()
-	 */
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		//remove all metadata repositories created by this test
 		IMetadataRepositoryManager repoMan = getMetadataRepositoryManager();
 		if (!metadataRepos.isEmpty()) {
-			for (Iterator it = metadataRepos.iterator(); it.hasNext();) {
-				IMetadataRepository repo = (IMetadataRepository) it.next();
+			for (Iterator<IMetadataRepository> it = metadataRepos.iterator(); it.hasNext();) {
+				IMetadataRepository repo = it.next();
 				repoMan.removeRepository(repo.getLocation());
 			}
 			metadataRepos.clear();
@@ -961,8 +958,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 		//remove all profiles created by this test
 		IProfileRegistry profileRegistry = getProfileRegistry();
-		for (Iterator it = profilesToRemove.iterator(); it.hasNext();) {
-			String toRemove = (String) it.next();
+		for (Iterator<String> it = profilesToRemove.iterator(); it.hasNext();) {
+			String toRemove = it.next();
 			profileRegistry.removeProfile(toRemove);
 		}
 		profilesToRemove.clear();

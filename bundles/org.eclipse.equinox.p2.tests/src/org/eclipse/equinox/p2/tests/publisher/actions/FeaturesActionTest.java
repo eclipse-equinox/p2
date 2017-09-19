@@ -199,9 +199,9 @@ public class FeaturesActionTest extends ActionTest {
 
 	private void verifyMetadata() {
 		//{foo.feature.jar=[foo.feature.jar 1.0.0], bar.feature.jar=[bar.feature.jar 1.1.1], foo.feature.group=[foo.feature.group 1.0.0], bar.feature.group=[bar.feature.group 1.1.1]}
-		ArrayList fooIUs = new ArrayList(publisherResult.getIUs("foo.feature.jar", IPublisherResult.NON_ROOT)); //$NON-NLS-1$
+		ArrayList<IInstallableUnit> fooIUs = new ArrayList<>(publisherResult.getIUs("foo.feature.jar", IPublisherResult.NON_ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
-		IInstallableUnit foo = (IInstallableUnit) fooIUs.get(0);
+		IInstallableUnit foo = fooIUs.get(0);
 		assertTrue(foo.getId().equalsIgnoreCase("foo.feature.jar")); //$NON-NLS-1$
 		assertTrue(foo.getVersion().equals(fooVersion));
 		assertEquals("Foo Feature", foo.getProperty(IInstallableUnit.PROP_NAME));
@@ -232,9 +232,9 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(fooProvidedCapabilities.size() == 3);
 
 		//feature group IU for foo
-		fooIUs = new ArrayList(publisherResult.getIUs("foo.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
+		fooIUs = new ArrayList<>(publisherResult.getIUs("foo.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
-		IInstallableUnit fooGroup = (IInstallableUnit) fooIUs.get(0);
+		IInstallableUnit fooGroup = fooIUs.get(0);
 		tpData = fooGroup.getTouchpointData();
 		assertEquals(1, tpData.size());
 		ITouchpointInstruction instruction = tpData.iterator().next().getInstruction("install");
@@ -243,9 +243,9 @@ public class FeaturesActionTest extends ActionTest {
 		assertNull(fooGroup.getFilter());
 
 		/*verify bar*/
-		ArrayList barIUs = new ArrayList(publisherResult.getIUs("bar.feature.jar", IPublisherResult.NON_ROOT)); //$NON-NLS-1$
+		ArrayList<IInstallableUnit> barIUs = new ArrayList<>(publisherResult.getIUs("bar.feature.jar", IPublisherResult.NON_ROOT)); //$NON-NLS-1$
 		assertTrue(barIUs.size() == 1);
-		IInstallableUnit bar = (IInstallableUnit) barIUs.get(0);
+		IInstallableUnit bar = barIUs.get(0);
 		assertTrue(bar.getId().equals("bar.feature.jar")); //$NON-NLS-1$
 		assertTrue(bar.getVersion().equals(barVersion));
 		assertTrue(bar.getProperty("key1").equals("value1")); //$NON-NLS-1$//$NON-NLS-2$
@@ -256,9 +256,9 @@ public class FeaturesActionTest extends ActionTest {
 		assertEquals(bar.getFilter().getParameters()[0], ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
 		assertTrue(bar.isSingleton());
 
-		barIUs = new ArrayList(publisherResult.getIUs("bar.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
+		barIUs = new ArrayList<>(publisherResult.getIUs("bar.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
-		IInstallableUnit barGroup = (IInstallableUnit) barIUs.get(0);
+		IInstallableUnit barGroup = barIUs.get(0);
 		Collection<IRequirement> barRequiredCapabilities = barGroup.getRequirements();
 		//contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
@@ -286,10 +286,10 @@ public class FeaturesActionTest extends ActionTest {
 
 	private void verifyArtifacts() throws IOException {
 		ZipInputStream actualStream = artifactRepository.getZipInputStream(FOO_KEY);
-		Map expected = getFileMap(new HashMap(), new File[] {new File(root, FOO)}, new Path(new File(root, FOO).getAbsolutePath()));
+		Map expected = getFileMap(new HashMap<>(), new File[] {new File(root, FOO)}, new Path(new File(root, FOO).getAbsolutePath()));
 		TestData.assertContains(expected, actualStream, true);
 
-		expected = getFileMap(new HashMap(), new File[] {new File(root, BAR)}, new Path(new File(root, BAR).getAbsolutePath()));
+		expected = getFileMap(new HashMap<>(), new File[] {new File(root, BAR)}, new Path(new File(root, BAR).getAbsolutePath()));
 		actualStream = artifactRepository.getZipInputStream(BAR_KEY);
 		TestData.assertContains(expected, actualStream, true);
 	}
@@ -299,7 +299,7 @@ public class FeaturesActionTest extends ActionTest {
 		//setup metadataRepository with barIU
 		metadataRepository = new TestMetadataRepository(getAgent(), new IInstallableUnit[] {mockIU(BAR, null)});
 
-		ArrayList adviceCollection = fillAdvice(new ArrayList());
+		ArrayList adviceCollection = fillAdvice(new ArrayList<>());
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.jar", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar", barVersion, IFeatureRootAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
@@ -323,7 +323,7 @@ public class FeaturesActionTest extends ActionTest {
 		//capture any touchpoint advice, and return the captured advice when the action asks for it
 		publisherInfo.addAdvice(and(isA(ITouchpointAdvice.class), capture(tpAdvice)));
 		EasyMock.expectLastCall().anyTimes();
-		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, ITouchpointAdvice.class)).andReturn(new CaptureList(tpAdvice)).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, ITouchpointAdvice.class)).andReturn(new CaptureList<>(tpAdvice)).anyTimes();
 	}
 
 	private ArrayList fillAdvice(ArrayList adviceCollection) {

@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,13 +24,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit a2 = createIU("a", Version.createOSGi(2, 0, 0), false);
 		IInstallableUnit a3 = createIU("a", Version.createOSGi(3, 0, 0), false);
 
-		Collection from;
-		from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(a1);
 		from.add(a2);
 
-		Collection to;
-		to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(a1);
 		to.add(a3);
 
@@ -47,13 +45,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit a2 = createIU("a", Version.createOSGi(2, 0, 0), false);
 		IInstallableUnit a3 = createIU("a", Version.createOSGi(3, 0, 0), false);
 
-		Collection from;
-		from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(a1);
 		from.add(a3);
 
-		Collection to;
-		to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(a1);
 		to.add(a3);
 		to.add(a2);
@@ -70,14 +66,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit a2 = createIU("a", Version.createOSGi(2, 0, 0), false);
 		IInstallableUnit a3 = createIU("a", Version.createOSGi(3, 0, 0), false);
 
-		Collection from;
-		from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(a1);
 		from.add(a2);
 		from.add(a3);
 
-		Collection to;
-		to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(a1);
 		to.add(a3);
 
@@ -96,12 +90,10 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		b.setVersion(Version.createOSGi(1, 0, 0));
 		b.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[1.0.0, 2.0.0)"), IUpdateDescriptor.NORMAL, null));
 
-		Collection from;
-		from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(a);
 
-		Collection to;
-		to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(MetadataFactory.createInstallableUnit(b));
 
 		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
@@ -120,13 +112,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		b.setVersion(Version.createOSGi(1, 0, 0));
 		b.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[1.0.0, 3.0.0)"), IUpdateDescriptor.NORMAL, null));
 
-		Collection from;
-		from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(a1);
 		from.add(a2);
 
-		Collection to;
-		to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(MetadataFactory.createInstallableUnit(b));
 
 		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
@@ -151,13 +141,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		c.setVersion(Version.createOSGi(1, 0, 0));
 		c.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[2.0.0, 2.3.0)"), IUpdateDescriptor.NORMAL, null));
 
-		Collection from;
-		from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(a1);
 		from.add(a2);
 
-		Collection to;
-		to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(MetadataFactory.createInstallableUnit(b));
 		to.add(MetadataFactory.createInstallableUnit(c));
 
@@ -178,14 +166,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		b2.setVersion(Version.createOSGi(2, 0, 0));
 		b2.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("b", new VersionRange("[1.0.0, 2.0.0)"), IUpdateDescriptor.NORMAL, null));
 
-		Collection from;
-		from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(a1);
 		from.add(a2);
 		from.add(b1);
 
-		Collection to;
-		to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(a1);
 		to.add(a2);
 		to.add(MetadataFactory.createInstallableUnit(b2));
@@ -207,14 +193,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		b2.setVersion(Version.createOSGi(2, 0, 0));
 		b2.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("b", new VersionRange("[1.0.0, 2.0.0)"), IUpdateDescriptor.NORMAL, null));
 
-		Collection from;
-		from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(a1);
 		from.add(a2);
 		from.add(b1);
 
-		Collection to;
-		to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(a1);
 		to.add(MetadataFactory.createInstallableUnit(b2));
 
@@ -236,12 +220,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IUpdateDescriptor update3 = createUpdateDescriptor(id, Version.create("3.0.0"));
 		IInstallableUnit three = createIU(id, Version.create("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3, null);
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
 		from.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 		from.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
 
 		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
@@ -268,11 +252,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IUpdateDescriptor update3 = createUpdateDescriptor(id, Version.create("3.0.0"));
 		IInstallableUnit three = createIU("anotherBundle", Version.create("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3, null);
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
 		from.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
 
@@ -301,11 +285,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		//		IUpdateDescriptor update3 = createUpdateDescriptor(id, Version.create("3.0.0"));
 		IInstallableUnit three = createIU("anotherBundle", Version.create("3.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update3, null);
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
 		from.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
 
@@ -332,11 +316,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		update = createUpdateDescriptor(id, Version.create("2.0.0"));
 		IInstallableUnit two = createIU(id, Version.create("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, update, null);
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
 		from.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 
 		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
@@ -356,12 +340,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnitFragment cu1 = createIUFragment(anIU, cuId, Version.create("1.0.0"));
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, Version.create("2.0.0"));
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1});
 		from.add(fromResolved);
 		from.add(MetadataFactory.createResolvedInstallableUnit(anotherIU, new IInstallableUnitFragment[0]));
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
 		to.add(toResolved);
 		to.add(MetadataFactory.createResolvedInstallableUnit(anotherIU2, new IInstallableUnitFragment[0]));
@@ -392,11 +376,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit anIU = createIU(id, Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, Version.create("2.0.0"));
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[0]);
 		from.add(fromResolved);
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
 		to.add(toResolved);
 
@@ -414,11 +398,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit anIU = createIU(id, Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, Version.create("2.0.0"));
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
 		from.add(fromResolved);
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[0]);
 		to.add(toResolved);
 
@@ -436,11 +420,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit anIU = createIU(id, Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, null);
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, Version.create("2.0.0"));
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
 		from.add(fromResolved);
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
 		to.add(toResolved);
 
@@ -458,11 +442,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnitFragment cu2 = createIUFragment(anIU, cuId, Version.create("2.0.0"));
 		IInstallableUnitFragment cu1 = createIUFragment(anIU, cuId, Version.create("1.0.0"));
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1, cu2});
 		from.add(fromResolved);
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2, cu1});
 		to.add(toResolved);
 
@@ -481,11 +465,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnitFragment cu1 = createIUFragment(anIU, cuId, Version.create("1.0.0"));
 		IInstallableUnitFragment cu3 = createIUFragment(anIU, cuId, Version.create("3.0.0"));
 
-		Collection from = new ArrayList();
+		Collection<IInstallableUnit> from = new ArrayList<>();
 		ResolvedInstallableUnit fromResolved = (ResolvedInstallableUnit) MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1, cu2});
 		from.add(fromResolved);
 
-		Collection to = new ArrayList();
+		Collection<IInstallableUnit> to = new ArrayList<>();
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1, cu3});
 		to.add(toResolved);
 

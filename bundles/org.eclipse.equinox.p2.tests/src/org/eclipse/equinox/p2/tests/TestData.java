@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2017 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ public class TestData {
 	private static final String PREFIX_SEPERATOR = "~";
 
 	/**
-	 * Get an input stream from the resource testDataName within the folder 
+	 * Get an input stream from the resource testDataName within the folder
 	 * testDataFolder of the testData folder of this project.
 	 * @param testDataFolder
 	 * @param testDataName
@@ -40,7 +40,7 @@ public class TestData {
 	}
 
 	/**
-	 * Get a File from the resource testDataName within the folder 
+	 * Get a File from the resource testDataName within the folder
 	 * testDataFolder of the testData folder of this project.
 	 * @param testDataFolder
 	 * @return test data File
@@ -51,7 +51,7 @@ public class TestData {
 	}
 
 	/**
-	 * Create a temporary file for the test data. The temporary file will be deleted 
+	 * Create a temporary file for the test data. The temporary file will be deleted
 	 * when the jvm exists. If testDataName contains an extension this extension will
 	 * be used as suffix for the temporary file.
 	 * @param testDataFolder
@@ -67,8 +67,8 @@ public class TestData {
 	}
 
 	/**
-	 * Create a temporary file. This file will be deleted if the jvm exits. 
-	 * If testDataName contains an extension this extension will be used as 
+	 * Create a temporary file. This file will be deleted if the jvm exits.
+	 * If testDataName contains an extension this extension will be used as
 	 * suffix for the temporary file.
 	 * @param testDataName
 	 * @return temporary file
@@ -124,12 +124,12 @@ public class TestData {
 	 * @throws IOException
 	 */
 	public static void assertEquals(ZipInputStream expected, ZipInputStream actual) throws IOException {
-		Map jar1 = getEntries(expected);
-		Map jar2 = getEntries(actual);
-		for (Iterator i = jar1.keySet().iterator(); i.hasNext();) {
-			String name = (String) i.next();
-			Object[] file1 = (Object[]) jar1.get(name);
-			Object[] file2 = (Object[]) jar2.remove(name);
+		Map<String, Object[]> jar1 = getEntries(expected);
+		Map<String, Object[]> jar2 = getEntries(actual);
+		for (Iterator<String> i = jar1.keySet().iterator(); i.hasNext();) {
+			String name = i.next();
+			Object[] file1 = jar1.get(name);
+			Object[] file2 = jar2.remove(name);
 			Assert.assertNotNull(file2);
 
 			ZipEntry entry1 = (ZipEntry) file1[0];
@@ -154,19 +154,19 @@ public class TestData {
 	/**
 	 * Asserts that the file bytes in <code>fileList</code> are contained in <code>input2</code>
 	 * by matching the entry name with the root's path + fileList path.
-	 * 
+	 *
 	 * @param fileMap a map of files to verify in <code>input2</code> keyed by relative paths
 	 * i.e. Map<String filePath, File fileBytes>
 	 * @param input2
 	 * @throws IOException
 	 */
 	public static void assertContains(Map fileMap, ZipInputStream input2, boolean compareContent) throws IOException {
-		Map jar2 = getEntries(input2);
+		Map<String, Object[]> jar2 = getEntries(input2);
 
-		for (Iterator i = fileMap.keySet().iterator(); i.hasNext();) {
-			String name = (String) i.next();
+		for (Iterator<String> i = fileMap.keySet().iterator(); i.hasNext();) {
+			String name = i.next();
 			Object[] file1 = (Object[]) fileMap.get(name);
-			Object[] file2 = (Object[]) jar2.remove(name);
+			Object[] file2 = jar2.remove(name);
 			Assert.assertNotNull(file2);
 
 			File entry1 = (File) file1[0];
@@ -179,8 +179,8 @@ public class TestData {
 		}
 	}
 
-	private static Map getEntries(ZipInputStream input) throws IOException {
-		Map result = new HashMap();
+	private static Map<String, Object[]> getEntries(ZipInputStream input) throws IOException {
+		Map<String, Object[]> result = new HashMap<>();
 		while (true) {
 			ZipEntry entry = input.getNextEntry();
 			if (entry == null)

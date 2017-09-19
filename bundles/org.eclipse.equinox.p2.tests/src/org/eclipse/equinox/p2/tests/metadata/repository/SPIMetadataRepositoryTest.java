@@ -836,7 +836,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		requiredCapabilityList.add(spiRequiredCapability);
 		iuDescription.addRequirements(requiredCapabilityList);
 
-		Collection providedCapabilityList = new ArrayList();
+		Collection<IProvidedCapability> providedCapabilityList = new ArrayList<>();
 		providedCapabilityList.add(spiProvidedCapability);
 		iuDescription.addProvidedCapabilities(providedCapabilityList);
 

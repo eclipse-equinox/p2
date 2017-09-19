@@ -58,10 +58,10 @@ public class MissingDependency extends AbstractProvisioningTest {
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
-		Set explanation = requestStatus.getExplanations();
+		Set<Explanation> explanation = requestStatus.getExplanations();
 		// System.out.println(explanation);
 		assertEquals(2, explanation.size());
-		Set rootConflictingIUs = requestStatus.getConflictsWithInstalledRoots();
+		Set<IInstallableUnit> rootConflictingIUs = requestStatus.getConflictsWithInstalledRoots();
 		// System.out.println(rootConflictingIUs);
 		assertEquals(1, rootConflictingIUs.size());
 		assertTrue(rootConflictingIUs.contains(b1));

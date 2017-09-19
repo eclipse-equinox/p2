@@ -32,7 +32,7 @@ public class MetadataRepositoryManagerExceptionsTest extends AbstractProvisionin
 	/**
 	 * Contains temp File handles that should be deleted at the end of the test.
 	 */
-	private final List toDelete = new ArrayList();
+	private final List<File> toDelete = new ArrayList<>();
 
 	public static Test suite() {
 		return new TestSuite(MetadataRepositoryManagerExceptionsTest.class);
@@ -47,8 +47,8 @@ public class MetadataRepositoryManagerExceptionsTest extends AbstractProvisionin
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		for (Iterator it = toDelete.iterator(); it.hasNext();)
-			delete((File) it.next());
+		for (Iterator<File> it = toDelete.iterator(); it.hasNext();)
+			delete(it.next());
 		toDelete.clear();
 	}
 

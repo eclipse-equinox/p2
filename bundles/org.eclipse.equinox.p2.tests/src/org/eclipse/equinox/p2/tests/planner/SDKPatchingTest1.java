@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SDKPatchingTest1 extends AbstractProvisioningTest {
 	IProfile profile = null;
-	ArrayList newIUs = new ArrayList();
+	ArrayList<IInstallableUnit> newIUs = new ArrayList<>();
 	IInstallableUnit patchInstallingCommon = null;
 
 	@Override
