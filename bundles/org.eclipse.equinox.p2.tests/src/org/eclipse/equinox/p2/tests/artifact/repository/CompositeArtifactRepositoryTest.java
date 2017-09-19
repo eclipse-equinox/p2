@@ -193,7 +193,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Cannot create repository: ", e);
 		}
-		Map properties = repo.getProperties();
+		Map<String, String> properties = repo.getProperties();
 		//attempting to modify the properties should fail
 		try {
 			properties.put(TEST_KEY, TEST_VALUE);
@@ -370,11 +370,11 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//get the keys
-		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult<IArtifactKey> keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertTrue("Error retreaiving artifact keys", !keys.isEmpty());
 
 		//test for existing key
-		assertTrue("Asserting key is in composite repo", compRepo.contains((IArtifactKey) keys.iterator().next()));
+		assertTrue("Asserting key is in composite repo", compRepo.contains(keys.iterator().next()));
 
 		//Create a new key, not found in the composite repo
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
@@ -398,9 +398,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//get the descriptors
-		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult<IArtifactKey> keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertTrue("Error retreaiving artifact keys", !keys.isEmpty());
-		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors((IArtifactKey) keys.iterator().next());
+		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(keys.iterator().next());
 		assertTrue("Error retreaiving artifact descriptors", descriptors.length > 0);
 
 		//test for existing descriptor
@@ -429,14 +429,14 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Error creating destination", e1);
 		}
 
-		IQueryResult keys = compRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult<IArtifactKey> keys = compRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertTrue("Error retreaiving artifact keys", !keys.isEmpty());
-		IArtifactKey key = (IArtifactKey) keys.iterator().next();
+		IArtifactKey key = keys.iterator().next();
 		IArtifactDescriptor[] descriptors = compRepo.getArtifactDescriptors(key);
 		assertTrue("Error retreaiving artifact descriptors", descriptors.length > 0);
 
 		IArtifactDescriptor newDescriptor = new ArtifactDescriptor(key);
-		Map properties = new OrderedProperties();
+		Map<String, String> properties = new OrderedProperties();
 		properties.putAll(descriptors[0].getProperties());
 		properties.remove(IArtifactDescriptor.FORMAT);
 		((ArtifactDescriptor) newDescriptor).addProperties(properties);
@@ -507,14 +507,14 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//create a request for a descriptor from repo1
-		IQueryResult keys1 = repo1.query(ArtifactKeyQuery.ALL_KEYS, null);
-		IArtifactKey key1 = (IArtifactKey) keys1.iterator().next();
+		IQueryResult<IArtifactKey> keys1 = repo1.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IArtifactKey key1 = keys1.iterator().next();
 		assertTrue("Error retreaiving artifact keys", !keys1.isEmpty());
 		IArtifactDescriptor[] descriptors1 = repo1.getArtifactDescriptors(key1);
 		assertTrue("Error retreaiving artifact descriptors", descriptors1.length > 0);
 		assertTrue("Expected key not in composite repository", compRepo.contains(descriptors1[0]));
 		IArtifactDescriptor newDescriptor1 = new ArtifactDescriptor(key1);
-		Map properties1 = new OrderedProperties();
+		Map<String, String> properties1 = new OrderedProperties();
 		properties1.putAll(descriptors1[0].getProperties());
 		properties1.remove(IArtifactDescriptor.FORMAT);
 		((ArtifactDescriptor) newDescriptor1).addProperties(properties1);
@@ -522,14 +522,14 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRequest request1 = ((ArtifactRepositoryManager) getArtifactRepositoryManager()).createMirrorRequest(key1, destinationRepo, null, null);
 
 		//create a request for a descriptor from repo2
-		IQueryResult keys2 = repo2.query(ArtifactKeyQuery.ALL_KEYS, null);
-		IArtifactKey key2 = (IArtifactKey) keys2.iterator().next();
+		IQueryResult<IArtifactKey> keys2 = repo2.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IArtifactKey key2 = keys2.iterator().next();
 		assertTrue("Error retreaiving artifact keys", !keys2.isEmpty());
 		IArtifactDescriptor[] descriptors2 = repo2.getArtifactDescriptors(key2);
 		assertTrue("Error retreaiving artifact descriptors", descriptors2.length > 0);
 		assertTrue("Expected key not in composite repository", compRepo.contains(descriptors2[0]));
 		IArtifactDescriptor newDescriptor2 = new ArtifactDescriptor(key2);
-		Map properties2 = new OrderedProperties();
+		Map<String, String> properties2 = new OrderedProperties();
 		properties2.putAll(descriptors2[0].getProperties());
 		properties2.remove(IArtifactDescriptor.FORMAT);
 		((ArtifactDescriptor) newDescriptor2).addProperties(properties2);
@@ -599,7 +599,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			System.setOut(out);
 		}
 
-		List children = compRepo.getChildren();
+		List<URI> children = compRepo.getChildren();
 
 		try {
 			//ensure children are correct
@@ -614,12 +614,12 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		//ensure correct properties
 		assertEquals("2.0", "artifact name", compRepo.getName());
-		Map properties = compRepo.getProperties();
+		Map<String, String> properties = compRepo.getProperties();
 		assertEquals("2.1", 3, properties.size());
-		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
+		String timestamp = properties.get(IRepository.PROP_TIMESTAMP);
 		assertNotNull("2.2", timestamp);
 		assertEquals("2.3", "1234", timestamp);
-		String compressed = (String) properties.get(IRepository.PROP_COMPRESSED);
+		String compressed = properties.get(IRepository.PROP_COMPRESSED);
 		assertNotNull("2.4", compressed);
 		assertFalse("2.4", Boolean.parseBoolean(compressed));
 	}
@@ -634,7 +634,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("0.99", e);
 		}
 
-		List children = compRepo.getChildren();
+		List<URI> children = compRepo.getChildren();
 
 		//ensure children are correct
 		assertTrue("1.0", children.contains(URIUtil.append(compRepo.getLocation(), "one")));
@@ -643,12 +643,12 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		//ensure correct properties
 		assertEquals("2.0", "artifact name", compRepo.getName());
-		Map properties = compRepo.getProperties();
+		Map<String, String> properties = compRepo.getProperties();
 		assertEquals("2.1", 2, properties.size());
-		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
+		String timestamp = properties.get(IRepository.PROP_TIMESTAMP);
 		assertNotNull("2.2", timestamp);
 		assertEquals("2.3", "1234", timestamp);
-		String compressed = (String) properties.get(IRepository.PROP_COMPRESSED);
+		String compressed = properties.get(IRepository.PROP_COMPRESSED);
 		assertNotNull("2.4", compressed);
 		assertFalse("2.5", Boolean.parseBoolean(compressed));
 	}
@@ -849,7 +849,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		repositoryFile = new File(getTempFolder(), "CompositeArtifactRepositoryTest");
 		delete(repositoryFile);
 		repositoryURI = repositoryFile.toURI();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, compressed ? "true" : "false");
 		IArtifactRepository repo = null;
 		try {
@@ -915,7 +915,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		// query the number of artifacts
-		List children = repository.getChildren();
+		List<URI> children = repository.getChildren();
 		assertEquals("2.0", 2, children.size());
 		assertEquals("2.1", 2, getArtifactKeyCount(repository));
 
@@ -941,10 +941,10 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			CompositeArtifactRepository repository = createRepository(location, "in memory test");
 			repository.addChild(one);
 			repository.addChild(two);
-			List children = repository.getChildren();
+			List<URI> children = repository.getChildren();
 			assertEquals("1.0", 2, children.size());
 			// remove an absolute URI (child one should be first since order is important)
-			repository.removeChild((URI) children.iterator().next());
+			repository.removeChild(children.iterator().next());
 			assertEquals("1.1", 1, repository.getChildren().size());
 			// remove a relative URI (child two)
 			repository.removeChild(two);

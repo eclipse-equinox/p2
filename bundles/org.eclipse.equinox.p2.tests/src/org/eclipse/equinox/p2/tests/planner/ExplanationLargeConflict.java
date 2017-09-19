@@ -49,13 +49,13 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		long sTime = System.currentTimeMillis();
 		//Here we verify that two version of JDT can't be installed together. The SDKProfile is not used
 		IProfile profile = createProfile("TestProfile." + getName());
-		IQueryResult c = repo1.query(QueryUtil.createIUQuery("org.eclipse.jdt.feature.group"), null);
+		IQueryResult<IInstallableUnit> c = repo1.query(QueryUtil.createIUQuery("org.eclipse.jdt.feature.group"), null);
 		assertEquals(1, queryResultSize(c));
-		IInstallableUnit jdt1 = (IInstallableUnit) c.iterator().next();
+		IInstallableUnit jdt1 = c.iterator().next();
 
-		IQueryResult c2 = repo2.query(QueryUtil.createIUQuery("org.eclipse.jdt.feature.group"), null);
+		IQueryResult<IInstallableUnit> c2 = repo2.query(QueryUtil.createIUQuery("org.eclipse.jdt.feature.group"), null);
 		assertEquals(1, queryResultSize(c2));
-		IInstallableUnit jdt2 = (IInstallableUnit) c2.iterator().next();
+		IInstallableUnit jdt2 = c2.iterator().next();
 
 		assertNotSame(jdt1, jdt2);
 
@@ -101,9 +101,9 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 	public void testExplanationLargeConflictInSDK() {
 		long sTime = System.currentTimeMillis();
 		//Test large conflict. We are trying to install an inappropriate version of CVS over the already installed SDK
-		IQueryResult c = repo2.query(QueryUtil.createIUQuery("org.eclipse.cvs.feature.group"), null);
+		IQueryResult<IInstallableUnit> c = repo2.query(QueryUtil.createIUQuery("org.eclipse.cvs.feature.group"), null);
 		assertEquals(1, queryResultSize(c));
-		IInstallableUnit cvs = (IInstallableUnit) c.iterator().next();
+		IInstallableUnit cvs = c.iterator().next();
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(SDKprofile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cvs});

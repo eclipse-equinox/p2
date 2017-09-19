@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
@@ -36,12 +37,12 @@ public class Bug302582 extends AbstractPlannerTest {
 		IPlanner planner = createPlanner();
 
 		// create the actual plan - install everything in the repo as optional (mimic the dropins folder)
-		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		IProfileChangeRequest actualChangeRequest = createProfileChangeRequest(allIUs.toSet(), null, null);
 		IProvisioningPlan actualPlan = planner.getProvisioningPlan(actualChangeRequest, null, new NullProgressMonitor());
 
 		// this is the plan that we expect - highest version only
-		IQueryResult queryResult = repo.query(QueryUtil.createIUQuery("com.dcns.rsm.hello", Version.createOSGi(1, 0, 2, "v20100103")), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> queryResult = repo.query(QueryUtil.createIUQuery("com.dcns.rsm.hello", Version.createOSGi(1, 0, 2, "v20100103")), new NullProgressMonitor());
 		IProfileChangeRequest expectedChangeRequest = createProfileChangeRequest(queryResult.toSet(), null, null);
 		IProvisioningPlan expectedPlan = planner.getProvisioningPlan(expectedChangeRequest, null, new NullProgressMonitor());
 

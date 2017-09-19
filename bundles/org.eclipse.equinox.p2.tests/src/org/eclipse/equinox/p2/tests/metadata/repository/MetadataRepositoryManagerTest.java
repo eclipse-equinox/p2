@@ -28,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProv
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -45,7 +46,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	/**
 	 * Contains temp File handles that should be deleted at the end of the test.
 	 */
-	private final List toDelete = new ArrayList();
+	private final List<File> toDelete = new ArrayList<>();
 
 	public static Test suite() {
 		return new TestSuite(MetadataRepositoryManagerTest.class);
@@ -62,8 +63,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		for (Iterator it = toDelete.iterator(); it.hasNext();)
-			delete((File) it.next());
+		for (Iterator<File> it = toDelete.iterator(); it.hasNext();)
+			delete(it.next());
 		toDelete.clear();
 		FailingMetadataRepositoryFactory.FAIL = false;
 	}
@@ -423,7 +424,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI location = site.toURI();
 		try {
 			IMetadataRepository repository = manager.loadRepository(location, getMonitor());
-			IQueryResult result = repository.query(QueryUtil.createIUQuery("test.bundle"), getMonitor());
+			IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUQuery("test.bundle"), getMonitor());
 			assertEquals("1.0", 1, queryResultSize(result));
 		} catch (ProvisionException e) {
 			fail("=.99", e);

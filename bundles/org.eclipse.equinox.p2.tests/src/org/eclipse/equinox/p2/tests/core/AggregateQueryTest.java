@@ -29,7 +29,7 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testEmptyCompositeQuery() {
-		IQuery query = QueryUtil.createPipeQuery(Collections.<IQuery<Object>> emptySet());
+		IQuery<Object> query = QueryUtil.createPipeQuery(Collections.<IQuery<Object>> emptySet());
 		query.perform(getABCDE().iterator());
 		// We should not throw an exception.  No guarantee on what perform
 		// will return in this case

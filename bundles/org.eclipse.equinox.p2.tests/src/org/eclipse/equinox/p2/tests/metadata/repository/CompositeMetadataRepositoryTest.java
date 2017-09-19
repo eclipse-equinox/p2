@@ -115,7 +115,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		//Try to remove an InstallableUnit.
 		try {
-			IQueryResult queryResult = compRepo.query(QueryUtil.createIUAnyQuery(), null);
+			IQueryResult<IInstallableUnit> queryResult = compRepo.query(QueryUtil.createIUAnyQuery(), null);
 			compRepo.removeInstallableUnits(queryResult.toSet());
 			fail("Should not be able to remove InstallableUnit");
 		} catch (UnsupportedOperationException e) {
@@ -144,7 +144,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Cannot create repository: ", e);
 		}
-		Map properties = repo.getProperties();
+		Map<String, String> properties = repo.getProperties();
 		//attempting to modify the properties should fail
 		try {
 			properties.put(TEST_KEY, TEST_VALUE);
@@ -162,7 +162,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Cannot create repository: ", e);
 		}
-		Map properties = repo.getProperties();
+		Map<String, String> properties = repo.getProperties();
 		assertTrue("1.0", !properties.containsKey(TEST_KEY));
 		repo.setProperty(TEST_KEY, TEST_VALUE);
 
@@ -318,7 +318,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			System.setOut(out);
 		}
 
-		List children = compRepo.getChildren();
+		List<URI> children = compRepo.getChildren();
 
 		try {
 			//ensure children are correct
@@ -333,12 +333,12 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		//ensure correct properties
 		assertEquals("2.0", "metadata name", compRepo.getName());
-		Map properties = compRepo.getProperties();
+		Map<String, String> properties = compRepo.getProperties();
 		assertEquals("2.1", 3, properties.size());
-		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
+		String timestamp = properties.get(IRepository.PROP_TIMESTAMP);
 		assertNotNull("2.2", timestamp);
 		assertEquals("2.3", "1234", timestamp);
-		String compressed = (String) properties.get(IRepository.PROP_COMPRESSED);
+		String compressed = properties.get(IRepository.PROP_COMPRESSED);
 		assertNotNull("2.4", compressed);
 		assertFalse("2.5", Boolean.parseBoolean(compressed));
 	}
@@ -354,7 +354,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("0.9", e);
 		}
 
-		List children = compRepo.getChildren();
+		List<URI> children = compRepo.getChildren();
 
 		//ensure children are correct
 		URI child1 = URIUtil.append(compRepo.getLocation(), "one");
@@ -365,12 +365,12 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		//ensure correct properties
 		assertEquals("2.0", "metadata name", compRepo.getName());
-		Map properties = compRepo.getProperties();
+		Map<String, String> properties = compRepo.getProperties();
 		assertEquals("2.1", 2, properties.size());
-		String timestamp = (String) properties.get(IRepository.PROP_TIMESTAMP);
+		String timestamp = properties.get(IRepository.PROP_TIMESTAMP);
 		assertNotNull("2.2", timestamp);
 		assertEquals("2.3", "1234", timestamp);
-		String compressed = (String) properties.get(IRepository.PROP_COMPRESSED);
+		String compressed = properties.get(IRepository.PROP_COMPRESSED);
 		assertNotNull("2.4", compressed);
 		assertFalse("2.5", Boolean.parseBoolean(compressed));
 	}
@@ -463,9 +463,9 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		IQueryResult queryResult = compositeRepo.query(QueryUtil.createLatestIUQuery(), monitor);
+		IQueryResult<IInstallableUnit> queryResult = compositeRepo.query(QueryUtil.createLatestIUQuery(), monitor);
 		assertEquals("1.0", 1, queryResultSize(queryResult));
-		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), queryResult.iterator().next().getVersion());
 		assertTrue("1.2", monitor.isDone());
 		assertTrue("1.3", monitor.isWorkDone());
 	}
@@ -484,20 +484,17 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		IQuery cQuery = QueryUtil.createLatestQuery(new MatchQuery() {
+		IQuery<IInstallableUnit> cQuery = QueryUtil.createLatestQuery(new MatchQuery<IInstallableUnit>() {
 			@Override
-			public boolean isMatch(Object candidate) {
-				if (candidate instanceof IInstallableUnit) {
-					IInstallableUnit iInstallableUnit = (IInstallableUnit) candidate;
-					if (iInstallableUnit.getVersion().compareTo(Version.createOSGi(3, 0, 0)) < 0)
-						return true;
-				}
+			public boolean isMatch(IInstallableUnit candidate) {
+				if (candidate.getVersion().compareTo(Version.createOSGi(3, 0, 0)) < 0)
+					return true;
 				return false;
 			}
 		});
-		IQueryResult queryResult = compositeRepo.query(cQuery, monitor);
+		IQueryResult<IInstallableUnit> queryResult = compositeRepo.query(cQuery, monitor);
 		assertEquals("1.0", 1, queryResultSize(queryResult));
-		assertEquals("1.1", Version.createOSGi(2, 2, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(2, 2, 0), queryResult.iterator().next().getVersion());
 		assertTrue("1.2", monitor.isDone());
 		assertTrue("1.3", monitor.isWorkDone());
 	}
@@ -546,7 +543,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	private CompositeMetadataRepository createRepo(boolean compressed) {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, compressed ? "true" : "false");
 		IMetadataRepository repo = null;
 		try {
@@ -641,9 +638,9 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		// query the number of IUs
-		List children = repository.getChildren();
+		List<URI> children = repository.getChildren();
 		assertEquals("2.0", 2, children.size());
-		IQueryResult queryResult = repository.query(QueryUtil.createIUAnyQuery(), getMonitor());
+		IQueryResult<IInstallableUnit> queryResult = repository.query(QueryUtil.createIUAnyQuery(), getMonitor());
 		assertEquals("2.1", 2, queryResultSize(queryResult));
 
 		// ensure the child URIs are stored as relative
@@ -668,10 +665,10 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			CompositeMetadataRepository repository = createRepository(location, "in memory test");
 			repository.addChild(one);
 			repository.addChild(two);
-			List children = repository.getChildren();
+			List<URI> children = repository.getChildren();
 			assertEquals("1.0", 2, children.size());
 			// remove an absolute URI (child one should be first since order is important)
-			repository.removeChild((URI) children.iterator().next());
+			repository.removeChild(children.iterator().next());
 			assertEquals("1.1", 1, repository.getChildren().size());
 			// remove a relative URI (child two)
 			repository.removeChild(two);

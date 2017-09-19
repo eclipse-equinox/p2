@@ -42,10 +42,10 @@ public class AllOrbit extends AbstractProvisioningTest {
 
 	public void testInstallTwoVersionsOptionaly() {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
-		req1.addInstallableUnits((IInstallableUnit[]) allIUs.toArray(IInstallableUnit.class));
-		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
+		req1.addInstallableUnits(allIUs.toArray(IInstallableUnit.class));
+		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
 			if (!iu.getId().equals("javax.wsdl"))
 				req1.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 		}
@@ -56,15 +56,15 @@ public class AllOrbit extends AbstractProvisioningTest {
 	public void test2() {
 		//Install everything except com.ibm.icu
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
-		ArrayList toInstall = new ArrayList();
-		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit toAdd = (IInstallableUnit) iterator.next();
+		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
+		ArrayList<IInstallableUnit> toInstall = new ArrayList<>();
+		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit toAdd = iterator.next();
 			if (!toAdd.getId().equals("com.ibm.icu")) {
 				toInstall.add(toAdd);
 			}
 		}
-		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
+		req1.addInstallableUnits(toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(178, countPlanElements(plan1));
@@ -74,16 +74,16 @@ public class AllOrbit extends AbstractProvisioningTest {
 	public void test3() {
 		//Install everything optionaly (except com.ibm.icu that we don't install at all)
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
-		ArrayList toInstall = new ArrayList();
-		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit toAdd = (IInstallableUnit) iterator.next();
+		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
+		ArrayList<IInstallableUnit> toInstall = new ArrayList<>();
+		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit toAdd = iterator.next();
 			if (!toAdd.getId().equals("com.ibm.icu")) {
 				toInstall.add(toAdd);
 				req1.setInstallableUnitInclusionRules(toAdd, ProfileInclusionRules.createOptionalInclusionRule(toAdd));
 			}
 		}
-		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
+		req1.addInstallableUnits(toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(178, countPlanElements(plan1));

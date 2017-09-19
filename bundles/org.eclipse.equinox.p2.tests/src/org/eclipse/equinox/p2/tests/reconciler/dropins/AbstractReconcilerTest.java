@@ -39,7 +39,7 @@ import org.osgi.framework.Bundle;
 public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	public static final String VERIFIER_BUNDLE_ID = "org.eclipse.equinox.p2.tests.verifier";
 	protected static File output;
-	protected static Set toRemove = new HashSet();
+	protected static Set<File> toRemove = new HashSet<>();
 	private static boolean initialized = false;
 	private static Properties archiveAndRepositoryProperties = null;
 
@@ -424,8 +424,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		boolean leaveDirty = Boolean.parseBoolean(TestActivator.getContext().getProperty("p2.tests.doNotClean"));
 		if (leaveDirty)
 			return;
-		for (Iterator iter = toRemove.iterator(); iter.hasNext();) {
-			File next = (File) iter.next();
+		for (Iterator<File> iter = toRemove.iterator(); iter.hasNext();) {
+			File next = iter.next();
 			delete(next);
 		}
 		output = null;
@@ -475,9 +475,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	public boolean removeSite(Configuration configuration, String location) throws IOException, URISyntaxException {
 		File left = new File(new URI(location)).getCanonicalFile();
-		List sites = configuration.getSites();
-		for (Iterator iter = sites.iterator(); iter.hasNext();) {
-			Site tempSite = (Site) iter.next();
+		List<Site> sites = configuration.getSites();
+		for (Iterator<Site> iter = sites.iterator(); iter.hasNext();) {
+			Site tempSite = iter.next();
 			String siteURL = tempSite.getUrl();
 			File right = new File(new URI(siteURL)).getCanonicalFile();
 			if (left.equals(right)) {
@@ -545,11 +545,11 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * do.
 	 */
 	public void assertFeatureExists(String message, Configuration configuration, String id, String version) {
-		List sites = configuration.getSites();
+		List<Site> sites = configuration.getSites();
 		assertNotNull(message, sites);
 		boolean found = false;
-		for (Iterator iter = sites.iterator(); iter.hasNext();) {
-			Site site = (Site) iter.next();
+		for (Iterator<Site> iter = sites.iterator(); iter.hasNext();) {
+			Site site = iter.next();
 			Feature[] features = site.getFeatures();
 			for (int i = 0; features != null && i < features.length; i++) {
 				if (id.equals(features[i].getId())) {
@@ -572,7 +572,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), location, new SurrogateProfileHandler(getAgent()), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		IQueryResult queryResult = profiles[0].query(QueryUtil.createIUQuery(id, Version.create(version)), null);
+		IQueryResult<IInstallableUnit> queryResult = profiles[0].query(QueryUtil.createIUQuery(id, Version.create(version)), null);
 		return !queryResult.isEmpty();
 	}
 
@@ -581,9 +581,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), location, new SurrogateProfileHandler(getAgent()), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		IQueryResult queryResult = profiles[0].query(QueryUtil.createIUQuery(id, Version.create(version)), null);
+		IQueryResult<IInstallableUnit> queryResult = profiles[0].query(QueryUtil.createIUQuery(id, Version.create(version)), null);
 		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, queryResultSize(queryResult));
-		return (IInstallableUnit) queryResult.iterator().next();
+		return queryResult.iterator().next();
 	}
 
 	protected int runEclipse(String message, String[] args) {

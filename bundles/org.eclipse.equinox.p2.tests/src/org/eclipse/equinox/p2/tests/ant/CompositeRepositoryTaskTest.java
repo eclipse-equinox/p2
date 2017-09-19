@@ -299,7 +299,7 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 		AntTaskElement createCompositeTask = createCompositeRepositoryTaskElement(TYPE_ARTIFACT);
 		addTask(createCompositeTask);
 		// Set the compressed attribute to false
-		((AntTaskElement) createCompositeTask.elements.get(0)).addAttributes(new String[] {"compressed", String.valueOf(false)});
+		createCompositeTask.elements.get(0).addAttributes(new String[] {"compressed", String.valueOf(false)});
 		runAntTask();
 
 		ICompositeRepository repo = getCompositeRepository(TYPE_ARTIFACT);
@@ -350,7 +350,7 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 		AntTaskElement createCompositeTask = createCompositeRepositoryTaskElement(TYPE_ARTIFACT);
 		addTask(createCompositeTask);
 		// Set the repository name
-		((AntTaskElement) createCompositeTask.elements.get(0)).addAttributes(new String[] {"name", repoName});
+		createCompositeTask.elements.get(0).addAttributes(new String[] {"name", repoName});
 
 		runAntTask();
 

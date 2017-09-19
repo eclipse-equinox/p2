@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2011 IBM Corporation and others.
+ *  Copyright (c) 2005, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
 
 /*
- * Grabs some IUs (SDK, Platform) from the current repository and creates a plan to see if 
+ * Grabs some IUs (SDK, Platform) from the current repository and creates a plan to see if
  * they can be installed.
  */
 public class RepoValidator extends AbstractProvisioningTest {
@@ -53,10 +53,10 @@ public class RepoValidator extends AbstractProvisioningTest {
 		// get the latest versions of the SDK and platform
 		String[] ius = new String[] {"org.eclipse.sdk.ide", "org.eclipse.platform.ide"};
 		for (String id : ius) {
-			IQuery query = QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id));
-			IQueryResult result = repository.query(query, getMonitor());
+			IQuery<IInstallableUnit> query = QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id));
+			IQueryResult<IInstallableUnit> result = repository.query(query, getMonitor());
 			assertFalse("SDK IU not found in repository: " + repositoryString, result.isEmpty());
-			IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+			IInstallableUnit iu = result.iterator().next();
 
 			ProvisioningContext provisioningContext = new ProvisioningContext(getAgent());
 			provisioningContext.setMetadataRepositories(new URI[] {repositoryLocation});

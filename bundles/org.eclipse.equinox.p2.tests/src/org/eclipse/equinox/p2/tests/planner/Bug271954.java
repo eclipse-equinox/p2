@@ -76,10 +76,10 @@ public class Bug271954 extends AbstractProvisioningTest {
 	}
 
 	public void testUninstallMyBundle() {
-		IQueryResult c = profile.available(QueryUtil.createIUQuery("A"), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = profile.available(QueryUtil.createIUQuery("A"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.removeInstallableUnits((IInstallableUnit[]) c.toArray(IInstallableUnit.class));
+		req.removeInstallableUnits(c.toArray(IInstallableUnit.class));
 
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 		ctx.setMetadataRepositories(new URI[0]);
@@ -89,7 +89,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 		assertNotNull(plan.getInstallerPlan().getFutureState());
 		assertEquals(0, queryResultSize(plan.getInstallerPlan().getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 		assertEquals(0, queryResultSize(plan.getInstallerPlan().getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
-		assertUninstallOperand(plan, (IInstallableUnit) c.iterator().next());
+		assertUninstallOperand(plan, c.iterator().next());
 		assertEquals(2, queryResultSize(plan.getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 		assertEquals(1, queryResultSize(plan.getRemovals().query(QueryUtil.createIUQuery("A", Version.createOSGi(1, 0, 0)), new NullProgressMonitor())));
 		assertEquals(1, queryResultSize(plan.getRemovals().query(QueryUtil.createIUQuery("Action1", Version.createOSGi(1, 0, 0)), new NullProgressMonitor())));

@@ -104,16 +104,16 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Takes 2 QueryResults, compares them, and returns the number of unique keys
 	 * Needed to verify that only the appropriate number of files have been transfered by the mirror application
 	 */
-	private int getNumUnique(IQueryResult c1, IQueryResult c2) {
-		Object[] repo1 = c1.toArray(IInstallableUnit.class);
-		Object[] repo2 = c2.toArray(IInstallableUnit.class);
+	private int getNumUnique(IQueryResult<IInstallableUnit> c1, IQueryResult<IInstallableUnit> c2) {
+		IInstallableUnit[] repo1 = c1.toArray(IInstallableUnit.class);
+		IInstallableUnit[] repo2 = c2.toArray(IInstallableUnit.class);
 
 		//initialize to the size of both query results
 		int numKeys = repo1.length + repo2.length;
 
 		for (int i = 0; i < repo1.length; i++) {
 			for (int j = 0; j < repo2.length; j++) {
-				if (isEqual((IInstallableUnit) repo1[i], (IInstallableUnit) repo2[j]))
+				if (isEqual(repo1[i], repo2[j]))
 					numKeys--;
 				//identical keys has bee found, therefore the number of unique keys is one less than previously thought
 			}

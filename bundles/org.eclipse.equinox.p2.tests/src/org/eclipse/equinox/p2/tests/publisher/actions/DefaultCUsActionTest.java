@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -18,7 +18,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.eclipse.DefaultCUsAction;
 
-@SuppressWarnings({"unchecked"})
 public class DefaultCUsActionTest extends ActionTest {
 
 	private Version version = Version.create("1.0.0"); //$NON-NLS-1$

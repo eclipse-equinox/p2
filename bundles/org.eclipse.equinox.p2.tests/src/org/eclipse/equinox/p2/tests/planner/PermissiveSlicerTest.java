@@ -31,9 +31,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 
 	public void testSliceRCPOut() {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, Collections.<String, String> emptyMap(), true, false, true, false, false);
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
-		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IInstallableUnit iu = c.iterator().next();
+		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
 		queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()));
 		assertEquals(66, queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
@@ -44,9 +44,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 	//Test with and without optional pieces
 	public void testSliceRCPWithOptionalPieces() {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, Collections.<String, String> emptyMap(), false, false, true, false, false);
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
-		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IInstallableUnit iu = c.iterator().next();
+		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
 		queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()));
 		assertEquals(64, queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
@@ -55,9 +55,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 
 	public void testSliceRCPWithIgnoringGreed() {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, Collections.<String, String> emptyMap(), false, true, true, false, false);
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
-		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IInstallableUnit iu = c.iterator().next();
+		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
 		queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()));
 		assertEquals(64, queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
@@ -70,9 +70,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		p.put("osgi.ws", "win32");
 		p.put("osgi.arch", "x86");
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, false, false, false);
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
-		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IInstallableUnit iu = c.iterator().next();
+		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
 		queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()));
 		assertEquals(0, queryResultSize(result.query(QueryUtil.createIUQuery("org.eclipse.swt.motif.linux.x86"), new NullProgressMonitor())));
@@ -86,9 +86,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		p.put("osgi.ws", "win32");
 		p.put("osgi.arch", "x86");
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, false, false, true, false);
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
-		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IInstallableUnit iu = c.iterator().next();
+		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
 		queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()));
 		assertEquals(0, queryResultSize(result.query(QueryUtil.createIUQuery("org.eclipse.ecf"), new NullProgressMonitor())));
@@ -98,9 +98,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 
 	public void testExtractPlatformIndependentPieces() {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, Collections.<String, String> emptyMap(), true, false, false, false, false);
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
-		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IInstallableUnit iu = c.iterator().next();
+		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
 		queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()));
 		assertEquals(32, queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
@@ -116,7 +116,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 
 		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(new IInstallableUnit[] {a, act1}), Collections.<String, String> emptyMap(), true, false, false, false, false);
-		IQueryable result = slicer.slice(new IInstallableUnit[] {a}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {a}, new NullProgressMonitor());
 		assertEquals(1, queryResultSize(result.query(QueryUtil.createIUQuery("Action1"), null)));
 	}
 
@@ -126,8 +126,8 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		p.put("osgi.ws", "win32");
 		p.put("osgi.arch", "x86");
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, false, false, true, false);
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.swt.cocoa.macosx"), new NullProgressMonitor());
-		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.swt.cocoa.macosx"), new NullProgressMonitor());
+		IInstallableUnit iu = c.iterator().next();
 		assertNull(slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()));
 		assertNotOK(slicer.getStatus());
 	}
@@ -136,7 +136,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IRequirement[] req = createRequiredCapabilities("B", "B", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit iuA = createIU("A", DEFAULT_VERSION, null, req, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, true);
 		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(new IInstallableUnit[] {iuA}), Collections.<String, String> emptyMap(), true, false, false, false, false);
-		IQueryable result = slicer.slice(new IInstallableUnit[] {iuA}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iuA}, new NullProgressMonitor());
 		assertNotNull(result);
 		assertNotOK(slicer.getStatus());
 	}
@@ -147,17 +147,17 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		p.put("osgi.ws", "win32");
 		p.put("osgi.arch", "x86");
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, false, false, false, true);
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
-		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		IQueryResult resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IInstallableUnit iu = c.iterator().next();
+		IQueryResult<IInstallableUnit> resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		assertEquals(3, queryResultSize(resultCollector));
 	}
 
 	public void testExtractOnlyPlatformSpecific() {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, Collections.<String, String> emptyMap(), true, false, true, false, true);
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
-		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		IQueryResult resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IInstallableUnit iu = c.iterator().next();
+		IQueryResult<IInstallableUnit> resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		assertEquals(35, queryResultSize(resultCollector));
 	}
 

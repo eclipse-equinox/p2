@@ -53,7 +53,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 
 		IProfileRegistry profileRegistry = getProfileRegistry();
 		profile = profileRegistry.getProfile(profile.getProfileId());
-		IQueryResult c = profile.query(new UserVisibleRootQuery(), null);
+		IQueryResult<IInstallableUnit> c = profile.query(new UserVisibleRootQuery(), null);
 		assertEquals(queryResultSize(c), 1);
 
 		System.gc();

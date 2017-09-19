@@ -129,7 +129,7 @@ public class BundlesActionTest extends ActionTest {
 		PublisherResult results = new PublisherResult();
 
 		bundlesAction.perform(info, results, new NullProgressMonitor());
-		Collection ius = results.getIUs(null, null);
+		Collection<IInstallableUnit> ius = results.getIUs(null, null);
 		assertEquals("1.0", 1, ius.size());
 
 		info = new PublisherInfo();
@@ -138,10 +138,10 @@ public class BundlesActionTest extends ActionTest {
 		bundlesAction.perform(info, results, new NullProgressMonitor());
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 1, ius.size());
-		QueryableArray queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
-		IQueryResult result = queryableArray.query(QueryUtil.createIUQuery("foo"), null);
+		QueryableArray queryableArray = new QueryableArray(ius.toArray(new IInstallableUnit[ius.size()]));
+		IQueryResult<IInstallableUnit> result = queryableArray.query(QueryUtil.createIUQuery("foo"), null);
 		assertEquals("3.1", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit iu = result.iterator().next();
 		TranslationSupport utils = new TranslationSupport();
 		utils.setTranslationSource(queryableArray);
 		assertEquals("3.2", "English Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
@@ -150,10 +150,10 @@ public class BundlesActionTest extends ActionTest {
 		bundlesAction.perform(info, results, new NullProgressMonitor());
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 3, ius.size());
-		queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
+		queryableArray = new QueryableArray(ius.toArray(new IInstallableUnit[ius.size()]));
 		result = queryableArray.query(QueryUtil.createIUQuery("foo"), null);
 		assertEquals("2.1", 1, queryResultSize(result));
-		iu = (IInstallableUnit) result.iterator().next();
+		iu = result.iterator().next();
 		utils.setTranslationSource(queryableArray);
 		assertEquals("2.2", "German Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 	}
@@ -261,7 +261,7 @@ public class BundlesActionTest extends ActionTest {
 		assertTrue(providedCapabilities.size() == 6 /*number of tested elements*/);
 
 		// check %bundle name is correct
-		Map prop = bundle2IU.getProperties();
+		Map<String, String> prop = bundle2IU.getProperties();
 		assertTrue(prop.get("org.eclipse.equinox.p2.name").toString().equalsIgnoreCase("%bundleName"));//$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(prop.get("org.eclipse.equinox.p2.provider").toString().equalsIgnoreCase("%providerName"));//$NON-NLS-1$//$NON-NLS-2$
 
@@ -356,7 +356,7 @@ public class BundlesActionTest extends ActionTest {
 
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
-		expect(publisherInfo.getAdvice(null, false, null, null, ICapabilityAdvice.class)).andReturn(new ArrayList()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, null, null, ICapabilityAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
 
 		expectOtherAdviceQueries(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		expectPropertyAdviceQuery(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, sarProperties);
@@ -422,7 +422,7 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void expectPropertyAdviceQuery(String bundleName, Version bundleVersion, Map<String, String> answer) {
-		List propertyAdvices;
+		List<IPropertyAdvice> propertyAdvices;
 		if (answer != null)
 			propertyAdvices = Collections.singletonList(createPropertyAdvice(answer));
 		else

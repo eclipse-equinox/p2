@@ -55,7 +55,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	public void testCompressedRepository() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
@@ -88,7 +88,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testGetProperties() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		Map properties = repo.getProperties();
+		Map<String, String> properties = repo.getProperties();
 		//attempting to modify the properties should fail
 		try {
 			properties.put(TEST_KEY, TEST_VALUE);
@@ -101,7 +101,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testSetProperty() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		Map properties = repo.getProperties();
+		Map<String, String> properties = repo.getProperties();
 		assertTrue("1.0", !properties.containsKey(TEST_KEY));
 		repo.setProperty(TEST_KEY, TEST_VALUE);
 
@@ -126,7 +126,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		IInstallableUnit iu = createIU("foo");
 		repo.addInstallableUnits(Arrays.asList(iu));
-		IQueryResult result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
+		IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 		repo.removeAll();
 		result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
@@ -139,7 +139,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createIU("foo");
 		IInstallableUnit iu2 = createIU("bar");
 		repo.addInstallableUnits(Arrays.asList(iu, iu2));
-		IQueryResult result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
+		IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
 		assertEquals("1.0", 2, queryResultSize(result));
 		repo.removeInstallableUnits(Arrays.asList(iu));
 		result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
@@ -152,7 +152,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	public void testUncompressedRepository() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
@@ -183,7 +183,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testLoadSelfReference() throws ProvisionException {
 		//setup a repository that has a reference to itself in disabled state
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		final URI repoURI = repoLocation.toURI();
 		IMetadataRepository repo = manager.createRepository(repoURI, "testLoadSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
@@ -220,7 +220,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testRefreshSelfReference() throws ProvisionException {
 		//setup a repository that has a reference to itself in disabled state
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		final URI repoURL = repoLocation.toURI();
 		IMetadataRepository repo = manager.createRepository(repoURL, "testRefreshSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);

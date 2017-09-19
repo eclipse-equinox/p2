@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import junit.framework.AssertionFailedError;
@@ -95,12 +96,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail("The profile should be empty,profileId=" + profile);
 	}
 
-	protected static void assertNotIUs(IInstallableUnit[] ius, Iterator installableUnits) {
-		Set notexpected = new HashSet();
+	protected static void assertNotIUs(IInstallableUnit[] ius, Iterator<IInstallableUnit> installableUnits) {
+		Set<IInstallableUnit> notexpected = new HashSet<>();
 		notexpected.addAll(Arrays.asList(ius));
 
 		while (installableUnits.hasNext()) {
-			IInstallableUnit next = (IInstallableUnit) installableUnits.next();
+			IInstallableUnit next = installableUnits.next();
 			if (notexpected.contains(next)) {
 				fail("not expected [" + next + "]");
 			}
@@ -138,9 +139,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Asserts that the given profile contains *only* the given IUs.
 	 */
 	protected static void assertProfileContains(String message, IProfile profile, IInstallableUnit[] expectedUnits) {
-		HashSet expected = new HashSet(Arrays.asList(expectedUnits));
-		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
-			IInstallableUnit actual = (IInstallableUnit) it.next();
+		HashSet<IInstallableUnit> expected = new HashSet<>(Arrays.asList(expectedUnits));
+		for (Iterator<IInstallableUnit> it = getInstallableUnits(profile); it.hasNext();) {
+			IInstallableUnit actual = it.next();
 			if (!expected.remove(actual))
 				fail(message + " profile " + profile.getProfileId() + " contained an unexpected unit: " + actual);
 		}
@@ -152,9 +153,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Asserts that the given profile contains all the given IUs.
 	 */
 	protected static void assertProfileContainsAll(String message, IProfile profile2, IInstallableUnit[] expectedUnits) {
-		HashSet expected = new HashSet(Arrays.asList(expectedUnits));
-		for (Iterator it = getInstallableUnits(profile2); it.hasNext();) {
-			IInstallableUnit actual = (IInstallableUnit) it.next();
+		HashSet<IInstallableUnit> expected = new HashSet<>(Arrays.asList(expectedUnits));
+		for (Iterator<IInstallableUnit> it = getInstallableUnits(profile2); it.hasNext();) {
+			IInstallableUnit actual = it.next();
 			expected.remove(actual);
 		}
 		if (!expected.isEmpty())
@@ -433,8 +434,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		for (int i = 0; i < additionalProvides.length; i++) {
 			provides[i + 1] = additionalProvides[i];
 		}
-		for (Iterator iter = properties.keySet().iterator(); iter.hasNext();) {
-			String nextKey = (String) iter.next();
+		for (Iterator<String> iter = properties.keySet().iterator(); iter.hasNext();) {
+			String nextKey = iter.next();
 			String nextValue = (String) properties.get(nextKey);
 			iu.setProperty(nextKey, nextValue);
 		}
@@ -462,8 +463,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		for (int i = 0; i < additionalProvides.length; i++) {
 			provides[i + 1] = additionalProvides[i];
 		}
-		for (Iterator iter = properties.keySet().iterator(); iter.hasNext();) {
-			String nextKey = (String) iter.next();
+		for (Iterator<String> iter = properties.keySet().iterator(); iter.hasNext();) {
+			String nextKey = iter.next();
 			String nextValue = (String) properties.get(nextKey);
 			iu.setProperty(nextKey, nextValue);
 		}
@@ -510,7 +511,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static void changeVersion(org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription desc, Version newVersion) {
-		List<IProvidedCapability> capabilities = new ArrayList(desc.getProvidedCapabilities());
+		List<IProvidedCapability> capabilities = new ArrayList<>(desc.getProvidedCapabilities());
 		for (int i = 0; i < capabilities.size(); i++) {
 			IProvidedCapability pc = capabilities.get(i);
 			if (desc.getVersion().equals(pc.getVersion()))
@@ -539,11 +540,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		desc.setTouchpointType(MetadataFactory.createTouchpointType(prototype.getTouchpointType().getId(), prototype.getTouchpointType().getVersion()));
 		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(prototype.getUpdateDescriptor().getIUsBeingUpdated(), prototype.getUpdateDescriptor().getSeverity(), prototype.getUpdateDescriptor().getDescription(), null));
 		desc.setVersion(prototype.getVersion());
-		Map prototypeProperties = prototype.getProperties();
-		Set entries = prototypeProperties.entrySet();
-		for (Iterator iterator = entries.iterator(); iterator.hasNext();) {
-			Map.Entry entry = (Map.Entry) iterator.next();
-			desc.setProperty((String) entry.getKey(), (String) entry.getValue());
+		Map<String, String> prototypeProperties = prototype.getProperties();
+		Set<Entry<String, String>> entries = prototypeProperties.entrySet();
+		for (Iterator<Entry<String, String>> iterator = entries.iterator(); iterator.hasNext();) {
+			Entry<String, String> entry = iterator.next();
+			desc.setProperty(entry.getKey(), entry.getValue());
 		}
 		return desc;
 	}
@@ -647,7 +648,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		fail(message);
 	}
 
-	public static Iterator getInstallableUnits(IProfile profile2) {
+	public static Iterator<IInstallableUnit> getInstallableUnits(IProfile profile2) {
 		return profile2.query(QueryUtil.createIUAnyQuery(), null).iterator();
 	}
 
@@ -1251,9 +1252,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IArtifactRepository sourceRepo, IArtifactRepository destinationRepo) {
-		IQueryResult sourceKeys = sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator iterator = sourceKeys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
+		IQueryResult<IArtifactKey> sourceKeys = sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator<IArtifactKey> iterator = sourceKeys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
 			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(key);
 			if (destinationDescriptors == null || destinationDescriptors.length == 0)
 				fail(message + ": unmatched key: " + key.toString());
@@ -1279,14 +1280,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IMetadataRepository sourceRepo, IMetadataRepository destinationRepo) {
-		IQueryResult sourceCollector = sourceRepo.query(QueryUtil.createIUAnyQuery(), null);
-		Iterator it = sourceCollector.iterator();
+		IQueryResult<IInstallableUnit> sourceCollector = sourceRepo.query(QueryUtil.createIUAnyQuery(), null);
+		Iterator<IInstallableUnit> it = sourceCollector.iterator();
 
 		while (it.hasNext()) {
-			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			IQueryResult destinationCollector = destinationRepo.query(QueryUtil.createIUQuery(sourceIU), null);
+			IInstallableUnit sourceIU = it.next();
+			IQueryResult<IInstallableUnit> destinationCollector = destinationRepo.query(QueryUtil.createIUQuery(sourceIU), null);
 			assertEquals(message, 1, queryResultSize(destinationCollector));
-			assertEquals(message, sourceIU, (IInstallableUnit) destinationCollector.iterator().next());
+			assertEquals(message, sourceIU, destinationCollector.iterator().next());
 		}
 	}
 
@@ -1300,11 +1301,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static void assertContains(String message, IQueryable source, IQueryable destination) {
-		IQueryResult sourceCollector = source.query(QueryUtil.createIUAnyQuery(), null);
-		Iterator it = sourceCollector.iterator();
+		IQueryResult<IInstallableUnit> sourceCollector = source.query(QueryUtil.createIUAnyQuery(), null);
+		Iterator<IInstallableUnit> it = sourceCollector.iterator();
 
 		while (it.hasNext()) {
-			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
+			IInstallableUnit sourceIU = it.next();
 			IQueryResult destinationCollector = destination.query(QueryUtil.createIUQuery(sourceIU), null);
 			assertEquals(message, 1, queryResultSize(destinationCollector));
 			assertTrue(message, sourceIU.equals(destinationCollector.iterator().next()));
@@ -1510,7 +1511,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		int count = 0;
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, null);
-			IQueryResult descriptors = repo.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IQueryResult<IArtifactDescriptor> descriptors = repo.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 			return queryResultSize(descriptors);
 		} catch (ProvisionException e) {
 			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
@@ -1616,9 +1617,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected void assertEqualArtifacts(String message, SimpleArtifactRepository expected, SimpleArtifactRepository actual) {
-		IQueryResult expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator iterator = expectedKeys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
+		IQueryResult<IArtifactKey> expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator<IArtifactKey> iterator = expectedKeys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
 			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(key);
 			IArtifactDescriptor[] actualDescriptors = actual.getArtifactDescriptors(key);
 

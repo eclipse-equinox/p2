@@ -50,8 +50,8 @@ public class SlicerBug365124Test extends AbstractProvisioningTest {
 
 	public void testSlice() {
 		Slicer slicer = new Slicer(getProfile(IProfileRegistry.SELF), getProperties(), true);
-		IQueryResult c = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
-		slicer.slice((IInstallableUnit[]) c.toArray(IInstallableUnit.class), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		slicer.slice(c.toArray(IInstallableUnit.class), new NullProgressMonitor());
 		assertNotOK("1.0", slicer.getStatus());
 	}
 

@@ -57,8 +57,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 	}
@@ -68,8 +68,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 	}
@@ -79,8 +79,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 	}
@@ -90,8 +90,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 	}
@@ -101,8 +101,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("barbundle"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("barbundle"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Bar German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "Bar German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 	}
@@ -114,8 +114,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		action.perform(info, results, monitor);
 
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("barbundle2"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("barbundle2"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Bar German Bundle - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "Bar German Provider - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 	}
@@ -127,8 +127,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		action.perform(info, results, monitor);
 
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle2"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foobundle2"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo German Bundle - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "Foo German Provider - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 	}
@@ -138,8 +138,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo English Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
 	}
@@ -149,8 +149,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo English Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
 	}
@@ -161,8 +161,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo English Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
 	}
@@ -172,8 +172,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("barbundle"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("barbundle"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Bar English Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "Bar English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
 	}
@@ -185,8 +185,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		action.perform(info, results, monitor);
 
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("barbundle2"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("barbundle2"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Bar English Bundle - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "Bar English Provider - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
 	}
@@ -198,8 +198,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		action.perform(info, results, monitor);
 
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle2"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foobundle2"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo English Bundle - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "Foo English Provider - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
 	}
@@ -209,8 +209,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.jar"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.jar"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo German Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 		assertEquals("1.3", "Foo German Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.GERMAN.toString()));
@@ -223,8 +223,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.jar"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.jar"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER));
 		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION));
@@ -237,8 +237,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.jar"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.jar"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
 		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.ENGLISH.toString()));
@@ -251,8 +251,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.group"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.group"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo German Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 		assertEquals("1.3", "Foo German Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.GERMAN.toString()));
@@ -265,8 +265,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.group"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.group"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER));
 		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION));
@@ -279,8 +279,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {file});
 		featuresAction.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.group"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("fooFeature.feature.group"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "Foo English Feature", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
 		assertEquals("1.3", "Foo English Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.ENGLISH.toString()));
@@ -295,8 +295,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		action.perform(info, results, monitor);
 
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("barfragment2"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("barfragment2"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "German Fragment Name", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "German Fragment Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 	}
@@ -308,8 +308,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		action.perform(info, results, monitor);
 
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("barfragment2"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("barfragment2"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "English Fragment Name", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "English Fragment Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
 	}
@@ -324,8 +324,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		siteAction.perform(info, results, monitor);
 
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foo.new_category_1"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foo.new_category_1"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "German Category Name", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 		assertEquals("1.1", "German Category Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.GERMAN.toString()));
 
@@ -341,8 +341,8 @@ public class LocalizationTests extends AbstractProvisioningTest {
 		siteAction.perform(info, results, monitor);
 
 		TranslationSupport utils = getTranslationSupport();
-		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foo.new_category_1"), monitor);
-		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		IQueryResult<IInstallableUnit> queryResult = results.query(QueryUtil.createIUQuery("foo.new_category_1"), monitor);
+		IInstallableUnit iu = queryResult.iterator().next();
 		assertEquals("1.0", "English Category Name", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
 		assertEquals("1.1", "English Category Description", utils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, Locale.ENGLISH.toString()));
 

@@ -75,11 +75,11 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		IProfile availableWrapper = new IProfile() {
 			@Override
 			public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-				IQueryResult queryResult = profile.query(query, monitor);
-				Collector collector = new Collector();
+				IQueryResult<IInstallableUnit> queryResult = profile.query(query, monitor);
+				Collector<IInstallableUnit> collector = new Collector<>();
 				collector.addAll(queryResult);
 
-				Collection ius = new ArrayList();
+				Collection<IInstallableUnit> ius = new ArrayList<>();
 				ius.add(b1);
 				collector.addAll(query.perform(ius.iterator()));
 				return collector;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 		}
 
 		String autoInstall = System.getProperty("eclipse.p2.autoInstall");
-		IQueryResult allJobs = mgr.query(QueryUtil.createIUQuery(autoInstall, VersionRange.emptyRange), null);
+		IQueryResult<IInstallableUnit> allJobs = mgr.query(QueryUtil.createIUQuery(autoInstall, VersionRange.emptyRange), null);
 
 		String installFolder = System.getProperty(IProfile.PROP_INSTALL_FOLDER);
 		IProfileRegistry profileRegistry = getProfileRegistry();
@@ -68,7 +68,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 			if (p == null)
 				throw new RuntimeException("Uninstalling from a nonexistent profile");
 		} else {
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			properties.put(IProfile.PROP_INSTALL_FOLDER, installFolder);
 			EnvironmentInfo info = ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class);
 			if (info != null)
@@ -80,7 +80,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] allRoots = new IInstallableUnit[1];
 		IStatus operationStatus = null;
 		if (!allJobs.isEmpty()) {
-			allRoots[0] = (IInstallableUnit) allJobs.iterator().next();
+			allRoots[0] = allJobs.iterator().next();
 			ProfileChangeRequest request = new ProfileChangeRequest(p);
 			if (!doUninstall)
 				request.addInstallableUnits(allRoots);

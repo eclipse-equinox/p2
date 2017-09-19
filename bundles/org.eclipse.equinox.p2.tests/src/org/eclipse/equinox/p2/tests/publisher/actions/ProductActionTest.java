@@ -36,7 +36,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings({"unchecked"})
 public class ProductActionTest extends ActionTest {
 
 	private static final String WIN_FILTER = "(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))";
@@ -81,7 +80,7 @@ public class ProductActionTest extends ActionTest {
 		addContextIU("org.eclipse.platform.feature.group", "1.2.3");
 
 		performProductAction(productFile);
-		Collection ius = publisherResult.getIUs("branded.product", IPublisherResult.NON_ROOT);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("branded.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, ius.size());
 
 		//TODO assert branding was done correctly
@@ -90,9 +89,9 @@ public class ProductActionTest extends ActionTest {
 	public void testLicense() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "productWithLicense.product").toString());
 		performProductAction(productFile);
-		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, ius.size());
-		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
+		IInstallableUnit iu = ius.iterator().next();
 		assertEquals("1.1", "http://www.example.com", iu.getLicenses().iterator().next().getLocation().toString());
 		assertEquals("1.2", "This is the liCenSE.", iu.getLicenses().iterator().next().getBody().trim());
 	}
@@ -100,9 +99,9 @@ public class ProductActionTest extends ActionTest {
 	public void testLicenseNoURL() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "licenseNoURL.product").toString());
 		performProductAction(productFile);
-		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, ius.size());
-		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
+		IInstallableUnit iu = ius.iterator().next();
 		assertEquals("1.1", "", iu.getLicenses().iterator().next().getLocation().toString());
 		assertEquals("1.2", "This is the liCenSE.", iu.getLicenses().iterator().next().getBody().trim());
 	}
@@ -110,9 +109,9 @@ public class ProductActionTest extends ActionTest {
 	public void testLicenseNoText() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "licenseNoText.product").toString());
 		performProductAction(productFile);
-		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, ius.size());
-		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
+		IInstallableUnit iu = ius.iterator().next();
 		assertEquals("1.1", "http://www.example.com", iu.getLicenses().iterator().next().getLocation().toString());
 		assertEquals("1.2", "", iu.getLicenses().iterator().next().getBody().trim());
 	}
@@ -120,9 +119,9 @@ public class ProductActionTest extends ActionTest {
 	public void testMissingLicense() throws Exception {
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "productWithNoLicense.product").toString());
 		performProductAction(productFile);
-		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, ius.size());
-		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
+		IInstallableUnit iu = ius.iterator().next();
 		assertEquals(0, iu.getLicenses().size());
 	}
 
@@ -210,7 +209,7 @@ public class ProductActionTest extends ActionTest {
 
 		performProductAction(productFile);
 
-		Collection advice = publisherInfo.getAdvice("carbon.macos.x86", false, null, null, IConfigAdvice.class);
+		Collection<IConfigAdvice> advice = publisherInfo.getAdvice("carbon.macos.x86", false, null, null, IConfigAdvice.class);
 		assertEquals("1.0", 1, advice.size());
 	}
 
@@ -264,13 +263,13 @@ public class ProductActionTest extends ActionTest {
 		IStatus status = testAction.perform(info, publisherResult, null);
 		assertThat(status, is(okStatus()));
 
-		IQueryResult results = publisherResult.query(QueryUtil.createIUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), null);
+		IQueryResult<IInstallableUnit> results = publisherResult.query(QueryUtil.createIUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), null);
 		assertEquals("1.0", 1, queryResultSize(results));
-		IInstallableUnit unit = (IInstallableUnit) results.iterator().next();
+		IInstallableUnit unit = results.iterator().next();
 		Collection<IRequirement> requiredCapabilities = unit.getRequirements();
 
 		IRequiredCapability capability = null;
-		for (Iterator iterator = requiredCapabilities.iterator(); iterator.hasNext();) {
+		for (Iterator<IRequirement> iterator = requiredCapabilities.iterator(); iterator.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iterator.next();
 			if (req.getName().equals("org.eclipse.platform.feature.group")) {
 				capability = req;

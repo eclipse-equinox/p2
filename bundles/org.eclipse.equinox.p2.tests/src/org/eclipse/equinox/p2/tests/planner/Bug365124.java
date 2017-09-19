@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.planner;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -35,7 +36,7 @@ public class Bug365124 extends AbstractPlannerTest {
 	public void testInstall() {
 		IPlanner planner = createPlanner();
 
-		IQueryResult allIUs = repo.query(QueryUtil.createIUQuery("f1.feature.group"), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUQuery("f1.feature.group"), new NullProgressMonitor());
 		IProfileChangeRequest actualChangeRequest = createProfileChangeRequest(null, allIUs.toSet(), null);
 		IProvisioningPlan plan = planner.getProvisioningPlan(actualChangeRequest, null, new NullProgressMonitor());
 		Operand[] operands = ((ProvisioningPlan) plan).getOperands();

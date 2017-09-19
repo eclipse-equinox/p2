@@ -159,7 +159,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		factory.create(location, "test type", null, null);
 		try {
 			//bug 248951, ask for a modifiable repo
-			IRepository repo = factory.load(location, IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, new NullProgressMonitor());
+			IArtifactRepository repo = factory.load(location, IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, new NullProgressMonitor());
 			assertNotNull(repo);
 			assertTrue(repo.isModifiable());
 		} catch (ProvisionException e) {

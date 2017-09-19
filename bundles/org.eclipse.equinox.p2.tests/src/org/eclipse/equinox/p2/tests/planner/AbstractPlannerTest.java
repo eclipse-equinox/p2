@@ -49,7 +49,7 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 	 * Take the given plan and compress additons/removals so they look like updates.
 	 * Good for viewing while debugging.
 	 */
-	protected Collection compress(IProvisioningPlan plan) {
+	protected Collection<InstallableUnitOperand> compress(IProvisioningPlan plan) {
 		Map<String, InstallableUnitOperand> result = new HashMap<>();
 		Operand[] operands = ((ProvisioningPlan) plan).getOperands();
 		for (int i = 0; i < operands.length; i++) {
@@ -119,13 +119,13 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 	/*
 	 * Create and return a new profile change request with the given additions and removals.
 	 */
-	protected IProfileChangeRequest createProfileChangeRequest(Collection optionalAdds, Collection strictAdds, Collection toRemove) {
+	protected IProfileChangeRequest createProfileChangeRequest(Collection<IInstallableUnit> optionalAdds, Collection<IInstallableUnit> strictAdds, Collection<IInstallableUnit> toRemove) {
 		IProfileChangeRequest result = new ProfileChangeRequest(profile);
 
 		// add optional IUs
 		if (optionalAdds != null) {
-			for (Iterator iter = optionalAdds.iterator(); iter.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) iter.next();
+			for (Iterator<IInstallableUnit> iter = optionalAdds.iterator(); iter.hasNext();) {
+				IInstallableUnit iu = iter.next();
 				result.add(iu);
 				result.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 				result.setInstallableUnitProfileProperty(iu, "org.eclipse.equinox.p2.type.lock", "1");
@@ -135,8 +135,8 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 
 		// add strict IUs
 		if (strictAdds != null) {
-			for (Iterator iter = strictAdds.iterator(); iter.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) iter.next();
+			for (Iterator<IInstallableUnit> iter = strictAdds.iterator(); iter.hasNext();) {
+				IInstallableUnit iu = iter.next();
 				result.add(iu);
 				result.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createStrictInclusionRule(iu));
 			}
@@ -144,8 +144,8 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 
 		// include removals
 		if (toRemove != null) {
-			for (Iterator iter = toRemove.iterator(); iter.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) iter.next();
+			for (Iterator<IInstallableUnit> iter = toRemove.iterator(); iter.hasNext();) {
+				IInstallableUnit iu = iter.next();
 				result.remove(iu);
 			}
 		}

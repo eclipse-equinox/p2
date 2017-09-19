@@ -67,7 +67,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
 		assertProfileContainsAll("A1 is missing", profile, new IInstallableUnit[] {a1});
-		IQueryResult allProfileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
+		IQueryResult<IInstallableUnit> allProfileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
 		assertEquals(queryResultSize(allProfileIUs), 1);
 
 		//Add a2 with a1. This is an error
@@ -90,7 +90,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		allProfileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
 		assertEquals(queryResultSize(allProfileIUs), 1);
 
-		IQueryResult iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, IUProfilePropertyQuery.ANY), null);
+		IQueryResult<IInstallableUnit> iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, IUProfilePropertyQuery.ANY), null);
 		assertEquals(queryResultSize(iuProfileProperties), 1);
 
 		//Remove a1 optionality - should be a no-op

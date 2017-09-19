@@ -183,12 +183,12 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		writer.start(task.name);
 
 		// write properties
-		for (Iterator iter = task.attributes.iterator(); iter.hasNext();)
-			writer.attribute((String) iter.next(), (String) iter.next());
+		for (Iterator<String> iter = task.attributes.iterator(); iter.hasNext();)
+			writer.attribute(iter.next(), iter.next());
 
 		// write sub elements if applicable
-		for (Iterator iter = task.elements.iterator(); iter.hasNext();)
-			writeElement(writer, (AntTaskElement) iter.next());
+		for (Iterator<AntTaskElement> iter = task.elements.iterator(); iter.hasNext();)
+			writeElement(writer, iter.next());
 
 		// close tag
 		writer.end();
@@ -197,8 +197,8 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	// Class which can be used to represent elements in a task
 	protected class AntTaskElement {
 		public String name;
-		public List attributes = new ArrayList();
-		public List elements = new ArrayList();
+		public List<String> attributes = new ArrayList<>();
+		public List<AntTaskElement> elements = new ArrayList<>();
 
 		public AntTaskElement(String name) {
 			this.name = name;
@@ -255,11 +255,11 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		assertContains(message, destination, source);
 	}
 
-	protected void assertArtifactKeyContentEquals(String message, IQueryResult ius, URI artifactRepositoryLocation) {
+	protected void assertArtifactKeyContentEquals(String message, IQueryResult<IInstallableUnit> ius, URI artifactRepositoryLocation) {
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(artifactRepositoryLocation, null);
-			List fromIUs = getArtifactKeys(ius);
-			Iterator fromRepo = repo.query(ArtifactKeyQuery.ALL_KEYS, null).iterator();
+			List<IArtifactKey> fromIUs = getArtifactKeys(ius);
+			Iterator<IArtifactKey> fromRepo = repo.query(ArtifactKeyQuery.ALL_KEYS, null).iterator();
 			assertContains(message, fromIUs, fromRepo);
 			assertContains(message, fromRepo, fromIUs);
 		} catch (ProvisionException e) {
@@ -268,7 +268,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 
 	}
 
-	protected static List getArtifactKeys(IQueryResult<IInstallableUnit> ius) {
+	protected static List<IArtifactKey> getArtifactKeys(IQueryResult<IInstallableUnit> ius) {
 		List<IArtifactKey> keys = new ArrayList<>();
 
 		for (Iterator<IInstallableUnit> iter = ius.iterator(); iter.hasNext();)

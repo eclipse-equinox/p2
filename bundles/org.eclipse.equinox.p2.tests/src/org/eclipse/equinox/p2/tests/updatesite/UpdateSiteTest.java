@@ -607,7 +607,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 		assertTrue(buffer.toString().contains("Invalid site reference null in feature test.featurewithmissingupdateurl."));
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery("test.featurewithmissingupdateurl.feature.group", Version.create("1.0.0"));
-		IQueryResult result = metadataRepo.query(query, null);
+		IQueryResult<IInstallableUnit> result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, queryResultSize(result));
 	}
 
@@ -625,11 +625,11 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("Can't load repository UpdateSite243422");
 		}
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery("org.eclipse.jdt.astview.feature.feature.group", Version.create("1.0.1"));
-		IQueryResult result = metadataRepo.query(query, null);
+		IQueryResult<IInstallableUnit> result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit featureIU = result.iterator().next();
 		Collection<IRequirement> required = featureIU.getRequirements();
-		for (Iterator iterator = required.iterator(); iterator.hasNext();) {
+		for (Iterator<IRequirement> iterator = required.iterator(); iterator.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iterator.next();
 			if (req.getName().equals("org.eclipse.ui.ide")) {
 				assertEquals("2.0", VersionRange.emptyRange, req.getRange());
@@ -647,9 +647,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository UpdateSite240121");
 		}
-		IQueryResult keys = artifactRepo.query(new ArtifactKeyQuery(null, "Plugin240121", null), null);
+		IQueryResult<IArtifactKey> keys = artifactRepo.query(new ArtifactKeyQuery(null, "Plugin240121", null), null);
 		assertEquals(1, queryResultSize(keys));
-		IArtifactKey key = (IArtifactKey) keys.iterator().next();
+		IArtifactKey key = keys.iterator().next();
 		IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(key)[0], new ByteArrayOutputStream(500), new NullProgressMonitor());
 		if (!status.isOK())
 			fail("Can't get the expected artifact:" + key);
@@ -671,14 +671,14 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("1.99", e);
 			return;
 		}
-		IQueryResult result = repository.query(QueryUtil.createIUQuery("test.feature.feature.jar"), getMonitor());
+		IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUQuery("test.feature.feature.jar"), getMonitor());
 		assertTrue("1.0", !result.isEmpty());
-		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit unit = result.iterator().next();
 		Collection<ITouchpointData> data = unit.getTouchpointData();
 		assertEquals("1.1", 1, data.size());
-		Map instructions = data.iterator().next().getInstructions();
+		Map<String, ITouchpointInstruction> instructions = data.iterator().next().getInstructions();
 		assertEquals("1.2", 1, instructions.size());
-		assertEquals("1.3", "true", ((ITouchpointInstruction) instructions.get("zipped")).getBody());
+		assertEquals("1.3", "true", instructions.get("zipped").getBody());
 	}
 
 	/**

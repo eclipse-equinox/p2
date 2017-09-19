@@ -124,7 +124,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	 */
 	public void testStatusFromFailover() {
 		StatusSequenceRepository source = null;
-		LinkedList seq = new LinkedList();
+		LinkedList<IStatus> seq = new LinkedList<>();
 		try {
 			source = new StatusSequenceRepository(getArtifactRepositoryManager().loadRepository(pakedRepositoryLocation, new NullProgressMonitor()));
 
@@ -134,10 +134,10 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		// Set status sequence, actual Statuses added later
 		source.setSequence(seq);
 		// Grab an ArtifactKey to mirror, doesn't matter which
-		IQueryResult keys = source.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult<IArtifactKey> keys = source.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertTrue("Unable to obtain artifact keys", keys != null && !keys.isEmpty());
 
-		IArtifactKey key = (IArtifactKey) keys.iterator().next();
+		IArtifactKey key = keys.iterator().next();
 		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
 		// Set Status sequence

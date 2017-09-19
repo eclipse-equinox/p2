@@ -67,8 +67,8 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 * Return the list of artifact keys known to this listener's repository.
 	 */
 	public IArtifactKey[] getArtifactKeys() {
-		IQueryResult keys = listener.getArtifactRepository().query(ArtifactKeyQuery.ALL_KEYS, null);
-		return (IArtifactKey[]) keys.toArray(IArtifactKey.class);
+		IQueryResult<IArtifactKey> keys = listener.getArtifactRepository().query(ArtifactKeyQuery.ALL_KEYS, null);
+		return keys.toArray(IArtifactKey.class);
 	}
 
 	/*

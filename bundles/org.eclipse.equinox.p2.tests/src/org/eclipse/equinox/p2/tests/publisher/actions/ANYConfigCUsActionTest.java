@@ -30,7 +30,6 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.*;
 
-@SuppressWarnings({"unchecked"})
 public class ANYConfigCUsActionTest extends ActionTest {
 	private static final String BUNDLE_VERSION = "5.0.0"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_CORE_COMMANDS = "org.eclipse.core.commands"; //$NON-NLS-1$
@@ -60,7 +59,7 @@ public class ANYConfigCUsActionTest extends ActionTest {
 	}
 
 	private void verifyAction() {
-		ArrayList IUs = new ArrayList(publisherResult.getIUs(null, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> IUs = new ArrayList<>(publisherResult.getIUs(null, IPublisherResult.ROOT));
 		assertTrue(IUs.size() == 1);
 		InstallableUnit iu = (InstallableUnit) IUs.get(0);
 		assertTrue(iu.getId().equalsIgnoreCase(flavor + id + ".configuration")); //$NON-NLS-1$
@@ -84,9 +83,9 @@ public class ANYConfigCUsActionTest extends ActionTest {
 	}
 
 	private void verifyFragment(String cuType) {
-		ArrayList IUs = new ArrayList(publisherResult.getIUs(null, IPublisherResult.NON_ROOT));
+		ArrayList<IInstallableUnit> IUs = new ArrayList<>(publisherResult.getIUs(null, IPublisherResult.NON_ROOT));
 		for (int i = 0; i < IUs.size(); i++) {
-			InstallableUnit iu = (InstallableUnit) IUs.get(i);
+			IInstallableUnit iu = IUs.get(i);
 			if (iu.getId().equals(flavor + id + "." + cuType + "." + configSpec)) { //$NON-NLS-1$ //$NON-NLS-2$
 
 				assertNull(iu.getFilter()); // no filter if config spec is ANY
@@ -115,7 +114,7 @@ public class ANYConfigCUsActionTest extends ActionTest {
 	private void verifyBundleCU() {
 
 		final String bundleCUId = flavor + configSpec + ORG_ECLIPSE_CORE_COMMANDS;
-		IQueryResult queryResult = publisherResult.query(QueryUtil.createIUQuery(bundleCUId), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> queryResult = publisherResult.query(QueryUtil.createIUQuery(bundleCUId), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(queryResult));
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) queryResult.iterator().next();
 
@@ -180,7 +179,7 @@ public class ANYConfigCUsActionTest extends ActionTest {
 		LauncherData launcherData = loader.getLauncherData();
 		LaunchingAdvice launchingAdvice = new LaunchingAdvice(launcherData, configSpec);
 
-		ArrayList launchingList = new ArrayList();
+		ArrayList<IExecutableAdvice> launchingList = new ArrayList<>();
 		launchingList.add(launchingAdvice);
 
 		ProductFileAdvice productAdvice = null;
@@ -198,7 +197,7 @@ public class ANYConfigCUsActionTest extends ActionTest {
 		//configure IConfigAdvice
 		ConfigData configData = loader.getConfigData();
 		ConfigAdvice configAdvice = new ConfigAdvice(configData, configSpec);
-		ArrayList configList = new ArrayList();
+		ArrayList<IConfigAdvice> configList = new ArrayList<>();
 		configList.add(configAdvice);
 		configList.add(productAdvice);
 		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IConfigAdvice.class))).andReturn(configList).anyTimes();

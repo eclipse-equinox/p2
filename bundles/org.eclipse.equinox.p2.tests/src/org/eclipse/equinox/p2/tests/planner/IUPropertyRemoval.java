@@ -50,7 +50,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 		IProvisioningPlan pp1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, pp1.getStatus().getSeverity());
 		engine.perform(pp1, null);
-		IQueryResult res = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", IUProfilePropertyQuery.ANY), null);
+		IQueryResult<IInstallableUnit> res = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", IUProfilePropertyQuery.ANY), null);
 		assertEquals(2, queryResultSize(res));
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
@@ -58,7 +58,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 		ProvisioningPlan pp2 = (ProvisioningPlan) planner.getProvisioningPlan(req2, null, null);
 		assertEquals(1, pp2.getOperands().length);
 		engine.perform(pp2, null);
-		IQueryResult res2 = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", IUProfilePropertyQuery.ANY), null);
+		IQueryResult<IInstallableUnit> res2 = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", IUProfilePropertyQuery.ANY), null);
 		assertEquals(1, queryResultSize(res2));
 	}
 }

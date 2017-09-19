@@ -61,8 +61,8 @@ public class Bug265577 extends AbstractProvisioningTest {
 
 	// Tests the response to a feature folder inside a jar
 	public void testZippedRepoWithFolderFeature() {
-		IQueryResult queryResult = metadataRepo.query(QueryUtil.createIUQuery("Field_Assist_Example.feature.jar"), null);
-		IInstallableUnit[] ius = (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
+		IQueryResult<IInstallableUnit> queryResult = metadataRepo.query(QueryUtil.createIUQuery("Field_Assist_Example.feature.jar"), null);
+		IInstallableUnit[] ius = queryResult.toArray(IInstallableUnit.class);
 		IArtifactKey key = (ius[0].getArtifacts()).iterator().next();
 
 		IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(key);
@@ -85,8 +85,8 @@ public class Bug265577 extends AbstractProvisioningTest {
 
 	// Test to retrieve a file from a zipped metadata & artifact repository
 	public void testZippedRepo() {
-		IQueryResult queryResult = metadataRepo.query(QueryUtil.createIUQuery("valid.feature.jar"), null);
-		IInstallableUnit[] ius = (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
+		IQueryResult<IInstallableUnit> queryResult = metadataRepo.query(QueryUtil.createIUQuery("valid.feature.jar"), null);
+		IInstallableUnit[] ius = queryResult.toArray(IInstallableUnit.class);
 		IArtifactKey key = (ius[0].getArtifacts()).iterator().next();
 
 		IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(key);

@@ -47,9 +47,9 @@ public class Bug302582d extends AbstractProvisioningTest {
 	}
 
 	IInstallableUnit getIU(IMetadataRepository source, String id, String version) {
-		IQueryResult c = repo.query(QueryUtil.createIUQuery(id, Version.create(version)), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery(id, Version.create(version)), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
-		return (IInstallableUnit) c.iterator().next();
+		return c.iterator().next();
 	}
 
 	public void testInstall() {
@@ -70,9 +70,9 @@ public class Bug302582d extends AbstractProvisioningTest {
 
 	private ProfileChangeRequest createFilteredRequest(IQueryResult<IInstallableUnit> ius) {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profileRegistry.getProfile(profileLoadedId));
-		Iterator it = ius.iterator();
+		Iterator<IInstallableUnit> it = ius.iterator();
 		while (it.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) it.next();
+			IInstallableUnit iu = it.next();
 			if ((iu.getId().equals("com.dcns.rsm.rda") && iu.getVersion().equals(Version.create("5.1.0.v20100112"))) || (iu.getId().equals("com.dcns.rsm.profile.equipment") && iu.getVersion().equals(Version.create("1.2.2.v20100108"))) || (iu.getId().equals("com.dcns.rsm.profile.gemo") && iu.getVersion().equals(Version.create("3.7.2.v20100108"))) || (iu.getId().equals("com.dcns.rsm.profile.system") && iu.getVersion().equals(Version.create("4.2.2.v20100112")))) {
 				pcr.addInstallableUnits(new IInstallableUnit[] {iu});
 			}
@@ -84,9 +84,9 @@ public class Bug302582d extends AbstractProvisioningTest {
 	private ProfileChangeRequest createRequest(IQueryResult<IInstallableUnit> ius) {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profileRegistry.getProfile(profileLoadedId));
 		pcr.addInstallableUnits(ius.toArray(IInstallableUnit.class));
-		Iterator it = ius.iterator();
+		Iterator<IInstallableUnit> it = ius.iterator();
 		while (it.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) it.next();
+			IInstallableUnit iu = it.next();
 			pcr.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 		}
 		return pcr;

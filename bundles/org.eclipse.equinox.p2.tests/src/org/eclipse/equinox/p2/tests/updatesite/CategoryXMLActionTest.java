@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2013 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -23,9 +23,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.*;
 
-/**
- *
- */
 public class CategoryXMLActionTest extends AbstractProvisioningTest {
 
 	private TestMetadataRepository metadataRepository;
@@ -49,9 +46,9 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
 		action.perform(info, actionResult, getMonitor());
 
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit iu = result.iterator().next();
 		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));
 	}
 
@@ -66,9 +63,9 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
 		action.perform(info, actionResult, getMonitor());
 
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit iu = result.iterator().next();
 		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));
 
 		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(iu);
@@ -87,9 +84,9 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
 		action.perform(info, actionResult, getMonitor());
 
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit iu = result.iterator().next();
 		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));
 
 		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(iu);
@@ -110,9 +107,9 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
 		action.perform(info, actionResult, getMonitor());
 
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit iu = result.iterator().next();
 		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));
 
 		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(iu);
@@ -135,9 +132,9 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
 		action.perform(info, actionResult, getMonitor());
 
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit iu = result.iterator().next();
 		assertEquals("1.1", "Uncategorized", iu.getProperty(IInstallableUnit.PROP_NAME));
 
 		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(iu);
@@ -160,7 +157,7 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
 		action.perform(info, actionResult, getMonitor());
 
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 2, queryResultSize(result));
 		IInstallableUnit rootCategoryIu = null;
 		for (Object item : result) {
@@ -192,7 +189,7 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		CategoryXMLAction action = new CategoryXMLAction(siteLocation, null);
 		action.perform(info, actionResult, getMonitor());
 
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 4, queryResultSize(result));
 		IInstallableUnit rootCategoryIu = null;
 		for (Object item : result) {

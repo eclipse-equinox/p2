@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug252682 extends AbstractProvisioningTest {
 	IProfile profile = null;
-	ArrayList newIUs = new ArrayList();
+	ArrayList<IInstallableUnit> newIUs = new ArrayList<>();
 
 	@Override
 	protected void setUp() throws Exception {
@@ -46,11 +46,11 @@ public class Bug252682 extends AbstractProvisioningTest {
 	public void testInstallFeaturePatch() {
 		IInstallableUnit p2Feature = profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.p2.user.ui.feature.group"), new NullProgressMonitor()).iterator().next();
 		System.out.println(p2Feature);
-		IQueryResult c = profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.p2.core.patch"), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.p2.core.patch"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 		ctx.setExtraInstallableUnits(newIUs);
-		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
+		IInstallableUnit patch = c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(new IInstallableUnit[] {patch});
 		IPlanner planner = createPlanner();

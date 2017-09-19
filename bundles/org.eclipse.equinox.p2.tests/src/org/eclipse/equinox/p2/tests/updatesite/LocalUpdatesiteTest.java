@@ -49,11 +49,11 @@ public class LocalUpdatesiteTest extends AbstractProvisioningTest {
 			fail("0.99");
 		}
 		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), new NullProgressMonitor());
-		IQueryResult results = repository.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> results = repository.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(results));
-		Iterator iter = results.iterator();
+		Iterator<IInstallableUnit> iter = results.iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit unit = (IInstallableUnit) iter.next();
+			IInstallableUnit unit = iter.next();
 			assertTrue("2.0", unit.getId().startsWith("fooQualifier"));
 			assertEquals("3.0", "Test Category Label", unit.getProperty(IInstallableUnit.PROP_NAME));
 		}
@@ -69,10 +69,10 @@ public class LocalUpdatesiteTest extends AbstractProvisioningTest {
 		}
 		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), new NullProgressMonitor());
 
-		IQueryResult results = repository.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
-		Iterator iter = results.iterator();
+		IQueryResult<IInstallableUnit> results = repository.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		Iterator<IInstallableUnit> iter = results.iterator();
 
-		IInstallableUnit unit = (IInstallableUnit) iter.next();
+		IInstallableUnit unit = iter.next();
 		IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(unit);
 		IQueryResult<IInstallableUnit> categoryMembers = repository.query(memberQuery, new NullProgressMonitor());
 		Set<String> membersId = new HashSet<>();

@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+/*******************************************************************************
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -18,9 +18,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
 
-/**
- *
- */
 public class LatestIUTest extends AbstractProvisioningTest {
 
 	public void testLatestIUSingleRepo1() throws Exception {
@@ -34,9 +31,9 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
 
-		IQueryResult query = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
+		IQueryResult<IInstallableUnit> query = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
 		assertEquals("1.0", 1, queryResultSize(query));
-		assertEquals("1.1", Version.createOSGi(2, 1, 0), ((IInstallableUnit) query.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(2, 1, 0), query.iterator().next().getVersion());
 	}
 
 	public void testLatestIUSingleRepo2() throws Exception {
@@ -50,9 +47,9 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
 
-		IQueryResult query = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
+		IQueryResult<IInstallableUnit> query = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
 		assertEquals("1.0", 1, queryResultSize(query));
-		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) query.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), query.iterator().next().getVersion());
 	}
 
 	public void testLatestIUMultiRepo() throws Exception {
@@ -69,8 +66,8 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		metadataRepositoryManager.addRepository(location1);
 		metadataRepositoryManager.addRepository(location2);
 
-		IQueryResult queryResult = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
+		IQueryResult<IInstallableUnit> queryResult = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
 		assertEquals("1.0", 1, queryResultSize(queryResult));
-		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), queryResult.iterator().next().getVersion());
 	}
 }

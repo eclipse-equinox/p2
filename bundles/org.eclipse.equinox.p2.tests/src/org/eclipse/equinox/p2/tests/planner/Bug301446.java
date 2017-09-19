@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class Bug301446 extends AbstractPlannerTest {
 
-	static final Map EXPECTED_VERSIONS = new HashMap();
+	static final Map<String, Version> EXPECTED_VERSIONS = new HashMap<>();
 	static {
 		EXPECTED_VERSIONS.put("com.ibm.commerce.toolkit.internal.common", Version.create("7.0.0.1"));
 		EXPECTED_VERSIONS.put("com.ibm.commerce.toolkit.internal.dataaccess", Version.create("7.0.0.1"));
@@ -51,7 +51,7 @@ public class Bug301446 extends AbstractPlannerTest {
 		IPlanner planner = createPlanner();
 
 		// create the actual plan - install everything in the repo as optional (mimic the dropins folder)
-		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		IProfileChangeRequest actualChangeRequest = createProfileChangeRequest(allIUs.toSet(), null, null);
 		// TODO: verify that we are going to try and install the highest version of everything
 		IProvisioningPlan actualPlan = planner.getProvisioningPlan(actualChangeRequest, null, new NullProgressMonitor());
@@ -66,7 +66,7 @@ public class Bug301446 extends AbstractPlannerTest {
 			if (iu == null) {
 				// we are un-installing an IU, is it interesting?
 				iu = ((InstallableUnitOperand) o).first();
-				Version expected = (Version) EXPECTED_VERSIONS.get(iu.getId());
+				Version expected = EXPECTED_VERSIONS.get(iu.getId());
 				if (expected == null)
 					continue;
 				Version actual = iu.getVersion();
@@ -74,7 +74,7 @@ public class Bug301446 extends AbstractPlannerTest {
 				continue;
 			}
 			// we are installing an IU
-			Version expected = (Version) EXPECTED_VERSIONS.get(iu.getId());
+			Version expected = EXPECTED_VERSIONS.get(iu.getId());
 			if (expected == null)
 				continue;
 			Version actual = iu.getVersion();

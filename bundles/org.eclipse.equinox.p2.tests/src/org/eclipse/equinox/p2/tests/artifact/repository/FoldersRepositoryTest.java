@@ -88,10 +88,10 @@ public class FoldersRepositoryTest extends TestCase {
 
 			repo.addDescriptor(descriptor, monitor);
 		}
-		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult<IArtifactKey> keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertEquals(2, AbstractProvisioningTest.queryResultSize(keys));
-		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
+		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
 			repo.removeDescriptor(key, monitor);
 		}
 

@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -45,7 +46,7 @@ public class Bug362692 extends AbstractPlannerTest {
 
 		// this is the set of IUs we expect in the final result - highest version only
 		Set<IInstallableUnit> expected = new HashSet<>();
-		IQueryResult queryResult = repo.query(QueryUtil.createIUQuery("PluginA", Version.createOSGi(1, 1, 1, null)), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> queryResult = repo.query(QueryUtil.createIUQuery("PluginA", Version.createOSGi(1, 1, 1, null)), new NullProgressMonitor());
 		expected.addAll(queryResult.toSet());
 		queryResult = repo.query(QueryUtil.createIUQuery("PluginB", Version.createOSGi(1, 1, 2, null)), new NullProgressMonitor());
 		expected.addAll(queryResult.toSet());
@@ -58,7 +59,7 @@ public class Bug362692 extends AbstractPlannerTest {
 
 		// create the actual plan - install everything in the repo as optional (mimic the dropins folder)
 		Set<IInstallableUnit> toAdd = new HashSet<>();
-		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		// we don't want to re-install units which are already installed in the profile so remove them. (this is what the reconciler does)
 		boolean already = false;
 		for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();) {
@@ -84,13 +85,13 @@ public class Bug362692 extends AbstractPlannerTest {
 		repoURLs.add(repo.getLocation());
 		repoURLs.add(new Path(getTestDataPath()).append("shared").toFile().toURI());
 		ProvisioningContext context = getContext(repoURLs);
-		context.setExtraInstallableUnits(new ArrayList(toAdd));
+		context.setExtraInstallableUnits(new ArrayList<>(toAdd));
 		IProfileChangeRequest actualChangeRequest = createProfileChangeRequest(toAdd, null, null);
 		IProvisioningPlan plan = planner.getProvisioningPlan(actualChangeRequest, context, new NullProgressMonitor());
-		Collection compressedPlan = compress(plan);
+		Collection<InstallableUnitOperand> compressedPlan = compress(plan);
 		if (compressedPlan.isEmpty())
 			System.out.println("Plan: ...is empty!");
-		for (Iterator iter = compressedPlan.iterator(); iter.hasNext();) {
+		for (Iterator<InstallableUnitOperand> iter = compressedPlan.iterator(); iter.hasNext();) {
 			System.out.println("Plan: " + iter.next());
 		}
 		validate(expected, plan);
@@ -103,9 +104,9 @@ public class Bug362692 extends AbstractPlannerTest {
 	private void validate(Collection<IInstallableUnit> expected, Collection<IInstallableUnit> toAdd) {
 		MultiStatus errors = new MultiStatus(TestActivator.PI_PROV_TESTS, IStatus.OK, "Errors while validating plan.", null);
 		for (IInstallableUnit unit : expected) {
-			IQuery query = QueryUtil.createIUQuery(unit.getId(), unit.getVersion());
+			IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(unit.getId(), unit.getVersion());
 			// already in the profile?
-			IQueryResult queryResult = getProfile().query(query, new NullProgressMonitor());
+			IQueryResult<IInstallableUnit> queryResult = getProfile().query(query, new NullProgressMonitor());
 			if (queryResult.isEmpty()) {
 				// not in the profile, should be an incoming addition then
 				if (!toAdd.contains(unit)) {
@@ -125,9 +126,9 @@ public class Bug362692 extends AbstractPlannerTest {
 	private void validate(Collection<IInstallableUnit> expected, IProvisioningPlan plan) {
 		MultiStatus errors = new MultiStatus(TestActivator.PI_PROV_TESTS, IStatus.OK, "Errors while validating plan.", null);
 		for (IInstallableUnit unit : expected) {
-			IQuery query = QueryUtil.createIUQuery(unit.getId(), unit.getVersion());
+			IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(unit.getId(), unit.getVersion());
 			// already in the profile?
-			IQueryResult queryResult = getProfile().query(query, new NullProgressMonitor());
+			IQueryResult<IInstallableUnit> queryResult = getProfile().query(query, new NullProgressMonitor());
 			if (queryResult.isEmpty()) {
 				// not in the profile, should be an incoming addition then
 				if (plan.getAdditions().query(query, new NullProgressMonitor()).isEmpty()) {

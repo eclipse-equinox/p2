@@ -1,16 +1,14 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
-
-import org.eclipse.equinox.p2.query.MatchQuery;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +32,7 @@ public class QueryTest extends TestCase {
 	* Tests a simple perform where all items match.
 	*/
 	public void testPerformSimple() {
-		List items = Arrays.asList("red", "green", "blue");
+		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQueryResult collector = query.perform(items.iterator());
 		assertEquals("1.0", 3, AbstractProvisioningTest.queryResultSize(collector));
@@ -47,7 +45,7 @@ public class QueryTest extends TestCase {
 	 * Tests a perform where only some items match.
 	 */
 	public void testPerformSomeMatches() {
-		List items = Arrays.asList(new Object(), "green", new Object());
+		List<Object> items = Arrays.asList(new Object(), "green", new Object());
 		IQuery query = new AnyStringQuery();
 		IQueryResult collector = query.perform(items.iterator());
 		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(collector));
@@ -55,7 +53,7 @@ public class QueryTest extends TestCase {
 	}
 
 	public void testLimitQuery() {
-		List items = Arrays.asList("red", "green", "blue");
+		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = QueryUtil.createLimitQuery(query, 1);
 		IQueryResult collector = limitQuery.perform(items.iterator());
@@ -64,7 +62,7 @@ public class QueryTest extends TestCase {
 	}
 
 	public void testLimitQuery2() {
-		List items = Arrays.asList("red", "green", "blue");
+		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = QueryUtil.createLimitQuery(query, 2);
 		IQueryResult collector = limitQuery.perform(items.iterator());
@@ -74,7 +72,7 @@ public class QueryTest extends TestCase {
 	}
 
 	public void testLimitQuery3() {
-		List items = Arrays.asList("red", "green", "blue");
+		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = QueryUtil.createLimitQuery(query, 3);
 		IQueryResult collector = limitQuery.perform(items.iterator());

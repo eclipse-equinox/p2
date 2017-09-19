@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2010 EclipseSource and others. All rights reserved. This
+/*******************************************************************************
+* Copyright (c) 2010, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -20,9 +20,6 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.*;
 
-/**
- *
- */
 public class CategoryIUXMLActionTest extends AbstractProvisioningTest {
 
 	private TestMetadataRepository metadataRepository;
@@ -69,19 +66,19 @@ public class CategoryIUXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testIUCategoryCreation07() throws Exception {
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 	}
 
 	private void doCategorySetTest() {
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit iu = result.iterator().next();
 		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));
 	}
 
 	private void doCategoryNotSetTest() {
-		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 0, queryResultSize(result));
 	}
 }

@@ -68,9 +68,9 @@ public class Bug271067 extends AbstractProvisioningTest {
 	}
 
 	IInstallableUnit getIU(IMetadataRepository source, String id, String version) {
-		IQueryResult c = repo.query(QueryUtil.createIUQuery(id, Version.create(version)), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery(id, Version.create(version)), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
-		return (IInstallableUnit) c.iterator().next();
+		return c.iterator().next();
 	}
 
 	public void testInstallFeaturePatch() {

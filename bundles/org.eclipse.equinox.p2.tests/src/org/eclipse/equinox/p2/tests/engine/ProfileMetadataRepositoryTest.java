@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -15,6 +15,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -55,7 +56,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("0.3", profile);
 
-		IQueryResult profileCollector = profile.query(QueryUtil.createIUAnyQuery(), getMonitor());
+		IQueryResult<IInstallableUnit> profileCollector = profile.query(QueryUtil.createIUAnyQuery(), getMonitor());
 		assertFalse("0.4", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
@@ -70,7 +71,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("0.99", e1);
 		}
 
-		IQueryResult repoCollector = repo.query(QueryUtil.createIUAnyQuery(), getMonitor());
+		IQueryResult<IInstallableUnit> repoCollector = repo.query(QueryUtil.createIUAnyQuery(), getMonitor());
 		assertFalse("1.0", repoCollector.isEmpty());
 		assertContains("1.1", repoCollector, profileCollector);
 	}
@@ -84,7 +85,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("0.3", profile);
 
-		IQueryResult profileCollector = profile.query(QueryUtil.createIUAnyQuery(), getMonitor());
+		IQueryResult<IInstallableUnit> profileCollector = profile.query(QueryUtil.createIUAnyQuery(), getMonitor());
 		assertFalse("0.4", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
@@ -102,7 +103,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("0.99", e1);
 		}
 
-		IQueryResult repoCollector = repo.query(QueryUtil.createIUAnyQuery(), getMonitor());
+		IQueryResult<IInstallableUnit> repoCollector = repo.query(QueryUtil.createIUAnyQuery(), getMonitor());
 		assertFalse("1.0", repoCollector.isEmpty());
 		assertContains("1.1", repoCollector, profileCollector);
 	}
@@ -124,7 +125,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("1.0", profile);
 
-		IQueryResult profileCollector = profile.query(QueryUtil.createIUAnyQuery(), getMonitor());
+		IQueryResult<IInstallableUnit> profileCollector = profile.query(QueryUtil.createIUAnyQuery(), getMonitor());
 		assertFalse("1.1", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(profileRegistryFolder, "SDKPatchingTest.profile");
@@ -146,7 +147,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("2.99", e1);
 		}
 
-		IQueryResult repoCollector = repo.query(QueryUtil.createIUAnyQuery(), getMonitor());
+		IQueryResult<IInstallableUnit> repoCollector = repo.query(QueryUtil.createIUAnyQuery(), getMonitor());
 		assertFalse("3.0", repoCollector.isEmpty());
 		assertContains("3.1", repoCollector, profileCollector);
 

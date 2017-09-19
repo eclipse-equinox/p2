@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,14 +33,14 @@ public class UpdateQueryTest extends AbstractProvisioningTest {
 
 	public void testUpdateWithDifferentId() {
 		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {a1, updateOfA});
-		IQueryResult c = repo.query(new UpdateQuery(a1), null);
+		IQueryResult<IInstallableUnit> c = repo.query(new UpdateQuery(a1), null);
 		assertEquals(1, queryResultSize(c));
 		assertEquals(updateOfA, c.iterator().next());
 	}
 
 	public void testWithSuperiorVersion() {
 		IMetadataRepository repo2 = createTestMetdataRepository(new IInstallableUnit[] {a11, a1});
-		IQueryResult c2 = repo2.query(new UpdateQuery(a1), null);
+		IQueryResult<IInstallableUnit> c2 = repo2.query(new UpdateQuery(a1), null);
 		assertEquals(1, queryResultSize(c2));
 		assertEquals(a11, c2.iterator().next());
 	}

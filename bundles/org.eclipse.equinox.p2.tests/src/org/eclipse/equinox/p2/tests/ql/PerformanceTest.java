@@ -275,16 +275,16 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IQueryResult<IInstallableUnit> r = repo.query(QueryUtil.createIUQuery("org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
-		Iterator itor = r.iterator();
+		Iterator<IInstallableUnit> itor = r.iterator();
 		assertTrue(itor.hasNext());
-		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
+		IInstallableUnit[] roots = new IInstallableUnit[] {itor.next()};
 
-		IQuery query = QueryUtil.createQuery( //
+		IQuery<IInstallableUnit> query = QueryUtil.createQuery( //
 				"$0.traverse(set(), _, { cache, parent | parent.requirements.unique(cache).select(rc | rc.filter == null || $1 ~= rc.filter).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, envIU);
 
 		long sliceTime = 0;
 		long traverseTime = 0;
-		IQueryable slice = null;
+		IQueryable<IInstallableUnit> slice = null;
 		for (int idx = 0; idx < 100; ++idx) {
 			long startTime = System.currentTimeMillis();
 			r = repo.query(query, new NullProgressMonitor());
@@ -297,9 +297,9 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			sliceTime += (System.currentTimeMillis() - startTime);
 		}
 		// Check the size of the last slice to verify that it's the same as the traverse size
-		r = slice.query(new MatchQuery() {
+		r = slice.query(new MatchQuery<IInstallableUnit>() {
 			@Override
-			public boolean isMatch(Object value) {
+			public boolean isMatch(IInstallableUnit value) {
 				return true;
 			}
 		}, new NullProgressMonitor());
@@ -325,12 +325,12 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IQueryResult<IInstallableUnit> r = repo.query(QueryUtil.createIUQuery("org.eclipse.sdk.ide"), new NullProgressMonitor());
 		IInstallableUnit[] roots = r.toArray(IInstallableUnit.class);
 
-		IQuery query = QueryUtil.createQuery( //
+		IQuery<IInstallableUnit> query = QueryUtil.createQuery( //
 				"$0.traverse(set(), _, { cache, parent | parent.requirements.unique(cache).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, envIU);
 
 		long sliceTime = 0;
 		long traverseTime = 0;
-		IQueryable slice = null;
+		IQueryable<IInstallableUnit> slice = null;
 		for (int idx = 0; idx < 10; ++idx) {
 			long startTime = System.currentTimeMillis();
 			r = repo.query(query, new NullProgressMonitor());
@@ -343,9 +343,9 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			sliceTime += (System.currentTimeMillis() - startTime);
 		}
 		// Check the size of the last slice to verify that it's the same as the traverse size
-		r = slice.query(new MatchQuery() {
+		r = slice.query(new MatchQuery<IInstallableUnit>() {
 			@Override
-			public boolean isMatch(Object value) {
+			public boolean isMatch(IInstallableUnit value) {
 				return true;
 			}
 		}, new NullProgressMonitor());
@@ -367,7 +367,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		return metadataManager.loadRepository(metadataRepo, new NullProgressMonitor());
 	}
 
-	private IInstallableUnit[] gatherAvailableInstallableUnits(IQueryable queryable) {
+	private IInstallableUnit[] gatherAvailableInstallableUnits(IQueryable<IInstallableUnit> queryable) {
 		ArrayList<IInstallableUnit> list = new ArrayList<>();
 		IQueryResult<IInstallableUnit> matches = queryable.query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();)

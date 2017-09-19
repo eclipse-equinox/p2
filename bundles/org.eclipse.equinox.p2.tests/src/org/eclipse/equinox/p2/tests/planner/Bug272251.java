@@ -49,11 +49,11 @@ public class Bug272251 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.wst.jsdt.feature.patch.feature.group", Version.create("3.0.4.v200904020304-1-8d7w311_15131415")), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.wst.jsdt.feature.patch.feature.group", Version.create("3.0.4.v200904020304-1-8d7w311_15131415")), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
-		IQueryResult expectedIU = repo.query(QueryUtil.createIUQuery("org.eclipse.wst.jsdt.web.ui", Version.create("1.0.105.v200904020304")), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> expectedIU = repo.query(QueryUtil.createIUQuery("org.eclipse.wst.jsdt.web.ui", Version.create("1.0.105.v200904020304")), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(expectedIU));
-		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
+		IInstallableUnit patch = c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {patch});
 		request.setInstallableUnitInclusionRules(patch, ProfileInclusionRules.createStrictInclusionRule(patch));
@@ -61,6 +61,6 @@ public class Bug272251 extends AbstractProvisioningTest {
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 		assertNoOperand(plan, patch);
-		assertNoOperand(plan, (IInstallableUnit) expectedIU.iterator().next());
+		assertNoOperand(plan, expectedIU.iterator().next());
 	}
 }

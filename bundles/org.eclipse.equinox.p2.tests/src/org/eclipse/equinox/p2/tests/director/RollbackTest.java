@@ -110,7 +110,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
 		assertEquals("1.0", IStatus.OK, status.getCode());
 
-		IQueryResult profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
+		IQueryResult<IInstallableUnit> profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
 		assertContains("2.0", profileIUs, a1);
 		assertContains("3.0", profileIUs, b1);
 
