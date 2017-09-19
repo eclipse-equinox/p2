@@ -35,7 +35,7 @@ public class VariableTest2 extends AbstractProvisioningTest {
 
 	//Test that the values returned from the action are properly passed in and not mangled to string
 	public void testNonStringValue() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().getAbsolutePath());
 		IProfile profile = createProfile(this.getName(), properties);
 

@@ -323,7 +323,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	// This tests currently does not download anything. We need another sizing test to ensure sizes are retrieved
 	public void testPerformSizingOSGiFrameworkNoArtifacts() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
 		IProfile profile = createProfile("testPerformSizing", properties);
@@ -362,7 +362,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	//	}
 
 	public void testPerformInstallOSGiFramework() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
 		IProfile profile = createProfile("testPerformInstallOSGiFramework", properties);
@@ -381,7 +381,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	}
 
 	public void testPerformUpdateOSGiFramework() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformUpdateOSGiFramework", properties);
 
@@ -405,7 +405,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformUninstallOSGiFramework() {
 
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
 		IProfile profile = createProfile("testPerformUninstallOSGiFramework", properties);
@@ -418,7 +418,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformRollback() {
 
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformRollback", properties);
 
@@ -458,7 +458,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformMissingAction() {
 
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformMissingAction", properties);
 
@@ -476,7 +476,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformRollbackOnPhaseError() {
 
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformRollbackOnError", properties);
 		NPEPhase phase = new NPEPhase();
@@ -498,7 +498,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformRollbackOnActionError() {
 
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformRollbackOnError", properties);
 		ActionNPEPhase phase = new ActionNPEPhase();
@@ -517,13 +517,13 @@ public class EngineTest extends AbstractProvisioningTest {
 	}
 
 	public void testPerformForcedPhaseWithActionError() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformForceWithActionError", properties);
 		ActionNPEPhase phase = new ActionNPEPhase(true);
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 
-		Iterator ius = getInstallableUnits(profile);
+		Iterator<?> ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -538,7 +538,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	}
 
 	public void testPerformForcedUninstallWithBadUninstallIUActionThrowsException() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformForcedUninstallWithBadUninstallIUActionThrowsException", properties);
 
@@ -576,7 +576,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	}
 
 	public void testPerformForcedUninstallWithBadUninstallIUActionReturnsError() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformForcedUninstallWithBadUninstallIUActionReturnsError", properties);
 

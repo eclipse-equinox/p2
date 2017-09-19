@@ -44,7 +44,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 		assertNotNull("Unable to aquire IMetadataManager service.", manager);
 		IMetadataRepository repository = manager.loadRepository(repositoryLocation, null);
 
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("osgi.os", context.getProperty("osgi.os"));
 		properties.put("osgi.ws", context.getProperty("osgi.ws"));
 		properties.put("osgi.arch", context.getProperty("osgi.arch"));

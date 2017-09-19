@@ -82,7 +82,7 @@ public class Bug306424 extends AbstractProvisioningTest {
 		changeRequest.addExtraRequirements(extraReqs);
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, new NullProgressMonitor());
-		IQueryable result = plan.getRemovals();
+		IQueryable<IInstallableUnit> result = plan.getRemovals();
 		IQueryResult<IInstallableUnit> r = result.query(QueryUtil.ALL_UNITS, getMonitor());
 		assertFalse("1.0", r.isEmpty());
 	}

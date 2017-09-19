@@ -88,7 +88,7 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 				osgiBundleDevPath = new URL(osgiBundle, "bin/");
 			}
 
-			Map frameworkProperties = new HashMap();
+			Map<String, String> frameworkProperties = new HashMap<>();
 			// note that any properties you do not want to be inherited from the hosting Equinox will need
 			// to be nulled out.  Otherwise you will pick them up from the hosting env.
 			frameworkProperties.put("osgi.framework", null);

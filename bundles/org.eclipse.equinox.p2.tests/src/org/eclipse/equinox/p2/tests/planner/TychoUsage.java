@@ -21,7 +21,7 @@ public class TychoUsage extends AbstractProvisioningTest {
 	private void setupTopLevelIU() {
 		IRequirement[] reqPlatform1 = new IRequirement[1];
 		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.emf.sdk.feature.group", new VersionRange("[2.7.2.v20120130-0943, 2.7.2.v20120130-0943]"), null, false, false, true);
-		Properties p = new Properties();
+		Map<String, String> p = new HashMap<>();
 		topLevelIU = createIU("topLevelIU", Version.create("1.0.0"), null, reqPlatform1, new IProvidedCapability[0], p, null, null, true);
 	}
 

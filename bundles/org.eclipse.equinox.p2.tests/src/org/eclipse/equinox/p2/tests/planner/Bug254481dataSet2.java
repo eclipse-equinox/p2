@@ -48,9 +48,9 @@ public class Bug254481dataSet2 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.jdt.feature.patch.feature.group"), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> c = repo.query(QueryUtil.createIUQuery("org.eclipse.jdt.feature.patch.feature.group"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
-		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
+		IInstallableUnit patch = c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {patch});
 		request.setInstallableUnitInclusionRules(patch, ProfileInclusionRules.createOptionalInclusionRule(patch));

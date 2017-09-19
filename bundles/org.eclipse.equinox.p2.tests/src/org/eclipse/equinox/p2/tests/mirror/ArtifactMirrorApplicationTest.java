@@ -87,7 +87,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			System.setOut(stream);
 			System.setErr(stream);
 			MirrorApplication application = new MirrorApplication();
-			Map map = new HashMap();
+			Map<String, String> map = new HashMap<>();
 			map.put("metadataOrArtifacts", "artifacts");
 			application.setInitializationData(null, null, map);
 			application.initializeFromArguments(args);
@@ -755,7 +755,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	public void testExistingArtifactRepoProperties() {
 		//Setup: create the destination
 		String name = "Destination Name";
-		Map properties = null; //default properties
+		Map<String, String> properties = null; //default properties
 		try {
 			//create the repository and get the resulting properties
 			properties = getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();

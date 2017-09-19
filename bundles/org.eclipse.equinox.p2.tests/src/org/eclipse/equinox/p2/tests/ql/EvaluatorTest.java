@@ -160,17 +160,17 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		assertNotNull(artifactManager);
 
 		IArtifactRepository repo = artifactManager.loadRepository(artifactRepo, new NullProgressMonitor());
-		IQueryResult result = repo.query(QueryUtil.createMatchQuery(IArtifactKey.class, "classifier ~= /*/"), new NullProgressMonitor());
+		IQueryResult<IArtifactKey> result = repo.query(QueryUtil.createMatchQuery(IArtifactKey.class, "classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) > 1);
-		Iterator itor = result.iterator();
+		Iterator<IArtifactKey> itor = result.iterator();
 		while (itor.hasNext())
-			assertTrue(itor.next() instanceof IArtifactKey);
+			assertNotNull(itor.next());
 
-		result = repo.descriptorQueryable().query(QueryUtil.createMatchQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new NullProgressMonitor());
-		assertTrue(queryResultSize(result) > 1);
-		itor = result.iterator();
-		while (itor.hasNext())
-			assertTrue(itor.next() instanceof IArtifactDescriptor);
+		IQueryResult<IArtifactDescriptor> result2 = repo.descriptorQueryable().query(QueryUtil.createMatchQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new NullProgressMonitor());
+		assertTrue(queryResultSize(result2) > 1);
+		Iterator<IArtifactDescriptor> itor2 = result2.iterator();
+		while (itor2.hasNext())
+			assertNotNull(itor2.next());
 	}
 
 	public void testClassConstructor() throws Exception {
@@ -271,7 +271,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 	}
 
 	public void testRootVariableSerialization() throws Exception {
-		List items = new ArrayList();
+		List<Object> items = new ArrayList<>();
 
 		items.add(new MyObject("ian bull", "foo", "true"));
 
@@ -300,15 +300,15 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testMatchQueryInjectionInContext() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("select(x | iquery($0, x) || iquery($1, x)).latest()"), new MatchQuery() {
+		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("select(x | iquery($0, x) || iquery($1, x)).latest()"), new MatchQuery<IInstallableUnit>() {
 			@Override
-			public boolean isMatch(Object candidate) {
-				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.category"));
+			public boolean isMatch(IInstallableUnit candidate) {
+				return "true".equals(candidate.getProperty("org.eclipse.equinox.p2.type.category"));
 			}
-		}, new MatchQuery() {
+		}, new MatchQuery<IInstallableUnit>() {
 			@Override
-			public boolean isMatch(Object candidate) {
-				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
+			public boolean isMatch(IInstallableUnit candidate) {
+				return "true".equals(candidate.getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		});
 		IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createQuery(expr), new NullProgressMonitor());

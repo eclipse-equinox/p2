@@ -1,14 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
-
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +14,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -60,7 +59,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IDirector director = createDirector();
 
 		//Install into a profile in which the filter is satisfied
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_ENVIRONMENTS, "FilterKey=true");
 		IProfile satisfied = createProfile("Satisfied." + getName(), properties);
 		ProfileChangeRequest request = new ProfileChangeRequest(satisfied);
@@ -144,7 +143,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		assertTrue("1.0", !result.isOK());
 
 		//try again with the filter satisfied
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=blort");
 		IProfile profile2 = createProfile("TestProfile2." + getName(), properties);
 		request = new ProfileChangeRequest(profile2);
@@ -171,7 +170,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		assertTrue("1.0", !result.isOK());
 
 		//try again with the filter satisfied
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=blort");
 		IProfile profile2 = createProfile("TestProfile2." + getName(), properties);
 		request = new ProfileChangeRequest(profile2);

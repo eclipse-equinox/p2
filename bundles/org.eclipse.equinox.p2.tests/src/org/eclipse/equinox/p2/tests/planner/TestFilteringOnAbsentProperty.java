@@ -75,7 +75,7 @@ public class TestFilteringOnAbsentProperty extends AbstractProvisioningTest {
 	}
 
 	public void testWithBundledProperty() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("osgi.os", "macosx");
 		properties.put("macosx-bundled", "true");
 		IProfile profile = createProfile("TestProfile." + getName(), properties);
@@ -91,7 +91,7 @@ public class TestFilteringOnAbsentProperty extends AbstractProvisioningTest {
 	}
 
 	public void testWithoutBundledProperty() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("osgi.os", "macosx");
 		IProfile profile = createProfile("TestProfile." + getName(), properties);
 		IPlanner planner = createPlanner();

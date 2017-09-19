@@ -66,7 +66,7 @@ public class AggregateQueryTest extends TestCase {
 		};
 
 		IQuery compoundQuery = QueryUtil.createCompoundQuery(getLatest, getAllBut3, true);
-		IQueryResult result = compoundQuery.perform(get123().iterator());
+		IQueryResult<String> result = compoundQuery.perform(get123().iterator());
 		assertEquals(0, AbstractProvisioningTest.queryResultSize(result));
 
 		compoundQuery = QueryUtil.createCompoundQuery(getAllBut3, getLatest, true);
@@ -245,8 +245,8 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		IQuery compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, false);
-		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
+		IQuery<String> compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, false);
+		IQueryResult<String> result = compoundQuery.perform(getABCDE().iterator());
 		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 5);
 		AbstractProvisioningTest.assertContains("1.1", result, "A");
 		AbstractProvisioningTest.assertContains("1.2", result, "B");

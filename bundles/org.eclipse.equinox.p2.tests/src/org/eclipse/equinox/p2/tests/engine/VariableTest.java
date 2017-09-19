@@ -35,7 +35,7 @@ public class VariableTest extends AbstractProvisioningTest {
 
 	public void testVariable() {
 		Action.reinitForNextTest();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().getAbsolutePath());
 		IProfile profile = createProfile("testVariable1", properties);
 
@@ -52,7 +52,7 @@ public class VariableTest extends AbstractProvisioningTest {
 	public void testUndo() {
 		Action.reinitForNextTest();
 		Action.failMode = true;
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().getAbsolutePath());
 		IProfile profile = createProfile("testVariable2", properties);
 

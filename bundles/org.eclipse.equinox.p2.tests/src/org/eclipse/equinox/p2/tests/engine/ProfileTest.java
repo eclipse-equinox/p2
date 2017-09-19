@@ -326,9 +326,9 @@ public class ProfileTest extends AbstractProvisioningTest {
 		}
 
 		public class ProfilesProfileHandler extends ProfileHandler {
-			private final Map profileHandlers;
+			private final Map<String, ProfileHandler> profileHandlers;
 
-			public ProfilesProfileHandler(ProfilesHandler profilesHandler, Attributes attributes, Map profileHandlers) {
+			public ProfilesProfileHandler(ProfilesHandler profilesHandler, Attributes attributes, Map<String, ProfileHandler> profileHandlers) {
 				this.profileHandlers = profileHandlers;
 				this.parentHandler = profilesHandler;
 				xmlReader.setContentHandler(this);
@@ -350,7 +350,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 		@Override
 		protected Object getRootObject() {
-			Map result = new HashMap();
+			Map<String, IProfile> result = new HashMap<>();
 			for (int i = 0; i < profiles.length; i++) {
 				result.put(profiles[i].getProfileId(), profiles[i]);
 			}

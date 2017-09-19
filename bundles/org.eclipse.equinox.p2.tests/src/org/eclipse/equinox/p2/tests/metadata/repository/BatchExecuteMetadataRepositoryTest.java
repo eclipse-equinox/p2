@@ -54,7 +54,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -80,7 +80,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -114,7 +114,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -139,7 +139,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -165,7 +165,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			final URI contentXML = new URI(repositoryFile.toURI().toString() + "/content.xml");
 			IStatus status = repo.executeBatch(monitor -> {
@@ -192,7 +192,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			IStatus status = repo.executeBatch(monitor -> {
 				// empty
@@ -330,7 +330,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			repo.executeBatch(monitor -> {
 				throw new RuntimeException();
@@ -353,7 +353,7 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		try {
 			repositoryFile = getTempFolder();
 			repositoryURI = repositoryFile.toURI();
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			final LocalMetadataRepository repo = (LocalMetadataRepository) getMetadataRepositoryManager().createRepository(repositoryURI, "My Repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			repo.executeBatch(monitor -> {
 				Field field;

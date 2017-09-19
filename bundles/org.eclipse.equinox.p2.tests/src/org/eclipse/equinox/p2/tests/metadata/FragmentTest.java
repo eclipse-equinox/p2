@@ -1,19 +1,18 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.util.*;
 import junit.framework.AssertionFailedError;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -177,7 +176,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit createIUWithTouchpointData() {
-		ITouchpointData data = MetadataFactory.createTouchpointData(new HashMap());
+		ITouchpointData data = MetadataFactory.createTouchpointData(new HashMap<>());
 		return createEclipseIU("iu.1", DEFAULT_VERSION, NO_REQUIRES, data);
 	}
 

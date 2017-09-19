@@ -195,7 +195,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 			context.setMetadataRepositories(new URI[] {repoLoc});
 			IEngine engine = getEngine();
 			// restrict the installation to 'linux & gtk & x86' to match the test repo
-			Map props = new HashMap<String, String>();
+			Map<String, String> props = new HashMap<>();
 			props.put(IProfile.PROP_ENVIRONMENTS, "osgi.ws=gtk,osgi.arch=x86,osgi.os=linux");
 			props.put(IProfile.PROP_INSTALL_FOLDER, testFolder.getAbsolutePath());
 			IProfile profile = createProfile(profileId, props);

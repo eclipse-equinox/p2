@@ -43,8 +43,16 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	/**
 	 * Returns a map containing valid arguments for this action.
 	 */
-	private Map getValidArguments() {
-		Map args = new HashMap();
+	private Map<String, Object> getValidArguments() {
+		Map<String, Object> args = new HashMap<>();
+		args.put("location", TEST_LOCATION);
+		args.put("type", Integer.toString(IRepository.TYPE_ARTIFACT));
+		args.put("enabled", "true");
+		return args;
+	}
+
+	private Map<String, String> getValidStringArguments() {
+		Map<String, String> args = new HashMap<>();
 		args.put("location", TEST_LOCATION);
 		args.put("type", Integer.toString(IRepository.TYPE_ARTIFACT));
 		args.put("enabled", "true");
@@ -66,7 +74,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testInvalidEnablement() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		args.put("enabled", "bogus enablement");
 		IStatus result = action.execute(args);
@@ -75,12 +83,12 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		assertTrue("1.1", !getArtifactRepositoryManager().isEnabled(locationURI));
 	}
 
-	private void addAgent(Map args) {
+	private void addAgent(Map<String, Object> args) {
 		args.put(ActionConstants.PARM_AGENT, getAgent());
 	}
 
 	public void testInvalidLocation() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		args.put("location", "bogus location");
 		IStatus result = action.execute(args);
@@ -88,7 +96,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testInvalidType() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		args.put("type", "bogus type");
 		IStatus result = action.execute(args);
@@ -97,7 +105,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testMissingEnablement() {
 		//note enablement is optional, defaults to true
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		args.remove("enabled");
 		IStatus result = action.execute(args);
@@ -105,7 +113,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testMissingType() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		args.remove("type");
 		IStatus result = action.execute(args);
@@ -118,7 +126,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testUndo() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
@@ -128,7 +136,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testMultipleActionAdd() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
@@ -150,7 +158,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 			// Should not occur
 		}
 
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
@@ -168,7 +176,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		String id = "AddRepositoryActionTest.testFullInstall";
 		Version version = Version.createOSGi(1, 0, 0);
 		Map<String, Object> instructions = new HashMap<>();
-		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
+		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidStringArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
 		IInstallableUnit iu = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version), null);
 		IProfile profile = createProfile(id);
@@ -213,7 +221,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		//define new IU
 		version = Version.createOSGi(1, 1, 0);
 		Map<String, Object> instructions = new HashMap<>();
-		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
+		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidStringArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
 		IInstallableUnit newIU = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version), null);
 

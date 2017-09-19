@@ -32,7 +32,7 @@ public class AllServerTests extends TestCase {
 	public static final String PROP_TESTSERVER_PORT = "org.osgi.service.http.port";
 
 	static UIServices hookedAuthDialog;
-	private static ServiceRegistration certificateUIRegistration;
+	private static ServiceRegistration<UIServices> certificateUIRegistration;
 	private static int setUpCounter = 0;
 	private static ServiceReference<PackageAdmin> packageAdminRef;
 
@@ -116,10 +116,10 @@ public class AllServerTests extends TestCase {
 			throw new IllegalStateException("Unable to start bundle " + BUNDLE_TESTSERVER);
 
 		// We must ensure that our IServiceUI service wins because the SDK registers one declaratively
-		Hashtable properties = new Hashtable(1);
+		Hashtable<String, Integer> properties = new Hashtable<>(1);
 		properties.put(org.osgi.framework.Constants.SERVICE_RANKING, Integer.valueOf(Integer.MAX_VALUE));
 
-		certificateUIRegistration = context.registerService(UIServices.class.getName(), new DelegatingAuthService(), properties);
+		certificateUIRegistration = context.registerService(UIServices.class, new DelegatingAuthService(), properties);
 		setUpCounter = 1;
 	}
 

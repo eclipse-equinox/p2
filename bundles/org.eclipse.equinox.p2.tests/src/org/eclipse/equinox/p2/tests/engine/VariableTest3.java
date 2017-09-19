@@ -38,7 +38,7 @@ public class VariableTest3 extends AbstractProvisioningTest {
 	//In the second invocation of the action no value is returned (we are returning the special value, no value)
 	//In the third invocation we verify that lastResult is empty
 	public void testLastResultIsReinitialized() {
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().getAbsolutePath());
 		IProfile profile = createProfile(this.getName(), properties);
 

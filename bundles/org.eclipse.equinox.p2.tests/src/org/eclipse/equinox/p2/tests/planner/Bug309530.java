@@ -44,10 +44,6 @@ public class Bug309530 extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	/*
-	 * 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
-	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -87,7 +83,7 @@ public class Bug309530 extends AbstractProvisioningTest {
 
 		for (int i = 0; i < 5; i++) {
 			IProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, new NullProgressMonitor());
-			IQueryable result = plan.getRemovals();
+			IQueryable<IInstallableUnit> result = plan.getRemovals();
 			IQueryResult<IInstallableUnit> r = result.query(QueryUtil.ALL_UNITS, getMonitor());
 			assertFalse("1.0." + i, r.isEmpty());
 			assertEquals("1.1." + i, origsize, changeRequest.getInstallableUnitProfilePropertiesToAdd().size());

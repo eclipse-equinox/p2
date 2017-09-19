@@ -1,16 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2013 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2017 Red Hat, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     Red Hat, Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.operations.RequestFlexer;
 import org.eclipse.equinox.p2.engine.*;
@@ -47,16 +48,16 @@ public class TestRequestFlexerProduct2 extends AbstractProvisioningTest {
 	private void setupSDK1() {
 		IRequirement[] reqPlatform1 = new IRequirement[1];
 		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "platform", new VersionRange("[1.0.0,1.0.0]"), null, false, false, true);
-		Properties p = new Properties();
-		p.setProperty(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
+		Map<String, String> p = new HashMap<>();
+		p.put(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
 		sdk1 = createIU("SDK", Version.create("1.0.0"), null, reqPlatform1, new IProvidedCapability[0], p, null, null, true);
 	}
 
 	private void setupSDK2() {
 		IRequirement[] reqPlatform1 = new IRequirement[1];
 		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "platform", new VersionRange("[2.0.0,2.0.0]"), null, false, false, true);
-		Properties p = new Properties();
-		p.setProperty(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
+		Map<String, String> p = new HashMap<>();
+		p.put(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
 		IUpdateDescriptor update = MetadataFactory.createUpdateDescriptor("SDK", new VersionRange("[1.0.0,2.0.0)"), 0, "description");
 		sdk2 = createIU("SDK", Version.create("2.0.0"), null, reqPlatform1, new IProvidedCapability[0], p, null, null, true, update, null);
 	}

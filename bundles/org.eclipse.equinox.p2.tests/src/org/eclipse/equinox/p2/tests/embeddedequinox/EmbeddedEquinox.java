@@ -23,13 +23,13 @@ import org.osgi.framework.BundleContext;
  * from the hosting framework.  Any more access could result in ClassVerifier errors.
  */
 public class EmbeddedEquinox {
-	private final Map frameworkProperties;
+	private final Map<String, String> frameworkProperties;
 	private final String[] frameworkArgs;
 	private Class<?> eclipseStarterClazz;
 	private BundleContext context;
 	private URL[] frameworkClassPath;
 
-	public EmbeddedEquinox(Map frameworkProperties, String[] frameworkArgs, URL[] frameworkClassPath) {
+	public EmbeddedEquinox(Map<String, String> frameworkProperties, String[] frameworkArgs, URL[] frameworkClassPath) {
 		this.frameworkProperties = frameworkProperties;
 		this.frameworkArgs = frameworkArgs;
 		this.frameworkClassPath = frameworkClassPath;

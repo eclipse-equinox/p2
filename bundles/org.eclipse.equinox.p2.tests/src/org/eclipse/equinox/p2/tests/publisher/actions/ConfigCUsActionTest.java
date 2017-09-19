@@ -27,7 +27,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.*;
 
-@SuppressWarnings({"unchecked"})
 public class ConfigCUsActionTest extends ActionTest {
 	private static File configLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/level2/config.ini"); //$NON-NLS-1$
 	private static File executableLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/run.exe"); //$NON-NLS-1$
@@ -51,7 +50,7 @@ public class ConfigCUsActionTest extends ActionTest {
 	}
 
 	private void verifyAction() {
-		ArrayList IUs = new ArrayList(publisherResult.getIUs(null, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> IUs = new ArrayList<>(publisherResult.getIUs(null, IPublisherResult.ROOT));
 		assertTrue(IUs.size() == 1);
 		InstallableUnit iu = (InstallableUnit) IUs.get(0);
 		assertTrue(iu.getId().equalsIgnoreCase(flavor + id + ".configuration")); //$NON-NLS-1$
@@ -74,7 +73,7 @@ public class ConfigCUsActionTest extends ActionTest {
 	}
 
 	private void verifyFragment(String cuType) {
-		ArrayList IUs = new ArrayList(publisherResult.getIUs(null, IPublisherResult.NON_ROOT));
+		ArrayList<IInstallableUnit> IUs = new ArrayList<>(publisherResult.getIUs(null, IPublisherResult.NON_ROOT));
 		assertTrue(IUs.size() == 2);
 		for (int i = 0; i < IUs.size(); i++) {
 			InstallableUnit iu = (InstallableUnit) IUs.get(i);
@@ -127,7 +126,7 @@ public class ConfigCUsActionTest extends ActionTest {
 		//configure IConfigAdvice
 		ConfigData configData = loader.getConfigData();
 		ConfigAdvice configAdvice = new ConfigAdvice(configData, configSpec);
-		ArrayList configList = new ArrayList();
+		ArrayList<IConfigAdvice> configList = new ArrayList<>();
 		configList.add(configAdvice);
 		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IConfigAdvice.class))).andReturn(configList).anyTimes();
 
@@ -135,7 +134,7 @@ public class ConfigCUsActionTest extends ActionTest {
 		LauncherData launcherData = loader.getLauncherData();
 		LaunchingAdvice launchingAdvice = new LaunchingAdvice(launcherData, configSpec);
 
-		ArrayList launchingList = new ArrayList();
+		ArrayList<IExecutableAdvice> launchingList = new ArrayList<>();
 		launchingList.add(launchingAdvice);
 
 		try {

@@ -94,7 +94,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return result;
 	}
 
-	protected Map getFileMap(Map map, File[] files, Path root) {
+	protected Map<String, Object[]> getFileMap(Map<String, Object[]> map, File[] files, Path root) {
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory())
 				map = getFileMap(map, files[i].listFiles(), root);

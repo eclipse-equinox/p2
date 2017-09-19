@@ -24,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
-@SuppressWarnings({"unchecked"})
 public class AccumulateConfigDataActionTest extends ActionTest {
 
 	private static String EXECUTABLE_NAME = "run.exe"; //$NON-NLS-1$
@@ -100,7 +99,7 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 	protected void insertPublisherInfoBehavior() {
 		ConfigData configData = new ConfigData(fwName, fwVersion, launcherName, launcherVersion);
 		ConfigAdvice configAdvice = new ConfigAdvice(configData, configSpec);
-		ArrayList configList = new ArrayList();
+		ArrayList<ConfigAdvice> configList = new ArrayList<>();
 		configList.add(configAdvice);
 
 		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(ConfigAdvice.class), EasyMock.capture(configAdviceCapture)));

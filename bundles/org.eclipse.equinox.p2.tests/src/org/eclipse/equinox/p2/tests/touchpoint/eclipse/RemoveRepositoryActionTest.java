@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -30,8 +30,8 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 	/**
 	 * Returns a map containing valid arguments for this action.
 	 */
-	private Map getValidArguments() {
-		Map args = new HashMap();
+	private Map<String, Object> getValidArguments() {
+		Map<String, Object> args = new HashMap<>();
 		args.put(ActionConstants.PARM_AGENT, getAgent());
 		args.put("location", TEST_LOCATION);
 		args.put("type", Integer.toString(IRepository.TYPE_ARTIFACT));
@@ -54,7 +54,7 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testInvalidEnablement() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		args.put("enabled", "bogus enablement");
 		IStatus result = action.execute(args);
 		//enablement is not relevant for remove repository action
@@ -63,7 +63,7 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testInvalidLocation() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		args.put("location", "bogus location");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", !result.isOK());
@@ -71,7 +71,7 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testInvalidType() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		args.put("type", "bogus type");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", !result.isOK());
@@ -85,7 +85,7 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testRemoveMetadataRepository() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		args.put("type", Integer.toString(IRepository.TYPE_METADATA));
 		getMetadataRepositoryManager().addRepository(locationURI);
 		IStatus result = action.execute(args);
@@ -94,7 +94,7 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testUndo() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
 		assertTrue("1.1", !getArtifactRepositoryManager().isEnabled(locationURI));
@@ -104,7 +104,7 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testUndoInvalidArgument() {
-		Map args = getValidArguments();
+		Map<String, Object> args = getValidArguments();
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
 		assertTrue("1.1", !getArtifactRepositoryManager().isEnabled(locationURI));

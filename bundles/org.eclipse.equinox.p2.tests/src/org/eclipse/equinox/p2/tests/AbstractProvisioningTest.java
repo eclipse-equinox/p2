@@ -67,11 +67,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected static final Version DEFAULT_VERSION = Version.createOSGi(1, 0, 0);
 	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.createOSGi(1, 0, 0));
 
-	protected static final Map NO_PROPERTIES = Collections.EMPTY_MAP;
+	protected static final Map<String, String> NO_PROPERTIES = Collections.emptyMap();
 	protected static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
 	protected static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
 
-	protected static final ITouchpointData NO_TP_DATA = MetadataFactory.createTouchpointData(new HashMap());
+	protected static final ITouchpointData NO_TP_DATA = MetadataFactory.createTouchpointData(new HashMap<>());
 
 	//flag used to disable currently failing (invalid) tests. This should always be set to true
 	protected boolean DISABLED = true;
@@ -396,7 +396,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, IRequirement[] required, Map properties, boolean singleton) {
+	public static IInstallableUnit createIU(String name, Version version, IRequirement[] required, Map<String, String> properties, boolean singleton) {
 		return createIU(name, version, null, required, NO_PROVIDES, properties, ITouchpointType.NONE, NO_TP_DATA, singleton);
 	}
 
@@ -416,7 +416,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, IMatchExpression<IInstallableUnit> filter, IRequirement[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton) {
+	public static IInstallableUnit createIU(String name, Version version, IMatchExpression<IInstallableUnit> filter, IRequirement[] required, IProvidedCapability[] additionalProvides, Map<String, String> properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton) {
 		return createIU(name, version, filter, required, additionalProvides, properties, tpType, tpData, singleton, null, null);
 	}
 
@@ -424,7 +424,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return createIUPatch(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, singleton, null, changes, scope, lifeCycle, NO_REQUIRES);
 	}
 
-	public static IInstallableUnitPatch createIUPatch(String name, Version version, IMatchExpression<IInstallableUnit> filter, IRequirement[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequirement[][] scope, IRequirement lifeCycle, IRequirement[] metaRequirements) {
+	public static IInstallableUnitPatch createIUPatch(String name, Version version, IMatchExpression<IInstallableUnit> filter, IRequirement[] required, IProvidedCapability[] additionalProvides, Map<String, String> properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequirement[][] scope, IRequirement lifeCycle, IRequirement[] metaRequirements) {
 		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		iu.setId(name);
 		iu.setVersion(version);
@@ -436,7 +436,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 		for (Iterator<String> iter = properties.keySet().iterator(); iter.hasNext();) {
 			String nextKey = iter.next();
-			String nextValue = (String) properties.get(nextKey);
+			String nextValue = properties.get(nextKey);
 			iu.setProperty(nextKey, nextValue);
 		}
 		iu.setCapabilities(provides);
@@ -453,7 +453,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
-	public static IInstallableUnit createIU(String name, Version version, IMatchExpression<IInstallableUnit> filter, IRequirement[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirement[] metaRequirements) {
+	public static IInstallableUnit createIU(String name, Version version, IMatchExpression<IInstallableUnit> filter, IRequirement[] required, IProvidedCapability[] additionalProvides, Map<String, String> properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirement[] metaRequirements) {
 		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(version);
@@ -465,7 +465,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 		for (Iterator<String> iter = properties.keySet().iterator(); iter.hasNext();) {
 			String nextKey = iter.next();
-			String nextValue = (String) properties.get(nextKey);
+			String nextValue = properties.get(nextKey);
 			iu.setProperty(nextKey, nextValue);
 		}
 		iu.setCapabilities(provides);
@@ -1298,7 +1298,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static void assertContains(String message, IQueryable source, IQueryable destination) {
-		IQueryResult sourceCollector = source.query(QueryUtil.createIUAnyQuery(), null);
+		IQueryResult<IInstallableUnit> sourceCollector = source.query(QueryUtil.createIUAnyQuery(), null);
 		Iterator<IInstallableUnit> it = sourceCollector.iterator();
 
 		while (it.hasNext()) {
