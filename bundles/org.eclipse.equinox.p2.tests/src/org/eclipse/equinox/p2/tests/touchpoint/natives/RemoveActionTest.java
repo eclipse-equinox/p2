@@ -50,9 +50,9 @@ public class RemoveActionTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		IProfile profile = createProfile("testExecuteUndo", profileProperties);
 
 		parameters = new HashMap<>();

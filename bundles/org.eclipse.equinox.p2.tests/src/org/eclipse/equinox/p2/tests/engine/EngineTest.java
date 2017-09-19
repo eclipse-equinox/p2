@@ -523,7 +523,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		ActionNPEPhase phase = new ActionNPEPhase(true);
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 
-		Iterator<IInstallableUnit> ius = getInstallableUnits(profile);
+		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);

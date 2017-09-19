@@ -34,7 +34,7 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 	}
 
 	private Map<String, BundleInfo> getBootstrapBundles() {
-		Map<String, BundleInfo> result = new HashMap();
+		Map<String, BundleInfo> result = new HashMap<>();
 
 		// TODO deal with fragments
 		//	list.add("org.eclipse.core.net.win32.x86");
@@ -91,7 +91,7 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 		} catch (IOException e) {
 			fail("Exception occurred loading bundles.info file from: " + getBundlesInfo().getAbsolutePath(), e);
 		}
-		Map<String, BundleInfo> map = new HashMap();
+		Map<String, BundleInfo> map = new HashMap<>();
 		for (int i = 0; infos != null && i < infos.length; i++) {
 			map.put(infos[i].getSymbolicName(), infos[i]);
 			// always add the launcher bundles. do it here because we don't know what os/ws config we will have
@@ -108,9 +108,6 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest#initialize()
-	 */
 	@Override
 	public void initialize() throws Exception {
 

@@ -43,8 +43,8 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
-		Properties profileProperties = new Properties();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
+		Map<String, String> profileProperties = new HashMap<>();
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
 		IProfile profile = createProfile("test", profileProperties);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);
@@ -66,10 +66,10 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndoWithArtifact() throws Exception {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
@@ -119,10 +119,10 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndoWithArtifactByProgramArgValue() throws Exception {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
@@ -178,10 +178,10 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndoWithArtifactLocation() throws Exception {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
@@ -231,10 +231,10 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndoWithArtifactLocationByProgramArgValue() throws Exception {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);

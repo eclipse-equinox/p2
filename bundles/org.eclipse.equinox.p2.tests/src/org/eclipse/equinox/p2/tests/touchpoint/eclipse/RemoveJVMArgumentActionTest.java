@@ -31,8 +31,8 @@ public class RemoveJVMArgumentActionTest extends AbstractProvisioningTest {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
-		Properties profileProperties = new Properties();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
+		Map<String, String> profileProperties = new HashMap<>();
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
 		IProfile profile = createProfile("test", profileProperties);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);

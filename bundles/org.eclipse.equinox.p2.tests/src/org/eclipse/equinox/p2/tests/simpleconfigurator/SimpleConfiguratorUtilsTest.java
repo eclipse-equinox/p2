@@ -158,7 +158,7 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		File baseFile = getTempFolder();
 		URI baseURI = baseFile.toURI();
 		try {
-			List infos = SimpleConfiguratorUtils.readConfiguration(data.toURL(), baseURI);
+			List<BundleInfo> infos = SimpleConfiguratorUtils.readConfiguration(data.toURL(), baseURI);
 			assertEquals("1.1", 2, infos.size());
 
 			BundleInfo a = new BundleInfo("a", "1.0.0", new URI("plugins/a_1.0.0.jar"), 4, false);

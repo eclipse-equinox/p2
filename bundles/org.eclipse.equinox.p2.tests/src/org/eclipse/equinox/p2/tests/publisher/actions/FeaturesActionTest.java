@@ -34,7 +34,6 @@ import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings({"unchecked"})
 public class FeaturesActionTest extends ActionTest {
 
 	public static IArtifactKey FOO_KEY = ArtifactKey.parse("org.eclipse.update.feature,foo,1.0.0"); //$NON-NLS-1$
@@ -286,7 +285,7 @@ public class FeaturesActionTest extends ActionTest {
 
 	private void verifyArtifacts() throws IOException {
 		ZipInputStream actualStream = artifactRepository.getZipInputStream(FOO_KEY);
-		Map expected = getFileMap(new HashMap<>(), new File[] {new File(root, FOO)}, new Path(new File(root, FOO).getAbsolutePath()));
+		Map<String, Object[]> expected = getFileMap(new HashMap<>(), new File[] {new File(root, FOO)}, new Path(new File(root, FOO).getAbsolutePath()));
 		TestData.assertContains(expected, actualStream, true);
 
 		expected = getFileMap(new HashMap<>(), new File[] {new File(root, BAR)}, new Path(new File(root, BAR).getAbsolutePath()));
@@ -299,7 +298,7 @@ public class FeaturesActionTest extends ActionTest {
 		//setup metadataRepository with barIU
 		metadataRepository = new TestMetadataRepository(getAgent(), new IInstallableUnit[] {mockIU(BAR, null)});
 
-		ArrayList adviceCollection = fillAdvice(new ArrayList<>());
+		ArrayList<IPropertyAdvice> adviceCollection = fillAdvice(new ArrayList<>());
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.jar", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar", barVersion, IFeatureRootAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
@@ -326,7 +325,7 @@ public class FeaturesActionTest extends ActionTest {
 		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, ITouchpointAdvice.class)).andReturn(new CaptureList<>(tpAdvice)).anyTimes();
 	}
 
-	private ArrayList fillAdvice(ArrayList adviceCollection) {
+	private ArrayList<IPropertyAdvice> fillAdvice(ArrayList<IPropertyAdvice> adviceCollection) {
 		Map<String, String> prop = new HashMap<>();
 		prop.put("key1", "value1"); //$NON-NLS-1$//$NON-NLS-2$
 		prop.put("key2", "value2"); //$NON-NLS-1$//$NON-NLS-2$

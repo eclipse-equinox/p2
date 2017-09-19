@@ -10,7 +10,8 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
@@ -36,8 +37,8 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 			fail();
 		}
 		createProfile("agent");
-		Properties p = new Properties();
-		p.setProperty("org.eclipse.equinox.p2.planner.resolveMetaRequirements", "true");
+		Map<String, String> p = new HashMap<>();
+		p.put("org.eclipse.equinox.p2.planner.resolveMetaRequirements", "true");
 		createProfile("installation", p);
 	}
 

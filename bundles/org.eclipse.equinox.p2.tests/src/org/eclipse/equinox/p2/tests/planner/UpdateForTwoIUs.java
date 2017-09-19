@@ -36,7 +36,7 @@ public class UpdateForTwoIUs extends AbstractProvisioningTest {
 
 		String orExpression = "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && (pc.name == 'B' || pc.name == 'C'))";
 		IExpression expr = ExpressionUtil.parse(orExpression);
-		IMatchExpression matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
+		IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
 
 		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<>();
 		updateExpression.add(matchExpression);

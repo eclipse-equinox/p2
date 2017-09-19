@@ -41,12 +41,12 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 
 	public static class TestAction extends ProvisioningAction {
 		@Override
-		public IStatus execute(Map parameters) {
+		public IStatus execute(Map<String, Object> parameters) {
 			return null;
 		}
 
 		@Override
-		public IStatus undo(Map parameters) {
+		public IStatus undo(Map<String, Object> parameters) {
 			return null;
 		}
 	}

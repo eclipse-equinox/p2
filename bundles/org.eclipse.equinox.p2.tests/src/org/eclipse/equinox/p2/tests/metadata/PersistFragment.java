@@ -44,7 +44,7 @@ public class PersistFragment extends AbstractProvisioningTest {
 	public void testPersistFragmentIn36Repo() throws ProvisionException {
 		String orExpression = "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && (pc.name == 'org.eclipse.mylyn34' || pc.name == 'org.eclipse.mylyn35'))";
 		IExpression expr = ExpressionUtil.parse(orExpression);
-		IMatchExpression matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
+		IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
 		IRequirement orRequirement = MetadataFactory.createRequirement(matchExpression, null, 0, 1, true);
 
 		IInstallableUnitFragment fragment = createIUFragment(createEclipseIU("A"), "MyHost", Version.createOSGi(1, 0, 0), new IRequirement[] {orRequirement}, null, null);

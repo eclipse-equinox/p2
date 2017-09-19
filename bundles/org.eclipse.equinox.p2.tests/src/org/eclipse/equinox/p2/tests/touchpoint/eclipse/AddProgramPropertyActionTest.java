@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
@@ -35,8 +36,8 @@ public class AddProgramPropertyActionTest extends AbstractProvisioningTest {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
-		Properties profileProperties = new Properties();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
+		Map<String, String> profileProperties = new HashMap<>();
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
 		IProfile profile = createProfile("test", profileProperties);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);

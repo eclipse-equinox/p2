@@ -23,7 +23,6 @@ import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxLauncherCUAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings({"unchecked"})
 public class EquinoxLauncherCUActionTest extends ActionTest {
 
 	private static String a_ID = "iua.source"; //$NON-NLS-1$
@@ -56,10 +55,10 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 	}
 
 	private void verifyResults() {
-		ArrayList ius = new ArrayList(publisherResult.getIUs(null, null));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(null, null));
 		IInstallableUnit iu;
 		for (int i = 0; i < ius.size(); i++) {
-			iu = (IInstallableUnit) ius.get(i);
+			iu = ius.get(i);
 			if (iu.getId().equals(flavorArg + EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
 				assertTrue(iu instanceof InstallableUnitFragment);
 				//verify required capability
@@ -72,7 +71,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(cap.size() == 2);
 
-				Map prop = iu.getProperties();
+				Map<String, String> prop = iu.getProperties();
 				assertTrue(prop.get("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$ //$NON-NLS-2$
 				return;
 			}
@@ -83,7 +82,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 	@Override
 	public void setupPublisherResult() {
 		publisherResult = new PublisherResult();
-		ArrayList iuList = new ArrayList();
+		ArrayList<IInstallableUnit> iuList = new ArrayList<>();
 		iuList.add(mockIU(a_ID, null, true));
 		iuList.add(mockIU(b_ID, null, true));
 		iuList.add(mockIU(c_ID, null, false));
@@ -98,7 +97,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 		versionAdvice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$
 		versionAdvice.setVersion("org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$
 
-		ArrayList versionList = new ArrayList();
+		ArrayList<IVersionAdvice> versionList = new ArrayList<>();
 		versionList.add(versionAdvice);
 		expect(publisherInfo.getAdvice(null, true, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, null, IVersionAdvice.class)).andReturn(versionList);
 		expect(publisherInfo.getAdvice(configSpec, true, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + "." + configSpec, null, IVersionAdvice.class)).andReturn(versionList); //$NON-NLS-1$

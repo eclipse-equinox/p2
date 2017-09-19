@@ -49,6 +49,7 @@ public class MetadataRepositoryPerformanceTest extends ProvisioningPerformanceTe
 	public void testQueryLocalRepository() {
 		final int IU_COUNT = 3000;
 		new PerformanceTestRunner() {
+			@SuppressWarnings("unchecked")
 			IQuery<IInstallableUnit>[] queries = new IQuery[IU_COUNT];
 
 			@Override

@@ -88,7 +88,7 @@ public class TestServerController {
 		if (!startTransient(pkgAdmin, BUNDLE_TESTSERVER))
 			throw new IllegalStateException("Unable to start bundle " + BUNDLE_TESTSERVER);
 		// We must ensure that our IServiceUI service wins because the SDK registers one declaratively
-		Hashtable properties = new Hashtable(1);
+		Hashtable<String, Integer> properties = new Hashtable<>(1);
 		properties.put(org.osgi.framework.Constants.SERVICE_RANKING, Integer.valueOf(Integer.MAX_VALUE));
 
 		certificateUIRegistration = context.registerService(UIServices.class.getName(), new DelegatingAuthService(), properties);

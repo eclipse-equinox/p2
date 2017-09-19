@@ -81,10 +81,10 @@ public class ProductFileTest extends TestCase {
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getBundles(boolean)}.
 	 */
 	public void testGetBundles() {
-		List bundles = productFile.getBundles(false);
+		List<IVersionedId> bundles = productFile.getBundles(false);
 		assertEquals("1.0", 1, bundles.size());
-		assertEquals("1.1", "org.eclipse.core.runtime", ((IVersionedId) bundles.get(0)).getId());
-		assertEquals("1.2", Version.createOSGi(1, 0, 4), ((IVersionedId) bundles.get(0)).getVersion());
+		assertEquals("1.1", "org.eclipse.core.runtime", bundles.get(0).getId());
+		assertEquals("1.2", Version.createOSGi(1, 0, 4), bundles.get(0).getVersion());
 		bundles = productFile.getBundles(true);
 		assertEquals("1.3", 2, bundles.size());
 	}
@@ -93,8 +93,8 @@ public class ProductFileTest extends TestCase {
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getBundleInfos()}.
 	 */
 	public void testGetBundleInfos() {
-		List bundleInfos = productFile.getBundleInfos();
-		BundleInfo info = (BundleInfo) bundleInfos.iterator().next();
+		List<BundleInfo> bundleInfos = productFile.getBundleInfos();
+		BundleInfo info = bundleInfos.iterator().next();
 		assertEquals("1.0", 1, bundleInfos.size());
 		assertEquals("1.1", "org.eclipse.core.runtime", info.getSymbolicName());
 		assertEquals("1.2", 2, info.getStartLevel());
@@ -105,19 +105,19 @@ public class ProductFileTest extends TestCase {
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getFragments()}.
 	 */
 	public void testGetFragments() {
-		List fragments = productFile.getFragments();
+		List<IVersionedId> fragments = productFile.getFragments();
 		assertEquals("1.0", 1, fragments.size());
-		assertEquals("1.1", "org.eclipse.swt.win32.win32.x86", ((IVersionedId) fragments.get(0)).getId());
+		assertEquals("1.1", "org.eclipse.swt.win32.win32.x86", fragments.get(0).getId());
 	}
 
 	/**
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getFeatures()}.
 	 */
 	public void testGetFeatures() {
-		List features = productFile.getFeatures();
+		List<IVersionedId> features = productFile.getFeatures();
 		assertEquals("1.0", 1, features.size());
-		assertEquals("1.1", "org.eclipse.rcp", ((IVersionedId) features.get(0)).getId());
-		assertEquals("1.2", Version.create("3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t"), ((IVersionedId) features.get(0)).getVersion());
+		assertEquals("1.1", "org.eclipse.rcp", features.get(0).getId());
+		assertEquals("1.2", Version.create("3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t"), features.get(0).getVersion());
 	}
 
 	public void testGetRootFeatures() {

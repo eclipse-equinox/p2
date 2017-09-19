@@ -91,7 +91,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 	 * Tests loading cache extensions from a profile whose install directory contains spaces
 	 */
 	public void testBug262073() throws MalformedURLException {
-		Map<String, Object> properties = new HashMap<>();
+		Map<String, String> properties = new HashMap<>();
 		File site = getTestData("Repository", "/testData/artifactRepo/simple with spaces/");
 		//use URL here so spaces are not encoded
 		URL spacesLocation = site.toURL();
@@ -116,10 +116,10 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 	}
 
 	public void testPrepareIU() throws Exception {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
@@ -154,10 +154,10 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 	}
 
 	public void testInstallPartialIU() throws Exception {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
@@ -208,9 +208,9 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 	public void testInstallPartialIUValidationFailure() throws ProvisionException {
 
 		File installFolder = getTempFolder();
-		Properties profileProperties = new Properties();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		Map<String, String> profileProperties = new HashMap<>();
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		URI site = getTestData("0.1", "/testData/updatesite/site").toURI();

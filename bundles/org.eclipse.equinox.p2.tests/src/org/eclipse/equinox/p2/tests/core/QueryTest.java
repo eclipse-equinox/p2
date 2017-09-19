@@ -83,7 +83,7 @@ public class QueryTest extends TestCase {
 	}
 
 	public void testLimitQuery0() {
-		List items = Arrays.asList("red", "green", "blue");
+		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = QueryUtil.createLimitQuery(query, 0);
 		IQueryResult collector = limitQuery.perform(items.iterator());

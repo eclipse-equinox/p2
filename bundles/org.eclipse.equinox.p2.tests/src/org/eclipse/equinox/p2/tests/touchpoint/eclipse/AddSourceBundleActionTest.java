@@ -41,10 +41,10 @@ public class AddSourceBundleActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndo() throws Exception {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);

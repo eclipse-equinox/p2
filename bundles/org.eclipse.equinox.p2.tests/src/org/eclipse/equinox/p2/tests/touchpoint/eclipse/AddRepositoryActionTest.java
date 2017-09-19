@@ -212,7 +212,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//define new IU
 		version = Version.createOSGi(1, 1, 0);
-		Map instructions = new HashMap();
+		Map<String, Object> instructions = new HashMap<>();
 		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
 		IInstallableUnit newIU = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version), null);

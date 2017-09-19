@@ -78,7 +78,7 @@ public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 		File testRepo = new File(tempDir, "testRepo");
 		FileUtils.deleteAll(testRepo);
 		testRepo.mkdir();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		IMetadataRepository repo = manager.createRepository(testRepo.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		//populate with some basic metadata

@@ -20,16 +20,16 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
  */
 public class AggregateQueryTest extends TestCase {
 
-	public List getABCDE() {
+	public List<String> getABCDE() {
 		return Arrays.asList("A", "B", "C", "D", "E");
 	}
 
-	public List get123() {
+	public List<String> get123() {
 		return Arrays.asList("1", "2", "3");
 	}
 
 	public void testEmptyCompositeQuery() {
-		IQuery<Object> query = QueryUtil.createPipeQuery(Collections.<IQuery<Object>> emptySet());
+		IQuery<String> query = QueryUtil.createPipeQuery(Collections.<IQuery<String>> emptySet());
 		query.perform(getABCDE().iterator());
 		// We should not throw an exception.  No guarantee on what perform
 		// will return in this case
@@ -130,26 +130,26 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testIntersection() {
-		IQuery ABC = new MatchQuery() {
+		IQuery<String> ABC = new MatchQuery<String>() {
 			@Override
-			public boolean isMatch(Object candidate) {
+			public boolean isMatch(String candidate) {
 				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
 					return true;
 				return false;
 			}
 		};
 
-		IQuery BCDE = new MatchQuery() {
+		IQuery<String> BCDE = new MatchQuery<String>() {
 			@Override
-			public boolean isMatch(Object candidate) {
+			public boolean isMatch(String candidate) {
 				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))
 					return true;
 				return false;
 			}
 		};
 
-		IQuery compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, true);
-		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
+		IQuery<String> compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, true);
+		IQueryResult<String> result = compoundQuery.perform(getABCDE().iterator());
 		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 2);
 		AbstractProvisioningTest.assertContains("1.1", result, "B");
 		AbstractProvisioningTest.assertContains("1.2", result, "C");
@@ -190,26 +190,26 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testUnion() {
-		IQuery ABC = new MatchQuery() {
+		IQuery<String> ABC = new MatchQuery<String>() {
 			@Override
-			public boolean isMatch(Object candidate) {
+			public boolean isMatch(String candidate) {
 				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
 					return true;
 				return false;
 			}
 		};
 
-		IQuery BCDE = new MatchQuery() {
+		IQuery<String> BCDE = new MatchQuery<String>() {
 			@Override
-			public boolean isMatch(Object candidate) {
+			public boolean isMatch(String candidate) {
 				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))
 					return true;
 				return false;
 			}
 		};
 
-		IQuery compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, false);
-		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
+		IQuery<String> compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, false);
+		IQueryResult<String> result = compoundQuery.perform(getABCDE().iterator());
 		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 5);
 		AbstractProvisioningTest.assertContains("1.1", result, "A");
 		AbstractProvisioningTest.assertContains("1.2", result, "B");

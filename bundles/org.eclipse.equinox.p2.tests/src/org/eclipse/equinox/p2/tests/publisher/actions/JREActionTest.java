@@ -183,7 +183,7 @@ public class JREActionTest extends ActionTest {
 	private void verifyConfigIU(String id, Version jreVersion) {
 		IInstallableUnit bar = getPublishedUnit("config." + id);
 
-		Map instructions = bar.getTouchpointData().iterator().next().getInstructions();
+		Map<?, ?> instructions = bar.getTouchpointData().iterator().next().getInstructions();
 		assertTrue(((ITouchpointInstruction) instructions.get("install")).getBody().equals("unzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(bar instanceof IInstallableUnitFragment);
@@ -207,7 +207,7 @@ public class JREActionTest extends ActionTest {
 		FileUtils.copyStream(new FileInputStream(contentBytes[0]), false, content, true);
 		ZipInputStream zipInputStream = artifactRepository.getZipInputStream(key);
 
-		Map fileMap = new HashMap();
+		Map<String, Object[]> fileMap = new HashMap<>();
 		fileMap.put(fileName, new Object[] {contentBytes[0], content.toByteArray()});
 		TestData.assertContains(fileMap, zipInputStream, true);
 	}

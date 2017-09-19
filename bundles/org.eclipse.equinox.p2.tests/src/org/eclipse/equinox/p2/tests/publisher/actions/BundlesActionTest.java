@@ -196,14 +196,14 @@ public class BundlesActionTest extends ActionTest {
 
 		IArtifactKey key1 = ArtifactKey.parse("osgi.bundle,test1,0.1.0");//$NON-NLS-1$
 		ZipInputStream zis = artifactRepository.getZipInputStream(key1);
-		Map fileMap = getFileMap(new HashMap(), new File[] {TEST_FILE1}, new Path(TEST_FILE1.getAbsolutePath()));
+		Map<String, Object[]> fileMap = getFileMap(new HashMap<>(), new File[] {TEST_FILE1}, new Path(TEST_FILE1.getAbsolutePath()));
 		TestData.assertContains(fileMap, zis, true);
 	}
 
 	private void verifyBundle1() {
-		ArrayList ius = new ArrayList(publisherResult.getIUs(TEST1_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST1_PROVBUNDLE_NAME, IPublisherResult.ROOT));
 		assertTrue(ius.size() == 1);
-		IInstallableUnit bundle1IU = (IInstallableUnit) ius.get(0);
+		IInstallableUnit bundle1IU = ius.get(0);
 
 		assertNotNull("1.0", bundle1IU);
 		assertEquals("1.1", bundle1IU.getVersion(), BUNDLE1_VERSION);
@@ -236,9 +236,9 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void verifyBundle2() {
-		ArrayList ius = new ArrayList(publisherResult.getIUs(TEST2_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST2_PROVBUNDLE_NAME, IPublisherResult.ROOT));
 		assertTrue(ius.size() == 1);
-		IInstallableUnit bundle2IU = (IInstallableUnit) ius.get(0);
+		IInstallableUnit bundle2IU = ius.get(0);
 
 		assertNotNull(bundle2IU);
 		assertEquals(bundle2IU.getVersion(), BUNDLE2_VERSION);
@@ -282,10 +282,10 @@ public class BundlesActionTest extends ActionTest {
 
 	private void verifyBundle3() {
 		// also a regression test for bug 393051: manifest headers use uncommon (but valid) capitalization
-		ArrayList ius = new ArrayList(publisherResult.getIUs(TEST3_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST3_PROVBUNDLE_NAME, IPublisherResult.ROOT));
 
 		assertTrue(ius.size() == 1);
-		IInstallableUnit bundle3IU = (IInstallableUnit) ius.get(0);
+		IInstallableUnit bundle3IU = ius.get(0);
 
 		IUpdateDescriptor updateDescriptor = bundle3IU.getUpdateDescriptor();
 		String name = RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
@@ -301,9 +301,9 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void verifyBundle4() {
-		ArrayList ius = new ArrayList(publisherResult.getIUs(TEST4_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST4_PROVBUNDLE_NAME, IPublisherResult.ROOT));
 		assertTrue(ius.size() == 1);
-		IInstallableUnit bundle4IU = (IInstallableUnit) ius.get(0);
+		IInstallableUnit bundle4IU = ius.get(0);
 
 		assertNotNull("1.0", bundle4IU);
 		assertEquals("1.1", bundle4IU.getVersion(), BUNDLE4_VERSION);
@@ -318,9 +318,9 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void verifyBundle5() {
-		ArrayList ius = new ArrayList(publisherResult.getIUs(TEST5_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST5_PROVBUNDLE_NAME, IPublisherResult.ROOT));
 		assertTrue(ius.size() == 1);
-		IInstallableUnit bundle5IU = (IInstallableUnit) ius.get(0);
+		IInstallableUnit bundle5IU = ius.get(0);
 
 		Collection<IRequirement> requirements = bundle5IU.getRequirements();
 		assertTrue(requirements.size() == 1);

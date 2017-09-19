@@ -38,25 +38,25 @@ public class TouchpointTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		public IStatus completeOperand(IProfile profile, Map parameters) {
+		public IStatus completeOperand(IProfile profile, Map<String, Object> parameters) {
 			completeOperand++;
 			return super.completeOperand(profile, parameters);
 		}
 
 		@Override
-		public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
+		public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> touchpointParameters) {
 			completePhase++;
 			return super.completePhase(monitor, profile, phaseId, touchpointParameters);
 		}
 
 		@Override
-		public IStatus initializeOperand(IProfile profile, Map parameters) {
+		public IStatus initializeOperand(IProfile profile, Map<String, Object> parameters) {
 			initializeOperand++;
 			return super.initializeOperand(profile, parameters);
 		}
 
 		@Override
-		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
+		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> touchpointParameters) {
 			initializePhase++;
 			return super.initializePhase(monitor, profile, phaseId, touchpointParameters);
 		}
@@ -71,7 +71,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 
 	public static class OperandTestTouchpoint extends TestTouchpoint {
 		@Override
-		public IStatus completeOperand(IProfile profile, Map parameters) {
+		public IStatus completeOperand(IProfile profile, Map<String, Object> parameters) {
 			assertEquals(1, initializeOperand);
 			assertEquals(0, completeOperand);
 			super.completeOperand(profile, parameters);
@@ -81,7 +81,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		public IStatus initializeOperand(IProfile profile, Map parameters) {
+		public IStatus initializeOperand(IProfile profile, Map<String, Object> parameters) {
 			assertEquals(0, initializeOperand);
 			assertEquals(0, completeOperand);
 			assertTrue(parameters.containsKey("TestPhase.initializeOperand"));
@@ -99,7 +99,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 
 	public static class PhaseTestTouchpoint extends TestTouchpoint {
 		@Override
-		public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map parameters) {
+		public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> parameters) {
 			assertEquals(1, initializePhase);
 			assertEquals(0, completePhase);
 			super.completePhase(monitor, profile, phaseId, parameters);
@@ -109,7 +109,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map parameters) {
+		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> parameters) {
 			assertEquals(0, initializePhase);
 			assertEquals(0, completePhase);
 			assertTrue(parameters.containsKey("TestPhase.initializePhase"));

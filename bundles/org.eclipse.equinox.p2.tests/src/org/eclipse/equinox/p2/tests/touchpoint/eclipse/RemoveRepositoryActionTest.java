@@ -4,7 +4,7 @@
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -79,7 +79,7 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testNoArguments() {
-		IStatus result = action.execute(new HashMap());
+		IStatus result = action.execute(new HashMap<>());
 		assertTrue("1.0", !result.isOK());
 		assertTrue("1.1", getArtifactRepositoryManager().isEnabled(locationURI));
 	}

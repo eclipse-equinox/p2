@@ -121,7 +121,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	public TestArtifactRepository(IProvisioningAgent agent) {
 		this.agent = agent;
-		repo = new HashMap/*<IArtifactDescriptor, byte[]>*/();
+		repo = new HashMap<>();
 	}
 
 	@Override
@@ -289,7 +289,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	}
 
 	@Override
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 

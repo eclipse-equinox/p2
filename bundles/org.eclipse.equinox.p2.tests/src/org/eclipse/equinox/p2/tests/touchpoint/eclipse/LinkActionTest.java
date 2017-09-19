@@ -39,9 +39,9 @@ public class LinkActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndo() {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
@@ -69,10 +69,10 @@ public class LinkActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndoWithArtifact() throws Exception {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
@@ -114,10 +114,10 @@ public class LinkActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndoWithArtifactLocation() throws Exception {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_CACHE, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);

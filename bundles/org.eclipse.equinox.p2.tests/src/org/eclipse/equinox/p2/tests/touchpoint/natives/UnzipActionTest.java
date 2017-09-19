@@ -39,9 +39,9 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndo() {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
@@ -79,9 +79,9 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndoBackup() {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		IProfile profile = createProfile("testExecuteUndoBackup", profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
@@ -137,9 +137,9 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 	 * id contains characters that are not valid in file names. See bug 274182.
 	 */
 	public void testUndoBackUpWithSymbolsInProfileId() {
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		final String profileId = "Test:With\\Sym/bols";
 		IProfile profile = createProfile(profileId, profileProperties);
 
@@ -304,8 +304,8 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 			assertFalse("File " + file.getPath() + " should not exist", file.exists());
 		}
 
-		Properties profileProperties = new Properties();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		Map<String, String> profileProperties = new HashMap<>();
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		IProfile profile = createProfile("test", profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.dir.zip");

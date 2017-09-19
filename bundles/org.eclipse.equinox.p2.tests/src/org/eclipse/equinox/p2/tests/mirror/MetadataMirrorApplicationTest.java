@@ -68,7 +68,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void runMirrorApplication(String message, final String[] args) throws Exception {
 		MirrorApplication application = new MirrorApplication();
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("metadataOrArtifacts", "metadata");
 		application.setInitializationData(null, null, map);
 		application.initializeFromArguments(args);
@@ -733,7 +733,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	public void testExistingArtifactRepoProperties() {
 		//Setup: create the destination
 		String name = "Destination Name";
-		Map properties = null; //default properties
+		Map<String, String> properties = null; //default properties
 		try {
 			//create the repository and get the resulting properties
 			properties = getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
@@ -880,7 +880,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the destination
 		try {
 			String name = "Destination Name " + destRepoLocation;
-			Map property = new HashMap();
+			Map<String, String> property = new HashMap<>();
 			property.put(IRepository.PROP_COMPRESSED, "true");
 			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
 		} catch (ProvisionException e) {

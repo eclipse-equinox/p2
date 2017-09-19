@@ -33,8 +33,8 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
-		Properties profileProperties = new Properties();
-		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
+		Map<String, String> profileProperties = new HashMap<>();
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
 		IProfile profile = createProfile("test", profileProperties);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);
@@ -62,7 +62,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 
 		File tempFolder = getTempFolder();
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, tempFolder.toString());
 		profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.ws=cocoa,osgi.os=macosx,osgi.arch=x86");
 		IProfile profile = createProfile("launcherNameProfile", profileProperties);
@@ -86,7 +86,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 	public void testChangeName() throws Exception {
 		File tempFolder = getTempFolder();
 
-		Properties profileProperties = new Properties();
+		Map<String, String> profileProperties = new HashMap<>();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, tempFolder.toString());
 		profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.ws=win32,osgi.os=win32,osgi.arch=x86");
 		IProfile profile = createProfile("changeNameProfile", profileProperties);

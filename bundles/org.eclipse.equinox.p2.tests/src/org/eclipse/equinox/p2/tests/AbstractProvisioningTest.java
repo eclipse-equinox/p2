@@ -789,7 +789,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * already exists.  The returned profile will be removed automatically
 	 * in the tearDown method.
 	 */
-	public IProfile createProfile(String name, Map properties) {
+	public IProfile createProfile(String name, Map<String, String> properties) {
 		//remove any existing profile with the same name
 		IProfileRegistry profileRegistry = getProfileRegistry();
 		profileRegistry.removeProfile(name);
@@ -830,7 +830,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return repo;
 	}
 
-	protected IArtifactRepository createArtifactRepository(URI location, Map properties) throws ProvisionException {
+	protected IArtifactRepository createArtifactRepository(URI location, Map<String, String> properties) throws ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(location, "artifact", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		artifactRepositoryManager.removeRepository(repo.getLocation());
@@ -864,7 +864,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return (Transport) getAgent().getService(Transport.SERVICE_NAME);
 	}
 
-	protected IMetadataRepository createMetadataRepository(URI location, Map properties) throws ProvisionException {
+	protected IMetadataRepository createMetadataRepository(URI location, Map<String, String> properties) throws ProvisionException {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		IMetadataRepository repo = metadataRepositoryManager.createRepository(location, "metadata", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		metadataRepos.add(repo);

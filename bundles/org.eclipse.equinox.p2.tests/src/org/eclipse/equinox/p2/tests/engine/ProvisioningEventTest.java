@@ -202,7 +202,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 
 			final String testLocation = "http://download.eclipse.org/releases/juno";
 			// remove the existing location in case it has
-			Map args = new HashMap();
+			Map<String, Object> args = new HashMap<>();
 			args.put(ActionConstants.PARM_AGENT, getAgent());
 			args.put("location", testLocation);
 			args.put("type", Integer.toString(IRepository.TYPE_ARTIFACT));

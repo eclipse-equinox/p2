@@ -109,7 +109,7 @@ public class RootFilesActionTest extends ActionTest {
 		IArtifactKey key = ArtifactKey.parse("binary,sdk.rootfiles.win32.win32.x86,3.4.0.i0305"); //$NON-NLS-1$
 		assertTrue(artifactRepository.contains(key));
 		// File [] repoFiles = getRepoFiles();
-		Map fileList = getRepoFiles(new HashMap());
+		Map<String, Object[]> fileList = getRepoFiles(new HashMap<>());
 		ZipInputStream zis = ((TestArtifactRepository) artifactRepository).getZipInputStream(key);
 
 		TestData.assertContains(fileList, zis, !(!includeRoot && includeFiles && artifactRepo));
@@ -119,7 +119,7 @@ public class RootFilesActionTest extends ActionTest {
 	 *
 	 * @return a list of relative files to the rootPath.
 	 */
-	private Map getRepoFiles(Map map) {
+	private Map<String, Object[]> getRepoFiles(Map<String, Object[]> map) {
 		if ((testArg & INCLUDES_FILES) > 0) {
 			map = addEntry(map, "simpleconfigurator.source.jar"); //$NON-NLS-1$
 			map = addEntry(map, FILE1);
@@ -162,7 +162,7 @@ public class RootFilesActionTest extends ActionTest {
 		return result;
 	}
 
-	private Map addEntry(Map map, String fileEntry) {
+	private Map<String, Object[]> addEntry(Map<String, Object[]> map, String fileEntry) {
 		try {
 			ByteArrayOutputStream content = new ByteArrayOutputStream();
 			File contentBytes = new File(root, fileEntry);

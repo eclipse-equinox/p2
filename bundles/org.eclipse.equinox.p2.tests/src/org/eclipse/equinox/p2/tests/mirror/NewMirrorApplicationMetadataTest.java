@@ -134,16 +134,16 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 	 * Takes 2 QueryResults, compares them, and returns the number of unique keys
 	 * Needed to verify that only the appropriate number of files have been transfered by the mirror application
 	 */
-	private int getNumUnique(IQueryResult c1, IQueryResult c2) {
-		Object[] repo1 = c1.toArray(IInstallableUnit.class);
-		Object[] repo2 = c2.toArray(IInstallableUnit.class);
+	private int getNumUnique(IQueryResult<IInstallableUnit> c1, IQueryResult<IInstallableUnit> c2) {
+		IInstallableUnit[] repo1 = c1.toArray(IInstallableUnit.class);
+		IInstallableUnit[] repo2 = c2.toArray(IInstallableUnit.class);
 
 		//initialize to the size of both QueryResults
 		int numKeys = repo1.length + repo2.length;
 
 		for (int i = 0; i < repo1.length; i++) {
 			for (int j = 0; j < repo2.length; j++) {
-				if (isEqual((IInstallableUnit) repo1[i], (IInstallableUnit) repo2[j]))
+				if (isEqual(repo1[i], repo2[j]))
 					numKeys--;
 				//identical keys has bee found, therefore the number of unique keys is one less than previously thought
 			}
@@ -760,7 +760,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 	public void testExistingArtifactRepoProperties() {
 		//Setup: create the destination
 		String name = "Destination Name";
-		Map properties = null; //default properties
+		Map<String, String> properties = null; //default properties
 		try {
 			//create the repository and get the resulting properties
 			properties = getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
@@ -904,7 +904,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 		//Setup: create the destination
 		try {
 			String name = "Destination Name " + destRepoLocation;
-			Map property = new HashMap();
+			Map<String, String> property = new HashMap<>();
 			property.put(IRepository.PROP_COMPRESSED, "true");
 			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
 		} catch (ProvisionException e) {

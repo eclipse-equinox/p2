@@ -14,6 +14,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
+import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -64,7 +65,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertNull(((PlannerStatus) plan2.getStatus()).getRequestChanges().get(b));
-		Map m = ((PlannerStatus) plan2.getStatus()).getRequestSideEffects();
+		Map<IInstallableUnit, RequestStatus> m = ((PlannerStatus) plan2.getStatus()).getRequestSideEffects();
 		m.toString();
 		assertEquals(IStatus.OK, ((PlannerStatus) plan2.getStatus()).getRequestChanges().get(a).getSeverity());
 		engine.perform(plan2, null);

@@ -160,12 +160,12 @@ public class TestData {
 	 * @param input2
 	 * @throws IOException
 	 */
-	public static void assertContains(Map fileMap, ZipInputStream input2, boolean compareContent) throws IOException {
+	public static void assertContains(Map<String, Object[]> fileMap, ZipInputStream input2, boolean compareContent) throws IOException {
 		Map<String, Object[]> jar2 = getEntries(input2);
 
 		for (Iterator<String> i = fileMap.keySet().iterator(); i.hasNext();) {
 			String name = i.next();
-			Object[] file1 = (Object[]) fileMap.get(name);
+			Object[] file1 = fileMap.get(name);
 			Object[] file2 = jar2.remove(name);
 			Assert.assertNotNull(file2);
 

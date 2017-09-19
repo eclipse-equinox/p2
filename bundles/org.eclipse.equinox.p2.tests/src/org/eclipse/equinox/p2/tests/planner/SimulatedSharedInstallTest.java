@@ -87,7 +87,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 
 			// everything else is delegated
 			@Override
-			public Map getInstallableUnitProperties(IInstallableUnit iu) {
+			public Map<String, String> getInstallableUnitProperties(IInstallableUnit iu) {
 				return profile.getInstallableUnitProperties(iu);
 			}
 
@@ -102,7 +102,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			public Map getProperties() {
+			public Map<String, String> getProperties() {
 				return profile.getProperties();
 			}
 
