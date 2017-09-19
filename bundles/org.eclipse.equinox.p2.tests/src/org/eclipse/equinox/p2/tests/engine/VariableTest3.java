@@ -25,7 +25,7 @@ public class VariableTest3 extends AbstractProvisioningTest {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("artifactWithZip");
 		description.setVersion(Version.create("1.0.0"));
-		Map touchpointData = new HashMap();
+		Map<String, Object> touchpointData = new HashMap<>();
 		touchpointData.put("install", "test.actionForVariableTesting3( arg1: val1 ); test.actionForVariableTesting3 ( arg1: ${lastResult}); test.actionForVariableTesting3( arg1: ${lastResult} );");
 
 		description.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));

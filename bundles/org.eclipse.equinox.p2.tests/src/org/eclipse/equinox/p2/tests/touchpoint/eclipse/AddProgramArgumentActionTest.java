@@ -40,7 +40,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndo() {
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();
@@ -85,7 +85,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -98,7 +98,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertNotNull(manipulator);
 
 		String programArg = "-somekey";
-		Map keyParameters = new HashMap(parameters);
+		Map<String, Object> keyParameters = new HashMap<>(parameters);
 		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
 
 		programArg = "@artifact";
@@ -138,7 +138,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -152,7 +152,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 
 		String programArg = "-somekey";
 		String programArgValue = "@artifact";
-		Map keyParameters = new HashMap(parameters);
+		Map<String, Object> keyParameters = new HashMap<>(parameters);
 		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
 		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG_VALUE, programArgValue);
 
@@ -197,7 +197,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -210,7 +210,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertNotNull(manipulator);
 
 		String programArg = "-somekey";
-		Map keyParameters = new HashMap(parameters);
+		Map<String, Object> keyParameters = new HashMap<>(parameters);
 		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
 
 		programArg = (String) parameters.get("artifact.location");
@@ -250,7 +250,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -264,7 +264,7 @@ public class AddProgramArgumentActionTest extends AbstractProvisioningTest {
 
 		String programArg = "-somekey";
 		String programArgValue = (String) parameters.get("artifact.location");
-		Map keyParameters = new HashMap(parameters);
+		Map<String, Object> keyParameters = new HashMap<>(parameters);
 		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
 		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG_VALUE, programArgValue);
 

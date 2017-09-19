@@ -61,7 +61,7 @@ public class InstallBundleActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();

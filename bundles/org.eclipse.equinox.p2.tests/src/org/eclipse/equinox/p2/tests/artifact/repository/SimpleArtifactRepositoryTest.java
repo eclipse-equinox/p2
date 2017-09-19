@@ -81,7 +81,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
 		delete(repositoryFile);
 		repositoryURI = repositoryFile.toURI();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(repositoryURI, "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
@@ -114,7 +114,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
 		delete(repositoryFile);
 		repositoryURI = repositoryFile.toURI();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(repositoryURI, "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
@@ -248,7 +248,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			descriptor.setProcessingSteps(new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
 
 			// Create repository
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<>();
 			properties.put("publishPackFilesAsSiblings", Boolean.TRUE.toString());
 			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
@@ -284,7 +284,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	private static class TestDescriptor implements IArtifactDescriptor {
 		private static final IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[0];
 		private IArtifactKey artifactKey;
-		private Properties properties = new Properties();
+		private Map<String, String> properties = new HashMap<>();
 
 		public TestDescriptor(IArtifactKey key) {
 			this.artifactKey = key;
@@ -301,13 +301,13 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		public Map getProperties() {
+		public Map<String, String> getProperties() {
 			return properties;
 		}
 
 		@Override
 		public String getProperty(String key) {
-			return properties.getProperty(key);
+			return properties.get(key);
 		}
 
 		@Override
@@ -356,7 +356,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		File folder = getTestFolder("simple_AddContains");
 		repositoryURI = folder.toURI();
 
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
 		TestDescriptor descriptor = new TestDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")));
@@ -374,7 +374,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		File folder = getTestFolder("ArtifactRepository_testAddDescriptorPerformance");
 		repositoryURI = folder.toURI();
 
-		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap<>());
 
 		long start = System.currentTimeMillis();
 		IProgressMonitor monitor = new NullProgressMonitor();
@@ -390,7 +390,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		File folder = getTestFolder("ArtifactRepository_testAddDescriptorPerformanceExectuteBatch");
 		repositoryURI = folder.toURI();
 
-		final IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+		final IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap<>());
 
 		long start = System.currentTimeMillis();
 		repo.executeBatch(monitor -> {
@@ -408,7 +408,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		File folder = getTestFolder("ArtifactRepository_testQuery");
 		repositoryURI = folder.toURI();
 
-		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap<>());
 
 		ArtifactDescriptor d1 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0")));
 		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
@@ -439,7 +439,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	public void testMaximumThreads() throws Exception {
 		File folder = getTestFolder("ArtifactRepository_testQuery");
 		repositoryURI = folder.toURI();
-		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap<>());
 
 		Method getMaximumThreads = SimpleArtifactRepository.class.getDeclaredMethod("getMaximumThreads");
 		getMaximumThreads.setAccessible(true);

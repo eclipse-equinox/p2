@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,8 +32,8 @@ public class CopyActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndo() {
-		Map parameters = createParameters("/testData/nativeTouchpoint/aFolder/a.txt", "a.txt", false);
-		Map safeParameters = Collections.unmodifiableMap(parameters);
+		Map<String, Object> parameters = createParameters("/testData/nativeTouchpoint/aFolder/a.txt", "a.txt", false);
+		Map<String, Object> safeParameters = Collections.unmodifiableMap(parameters);
 
 		CopyAction action = new CopyAction();
 		action.execute(safeParameters);
@@ -48,8 +48,8 @@ public class CopyActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testCopyDirectory() {
-		Map parameters = createParameters("/testData/nativeTouchpoint/aFolder/", "aFolder", false);
-		Map safeParameters = Collections.unmodifiableMap(parameters);
+		Map<String, Object> parameters = createParameters("/testData/nativeTouchpoint/aFolder/", "aFolder", false);
+		Map<String, Object> safeParameters = Collections.unmodifiableMap(parameters);
 
 		CopyAction action = new CopyAction();
 		action.execute(safeParameters);
@@ -65,8 +65,8 @@ public class CopyActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testMergeDirectory() {
-		Map parameters1 = createParameters("/testData/nativeTouchpoint/xFolder/", "aFolder", true);
-		Map safeParameters1 = Collections.unmodifiableMap(parameters1);
+		Map<String, Object> parameters1 = createParameters("/testData/nativeTouchpoint/xFolder/", "aFolder", true);
+		Map<String, Object> safeParameters1 = Collections.unmodifiableMap(parameters1);
 
 		CopyAction action1 = new CopyAction();
 		action1.execute(safeParameters1);
@@ -76,10 +76,10 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		assertFileContent("copied content X", new File(target, "x.txt"), "X");
 		assertFileContent("copied content Y", new File(target, "y.txt"), "Y");
 
-		Map parameters2 = new HashMap();
+		Map<String, Object> parameters2 = new HashMap<>();
 		parameters2.putAll(parameters1);
 		parameters2.put(ActionConstants.PARM_COPY_SOURCE, getTestData("get folder A", "/testData/nativeTouchpoint/aFolder/").getAbsolutePath());
-		Map safeParameters2 = Collections.unmodifiableMap(parameters2);
+		Map<String, Object> safeParameters2 = Collections.unmodifiableMap(parameters2);
 
 		CopyAction action2 = new CopyAction();
 		action2.execute(safeParameters2);
@@ -102,8 +102,8 @@ public class CopyActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testMergeOverwrite() {
-		Map parameters1 = createParameters("/testData/nativeTouchpoint/bcFolder/", "aFolder", true);
-		Map safeParameters1 = Collections.unmodifiableMap(parameters1);
+		Map<String, Object> parameters1 = createParameters("/testData/nativeTouchpoint/bcFolder/", "aFolder", true);
+		Map<String, Object> safeParameters1 = Collections.unmodifiableMap(parameters1);
 
 		CopyAction action1 = new CopyAction();
 		action1.execute(safeParameters1);
@@ -112,10 +112,10 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		File target = new File((String) parameters1.get(ActionConstants.PARM_COPY_TARGET));
 		assertFileContent("copied content C", new File(target, "b.txt"), "C"); // [sic]
 
-		Map parameters2 = new HashMap();
+		Map<String, Object> parameters2 = new HashMap<>();
 		parameters2.putAll(parameters1);
 		parameters2.put(ActionConstants.PARM_COPY_SOURCE, getTestData("get folder A", "/testData/nativeTouchpoint/aFolder/").getAbsolutePath());
-		Map safeParameters2 = Collections.unmodifiableMap(parameters2);
+		Map<String, Object> safeParameters2 = Collections.unmodifiableMap(parameters2);
 
 		CopyAction action2 = new CopyAction();
 		action2.execute(safeParameters2);
@@ -128,8 +128,8 @@ public class CopyActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testBlockedMergeOverwrite() {
-		Map parameters1 = createParameters("/testData/nativeTouchpoint/bcFolder/", "aFolder", false);
-		Map safeParameters1 = Collections.unmodifiableMap(parameters1);
+		Map<String, Object> parameters1 = createParameters("/testData/nativeTouchpoint/bcFolder/", "aFolder", false);
+		Map<String, Object> safeParameters1 = Collections.unmodifiableMap(parameters1);
 
 		CopyAction action1 = new CopyAction();
 		action1.execute(safeParameters1);
@@ -138,10 +138,10 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		File target = new File((String) parameters1.get(ActionConstants.PARM_COPY_TARGET));
 		assertFileContent("copied content B", new File(target, "b.txt"), "C"); // [sic]
 
-		Map parameters2 = new HashMap();
+		Map<String, Object> parameters2 = new HashMap<>();
 		parameters2.putAll(parameters1);
 		parameters2.put(ActionConstants.PARM_COPY_SOURCE, getTestData("get folder A", "/testData/nativeTouchpoint/aFolder/").getAbsolutePath());
-		Map safeParameters2 = Collections.unmodifiableMap(parameters2);
+		Map<String, Object> safeParameters2 = Collections.unmodifiableMap(parameters2);
 
 		CopyAction action2 = new CopyAction();
 		assertFalse("Overwrite of b.txt should not succeed", action2.execute(safeParameters2).isOK());
@@ -150,8 +150,8 @@ public class CopyActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testOverwrite() {
-		Map parameters = createParameters("/testData/nativeTouchpoint/aFolder/a.txt", "a.txt", true);
-		Map safeParameters = Collections.unmodifiableMap(parameters);
+		Map<String, Object> parameters = createParameters("/testData/nativeTouchpoint/aFolder/a.txt", "a.txt", true);
+		Map<String, Object> safeParameters = Collections.unmodifiableMap(parameters);
 
 		File source = new File((String) parameters.get(ActionConstants.PARM_COPY_SOURCE));
 		File target = new File((String) parameters.get(ActionConstants.PARM_COPY_TARGET));
@@ -171,8 +171,8 @@ public class CopyActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testBlockedOverwrite() {
-		Map parameters = createParameters("/testData/nativeTouchpoint/aFolder/a.txt", "a.txt", false);
-		Map safeParameters = Collections.unmodifiableMap(parameters);
+		Map<String, Object> parameters = createParameters("/testData/nativeTouchpoint/aFolder/a.txt", "a.txt", false);
+		Map<String, Object> safeParameters = Collections.unmodifiableMap(parameters);
 
 		File source = new File((String) parameters.get(ActionConstants.PARM_COPY_SOURCE));
 		File target = new File((String) parameters.get(ActionConstants.PARM_COPY_TARGET));
@@ -199,7 +199,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 	 * - copy of directory - check that it merges
 	 * - copy of directory with overwrite false/true
 	 */
-	private Map createParameters(String sourceName, String targetName, boolean overwrite) {
+	private Map<String, Object> createParameters(String sourceName, String targetName, boolean overwrite) {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -216,7 +216,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		iuDesc.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		parameters.put("iu", iu);
 		parameters.put(ActionConstants.PARM_PROFILE, profile);

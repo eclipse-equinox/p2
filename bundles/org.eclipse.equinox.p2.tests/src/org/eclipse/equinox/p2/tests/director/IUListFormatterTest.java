@@ -69,8 +69,8 @@ public class IUListFormatterTest extends TestCase {
 		properties.put(IInstallableUnit.PROP_NAME, name);
 		properties.put(IInstallableUnit.PROP_DESCRIPTION, description);
 		expect(iu.getProperties()).andStubReturn(properties);
-		expect(iu.getProperty((String) anyObject())).andStubAnswer(new MapAnswer(properties));
-		expect(iu.getProperty((String) anyObject(), (String) anyObject())).andStubAnswer(new MapAnswer(properties));
+		expect(iu.getProperty((String) anyObject())).andStubAnswer(new MapAnswer<>(properties));
+		expect(iu.getProperty((String) anyObject(), (String) anyObject())).andStubAnswer(new MapAnswer<>(properties));
 		replay(iu);
 		return iu;
 	}
@@ -85,8 +85,8 @@ public class IUListFormatterTest extends TestCase {
 			properties.put("prop_" + i, "propValue_" + i);
 		}
 		expect(iu.getProperties()).andStubReturn(properties);
-		expect(iu.getProperty((String) anyObject())).andStubAnswer(new MapAnswer(properties));
-		expect(iu.getProperty((String) anyObject(), (String) anyObject())).andStubAnswer(new MapAnswer(properties));
+		expect(iu.getProperty((String) anyObject())).andStubAnswer(new MapAnswer<>(properties));
+		expect(iu.getProperty((String) anyObject(), (String) anyObject())).andStubAnswer(new MapAnswer<>(properties));
 		replay(iu);
 		return iu;
 	}

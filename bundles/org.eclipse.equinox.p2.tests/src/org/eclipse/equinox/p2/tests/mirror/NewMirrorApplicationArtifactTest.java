@@ -807,7 +807,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	public void testExistingArtifactRepoProperties() {
 		//Setup: create the destination
 		String name = "Destination Name";
-		Map properties = null; //default properties
+		Map<String, String> properties = null; //default properties
 		try {
 			//create the repository and get the resulting properties
 			properties = getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties).getProperties();
@@ -930,16 +930,16 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			fail("");
 		}
 
-		IQueryResult keys = packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
+		IQueryResult<IArtifactKey> keys = packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
 			IArtifactDescriptor[] srcDescriptors = packedRepo.getArtifactDescriptors(key);
 
 			for (int j = 0; j < srcDescriptors.length; j++) {
 				if (!(srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT).equals(IArtifactDescriptor.FORMAT_PACKED)) {
 					//if we have a packed artifact
 					IArtifactDescriptor newDescriptor = new ArtifactDescriptor(key);
-					Map properties = new OrderedProperties();
+					Map<String, String> properties = new OrderedProperties();
 					properties.putAll(srcDescriptors[j].getProperties());
 					properties.remove(IArtifactDescriptor.FORMAT);
 					((ArtifactDescriptor) newDescriptor).addProperties(properties);
@@ -1049,7 +1049,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		//Setup: create the destination
 		try {
 			String name = "Destination Name " + destRepoLocation;
-			Map property = new HashMap();
+			Map<String, String> property = new HashMap<>();
 			property.put(IRepository.PROP_COMPRESSED, "true");
 			getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
 		} catch (ProvisionException e) {
@@ -1281,7 +1281,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			public boolean firstAttempt = true;
 			IArtifactRepository source;
 
-			public TestRetryArtifactRepository(String repositoryName, URI location, URI srcLocation, Map properties, IArtifactRepositoryManager manager) {
+			public TestRetryArtifactRepository(String repositoryName, URI location, URI srcLocation, Map<String, String> properties, IArtifactRepositoryManager manager) {
 				super(getAgent(), repositoryName, location, properties);
 
 				//initialize
@@ -1319,7 +1319,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
+			public synchronized IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 				return source.query(query, monitor);
 			}
 		}

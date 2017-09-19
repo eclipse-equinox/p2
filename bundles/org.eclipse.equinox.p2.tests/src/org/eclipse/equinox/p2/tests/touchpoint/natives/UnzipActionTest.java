@@ -56,7 +56,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 		iuDesc.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		parameters.put("iu", iu);
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
@@ -96,7 +96,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 		iuDesc.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		parameters.put("iu", iu);
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
@@ -155,7 +155,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 		iuDesc.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		parameters.put("iu", iu);
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
@@ -320,7 +320,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 		iuDesc.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		parameters.put("iu", iu);
 		parameters.put(ActionConstants.PARM_PROFILE, profile);

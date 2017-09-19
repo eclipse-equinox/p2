@@ -35,7 +35,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	private static final String PROVIDER = "org.eclipse"; //$NON-NLS-1$
 	private static final String TYPE = "testmetadatarepo"; //$NON-NLS-1$
 	private static final String VERSION = "1"; //$NON-NLS-1$
-	private final List units = new ArrayList();
+	private final List<IInstallableUnit> units = new ArrayList<>();
 	protected HashSet<IRepositoryReference> repositories = new HashSet<>();
 
 	private static URI createLocation() {
@@ -59,14 +59,14 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public IInstallableUnit find(String id, String versionString) {
-		Iterator result = query(QueryUtil.createIUQuery(id, Version.create(versionString)), null).iterator();
-		return (IInstallableUnit) (result.hasNext() ? result.next() : null);
+		Iterator<IInstallableUnit> result = query(QueryUtil.createIUQuery(id, Version.create(versionString)), null).iterator();
+		return result.hasNext() ? result.next() : null;
 	}
 
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == TestMetadataRepository.class || adapter == IMetadataRepository.class || adapter == IRepository.class) {
-			return (T) this;
+			return adapter.cast(this);
 		}
 		return null;
 	}

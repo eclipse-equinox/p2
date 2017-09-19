@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -40,7 +40,7 @@ public class RemoveProgramArgumentActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndo() {
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();
@@ -87,7 +87,7 @@ public class RemoveProgramArgumentActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -100,7 +100,7 @@ public class RemoveProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertNotNull(manipulator);
 
 		String programArg = "-somekey";
-		Map keyParameters = new HashMap(parameters);
+		Map<String, Object> keyParameters = new HashMap<>(parameters);
 		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
 		manipulator.getLauncherData().addProgramArg(programArg);
 
@@ -143,7 +143,7 @@ public class RemoveProgramArgumentActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -156,7 +156,7 @@ public class RemoveProgramArgumentActionTest extends AbstractProvisioningTest {
 		assertNotNull(manipulator);
 
 		String programArg = "-somekey";
-		Map keyParameters = new HashMap(parameters);
+		Map<String, Object> keyParameters = new HashMap<>(parameters);
 		keyParameters.put(ActionConstants.PARM_PROGRAM_ARG, programArg);
 		manipulator.getLauncherData().addProgramArg(programArg);
 

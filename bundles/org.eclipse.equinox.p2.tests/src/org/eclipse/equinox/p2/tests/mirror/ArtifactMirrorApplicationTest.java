@@ -1171,7 +1171,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			public boolean firstAttempt = true;
 			IArtifactRepository source;
 
-			public TestRetryArtifactRepository(String repositoryName, URI location, URI srcLocation, Map properties, IArtifactRepositoryManager manager) {
+			public TestRetryArtifactRepository(String repositoryName, URI location, URI srcLocation, Map<String, String> properties, IArtifactRepositoryManager manager) {
 				super(getAgent(), repositoryName, location, properties);
 
 				//initialize
@@ -1209,7 +1209,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
+			public synchronized IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 				return source.query(query, monitor);
 			}
 		}

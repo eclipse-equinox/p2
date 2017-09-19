@@ -26,7 +26,7 @@ public class RemoveActionTest extends AbstractProvisioningTest {
 	private File testFolder;
 	private File testFile;
 
-	private Map parameters;
+	private Map<String, Object> parameters;
 	private RemoveAction action;
 
 	public RemoveActionTest(String name) {
@@ -55,7 +55,7 @@ public class RemoveActionTest extends AbstractProvisioningTest {
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		IProfile profile = createProfile("testExecuteUndo", profileProperties);
 
-		parameters = new HashMap();
+		parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
 		touchpoint.initializePhase(null, profile, "testExecuteUndo", parameters);

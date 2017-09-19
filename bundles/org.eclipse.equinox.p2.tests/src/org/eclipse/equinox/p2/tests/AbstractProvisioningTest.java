@@ -1301,7 +1301,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static void assertContains(String message, IQueryable source, IQueryable destination) {
-		IQueryResult<IInstallableUnit> sourceCollector = source.query(QueryUtil.createIUAnyQuery(), null);
+		IQueryResult sourceCollector = source.query(QueryUtil.createIUAnyQuery(), null);
 		Iterator<IInstallableUnit> it = sourceCollector.iterator();
 
 		while (it.hasNext()) {

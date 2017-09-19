@@ -49,11 +49,11 @@ public class MetadataRepositoryPerformanceTest extends ProvisioningPerformanceTe
 	public void testQueryLocalRepository() {
 		final int IU_COUNT = 3000;
 		new PerformanceTestRunner() {
-			IQuery[] queries = new IQuery[IU_COUNT];
+			IQuery<IInstallableUnit>[] queries = new IQuery[IU_COUNT];
 
 			@Override
 			protected void setUp() {
-				List<IInstallableUnit> ius = new ArrayList(IU_COUNT);
+				List<IInstallableUnit> ius = new ArrayList<>(IU_COUNT);
 				for (int i = 0; i < IU_COUNT; i++) {
 					IInstallableUnit iu = generateIU(i);
 					queries[i] = QueryUtil.createIUQuery(iu.getId(), iu.getVersion());

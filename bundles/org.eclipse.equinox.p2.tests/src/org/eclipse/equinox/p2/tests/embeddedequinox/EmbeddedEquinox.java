@@ -25,7 +25,7 @@ import org.osgi.framework.BundleContext;
 public class EmbeddedEquinox {
 	private final Map frameworkProperties;
 	private final String[] frameworkArgs;
-	private Class eclipseStarterClazz;
+	private Class<?> eclipseStarterClazz;
 	private BundleContext context;
 	private URL[] frameworkClassPath;
 
@@ -43,10 +43,10 @@ public class EmbeddedEquinox {
 			URLClassLoader frameworkLoader = new FrameworkClassLoader(frameworkClassPath, this.getClass().getClassLoader());
 			eclipseStarterClazz = frameworkLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
 
-			Method setInitialProperties = eclipseStarterClazz.getMethod("setInitialProperties", new Class[] {Map.class}); //$NON-NLS-1$
+			Method setInitialProperties = eclipseStarterClazz.getMethod("setInitialProperties", Map.class); //$NON-NLS-1$
 			setInitialProperties.invoke(null, new Object[] {frameworkProperties});
 
-			Method runMethod = eclipseStarterClazz.getMethod("startup", new Class[] {String[].class, Runnable.class}); //$NON-NLS-1$
+			Method runMethod = eclipseStarterClazz.getMethod("startup", String[].class, Runnable.class); //$NON-NLS-1$
 			context = (BundleContext) runMethod.invoke(null, new Object[] {frameworkArgs, null});
 		} catch (Throwable t) {
 			if (t instanceof RuntimeException)
@@ -77,7 +77,7 @@ public class EmbeddedEquinox {
 		}
 
 		@Override
-		protected Class findClass(String name) throws ClassNotFoundException {
+		protected Class<?> findClass(String name) throws ClassNotFoundException {
 			if (name.startsWith("org.osgi.framework.") || name.startsWith("org.osgi.resource."))
 				// TODO this should call findClass; but then have to use reflection!!
 				return embeddedBundleLoader.loadClass(name);
@@ -93,7 +93,7 @@ public class EmbeddedEquinox {
 		}
 
 		@Override
-		public Enumeration findResources(String name) throws IOException {
+		public Enumeration<URL> findResources(String name) throws IOException {
 			if (name.startsWith("org/osgi/framework/") || name.startsWith("org/osgi/resource/"))
 				// TODO this should call findResources; but then have to use reflection!!
 				return embeddedBundleLoader.getResources(name);

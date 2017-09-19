@@ -159,7 +159,7 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 	}
 
 	@Override
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		return delegate.getProperties();
 	}
 
@@ -204,7 +204,7 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 	}
 
 	@Override
-	public Object getAdapter(Class adapter) {
+	public <T> T getAdapter(Class<T> adapter) {
 		return delegate.getAdapter(adapter);
 	}
 

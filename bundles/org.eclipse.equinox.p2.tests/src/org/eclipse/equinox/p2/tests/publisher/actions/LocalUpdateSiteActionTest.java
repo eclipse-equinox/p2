@@ -48,15 +48,15 @@ public class LocalUpdateSiteActionTest extends ActionTest {
 		File file = TestData.getFile("updatesite/site", "");
 		LocalUpdateSiteAction action = new LocalUpdateSiteAction(file.getAbsolutePath(), "qualifier");
 		action.perform(publisherInfo, publisherResult, new NullProgressMonitor());
-		Collection ius = publisherResult.getIUs("test.feature.feature.jar", null);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("test.feature.feature.jar", null);
 		assertEquals("1.0", 1, ius.size());
-		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
+		IInstallableUnit iu = ius.iterator().next();
 		Collection<ITouchpointData> touchpointData = iu.getTouchpointData();
 		assertEquals("1.1", 1, touchpointData.size());
-		Map instructions = touchpointData.iterator().next().getInstructions();
-		Set keys = instructions.keySet();
+		Map<String, ITouchpointInstruction> instructions = touchpointData.iterator().next().getInstructions();
+		Set<String> keys = instructions.keySet();
 		assertEquals("1.2", 1, keys.size());
-		String unzip = (String) keys.iterator().next();
+		String unzip = keys.iterator().next();
 		assertEquals("1.3", "zipped", unzip);
 	}
 }

@@ -38,10 +38,10 @@ public class ReconcilerTestSuite extends TestSuite {
 	}
 
 	@Override
-	public Enumeration tests() {
-		Vector result = new Vector();
+	public Enumeration<Test> tests() {
+		Vector<Test> result = new Vector<>();
 		result.add(INITIALIZE);
-		for (Enumeration e = super.tests(); e.hasMoreElements();)
+		for (Enumeration<Test> e = super.tests(); e.hasMoreElements();)
 			result.add(e.nextElement());
 		result.add(CLEANUP);
 		return result.elements();
@@ -77,8 +77,8 @@ public class ReconcilerTestSuite extends TestSuite {
 	 */
 	@Override
 	public void run(TestResult result) {
-		for (Enumeration e = tests(); e.hasMoreElements();) {
-			Test each = (Test) e.nextElement();
+		for (Enumeration<Test> e = tests(); e.hasMoreElements();) {
+			Test each = e.nextElement();
 			if (result.shouldStop())
 				break;
 			runTest(each, result);

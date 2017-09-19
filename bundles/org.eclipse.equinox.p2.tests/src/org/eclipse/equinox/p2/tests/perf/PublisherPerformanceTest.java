@@ -26,7 +26,7 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 	public void testQueryPublisherResult() {
 		final int IU_COUNT = 3000;
 		new PerformanceTestRunner() {
-			IQuery[] queries = new IQuery[IU_COUNT];
+			IQuery<IInstallableUnit>[] queries = new IQuery[IU_COUNT];
 			PublisherResult result;
 
 			@Override
@@ -56,7 +56,7 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 	public void testLimitQueryPublisherResult() {
 		final int IU_COUNT = 3000;
 		new PerformanceTestRunner() {
-			IQuery[] queries = new IQuery[IU_COUNT];
+			IQuery<IInstallableUnit>[] queries = new IQuery[IU_COUNT];
 			PublisherResult result;
 
 			@Override

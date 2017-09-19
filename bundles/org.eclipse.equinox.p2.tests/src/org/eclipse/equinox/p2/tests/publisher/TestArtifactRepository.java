@@ -357,7 +357,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	}
 
 	@Override
-	public Object getAdapter(Class adapter) {
+	public <T> T getAdapter(Class<T> adapter) {
 		return null;
 	}
 
@@ -411,13 +411,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	@Override
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 		final Collection<IArtifactDescriptor> descs = repo.keySet();
-		return new IQueryable<IArtifactDescriptor>() {
-
-			@Override
-			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
-				return query.perform(descs.iterator());
-			}
-		};
+		return (query, monitor) -> query.perform(descs.iterator());
 	}
 
 	@Override

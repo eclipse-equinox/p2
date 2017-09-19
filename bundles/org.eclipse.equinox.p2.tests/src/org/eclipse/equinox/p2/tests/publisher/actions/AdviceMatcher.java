@@ -21,9 +21,9 @@ import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 public class AdviceMatcher implements IArgumentMatcher {
 	private final Version version;
 	private final String id;
-	private static Class clazz;
+	private static Class<?> clazz;
 
-	public static IPublisherAdvice adviceMatches(String id, Version version, Class clazz) {
+	public static IPublisherAdvice adviceMatches(String id, Version version, Class<?> clazz) {
 		AdviceMatcher.clazz = clazz;
 		EasyMock.reportMatcher(new AdviceMatcher(id, version));
 		return null;

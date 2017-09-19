@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -113,7 +113,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testNoArguments() {
-		IStatus result = action.execute(new HashMap());
+		IStatus result = action.execute(new HashMap<>());
 		assertTrue("1.0", !result.isOK());
 	}
 
@@ -167,7 +167,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	public void testFullInstall() {
 		String id = "AddRepositoryActionTest.testFullInstall";
 		Version version = Version.createOSGi(1, 0, 0);
-		Map instructions = new HashMap();
+		Map<String, Object> instructions = new HashMap<>();
 		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
 		IInstallableUnit iu = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version), null);

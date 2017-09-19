@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -64,7 +65,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 			new String[] {"configure", "addProgramArg(programArg:-startup);addProgramArg(programArg:@artifact);"}}; //
 
 	public static IInstallableUnit createPersistenceTestIU() {
-		Map propertyMap = createProperties(properties);
+		Map<String, String> propertyMap = createProperties(properties);
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequirement[] requirements = createRequired(requires);
 		IRequirement[] metaRequirements = createRequired(metaRequires);
@@ -79,7 +80,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		return MetadataFactory.createUpdateDescriptor(id, new VersionRange(IU_TEST_VERSION, true, IU_TEST_VERSION, true), IUpdateDescriptor.HIGH, "desc");
 	}
 
-	private static Map createProperties(String[][] keyValuePairs) {
+	private static Map<String, String> createProperties(String[][] keyValuePairs) {
 		OrderedProperties props = new OrderedProperties(keyValuePairs.length);
 		for (int i = 0; i < keyValuePairs.length; i++) {
 			String[] nextPair = keyValuePairs[i];
@@ -108,7 +109,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static ITouchpointData createTouchpointData(String[][] instructionData) {
-		Map map = new LinkedHashMap(instructionData.length);
+		Map<String, Object> map = new LinkedHashMap<>(instructionData.length);
 		for (int i = 0; i < instructionData.length; i++) {
 			String[] nextInstruction = instructionData[i];
 			map.put(nextInstruction[0], nextInstruction[1]);
@@ -182,7 +183,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 			private InstallableUnitHandler iuHandler = null;
 
 			private InstallableUnit iu = null;
-			private List singleton = new ArrayList(1);
+			private List<InstallableUnitDescription> singleton = new ArrayList<>(1);
 
 			public TestHandler() {
 				super();
@@ -278,7 +279,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnitPatch createPatchIU() {
-		Map propertyMap = createProperties(properties);
+		Map<String, String> propertyMap = createProperties(properties);
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequirement[] requirements = createRequired(requires);
 		IRequirement[] metaRequirements = createRequired(metaRequires);
@@ -324,13 +325,13 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractProperties(IInstallableUnit iu) {
-		Map props = iu.getProperties();
-		Set keys = props.keySet();
+		Map<String, String> props = iu.getProperties();
+		Set<String> keys = props.keySet();
 		String[][] pairs = new String[keys.size()][2];
 		int index = 0;
-		for (Iterator iter = keys.iterator(); iter.hasNext();) {
-			String nextKey = (String) iter.next();
-			String nextValue = (String) props.get(nextKey);
+		for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
+			String nextKey = iter.next();
+			String nextValue = props.get(nextKey);
 			pairs[index] = new String[] {nextKey, nextValue};
 			index++;
 		}
@@ -361,7 +362,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		Collection<IRequirement> reqs = iu.getRequirements();
 		String[][] tuples = new String[reqs.size()][4];
 		int i = 0;
-		for (Iterator iterator = reqs.iterator(); iterator.hasNext();) {
+		for (Iterator<IRequirement> iterator = reqs.iterator(); iterator.hasNext();) {
 			IRequiredCapability next = (IRequiredCapability) iterator.next();
 			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
@@ -372,7 +373,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		Collection<IRequirement> requyres = iu.getMetaRequirements();
 		String[][] tuples = new String[requyres.size()][4];
 		int i = 0;
-		for (Iterator iterator = requyres.iterator(); iterator.hasNext();) {
+		for (Iterator<IRequirement> iterator = requyres.iterator(); iterator.hasNext();) {
 			IRequiredCapability next = (IRequiredCapability) iterator.next();
 			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}

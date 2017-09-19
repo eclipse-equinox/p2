@@ -71,7 +71,7 @@ public class RootFilesActionTest extends ActionTest {
 
 	private void setupTestCase(int testArg) throws Exception {
 		this.testArg = testArg;
-		adviceCollection = new ArrayList();
+		adviceCollection = new ArrayList<>();
 		topLevel = AbstractPublisherAction.getArrayFromString(topArg, COMMA_SEPARATOR);
 
 		if ((testArg & ARTIFACT_REPO) > 0)

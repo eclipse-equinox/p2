@@ -141,8 +141,8 @@ public class ProfileTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			public IQueryResult queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor) {
-				return new Collector();
+			public IQueryResult<IInstallableUnit> queryProfile(IProfile profile, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+				return new Collector<>();
 			}
 
 		});
@@ -260,32 +260,32 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 		protected class ProfilesHandler extends AbstractHandler {
 
-			private final Map profileHandlers;
+			private final Map<String, ProfileHandler> profileHandlers;
 
 			public ProfilesHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, PROFILES_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				profileHandlers = (size != null ? new HashMap(Integer.parseInt(size)) : new HashMap(4));
+				profileHandlers = (size != null ? new HashMap<>(Integer.parseInt(size)) : new HashMap<>(4));
 			}
 
 			public IProfile[] getProfiles() {
 				if (profileHandlers.isEmpty())
 					return new IProfile[0];
 
-				Map profileMap = new LinkedHashMap();
-				for (Iterator it = profileHandlers.keySet().iterator(); it.hasNext();) {
-					String profileId = (String) it.next();
+				Map<String, IProfile> profileMap = new LinkedHashMap<>();
+				for (Iterator<String> it = profileHandlers.keySet().iterator(); it.hasNext();) {
+					String profileId = it.next();
 					addProfile(profileId, profileMap);
 				}
 
-				return (IProfile[]) profileMap.values().toArray(new IProfile[profileMap.size()]);
+				return profileMap.values().toArray(new IProfile[profileMap.size()]);
 			}
 
-			private void addProfile(String profileId, Map profileMap) {
+			private void addProfile(String profileId, Map<String, IProfile> profileMap) {
 				if (profileMap.containsKey(profileId))
 					return;
 
-				ProfileHandler profileHandler = (ProfileHandler) profileHandlers.get(profileId);
+				ProfileHandler profileHandler = profileHandlers.get(profileId);
 				Profile parentProfile = null;
 
 				String parentId = profileHandler.getParentId();
@@ -301,12 +301,12 @@ public class ProfileTest extends AbstractProvisioningTest {
 					for (int i = 0; i < ius.length; i++) {
 						IInstallableUnit iu = ius[i];
 						profile.addInstallableUnit(iu);
-						Map iuProperties = profileHandler.getIUProperties(iu);
+						Map<String, String> iuProperties = profileHandler.getIUProperties(iu);
 						if (iuProperties != null) {
-							for (Iterator it = iuProperties.entrySet().iterator(); it.hasNext();) {
-								Entry entry = (Entry) it.next();
-								String key = (String) entry.getKey();
-								String value = (String) entry.getValue();
+							for (Iterator<Entry<String, String>> it = iuProperties.entrySet().iterator(); it.hasNext();) {
+								Entry<String, String> entry = it.next();
+								String key = entry.getKey();
+								String value = entry.getValue();
 								profile.setInstallableUnitProperty(iu, key, value);
 							}
 						}

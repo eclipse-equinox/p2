@@ -70,7 +70,7 @@ public class RootIUActionTest extends ActionTest {
 		debug("\n**********************************"); //$NON-NLS-1$
 		debug(" advice (as iu) A"); //$NON-NLS-1$
 		setupAdvice(EMPTY);
-		Collection iuCollection = new ArrayList();
+		Collection<Object> iuCollection = new ArrayList<>();
 		iuCollection.add(mockIU(iu_A, null));
 		rootIUAdviceCollection.add(new RootIUAdvice(iuCollection));
 		setupMetadataRepository(CONTAINS_A);
@@ -225,36 +225,34 @@ public class RootIUActionTest extends ActionTest {
 	}
 
 	private void setupFilterAdvice(int testSpec) {
-		IQuery query = null;
-		rootIUAdviceCollection = new ArrayList();
+		IQuery<IInstallableUnit> query = null;
+		rootIUAdviceCollection = new ArrayList<>();
 		if ((testSpec & CONTAINS_A) > 0) {
-			query = new MatchQuery() {
+			query = new MatchQuery<IInstallableUnit>() {
 				@Override
-				public boolean isMatch(Object candidate) {
-					if (candidate instanceof IInstallableUnit)
-						if (((IInstallableUnit) candidate).getId().equals(iu_A))
-							return true;
+				public boolean isMatch(IInstallableUnit candidate) {
+					if (candidate.getId().equals(iu_A))
+						return true;
 					return false;
 				}
 			};
 			rootIUAdviceCollection.add(new RootIUResultFilterAdvice(query));
 		}
 		if ((testSpec & CONTAINS_B) > 0) {
-			query = new MatchQuery() {
+			query = new MatchQuery<IInstallableUnit>() {
 				@Override
-				public boolean isMatch(Object candidate) {
-					if (candidate instanceof IInstallableUnit)
-						if (((IInstallableUnit) candidate).getId().equals(iu_B))
-							return true;
+				public boolean isMatch(IInstallableUnit candidate) {
+					if (candidate.getId().equals(iu_B))
+						return true;
 					return false;
 				}
 			};
 			rootIUAdviceCollection.add(new RootIUResultFilterAdvice(query));
 		}
 		if ((testSpec & EMPTY) > 0) {
-			query = new MatchQuery() {
+			query = new MatchQuery<IInstallableUnit>() {
 				@Override
-				public boolean isMatch(Object candidate) {
+				public boolean isMatch(IInstallableUnit candidate) {
 					return false;
 				}
 			};
@@ -265,9 +263,9 @@ public class RootIUActionTest extends ActionTest {
 	private void confirmResultRequired(int testSpec) {
 		// checks that the results has a non root iu with required
 		// capabilities from the publisher result
-		ArrayList ius = new ArrayList(publisherResult.getIUs(rootIU, IPublisherResult.NON_ROOT));
+		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(rootIU, IPublisherResult.NON_ROOT));
 		assertTrue(ius.size() == 1);
-		IInstallableUnit iu = (IInstallableUnit) ius.get(0);
+		IInstallableUnit iu = ius.get(0);
 		assertTrue(iu != null);
 		assertTrue(iu.getVersion().equals(versionArg));
 		Collection<IRequirement> required = iu.getRequirements();
@@ -297,7 +295,7 @@ public class RootIUActionTest extends ActionTest {
 	}
 
 	private boolean contains(Collection<IRequirement> required, String iu) {
-		for (Iterator iterator = required.iterator(); iterator.hasNext();) {
+		for (Iterator<IRequirement> iterator = required.iterator(); iterator.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iterator.next();
 			if (req.getName().equalsIgnoreCase(iu))
 				return true;
@@ -307,7 +305,7 @@ public class RootIUActionTest extends ActionTest {
 
 	public void setupPublisherResult(int testSpec) {
 		super.setupPublisherResult();
-		Collection ius = new ArrayList();
+		Collection<IInstallableUnit> ius = new ArrayList<>();
 		if ((testSpec & CONTAINS_A) > 0) {
 			ius.add(mockIU(iu_A, null));
 		}
@@ -318,7 +316,7 @@ public class RootIUActionTest extends ActionTest {
 	}
 
 	private void setupMetadataRepository(int testSpec) {
-		ArrayList repoContents = new ArrayList();
+		ArrayList<IInstallableUnit> repoContents = new ArrayList<>();
 		if ((testSpec & CONTAINS_A) > 0) {
 			repoContents.add(mockIU(iu_A, null));
 		}
@@ -326,30 +324,30 @@ public class RootIUActionTest extends ActionTest {
 			repoContents.add(mockIU(iu_B, null));
 		}
 
-		IInstallableUnit[] ius = (IInstallableUnit[]) repoContents.toArray(new IInstallableUnit[repoContents.size()]);
+		IInstallableUnit[] ius = repoContents.toArray(new IInstallableUnit[repoContents.size()]);
 		metadataRepository = new TestMetadataRepository(getAgent(), ius);
 	}
 
 	public void setupAdvice(int testSpec) {
-		Collection publishIUs = new ArrayList();
+		Collection<Object> publishIUs = new ArrayList<>();
 		if ((testSpec & CONTAINS_A) > 0)
 			publishIUs.add(iu_A);
 		if ((testSpec & CONTAINS_B) > 0)
 			publishIUs.add(iu_B);
-		rootIUAdviceCollection = new ArrayList();
+		rootIUAdviceCollection = new ArrayList<>();
 		rootIUAdviceCollection.add(new RootIUAdvice(publishIUs));
 	}
 
 	@Override
 	public void insertPublisherInfoBehavior() {
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ICapabilityAdvice.class)).andReturn(new ArrayList()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ICapabilityAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
 		expect(publisherInfo.getAdvice(null, true, null, null, IRootIUAdvice.class)).andReturn(rootIUAdviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, true, null, null, IVersionAdvice.class)).andReturn(null).anyTimes();
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ITouchpointAdvice.class)).andReturn(new ArrayList()).anyTimes();
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IUpdateDescriptorAdvice.class)).andReturn(new ArrayList()).anyTimes();
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IPropertyAdvice.class)).andReturn(new ArrayList()).anyTimes();
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IAdditionalInstallableUnitAdvice.class)).andReturn(new ArrayList()).anyTimes();
-		expect(publisherInfo.getAdvice(null, true, rootIU, versionArg, ILicenseAdvice.class)).andReturn(new ArrayList()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ITouchpointAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IUpdateDescriptorAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IPropertyAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IAdditionalInstallableUnitAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
+		expect(publisherInfo.getAdvice(null, true, rootIU, versionArg, ILicenseAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepository).anyTimes();
 		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
 	}

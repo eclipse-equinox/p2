@@ -23,7 +23,7 @@ public class AddJVMArgumentActionTest extends AbstractProvisioningTest {
 
 	private static File tempDir;
 	private LauncherData launcherData;
-	private Map parameters;
+	private Map<String, Object> parameters;
 
 	public AddJVMArgumentActionTest(String name) {
 		super(name);
@@ -39,7 +39,7 @@ public class AddJVMArgumentActionTest extends AbstractProvisioningTest {
 		tempDir = new File(System.getProperty("java.io.tmpdir"), "JVMArgs");
 		tempDir.mkdirs();
 
-		parameters = new HashMap();
+		parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();

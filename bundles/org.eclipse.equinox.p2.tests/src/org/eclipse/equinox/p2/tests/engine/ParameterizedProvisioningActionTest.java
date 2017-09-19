@@ -24,13 +24,13 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	ProvisioningAction action = new ProvisioningAction() {
 
 		@Override
-		public IStatus execute(Map parameters) {
+		public IStatus execute(Map<String, Object> parameters) {
 			value = (String) parameters.get("test");
 			return null;
 		}
 
 		@Override
-		public IStatus undo(Map parameters) {
+		public IStatus undo(Map<String, Object> parameters) {
 			return null;
 		}
 	};
@@ -42,10 +42,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testBasicParameter() {
 		value = null;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "testValue");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
 
@@ -55,10 +55,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testVariableParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "test${variable}");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
 		pAction.execute(phaseParameters);
@@ -68,10 +68,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testEscapedCharacterParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "testV${#97}lue");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
@@ -82,10 +82,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testOutOfRangeEscapedCharacterParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "${#999999999999999999999999999999999999999999999}");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
@@ -96,10 +96,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testLargerThanCharEscapedCharacterParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "testV${#65633}lue"); // #65633 should be "a" if we allow overflow but we do not so null
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
@@ -110,10 +110,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testNegativeOutOfRangeCharEscapedCharacterParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "testV${#-65439}lue"); // #65633 should be "a" if we allow underflow but we do not so null
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
@@ -124,10 +124,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testNotNumberEscapedCharacterParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "${#xFFFF}");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
@@ -138,10 +138,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testNaughtyEscapedCharactersParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "${#36} ${#44} ${#58} ${#59} ${#123} ${#125}");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
@@ -152,10 +152,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testNullCharEscapedCharactersParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "a${#0}b");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
@@ -166,10 +166,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testMaxCharEscapedCharactersParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "a${#65535}b");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
@@ -180,10 +180,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testOverMaxCharEscapedCharactersParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "a${#65536}b");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);
@@ -194,10 +194,10 @@ public class ParameterizedProvisioningActionTest extends AbstractProvisioningTes
 	public void testUnderMinCharEscapedCharactersParameter() {
 		passTest = false;
 
-		Map actionParameters = new HashMap();
+		Map<String, String> actionParameters = new HashMap<>();
 		actionParameters.put("test", "a${#-1}b");
 
-		Map phaseParameters = new HashMap();
+		Map<String, Object> phaseParameters = new HashMap<>();
 		phaseParameters.put("variable", "Value");
 
 		ParameterizedProvisioningAction pAction = new ParameterizedProvisioningAction(action, actionParameters, null);

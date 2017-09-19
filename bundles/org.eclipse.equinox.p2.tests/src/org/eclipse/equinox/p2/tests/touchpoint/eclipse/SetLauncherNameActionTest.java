@@ -1,9 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
@@ -30,7 +30,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndo() {
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();
@@ -57,7 +57,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testEmptyName() {
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 
@@ -91,7 +91,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.ws=win32,osgi.os=win32,osgi.arch=x86");
 		IProfile profile = createProfile("changeNameProfile", profileProperties);
 
-		//profile will start using "eclipse" by default, give it some content and see if it 
+		//profile will start using "eclipse" by default, give it some content and see if it
 		//survives a name change.
 		File eclipseIni = new File(tempFolder, "eclipse.ini");
 		StringBuffer ini = new StringBuffer();
@@ -99,7 +99,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		ini.append("plugins/org.eclipse.equinox.launcher_1.2.4.v1234.jar\n");
 		writeBuffer(eclipseIni, ini);
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();

@@ -46,7 +46,7 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 		URL base = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
 		File folder = new File(FileLocator.toFileURL(base).getPath());
 
-		Hashtable props = new Hashtable();
+		Hashtable<String, String> props = new Hashtable<>();
 		props.put(DirectoryWatcher.DIR, folder.getAbsolutePath());
 
 		DirectoryWatcher watcher = new DirectoryWatcher(props, TestActivator.getContext());
@@ -58,11 +58,11 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 		URL base = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
 		File folder = new File(FileLocator.toFileURL(base).getPath());
 
-		Hashtable props = new Hashtable();
+		Hashtable<String, String> props = new Hashtable<>();
 		props.put(DirectoryWatcher.DIR, folder.getAbsolutePath());
 
 		DirectoryWatcher watcher = new DirectoryWatcher(props, TestActivator.getContext());
-		final List list = Collections.synchronizedList(new ArrayList());
+		final List<File> list = Collections.synchronizedList(new ArrayList<>());
 		DirectoryChangeListener listener = new DirectoryChangeListener() {
 
 			@Override

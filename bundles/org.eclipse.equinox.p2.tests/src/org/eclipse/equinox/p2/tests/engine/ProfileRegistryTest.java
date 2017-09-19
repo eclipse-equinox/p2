@@ -302,11 +302,11 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 				simpleRgy.lockProfile(simpleProfile);
 				simpleRgy.unlockProfile(simpleProfile);
 				// Create a lock file to confirm locking
-		
+
 				File lockDirectory = new File(getResourceAsBundleRelFile("testData/engineTest/SimpleRegistry/"), SIMPLE_PROFILE + ".profile");
 				File lockFile = new File(lockDirectory, ".lock");
 				assertTrue("Lock file does not exist", lockFile.exists());
-		
+
 				ProfileLock profileLock = new ProfileLock(lockDirectory);
 				boolean locked = profileLock.lock();
 				try {
@@ -559,19 +559,9 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 			fail();
 		}
 		File profileFolder = new File(folder, getName() + ".profile");
-		File[] filesFound = profileFolder.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".profile");
-			}
-		});
+		File[] filesFound = profileFolder.listFiles((FileFilter) pathname -> pathname.getName().endsWith(".profile"));
 		assertEquals(1, filesFound.length);
-		filesFound = profileFolder.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".profile.gz");
-			}
-		});
+		filesFound = profileFolder.listFiles((FileFilter) pathname -> pathname.getName().endsWith(".profile.gz"));
 		assertEquals(0, filesFound.length);
 	}
 
@@ -611,15 +601,12 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 					fail("1.4", e);
 				}
 				File profileFolder = new File(folder, getName() + ".profile");
-				profileFolder.listFiles(new FileFilter() {
-					@Override
-					public boolean accept(File pathname) {
-						if (pathname.getName().endsWith(".profile"))
-							assertEquals("2.0." + currentValue, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED, currentValue);
-						else if (pathname.getName().endsWith(".profile.gz"))
-							assertFalse("2.1." + currentValue, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED.equals(currentValue));
-						return false;
-					}
+				profileFolder.listFiles((FileFilter) pathname -> {
+					if (pathname.getName().endsWith(".profile"))
+						assertEquals("2.0." + currentValue, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED, currentValue);
+					else if (pathname.getName().endsWith(".profile.gz"))
+						assertFalse("2.1." + currentValue, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED.equals(currentValue));
+					return false;
 				});
 			}
 		} finally {
@@ -652,13 +639,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 			fail();
 		}
 		File profileFolder = new File(folder, getName() + ".profile");
-		File[] filesFound = profileFolder.listFiles(new FileFilter() {
-
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".profile.gz");
-			}
-		});
+		File[] filesFound = profileFolder.listFiles((FileFilter) pathname -> pathname.getName().endsWith(".profile.gz"));
 		assertEquals(1, filesFound.length);
 	}
 
@@ -1019,7 +1000,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		stateProperties2.put("a", "c");
 		stateProperties2.put("zz", "yy");
 
-		List keys = Arrays.asList(new String[] {"one", "a", "none"});
+		List<String> keys = Arrays.asList(new String[] {"one", "a", "none"});
 
 		// Test removing before any sets. (I.E. file does not exist)
 		assertOK(registry.removeProfileStateProperties(profile.getProfileId(), 1, keys));

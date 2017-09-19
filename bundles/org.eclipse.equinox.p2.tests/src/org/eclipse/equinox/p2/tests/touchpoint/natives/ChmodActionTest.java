@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Cloudsmith Inc - ongoing development
@@ -44,7 +44,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		File zipTarget2 = new File(subDir, "a.zip");
 		copy("3.0", zipSource, zipTarget2);
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
 		touchpoint.initializePhase(null, profile, "testExecuteUndo", parameters);
@@ -52,7 +52,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_TARGET_DIR, installFolder.getAbsolutePath());
 		parameters.put(ActionConstants.PARM_TARGET_FILE, "a.zip");
 		parameters.put(ActionConstants.PARM_PERMISSIONS, "+x");
-		Map xparameters = Collections.unmodifiableMap(parameters);
+		Map<String, Object> xparameters = Collections.unmodifiableMap(parameters);
 
 		// TODO: We need a way to verify
 		// one idea is to run an executable here (or chmod with -w, -r and then test that files are unreadable

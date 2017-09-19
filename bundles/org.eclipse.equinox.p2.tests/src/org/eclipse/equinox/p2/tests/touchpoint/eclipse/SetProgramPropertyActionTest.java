@@ -40,7 +40,7 @@ public class SetProgramPropertyActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testExecuteUndo() {
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();
@@ -87,7 +87,7 @@ public class SetProgramPropertyActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -115,7 +115,7 @@ public class SetProgramPropertyActionTest extends AbstractProvisioningTest {
 
 		action.execute(parameters);
 		assertTrue(manipulator.getConfigData().getProperty("test").equals(resolvedArtifact));
-		parameters = new HashMap(parameters);
+		parameters = new HashMap<>(parameters);
 		parameters.remove(ActionConstants.PARM_PROP_VALUE);
 		parameters = Collections.unmodifiableMap(parameters);
 		action.execute(parameters);
@@ -144,7 +144,7 @@ public class SetProgramPropertyActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
@@ -172,7 +172,7 @@ public class SetProgramPropertyActionTest extends AbstractProvisioningTest {
 
 		action.execute(parameters);
 		assertTrue(manipulator.getConfigData().getProperty("test").equals(resolvedArtifact));
-		parameters = new HashMap(parameters);
+		parameters = new HashMap<>(parameters);
 		parameters.remove(ActionConstants.PARM_PROP_VALUE);
 		parameters = Collections.unmodifiableMap(parameters);
 		action.execute(parameters);

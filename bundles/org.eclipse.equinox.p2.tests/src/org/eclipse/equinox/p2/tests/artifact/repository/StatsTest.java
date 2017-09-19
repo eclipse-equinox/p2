@@ -56,7 +56,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
 		AbstractProvisioningTest.delete(repositoryFile);
 		repositoryURI = repositoryFile.toURI();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		statsURL = URI.create(getBaseURL() + "/stats");
 		properties.put("p2.statsURI", statsURL.toString());
@@ -72,7 +72,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 		sourceRepo.addDescriptors(descriptors, null);
 
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
-		properties = new HashMap();
+		properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		metaRepo = manager.createRepository(repositoryURI, "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
@@ -80,7 +80,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 		descriptor.setId("testIuId");
 		descriptor.setVersion(Version.create("1.0.0"));
 		descriptor.setArtifacts(new IArtifactKey[] {key});
-		Collection providedCaps = new ArrayList();
+		Collection<IProvidedCapability> providedCaps = new ArrayList<>();
 		providedCaps.add(MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, descriptor.getId(), descriptor.getVersion()));
 		descriptor.addProvidedCapabilities(providedCaps);
 		descriptor.setMetaRequirements(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, descriptor.getId(), new VersionRange(descriptor.getVersion(), true, Version.MAX_VERSION, false), null, false, false)});
@@ -150,7 +150,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 	public void testDownloadStatsWhileInstall() throws AuthenticationFailedException, FileNotFoundException, CoreException, IOException {
 		IProfileRegistry registry = (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
 		final String profileName = "downloadStats";
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_STATS_PARAMETERS, "os=linux&ws=gtk&package=jee");
 		String tempDir = System.getProperty("java.io.tmpdir");
 		testInstall = new File(tempDir, "statsTestInstall");

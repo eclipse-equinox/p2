@@ -46,25 +46,25 @@ public class EngineTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		protected IStatus completeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+		protected IStatus completeOperand(IProfile profile, Operand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 			operandCount--;
 			return super.completeOperand(profile, operand, parameters, monitor);
 		}
 
 		@Override
-		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 			phaseCount--;
 			return super.completePhase(monitor, profile, parameters);
 		}
 
 		@Override
-		protected IStatus initializeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+		protected IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 			operandCount++;
 			return super.initializeOperand(profile, operand, parameters, monitor);
 		}
 
 		@Override
-		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 			phaseCount++;
 			return super.initializePhase(monitor, profile, parameters);
 		}
@@ -774,7 +774,7 @@ public class EngineTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			public Map getInstallableUnitProperties(IInstallableUnit iu) {
+			public Map<String, String> getInstallableUnitProperties(IInstallableUnit iu) {
 				return null;
 			}
 
@@ -789,7 +789,7 @@ public class EngineTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			public Map getProperties() {
+			public Map<String, String> getProperties() {
 				return null;
 			}
 

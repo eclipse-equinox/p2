@@ -18,7 +18,7 @@ import org.easymock.Capture;
  */
 public class MultiCapture<T> extends Capture<T> implements Collection<T> {
 	private static final long serialVersionUID = 1L;
-	private final List captured = new ArrayList();
+	private final List<T> captured = new ArrayList<>();
 
 	@Override
 	public boolean add(T arg0) {
@@ -26,7 +26,7 @@ public class MultiCapture<T> extends Capture<T> implements Collection<T> {
 	}
 
 	@Override
-	public boolean addAll(Collection arg0) {
+	public boolean addAll(Collection<? extends T> arg0) {
 		return captured.addAll(arg0);
 	}
 
@@ -41,7 +41,7 @@ public class MultiCapture<T> extends Capture<T> implements Collection<T> {
 	}
 
 	@Override
-	public boolean containsAll(Collection arg0) {
+	public boolean containsAll(Collection<?> arg0) {
 		return captured.containsAll(arg0);
 	}
 
@@ -51,7 +51,7 @@ public class MultiCapture<T> extends Capture<T> implements Collection<T> {
 	}
 
 	@Override
-	public Iterator iterator() {
+	public Iterator<T> iterator() {
 		return captured.iterator();
 	}
 
@@ -61,12 +61,12 @@ public class MultiCapture<T> extends Capture<T> implements Collection<T> {
 	}
 
 	@Override
-	public boolean removeAll(Collection arg0) {
+	public boolean removeAll(Collection<?> arg0) {
 		return captured.removeAll(arg0);
 	}
 
 	@Override
-	public boolean retainAll(Collection arg0) {
+	public boolean retainAll(Collection<?> arg0) {
 		return captured.retainAll(arg0);
 	}
 
@@ -87,7 +87,7 @@ public class MultiCapture<T> extends Capture<T> implements Collection<T> {
 	}
 
 	@Override
-	public Object[] toArray(Object[] arg0) {
+	public <T> T[] toArray(T[] arg0) {
 		return captured.toArray(arg0);
 	}
 }

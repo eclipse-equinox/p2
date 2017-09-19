@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class TestQueryReimplementation extends AbstractProvisioningTest {
 
-	public static class UpdateQuery extends ExpressionMatchQuery {
+	public static class UpdateQuery extends ExpressionMatchQuery<IInstallableUnit> {
 		private static final IExpression expr1;
 		private static final IExpression expr2;
 
@@ -42,7 +42,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		}
 	}
 
-	public static class IUPropertyQuery extends ExpressionMatchQuery {
+	public static class IUPropertyQuery extends ExpressionMatchQuery<IInstallableUnit> {
 		private static final IExpression expr = ExpressionUtil.getParser().parse("properties[$0] == $1");
 
 		public IUPropertyQuery(String propertyName, String propertyValue) {
@@ -50,7 +50,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		}
 	}
 
-	public static class InstallableUnitQuery extends ExpressionMatchQuery {
+	public static class InstallableUnitQuery extends ExpressionMatchQuery<IInstallableUnit> {
 		/**
 		 * A convenience query that will match any {@link IInstallableUnit}
 		 * it encounters.
@@ -69,7 +69,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		/**
 		 * Creates a query that will match any {@link IInstallableUnit} with the given
 		 * id, regardless of version.
-		 * 
+		 *
 		 * @param id The installable unit id to match, or <code>null</code> to match any id
 		 */
 		public InstallableUnitQuery(String id) {
@@ -79,7 +79,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		/**
 		 * Creates a query that will match any {@link IInstallableUnit} with the given
 		 * id, and whose version falls in the provided range.
-		 * 
+		 *
 		 * @param id The installable unit id to match, or <code>null</code> to match any id
 		 * @param range The version range to match
 		 */
@@ -90,7 +90,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		/**
 		 * Creates a query that will match any {@link IInstallableUnit} with the given
 		 * id and version.
-		 * 
+		 *
 		 * @param id The installable unit id to match, or <code>null</code> to match any id
 		 * @param version The precise version that a matching unit must have
 		 */
@@ -101,7 +101,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		/**
 		 * Creates a query that will match any {@link IInstallableUnit} with the given
 		 * id and version.
-		 * 
+		 *
 		 * @param versionedId The precise id/version combination that a matching unit must have
 		 */
 		public InstallableUnitQuery(IVersionedId versionedId) {
@@ -125,14 +125,14 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 
 	public void testUpdateWithDifferentId() {
 		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {a1, updateOfA});
-		IQueryResult c = repo.query(new UpdateQuery(a1), null);
+		IQueryResult<IInstallableUnit> c = repo.query(new UpdateQuery(a1), null);
 		assertEquals(1, queryResultSize(c));
 		assertEquals(updateOfA, c.iterator().next());
 	}
 
 	public void testWithSuperiorVersion() {
 		IMetadataRepository repo2 = createTestMetdataRepository(new IInstallableUnit[] {a11, a1});
-		IQueryResult c2 = repo2.query(new UpdateQuery(a1), null);
+		IQueryResult<IInstallableUnit> c2 = repo2.query(new UpdateQuery(a1), null);
 		assertEquals(1, queryResultSize(c2));
 		assertEquals(a11, c2.iterator().next());
 	}

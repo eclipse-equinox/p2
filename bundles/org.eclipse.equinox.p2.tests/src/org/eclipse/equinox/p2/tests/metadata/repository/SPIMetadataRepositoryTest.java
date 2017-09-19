@@ -229,16 +229,16 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	class SPIInstallableUnit implements IInstallableUnit {
 
-		List artifacts = new ArrayList();
-		List fragments = new ArrayList();
-		List requiredCapabilities = new ArrayList();
-		List providedCapabilities = new ArrayList();
-		List touchpointData = new ArrayList();
+		List<IArtifactKey> artifacts = new ArrayList<>();
+		List<IInstallableUnitFragment> fragments = new ArrayList<>();
+		List<IRequirement> requiredCapabilities = new ArrayList<>();
+		List<IProvidedCapability> providedCapabilities = new ArrayList<>();
+		List<ITouchpointData> touchpointData = new ArrayList<>();
 		ICopyright copyright = null;
 		IMatchExpression<IInstallableUnit> filter = null;
 		String id = null;
 		Collection<ILicense> license = null;
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		ITouchpointType touchpointType = null;
 		IUpdateDescriptor updateDescriptor = null;
 		Version version = null;
@@ -286,13 +286,13 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		public Map getProperties() {
+		public Map<String, String> getProperties() {
 			return this.properties;
 		}
 
 		@Override
 		public String getProperty(String key) {
-			return (String) this.properties.get(key);
+			return this.properties.get(key);
 		}
 
 		@Override
@@ -382,11 +382,11 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	class SPITouchpointData implements ITouchpointData {
 
-		Map instructions = new HashMap();
+		Map<String, ITouchpointInstruction> instructions = new HashMap<>();
 
 		@Override
 		public ITouchpointInstruction getInstruction(String instructionKey) {
-			return (ITouchpointInstruction) instructions.get(instructionKey);
+			return instructions.get(instructionKey);
 		}
 
 		public void addInstruction(String instructionKey, ITouchpointInstruction instruction) {
@@ -394,7 +394,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		public Map getInstructions() {
+		public Map<String, ITouchpointInstruction> getInstructions() {
 			return this.instructions;
 		}
 
@@ -695,7 +695,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	 */
 	public void testSPIMetadataIU() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
@@ -724,7 +724,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	 */
 	public void testProvidedCapabilitywithSPI_IU() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
@@ -763,7 +763,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	 */
 	public void testSPIRequiredCapability() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
@@ -771,7 +771,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		iuDescription.setId("foo");
 		iuDescription.setVersion(Version.createOSGi(1, 1, 1));
 		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true));
-		Collection list = new ArrayList();
+		Collection<IRequirement> list = new ArrayList<>();
 		list.add(spiRequiredCapability);
 		iuDescription.addRequirements(list);
 
@@ -803,7 +803,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	 */
 	public void testSPIEquals() throws ProvisionException, URISyntaxException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map properties = new HashMap();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
@@ -832,7 +832,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		SPITouchpointType spiTouchpointType = new SPITouchpointType("foo", Version.createOSGi(3, 3, 3));
 		iuDescription.setTouchpointType(spiTouchpointType);
 
-		Collection requiredCapabilityList = new ArrayList();
+		Collection<IRequirement> requiredCapabilityList = new ArrayList<>();
 		requiredCapabilityList.add(spiRequiredCapability);
 		iuDescription.addRequirements(requiredCapabilityList);
 

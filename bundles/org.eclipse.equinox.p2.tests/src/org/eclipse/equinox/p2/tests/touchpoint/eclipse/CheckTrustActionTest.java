@@ -59,10 +59,10 @@ public class CheckTrustActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createBundleIU(bundleDescription, osgiTarget.isDirectory(), key);
 		bundlePool.addDescriptor(descriptor, new NullProgressMonitor());
 
-		Map parameters = new HashMap();
+		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(CheckTrust.PARM_ARTIFACT_FILES, new ArrayList());
+		parameters.put(CheckTrust.PARM_ARTIFACT_FILES, new ArrayList<>());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
@@ -70,13 +70,13 @@ public class CheckTrustActionTest extends AbstractProvisioningTest {
 		touchpoint.initializeOperand(profile, parameters);
 		parameters = Collections.unmodifiableMap(parameters);
 
-		assertFalse(((List) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
+		assertFalse(((List<?>) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
 		CheckTrustAction action = new CheckTrustAction();
 		action.execute(parameters);
-		assertTrue(((List) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
+		assertTrue(((List<?>) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
 		// does nothing so should not alter parameters
 		action.undo(parameters);
-		assertTrue(((List) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
+		assertTrue(((List<?>) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
 	}
 
 }

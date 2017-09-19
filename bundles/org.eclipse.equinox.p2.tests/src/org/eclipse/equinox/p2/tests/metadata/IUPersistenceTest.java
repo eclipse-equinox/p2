@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -51,7 +52,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			private InstallableUnit iu = null;
 
 			private InstallableUnitHandler iuHandler = null;
-			private List singleton = new ArrayList(1);
+			private List<InstallableUnitDescription> singleton = new ArrayList<>(1);
 
 			public TestHandler() {
 				super();
@@ -223,7 +224,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static ITouchpointData createTouchpointData(String[][] instructionData) {
-		Map map = new LinkedHashMap(instructionData.length);
+		Map<String, Object> map = new LinkedHashMap<>(instructionData.length);
 		for (int i = 0; i < instructionData.length; i++) {
 			String[] nextInstruction = instructionData[i];
 			map.put(nextInstruction[0], nextInstruction[1]);
@@ -249,7 +250,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		Collection<IRequirement> requyres = iu.getRequirements();
 		String[][] tuples = new String[requyres.size()][4];
 		int i = 0;
-		for (Iterator iterator = requyres.iterator(); iterator.hasNext();) {
+		for (Iterator<IRequirement> iterator = requyres.iterator(); iterator.hasNext();) {
 			IRequiredCapability next = (IRequiredCapability) iterator.next();
 			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
@@ -260,7 +261,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		Collection<IRequirement> requyres = iu.getMetaRequirements();
 		String[][] tuples = new String[requyres.size()][4];
 		int i = 0;
-		for (Iterator iterator = requyres.iterator(); iterator.hasNext();) {
+		for (Iterator<IRequirement> iterator = requyres.iterator(); iterator.hasNext();) {
 			IRequiredCapability next = (IRequiredCapability) iterator.next();
 			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
