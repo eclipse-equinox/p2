@@ -302,7 +302,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		newProps.put("id", id);
 		newProps.put("version", version);
 		try (OutputStream os = new FileOutputStream(eclipseProductFile)) {
-			newProps.save(os, "file generated for tests " + getName());
+			newProps.store(os, "file generated for tests " + getName());
 		} catch (IOException e) {
 			fail("Failing setting up the .eclipseproduct file at:" + eclipseProductFile.getAbsolutePath());
 		}
