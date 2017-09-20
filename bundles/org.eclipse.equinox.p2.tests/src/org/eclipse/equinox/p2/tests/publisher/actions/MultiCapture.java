@@ -87,7 +87,7 @@ public class MultiCapture<T> extends Capture<T> implements Collection<T> {
 	}
 
 	@Override
-	public <T> T[] toArray(T[] arg0) {
+	public <X> X[] toArray(X[] arg0) {
 		return captured.toArray(arg0);
 	}
 }
