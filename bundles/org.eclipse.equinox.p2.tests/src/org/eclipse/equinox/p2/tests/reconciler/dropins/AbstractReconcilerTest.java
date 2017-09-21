@@ -609,7 +609,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		List<String> command = new ArrayList<>();
 		Collections.addAll(command, new String[] {(new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
 		Collections.addAll(command, args);
-		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
+		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true", "-Dosgi.dataAreaRequiresExplicitInit=false"});
 		// command-line if you want to run and allow a remote debugger to connect
 		if (debug)
 			Collections.addAll(command, new String[] {"-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"});
