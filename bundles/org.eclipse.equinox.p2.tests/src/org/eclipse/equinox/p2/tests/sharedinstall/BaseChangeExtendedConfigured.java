@@ -66,7 +66,7 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 		List<String> command = new ArrayList<>();
 		Collections.addAll(command, new String[] {(new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
 		Collections.addAll(command, args);
-		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
+		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true", "-Dosgi.dataAreaRequiresExplicitInit=false"});
 		if (extensions != null) {
 			String extensionParameter = "";
 			for (File f : extensions) {
