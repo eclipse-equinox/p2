@@ -64,21 +64,21 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 			exe = new File(root, "java");
 		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
 		List<String> command = new ArrayList<>();
-		Collections.addAll(command, new String[] {(new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
+		Collections.addAll(command, (new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath());
 		Collections.addAll(command, args);
-		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true", "-Dosgi.dataAreaRequiresExplicitInit=false"});
+		Collections.addAll(command, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dosgi.dataAreaRequiresExplicitInit=false");
 		if (extensions != null) {
 			String extensionParameter = "";
 			for (File f : extensions) {
 				extensionParameter += f.toString() + ",";
 			}
 			extensionParameter = extensionParameter.substring(0, extensionParameter.length() - 1);
-			Collections.addAll(command, new String[] {"-Dp2.fragments=" + extensionParameter});
+			Collections.addAll(command, "-Dp2.fragments=" + extensionParameter);
 		}
 
 		// command-line if you want to run and allow a remote debugger to connect
 		if (debug)
-			Collections.addAll(command, new String[] {"-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"});
+			Collections.addAll(command, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000");
 		int result = run(message, command.toArray(new String[command.size()]));
 		// 13 means that we wrote something out in the log file.
 		// so try and parse it and fail via that message if we can.

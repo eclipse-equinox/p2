@@ -607,12 +607,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			exe = new File(root, "java");
 		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
 		List<String> command = new ArrayList<>();
-		Collections.addAll(command, new String[] {(new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
+		Collections.addAll(command, (new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath());
 		Collections.addAll(command, args);
-		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true", "-Dosgi.dataAreaRequiresExplicitInit=false"});
+		Collections.addAll(command, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dosgi.dataAreaRequiresExplicitInit=false");
 		// command-line if you want to run and allow a remote debugger to connect
 		if (debug)
-			Collections.addAll(command, new String[] {"-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"});
+			Collections.addAll(command, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787");
 		int result = run(message, command.toArray(new String[command.size()]));
 		// 13 means that we wrote something out in the log file.
 		// so try and parse it and fail via that message if we can.
