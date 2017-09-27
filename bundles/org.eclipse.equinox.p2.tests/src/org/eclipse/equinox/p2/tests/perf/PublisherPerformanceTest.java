@@ -42,10 +42,6 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 			}
 
 			@Override
-			protected void tearDown() {
-			}
-
-			@Override
 			protected void test() {
 				for (int i = 0; i < queries.length; i++) {
 					result.query(queries[i], null);
@@ -70,10 +66,6 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 					result.addIU(ius[i], IPublisherResult.ROOT);
 					queries[i] = QueryUtil.createLimitQuery(QueryUtil.createIUQuery(ius[i].getId(), ius[i].getVersion()), 1);
 				}
-			}
-
-			@Override
-			protected void tearDown() {
 			}
 
 			@Override

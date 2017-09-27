@@ -31,7 +31,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings({"unchecked"})
 public class ProductActionCapturingTest extends ActionTest {
 
 	File executablesFeatureLocation = null;

@@ -71,5 +71,6 @@ public class TestUpdateListener implements IUpdateListener {
 
 	@Override
 	public void checkingForUpdates() {
+		//do nothing
 	}
 }

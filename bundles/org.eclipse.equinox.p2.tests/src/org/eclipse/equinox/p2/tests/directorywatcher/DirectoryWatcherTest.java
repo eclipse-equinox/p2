@@ -96,15 +96,6 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 				return null;
 			}
 
-			@Override
-			public void startPoll() {
-
-			}
-
-			@Override
-			public void stopPoll() {
-			}
-
 		};
 		watcher.addListener(listener);
 		watcher.poll();

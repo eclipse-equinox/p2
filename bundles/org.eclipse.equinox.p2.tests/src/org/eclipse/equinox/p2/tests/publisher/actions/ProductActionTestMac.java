@@ -30,7 +30,6 @@ import org.eclipse.equinox.p2.tests.TestData;
 /**
  * Tests for {@link ProductAction} specific to Mac.
  */
-@SuppressWarnings({"unchecked"})
 public class ProductActionTestMac extends ActionTest {
 
 	private File executablesFeatureLocation = null;

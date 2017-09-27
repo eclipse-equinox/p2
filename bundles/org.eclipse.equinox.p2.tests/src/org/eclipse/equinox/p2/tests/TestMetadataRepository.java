@@ -123,5 +123,6 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	 */
 	@Override
 	protected void assertModifiable() {
+		//do nothing
 	}
 }

@@ -64,10 +64,6 @@ public class MetadataRepositoryPerformanceTest extends ProvisioningPerformanceTe
 			}
 
 			@Override
-			protected void tearDown() {
-			}
-
-			@Override
 			protected void test() {
 				for (int i = 0; i < queries.length; i++) {
 					repository.query(queries[i], null);

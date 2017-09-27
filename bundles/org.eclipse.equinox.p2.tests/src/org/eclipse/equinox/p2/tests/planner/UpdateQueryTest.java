@@ -45,10 +45,6 @@ public class UpdateQueryTest extends AbstractProvisioningTest {
 		assertEquals(a11, c2.iterator().next());
 	}
 
-	public void testUpdateWithSameId() {
-
-	}
-
 	private IInstallableUnit createIUUpdate() {
 		return createIU("A", Version.create("2.1.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, MetadataFactory.createUpdateDescriptor("A", new VersionRange("[2.0.0, 2.1.0]"), 0, "update description"), null);
 	}
