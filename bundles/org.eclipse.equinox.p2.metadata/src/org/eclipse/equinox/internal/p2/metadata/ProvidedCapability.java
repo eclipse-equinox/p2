@@ -25,9 +25,18 @@ import org.eclipse.osgi.util.NLS;
  * Describes a capability as exposed or required by an installable unit
  */
 public class ProvidedCapability implements IProvidedCapability, IMemberProvider {
-	public static final String MEMBER_NAME = "name"; //$NON-NLS-1$
-	public static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
+	/** Used for fast access from P2 queries to the {@link #getNamespace} method */
 	public static final String MEMBER_NAMESPACE = "namespace"; //$NON-NLS-1$
+	/** Used for fast access from P2 queries to the {@link #getName} method */
+	public static final String MEMBER_NAME = "name"; //$NON-NLS-1$
+	/** Used for fast access from P2 queries to the {@link #getVersion} method */
+	public static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
+	/** Used for fast access from P2 queries to the {@link #getAttributes} method */
+	public static final String MEMBER_ATTRIBUTES = "attributes"; //$NON-NLS-1$
+
+	// TODO Move this to IProvidedCapability?
+	// The "version" attribute is part of the public contract of getVersion() and getAttributes()
+	public static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
 
 	private final String namespace;
 	private final Map<String, Object> attributes;
@@ -38,26 +47,19 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 
 		Assert.isNotNull(attrs);
 		Assert.isTrue(!attrs.isEmpty());
-		Assert.isTrue(!attrs.containsKey(MEMBER_NAMESPACE));
+
 		this.attributes = new HashMap<>(attrs);
 
-		if (!attributes.containsKey(MEMBER_NAME)) {
-			// It is common for a capability to have a main attribute under a key
-			// with value the same as the capability namespace. Use as "name" if present.
-			Assert.isTrue(attributes.containsKey(namespace));
-			attributes.put(MEMBER_NAME, attributes.get(namespace));
-		}
+		// Verify the name
+		Assert.isTrue(attributes.containsKey(namespace) && (attributes.get(namespace) instanceof String),
+				NLS.bind(Messages.provided_capability_name_not_defined, namespace));
 
-		Object version = attributes.get(MEMBER_VERSION);
-		if (version == null) {
-			attributes.put(MEMBER_VERSION, Version.emptyVersion);
-		} else if (version instanceof org.osgi.framework.Version) {
-			org.osgi.framework.Version osgiVer = (org.osgi.framework.Version) version;
-			attributes.put(
-					MEMBER_VERSION,
-					Version.createOSGi(osgiVer.getMajor(), osgiVer.getMinor(), osgiVer.getMicro(), osgiVer.getQualifier()));
+		// Verify the version
+		Object version = attributes.get(ATTRIBUTE_VERSION);
+		if (version != null) {
+			Assert.isTrue(attributes.get(ATTRIBUTE_VERSION) instanceof Version);
 		} else {
-			Assert.isTrue(version instanceof Version);
+			attributes.put(ATTRIBUTE_VERSION, Version.emptyVersion);
 		}
 	}
 
@@ -66,8 +68,8 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 		Assert.isNotNull(name, NLS.bind(Messages.provided_capability_name_not_defined, namespace));
 		this.namespace = namespace;
 		this.attributes = new HashMap<>();
-		attributes.put(MEMBER_NAME, name);
-		attributes.put(MEMBER_VERSION, version == null ? Version.emptyVersion : version);
+		attributes.put(namespace, name);
+		attributes.put(ATTRIBUTE_VERSION, version == null ? Version.emptyVersion : version);
 	}
 
 	public boolean equals(Object other) {
@@ -92,18 +94,16 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 		return true;
 	}
 
-	public String getName() {
-		// There is always a "name" member, but it may not always be a string.
-		// Convert it here so that it is still possible to get the real type via getAttributes().
-		return attributes.get(MEMBER_NAME).toString();
-	}
-
 	public String getNamespace() {
 		return namespace;
 	}
 
+	public String getName() {
+		return (String) attributes.get(namespace);
+	}
+
 	public Version getVersion() {
-		return (Version) attributes.get(MEMBER_VERSION);
+		return (Version) attributes.get(ATTRIBUTE_VERSION);
 	}
 
 	public Map<String, Object> getAttributes() {
@@ -129,11 +129,19 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 		return str.toString();
 	}
 
+	@Override
 	public Object getMember(String memberName) {
-		Object res = memberName.equals(MEMBER_NAMESPACE) ? namespace : attributes.get(memberName);
-		if (res == null) {
-			throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+		switch (memberName) {
+			case MEMBER_NAMESPACE :
+				return namespace;
+			case MEMBER_NAME :
+				return attributes.get(namespace);
+			case MEMBER_VERSION :
+				return attributes.get(ATTRIBUTE_VERSION);
+			case MEMBER_ATTRIBUTES :
+				return attributes;
+			default :
+				throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
 		}
-		return res;
 	}
 }

@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.p2.metadata.*;
@@ -79,6 +78,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
 	public static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
 	public static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
+	public static final String CAPABILITY_ATTR_VERSION = "version"; //$NON-NLS-1$
 
 	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, Version.createOSGi(1, 0, 0));
 	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, Version.createOSGi(1, 0, 0));
@@ -218,30 +218,13 @@ public class BundlesAction extends AbstractPublisherAction {
 		// Bug 360659, Bug 525368. E.g. with IProvidedCapability.getDirectives()
 
 		// TODO
-		// The "osgi.wiring.bundle" capability seems equal to p2 "osgi.bundle" capability.
-		// It may be better to derive it at runtime.
-
-		// TODO
 		// It may be possible map the "osgi.identity" capability to elements of the IU like the id, the license, etc.
 		// It may be better to derive it at runtime.
 
-		int numCapName = 0;
+		int capNo = 0;
 		for (GenericDescription genericCap : bd.getGenericCapabilities()) {
-			String capNs = genericCap.getType();
-
-			Map<String, Object> capAttrs = genericCap.getDeclaredAttributes();
-
-			// Some capabilities do not follow the OSGi convention to have an attribute with a key equal to their namespace (e.g. "osgi.service")
-			// In such cases synthesize a unique name
-			if (!capAttrs.containsKey(capNs)) {
-				capAttrs = new HashMap<>(capAttrs);
-				capAttrs.put(
-						ProvidedCapability.MEMBER_NAME,
-						String.format("%s_%s-%s", iu.getId(), iu.getVersion(), numCapName++)); //$NON-NLS-1$
-				numCapName++;
-			}
-
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(capNs, capAttrs));
+			addGenericCapability(providedCapabilities, genericCap, iu, capNo);
+			capNo++;
 		}
 
 		// Add capability to describe the type of bundle
@@ -318,11 +301,12 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	// TODO Handle all attributes and directives somehow? Especially the "effective" directive.
-	// TODO Make these optional and greedy for backward compatibility?
 	protected void addGenericRequirement(List<IRequirement> reqsDeps, GenericSpecification requireCapSpec, ManifestElement[] rawRequiresPackageHeader) {
+		String ns = requireCapSpec.getType();
 		String ldap = requireCapSpec.getMatchingFilter();
-		ldap = "(&(namespace=" + requireCapSpec.getType() + ")" + ldap + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		IExpression expr = ExpressionUtil.parse("providedCapabilities.exists(pc | pc ~= filter('" + ldap + "'))"); //$NON-NLS-1$ //$NON-NLS-2$
+		String matcher = "providedCapabilities.exists(pc | pc.namespace == '" + ns + "' && pc.attributes ~= filter('" + ldap + "'))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+		IExpression expr = ExpressionUtil.parse(matcher);
 		IMatchExpression<IInstallableUnit> matchExpr = ExpressionUtil.getFactory().matchExpression(expr);
 
 		// Optional and greedy in order to be backward compatible.
@@ -339,6 +323,40 @@ public class BundlesAction extends AbstractPublisherAction {
 		else
 			greedy = true;
 		reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundle.getName(), PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange()), null, optional ? 0 : 1, 1, greedy));
+	}
+
+	protected void addGenericCapability(List<IProvidedCapability> caps, GenericDescription provideCapDesc, InstallableUnitDescription iu, int capNo) {
+		String capNs = provideCapDesc.getType();
+		Map<String, Object> capAttrs = new HashMap<>(provideCapDesc.getDeclaredAttributes());
+
+		// Resolve the p2 name
+		// By convention OSGi capabilities have an attribute named like the capability namespace.
+		// If this is not the case synthesize a unique name (e.g. "osgi.service" has an "objectClass" attribute instead).
+		// TODO If present but not a String log a warning somehow that it is ignored? Or fail the publication?
+		capAttrs.compute(
+				capNs,
+				(k, v) -> (v instanceof String) ? v : String.format("%s_%s-%s", iu.getId(), iu.getVersion(), capNo)); //$NON-NLS-1$
+
+		// Convert all OSGi versions to P2 versions
+		for (String key : new HashSet<>(capAttrs.keySet())) {
+			Object val = capAttrs.get(key);
+			if (!(val instanceof org.osgi.framework.Version)) {
+				continue;
+			}
+			org.osgi.framework.Version osgiVer = (org.osgi.framework.Version) val;
+			Version p2Ver = Version.createOSGi(osgiVer.getMajor(), osgiVer.getMinor(), osgiVer.getMicro(), osgiVer.getQualifier());
+			capAttrs.put(key, p2Ver);
+		}
+
+		// Resolve the version
+		// By convention versioned OSGi capabilities have a "version" attribute containing the OSGi Version object
+		// If this is not the case use an empty version (e.g. "osgi.ee" has a list of versions).
+		// TODO If present but not a Version log a warning somehow that it is ignored? Or fail the publication?
+		capAttrs.compute(
+				CAPABILITY_ATTR_VERSION,
+				(k, v) -> (v instanceof Version) ? v : Version.emptyVersion);
+
+		caps.add(MetadataFactory.createProvidedCapability(capNs, capAttrs));
 	}
 
 	static VersionRange computeUpdateRange(org.osgi.framework.Version base) {

@@ -16,8 +16,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.*;
@@ -533,6 +532,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			this.version = checkVersion(PROVIDED_CAPABILITY_ELEMENT, VERSION_ATTRIBUTE, values[2]);
 		}
 
+		@Override
 		public void startElement(String elem, Attributes attributes) {
 			if (elem.equals(CAPABILITY_ATTRIBUTES_ELEMENT)) {
 				this.attributesHandler = new ProvidedCapabilityAttributesHandler(this, attributes);
@@ -541,13 +541,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			}
 		}
 
+		@Override
 		protected void finished() {
 			Map<String, Object> capAttrs = (attributesHandler != null)
 					? attributesHandler.getAttributes()
-					: new HashMap<String, Object>();
+					: new HashMap<>();
 
-			capAttrs.put(NAME_ATTRIBUTE, name);
-			capAttrs.put(VERSION_ATTRIBUTE, version);
+			capAttrs.put(namespace, name);
+			capAttrs.put(ProvidedCapability.ATTRIBUTE_VERSION, version);
 			IProvidedCapability cap = MetadataFactory.createProvidedCapability(namespace, capAttrs);
 			capabilities.add(cap);
 		}
@@ -559,13 +560,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public ProvidedCapabilityAttributesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, CAPABILITY_ATTRIBUTES_ELEMENT);
 			// TODO add getOptionalSize(attributes, 4)
-			this.capAttributes = new HashMap<String, Object>();
+			this.capAttributes = new HashMap<>();
 		}
 
 		public Map<String, Object> getAttributes() {
 			return capAttributes;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(CAPABILITY_ATTRIBUTE_ELEMENT)) {
 				new ProvidedCapabilityAttributeHandler(this, attributes, capAttributes);
@@ -600,7 +602,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private List<Object> parseList(String type, String value) {
 			String elType = type.substring(ATTR_TYPE_LIST_HEAD.length(), type.length() - 1);
 
-			List<Object> res = new ArrayList<Object>();
+			List<Object> res = new ArrayList<>();
 			for (String el : value.split("\\s*,\\s*")) { //$NON-NLS-1$
 				res.add(parseScalar(elType, el));
 			}

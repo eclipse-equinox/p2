@@ -41,6 +41,7 @@ public class JREAction extends AbstractPublisherAction {
 	private static final String PROFILE_SYSTEM_PACKAGES = "org.osgi.framework.system.packages"; //$NON-NLS-1$
 
 	public static final String NAMESPACE_OSGI_EE = "osgi.ee"; //$NON-NLS-1$
+	public static final String VERSION_OSGI_EE = "version"; //$NON-NLS-1$
 
 	private File jreLocation;
 	private String environment;
@@ -224,7 +225,7 @@ public class JREAction extends AbstractPublisherAction {
 				// complete record -> store
 				Map<String, Object> capAttrs = new HashMap<>();
 				capAttrs.put(NAMESPACE_OSGI_EE, eeName);
-				capAttrs.put("version", parsedVersion); //$NON-NLS-1$
+				capAttrs.put(VERSION_OSGI_EE, parsedVersion);
 
 				parsingResult.add(MetadataFactory.createProvidedCapability(NAMESPACE_OSGI_EE, capAttrs));
 

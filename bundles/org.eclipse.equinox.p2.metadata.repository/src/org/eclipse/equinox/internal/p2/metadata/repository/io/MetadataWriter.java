@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
@@ -167,8 +168,8 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 		attribute(VERSION_ATTRIBUTE, capability.getVersion());
 
 		Map<String, Object> attrs = new HashMap<>(capability.getAttributes());
-		attrs.remove(NAME_ATTRIBUTE);
-		attrs.remove(VERSION_ATTRIBUTE);
+		attrs.remove(capability.getNamespace());
+		attrs.remove(ProvidedCapability.ATTRIBUTE_VERSION);
 
 		if (!attrs.isEmpty()) {
 			start(CAPABILITY_ATTRIBUTES_ELEMENT);
@@ -185,7 +186,7 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 					Collection<?> coll = (Collection<?>) val;
 
 					String elType = coll.iterator().next().getClass().getSimpleName();
-					type = "List<" + elType + ">"; //$NON-NLS-1$ //$NON-NLS-2$
+					type = String.format("List<%s>", elType); //$NON-NLS-1$
 
 					StringBuilder valBuff = new StringBuilder();
 					for (Iterator<?> iter = coll.iterator(); iter.hasNext();) {

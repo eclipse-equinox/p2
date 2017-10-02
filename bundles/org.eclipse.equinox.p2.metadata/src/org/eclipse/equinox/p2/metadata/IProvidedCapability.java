@@ -28,14 +28,6 @@ import java.util.Map;
  * @see IRequirement
  */
 public interface IProvidedCapability {
-
-	/**
-	 * 
-	 * @return String the String representation of the special "name" attribute of this capability.
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public String getName();
-
 	/**
 	 * 
 	 * @return String the namespace of this capability.
@@ -45,7 +37,14 @@ public interface IProvidedCapability {
 
 	/**
 	 * 
-	 * @return String the special "version" attribute of this capability.
+	 * @return String the attribute stored under a key equal to {@link #getNamespace()} attribute of this capability.
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public String getName();
+
+	/**
+	 * 
+	 * @return String the special <code>version</code> attribute of this capability.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public Version getVersion();
@@ -54,6 +53,7 @@ public interface IProvidedCapability {
 	 * 
 	 * @return A full description of this capability
 	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 2.4
 	 */
 	public Map<String, Object> getAttributes();
 
@@ -63,9 +63,8 @@ public interface IProvidedCapability {
 	 * This method returns <i>true</i> if:
 	 * <ul>
 	 *  <li> Both this object and the given object are of type IProvidedCapability
-	 *  <li> The result of <b>getName()</b> on both objects are equal
 	 *  <li> The result of <b>getNamespace()</b> on both objects are equal
-	 *  <li> The result of <b>getVersion()</b> on both objects are equal
+	 *  <li> The result of <b>getAttributes()</b> on both objects are equal
 	 * </ul> 
 	 */
 	public boolean equals(Object other);

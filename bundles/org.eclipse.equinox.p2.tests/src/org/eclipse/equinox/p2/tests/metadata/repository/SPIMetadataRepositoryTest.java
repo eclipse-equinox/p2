@@ -176,7 +176,6 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	class SPIProvidedCapability implements IProvidedCapability {
-
 		String namespace;
 		Map<String, Object> attributes;
 
@@ -184,14 +183,12 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.namespace = namespace;
 
 			this.attributes = new HashMap<>();
-			attributes.put(ProvidedCapability.MEMBER_NAME, name);
-			attributes.put(ProvidedCapability.MEMBER_VERSION, version);
+			attributes.put(namespace, name);
+			attributes.put(ProvidedCapability.ATTRIBUTE_VERSION, version);
 		}
 
 		@Override
 		public boolean equals(Object other) {
-			if (other == null)
-				return false;
 			if (!(other instanceof IProvidedCapability))
 				return false;
 			IProvidedCapability otherCapability = (IProvidedCapability) other;
@@ -203,22 +200,23 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		@Override
+		public String toString() {
+			return namespace + "; " + attributes;
+		}
+
+		@Override
 		public String getName() {
-			return (String) attributes.get(ProvidedCapability.MEMBER_NAME);
+			return (String) attributes.get(namespace);
 		}
 
 		@Override
 		public String getNamespace() {
-			return this.namespace;
+			return namespace;
 		}
 
 		@Override
 		public Version getVersion() {
-			return (Version) attributes.get(ProvidedCapability.MEMBER_VERSION);
-		}
-
-		public boolean satisfies(IRequirement candidate) {
-			return false;
+			return (Version) attributes.get(ProvidedCapability.ATTRIBUTE_VERSION);
 		}
 
 		@Override

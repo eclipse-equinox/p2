@@ -42,8 +42,8 @@ public class BundlesActionTest extends ActionTest {
 	private static final String OSGI = PublisherHelper.OSGI_BUNDLE_CLASSIFIER;
 	private static final String OSGI_IDENTITY = "osgi.identity";
 	private static final String JAVA_PACKAGE = "java.package";//$NON-NLS-1$
-	private static final String JAVA_EE_1_4_REQ = "providedCapabilities.exists(pc | pc ~= filter('(&(namespace=osgi.ee)(|(&(osgi.ee=JavaSE)(version=1.4))(&(osgi.ee=CDC/Foundation)(version=1.1))))'))";
-	private static final String JAVA_EE_1_6_REQ = "providedCapabilities.exists(pc | pc ~= filter('(&(namespace=osgi.ee)(&(osgi.ee=JavaSE)(version=1.6)))'))";
+	private static final String JAVA_EE_1_4_REQ = "providedCapabilities.exists(pc | pc.namespace == 'osgi.ee' && pc.attributes ~= filter('(|(&(osgi.ee=JavaSE)(version=1.4))(&(osgi.ee=CDC/Foundation)(version=1.1)))'))";
+	private static final String JAVA_EE_1_6_REQ = "providedCapabilities.exists(pc | pc.namespace == 'osgi.ee' && pc.attributes ~= filter('(&(osgi.ee=JavaSE)(version=1.6))'))";
 
 	private static final String TEST1_IUD_NAME = "iud";//$NON-NLS-1$
 	private static final String TEST1_PROVZ_NAME = "iuz";//$NON-NLS-1$
