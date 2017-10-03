@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2008, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -11,7 +11,6 @@ package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 import java.io.*;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Comparator;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.Messages;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
@@ -60,14 +59,12 @@ public class SimpleConfiguratorManipulatorUtils {
 	 */
 	public static void writeConfiguration(BundleInfo[] simpleInfos, OutputStream stream) throws IOException {
 		// sort by symbolic name
-		Arrays.sort(simpleInfos, new Comparator<BundleInfo>() {
-			public int compare(BundleInfo b1, BundleInfo b2) {
-				int bsnComparison = b1.getSymbolicName().compareTo(b2.getSymbolicName());
-				if (bsnComparison != 0)
-					return bsnComparison;
-				// prefer latest version, see https://bugs.eclipse.org/363590
-				return new Version(b2.getVersion()).compareTo(new Version(b1.getVersion()));
-			}
+		Arrays.sort(simpleInfos, (b1, b2) -> {
+			int bsnComparison = b1.getSymbolicName().compareTo(b2.getSymbolicName());
+			if (bsnComparison != 0)
+				return bsnComparison;
+			// prefer latest version, see https://bugs.eclipse.org/363590
+			return new Version(b2.getVersion()).compareTo(new Version(b1.getVersion()));
 		});
 
 		BufferedWriter writer = null;

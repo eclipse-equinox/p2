@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -32,9 +32,6 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
-/**
- * 
- */
 public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorManipulator, ConfiguratorManipulator {
 	class LocationInfo {
 		URI[] prerequisiteLocations = null;
@@ -53,7 +50,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	public static final String SHARED_BUNDLES_INFO = CONFIG_FOLDER + File.separatorChar + CONFIGURATOR_FOLDER + File.separatorChar + CONFIG_LIST;
 
-	private Set<Manipulator> manipulators = new HashSet<Manipulator>();
+	private Set<Manipulator> manipulators = new HashSet<>();
 
 	/**	
 	 * Return the ConfiguratorConfigFile which is determined 
@@ -259,14 +256,14 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	}
 
 	private SortedMap<Integer, List<BundleInfo>> getSortedMap(int initialSl, BundleInfo[] bInfos) {
-		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<Integer, List<BundleInfo>>();
+		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<>();
 		for (int i = 0; i < bInfos.length; i++) {
 			Integer sL = Integer.valueOf(bInfos[i].getStartLevel());
 			if (sL.intValue() == BundleInfo.NO_LEVEL)
 				sL = Integer.valueOf(initialSl);
 			List<BundleInfo> list = bslToList.get(sL);
 			if (list == null) {
-				list = new LinkedList<BundleInfo>();
+				list = new LinkedList<>();
 				bslToList.put(sL, list);
 			}
 			list.add(bInfos[i]);
@@ -275,8 +272,8 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	}
 
 	private BundleInfo[] orderingInitialConfig(List<BundleInfo> setToInitialConfig) {
-		List<BundleInfo> notToBeStarted = new LinkedList<BundleInfo>();
-		List<BundleInfo> toBeStarted = new LinkedList<BundleInfo>();
+		List<BundleInfo> notToBeStarted = new LinkedList<>();
+		List<BundleInfo> toBeStarted = new LinkedList<>();
 		for (Iterator<BundleInfo> ite2 = setToInitialConfig.iterator(); ite2.hasNext();) {
 			BundleInfo bInfo = ite2.next();
 			if (bInfo.isMarkedAsStarted())
@@ -302,6 +299,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		}
 	}
 
+	@Override
 	public BundleInfo[] loadConfiguration(BundleContext context, String infoPath) throws IOException {
 		URI installArea = EquinoxUtils.getInstallLocationURI(context);
 
@@ -339,7 +337,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			}
 		}
 
-		List<BundleInfo> result = new ArrayList<BundleInfo>();
+		List<BundleInfo> result = new ArrayList<>();
 		//stream will be closed
 		result.addAll(Arrays.asList(loadConfiguration(stream, installArea)));
 
@@ -361,6 +359,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator#loadConfiguration(java.io.InputStream, java.net.URI)
 	 */
+	@Override
 	public BundleInfo[] loadConfiguration(InputStream stream, URI installArea) throws IOException {
 		if (stream == null)
 			return NULL_BUNDLEINFOS;
@@ -383,11 +382,13 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		return result;
 	}
 
+	@Override
 	public void saveConfiguration(BundleInfo[] configuration, OutputStream stream, URI installArea) throws IOException {
 		org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] simpleInfos = convertBundleInfos(configuration, installArea);
 		SimpleConfiguratorManipulatorUtils.writeConfiguration(simpleInfos, stream);
 	}
 
+	@Override
 	public void saveConfiguration(BundleInfo[] configuration, File outputFile, URI installArea) throws IOException {
 		saveConfiguration(configuration, outputFile, installArea, false);
 	}
@@ -461,9 +462,10 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		return simpleInfos;
 	}
 
+	@Override
 	public BundleInfo[] save(Manipulator manipulator, boolean backup) throws IOException {
-		List<BundleInfo> setToInitialConfig = new LinkedList<BundleInfo>();
-		List<BundleInfo> setToSimpleConfig = new LinkedList<BundleInfo>();
+		List<BundleInfo> setToInitialConfig = new LinkedList<>();
+		List<BundleInfo> setToSimpleConfig = new LinkedList<>();
 		ConfigData configData = manipulator.getConfigData();
 
 		if (!divideBundleInfos(manipulator, setToInitialConfig, setToSimpleConfig, configData.getInitialBundleStartLevel()))
@@ -509,6 +511,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			info.systemFragmentedBundleLocations[i] = fragments[i].getLocation();
 	}
 
+	@Override
 	public void updateBundles(Manipulator manipulator) throws IOException {
 		if (DEBUG)
 			System.out.println("SimpleConfiguratorManipulatorImpl#updateBundles()"); //$NON-NLS-1$
@@ -554,7 +557,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			}
 		}
 
-		List<BundleInfo> toUninstall = new LinkedList<BundleInfo>();
+		List<BundleInfo> toUninstall = new LinkedList<>();
 		if (exclusiveInstallation)
 			for (int i = 0; i < currentBInfos.length; i++) {
 				boolean install = false;
@@ -584,6 +587,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		manipulator.getConfigData().setBundles(bundleState.getExpectedState());
 	}
 
+	@Override
 	public void cleanup(Manipulator manipulator) {
 		File outputFile = getConfigFile(manipulator);
 		outputFile.delete();
