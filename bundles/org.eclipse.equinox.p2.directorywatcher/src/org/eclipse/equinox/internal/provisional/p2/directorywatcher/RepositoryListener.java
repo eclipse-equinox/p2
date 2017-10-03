@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -40,8 +40,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private final CachingArtifactRepository artifactRepository;
 	// at any point in time currentFiles is the list of files/dirs that the watcher has seen and 
 	// believes to be on disk.
-	private final Map<File, Long> currentFiles = new HashMap<File, Long>();
-	private final Collection<File> polledSeenFiles = new HashSet<File>();
+	private final Map<File, Long> currentFiles = new HashMap<>();
+	private final Collection<File> polledSeenFiles = new HashSet<>();
 
 	private EntryAdvice advice = new EntryAdvice();
 	private PublisherInfo info;
@@ -113,14 +113,17 @@ public class RepositoryListener extends DirectoryChangeListener {
 		}
 	}
 
+	@Override
 	public boolean added(File file) {
 		return process(file, true);
 	}
 
+	@Override
 	public boolean changed(File file) {
 		return process(file, false);
 	}
 
+	@Override
 	public boolean removed(File file) {
 		// the IUs and artifacts associated with this file will get removed in stopPoll
 		return currentFiles.containsKey(file);
@@ -160,10 +163,12 @@ public class RepositoryListener extends DirectoryChangeListener {
 		return action.perform(info, result, new NullProgressMonitor()).isOK();
 	}
 
+	@Override
 	public boolean isInterested(File file) {
 		return true;
 	}
 
+	@Override
 	public Long getSeenFile(File file) {
 		Long lastSeen = currentFiles.get(file);
 		if (lastSeen != null)
@@ -171,14 +176,16 @@ public class RepositoryListener extends DirectoryChangeListener {
 		return lastSeen;
 	}
 
+	@Override
 	public void startPoll() {
 		iusToAdd = new PublisherResult();
 		iusToChange = new PublisherResult();
 		synchronizeCurrentFiles();
 	}
 
+	@Override
 	public void stopPoll() {
-		final Set<File> filesToRemove = new HashSet<File>(currentFiles.keySet());
+		final Set<File> filesToRemove = new HashSet<>(currentFiles.keySet());
 		filesToRemove.removeAll(polledSeenFiles);
 		polledSeenFiles.clear();
 
@@ -203,7 +210,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			// We convert the java.io.File objects to Strings before doing the comparison
 			// because when we have large numbers of files, the performance is much better.
 			// See bug 324353.
-			Collection<String> paths = new HashSet<String>(removedFiles.size());
+			Collection<String> paths = new HashSet<>(removedFiles.size());
 			for (File file : removedFiles)
 				paths.add(file.getAbsolutePath());
 			IQuery<IInstallableUnit> removeQuery = QueryUtil.createMatchQuery( //

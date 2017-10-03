@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 aQute and others.
+ *  Copyright (c) 2007, 2017 aQute and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ public class DirectoryWatcher {
 			this.pollFrequency = pollFrequency;
 		}
 
+		@Override
 		public void run() {
 			do {
 				try {
@@ -62,8 +63,8 @@ public class DirectoryWatcher {
 	final File[] directories;
 
 	long poll = 2000;
-	private Set<DirectoryChangeListener> listeners = new HashSet<DirectoryChangeListener>();
-	private HashSet<File> scannedFiles = new HashSet<File>();
+	private Set<DirectoryChangeListener> listeners = new HashSet<>();
+	private HashSet<File> scannedFiles = new HashSet<>();
 	private HashSet<File> removals;
 	private Set<File> pendingDeletions;
 	private WatcherThread watcher;
@@ -131,8 +132,8 @@ public class DirectoryWatcher {
 
 	private void startPoll() {
 		removals = scannedFiles;
-		scannedFiles = new HashSet<File>();
-		pendingDeletions = new HashSet<File>();
+		scannedFiles = new HashSet<>();
+		pendingDeletions = new HashSet<>();
 		for (DirectoryChangeListener listener : listeners)
 			listener.startPoll();
 	}

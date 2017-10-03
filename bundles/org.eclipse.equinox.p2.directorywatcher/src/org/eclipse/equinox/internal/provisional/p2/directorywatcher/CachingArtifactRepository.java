@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -24,26 +24,24 @@ import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
-public class CachingArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
+public class CachingArtifactRepository implements IFileArtifactRepository {
 
 	private static final String NULL = ""; //$NON-NLS-1$
 	private IArtifactRepository innerRepo;
-	private Set<IArtifactDescriptor> descriptorsToAdd = new HashSet<IArtifactDescriptor>();
-	private Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<IArtifactKey, List<IArtifactDescriptor>>();
-	private Set<IArtifactDescriptor> descriptorsToRemove = new HashSet<IArtifactDescriptor>();
-	private Map<String, String> propertyChanges = new HashMap<String, String>();
+	private Set<IArtifactDescriptor> descriptorsToAdd = new HashSet<>();
+	private Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<>();
+	private Set<IArtifactDescriptor> descriptorsToRemove = new HashSet<>();
+	private Map<String, String> propertyChanges = new HashMap<>();
 
 	protected CachingArtifactRepository(IArtifactRepository innerRepo) {
 		this.innerRepo = innerRepo;
 	}
 
 	public void save() {
-		innerRepo.executeBatch(new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) {
-				savePropertyChanges();
-				saveAdditions();
-				saveRemovals();
-			}
+		innerRepo.executeBatch(monitor -> {
+			savePropertyChanges();
+			saveAdditions();
+			saveRemovals();
 		}, null);
 	}
 
@@ -73,7 +71,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		IArtifactKey key = descriptor.getArtifactKey();
 		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null) {
-			descriptors = new ArrayList<IArtifactDescriptor>();
+			descriptors = new ArrayList<>();
 			artifactMap.put(key, descriptors);
 		}
 		descriptors.add(descriptor);
@@ -94,6 +92,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			artifactMap.remove(key);
 	}
 
+	@Override
 	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, descriptors.length);
@@ -109,11 +108,13 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		}
 	}
 
+	@Override
 	@Deprecated
 	public final synchronized void addDescriptors(IArtifactDescriptor[] descriptors) {
 		addDescriptors(descriptors, new NullProgressMonitor());
 	}
 
+	@Override
 	public synchronized void addDescriptor(IArtifactDescriptor toAdd, IProgressMonitor monitor) {
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
@@ -128,44 +129,53 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		}
 	}
 
+	@Override
 	@Deprecated
 	public final synchronized void addDescriptor(IArtifactDescriptor toAdd) {
 		addDescriptor(toAdd, new NullProgressMonitor());
 	}
 
+	@Override
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		List<IArtifactDescriptor> result = artifactMap.get(key);
 		if (result == null)
 			return innerRepo.getArtifactDescriptors(key);
-		result = new ArrayList<IArtifactDescriptor>(result);
+		result = new ArrayList<>(result);
 		result.addAll(Arrays.asList(innerRepo.getArtifactDescriptors(key)));
 		return result.toArray(new IArtifactDescriptor[result.size()]);
 	}
 
+	@Override
 	public synchronized boolean contains(IArtifactDescriptor descriptor) {
 		return descriptorsToAdd.contains(descriptor) || innerRepo.contains(descriptor);
 	}
 
+	@Override
 	public synchronized boolean contains(IArtifactKey key) {
 		return artifactMap.containsKey(key) || innerRepo.contains(key);
 	}
 
+	@Override
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		return innerRepo.getArtifact(descriptor, destination, monitor);
 	}
 
+	@Override
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		return innerRepo.getRawArtifact(descriptor, destination, monitor);
 	}
 
+	@Override
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 		return null;
 	}
 
+	@Override
 	public synchronized final void removeAll(IProgressMonitor monitor) {
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
@@ -179,11 +189,13 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		}
 	}
 
+	@Override
 	@Deprecated
 	public synchronized void removeAll() {
 		this.removeAll(new NullProgressMonitor());
 	}
 
+	@Override
 	public synchronized void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
@@ -195,11 +207,13 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		}
 	}
 
+	@Override
 	@Deprecated
 	public final synchronized void removeDescriptor(IArtifactDescriptor descriptor) {
 		removeDescriptor(descriptor, new NullProgressMonitor());
 	}
 
+	@Override
 	public synchronized void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		try {
 			IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
@@ -214,11 +228,13 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		}
 	}
 
+	@Override
 	@Deprecated
 	public final synchronized void removeDescriptor(IArtifactKey key) {
 		this.removeDescriptor(key, new NullProgressMonitor());
 	}
 
+	@Override
 	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, descriptors.length);
@@ -232,11 +248,13 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		}
 	}
 
+	@Override
 	@Deprecated
 	public final synchronized void removeDescriptors(IArtifactDescriptor[] descriptors) {
 		removeDescriptors(descriptors, new NullProgressMonitor());
 	}
 
+	@Override
 	public synchronized void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, keys.length);
@@ -250,6 +268,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		}
 	}
 
+	@Override
 	@Deprecated
 	public final synchronized void removeDescriptors(IArtifactKey[] keys) {
 		removeDescriptors(keys, new NullProgressMonitor());
@@ -269,47 +288,58 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return result;
 	}
 
+	@Override
 	public String getDescription() {
 		return innerRepo.getDescription();
 	}
 
+	@Override
 	public URI getLocation() {
 		return innerRepo.getLocation();
 	}
 
+	@Override
 	public String getName() {
 		return innerRepo.getName();
 	}
 
+	@Override
 	public Map<String, String> getProperties() {
 		// TODO need to combine the local and inner properties
 		return innerRepo.getProperties();
 	}
 
+	@Override
 	public String getProperty(String key) {
 		return innerRepo.getProperty(key);
 	}
 
+	@Override
 	public String getProvider() {
 		return innerRepo.getProvider();
 	}
 
+	@Override
 	public IProvisioningAgent getProvisioningAgent() {
 		return innerRepo.getProvisioningAgent();
 	}
 
+	@Override
 	public String getType() {
 		return innerRepo.getType();
 	}
 
+	@Override
 	public String getVersion() {
 		return innerRepo.getVersion();
 	}
 
+	@Override
 	public boolean isModifiable() {
 		return innerRepo.isModifiable();
 	}
 
+	@Override
 	public String setProperty(String key, String value, IProgressMonitor monitor) {
 		try {
 			String result = getProperties().get(key);
@@ -321,57 +351,58 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		}
 	}
 
+	@Override
 	public final String setProperty(String key, String value) {
 		return setProperty(key, value, new NullProgressMonitor());
 	}
 
+	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		return innerRepo.getAdapter(adapter);
 	}
 
+	@Override
 	public File getArtifactFile(IArtifactKey key) {
 		if (innerRepo instanceof IFileArtifactRepository)
 			return ((IFileArtifactRepository) innerRepo).getArtifactFile(key);
 		return null;
 	}
 
+	@Override
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
 		if (innerRepo instanceof IFileArtifactRepository)
 			return ((IFileArtifactRepository) innerRepo).getArtifactFile(descriptor);
 		return null;
 	}
 
+	@Override
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return innerRepo.createArtifactDescriptor(key);
 	}
 
+	@Override
 	public IArtifactKey createArtifactKey(String classifier, String id, Version version) {
 		return innerRepo.createArtifactKey(classifier, id, version);
 	}
 
+	@Override
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 		final Collection<List<IArtifactDescriptor>> descs = artifactMap.values();
-		IQueryable<IArtifactDescriptor> cached = new IQueryable<IArtifactDescriptor>() {
-			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
-				return query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
-			}
-		};
+		IQueryable<IArtifactDescriptor> cached = (query, monitor) -> query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
 
 		return QueryUtil.compoundQueryable(cached, innerRepo.descriptorQueryable());
 	}
 
+	@Override
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		final Iterator<IArtifactKey> keyIterator = artifactMap.keySet().iterator();
-		IQueryable<IArtifactKey> cached = new IQueryable<IArtifactKey>() {
-			public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> q, IProgressMonitor mon) {
-				return q.perform(keyIterator);
-			}
-		};
+		IQueryable<IArtifactKey> cached = (q, mon) -> q.perform(keyIterator);
 
 		IQueryable<IArtifactKey> compound = QueryUtil.compoundQueryable(cached, innerRepo);
 		return compound.query(query, monitor);
 	}
 
+	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
 			runnable.run(monitor);
