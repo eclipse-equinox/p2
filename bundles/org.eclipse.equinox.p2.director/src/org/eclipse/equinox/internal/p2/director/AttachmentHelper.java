@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -18,9 +18,9 @@ public class AttachmentHelper {
 	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
 
 	public static Collection<IInstallableUnit> attachFragments(Iterator<IInstallableUnit> toAttach, Map<IInstallableUnitFragment, List<IInstallableUnit>> fragmentsToIUs) {
-		Map<IInstallableUnit, IInstallableUnitFragment[]> fragmentBindings = new HashMap<IInstallableUnit, IInstallableUnitFragment[]>();
+		Map<IInstallableUnit, IInstallableUnitFragment[]> fragmentBindings = new HashMap<>();
 		//Build a map inverse of the one provided in input (host --> List of fragments)
-		Map<IInstallableUnit, List<IInstallableUnitFragment>> iusToFragment = new HashMap<IInstallableUnit, List<IInstallableUnitFragment>>(fragmentsToIUs.size());
+		Map<IInstallableUnit, List<IInstallableUnitFragment>> iusToFragment = new HashMap<>(fragmentsToIUs.size());
 		for (Map.Entry<IInstallableUnitFragment, List<IInstallableUnit>> mapping : fragmentsToIUs.entrySet()) {
 			IInstallableUnitFragment fragment = mapping.getKey();
 			List<IInstallableUnit> existingMatches = mapping.getValue();
@@ -28,7 +28,7 @@ public class AttachmentHelper {
 			for (IInstallableUnit host : existingMatches) {
 				List<IInstallableUnitFragment> potentialFragments = iusToFragment.get(host);
 				if (potentialFragments == null) {
-					potentialFragments = new ArrayList<IInstallableUnitFragment>();
+					potentialFragments = new ArrayList<>();
 					iusToFragment.put(host, potentialFragments);
 				}
 				potentialFragments.add(fragment);
@@ -38,7 +38,7 @@ public class AttachmentHelper {
 		for (Map.Entry<IInstallableUnit, List<IInstallableUnitFragment>> entry : iusToFragment.entrySet()) {
 			IInstallableUnit hostIU = entry.getKey();
 			List<IInstallableUnitFragment> potentialIUFragments = entry.getValue();
-			ArrayList<IInstallableUnitFragment> applicableFragments = new ArrayList<IInstallableUnitFragment>();
+			ArrayList<IInstallableUnitFragment> applicableFragments = new ArrayList<>();
 			for (IInstallableUnitFragment potentialFragment : potentialIUFragments) {
 				if (hostIU.equals(potentialFragment))
 					continue;
@@ -65,7 +65,7 @@ public class AttachmentHelper {
 
 			IInstallableUnitFragment theFragment = null;
 			int specificityLevel = 0;
-			LinkedList<IInstallableUnitFragment> fragments = new LinkedList<IInstallableUnitFragment>();
+			LinkedList<IInstallableUnitFragment> fragments = new LinkedList<>();
 			for (IInstallableUnitFragment fragment : applicableFragments) {
 				if (isTranslation(fragment)) {
 					fragments.add(fragment);
@@ -82,7 +82,7 @@ public class AttachmentHelper {
 				fragmentBindings.put(hostIU, fragments.toArray(new IInstallableUnitFragment[fragments.size()]));
 		}
 		//build the collection of resolved IUs
-		Collection<IInstallableUnit> result = new HashSet<IInstallableUnit>();
+		Collection<IInstallableUnit> result = new HashSet<>();
 		while (toAttach.hasNext()) {
 			IInstallableUnit iu = toAttach.next();
 			if (iu == null)

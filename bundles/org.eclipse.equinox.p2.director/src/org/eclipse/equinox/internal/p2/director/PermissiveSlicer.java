@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2009, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -32,6 +32,7 @@ public class PermissiveSlicer extends Slicer {
 		this.onlyFilteredRequirements = onlyFilteredRequirements;
 	}
 
+	@Override
 	protected boolean isApplicable(IInstallableUnit iu) {
 		if (considerFilter)
 			return super.isApplicable(iu);
@@ -40,6 +41,7 @@ public class PermissiveSlicer extends Slicer {
 		return evalFilterTo;
 	}
 
+	@Override
 	protected boolean isApplicable(IRequirement req) {
 		//Every filter in this method needs to continue except when the filter does not pass
 		if (!includeOptionalDependencies)
@@ -66,6 +68,7 @@ public class PermissiveSlicer extends Slicer {
 		return evalFilterTo;
 	}
 
+	@Override
 	protected boolean isGreedy(IRequirement req) {
 		if (everythingGreedy) {
 			return true;

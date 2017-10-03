@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,10 +31,12 @@ public class QueryableArray extends IndexProvider<IInstallableUnit> {
 		dataSet = CollectionUtils.unmodifiableList(ius);
 	}
 
+	@Override
 	public Iterator<IInstallableUnit> everything() {
 		return dataSet.iterator();
 	}
 
+	@Override
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
 		if (InstallableUnit.MEMBER_PROVIDED_CAPABILITIES.equals(memberName)) {
 			if (capabilityIndex == null)
@@ -49,6 +51,7 @@ public class QueryableArray extends IndexProvider<IInstallableUnit> {
 		return null;
 	}
 
+	@Override
 	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
 		if (!(client instanceof IInstallableUnit))
 			return null;

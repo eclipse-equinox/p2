@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 Daniel Le Berre and others. All rights reserved. This
+ * Copyright (c) 2009, 2017 Daniel Le Berre and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -31,9 +31,10 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 		this.alreadyExistingRoots = alreadyInstalledIUs;
 	}
 
+	@Override
 	public List<WeightedObject<? extends Object>> createOptimizationFunction(IInstallableUnit metaIu, Collection<IInstallableUnit> newRoots) {
-		List<WeightedObject<?>> weightedObjects = new ArrayList<WeightedObject<?>>();
-		List<Object> objects = new ArrayList<Object>();
+		List<WeightedObject<?>> weightedObjects = new ArrayList<>();
+		List<Object> objects = new ArrayList<>();
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
 		String[] criteria = new String[] {"+new", "-notuptodate", "-changed", "-removed"}; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 		BigInteger currentWeight = weight.pow(criteria.length - 1);
@@ -145,7 +146,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 		for (IRequirement req : requirements) {
 			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(req.getMatches());
 			IQueryResult<IInstallableUnit> matches = picker.query(query, null);
-			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(matches.toUnmodifiableSet());
+			List<IInstallableUnit> toSort = new ArrayList<>(matches.toUnmodifiableSet());
 			Collections.sort(toSort, Collections.reverseOrder());
 			if (toSort.size() == 0)
 				continue;
@@ -178,6 +179,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			return singleton;
 		}
 
+		@Override
 		protected int orderValue() {
 			return Explanation.OTHER_REASON;
 		}

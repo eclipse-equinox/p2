@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -61,7 +61,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	}
 
 	public Map<String, String> getProfileProperties() {
-		Map<String, String> result = new HashMap<String, String>(profile.getProperties());
+		Map<String, String> result = new HashMap<>(profile.getProperties());
 		if (propertiesToRemove != null) {
 			for (String key : propertiesToRemove) {
 				result.remove(key);
@@ -73,19 +73,14 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 		return result;
 	}
 
-	//done
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#addInstallableUnit(org.eclipse.equinox.p2.metadata.IInstallableUnit)
-	 */
+	@Override
 	public void add(IInstallableUnit toInstall) {
 		if (iusToAdd == null)
-			iusToAdd = new ArrayList<IInstallableUnit>();
+			iusToAdd = new ArrayList<>();
 		iusToAdd.add(toInstall.unresolved());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#addInstallableUnits(java.util.Collection)
-	 */
+	@Override
 	public void addAll(Collection<IInstallableUnit> toInstall) {
 		for (IInstallableUnit iu : toInstall)
 			add(iu);
@@ -96,12 +91,10 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 			add(toInstall[i]);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#removeInstallableUnit(org.eclipse.equinox.p2.metadata.IInstallableUnit)
-	 */
+	@Override
 	public void remove(IInstallableUnit toUninstall) {
 		if (iusToRemove == null)
-			iusToRemove = new ArrayList<IInstallableUnit>();
+			iusToRemove = new ArrayList<>();
 		iusToRemove.add(toUninstall.unresolved());
 	}
 
@@ -110,72 +103,61 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 			remove(toUninstall[i]);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#removeInstallableUnits(java.util.Collection)
-	 */
+	@Override
 	public void removeAll(Collection<IInstallableUnit> toUninstall) {
 		for (IInstallableUnit iu : toUninstall)
 			remove(iu);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#setProfileProperty(java.lang.String, java.lang.String)
-	 */
+	@Override
 	public void setProfileProperty(String key, String value) {
 		if (propertiesToAdd == null)
-			propertiesToAdd = new HashMap<String, String>();
+			propertiesToAdd = new HashMap<>();
 		propertiesToAdd.put(key, value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#removeProfileProperty(java.lang.String)
-	 */
+	@Override
 	public void removeProfileProperty(String key) {
 		if (propertiesToRemove == null)
-			propertiesToRemove = new ArrayList<String>(1);
+			propertiesToRemove = new ArrayList<>(1);
 		propertiesToRemove.add(key);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#setInstallableUnitProfileProperty(org.eclipse.equinox.p2.metadata.IInstallableUnit, java.lang.String, java.lang.String)
-	 */
+	@Override
 	public void setInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value) {
 		if (iuPropertiesToAdd == null)
-			iuPropertiesToAdd = new HashMap<IInstallableUnit, Map<String, String>>();
+			iuPropertiesToAdd = new HashMap<>();
 		iu = iu.unresolved();
 		Map<String, String> properties = iuPropertiesToAdd.get(iu);
 		if (properties == null) {
-			properties = new HashMap<String, String>();
+			properties = new HashMap<>();
 			iuPropertiesToAdd.put(iu, properties);
 		}
 		properties.put(key, value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#removeInstallableUnitProfileProperty(org.eclipse.equinox.p2.metadata.IInstallableUnit, java.lang.String)
-	 */
+	@Override
 	public void removeInstallableUnitProfileProperty(IInstallableUnit iu, String key) {
 		if (iuPropertiesToRemove == null)
-			iuPropertiesToRemove = new HashMap<IInstallableUnit, List<String>>();
+			iuPropertiesToRemove = new HashMap<>();
 		iu = iu.unresolved();
 		List<String> keys = iuPropertiesToRemove.get(iu);
 		if (keys == null) {
-			keys = new ArrayList<String>();
+			keys = new ArrayList<>();
 			iuPropertiesToRemove.put(iu, keys);
 		}
 		if (!keys.contains(key))
 			keys.add(key);
 	}
 
+	@Override
 	public Collection<IInstallableUnit> getRemovals() {
 		if (iusToRemove == null)
 			return Collections.<IInstallableUnit> emptyList();
 		return Collections.unmodifiableList(iusToRemove);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#getAddedInstallableUnits()
-	 */
+	@Override
 	public Collection<IInstallableUnit> getAdditions() {
 		if (iusToAdd == null)
 			return Collections.<IInstallableUnit> emptyList();
@@ -211,20 +193,17 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 		return iuPropertiesToAdd;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#setInstallableUnitInclusionRules(org.eclipse.equinox.p2.metadata.IInstallableUnit, java.lang.String)
-	 */
+	@Override
 	public void setInstallableUnitInclusionRules(IInstallableUnit iu, String value) {
 		setInstallableUnitProfileProperty(iu.unresolved(), SimplePlanner.INCLUSION_RULES, value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.director.IPCR#removeInstallableUnitInclusionRules(org.eclipse.equinox.p2.metadata.IInstallableUnit)
-	 */
+	@Override
 	public void removeInstallableUnitInclusionRules(IInstallableUnit iu) {
 		removeInstallableUnitProfileProperty(iu.unresolved(), SimplePlanner.INCLUSION_RULES);
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Object clone() {
 		ProfileChangeRequest result = new ProfileChangeRequest(profile);
@@ -238,6 +217,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 		return result;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer(1000);
 		result.append("==Profile change request for "); //$NON-NLS-1$
@@ -264,12 +244,14 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 		return result.toString();
 	}
 
+	@Override
 	public void addExtraRequirements(Collection<IRequirement> requirements) {
 		if (additionalRequirements == null)
-			additionalRequirements = new ArrayList<IRequirement>(requirements.size());
+			additionalRequirements = new ArrayList<>(requirements.size());
 		additionalRequirements.addAll(requirements);
 	}
 
+	@Override
 	public Collection<IRequirement> getExtraRequirements() {
 		return additionalRequirements;
 	}

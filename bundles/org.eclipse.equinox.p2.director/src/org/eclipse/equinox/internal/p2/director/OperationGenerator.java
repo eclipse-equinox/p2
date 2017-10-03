@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -24,18 +24,18 @@ public class OperationGenerator {
 	}
 
 	public void generateOperation(Collection<IInstallableUnit> from_, Collection<IInstallableUnit> to_) {
-		Collection<IInstallableUnit> intersection = new HashSet<IInstallableUnit>(from_);
+		Collection<IInstallableUnit> intersection = new HashSet<>(from_);
 		intersection.retainAll(to_);
 
-		HashSet<IInstallableUnit> tmpFrom = new HashSet<IInstallableUnit>(from_);
-		HashSet<IInstallableUnit> tmpTo = new HashSet<IInstallableUnit>(to_);
+		HashSet<IInstallableUnit> tmpFrom = new HashSet<>(from_);
+		HashSet<IInstallableUnit> tmpTo = new HashSet<>(to_);
 		tmpFrom.removeAll(intersection);
 		tmpTo.removeAll(intersection);
 
-		List<IInstallableUnit> from = new ArrayList<IInstallableUnit>(tmpFrom);
+		List<IInstallableUnit> from = new ArrayList<>(tmpFrom);
 		Collections.sort(from);
 
-		List<IInstallableUnit> to = new ArrayList<IInstallableUnit>(tmpTo);
+		List<IInstallableUnit> to = new ArrayList<>(tmpTo);
 		Collections.sort(to);
 
 		generateUpdates(from, to);
@@ -50,7 +50,7 @@ public class OperationGenerator {
 		//We retain from each set the things that are the same.
 		//Note that despite the fact that they are the same, a different CU can be attached.
 		//The objects contained in the intersection are the one that were originally in the from collection.
-		TreeSet<IInstallableUnit> to = new TreeSet<IInstallableUnit>(to_);
+		TreeSet<IInstallableUnit> to = new TreeSet<>(to_);
 		for (IInstallableUnit fromIU : intersection) {
 			IInstallableUnit toIU = to.tailSet(fromIU).first();
 			generateConfigurationOperation(fromIU, toIU);
@@ -104,8 +104,8 @@ public class OperationGenerator {
 		if (to.isEmpty() || from.isEmpty())
 			return;
 
-		Set<IInstallableUnit> processed = new HashSet<IInstallableUnit>();
-		Set<IInstallableUnit> removedFromTo = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> processed = new HashSet<>();
+		Set<IInstallableUnit> removedFromTo = new HashSet<>();
 
 		QueryableArray indexedFromElements = new QueryableArray(from.toArray(new IInstallableUnit[from.size()]));
 		for (int toIdx = 0; toIdx < to.size(); toIdx++) {

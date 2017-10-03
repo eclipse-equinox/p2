@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2013 Rapicorp Inc. and others. All rights reserved. This
+ * Copyright (c) 2013, 2017 Rapicorp Inc. and others. 
+ * All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -38,7 +39,7 @@ public class OptimizationFunction {
 	//Create an optimization function favoring the highest version of each IU
 	public List<WeightedObject<? extends Object>> createOptimizationFunction(IInstallableUnit metaIu, Collection<IInstallableUnit> newRoots) {
 		numberOfInstalledIUs = sizeOf(lastState);
-		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<WeightedObject<? extends Object>>();
+		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<>();
 
 		Set<IInstallableUnit> transitiveClosure; //The transitive closure of the IUs we are adding (this also means updating)
 		if (newRoots.isEmpty()) {
@@ -57,7 +58,7 @@ public class OptimizationFunction {
 
 		BigInteger maxWeight = POWER;
 		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
-			List<IInstallableUnit> conflictingEntries = new ArrayList<IInstallableUnit>(entry.getValue().values());
+			List<IInstallableUnit> conflictingEntries = new ArrayList<>(entry.getValue().values());
 			if (conflictingEntries.size() == 1) {
 				//Only one IU exists with the namespace.
 				IInstallableUnit iu = conflictingEntries.get(0);
@@ -104,7 +105,7 @@ public class OptimizationFunction {
 
 		//Now we deal the optional IUs,
 		long countOptional = 1;
-		List<IInstallableUnit> requestedPatches = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> requestedPatches = new ArrayList<>();
 		Collection<IRequirement> reqs = metaIu.getRequirements();
 		for (IRequirement req : reqs) {
 			if (req.getMin() > 0 || !req.isGreedy())

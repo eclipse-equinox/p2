@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -35,8 +35,8 @@ public class FormerState {
 	private static void synchronizeAllIUProperties(IProfileChangeRequest request, IProfile current, IProfile target) {
 		Set<IInstallableUnit> currentIUset = current.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet();
 		Iterator<IInstallableUnit> targetIUs = target.query(QueryUtil.createIUAnyQuery(), null).iterator();
-		List<IInstallableUnit> iusToAdd = new ArrayList<IInstallableUnit>();
-		List<IInstallableUnit> iusToUpdate = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> iusToAdd = new ArrayList<>();
+		List<IInstallableUnit> iusToUpdate = new ArrayList<>();
 		while (targetIUs.hasNext()) {
 			IInstallableUnit nxt = targetIUs.next();
 			if (currentIUset.contains(nxt))
@@ -54,7 +54,7 @@ public class FormerState {
 
 		// updates
 		for (IInstallableUnit iu : iusToUpdate) {
-			Map<String, String> propertiesToSet = new HashMap<String, String>(target.getInstallableUnitProperties(iu));
+			Map<String, String> propertiesToSet = new HashMap<>(target.getInstallableUnitProperties(iu));
 			for (Entry<String, String> entry : current.getInstallableUnitProperties(iu).entrySet()) {
 				String key = entry.getKey();
 				String newValue = propertiesToSet.get(key);
@@ -75,18 +75,18 @@ public class FormerState {
 		Collection<IInstallableUnit> targetPlannerMarkedIUs = SimplePlanner.findPlannerMarkedIUs(target);
 
 		//additions
-		Collection<IInstallableUnit> markedIUsToAdd = new HashSet<IInstallableUnit>(targetPlannerMarkedIUs);
+		Collection<IInstallableUnit> markedIUsToAdd = new HashSet<>(targetPlannerMarkedIUs);
 		markedIUsToAdd.removeAll(currentPlannerMarkedIUs);
 		request.addAll(markedIUsToAdd);
 
 		// removes
-		Collection<IInstallableUnit> markedIUsToRemove = new HashSet<IInstallableUnit>(currentPlannerMarkedIUs);
+		Collection<IInstallableUnit> markedIUsToRemove = new HashSet<>(currentPlannerMarkedIUs);
 		markedIUsToRemove.removeAll(targetPlannerMarkedIUs);
 		request.removeAll(markedIUsToRemove);
 	}
 
 	private static void synchronizeProfileProperties(IProfileChangeRequest request, IProfile current, IProfile target) {
-		Map<String, String> profilePropertiesToSet = new HashMap<String, String>(target.getProperties());
+		Map<String, String> profilePropertiesToSet = new HashMap<>(target.getProperties());
 		for (Entry<String, String> entry : current.getProperties().entrySet()) {
 			String key = entry.getKey();
 

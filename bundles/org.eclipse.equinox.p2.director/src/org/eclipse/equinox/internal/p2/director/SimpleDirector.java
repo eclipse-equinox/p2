@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -35,6 +35,7 @@ public class SimpleDirector implements IDirector {
 		this.planner = planner;
 	}
 
+	@Override
 	public IStatus revert(IProfile currentProfile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {
@@ -45,6 +46,7 @@ public class SimpleDirector implements IDirector {
 		}
 	}
 
+	@Override
 	public IStatus provision(IProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
 		String taskName = NLS.bind(Messages.Director_Task_Installing, ((ProfileChangeRequest) request).getProfile().getProperty(IProfile.PROP_INSTALL_FOLDER));
 		SubMonitor sub = SubMonitor.convert(monitor, taskName, PlanWork + EngineWork);

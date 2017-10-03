@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Daniel Le Berre and others. All rights reserved. This
+ * Copyright (c) 2009, 2017 Daniel Le Berre and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -34,10 +34,12 @@ public abstract class Explanation implements Comparable<Explanation> {
 			this.patch = patch;
 		}
 
+		@Override
 		public int orderValue() {
 			return 6;
 		}
 
+		@Override
 		public IStatus toStatus() {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Explanation_unsatisfied, null);
 			final String fromString = patch.toString() + ' ' + getUserReadableName(iu);
@@ -46,6 +48,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return result;
 		}
 
+		@Override
 		public String toString() {
 			return NLS.bind(Messages.Explanation_patchedHardDependency, new Object[] {patch, iu, req});
 		}
@@ -66,10 +69,12 @@ public abstract class Explanation implements Comparable<Explanation> {
 			this.req = req;
 		}
 
+		@Override
 		public int orderValue() {
 			return 5;
 		}
 
+		@Override
 		public IStatus toStatus() {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Explanation_unsatisfied, null);
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_from, getUserReadableName(iu))));
@@ -77,6 +82,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return result;
 		}
 
+		@Override
 		public String toString() {
 			return NLS.bind(Messages.Explanation_hardDependency, iu, req);
 		}
@@ -94,14 +100,17 @@ public abstract class Explanation implements Comparable<Explanation> {
 			this.iu = iu;
 		}
 
+		@Override
 		public int orderValue() {
 			return 2;
 		}
 
+		@Override
 		public String toString() {
 			return NLS.bind(Messages.Explanation_alreadyInstalled, iu);
 		}
 
+		@Override
 		public IStatus toStatus() {
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_alreadyInstalled, getUserReadableName(iu)));
 		}
@@ -119,14 +128,17 @@ public abstract class Explanation implements Comparable<Explanation> {
 			this.iu = iu;
 		}
 
+		@Override
 		public int orderValue() {
 			return 1;
 		}
 
+		@Override
 		public String toString() {
 			return NLS.bind(Messages.Explanation_toInstall, iu);
 		}
 
+		@Override
 		public IStatus toStatus() {
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_toInstall, getUserReadableName(iu)));
 		}
@@ -144,14 +156,17 @@ public abstract class Explanation implements Comparable<Explanation> {
 			this.req = req;
 		}
 
+		@Override
 		public String toString() {
 			return NLS.bind(Messages.Explanation_missingRootFilter, req);
 		}
 
+		@Override
 		public IStatus toStatus() {
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRootFilter, req));
 		}
 
+		@Override
 		protected int orderValue() {
 			return 2;
 		}
@@ -173,14 +188,17 @@ public abstract class Explanation implements Comparable<Explanation> {
 			this.isEntryPoint = isEntryPoint;
 		}
 
+		@Override
 		public int orderValue() {
 			return 3;
 		}
 
+		@Override
 		public int shortAnswer() {
 			return MISSING_REQUIREMENT;
 		}
 
+		@Override
 		public String toString() {
 			if (isEntryPoint) {
 				return NLS.bind(Messages.Explanation_missingRootRequired, req);
@@ -191,6 +209,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {req.getFilter(), iu, req});
 		}
 
+		@Override
 		public IStatus toStatus() {
 			if (isEntryPoint) {
 				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRootRequired, req));
@@ -209,18 +228,22 @@ public abstract class Explanation implements Comparable<Explanation> {
 			this.iu = iu;
 		}
 
+		@Override
 		public int orderValue() {
 			return 3;
 		}
 
+		@Override
 		public int shortAnswer() {
 			return MISSING_REQUIREMENT;
 		}
 
+		@Override
 		public String toString() {
 			return NLS.bind(Messages.Explanation_missingNonGreedyRequired, iu);
 		}
 
+		@Override
 		public IStatus toStatus() {
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingNonGreedyRequired, getUserReadableName(iu)));
 		}
@@ -233,14 +256,17 @@ public abstract class Explanation implements Comparable<Explanation> {
 			this.ius = ius;
 		}
 
+		@Override
 		public int orderValue() {
 			return 4;
 		}
 
+		@Override
 		public int shortAnswer() {
 			return VIOLATED_SINGLETON_CONSTRAINT;
 		}
 
+		@Override
 		public IStatus toStatus() {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, NLS.bind(Messages.Explanation_singleton, ""), null); //$NON-NLS-1$
 			for (int i = 0; i < ius.length; i++)
@@ -248,6 +274,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 			return result;
 		}
 
+		@Override
 		public String toString() {
 			return NLS.bind(Messages.Explanation_singleton, Arrays.asList(ius));
 		}
@@ -256,10 +283,12 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 	public static final Explanation OPTIONAL_REQUIREMENT = new Explanation() {
 
+		@Override
 		public int orderValue() {
 			return 6;
 		}
 
+		@Override
 		public String toString() {
 			return Messages.Explanation_optionalDependency;
 		}
@@ -283,6 +312,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 		super();
 	}
 
+	@Override
 	public int compareTo(Explanation exp) {
 		if (this.orderValue() == exp.orderValue()) {
 			return this.toString().compareTo(exp.toString());

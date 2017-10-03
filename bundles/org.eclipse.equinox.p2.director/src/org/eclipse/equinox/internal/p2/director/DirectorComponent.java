@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,14 +11,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 public class DirectorComponent implements IAgentServiceFactory {
 
+	@Override
 	public Object createService(IProvisioningAgent agent) {
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);

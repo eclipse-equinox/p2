@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -52,7 +52,7 @@ public class SimplePlanner implements IPlanner {
 
 	private IProvisioningPlan generateProvisioningPlan(Collection<IInstallableUnit> fromState, Collection<IInstallableUnit> toState, ProfileChangeRequest changeRequest, IProvisioningPlan installerPlan, ProvisioningContext context) {
 		IProvisioningPlan plan = engine.createPlan(changeRequest.getProfile(), context);
-		plan.setFuturePlan(new CollectionResult<IInstallableUnit>(toState));
+		plan.setFuturePlan(new CollectionResult<>(toState));
 		planIUOperations(plan, fromState, toState);
 		planPropertyOperations(plan, changeRequest, toState);
 
@@ -82,7 +82,7 @@ public class SimplePlanner implements IPlanner {
 	private Map<IInstallableUnit, RequestStatus>[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
 		Collection<IInstallableUnit> requestedAdditions = changeRequest.getAdditions();
 		Collection<IInstallableUnit> requestedRemovals = changeRequest.getRemovals();
-		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<IInstallableUnit, RequestStatus>(requestedAdditions.size() + requestedAdditions.size());
+		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<>(requestedAdditions.size() + requestedAdditions.size());
 		for (IInstallableUnit added : requestedAdditions) {
 			requestStatus.put(added, new RequestStatus(added, RequestStatus.ADDED, IStatus.ERROR, null));
 		}
@@ -96,10 +96,10 @@ public class SimplePlanner implements IPlanner {
 
 	private Map<IInstallableUnit, RequestStatus>[] computeActualChangeRequest(Collection<IInstallableUnit> toState, ProfileChangeRequest changeRequest) {
 		Collection<IInstallableUnit> requestedAdditions = changeRequest.getAdditions();
-		Collection<IInstallableUnit> requestedRemovals = new ArrayList<IInstallableUnit>(changeRequest.getRemovals());
+		Collection<IInstallableUnit> requestedRemovals = new ArrayList<>(changeRequest.getRemovals());
 		requestedRemovals.removeAll(requestedAdditions);
 
-		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<IInstallableUnit, RequestStatus>(requestedAdditions.size() + requestedRemovals.size());
+		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<>(requestedAdditions.size() + requestedRemovals.size());
 		for (IInstallableUnit added : requestedAdditions) {
 			if (toState.contains(added))
 				requestStatus.put(added, new RequestStatus(added, RequestStatus.ADDED, IStatus.OK, null));
@@ -116,7 +116,7 @@ public class SimplePlanner implements IPlanner {
 
 		//Compute the side effect changes (e.g. things installed optionally going away)
 		Iterator<IInstallableUnit> includedIUs = changeRequest.getProfile().query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null).iterator();
-		Map<IInstallableUnit, RequestStatus> sideEffectStatus = new HashMap<IInstallableUnit, RequestStatus>();
+		Map<IInstallableUnit, RequestStatus> sideEffectStatus = new HashMap<>();
 		while (includedIUs.hasNext()) {
 			IInstallableUnit removal = includedIUs.next();
 			if (!toState.contains(removal) && !requestStatus.containsKey(removal)) {
@@ -136,7 +136,7 @@ public class SimplePlanner implements IPlanner {
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_Unsatisfied_Dependencies);
 
 		// hack to create a useful message when a user installs something intended for a target platform into the IDE
-		ArrayList<IStatus> forTargets = new ArrayList<IStatus>(0);
+		ArrayList<IStatus> forTargets = new ArrayList<>(0);
 		for (Explanation next : explanations) {
 			if (next instanceof Explanation.MissingIU) {
 				Explanation.MissingIU missingIU = (MissingIU) next;
@@ -212,6 +212,7 @@ public class SimplePlanner implements IPlanner {
 		new OperationGenerator(plan).generateOperation(fromState, toState);
 	}
 
+	@Override
 	public IProvisioningPlan getDiffPlan(IProfile currentProfile, IProfile targetProfile, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
@@ -233,7 +234,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	public static Map<String, String> createSelectionContext(Map<String, String> properties) {
-		HashMap<String, String> result = new HashMap<String, String>(properties);
+		HashMap<String, String> result = new HashMap<>(properties);
 		String environments = properties.get(IProfile.PROP_ENVIRONMENTS);
 		if (environments == null)
 			return result;
@@ -248,7 +249,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, ProvisioningContext context, IProgressMonitor monitor) {
-		Map<String, IInstallableUnit> resultsMap = new HashMap<String, IInstallableUnit>();
+		Map<String, IInstallableUnit> resultsMap = new HashMap<>();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
 				String key = additionalSource[i].getId() + "_" + additionalSource[i].getVersion().toString(); //$NON-NLS-1$
@@ -317,7 +318,7 @@ public class SimplePlanner implements IPlanner {
 
 			Map<String, String> newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
 
-			List<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(profileChangeRequest.getAdditions());
+			List<IInstallableUnit> extraIUs = new ArrayList<>(profileChangeRequest.getAdditions());
 			extraIUs.addAll(profileChangeRequest.getRemovals());
 			if (context == null || context.getProperty(INCLUDE_PROFILE_IUS) == null || context.getProperty(INCLUDE_PROFILE_IUS).equalsIgnoreCase(Boolean.TRUE.toString())) {
 				Iterator<IInstallableUnit> itor = profile.available(QueryUtil.createIUAnyQuery(), null).iterator();
@@ -336,7 +337,7 @@ public class SimplePlanner implements IPlanner {
 			}
 			@SuppressWarnings("unchecked")
 			final IQueryable<IInstallableUnit>[] queryables = new IQueryable[] {slice, new QueryableArray(profileChangeRequest.getAdditions().toArray(new IInstallableUnit[profileChangeRequest.getAdditions().size()]))};
-			slice = new CompoundQueryable<IInstallableUnit>(queryables);
+			slice = new CompoundQueryable<>(queryables);
 			Projector projector = new Projector(slice, newSelectionContext, slicer.getNonGreedyIUs(), satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			projector.setUserDefined(profileChangeRequest.getPropertiesToAdd().containsKey("_internal_user_defined_"));
 			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profile, profileChangeRequest.getAdditions(), sub.newChild(ExpandWork / 4));
@@ -378,6 +379,7 @@ public class SimplePlanner implements IPlanner {
 		}
 	}
 
+	@Override
 	public IProvisioningPlan getProvisioningPlan(IProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
 		ProfileChangeRequest pcr = (ProfileChangeRequest) request;
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
@@ -390,7 +392,7 @@ public class SimplePlanner implements IPlanner {
 				return (IProvisioningPlan) resolutionResult;
 
 			Collection<IInstallableUnit> newState = ((Projector) resolutionResult).extractSolution();
-			Collection<IInstallableUnit> fullState = new ArrayList<IInstallableUnit>();
+			Collection<IInstallableUnit> fullState = new ArrayList<>();
 			fullState.addAll(newState);
 			newState = AttachmentHelper.attachFragments(newState.iterator(), ((Projector) resolutionResult).getFragmentAssociation());
 
@@ -450,7 +452,7 @@ public class SimplePlanner implements IPlanner {
 
 	//Return all the meta requirements for the list of IU specified and all the meta requirements listed necessary to satisfy the uninstallation 
 	private Collection<IRequirement> extractMetaRequirements(Collection<IInstallableUnit> ius, IProvisioningPlan plan) {
-		Set<IRequirement> allMetaRequirements = new HashSet<IRequirement>();
+		Set<IRequirement> allMetaRequirements = new HashSet<>();
 		for (IInstallableUnit iu : ius) {
 			allMetaRequirements.addAll(iu.getMetaRequirements());
 		}
@@ -589,7 +591,7 @@ public class SimplePlanner implements IPlanner {
 
 		ProvisioningContext agentCtx = new ProvisioningContext(agent);
 		agentCtx.setMetadataRepositories(new URI[0]);
-		ArrayList<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(unattachedState);
+		ArrayList<IInstallableUnit> extraIUs = new ArrayList<>(unattachedState);
 		agentCtx.setExtraInstallableUnits(extraIUs);
 		Object agentSolution = getSolutionFor(agentRequest, agentCtx, monitor.newChild(3));
 		if (agentSolution instanceof IProvisioningPlan && ((IProvisioningPlan) agentSolution).getStatus().getSeverity() == IStatus.ERROR) {
@@ -651,7 +653,7 @@ public class SimplePlanner implements IPlanner {
 		noRepoContext.setMetadataRepositories(new URI[0]);
 		noRepoContext.setArtifactRepositories(new URI[0]);
 		noRepoContext.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
-		noRepoContext.setExtraInstallableUnits(new ArrayList<IInstallableUnit>(request.getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toUnmodifiableSet()));
+		noRepoContext.setExtraInstallableUnits(new ArrayList<>(request.getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toUnmodifiableSet()));
 		return noRepoContext;
 	}
 
@@ -674,7 +676,7 @@ public class SimplePlanner implements IPlanner {
 		description.setVersion(version);
 		description.addRequirements(metaRequirements);
 
-		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>();
 		IProvidedCapability providedCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, version);
 		providedCapabilities.add(providedCapability);
 		description.addProvidedCapabilities(providedCapabilities);
@@ -718,7 +720,7 @@ public class SimplePlanner implements IPlanner {
 				}
 			}
 		}
-		Set<IRequirement> gatheredRequirements = new HashSet<IRequirement>();
+		Set<IRequirement> gatheredRequirements = new HashSet<>();
 
 		//Process all the IUs being added
 		Map<IInstallableUnit, Map<String, String>> iuPropertiesToAdd = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
@@ -777,8 +779,9 @@ public class SimplePlanner implements IPlanner {
 		return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, false, false, true);
 	}
 
+	@Override
 	public IQueryResult<IInstallableUnit> updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor) {
-		Map<String, IInstallableUnit> resultsMap = new HashMap<String, IInstallableUnit>();
+		Map<String, IInstallableUnit> resultsMap = new HashMap<>();
 
 		SubMonitor sub = SubMonitor.convert(monitor, 1000);
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(sub.newChild(500));
@@ -791,7 +794,7 @@ public class SimplePlanner implements IPlanner {
 				resultsMap.put(key, iu);
 		}
 		sub.done();
-		return new CollectionResult<IInstallableUnit>(resultsMap.values());
+		return new CollectionResult<>(resultsMap.values());
 	}
 
 	//helper class to trick the resolver to believe that everything is optional
@@ -802,45 +805,55 @@ public class SimplePlanner implements IPlanner {
 			profile = p;
 		}
 
+		@Override
 		public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 			return profile.available(query, monitor);
 		}
 
+		@Override
 		public Map<String, String> getInstallableUnitProperties(IInstallableUnit iu) {
 			return profile.getInstallableUnitProperties(iu);
 		}
 
+		@Override
 		public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
 			if (INCLUSION_RULES.equals(key))
 				return ProfileInclusionRules.createOptionalInclusionRule(iu);
 			return profile.getInstallableUnitProperty(iu, key);
 		}
 
+		@Override
 		public String getProfileId() {
 			return profile.getProfileId();
 		}
 
+		@Override
 		public Map<String, String> getProperties() {
 			return profile.getProperties();
 		}
 
+		@Override
 		public String getProperty(String key) {
 			return profile.getProperty(key);
 		}
 
+		@Override
 		public IProvisioningAgent getProvisioningAgent() {
 			return profile.getProvisioningAgent();
 		}
 
+		@Override
 		public long getTimestamp() {
 			return profile.getTimestamp();
 		}
 
+		@Override
 		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 			return profile.query(query, monitor);
 		}
 	}
 
+	@Override
 	public IProfileChangeRequest createChangeRequest(IProfile profileToChange) {
 		return new ProfileChangeRequest(profileToChange);
 	}

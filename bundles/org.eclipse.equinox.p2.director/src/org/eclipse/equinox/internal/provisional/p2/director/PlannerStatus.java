@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,10 +11,10 @@
 package org.eclipse.equinox.internal.provisional.p2.director;
 
 import java.util.Map;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQueryable;
 
 public class PlannerStatus implements IStatus {
 
@@ -24,11 +24,7 @@ public class PlannerStatus implements IStatus {
 	private final Map<IInstallableUnit, RequestStatus> requestSideEffects;
 	private final IQueryable<IInstallableUnit> plannedState;
 
-	private static final IQueryable<IInstallableUnit> EMPTY_IU_QUERYABLE = new IQueryable<IInstallableUnit>() {
-		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-			return Collector.emptyCollector();
-		}
-	};
+	private static final IQueryable<IInstallableUnit> EMPTY_IU_QUERYABLE = (query, monitor) -> Collector.emptyCollector();
 
 	public PlannerStatus(IStatus status, RequestStatus globalRequestStatus, Map<IInstallableUnit, RequestStatus> requestChanges, Map<IInstallableUnit, RequestStatus> requestSideEffects, IQueryable<IInstallableUnit> plannedState) {
 		this.status = status;
@@ -88,38 +84,47 @@ public class PlannerStatus implements IStatus {
 	}
 
 	// Remaining Methods Delegate to wrapped Status 
+	@Override
 	public IStatus[] getChildren() {
 		return status.getChildren();
 	}
 
+	@Override
 	public int getCode() {
 		return status.getCode();
 	}
 
+	@Override
 	public Throwable getException() {
 		return status.getException();
 	}
 
+	@Override
 	public String getMessage() {
 		return status.getMessage();
 	}
 
+	@Override
 	public String getPlugin() {
 		return status.getPlugin();
 	}
 
+	@Override
 	public int getSeverity() {
 		return status.getSeverity();
 	}
 
+	@Override
 	public boolean isMultiStatus() {
 		return status.isMultiStatus();
 	}
 
+	@Override
 	public boolean isOK() {
 		return status.isOK();
 	}
 
+	@Override
 	public boolean matches(int severityMask) {
 		return status.matches(severityMask);
 	}

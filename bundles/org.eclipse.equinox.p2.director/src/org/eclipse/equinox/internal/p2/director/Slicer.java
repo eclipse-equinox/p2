@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ public class Slicer {
 
 	private LinkedList<IInstallableUnit> toProcess;
 	private Set<IInstallableUnit> considered; //IUs to add to the slice
-	private Set<IInstallableUnit> nonGreedyIUs = new HashSet<IInstallableUnit>(); //IUs that are brought in by non greedy dependencies
+	private Set<IInstallableUnit> nonGreedyIUs = new HashSet<>(); //IUs that are brought in by non greedy dependencies
 
 	public Slicer(IQueryable<IInstallableUnit> input, Map<String, String> context, boolean considerMetaRequirements) {
 		this(input, InstallableUnit.contextIU(context), considerMetaRequirements);
@@ -42,7 +42,7 @@ public class Slicer {
 		this.possibilites = possibilites;
 		this.selectionContext = selectionContext;
 		this.considerMetaRequirements = considerMetaRequirements;
-		slice = new HashMap<String, Map<Version, IInstallableUnit>>();
+		slice = new HashMap<>();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
@@ -55,8 +55,8 @@ public class Slicer {
 			}
 
 			validateInput(ius);
-			considered = new HashSet<IInstallableUnit>(Arrays.asList(ius));
-			toProcess = new LinkedList<IInstallableUnit>(considered);
+			considered = new HashSet<>(Arrays.asList(ius));
+			toProcess = new LinkedList<>(considered);
 			while (!toProcess.isEmpty()) {
 				if (monitor.isCanceled()) {
 					result.merge(Status.CANCEL_STATUS);
@@ -124,7 +124,7 @@ public class Slicer {
 		Map<Version, IInstallableUnit> iuSlice = slice.get(iu.getId());
 		if (iuSlice == null) {
 
-			iuSlice = new HashMap<Version, IInstallableUnit>();
+			iuSlice = new HashMap<>();
 			slice.put(iu.getId(), iuSlice);
 		}
 		iuSlice.put(iu.getVersion(), iu);
@@ -158,7 +158,7 @@ public class Slicer {
 		if ((!isFragment) && (!isPatch) && iu.getMetaRequirements().size() == 0)
 			return iu.getRequirements();
 
-		ArrayList<IRequirement> aggregatedRequirements = new ArrayList<IRequirement>(iu.getRequirements().size() + iu.getMetaRequirements().size() + (isFragment ? ((IInstallableUnitFragment) iu).getHost().size() : 0) + (isPatch ? ((IInstallableUnitPatch) iu).getRequirementsChange().size() : 0));
+		ArrayList<IRequirement> aggregatedRequirements = new ArrayList<>(iu.getRequirements().size() + iu.getMetaRequirements().size() + (isFragment ? ((IInstallableUnitFragment) iu).getHost().size() : 0) + (isPatch ? ((IInstallableUnitPatch) iu).getRequirementsChange().size() : 0));
 		aggregatedRequirements.addAll(iu.getRequirements());
 
 		if (iu instanceof IInstallableUnitFragment) {

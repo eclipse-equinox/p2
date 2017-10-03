@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -72,12 +72,12 @@ public class Projector {
 
 	private boolean considerMetaRequirements;
 	private IInstallableUnit entryPoint;
-	private Map<IInstallableUnitFragment, Set<IInstallableUnit>> fragments = new HashMap<IInstallableUnitFragment, Set<IInstallableUnit>>();
+	private Map<IInstallableUnitFragment, Set<IInstallableUnit>> fragments = new HashMap<>();
 
 	//Non greedy things
 	private Set<IInstallableUnit> nonGreedyIUs; //All the IUs that would satisfy non greedy dependencies
-	private Map<IInstallableUnit, AbstractVariable> nonGreedyVariables = new HashMap<IInstallableUnit, AbstractVariable>();
-	private Map<AbstractVariable, List<Object>> nonGreedyProvider = new HashMap<AbstractVariable, List<Object>>(); //Keeps track of all the "object" that provide an IU that is non greedly requested  
+	private Map<IInstallableUnit, AbstractVariable> nonGreedyVariables = new HashMap<>();
+	private Map<AbstractVariable, List<Object>> nonGreedyProvider = new HashMap<>(); //Keeps track of all the "object" that provide an IU that is non greedly requested  
 
 	private boolean emptyBecauseFiltered;
 	private boolean userDefinedFunction;
@@ -93,6 +93,7 @@ public class Projector {
 			// TODO Auto-generated constructor stub
 		}
 
+		@Override
 		public String toString() {
 			return "AbstractVariable: " + hashCode(); //$NON-NLS-1$
 			//			return name == null ? "AbstractVariable: " + hashCode() : name; //$NON-NLS-1$
@@ -111,10 +112,12 @@ public class Projector {
 			setSystem(true);
 		}
 
+		@Override
 		public boolean belongsTo(Object family) {
 			return family == ExplanationJob.this;
 		}
 
+		@Override
 		protected void canceling() {
 			super.canceling();
 			dependencyHelper.stopExplanation();
@@ -124,6 +127,7 @@ public class Projector {
 			return explanation;
 		}
 
+		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			long start = 0;
 			if (DEBUG) {
@@ -158,12 +162,12 @@ public class Projector {
 
 	public Projector(IQueryable<IInstallableUnit> q, Map<String, String> context, Set<IInstallableUnit> nonGreedyIUs, boolean considerMetaRequirements) {
 		picker = q;
-		slice = new HashMap<String, Map<Version, IInstallableUnit>>();
+		slice = new HashMap<>();
 		selectionContext = InstallableUnit.contextIU(context);
-		abstractVariables = new ArrayList<AbstractVariable>();
-		allOptionalAbstractRequirements = new ArrayList<AbstractVariable>();
+		abstractVariables = new ArrayList<>();
+		allOptionalAbstractRequirements = new ArrayList<>();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
-		assumptions = new ArrayList<Object>();
+		assumptions = new ArrayList<>();
 		this.nonGreedyIUs = nonGreedyIUs;
 		this.considerMetaRequirements = considerMetaRequirements;
 	}
@@ -181,7 +185,7 @@ public class Projector {
 			}
 			IPBSolver solver;
 			if (DEBUG_ENCODING) {
-				solver = new UserFriendlyPBStringSolver<Object>();
+				solver = new UserFriendlyPBStringSolver<>();
 			} else {
 				if (userDefinedFunction) {
 					PBSolverResolution mysolver = SolverFactory.newCompetPBResLongWLMixedConstraintsObjectiveExpSimp();
@@ -214,15 +218,15 @@ public class Projector {
 
 			IQueryResult<IInstallableUnit> queryResult = picker.query(QueryUtil.createIUAnyQuery(), null);
 			if (DEBUG_ENCODING) {
-				dependencyHelper = new LexicoHelper<Object, Explanation>(solver, false);
+				dependencyHelper = new LexicoHelper<>(solver, false);
 				((UserFriendlyPBStringSolver<Object>) solver).setMapping(dependencyHelper.getMappingToDomain());
 			} else {
 				if (userDefinedFunction)
-					dependencyHelper = new SteppedTimeoutLexicoHelper<Object, Explanation>(solver);
+					dependencyHelper = new SteppedTimeoutLexicoHelper<>(solver);
 				else
-					dependencyHelper = new DependencyHelper<Object, Explanation>(solver);
+					dependencyHelper = new DependencyHelper<>(solver);
 			}
-			List<IInstallableUnit> iusToOrder = new ArrayList<IInstallableUnit>(queryResult.toSet());
+			List<IInstallableUnit> iusToOrder = new ArrayList<>(queryResult.toSet());
 			Collections.sort(iusToOrder);
 			for (Iterator<IInstallableUnit> iusToEncode = iusToOrder.iterator(); iusToEncode.hasNext();) {
 				if (monitor.isCanceled()) {
@@ -405,7 +409,7 @@ public class Projector {
 						}
 					}
 				} else {
-					List<Object> newConstraint = new ArrayList<Object>(matches.size());
+					List<Object> newConstraint = new ArrayList<>(matches.size());
 					IInstallableUnit current;
 					for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 						current = it.next();
@@ -430,7 +434,7 @@ public class Projector {
 					optionalAbstractRequirements.add(abs);
 				} else {
 					abs = getAbstractVariable(req, false);
-					List<Object> newConstraint = new ArrayList<Object>();
+					List<Object> newConstraint = new ArrayList<>();
 					for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 						current = it.next();
 						newConstraint.add(getNonGreedyVariable(current));
@@ -444,7 +448,7 @@ public class Projector {
 	private void addNonGreedyProvider(AbstractVariable nonGreedyVariable, Object o) {
 		List<Object> providers = nonGreedyProvider.get(nonGreedyVariable);
 		if (providers == null) {
-			providers = new ArrayList<Object>();
+			providers = new ArrayList<>();
 			nonGreedyProvider.put(nonGreedyVariable, providers);
 		}
 		providers.add(o);
@@ -462,7 +466,7 @@ public class Projector {
 		iu = iu.unresolved();
 		Map<Version, IInstallableUnit> iuSlice = slice.get(iu.getId());
 		if (iuSlice == null) {
-			iuSlice = new HashMap<Version, IInstallableUnit>();
+			iuSlice = new HashMap<>();
 			slice.put(iu.getId(), iuSlice);
 		}
 		iuSlice.put(iu.getVersion(), iu);
@@ -488,7 +492,7 @@ public class Projector {
 		if ((!isFragment) && iu.getMetaRequirements().size() == 0)
 			return iu.getRequirements();
 
-		ArrayList<IRequirement> aggregatedRequirements = new ArrayList<IRequirement>(iu.getRequirements().size() + iu.getMetaRequirements().size() + (isFragment ? ((IInstallableUnitFragment) iu).getHost().size() : 0));
+		ArrayList<IRequirement> aggregatedRequirements = new ArrayList<>(iu.getRequirements().size() + iu.getMetaRequirements().size() + (isFragment ? ((IInstallableUnitFragment) iu).getHost().size() : 0));
 		aggregatedRequirements.addAll(iu.getRequirements());
 
 		if (iu instanceof IInstallableUnitFragment) {
@@ -509,8 +513,8 @@ public class Projector {
 	private void expandRequirementsWithPatches(IInstallableUnit iu, IQueryResult<IInstallableUnit> applicablePatches, List<AbstractVariable> optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
 		//Unmodified dependencies
 		Collection<IRequirement> iuRequirements = getRequiredCapabilities(iu);
-		Map<IRequirement, List<IInstallableUnitPatch>> unchangedRequirements = new HashMap<IRequirement, List<IInstallableUnitPatch>>(iuRequirements.size());
-		Map<IRequirement, Pending> nonPatchedRequirements = new HashMap<IRequirement, Pending>(iuRequirements.size());
+		Map<IRequirement, List<IInstallableUnitPatch>> unchangedRequirements = new HashMap<>(iuRequirements.size());
+		Map<IRequirement, Pending> nonPatchedRequirements = new HashMap<>(iuRequirements.size());
 		for (Iterator<IInstallableUnit> iterator = applicablePatches.iterator(); iterator.hasNext();) {
 			IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
 			IRequirement[][] reqs = mergeRequirements(iu, patch);
@@ -534,7 +538,7 @@ public class Projector {
 
 					List<IInstallableUnitPatch> patchesAppliedElseWhere = unchangedRequirements.get(reqs[i][0]);
 					if (patchesAppliedElseWhere == null) {
-						patchesAppliedElseWhere = new ArrayList<IInstallableUnitPatch>();
+						patchesAppliedElseWhere = new ArrayList<>();
 						unchangedRequirements.put(reqs[i][0], patchesAppliedElseWhere);
 					}
 					patchesAppliedElseWhere.add(patch);
@@ -572,7 +576,7 @@ public class Projector {
 									}
 								}
 							} else {
-								List<Object> newConstraint = new ArrayList<Object>();
+								List<Object> newConstraint = new ArrayList<>();
 								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 									current = it.next();
 									newConstraint.add(getNonGreedyVariable(current));
@@ -596,7 +600,7 @@ public class Projector {
 								optionalAbstractRequirements.add(abs);
 							} else {
 								abs = getAbstractVariable(req, false);
-								List<Object> newConstraint = new ArrayList<Object>(matches.size());
+								List<Object> newConstraint = new ArrayList<>(matches.size());
 								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 									current = it.next();
 									newConstraint.add(getNonGreedyVariable(current));
@@ -630,7 +634,7 @@ public class Projector {
 						} else {
 							// manage non greedy IUs
 							IInstallableUnit current;
-							List<Object> nonGreedys = new ArrayList<Object>();
+							List<Object> nonGreedys = new ArrayList<>();
 							for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 								current = it.next();
 								if (nonGreedyIUs.contains(current)) {
@@ -661,7 +665,7 @@ public class Projector {
 									}
 								}
 							} else {
-								List<Object> newConstraint = new ArrayList<Object>(matches.size());
+								List<Object> newConstraint = new ArrayList<>(matches.size());
 								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 									current = it.next();
 									newConstraint.add(getNonGreedyVariable(current));
@@ -693,7 +697,7 @@ public class Projector {
 								}
 							} else {
 								abs = getAbstractVariable(req, false);
-								List<Object> newConstraint = new ArrayList<Object>(matches.size());
+								List<Object> newConstraint = new ArrayList<>(matches.size());
 								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 									current = it.next();
 									newConstraint.add(getNonGreedyVariable(current));
@@ -718,7 +722,7 @@ public class Projector {
 		for (Entry<IRequirement, List<IInstallableUnitPatch>> entry : unchangedRequirements.entrySet()) {
 			List<IInstallableUnitPatch> patchesApplied = entry.getValue();
 			Iterator<IInstallableUnit> allPatches = applicablePatches.iterator();
-			List<IInstallableUnitPatch> requiredPatches = new ArrayList<IInstallableUnitPatch>();
+			List<IInstallableUnitPatch> requiredPatches = new ArrayList<>();
 			while (allPatches.hasNext()) {
 				IInstallableUnitPatch patch = (IInstallableUnitPatch) allPatches.next();
 				if (!patchesApplied.contains(patch))
@@ -737,7 +741,7 @@ public class Projector {
 				} else {
 					// manage non greedy IUs
 					IInstallableUnit current;
-					List<Object> nonGreedys = new ArrayList<Object>(matches.size());
+					List<Object> nonGreedys = new ArrayList<>(matches.size());
 					for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 						current = it.next();
 						if (nonGreedyIUs.contains(current)) {
@@ -766,7 +770,7 @@ public class Projector {
 							}
 						}
 					} else {
-						List<Object> newConstraint = new ArrayList<Object>(matches.size());
+						List<Object> newConstraint = new ArrayList<>(matches.size());
 						for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 							current = it.next();
 							newConstraint.add(getNonGreedyVariable(current));
@@ -791,7 +795,7 @@ public class Projector {
 						}
 					} else {
 						abs = getAbstractVariable(req, false);
-						List<Object> newConstraint = new ArrayList<Object>(matches.size());
+						List<Object> newConstraint = new ArrayList<>(matches.size());
 						for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 							current = it.next();
 							newConstraint.add(getNonGreedyVariable(current));
@@ -824,7 +828,7 @@ public class Projector {
 	 * @return a list of mandatory requirements if any, an empty list if req.isOptional().
 	 */
 	private List<IInstallableUnit> getApplicableMatches(IRequirement req) {
-		List<IInstallableUnit> target = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> target = new ArrayList<>();
 		IQueryResult<IInstallableUnit> matches = picker.query(QueryUtil.createMatchQuery(req.getMatches()), null);
 		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = iterator.next();
@@ -843,7 +847,7 @@ public class Projector {
 		List<IRequirementChange> changes = patch.getRequirementsChange();
 		Collection<IRequirement> iuRequirements = iu.getRequirements();
 		IRequirement[] originalRequirements = iuRequirements.toArray(new IRequirement[iuRequirements.size()]);
-		List<IRequirement[]> rrr = new ArrayList<IRequirement[]>();
+		List<IRequirement[]> rrr = new ArrayList<>();
 		boolean found = false;
 		for (int i = 0; i < changes.size(); i++) {
 			IRequirementChange change = changes.get(i);
@@ -919,8 +923,8 @@ public class Projector {
 				continue;
 
 			Collection<IInstallableUnit> conflictingVersions = conflictingEntries.values();
-			List<IInstallableUnit> singletons = new ArrayList<IInstallableUnit>();
-			List<IInstallableUnit> nonSingletons = new ArrayList<IInstallableUnit>();
+			List<IInstallableUnit> singletons = new ArrayList<>();
+			List<IInstallableUnit> nonSingletons = new ArrayList<>();
 			for (IInstallableUnit iu : conflictingVersions) {
 				if (iu.isSingleton()) {
 					singletons.add(iu);
@@ -1015,7 +1019,7 @@ public class Projector {
 	}
 
 	private void backToIU() {
-		solution = new ArrayList<IInstallableUnit>();
+		solution = new ArrayList<>();
 		IVec<Object> sat4jSolution = dependencyHelper.getSolution();
 		for (Iterator<Object> iter = sat4jSolution.iterator(); iter.hasNext();) {
 			Object var = iter.next();
@@ -1029,7 +1033,7 @@ public class Projector {
 	}
 
 	private void printSolution(Collection<IInstallableUnit> state) {
-		ArrayList<IInstallableUnit> l = new ArrayList<IInstallableUnit>(state);
+		ArrayList<IInstallableUnit> l = new ArrayList<>(state);
 		Collections.sort(l);
 		Tracing.debug("Solution:"); //$NON-NLS-1$
 		Tracing.debug("Numbers of IUs selected: " + l.size()); //$NON-NLS-1$
@@ -1073,12 +1077,12 @@ public class Projector {
 	}
 
 	public Map<IInstallableUnitFragment, List<IInstallableUnit>> getFragmentAssociation() {
-		Map<IInstallableUnitFragment, List<IInstallableUnit>> resolvedFragments = new HashMap<IInstallableUnitFragment, List<IInstallableUnit>>(fragments.size());
+		Map<IInstallableUnitFragment, List<IInstallableUnit>> resolvedFragments = new HashMap<>(fragments.size());
 		for (Entry<IInstallableUnitFragment, Set<IInstallableUnit>> fragment : fragments.entrySet()) {
 			if (!dependencyHelper.getBooleanValueFor(fragment.getKey()))
 				continue;
 			Set<IInstallableUnit> potentialHosts = fragment.getValue();
-			List<IInstallableUnit> resolvedHost = new ArrayList<IInstallableUnit>(potentialHosts.size());
+			List<IInstallableUnit> resolvedHost = new ArrayList<>(potentialHosts.size());
 			for (IInstallableUnit host : potentialHosts) {
 				if (dependencyHelper.getBooleanValueFor(host))
 					resolvedHost.add(host);
@@ -1092,7 +1096,7 @@ public class Projector {
 	private void rememberHostMatches(IInstallableUnitFragment fragment, List<IInstallableUnit> matches) {
 		Set<IInstallableUnit> existingMatches = fragments.get(fragment);
 		if (existingMatches == null) {
-			existingMatches = new HashSet<IInstallableUnit>();
+			existingMatches = new HashSet<>();
 			fragments.put(fragment, existingMatches);
 			existingMatches.addAll(matches);
 		}
