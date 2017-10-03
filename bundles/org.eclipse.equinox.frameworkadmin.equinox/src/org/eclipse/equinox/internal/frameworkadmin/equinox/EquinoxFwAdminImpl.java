@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,16 +76,19 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 		return configuratorManipulator;
 	}
 
+	@Override
 	public Manipulator getManipulator() {
 		return new EquinoxManipulatorImpl(context, this, platformAdmin, startLevelService, false);
 	}
 
+	@Override
 	public Manipulator getRunningManipulator() {
 		if (!this.runningFw)
 			return null;
 		return new EquinoxManipulatorImpl(context, this, platformAdmin, startLevelService, true);
 	}
 
+	@Override
 	public boolean isActive() {
 		return active;
 	}
@@ -113,6 +116,7 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 		return false;
 	}
 
+	@Override
 	public Process launch(Manipulator manipulator, File cwd) throws IllegalArgumentException, FrameworkAdminRuntimeException, IOException {
 		//return new EclipseLauncherImpl(context, this).launch(manipulator, cwd);
 		return new EclipseLauncherImpl(this).launch(manipulator, cwd);

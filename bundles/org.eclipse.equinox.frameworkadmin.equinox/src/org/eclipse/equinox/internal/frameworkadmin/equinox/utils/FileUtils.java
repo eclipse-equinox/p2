@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -207,25 +207,15 @@ public class FileUtils {
 	 * Loads an ini file, returning a list of all non-blank lines in the file.
 	 */
 	public static List<String> loadFile(File file) throws IOException {
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(file));
-
+		try (BufferedReader br = new BufferedReader(new FileReader(file));) {
 			String line;
-			List<String> list = new ArrayList<String>();
+			List<String> list = new ArrayList<>();
 			while ((line = br.readLine()) != null) {
 				//skip whitespace
 				if (line.trim().length() > 0)
 					list.add(line);
 			}
 			return list;
-		} finally {
-			if (br != null)
-				try {
-					br.close();
-				} catch (IOException e) {
-					//Ignore
-				}
 		}
 	}
 

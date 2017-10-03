@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,9 +29,6 @@ import org.osgi.service.log.LogService;
 import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
 
-/**
- *
- */
 public class EquinoxManipulatorImpl implements Manipulator {
 	private static final long DEFAULT_LASTMODIFIED = 0L;
 	private static final boolean LOG_ILLEGALSTATEEXCEPTION = false;
@@ -144,6 +141,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		configData.setInitialBundleStartLevel(4);
 	}
 
+	@Override
 	public BundlesState getBundlesState() throws FrameworkAdminRuntimeException {
 		if (context == null)
 			return new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
@@ -157,10 +155,12 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return new EquinoxBundlesState(context, fwAdmin, this, platformAdmin, platformProperties);
 	}
 
+	@Override
 	public ConfigData getConfigData() throws FrameworkAdminRuntimeException {
 		return configData;
 	}
 
+	@Override
 	public BundleInfo[] getExpectedState() throws IllegalArgumentException, FrameworkAdminRuntimeException {
 		//Log.log(LogService.LOG_DEBUG, this, "getExpectedState()", "BEGIN");
 		SimpleBundlesState.checkAvailability(fwAdmin);
@@ -173,6 +173,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return bundleState.getExpectedState();
 	}
 
+	@Override
 	public LauncherData getLauncherData() throws FrameworkAdminRuntimeException {
 		return launcherData;
 	}
@@ -233,6 +234,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return props;
 	}
 
+	@Override
 	public long getTimeStamp() {
 		long ret = this.getTimeStampWithoutFwPersistentData();
 		if (this.launcherData.isClean())
@@ -260,6 +262,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return ret;
 	}
 
+	@Override
 	public void initialize() {
 		Log.log(LogService.LOG_DEBUG, this, "initialize()", "BEGIN"); //$NON-NLS-1$ //$NON-NLS-2$
 		configData.initialize();
@@ -324,9 +327,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			configData.setInitialBundleStartLevel(startLevelService.getInitialBundleStartLevel());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator#load()
-	 */
+	@Override
 	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
 		Log.log(LogService.LOG_DEBUG, this, "load()", "BEGIN"); //$NON-NLS-1$//$NON-NLS-2$
 		loadWithoutFwPersistentData();
@@ -371,6 +372,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	}
 
 	// Save all parameter in memory into proper config files.
+	@Override
 	public void save(boolean backup) throws IOException, FrameworkAdminRuntimeException {
 		Log.log(LogService.LOG_DEBUG, this, "save()", "BEGIN"); //$NON-NLS-1$//$NON-NLS-2$
 		SimpleBundlesState.checkAvailability(fwAdmin);
@@ -430,6 +432,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		}
 	}
 
+	@Override
 	public void setConfigData(ConfigData configData) {
 		this.configData.initialize();
 		this.configData.setInitialBundleStartLevel(configData.getInitialBundleStartLevel());
@@ -493,6 +496,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return null;
 	}
 
+	@Override
 	public void setLauncherData(LauncherData value) {
 		launcherData.initialize();
 		launcherData.setFwConfigLocation(value.getFwConfigLocation());
@@ -528,6 +532,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return false;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("++++++++++++++++++++++++++++++++++++++++++\n" + "Class:" + this.getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

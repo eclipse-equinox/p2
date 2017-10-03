@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin.equinox;singleton:=true
-Bundle-Version: 1.0.800.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Import-Package: org.eclipse.equinox.frameworkadmin;version="[2.0.0,3.0.0)",
@@ -20,6 +20,6 @@ Import-Package: org.eclipse.equinox.frameworkadmin;version="[2.0.0,3.0.0)",
 Export-Package: org.eclipse.equinox.internal.frameworkadmin.equinox;x-friends:="org.eclipse.equinox.p2.publisher,org.eclipse.equinox.p2.publisher.eclipse,org.eclipse.equinox.simpleconfigurator.manipulator",
  org.eclipse.equinox.internal.frameworkadmin.equinox.utils;x-friends:="org.eclipse.equinox.p2.publisher.eclipse"
 Require-Bundle: org.eclipse.equinox.common
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Service-Component: OSGI-INF/fwadmin.xml
 Bundle-ActivationPolicy: lazy

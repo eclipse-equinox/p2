@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2014 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -151,7 +151,7 @@ public class EclipseLauncherParser {
 	}
 
 	private void getJVMArgs(List<String> lines, LauncherData launcherData) {
-		ArrayList<String> vmargs = new ArrayList<String>(lines.size());
+		ArrayList<String> vmargs = new ArrayList<>(lines.size());
 		boolean foundVmArgs = false;
 		for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
 			String line = iterator.next();
@@ -179,7 +179,7 @@ public class EclipseLauncherParser {
 	}
 
 	private void getProgramArgs(List<String> lines, LauncherData launcherData) {
-		ArrayList<String> args = new ArrayList<String>(lines.size());
+		ArrayList<String> args = new ArrayList<>(lines.size());
 		for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
 			String line = iterator.next();
 			if (EquinoxConstants.OPTION_VMARGS.equals(line))
@@ -295,7 +295,7 @@ public class EclipseLauncherParser {
 		}
 		//Tweak all the values to make them relative
 		File launcherFolder = launcherData.getLauncher().getParentFile();
-		List<String> newlines = new ArrayList<String>();
+		List<String> newlines = new ArrayList<>();
 		newlines.addAll(Arrays.asList(launcherData.getProgramArgs()));
 
 		setStartup(newlines, launcherFolder.toURI());
@@ -326,9 +326,7 @@ public class EclipseLauncherParser {
 
 		//only write the file if we actually have content
 		if (newlines.size() > 0) {
-			BufferedWriter bw = null;
-			try {
-				bw = new BufferedWriter(new FileWriter(launcherConfigFile));
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter(launcherConfigFile));) {
 				for (int j = 0; j < newlines.size(); j++) {
 					String arg = newlines.get(j);
 					if (arg == null)
@@ -338,9 +336,6 @@ public class EclipseLauncherParser {
 				}
 				bw.flush();
 				Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_launcherConfigSave, launcherConfigFile));
-			} finally {
-				if (bw != null)
-					bw.close();
 			}
 		}
 		File previousLauncherIni = launcherData.getPreviousLauncherIni();

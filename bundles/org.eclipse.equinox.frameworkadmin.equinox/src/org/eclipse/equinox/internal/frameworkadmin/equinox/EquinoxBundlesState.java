@@ -214,13 +214,13 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * Map of URI->BundleDescription, where the key is the bundle location.
 	 */
-	private HashMap<URI, BundleDescription> locationStateIndex = new HashMap<URI, BundleDescription>();
+	private HashMap<URI, BundleDescription> locationStateIndex = new HashMap<>();
 
 	/**
 	 * Map of String->BundleDescription, where the key is the bundle name
 	 * and version as defined by the {@link #getKey(BundleDescription)} method.
 	 */
-	private HashMap<String, BundleDescription> nameVersionStateIndex = new HashMap<String, BundleDescription>();
+	private HashMap<String, BundleDescription> nameVersionStateIndex = new HashMap<>();
 	private final PlatformAdmin platformAdmin;
 
 	/**
@@ -414,7 +414,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 	public BundleInfo[] convertState(BundleDescription[] bundles) {
 		BundleInfo[] originalBInfos = manipulator.getConfigData().getBundles();
-		Map<URI, BundleInfo> bundleInfoMap = new HashMap<URI, BundleInfo>();
+		Map<URI, BundleInfo> bundleInfoMap = new HashMap<>();
 		for (int i = 0; i < originalBInfos.length; i++) {
 			bundleInfoMap.put(originalBInfos[i].getLocation(), originalBInfos[i]);
 		}
@@ -450,6 +450,7 @@ public class EquinoxBundlesState implements BundlesState {
 		return result;
 	}
 
+	@Override
 	public BundleInfo[] getExpectedState() throws FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		return convertState(state.getBundles());
@@ -459,8 +460,9 @@ public class EquinoxBundlesState implements BundlesState {
 		return platfromProperties;
 	}
 
+	@Override
 	public BundleInfo[] getPrerequisteBundles(BundleInfo bInfo) {
-		Set<BundleDescription> set = new HashSet<BundleDescription>();
+		Set<BundleDescription> set = new HashSet<>();
 		URI realLocation = bInfo.getLocation();
 		BundleDescription bundle = getBundleByLocation(realLocation);
 		ImportPackageSpecification[] imports = bundle.getImportPackages();
@@ -485,6 +487,7 @@ public class EquinoxBundlesState implements BundlesState {
 		return (startLevel == BundleInfo.NO_LEVEL ? manipulator.getConfigData().getInitialBundleStartLevel() : startLevel);
 	}
 
+	@Override
 	public BundleInfo getSystemBundle() {
 		BundleDescription bundle = this.getSystemBundleDescription();
 		return (bundle != null ? convertSystemBundle(bundle) : null);
@@ -499,6 +502,7 @@ public class EquinoxBundlesState implements BundlesState {
 		return (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundle.getSymbolicName()) ? bundle : null);
 	}
 
+	@Override
 	public BundleInfo[] getSystemFragmentedBundles() {
 		BundleDescription bundle = this.getSystemBundleDescription();
 		if (bundle == null)
@@ -506,6 +510,7 @@ public class EquinoxBundlesState implements BundlesState {
 		return convertState(bundle.getFragments());
 	}
 
+	@Override
 	public String[] getUnsatisfiedConstraints(BundleInfo bInfo) {
 		URI realLocation = bInfo.getLocation();
 		BundleDescription description = getBundleByLocation(realLocation);
@@ -546,6 +551,7 @@ public class EquinoxBundlesState implements BundlesState {
 		}
 	}
 
+	@Override
 	public void installBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 
@@ -576,14 +582,17 @@ public class EquinoxBundlesState implements BundlesState {
 		}
 	}
 
+	@Override
 	public boolean isFullySupported() {
 		return true;
 	}
 
+	@Override
 	public boolean isResolved() {
 		return state.isResolved();
 	}
 
+	@Override
 	public boolean isResolved(BundleInfo bInfo) {
 		URI realLocation = bInfo.getLocation();
 		BundleDescription description = getBundleByLocation(realLocation);
@@ -592,6 +601,7 @@ public class EquinoxBundlesState implements BundlesState {
 		return description.isResolved();
 	}
 
+	@Override
 	public void resolve(boolean increment) {
 		state.resolve(increment);
 	}
@@ -648,6 +658,7 @@ public class EquinoxBundlesState implements BundlesState {
 			soFactory = platformAdmin.getFactory();
 	}
 
+	@Override
 	public String toString() {
 		if (state == null)
 			return null;
@@ -678,6 +689,7 @@ public class EquinoxBundlesState implements BundlesState {
 		return sb.toString();
 	}
 
+	@Override
 	public void uninstallBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		long id = DEFAULT_TIMESTAMP;

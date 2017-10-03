@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ import org.osgi.framework.Constants;
 import org.osgi.service.log.LogService;
 
 public class EquinoxFwConfigFileParser {
-	private static final Set<String> KNOWN_PROPERTIES = new HashSet<String>(Arrays.asList(new String[] {EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_FW_EXTENSIONS, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL}));
+	private static final Set<String> KNOWN_PROPERTIES = new HashSet<>(Arrays.asList(new String[] {EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_FW_EXTENSIONS, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL}));
 	private static final String CONFIG_DIR = "@config.dir/"; //$NON-NLS-1$
 	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
@@ -114,7 +114,7 @@ public class EquinoxFwConfigFileParser {
 		if (value == null || value.length() == 0)
 			return null;
 
-		List<BundleInfo> bundles = new ArrayList<BundleInfo>();
+		List<BundleInfo> bundles = new ArrayList<>();
 		String[] bInfoStrings = Utils.getTokens(value, ","); //$NON-NLS-1$
 		for (int i = 0; i < bInfoStrings.length; i++) {
 			String entry = bInfoStrings[i].trim();
@@ -564,7 +564,7 @@ public class EquinoxFwConfigFileParser {
 		if (bundles == null || sharedBundles == null || bundles.length != sharedBundles.length)
 			return false;
 
-		List<BundleInfo> compareList = new ArrayList<BundleInfo>(Arrays.asList(bundles));
+		List<BundleInfo> compareList = new ArrayList<>(Arrays.asList(bundles));
 		compareList.removeAll(Arrays.asList(sharedBundles));
 		return compareList.isEmpty();
 	}
