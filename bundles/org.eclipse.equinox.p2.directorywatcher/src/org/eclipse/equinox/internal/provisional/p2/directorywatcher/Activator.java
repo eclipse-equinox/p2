@@ -19,7 +19,6 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
  * Bundle activator for directory watcher bundle.
@@ -52,8 +51,7 @@ public class Activator implements BundleActivator {
 	}
 
 	public static URI getDefaultRepositoryLocation(Object object, String repositoryName) {
-		PackageAdmin packageAdmin = ServiceHelper.getService(context, PackageAdmin.class);
-		Bundle bundle = packageAdmin.getBundle(object.getClass());
+		Bundle bundle = FrameworkUtil.getBundle(object.getClass());
 		BundleContext context = bundle.getBundleContext();
 		File base = context.getDataFile(""); //$NON-NLS-1$
 		File result = new File(base, "listener_" + repositoryName.hashCode()); //$NON-NLS-1$
