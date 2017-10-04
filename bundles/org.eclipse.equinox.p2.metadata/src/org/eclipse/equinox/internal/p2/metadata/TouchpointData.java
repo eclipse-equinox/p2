@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,13 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.eclipse.equinox.p2.metadata.ITouchpointData;
-import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.p2.metadata.*;
 
 /**
  * Touchpoint data instances contain the additional information needed by a touchpoint
@@ -37,10 +34,12 @@ public class TouchpointData implements ITouchpointData {
 	 */
 	private Map<String, ITouchpointInstruction> instructions;
 
+	@Override
 	public int hashCode() {
 		return 31 * 1 + ((instructions == null) ? 0 : instructions.hashCode());
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -67,6 +66,7 @@ public class TouchpointData implements ITouchpointData {
 	/**
 	 * Returns the touchpoint instruction corresponding to the given key.
 	 */
+	@Override
 	public ITouchpointInstruction getInstruction(String instructionKey) {
 		return instructions.get(instructionKey);
 	}
@@ -77,6 +77,7 @@ public class TouchpointData implements ITouchpointData {
 	 *
 	 * @return the touchpoint instructions
 	 */
+	@Override
 	public Map<String, ITouchpointInstruction> getInstructions() {
 		return Collections.unmodifiableMap(instructions);
 	}
@@ -84,6 +85,7 @@ public class TouchpointData implements ITouchpointData {
 	/**
 	 * Returns a string representation of the touchpoint data for debugging purposes only.
 	 */
+	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer();
 		for (Entry<String, ITouchpointInstruction> instruction : instructions.entrySet()) {

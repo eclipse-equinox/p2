@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,18 +25,22 @@ public class CollectionResult<T> implements IQueryResult<T> {
 		this.collection = collection == null ? Collections.<T> emptySet() : collection;
 	}
 
+	@Override
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 		return query.perform(iterator());
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return collection.isEmpty();
 	}
 
+	@Override
 	public Iterator<T> iterator() {
 		return collection.iterator();
 	}
 
+	@Override
 	public T[] toArray(Class<T> clazz) {
 		int size = collection.size();
 		@SuppressWarnings("unchecked")
@@ -46,10 +50,12 @@ public class CollectionResult<T> implements IQueryResult<T> {
 		return result;
 	}
 
+	@Override
 	public Set<T> toSet() {
-		return new HashSet<T>(collection);
+		return new HashSet<>(collection);
 	}
 
+	@Override
 	public Set<T> toUnmodifiableSet() {
 		return collection instanceof Set<?> ? Collections.<T> unmodifiableSet((Set<T>) collection) : toSet();
 	}

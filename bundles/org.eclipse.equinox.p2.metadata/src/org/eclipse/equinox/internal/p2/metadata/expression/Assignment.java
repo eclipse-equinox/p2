@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,24 +21,29 @@ class Assignment extends Binary {
 		super(variable, expression);
 	}
 
+	@Override
 	public final Object evaluate(IEvaluationContext context) {
 		Object value = rhs.evaluate(context);
 		context.setValue(lhs, value);
 		return value;
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_ASSIGNMENT;
 	}
 
+	@Override
 	public int getPriority() {
 		return IExpressionConstants.PRIORITY_ASSIGNMENT;
 	}
 
+	@Override
 	public String getOperator() {
 		return OPERATOR_ASSIGN;
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Iterator<?> value = rhs.evaluateAsIterator(context);
 		context.setValue(lhs, value);

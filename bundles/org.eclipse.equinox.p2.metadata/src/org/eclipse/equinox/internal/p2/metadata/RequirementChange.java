@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -23,14 +23,17 @@ public class RequirementChange implements IRequirementChange {
 		this.newValue = newValue2;
 	}
 
+	@Override
 	public IRequiredCapability applyOn() {
 		return applyOn;
 	}
 
+	@Override
 	public IRequiredCapability newValue() {
 		return newValue;
 	}
 
+	@Override
 	public boolean matches(IRequiredCapability toMatch) {
 		if (!toMatch.getNamespace().equals(applyOn.getNamespace()))
 			return false;
@@ -42,6 +45,7 @@ public class RequirementChange implements IRequirementChange {
 		return toMatch.getRange().intersect(applyOn.getRange()) != null;
 	}
 
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -50,6 +54,7 @@ public class RequirementChange implements IRequirementChange {
 		return result;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -71,6 +76,7 @@ public class RequirementChange implements IRequirementChange {
 		return true;
 	}
 
+	@Override
 	public String toString() {
 		return applyOn + " --> " + newValue; //$NON-NLS-1$
 	}

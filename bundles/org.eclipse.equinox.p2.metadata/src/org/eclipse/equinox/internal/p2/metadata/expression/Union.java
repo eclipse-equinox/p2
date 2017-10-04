@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,10 +21,12 @@ final class Union extends Binary {
 		super(operand, param);
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return evaluateAsIterator(context);
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		@SuppressWarnings("unchecked")
 		Set<Object> resultSet = (Set<Object>) asSet(lhs.evaluate(context), true);
@@ -34,14 +36,17 @@ final class Union extends Binary {
 		return RepeatableIterator.create(resultSet);
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_UNION;
 	}
 
+	@Override
 	public String getOperator() {
 		return KEYWORD_UNION;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_COLLECTION;
 	}

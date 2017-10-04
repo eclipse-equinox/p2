@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -124,10 +124,12 @@ class VersionFormatParser {
 			this.qualifier = qualifier;
 		}
 
+		@Override
 		public final boolean equals(Object f) {
 			return f == this || getClass().equals(f.getClass()) && qualifier.equals(((Fragment) f).qualifier);
 		}
 
+		@Override
 		public final int hashCode() {
 			return 11 * qualifier.hashCode();
 		}
@@ -136,6 +138,7 @@ class VersionFormatParser {
 			return false;
 		}
 
+		@Override
 		public String toString() {
 			StringBuffer sb = new StringBuffer();
 			toString(sb);
@@ -188,6 +191,7 @@ class VersionFormatParser {
 			this.max = max;
 		}
 
+		@Override
 		public boolean equals(Object o) {
 			if (o == this)
 				return true;
@@ -197,10 +201,12 @@ class VersionFormatParser {
 			return min == oq.min && max == oq.max;
 		}
 
+		@Override
 		public int hashCode() {
 			return 31 * min + 67 * max;
 		}
 
+		@Override
 		public String toString() {
 			StringBuffer sb = new StringBuffer();
 			toString(sb);
@@ -339,6 +345,7 @@ class VersionFormatParser {
 			super(instr, qualifier);
 		}
 
+		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			maxPos = checkRange(pos, maxPos);
@@ -406,6 +413,7 @@ class VersionFormatParser {
 			return true;
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			sb.append('a');
 			super.toString(sb);
@@ -441,6 +449,7 @@ class VersionFormatParser {
 			return true;
 		}
 
+		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			if (pos < maxPos && isMatch(version, pos)) {
@@ -452,6 +461,7 @@ class VersionFormatParser {
 			return false;
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			sb.append('d');
 			if (delimChars != null)
@@ -554,10 +564,12 @@ class VersionFormatParser {
 			}
 		}
 
+		@Override
 		Comparable<?> getDefaultValue() {
 			return defaultValue;
 		}
 
+		@Override
 		Comparable<?> getPadValue() {
 			return padValue;
 		}
@@ -566,12 +578,14 @@ class VersionFormatParser {
 			return ignored;
 		}
 
+		@Override
 		void setDefaults(List<Comparable<?>> segments) {
 			Comparable<?> defaultVal = getDefaultValue();
 			if (defaultVal != null)
 				segments.add(defaultVal);
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			if (ignored) {
 				sb.append('=');
@@ -604,17 +618,20 @@ class VersionFormatParser {
 			this.array = array;
 		}
 
+		@Override
 		public boolean isGroup() {
 			return !array;
 		}
 
+		@Override
 		Fragment getFirstLeaf() {
 			return fragments[0].getFirstLeaf();
 		}
 
+		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			if (array) {
-				ArrayList<Comparable<?>> subSegs = new ArrayList<Comparable<?>>();
+				ArrayList<Comparable<?>> subSegs = new ArrayList<>();
 				boolean success = fragments[0].getQualifier().parse(fragments, 0, subSegs, version, maxPos, info);
 				if (!success || subSegs.isEmpty())
 					return false;
@@ -639,6 +656,7 @@ class VersionFormatParser {
 			return false;
 		}
 
+		@Override
 		void setDefaults(List<Comparable<?>> segments) {
 			Comparable<?> dflt = getDefaultValue();
 			if (dflt != null) {
@@ -652,6 +670,7 @@ class VersionFormatParser {
 			}
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			if (array) {
 				sb.append('<');
@@ -684,6 +703,7 @@ class VersionFormatParser {
 			this.string = string;
 		}
 
+		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			int litLen = string.length();
@@ -698,6 +718,7 @@ class VersionFormatParser {
 			return true;
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			String str = string;
 			if (str.length() != 1) {
@@ -741,6 +762,7 @@ class VersionFormatParser {
 			this.signed = signed;
 		}
 
+		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			maxPos = checkRange(pos, maxPos);
@@ -801,6 +823,7 @@ class VersionFormatParser {
 			return true;
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			sb.append(signed ? 'N' : 'n');
 			super.toString(sb);
@@ -814,6 +837,7 @@ class VersionFormatParser {
 			super(null, qualifier);
 		}
 
+		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			if (pos >= maxPos || version.charAt(pos) != 'p')
@@ -830,6 +854,7 @@ class VersionFormatParser {
 			return true;
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			sb.append('p');
 			super.toString(sb);
@@ -843,6 +868,7 @@ class VersionFormatParser {
 			super(instr, qualifier);
 		}
 
+		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			if (pos >= maxPos)
@@ -899,6 +925,7 @@ class VersionFormatParser {
 			return true;
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			sb.append('q');
 			super.toString(sb);
@@ -971,6 +998,7 @@ class VersionFormatParser {
 			return true;
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			if (characters != null)
 				appendCharacterRange(sb, characters, inverted);
@@ -999,6 +1027,7 @@ class VersionFormatParser {
 			super(processing, qualifier);
 		}
 
+		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int[] position = new int[] {info.getPosition()};
 			Comparable<?> v = VersionParser.parseRawElement(version, position, maxPos);
@@ -1011,6 +1040,7 @@ class VersionFormatParser {
 			return true;
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			sb.append('r');
 			super.toString(sb);
@@ -1065,6 +1095,7 @@ class VersionFormatParser {
 			return false;
 		}
 
+		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			maxPos = checkRange(pos, maxPos);
@@ -1128,6 +1159,7 @@ class VersionFormatParser {
 			return true;
 		}
 
+		@Override
 		void toString(StringBuffer sb) {
 			sb.append(anyChar ? 'S' : 's');
 			super.toString(sb);
@@ -1152,7 +1184,7 @@ class VersionFormatParser {
 		start = pos;
 		current = pos;
 		eos = maxPos;
-		currentList = new ArrayList<Fragment>();
+		currentList = new ArrayList<>();
 		while (current < eos)
 			parseFragment();
 
@@ -1233,7 +1265,7 @@ class VersionFormatParser {
 
 	private void parseBracketGroup() throws VersionFormatException {
 		List<Fragment> saveList = currentList;
-		currentList = new ArrayList<Fragment>();
+		currentList = new ArrayList<>();
 		while (current < eos && format.charAt(current) != ']')
 			parseFragment();
 
@@ -1314,8 +1346,8 @@ class VersionFormatParser {
 
 	private void parseEnum(Instructions processing) throws VersionFormatException {
 		++current;
-		ArrayList<List<String>> identifiers = new ArrayList<List<String>>();
-		ArrayList<String> idents = new ArrayList<String>();
+		ArrayList<List<String>> identifiers = new ArrayList<>();
+		ArrayList<String> idents = new ArrayList<>();
 		StringBuffer sb = new StringBuffer();
 		for (;;) {
 			if (current >= eos)
@@ -1343,7 +1375,7 @@ class VersionFormatParser {
 				break;
 
 			// c must be ',' at this point
-			idents = new ArrayList<String>();
+			idents = new ArrayList<>();
 		}
 
 		boolean enumCaseSensitive = true;
@@ -1366,7 +1398,7 @@ class VersionFormatParser {
 
 		// Ensure that all identifiers are unique and make them
 		// lower case if necessary
-		HashSet<String> unique = new HashSet<String>();
+		HashSet<String> unique = new HashSet<>();
 		int ordinal = identifiers.size();
 		while (--ordinal >= 0) {
 			List<String> ids = identifiers.get(ordinal);
@@ -1432,7 +1464,7 @@ class VersionFormatParser {
 
 	private void parseGroup(boolean array) throws VersionFormatException {
 		List<Fragment> saveList = currentList;
-		currentList = new ArrayList<Fragment>();
+		currentList = new ArrayList<>();
 		char expectedEnd = array ? '>' : ')';
 		while (current < eos && format.charAt(current) != expectedEnd)
 			parseFragment();

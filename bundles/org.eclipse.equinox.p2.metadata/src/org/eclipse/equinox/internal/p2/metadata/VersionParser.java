@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -320,7 +320,7 @@ public abstract class VersionParser {
 		if (c == '>')
 			return null;
 
-		ArrayList<Comparable<?>> rawList = new ArrayList<Comparable<?>>();
+		ArrayList<Comparable<?>> rawList = new ArrayList<>();
 		boolean padMarkerSeen = (c == 'p');
 		if (padMarkerSeen) {
 			if (++pos >= maxPos)
@@ -365,7 +365,7 @@ public abstract class VersionParser {
 
 	private static Comparable<?> parseRawEnum(String value, int[] position, int maxPos) {
 		int pos = position[0];
-		ArrayList<List<String>> identifiers = new ArrayList<List<String>>();
+		ArrayList<List<String>> identifiers = new ArrayList<>();
 		int ordinal = -1;
 		StringBuffer sb = new StringBuffer();
 		for (;;) {

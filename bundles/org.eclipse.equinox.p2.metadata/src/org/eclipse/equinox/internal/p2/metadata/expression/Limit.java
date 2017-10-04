@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,10 +30,12 @@ final class Limit extends Binary {
 			this.counter = count;
 		}
 
+		@Override
 		public boolean hasNext() {
 			return counter > 0 && innerIterator.hasNext();
 		}
 
+		@Override
 		public T next() {
 			if (counter > 0) {
 				--counter;
@@ -42,6 +44,7 @@ final class Limit extends Binary {
 			throw new NoSuchElementException();
 		}
 
+		@Override
 		public void remove() {
 			innerIterator.remove();
 		}
@@ -55,10 +58,12 @@ final class Limit extends Binary {
 		this(operand, (Expression) ExpressionFactory.INSTANCE.constant(Integer.valueOf(limit)));
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return evaluateAsIterator(context);
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object rval = rhs.evaluate(context);
 		int limit = -1;
@@ -69,20 +74,24 @@ final class Limit extends Binary {
 		return limit == 0 ? Collections.emptySet().iterator() : new CountingIterator<Object>(lhs.evaluateAsIterator(context), limit);
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_LIMIT;
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		CollectionFilter.appendProlog(bld, rootVariable, lhs, getOperator());
 		appendOperand(bld, rootVariable, rhs, IExpressionConstants.PRIORITY_COMMA);
 		bld.append(')');
 	}
 
+	@Override
 	public String getOperator() {
 		return KEYWORD_LIMIT;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_COLLECTION;
 	}

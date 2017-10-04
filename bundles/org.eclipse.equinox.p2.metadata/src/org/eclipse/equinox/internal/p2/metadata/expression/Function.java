@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ public abstract class Function extends NAry {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		if (instance != null)
 			return instance;
@@ -53,6 +54,7 @@ public abstract class Function extends NAry {
 		throw new IllegalArgumentException("Cannot create a " + getOperator() + " from " + what); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object value = evaluate(context);
 		if (!(value instanceof Iterator<?>))
@@ -60,14 +62,17 @@ public abstract class Function extends NAry {
 		return (Iterator<?>) value;
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_FUNCTION;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_FUNCTION;
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		bld.append(getOperator());
 		bld.append('(');

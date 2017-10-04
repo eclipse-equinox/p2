@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,15 +40,17 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 		this.elementClass = elementClass;
 	}
 
+	@Override
 	public IRepeatableIterator<T> getCopy() {
 		Iterator<? extends T> iterator = getInnerIterator();
 		if (iterator instanceof IRepeatableIterator<?>)
-			return new Everything<T>(elementClass, ((IRepeatableIterator<? extends T>) iterator).getCopy(), false);
+			return new Everything<>(elementClass, ((IRepeatableIterator<? extends T>) iterator).getCopy(), false);
 		if (atStart)
 			return this;
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public T next() {
 		atStart = false;
 		return super.next();
@@ -58,6 +60,7 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 		return elementClass;
 	}
 
+	@Override
 	public Object getIteratorProvider() {
 		Iterator<? extends T> iterator = getInnerIterator();
 		if (iterator instanceof IRepeatableIterator<?>)
@@ -65,6 +68,7 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 		return this;
 	}
 
+	@Override
 	protected boolean isMatch(T val) {
 		return elementClass.isInstance(val);
 	}

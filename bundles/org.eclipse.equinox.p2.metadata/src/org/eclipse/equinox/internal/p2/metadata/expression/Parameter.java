@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ public class Parameter extends Expression {
 		this.position = position;
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
 		if (cmp == 0)
@@ -29,6 +30,7 @@ public class Parameter extends Expression {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (o == this)
 			return true;
@@ -37,26 +39,32 @@ public class Parameter extends Expression {
 		return getClass() == o.getClass() && position == ((Parameter) o).position;
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return context.getParameter(position);
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_PARAMETER;
 	}
 
+	@Override
 	public String getOperator() {
 		return OPERATOR_PARAMETER;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_VARIABLE;
 	}
 
+	@Override
 	public int hashCode() {
 		return 31 * (1 + position);
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		bld.append('$');
 		bld.append(position);

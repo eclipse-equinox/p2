@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 - 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,10 +27,12 @@ public abstract class MatchIteratorFilter<T> implements Iterator<T> {
 		this.innerIterator = iterator;
 	}
 
+	@Override
 	public boolean hasNext() {
 		return positionNext();
 	}
 
+	@Override
 	public T next() {
 		if (!positionNext())
 			throw new NoSuchElementException();
@@ -40,6 +42,7 @@ public abstract class MatchIteratorFilter<T> implements Iterator<T> {
 		return nxt;
 	}
 
+	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}

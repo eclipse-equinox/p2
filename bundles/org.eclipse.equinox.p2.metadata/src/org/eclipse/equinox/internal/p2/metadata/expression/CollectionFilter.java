@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,10 +37,12 @@ public abstract class CollectionFilter extends Unary {
 		this.lambda = lambda;
 	}
 
+	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		return super.accept(visitor) && lambda.accept(visitor);
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
 		if (cmp == 0)
@@ -48,33 +50,39 @@ public abstract class CollectionFilter extends Unary {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return super.equals(o) && lambda.equals(((CollectionFilter) o).lambda);
 	}
 
+	@Override
 	public final Object evaluate(IEvaluationContext context) {
 		Iterator<?> lval = getInnerIterator(context);
 		context = lambda.prolog(context);
 		return evaluate(context, lval);
 	}
 
+	@Override
 	public final Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Iterator<?> lval = getInnerIterator(context);
 		context = lambda.prolog(context);
 		return evaluateAsIterator(context, lval);
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		appendProlog(bld, rootVariable, operand, getOperator());
 		appendOperand(bld, rootVariable, lambda, PRIORITY_LAMBDA);
 		bld.append(')');
 	}
 
+	@Override
 	public int hashCode() {
 		int result = 31 + operand.hashCode();
 		return 31 * result + lambda.hashCode();
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_COLLECTION;
 	}
@@ -128,6 +136,7 @@ public abstract class CollectionFilter extends Unary {
 		return itor;
 	}
 
+	@Override
 	int countAccessToEverything() {
 		return operand.countAccessToEverything() + lambda.countAccessToEverything();
 	}

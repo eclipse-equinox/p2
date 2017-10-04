@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.metadata.expression.*;
 public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	@SuppressWarnings("serial")
 	private static final Map<IFilterExpression, IMatchExpression<IInstallableUnit>> filterCache = new LinkedHashMap<IFilterExpression, IMatchExpression<IInstallableUnit>>() {
+		@Override
 		public boolean removeEldestEntry(Map.Entry<IFilterExpression, IMatchExpression<IInstallableUnit>> expr) {
 			return size() > 64;
 		}
@@ -94,6 +95,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		}
 	}
 
+	@Override
 	public int compareTo(IInstallableUnit other) {
 		int cmp = getId().compareTo(other.getId());
 		if (cmp == 0)
@@ -101,6 +103,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -122,18 +125,22 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		return true;
 	}
 
+	@Override
 	public Collection<IArtifactKey> getArtifacts() {
 		return CollectionUtils.unmodifiableList(artifacts);
 	}
 
+	@Override
 	public IMatchExpression<IInstallableUnit> getFilter() {
 		return filter;
 	}
 
+	@Override
 	public Collection<IInstallableUnitFragment> getFragments() {
 		return Collections.<IInstallableUnitFragment> emptyList();
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}
@@ -144,6 +151,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
+	@Override
 	public Map<String, String> getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties());
 	}
@@ -158,35 +166,43 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		return result;
 	}
 
+	@Override
 	public String getProperty(String key) {
 		return properties().getProperty(key);
 	}
 
+	@Override
 	public Collection<IProvidedCapability> getProvidedCapabilities() {
 		return CollectionUtils.unmodifiableList(providedCapabilities);
 	}
 
+	@Override
 	public String getProperty(String key, String locale) {
 		return TranslationSupport.getInstance().getIUProperty(this, key, locale);
 	}
 
+	@Override
 	public List<IRequirement> getRequirements() {
 		return CollectionUtils.unmodifiableList(requires);
 
 	}
 
+	@Override
 	public Collection<ITouchpointData> getTouchpointData() {
 		return CollectionUtils.unmodifiableList(touchpointData);
 	}
 
+	@Override
 	public ITouchpointType getTouchpointType() {
 		return touchpointType != null ? touchpointType : ITouchpointType.NONE;
 	}
 
+	@Override
 	public Version getVersion() {
 		return version;
 	}
 
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -195,10 +211,12 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		return result;
 	}
 
+	@Override
 	public boolean isResolved() {
 		return false;
 	}
 
+	@Override
 	public boolean isSingleton() {
 		return singleton;
 	}
@@ -287,14 +305,17 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		this.version = (newVersion != null ? newVersion : Version.emptyVersion);
 	}
 
+	@Override
 	public String toString() {
 		return id + ' ' + getVersion();
 	}
 
+	@Override
 	public IInstallableUnit unresolved() {
 		return this;
 	}
 
+	@Override
 	public IUpdateDescriptor getUpdateDescriptor() {
 		return updateInfo;
 	}
@@ -307,10 +328,12 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		this.licenses = license == null ? NO_LICENSE : license;
 	}
 
+	@Override
 	public Collection<ILicense> getLicenses() {
 		return CollectionUtils.unmodifiableList(licenses);
 	}
 
+	@Override
 	public Collection<ILicense> getLicenses(String locale) {
 		return CollectionUtils.unmodifiableList(TranslationSupport.getInstance().getLicenses(this, locale));
 	}
@@ -319,18 +342,22 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		this.copyright = copyright;
 	}
 
+	@Override
 	public ICopyright getCopyright() {
 		return copyright;
 	}
 
+	@Override
 	public ICopyright getCopyright(String locale) {
 		return TranslationSupport.getInstance().getCopyright(this, locale);
 	}
 
+	@Override
 	public boolean satisfies(IRequirement candidate) {
 		return candidate.isMatch(this);
 	}
 
+	@Override
 	public Collection<IRequirement> getMetaRequirements() {
 		return CollectionUtils.unmodifiableList(metaRequires);
 	}
@@ -344,6 +371,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		}
 	}
 
+	@Override
 	public Object getMember(String memberName) {
 		// It is OK to use identity comparisons here since
 		// a) All constant valued strings are always interned

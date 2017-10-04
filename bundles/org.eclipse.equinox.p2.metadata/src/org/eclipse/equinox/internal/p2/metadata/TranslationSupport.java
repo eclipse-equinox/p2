@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ public class TranslationSupport {
 
 	// Cache the IU fragments that provide localizations for a given locale.
 	// Map<String,SoftReference<IQueryResult>>: locale => soft reference to a queryResult
-	private final Map<String, SoftReference<IQueryResult<IInstallableUnit>>> localeCollectorCache = new HashMap<String, SoftReference<IQueryResult<IInstallableUnit>>>(2);
+	private final Map<String, SoftReference<IQueryResult<IInstallableUnit>>> localeCollectorCache = new HashMap<>(2);
 
 	private LocaleProvider localeProvider;
 	private boolean loggedMissingSource = false;
@@ -78,7 +78,7 @@ public class TranslationSupport {
 	/**
 	 */
 	private List<String> buildLocaleVariants(String locale) {
-		ArrayList<String> result = new ArrayList<String>(4);
+		ArrayList<String> result = new ArrayList<>(4);
 		int lastSeparator;
 		while (true) {
 			result.add(locale);
@@ -244,7 +244,7 @@ public class TranslationSupport {
 
 		IQuery<IInstallableUnit> iuQuery = QueryUtil.<IInstallableUnit> createMatchQuery(IInstallableUnitFragment.class, capabilityMatch, NAMESPACE_IU_LOCALIZATION, localeVariants);
 		IQueryResult<IInstallableUnit> collected = fragmentSource.query(iuQuery, null);
-		localeCollectorCache.put(locale, new SoftReference<IQueryResult<IInstallableUnit>>(collected));
+		localeCollectorCache.put(locale, new SoftReference<>(collected));
 		return collected;
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2016 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,7 +59,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 
 	protected static final Map<String, Integer> keywords;
 	static {
-		keywords = new HashMap<String, Integer>();
+		keywords = new HashMap<>();
 		keywords.put(KEYWORD_FALSE, Integer.valueOf(TOKEN_FALSE));
 		keywords.put(KEYWORD_NULL, Integer.valueOf(TOKEN_NULL));
 		keywords.put(KEYWORD_TRUE, Integer.valueOf(TOKEN_TRUE));
@@ -80,6 +80,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		this.factory = factory;
 	}
 
+	@Override
 	public synchronized IExpression parse(String exprString) {
 		expression = exprString;
 		tokenPos = 0;
@@ -98,6 +99,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		}
 	}
 
+	@Override
 	public synchronized IExpression parseQuery(String exprString) {
 		expression = exprString;
 		tokenPos = 0;
@@ -130,7 +132,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		if (currentToken != TOKEN_OR)
 			return expr;
 
-		ArrayList<IExpression> exprs = new ArrayList<IExpression>();
+		ArrayList<IExpression> exprs = new ArrayList<>();
 		exprs.add(expr);
 		do {
 			nextToken();
@@ -144,7 +146,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		if (currentToken != TOKEN_AND)
 			return expr;
 
-		ArrayList<IExpression> exprs = new ArrayList<IExpression>();
+		ArrayList<IExpression> exprs = new ArrayList<>();
 		exprs.add(expr);
 		do {
 			nextToken();
@@ -371,7 +373,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		if (currentToken != TOKEN_COMMA)
 			return new IExpression[] {expr};
 
-		ArrayList<IExpression> operands = new ArrayList<IExpression>();
+		ArrayList<IExpression> operands = new ArrayList<>();
 		operands.add(expr);
 		do {
 			nextToken();

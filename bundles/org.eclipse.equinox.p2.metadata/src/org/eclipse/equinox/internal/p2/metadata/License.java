@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Genuitec, LLC and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Genuitec, LLC and others. 
+ * All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -62,6 +63,7 @@ public class License implements ILicense {
 	 * 
 	 * @return the location of the license document, or <code>null</code>
 	 */
+	@Override
 	public URI getLocation() {
 		return location;
 	}
@@ -70,6 +72,7 @@ public class License implements ILicense {
 	 * Returns the license body.
 	 * @return the license body, never <code>null</code>
 	 */
+	@Override
 	public String getBody() {
 		return body;
 	}
@@ -79,6 +82,7 @@ public class License implements ILicense {
 	 * version of the license where all whitespace has been reduced to one space.
 	 * @return the message digest as a <code>BigInteger</code>, never <code>null</code>
 	 */
+	@Override
 	public synchronized String getUUID() {
 		if (digest == null)
 			digest = calculateLicenseDigest().toString(16);
@@ -86,9 +90,7 @@ public class License implements ILicense {
 		return digest;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (obj == this)
 			return true;
@@ -102,9 +104,7 @@ public class License implements ILicense {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+	@Override
 	public int hashCode() {
 		return getUUID().hashCode();
 	}

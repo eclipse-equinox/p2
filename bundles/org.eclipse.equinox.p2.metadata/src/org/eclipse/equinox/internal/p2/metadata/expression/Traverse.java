@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,21 +26,25 @@ final class Traverse extends CollectionFilter {
 		super(collection, lambda);
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		return evaluateAsIterator(context, itor);
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> iterator) {
-		HashSet<Object> collector = new HashSet<Object>();
+		HashSet<Object> collector = new HashSet<>();
 		while (iterator.hasNext())
 			traverse(collector, iterator.next(), context);
 		return collector.iterator();
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_TRAVERSE;
 	}
 
+	@Override
 	public String getOperator() {
 		return KEYWORD_TRAVERSE;
 	}

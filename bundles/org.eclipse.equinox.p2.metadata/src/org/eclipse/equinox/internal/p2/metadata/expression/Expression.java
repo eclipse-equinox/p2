@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,10 +108,12 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 	 * @param visitor The visiting visitor.
 	 * @return <code>true</code> if the visitor should continue visiting, <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		return visitor.visit(this);
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = getPriority() - e.getPriority();
 		if (cmp == 0) {
@@ -122,6 +124,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object e) {
 		if (e == this)
 			return true;
@@ -135,6 +138,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 	 * @param context The evaluation context
 	 * @return The result of the evaluation.
 	 */
+	@Override
 	public abstract Object evaluate(IEvaluationContext context);
 
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
@@ -158,16 +162,19 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		return bld.toString();
 	}
 
+	@Override
 	public void toLDAPString(StringBuffer buf) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public final String toString() {
 		StringBuffer bld = new StringBuffer();
 		toString(bld);
 		return bld.toString();
 	}
 
+	@Override
 	public void toString(StringBuffer bld) {
 		toString(bld, ExpressionFactory.THIS);
 	}
@@ -220,14 +227,14 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 					Expression bf = bArr[bidx];
 					if (af.equals(bf)) {
 						if (common == null)
-							common = new ArrayList<Expression>();
+							common = new ArrayList<>();
 						common.add(af);
 						break;
 					}
 				}
 				if (bidx == btop) {
 					if (onlyA == null)
-						onlyA = new ArrayList<Expression>();
+						onlyA = new ArrayList<>();
 					onlyA.add(af);
 				}
 			}
@@ -246,7 +253,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 						break;
 				if (aidx == atop) {
 					if (onlyB == null)
-						onlyB = new ArrayList<Expression>();
+						onlyB = new ArrayList<>();
 					onlyB.add(bf);
 				}
 			}
@@ -258,7 +265,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 			}
 
 			if (parts == null)
-				parts = new ArrayList<Expression>();
+				parts = new ArrayList<>();
 
 			if (onlyA != null) {
 				base = normalize(common, op);
@@ -281,6 +288,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 			this.variable = variable;
 		}
 
+		@Override
 		public boolean visit(IExpression expression) {
 			if (((Expression) expression).isReferenceTo(variable))
 				found = true;
@@ -306,6 +314,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 			this.operand = operand;
 		}
 
+		@Override
 		public boolean visit(IExpression expression) {
 			if (expression instanceof Matches) {
 				if (IInstallableUnit.class.isAssignableFrom(elementClass)) {
@@ -316,7 +325,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 					Matches matches = (Matches) expression;
 					if (matches.lhs == operand) {
 						if (members == null)
-							members = new ArrayList<String>();
+							members = new ArrayList<>();
 						if (!members.contains(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES))
 							members.add(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES);
 					}
@@ -331,7 +340,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 				if (member.getOperand() == operand) {
 					String name = member.getName();
 					if (members == null)
-						members = new ArrayList<String>();
+						members = new ArrayList<>();
 					if (!members.contains(name))
 						members.add(member.getName());
 					return false;
@@ -349,7 +358,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		if (base.equals(subFilter))
 			return base;
 
-		ArrayList<Expression> filters = new ArrayList<Expression>(2);
+		ArrayList<Expression> filters = new ArrayList<>(2);
 		filters.add(base);
 		filters.add(subFilter);
 		return normalize(filters, expressionType);
@@ -382,7 +391,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 			return operands.get(0);
 
 		Collections.sort(operands);
-		List<Compacter> splits = new ArrayList<Compacter>();
+		List<Compacter> splits = new ArrayList<>();
 		int reverseOp = op == TYPE_AND ? TYPE_OR : TYPE_AND;
 
 		for (int idx = 0; idx < top; ++idx)
@@ -446,9 +455,9 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 		HashSet<Object> result;
 		if (val instanceof Collection<?>)
-			result = new HashSet<Object>((Collection<?>) val);
+			result = new HashSet<>((Collection<?>) val);
 		else {
-			result = new HashSet<Object>();
+			result = new HashSet<>();
 			Iterator<?> iterator = RepeatableIterator.create(val);
 			while (iterator.hasNext())
 				result.add(iterator.next());
@@ -462,6 +471,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		TranslationSupportFinder() { //
 		}
 
+		@Override
 		public boolean visit(IExpression expression) {
 			if (expression.getExpressionType() == TYPE_MEMBER && InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(((Member) expression).getName()))
 				found = true;

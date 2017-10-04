@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,6 @@
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.query;
-
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
@@ -38,14 +37,17 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 		return elementClass;
 	}
 
+	@Override
 	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
-		return new QueryResult<T>(expression.iterator(expression.createContext(elementClass, indexProvider)));
+		return new QueryResult<>(expression.iterator(expression.createContext(elementClass, indexProvider)));
 	}
 
+	@Override
 	public IQueryResult<T> perform(Iterator<T> iterator) {
-		return new QueryResult<T>(expression.iterator(expression.createContext(elementClass, iterator)));
+		return new QueryResult<>(expression.iterator(expression.createContext(elementClass, iterator)));
 	}
 
+	@Override
 	public IContextExpression<T> getExpression() {
 		return expression;
 	}

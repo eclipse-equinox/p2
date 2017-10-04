@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,7 @@ public abstract class Member extends Unary {
 			super(operand, name, Expression.emptyArray);
 		}
 
+		@Override
 		public Object evaluate(IEvaluationContext context) {
 			return invoke(operand.evaluate(context));
 		}
@@ -110,6 +111,7 @@ public abstract class Member extends Unary {
 			super(operand, "length", Expression.emptyArray); //$NON-NLS-1$
 		}
 
+		@Override
 		public Object evaluate(IEvaluationContext context) {
 			int len = getLength(operand.evaluate(context));
 			return Integer.valueOf(len);
@@ -140,6 +142,7 @@ public abstract class Member extends Unary {
 			super(operand);
 		}
 
+		@Override
 		public Object evaluate(IEvaluationContext context) {
 			Object val = operand.evaluate(context);
 			boolean empty = (val instanceof Iterator<?>) ? !((Iterator<?>) val).hasNext() : getLength(val) == 0;
@@ -163,6 +166,7 @@ public abstract class Member extends Unary {
 		this.argExpressions = args;
 	}
 
+	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		if (super.accept(visitor))
 			for (int idx = 0; idx < argExpressions.length; ++idx)
@@ -171,6 +175,7 @@ public abstract class Member extends Unary {
 		return true;
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
 		if (cmp == 0) {
@@ -181,6 +186,7 @@ public abstract class Member extends Unary {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (super.equals(o)) {
 			Member mo = (Member) o;
@@ -189,6 +195,7 @@ public abstract class Member extends Unary {
 		return false;
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_MEMBER;
 	}
@@ -197,20 +204,24 @@ public abstract class Member extends Unary {
 		return name;
 	}
 
+	@Override
 	public String getOperator() {
 		return OPERATOR_MEMBER;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_MEMBER;
 	}
 
+	@Override
 	public int hashCode() {
 		int result = 31 + name.hashCode();
 		result = 31 * result + operand.hashCode();
 		return 31 * result + hashCode(argExpressions);
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		if (operand != rootVariable) {
 			appendOperand(bld, rootVariable, operand, getPriority());

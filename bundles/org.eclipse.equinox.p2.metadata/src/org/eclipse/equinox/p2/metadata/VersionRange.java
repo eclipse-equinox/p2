@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2010 IBM Corporation and others.
+ * Copyright (c) 2003, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,7 @@ public class VersionRange implements Serializable {
 	 * An empty OSGi Version range.
 	 */
 	public static final VersionRange emptyRange = new VersionRange(Version.emptyVersion, true, Version.MAX_VERSION, true);
-	private static WeakHashMap<String, SoftReference<VersionRange>> POOL = new WeakHashMap<String, SoftReference<VersionRange>>();
+	private static WeakHashMap<String, SoftReference<VersionRange>> POOL = new WeakHashMap<>();
 
 	private final Version minVersion;
 	private final boolean includeMin;
@@ -281,7 +281,7 @@ public class VersionRange implements Serializable {
 			if (v == null) {
 				v = new VersionRange(versionRange);
 				synchronized (POOL) {
-					POOL.put(versionRange, new SoftReference<VersionRange>(v));
+					POOL.put(versionRange, new SoftReference<>(v));
 				}
 			}
 		}
@@ -414,6 +414,7 @@ public class VersionRange implements Serializable {
 		return minVersion.isOSGiCompatible() && maxVersion.isOSGiCompatible();
 	}
 
+	@Override
 	public boolean equals(Object object) {
 		if (!(object instanceof VersionRange))
 			return false;
@@ -421,6 +422,7 @@ public class VersionRange implements Serializable {
 		return includeMin == vr.includeMin && includeMax == vr.includeMax && minVersion.equals(vr.getMinimum()) && maxVersion.equals(vr.getMaximum());
 	}
 
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -431,6 +433,7 @@ public class VersionRange implements Serializable {
 		return result;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer();
 		toString(result);

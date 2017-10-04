@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,10 +28,12 @@ public class EvaluationContext implements IEvaluationContext {
 			this.variable = variable;
 		}
 
+		@Override
 		public Object getValue(IExpression var) {
 			return variable == var ? value : parentContext.getValue(var);
 		}
 
+		@Override
 		public void setValue(IExpression var, Object val) {
 			if (variable == var)
 				value = val;
@@ -50,6 +52,7 @@ public class EvaluationContext implements IEvaluationContext {
 				values[idx] = variables[ndx];
 		}
 
+		@Override
 		public Object getValue(IExpression variable) {
 			for (int idx = 0; idx < values.length; ++idx)
 				if (values[idx++] == variable)
@@ -57,6 +60,7 @@ public class EvaluationContext implements IEvaluationContext {
 			return parentContext.getValue(variable);
 		}
 
+		@Override
 		public void setValue(IExpression variable, Object value) {
 			for (int idx = 0; idx < values.length; ++idx)
 				if (values[idx++] == variable) {
@@ -126,22 +130,26 @@ public class EvaluationContext implements IEvaluationContext {
 		this.parameters = parameters;
 	}
 
+	@Override
 	public final Object getParameter(int position) {
 		return parameters[position];
 	}
 
+	@Override
 	public Object getValue(IExpression variable) {
 		if (parentContext == null)
 			throw new IllegalArgumentException("No such variable: " + variable); //$NON-NLS-1$
 		return parentContext.getValue(variable);
 	}
 
+	@Override
 	public void setValue(IExpression variable, Object value) {
 		if (parentContext == null)
 			throw new IllegalArgumentException("No such variable: " + variable); //$NON-NLS-1$
 		parentContext.setValue(variable, value);
 	}
 
+	@Override
 	public IIndexProvider<?> getIndexProvider() {
 		if (indexProvider == null) {
 			if (parentContext == null)
@@ -151,6 +159,7 @@ public class EvaluationContext implements IEvaluationContext {
 		return indexProvider;
 	}
 
+	@Override
 	public void setIndexProvider(IIndexProvider<?> indexProvider) {
 		this.indexProvider = indexProvider;
 	}

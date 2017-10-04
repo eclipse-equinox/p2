@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others.
+ * Copyright (c) 2008, 2017 Code 9 and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -73,6 +73,7 @@ public class VersionedId implements IVersionedId {
 	/**
 	 * @return the ID of this VersionedID
 	 */
+	@Override
 	public String getId() {
 		return id;
 	}
@@ -80,10 +81,12 @@ public class VersionedId implements IVersionedId {
 	/**
 	 * @return the Version of this VersionedID
 	 */
+	@Override
 	public Version getVersion() {
 		return version;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -95,6 +98,7 @@ public class VersionedId implements IVersionedId {
 		return id.equals(vname.id) && version.equals(vname.version);
 	}
 
+	@Override
 	public int hashCode() {
 		return id.hashCode() * 31 + version.hashCode();
 	}
@@ -105,6 +109,7 @@ public class VersionedId implements IVersionedId {
 	 * instance using {{@link #parse(String)}.
 	 * @return A string representation of this versioned id
 	 */
+	@Override
 	public String toString() {
 		return Version.emptyVersion.equals(version) ? id : id + '/' + version.toString();
 	}

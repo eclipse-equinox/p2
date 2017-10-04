@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ final class Equals extends Binary {
 		this.negate = negate;
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		Object lhsVal = lhs.evaluate(context);
 		Object rhsVal = rhs.evaluate(context);
@@ -44,14 +45,17 @@ final class Equals extends Binary {
 		return negate ? !eq : eq;
 	}
 
+	@Override
 	public int getExpressionType() {
 		return negate ? TYPE_NOT_EQUALS : TYPE_EQUALS;
 	}
 
+	@Override
 	public String getOperator() {
 		return negate ? OPERATOR_NOT_EQUALS : OPERATOR_EQUALS;
 	}
 
+	@Override
 	public void toLDAPString(StringBuffer buf) {
 		if (negate)
 			buf.append("(!"); //$NON-NLS-1$

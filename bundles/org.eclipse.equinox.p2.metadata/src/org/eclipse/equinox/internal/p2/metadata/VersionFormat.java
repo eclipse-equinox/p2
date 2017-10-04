@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -253,14 +253,17 @@ public class VersionFormat implements IVersionFormat, Serializable {
 		return new TreeInfo(topFragment, start);
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return this == o || o instanceof VersionFormat && toString().equals(o.toString());
 	}
 
+	@Override
 	public int hashCode() {
 		return 11 * toString().hashCode();
 	}
 
+	@Override
 	public Version parse(String version) {
 		List<Comparable<?>> vector = parse(version, 0, version.length());
 		return (this == OSGI_FORMAT) ? OSGiVersion.fromVector(vector) : OmniVersion.fromVector(vector, this, version);
@@ -270,7 +273,7 @@ public class VersionFormat implements IVersionFormat, Serializable {
 		if (start == maxPos)
 			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_empty_version, this, version.substring(start, maxPos)));
 		TreeInfo info = new TreeInfo(topFragment, start);
-		ArrayList<Comparable<?>> entries = new ArrayList<Comparable<?>>(5);
+		ArrayList<Comparable<?>> entries = new ArrayList<>(5);
 		if (!(topFragment.parse(entries, version, maxPos, info) && info.getPosition() == maxPos))
 			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_1, this, version.substring(start, maxPos)));
 		entries.add(VersionParser.removeRedundantTrail(entries, info.getPadValue()));
@@ -294,6 +297,7 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	/**
 	 * Returns the string representation of this compiled format
 	 */
+	@Override
 	public synchronized String toString() {
 		if (fmtString == null) {
 			StringBuffer sb = new StringBuffer();
@@ -302,6 +306,7 @@ public class VersionFormat implements IVersionFormat, Serializable {
 		return fmtString;
 	}
 
+	@Override
 	public synchronized void toString(StringBuffer sb) {
 		if (fmtString != null)
 			sb.append(fmtString);
@@ -330,6 +335,7 @@ class RawFormat extends VersionFormat {
 	 * Parse but do not assign this format as the Version format nor the version
 	 * string as the original.
 	 */
+	@Override
 	public Version parse(String version) {
 		List<Comparable<?>> vector = parse(version, 0, version.length());
 		return OmniVersion.fromVector(vector, null, null);

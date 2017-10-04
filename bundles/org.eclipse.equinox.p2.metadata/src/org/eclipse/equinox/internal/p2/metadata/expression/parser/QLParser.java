@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class QLParser extends ExpressionParser {
 
 	private static final Map<String, Integer> qlKeywords;
 	static {
-		qlKeywords = new HashMap<String, Integer>();
+		qlKeywords = new HashMap<>();
 		qlKeywords.putAll(keywords);
 		qlKeywords.put(KEYWORD_COLLECT, Integer.valueOf(TOKEN_COLLECT));
 		qlKeywords.put(KEYWORD_FALSE, Integer.valueOf(TOKEN_FALSE));
@@ -55,10 +55,12 @@ public class QLParser extends ExpressionParser {
 		super(factory);
 	}
 
+	@Override
 	protected Map<String, Integer> keywordToTokenMap() {
 		return qlKeywords;
 	}
 
+	@Override
 	protected IExpression parseCondition() {
 		IExpression expr = parseOr();
 		if (currentToken == TOKEN_IF) {
@@ -71,6 +73,7 @@ public class QLParser extends ExpressionParser {
 		return expr;
 	}
 
+	@Override
 	protected IExpression parseMember() {
 		IExpression expr = parseFunction();
 		String name;
@@ -134,6 +137,7 @@ public class QLParser extends ExpressionParser {
 		return parseUnary();
 	}
 
+	@Override
 	protected IExpression parseCollectionLHS() {
 		IExpression expr;
 		switch (currentToken) {
@@ -155,6 +159,7 @@ public class QLParser extends ExpressionParser {
 		return expr;
 	}
 
+	@Override
 	protected IExpression parseCollectionRHS(IExpression expr, int funcToken) {
 		switch (funcToken) {
 			case TOKEN_SELECT :
@@ -215,6 +220,7 @@ public class QLParser extends ExpressionParser {
 		return expr;
 	}
 
+	@Override
 	protected IExpression parseUnary() {
 		IExpression expr;
 		switch (currentToken) {
@@ -234,6 +240,7 @@ public class QLParser extends ExpressionParser {
 		return expr;
 	}
 
+	@Override
 	protected IExpression parseLambdaDefinition() {
 		boolean endingRC = false;
 		int anyIndex = -1;
@@ -321,7 +328,7 @@ public class QLParser extends ExpressionParser {
 		List<Object> ids = null;
 		while (currentToken == TOKEN_IDENTIFIER) {
 			if (ids == null)
-				ids = new ArrayList<Object>();
+				ids = new ArrayList<>();
 			ids.add(tokenValue);
 			nextToken();
 			if (currentToken == TOKEN_COMMA) {

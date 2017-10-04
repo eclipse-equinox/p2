@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -28,22 +28,27 @@ public class UpdateDescriptor implements IUpdateDescriptor {
 		this.location = location;
 	}
 
+	@Override
 	public String getDescription() {
 		return description;
 	}
 
+	@Override
 	public int getSeverity() {
 		return severity;
 	}
 
+	@Override
 	public boolean isUpdateOf(IInstallableUnit iu) {
 		return descriptors.iterator().next().isMatch(iu);
 	}
 
+	@Override
 	public Collection<IMatchExpression<IInstallableUnit>> getIUsBeingUpdated() {
 		return descriptors;
 	}
 
+	@Override
 	public URI getLocation() {
 		return location;
 	}

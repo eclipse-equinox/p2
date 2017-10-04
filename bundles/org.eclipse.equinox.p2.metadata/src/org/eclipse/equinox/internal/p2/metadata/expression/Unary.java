@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,10 +23,12 @@ public abstract class Unary extends Expression {
 		this.operand = operand;
 	}
 
+	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		return super.accept(visitor) && operand.accept(visitor);
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
 		if (cmp == 0)
@@ -34,14 +36,17 @@ public abstract class Unary extends Expression {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return super.equals(o) && operand.equals(((Unary) o).operand);
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return operand.evaluate(context);
 	}
 
+	@Override
 	public int hashCode() {
 		return operand.hashCode() * 3 + operand.getExpressionType();
 	}
@@ -50,11 +55,13 @@ public abstract class Unary extends Expression {
 		return operand;
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		bld.append(getOperator());
 		appendOperand(bld, rootVariable, operand, getPriority());
 	}
 
+	@Override
 	int countAccessToEverything() {
 		return operand.countAccessToEverything();
 	}

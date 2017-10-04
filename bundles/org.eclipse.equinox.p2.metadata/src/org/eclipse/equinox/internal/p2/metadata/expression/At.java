@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ class At extends Binary {
 		super(lhs, rhs);
 	}
 
+	@Override
 	public Object evaluate(org.eclipse.equinox.p2.metadata.expression.IEvaluationContext context) {
 		Object lval;
 		if (lhs instanceof DynamicMember) {
@@ -68,6 +69,7 @@ class At extends Binary {
 		throw new IllegalArgumentException("Unable to use [] on a " + lval.getClass().getName()); //$NON-NLS-1$
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object value = evaluate(context);
 		if (!(value instanceof Iterator<?>))
@@ -75,10 +77,12 @@ class At extends Binary {
 		return (Iterator<?>) value;
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_AT;
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		appendOperand(bld, rootVariable, lhs, getPriority());
 		bld.append('[');
@@ -86,10 +90,12 @@ class At extends Binary {
 		bld.append(']');
 	}
 
+	@Override
 	public String getOperator() {
 		return OPERATOR_AT;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_MEMBER;
 	}

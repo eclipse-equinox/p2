@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,9 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * Identifies a particular touchpoint. A touchpoint is identified by an id 
@@ -28,6 +27,7 @@ public class TouchpointType implements ITouchpointType {
 		this.version = aVersion;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -39,18 +39,22 @@ public class TouchpointType implements ITouchpointType {
 		return id.equals(other.getId()) && version.equals(other.getVersion());
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}
 
+	@Override
 	public Version getVersion() {
 		return version;
 	}
 
+	@Override
 	public int hashCode() {
 		return 31 * id.hashCode() + version.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		return "Touchpoint: " + id + ' ' + getVersion(); //$NON-NLS-1$
 	}

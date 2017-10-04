@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,10 +27,12 @@ final class Array extends NAry {
 			this.context = context;
 		}
 
+		@Override
 		public boolean hasNext() {
 			return pos + 1 < operands.length;
 		}
 
+		@Override
 		public Object next() {
 			if (++pos >= operands.length) {
 				--pos;
@@ -39,6 +41,7 @@ final class Array extends NAry {
 			return operands[pos].evaluate(context);
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
@@ -48,28 +51,34 @@ final class Array extends NAry {
 		super(assertLength(operands, 0, OPERATOR_ARRAY));
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return evaluateAsIterator(context);
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		return new ArrayIterator(context);
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_ARRAY;
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		bld.append('[');
 		elementsToString(bld, rootVariable, operands);
 		bld.append(']');
 	}
 
+	@Override
 	public String getOperator() {
 		return OPERATOR_ARRAY;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_FUNCTION;
 	}

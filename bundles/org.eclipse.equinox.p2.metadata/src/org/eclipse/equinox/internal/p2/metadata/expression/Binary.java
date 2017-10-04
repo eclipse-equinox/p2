@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,10 +27,12 @@ public abstract class Binary extends Expression {
 		this.rhs = rhs;
 	}
 
+	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		return super.accept(visitor) && lhs.accept(visitor) && rhs.accept(visitor);
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
 		if (cmp == 0) {
@@ -42,6 +44,7 @@ public abstract class Binary extends Expression {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (super.equals(o)) {
 			Binary bo = (Binary) o;
@@ -50,15 +53,18 @@ public abstract class Binary extends Expression {
 		return false;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_BINARY; // Default priority
 	}
 
+	@Override
 	public int hashCode() {
 		int result = 31 + lhs.hashCode();
 		return 31 * result + rhs.hashCode();
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		appendOperand(bld, rootVariable, lhs, getPriority());
 		bld.append(' ');
@@ -133,6 +139,7 @@ public abstract class Binary extends Expression {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	int countAccessToEverything() {
 		return lhs.countAccessToEverything() + rhs.countAccessToEverything();
 	}

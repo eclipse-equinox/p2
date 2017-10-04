@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ final class CurryedLambdaExpression extends LambdaExpression {
 		this.assignments = assignments;
 	}
 
+	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		if (super.accept(visitor) && each.accept(visitor)) {
 			for (int idx = 0; idx < assignments.length; ++idx)
@@ -37,6 +38,7 @@ final class CurryedLambdaExpression extends LambdaExpression {
 		return false;
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
 		if (cmp == 0)
@@ -44,14 +46,17 @@ final class CurryedLambdaExpression extends LambdaExpression {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return super.equals(o) && equals(assignments, ((CurryedLambdaExpression) o).assignments);
 	}
 
+	@Override
 	public int hashCode() {
 		return 31 * super.hashCode() + hashCode(assignments);
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		int top = assignments.length;
 		if (top > 0) {
@@ -71,6 +76,7 @@ final class CurryedLambdaExpression extends LambdaExpression {
 			bld.append('}');
 	}
 
+	@Override
 	public IEvaluationContext prolog(IEvaluationContext context) {
 		IEvaluationContext lambdaContext;
 		int top = assignments.length + 1;
@@ -84,6 +90,7 @@ final class CurryedLambdaExpression extends LambdaExpression {
 		return lambdaContext;
 	}
 
+	@Override
 	int countAccessToEverything() {
 		int cnt = 0;
 		for (int idx = 0; idx < assignments.length; ++idx)

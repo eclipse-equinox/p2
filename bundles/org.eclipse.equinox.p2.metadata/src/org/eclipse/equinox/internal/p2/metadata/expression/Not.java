@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,26 +20,32 @@ final class Not extends Unary {
 		super(operand);
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return Boolean.valueOf(operand.evaluate(context) != Boolean.TRUE);
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_NOT;
 	}
 
+	@Override
 	public String getOperator() {
 		return OPERATOR_NOT;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_NOT;
 	}
 
+	@Override
 	public int hashCode() {
 		return 3 * operand.hashCode();
 	}
 
+	@Override
 	public void toLDAPString(StringBuffer buf) {
 		buf.append("(!"); //$NON-NLS-1$
 		operand.toLDAPString(buf);

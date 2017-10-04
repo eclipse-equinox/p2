@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ final class Exists extends CollectionFilter {
 		super(collection, lambda);
 	}
 
+	@Override
 	protected Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		Variable variable = lambda.getItemVariable();
 		while (itor.hasNext()) {
@@ -32,10 +33,12 @@ final class Exists extends CollectionFilter {
 		return Boolean.FALSE;
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_EXISTS;
 	}
 
+	@Override
 	public String getOperator() {
 		return KEYWORD_EXISTS;
 	}

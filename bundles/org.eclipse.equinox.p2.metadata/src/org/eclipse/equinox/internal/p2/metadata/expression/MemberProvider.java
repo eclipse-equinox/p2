@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Cloudsmith Inc. and others.
+ * Copyright (c) 2011, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ public abstract class MemberProvider implements IMemberProvider {
 			this.dictionary = dictionary;
 		}
 
+		@Override
 		public Object getMember(String memberName) {
 			return dictionary.get(memberName);
 		}
@@ -51,7 +52,7 @@ public abstract class MemberProvider implements IMemberProvider {
 			if (!hasUpperCase)
 				return dictionary;
 
-			Dictionary<String, Object> lcMap = new Hashtable<String, Object>(dictionary.size());
+			Dictionary<String, Object> lcMap = new Hashtable<>(dictionary.size());
 			for (Enumeration<String> keys = dictionary.keys(); keys.hasMoreElements();) {
 				String key = keys.nextElement();
 				if (lcMap.put(key.toLowerCase(), dictionary.get(key)) != null)
@@ -68,6 +69,7 @@ public abstract class MemberProvider implements IMemberProvider {
 			this.map = map;
 		}
 
+		@Override
 		public Object getMember(String memberName) {
 			return map.get(memberName);
 		}
@@ -97,7 +99,7 @@ public abstract class MemberProvider implements IMemberProvider {
 			if (!hasUpperCase)
 				return map;
 
-			Map<String, Object> lcMap = new HashMap<String, Object>(map.size());
+			Map<String, Object> lcMap = new HashMap<>(map.size());
 			for (Entry<String, ?> entry : entrySet) {
 				if (lcMap.put(entry.getKey().toLowerCase(), entry.getValue()) != null)
 					throw new IllegalArgumentException("case variants of the same key name: '" + entry.getKey() + '\''); //$NON-NLS-1$
@@ -113,6 +115,7 @@ public abstract class MemberProvider implements IMemberProvider {
 			this.serviceRef = serviceRef;
 		}
 
+		@Override
 		public Object getMember(String memberName) {
 			return serviceRef.getProperty(memberName);
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,13 +30,14 @@ public class IdIndex extends Index<IInstallableUnit> {
 			iuMap.add(ius.next());
 	}
 
+	@Override
 	public Iterator<IInstallableUnit> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
 		Object queriedKeys = getQueriedIDs(ctx, variable, InstallableUnit.MEMBER_ID, booleanExpr, null);
 		if (queriedKeys == null)
 			return null;
 
 		if (queriedKeys instanceof Collection<?>) {
-			HashSet<IInstallableUnit> collector = new HashSet<IInstallableUnit>();
+			HashSet<IInstallableUnit> collector = new HashSet<>();
 			for (Object key : (Collection<?>) queriedKeys)
 				collector.addAll(iuMap.getUnits((String) key));
 			return collector.iterator();

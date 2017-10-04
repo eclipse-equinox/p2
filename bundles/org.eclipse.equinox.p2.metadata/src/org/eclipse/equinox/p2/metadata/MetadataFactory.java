@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,13 +80,14 @@ public final class MetadataFactory {
 			if (additional == null || additional.size() == 0)
 				return;
 			Collection<IProvidedCapability> current = unit().getProvidedCapabilities();
-			ArrayList<IProvidedCapability> all = new ArrayList<IProvidedCapability>(additional.size() + current.size());
+			ArrayList<IProvidedCapability> all = new ArrayList<>(additional.size() + current.size());
 			all.addAll(current);
 			all.addAll(additional);
 			unit().setCapabilities(all.toArray(new IProvidedCapability[all.size()]));
 		}
 
 		/** @deprecated Use addRequirements(additional) instead */
+		@Deprecated
 		public void addRequiredCapabilities(Collection<IRequirement> additional) {
 			addRequirements(additional);
 		}
@@ -99,7 +100,7 @@ public final class MetadataFactory {
 			if (additional == null || additional.size() == 0)
 				return;
 			List<IRequirement> current = unit().getRequirements();
-			ArrayList<IRequirement> all = new ArrayList<IRequirement>(additional.size() + current.size());
+			ArrayList<IRequirement> all = new ArrayList<>(additional.size() + current.size());
 			all.addAll(current);
 			all.addAll(additional);
 			unit().setRequiredCapabilities(all.toArray(new IRequirement[all.size()]));
@@ -125,6 +126,7 @@ public final class MetadataFactory {
 		}
 
 		/** @deprecated Use getRequirements() instead */
+		@Deprecated
 		public List<IRequirement> getRequiredCapabilities() {
 			return getRequirements();
 		}
@@ -137,6 +139,7 @@ public final class MetadataFactory {
 		}
 
 		/** @deprecated Use getMetaRequirements() instead */
+		@Deprecated
 		public Collection<IRequirement> getMetaRequiredCapabilities() {
 			return getMetaRequirements();
 		}
@@ -230,6 +233,7 @@ public final class MetadataFactory {
 		}
 
 		/** @deprecated Use setRequirements(requirements) instead */
+		@Deprecated
 		public void setRequiredCapabilities(IRequirement[] requirements) {
 			setRequirements(requirements);
 		}
@@ -243,6 +247,7 @@ public final class MetadataFactory {
 		}
 
 		/** @deprecated Use setMetaRequirements(requirements) instead */
+		@Deprecated
 		public void setMetaRequiredCapabilities(IRequirement[] metaRequirements) {
 			setMetaRequirements(metaRequirements);
 		}
@@ -318,6 +323,7 @@ public final class MetadataFactory {
 			((InstallableUnitFragment) unit()).setHost(Arrays.asList(hostRequirement));
 		}
 
+		@Override
 		InstallableUnit unit() {
 			if (unit == null)
 				unit = new InstallableUnitFragment();
@@ -361,6 +367,7 @@ public final class MetadataFactory {
 			((InstallableUnitPatch) unit()).setRequirementsChange(changes);
 		}
 
+		@Override
 		InstallableUnit unit() {
 			if (unit == null) {
 				unit = new InstallableUnitPatch();
@@ -607,7 +614,7 @@ public final class MetadataFactory {
 		if (instructions.isEmpty())
 			return EMPTY_TOUCHPOINT_DATA;
 
-		Map<String, ITouchpointInstruction> result = new LinkedHashMap<String, ITouchpointInstruction>(instructions.size());
+		Map<String, ITouchpointInstruction> result = new LinkedHashMap<>(instructions.size());
 
 		for (Map.Entry<String, ? extends Object> entry : instructions.entrySet()) {
 			Object value = entry.getValue();
@@ -631,7 +638,7 @@ public final class MetadataFactory {
 		if (incomingInstructions == null || incomingInstructions.size() == 0)
 			return initial;
 
-		Map<String, ITouchpointInstruction> resultInstructions = new HashMap<String, ITouchpointInstruction>(initial.getInstructions());
+		Map<String, ITouchpointInstruction> resultInstructions = new HashMap<>(initial.getInstructions());
 		for (String key : incomingInstructions.keySet()) {
 			ITouchpointInstruction instruction = incomingInstructions.get(key);
 			ITouchpointInstruction existingInstruction = resultInstructions.get(key);
@@ -717,7 +724,7 @@ public final class MetadataFactory {
 	 * @return the update descriptor
 	 */
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description, URI location) {
-		Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<IMatchExpression<IInstallableUnit>>(1);
+		Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<>(1);
 		descriptors.add(createMatchExpressionFromRange(IInstallableUnit.NAMESPACE_IU_ID, id, range));
 		return createUpdateDescriptor(descriptors, severity, description, location);
 	}

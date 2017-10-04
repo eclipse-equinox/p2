@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 - 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,10 +42,12 @@ public class QueryResult<T> implements IQueryResult<T> {
 		this.iterator = RepeatableIterator.create(collection);
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return !iterator.hasNext();
 	}
 
+	@Override
 	public Iterator<T> iterator() {
 		if (firstUse) {
 			firstUse = false;
@@ -54,6 +56,7 @@ public class QueryResult<T> implements IQueryResult<T> {
 		return iterator.getCopy();
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public T[] toArray(Class<T> clazz) {
 		Object provider = iterator.getIteratorProvider();
@@ -64,30 +67,33 @@ public class QueryResult<T> implements IQueryResult<T> {
 		return c.toArray((T[]) Array.newInstance(clazz, c.size()));
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Set<T> toSet() {
 		Object provider = iterator.getIteratorProvider();
 		if (provider instanceof Collection<?>)
-			return new HashSet<T>((Collection<T>) provider);
+			return new HashSet<>((Collection<T>) provider);
 		if (provider instanceof IIndexProvider<?>)
 			return iteratorToSet(((IIndexProvider<T>) provider).everything());
 		if (provider.getClass().isArray()) {
 			T[] elems = (T[]) provider;
 			int idx = elems.length;
-			HashSet<T> copy = new HashSet<T>(idx);
+			HashSet<T> copy = new HashSet<>(idx);
 			while (--idx >= 0)
 				copy.add(elems[idx]);
 			return copy;
 		}
 		if (provider instanceof Map<?, ?>)
-			return new HashSet<T>((Set<T>) ((Map<?, ?>) provider).entrySet());
+			return new HashSet<>((Set<T>) ((Map<?, ?>) provider).entrySet());
 		return iteratorToSet(iterator());
 	}
 
+	@Override
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 		return query.perform(iterator());
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Set<T> toUnmodifiableSet() {
 		Object provider = iterator.getIteratorProvider();
@@ -99,7 +105,7 @@ public class QueryResult<T> implements IQueryResult<T> {
 	}
 
 	private Set<T> iteratorToSet(Iterator<T> iter) {
-		HashSet<T> set = new HashSet<T>();
+		HashSet<T> set = new HashSet<>();
 		while (iter.hasNext())
 			set.add(iter.next());
 		return set;

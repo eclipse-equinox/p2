@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ public class Matches extends Binary {
 		super(lhs, rhs);
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return Boolean.valueOf(match(lhs.evaluate(context), rhs.evaluate(context)));
 	}
@@ -60,7 +61,7 @@ public class Matches extends Binary {
 			return ((LDAPFilter) rval).isMatch(MemberProvider.create(lval, true));
 		} else if (rval instanceof Filter) {
 			if (lval instanceof IInstallableUnit)
-				return Boolean.valueOf(((Filter) rval).match(new Hashtable<String, String>(((IInstallableUnit) lval).getProperties())));
+				return Boolean.valueOf(((Filter) rval).match(new Hashtable<>(((IInstallableUnit) lval).getProperties())));
 			// TODO Below we use raw types for simplicity;
 			// we could convert to Dictionary<String, ?> but that is work and the filter impl
 			// must still handle (and ignore) non String keys.
@@ -89,14 +90,17 @@ public class Matches extends Binary {
 		throw new IllegalArgumentException("Cannot match a " + lval.getClass().getName() + " with a " + rval.getClass().getName()); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_MATCHES;
 	}
 
+	@Override
 	public String getOperator() {
 		return OPERATOR_MATCHES;
 	}
 
+	@Override
 	public void toLDAPString(StringBuffer buf) {
 		if (!(rhs instanceof Literal))
 			throw new UnsupportedOperationException();

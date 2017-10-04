@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 - 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,10 +39,12 @@ public class CompoundIterator<T> implements Iterator<T> {
 		this.iteratorIterator = iterator;
 	}
 
+	@Override
 	public boolean hasNext() {
 		return positionNext();
 	}
 
+	@Override
 	public T next() {
 		if (!positionNext())
 			throw new NoSuchElementException();
@@ -57,6 +59,7 @@ public class CompoundIterator<T> implements Iterator<T> {
 	 * will always yield an exception.
 	 * @throws UnsupportedOperationException
 	 */
+	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}

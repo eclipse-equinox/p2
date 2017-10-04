@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,18 +33,22 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 		return node.match(value, 0);
 	}
 
+	@Override
 	public String toString() {
 		return pattern;
 	}
 
+	@Override
 	public int compareTo(SimplePattern o) {
 		return pattern.compareTo(o.pattern);
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return o == this || (o instanceof SimplePattern && ((SimplePattern) o).pattern.equals(pattern));
 	}
 
+	@Override
 	public int hashCode() {
 		return 3 * pattern.hashCode();
 	}
@@ -57,6 +61,7 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 	}
 
 	static class AllNode extends Node {
+		@Override
 		boolean match(CharSequence value, int pos) {
 			return true;
 		}
@@ -69,6 +74,7 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 			this.next = next;
 		}
 
+		@Override
 		boolean match(CharSequence value, int pos) {
 			int top = value.length();
 			String ending = next.getEndingConstant();
@@ -99,6 +105,7 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 			this.next = next;
 		}
 
+		@Override
 		boolean match(CharSequence value, int pos) {
 			int top = value.length();
 			return next == null ? pos + 1 == top : next.match(value, pos + 1);
@@ -112,6 +119,7 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 			this.constant = constant;
 		}
 
+		@Override
 		boolean match(CharSequence value, int pos) {
 			int max = constant.length() + pos;
 			int top = value.length();
@@ -125,6 +133,7 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 			return true;
 		}
 
+		@Override
 		String getEndingConstant() {
 			return constant;
 		}
@@ -139,6 +148,7 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 			this.constant = constant;
 		}
 
+		@Override
 		boolean match(CharSequence value, int pos) {
 			int max = constant.length() + pos;
 			int top = value.length();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith and others.
+ * Copyright (c) 2009, 2017 Cloudsmith and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,7 +42,7 @@ import org.eclipse.equinox.internal.p2.metadata.*;
  */
 public abstract class Version implements Comparable<Version>, Serializable {
 	public static final String RAW_PREFIX = "raw:"; //$NON-NLS-1$
-	private static WeakHashMap<String, SoftReference<Version>> POOL = new WeakHashMap<String, SoftReference<Version>>();
+	private static WeakHashMap<String, SoftReference<Version>> POOL = new WeakHashMap<>();
 
 	/**
 	 * The version that is semantically greater then all other versions.
@@ -92,7 +92,7 @@ public abstract class Version implements Comparable<Version>, Serializable {
 			if (v == null) {
 				v = VersionParser.parse(version, 0, version.length());
 				synchronized (POOL) {
-					POOL.put(version, new SoftReference<Version>(v));
+					POOL.put(version, new SoftReference<>(v));
 				}
 			}
 		}
@@ -203,6 +203,7 @@ public abstract class Version implements Comparable<Version>, Serializable {
 	 */
 	public abstract boolean isOSGiCompatible();
 
+	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer(20);
 		toString(buf);

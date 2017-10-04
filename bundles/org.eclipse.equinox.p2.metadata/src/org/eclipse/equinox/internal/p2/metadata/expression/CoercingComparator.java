@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2016 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.metadata.Version;
  */
 public abstract class CoercingComparator<T> {
 	static class BooleanCoercer extends CoercingComparator<Boolean> {
+		@Override
 		public int compare(Boolean o1, Boolean o2) {
 			return o1.booleanValue() == o2.booleanValue() ? 0 : (o1.booleanValue() ? 1 : -1);
 		}
@@ -54,6 +55,7 @@ public abstract class CoercingComparator<T> {
 	}
 
 	static class ClassCoercer extends CoercingComparator<Class<?>> {
+		@Override
 		public int compare(Class<?> o1, Class<?> o2) {
 			return o1.getName().compareTo(o2.getName());
 		}
@@ -123,6 +125,7 @@ public abstract class CoercingComparator<T> {
 	}
 
 	static class IntegerCoercer extends CoercingComparator<Integer> {
+		@Override
 		public int compare(Integer o1, Integer o2) {
 			return o1.compareTo(o2);
 		}
@@ -155,6 +158,7 @@ public abstract class CoercingComparator<T> {
 	}
 
 	static class LongCoercer extends CoercingComparator<Long> {
+		@Override
 		public int compare(Long o1, Long o2) {
 			return o1.compareTo(o2);
 		}
@@ -187,6 +191,7 @@ public abstract class CoercingComparator<T> {
 	}
 
 	static class StringCoercer extends CoercingComparator<String> {
+		@Override
 		public int compare(String o1, String o2) {
 			return o1.compareTo(o2);
 		}
@@ -210,10 +215,12 @@ public abstract class CoercingComparator<T> {
 	}
 
 	static class VersionCoercer extends CoercingComparator<Version> {
+		@Override
 		public int compare(Version o1, Version o2) {
 			return o1.compareTo(o2);
 		}
 
+		@Override
 		boolean canCoerceTo(Class<?> cls) {
 			return Version.class.isAssignableFrom(cls);
 		}
@@ -252,6 +259,7 @@ public abstract class CoercingComparator<T> {
 			this.accessible = accessible;
 		}
 
+		@Override
 		public Object run() {
 			accessible.setAccessible(true);
 			return null;
@@ -348,7 +356,7 @@ public abstract class CoercingComparator<T> {
 					int top = coercers.length;
 					CoercingComparator<?>[] nc = new CoercingComparator<?>[top + 1];
 					System.arraycopy(coercers, 0, nc, 1, top);
-					CoercingComparator<V> cv = (CoercingComparator<V>) new FromStringCoercer<Comparable<Object>>(cClass, constructor);
+					CoercingComparator<V> cv = (CoercingComparator<V>) new FromStringCoercer<>(cClass, constructor);
 					nc[0] = cv;
 					coercers = nc;
 					return cv;

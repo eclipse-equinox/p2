@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,7 @@ public class ArtifactKey implements IArtifactKey, IMemberProvider {
 	private static String[] getArrayFromList(String stringList, String separator) {
 		if (stringList == null || stringList.trim().length() == 0)
 			return new String[0];
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		boolean separatorSeen = true;
 		StringTokenizer tokens = new StringTokenizer(stringList, separator, true);
 		while (tokens.hasMoreTokens()) {
@@ -90,14 +90,17 @@ public class ArtifactKey implements IArtifactKey, IMemberProvider {
 		this.version = artifactKey.getVersion();
 	}
 
+	@Override
 	public String getClassifier() {
 		return classifier;
 	}
 
+	@Override
 	public Version getVersion() {
 		return version;
 	}
 
+	@Override
 	public int hashCode() {
 		int hash = id.hashCode();
 		hash = 17 * hash + getVersion().hashCode();
@@ -105,10 +108,12 @@ public class ArtifactKey implements IArtifactKey, IMemberProvider {
 		return hash;
 	}
 
+	@Override
 	public String toString() {
 		return classifier + SEPARATOR + id + SEPARATOR + getVersion();
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof IArtifactKey))
 			return false;
@@ -116,10 +121,12 @@ public class ArtifactKey implements IArtifactKey, IMemberProvider {
 		return ak.getId().equals(id) && ak.getVersion().equals(getVersion()) && ak.getClassifier().equals(classifier);
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}
 
+	@Override
 	public String toExternalForm() {
 		StringBuffer data = new StringBuffer(classifier).append(SEPARATOR);
 		data.append(id).append(SEPARATOR);
@@ -127,6 +134,7 @@ public class ArtifactKey implements IArtifactKey, IMemberProvider {
 		return data.toString();
 	}
 
+	@Override
 	public Object getMember(String memberName) {
 		// It is OK to use identity comparisons here since
 		// a) All constant valued strings are always interned

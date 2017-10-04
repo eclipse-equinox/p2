@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ public class CompoundIndex<T> implements IIndex<T> {
 		this.indexes = indexes;
 	}
 
+	@Override
 	public Iterator<T> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
 		Set<T> result = null;
 		for (IIndex<T> index : indexes) {
@@ -31,7 +32,7 @@ public class CompoundIndex<T> implements IIndex<T> {
 				return null;
 			if (indexResult.hasNext()) {
 				if (result == null)
-					result = new HashSet<T>();
+					result = new HashSet<>();
 				do {
 					result.add(indexResult.next());
 				} while (indexResult.hasNext());

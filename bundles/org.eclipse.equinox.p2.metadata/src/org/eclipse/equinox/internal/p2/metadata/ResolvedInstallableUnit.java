@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -34,12 +34,13 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 		this.fragments = fragments == null ? NO_IU : fragments;
 	}
 
+	@Override
 	public Collection<IInstallableUnitFragment> getFragments() {
 		int fcount = fragments.length;
 		if (fcount == 0)
 			return Collections.<IInstallableUnitFragment> emptyList();
 
-		ArrayList<IInstallableUnitFragment> result = new ArrayList<IInstallableUnitFragment>(fcount);
+		ArrayList<IInstallableUnitFragment> result = new ArrayList<>(fcount);
 		result.addAll(Arrays.asList(fragments));
 		for (int i = 0; i < fcount; i++) {
 			IInstallableUnit fragment = fragments[i];
@@ -49,86 +50,100 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 		return result;
 	}
 
+	@Override
 	public Collection<IArtifactKey> getArtifacts() {
 		return original.getArtifacts();
 	}
 
+	@Override
 	public IMatchExpression<IInstallableUnit> getFilter() {
 		return original.getFilter();
 	}
 
+	@Override
 	public String getId() {
 		return original.getId();
 	}
 
+	@Override
 	public String getProperty(String key) {
 		return original.getProperty(key);
 	}
 
+	@Override
 	public Map<String, String> getProperties() {
 		return original.getProperties();
 	}
 
+	@Override
 	public String getProperty(String key, String locale) {
 		return original.getProperty(key, locale);
 	}
 
+	@Override
 	public Collection<IProvidedCapability> getProvidedCapabilities() {
 		Collection<IProvidedCapability> originalCapabilities = original.getProvidedCapabilities();
 		if (fragments.length == 0)
 			return originalCapabilities;
 
-		ArrayList<IProvidedCapability> result = new ArrayList<IProvidedCapability>(originalCapabilities);
+		ArrayList<IProvidedCapability> result = new ArrayList<>(originalCapabilities);
 		for (int i = 0; i < fragments.length; i++)
 			result.addAll(fragments[i].getProvidedCapabilities());
 		return result;
 	}
 
+	@Override
 	public Collection<IRequirement> getRequirements() {
 		Collection<IRequirement> originalCapabilities = original.getRequirements();
 		if (fragments.length == 0)
 			return originalCapabilities;
 
-		ArrayList<IRequirement> result = new ArrayList<IRequirement>(originalCapabilities);
+		ArrayList<IRequirement> result = new ArrayList<>(originalCapabilities);
 		for (int i = 0; i < fragments.length; i++)
 			result.addAll(fragments[i].getRequirements());
 		return result;
 	}
 
+	@Override
 	public Collection<IRequirement> getMetaRequirements() {
 		Collection<IRequirement> originalCapabilities = original.getMetaRequirements();
 		if (fragments.length == 0)
 			return originalCapabilities;
 
-		ArrayList<IRequirement> result = new ArrayList<IRequirement>(originalCapabilities);
+		ArrayList<IRequirement> result = new ArrayList<>(originalCapabilities);
 		for (int i = 0; i < fragments.length; i++)
 			result.addAll(fragments[i].getMetaRequirements());
 		return result;
 	}
 
+	@Override
 	public Collection<ITouchpointData> getTouchpointData() {
 		Collection<ITouchpointData> originalTouchpointData = original.getTouchpointData();
 		if (fragments.length == 0)
 			return originalTouchpointData;
 
-		ArrayList<ITouchpointData> result = new ArrayList<ITouchpointData>(originalTouchpointData);
+		ArrayList<ITouchpointData> result = new ArrayList<>(originalTouchpointData);
 		for (int i = 0; i < fragments.length; i++)
 			result.addAll(fragments[i].getTouchpointData());
 		return result;
 	}
 
+	@Override
 	public ITouchpointType getTouchpointType() {
 		return original.getTouchpointType();
 	}
 
+	@Override
 	public Version getVersion() {
 		return original.getVersion();
 	}
 
+	@Override
 	public boolean isSingleton() {
 		return original.isSingleton();
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		//TODO This is pretty ugly....
 		boolean result = original.equals(obj);
@@ -139,11 +154,13 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 		return false;
 	}
 
+	@Override
 	public int hashCode() {
 		// TODO Auto-generated method stub
 		return original.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		return "[R]" + original.toString(); //$NON-NLS-1$
 	}
@@ -152,6 +169,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 		return original;
 	}
 
+	@Override
 	public int compareTo(IInstallableUnit other) {
 		int cmp = getId().compareTo(other.getId());
 		if (cmp == 0)
@@ -159,34 +177,42 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 		return cmp;
 	}
 
+	@Override
 	public boolean isResolved() {
 		return true;
 	}
 
+	@Override
 	public IInstallableUnit unresolved() {
 		return original.unresolved();
 	}
 
+	@Override
 	public IUpdateDescriptor getUpdateDescriptor() {
 		return original.getUpdateDescriptor();
 	}
 
+	@Override
 	public Collection<ILicense> getLicenses() {
 		return original.getLicenses();
 	}
 
+	@Override
 	public Collection<ILicense> getLicenses(String locale) {
 		return original.getLicenses(locale);
 	}
 
+	@Override
 	public ICopyright getCopyright() {
 		return original.getCopyright();
 	}
 
+	@Override
 	public ICopyright getCopyright(String locale) {
 		return original.getCopyright(locale);
 	}
 
+	@Override
 	public boolean satisfies(IRequirement candidate) {
 		return candidate.isMatch(this);
 	}
@@ -194,6 +220,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.metadata.expression.IMemberProvider#getMember(java.lang.String)
 	 */
+	@Override
 	public Object getMember(String memberName) {
 		if (MEMBER_FRAGMENTS == memberName)
 			return fragments;

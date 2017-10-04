@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,10 +23,12 @@ public class LDAPFilter extends Unary implements IFilterExpression {
 		super(expression);
 	}
 
+	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		return operand.accept(visitor);
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return (o instanceof Filter && !(o instanceof LDAPFilter)) ? equals(ExpressionUtil.parseLDAP(o.toString())) : super.equals(o);
 	}
@@ -41,14 +43,17 @@ public class LDAPFilter extends Unary implements IFilterExpression {
 		return operand.getPriority();
 	}
 
+	@Override
 	public int getExpressionType() {
 		return 0;
 	}
 
+	@Override
 	public boolean match(Map<String, ? extends Object> map) {
 		return isMatch(MemberProvider.create(map, true));
 	}
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public boolean match(Dictionary dictionary) {
 		return isMatch(dictionary == null ? MemberProvider.emptyProvider() : MemberProvider.create(dictionary, true));
@@ -61,23 +66,28 @@ public class LDAPFilter extends Unary implements IFilterExpression {
 		return Boolean.TRUE == operand.evaluate(ctx);
 	}
 
+	@Override
 	public boolean match(ServiceReference<?> reference) {
 		return isMatch(reference == null ? MemberProvider.emptyProvider() : MemberProvider.create(reference, true));
 	}
 
+	@Override
 	public boolean matchCase(Map<String, ? extends Object> map) {
 		return isMatch(map == null ? MemberProvider.emptyProvider() : MemberProvider.create(map, false));
 	}
 
+	@Override
 	public boolean matches(Map<String, ?> map) {
 		return matchCase(map);
 	}
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public boolean matchCase(Dictionary dictionary) {
 		return isMatch(dictionary == null ? MemberProvider.emptyProvider() : MemberProvider.create(dictionary, false));
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		operand.toLDAPString(bld);
 	}

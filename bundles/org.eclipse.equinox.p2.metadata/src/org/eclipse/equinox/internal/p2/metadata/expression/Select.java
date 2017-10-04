@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,12 +22,15 @@ final class Select extends CollectionFilter {
 		super(collection, lambda);
 	}
 
+	@Override
 	protected Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		return evaluateAsIterator(context, itor);
 	}
 
+	@Override
 	protected Iterator<?> evaluateAsIterator(final IEvaluationContext context, Iterator<?> itor) {
 		return new MatchIteratorFilter<Object>(itor) {
+			@Override
 			protected boolean isMatch(Object val) {
 				lambda.getItemVariable().setValue(context, val);
 				return lambda.evaluate(context) == Boolean.TRUE;
@@ -35,10 +38,12 @@ final class Select extends CollectionFilter {
 		};
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_SELECT;
 	}
 
+	@Override
 	public String getOperator() {
 		return KEYWORD_SELECT;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,14 +25,17 @@ public final class LDAPApproximation implements Serializable, Comparable<LDAPApp
 		this.pattern = pattern;
 	}
 
+	@Override
 	public int compareTo(LDAPApproximation o) {
 		return pattern.compareTo(o.pattern);
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return o == this || (o instanceof LDAPApproximation && ((LDAPApproximation) o).pattern.equals(pattern));
 	}
 
+	@Override
 	public int hashCode() {
 		return 3 * pattern.hashCode();
 	}
@@ -52,6 +55,7 @@ public final class LDAPApproximation implements Serializable, Comparable<LDAPApp
 		return approxString(value).equals(approxPattern);
 	}
 
+	@Override
 	public String toString() {
 		return pattern;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
-
 
 /**
  * Provide standardised artifact information to uniquely identify the 
@@ -34,12 +33,14 @@ public interface IArtifactKey extends IVersionedId {
 	 * Returns the id for this artifact key.
 	 * @return the id segment of the key.
 	 */
+	@Override
 	public String getId();
 
 	/**
 	 * Returns the version for this artifact key. 
 	 * @return the version segment of the key.
 	 */
+	@Override
 	public Version getVersion();
 
 	/**

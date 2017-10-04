@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,27 +38,27 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 	}
 
 	public static <T> IRepeatableIterator<T> create(Iterator<T> iterator) {
-		return iterator instanceof IRepeatableIterator<?> ? ((IRepeatableIterator<T>) iterator).getCopy() : new RepeatableIterator<T>(iterator);
+		return iterator instanceof IRepeatableIterator<?> ? ((IRepeatableIterator<T>) iterator).getCopy() : new RepeatableIterator<>(iterator);
 	}
 
 	public static <T> IRepeatableIterator<T> create(Collection<T> values) {
-		return new RepeatableIterator<T>(values);
+		return new RepeatableIterator<>(values);
 	}
 
 	public static <T> IRepeatableIterator<T> create(IQueryResult<T> values) {
-		return new QueryResultIterator<T>(values);
+		return new QueryResultIterator<>(values);
 	}
 
 	public static <T> IRepeatableIterator<T> create(T[] values) {
-		return new ArrayIterator<T>(values);
+		return new ArrayIterator<>(values);
 	}
 
 	public static <T> IRepeatableIterator<T> create(IIndexProvider<T> values) {
-		return new IndexProviderIterator<T>(values);
+		return new IndexProviderIterator<>(values);
 	}
 
 	RepeatableIterator(Iterator<T> iterator) {
-		HashSet<T> v = new HashSet<T>();
+		HashSet<T> v = new HashSet<>();
 		while (iterator.hasNext())
 			v.add(iterator.next());
 		values = v;
@@ -70,22 +70,27 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 		this.iterator = values.iterator();
 	}
 
+	@Override
 	public IRepeatableIterator<T> getCopy() {
-		return new RepeatableIterator<T>(values);
+		return new RepeatableIterator<>(values);
 	}
 
+	@Override
 	public boolean hasNext() {
 		return iterator.hasNext();
 	}
 
+	@Override
 	public T next() {
 		return iterator.next();
 	}
 
+	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public Object getIteratorProvider() {
 		return values;
 	}
@@ -98,26 +103,31 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 			this.array = array;
 		}
 
+		@Override
 		public Object getIteratorProvider() {
 			return array;
 		}
 
+		@Override
 		public boolean hasNext() {
 			return position + 1 < array.length;
 		}
 
+		@Override
 		public T next() {
 			if (++position >= array.length)
 				throw new NoSuchElementException();
 			return array[position];
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public IRepeatableIterator<T> getCopy() {
-			return new ArrayIterator<T>(array);
+			return new ArrayIterator<>(array);
 		}
 	}
 
@@ -130,22 +140,27 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 			this.indexProvider = indexProvider;
 		}
 
+		@Override
 		public IRepeatableIterator<T> getCopy() {
-			return new IndexProviderIterator<T>(indexProvider);
+			return new IndexProviderIterator<>(indexProvider);
 		}
 
+		@Override
 		public Object getIteratorProvider() {
 			return indexProvider;
 		}
 
+		@Override
 		public boolean hasNext() {
 			return iterator.hasNext();
 		}
 
+		@Override
 		public T next() {
 			return iterator.next();
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
@@ -161,22 +176,27 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 			this.iterator = queryResult.iterator();
 		}
 
+		@Override
 		public IRepeatableIterator<T> getCopy() {
-			return new QueryResultIterator<T>(queryResult);
+			return new QueryResultIterator<>(queryResult);
 		}
 
+		@Override
 		public Object getIteratorProvider() {
 			return queryResult;
 		}
 
+		@Override
 		public boolean hasNext() {
 			return iterator.hasNext();
 		}
 
+		@Override
 		public T next() {
 			return iterator.next();
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}

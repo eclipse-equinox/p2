@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,7 +58,7 @@ public class QueryUtil {
 	public static <T> IQueryable<T> compoundQueryable(Collection<? extends IQueryable<T>> queryables) {
 		// don't suppress the warning as it will cause warnings in the official build
 		// see bug 423628. Write this without unchecked conversion.
-		return new CompoundQueryable<T>(queryables.toArray(new IQueryable[queryables.size()]));
+		return new CompoundQueryable<>(queryables.toArray(new IQueryable[queryables.size()]));
 	}
 
 	/**
@@ -159,7 +159,7 @@ public class QueryUtil {
 	 * @return A compound query
 	 */
 	public static <T> IQuery<T> createCompoundQuery(IQuery<? extends T> query1, IQuery<T> query2, boolean and) {
-		ArrayList<IQuery<? extends T>> queries = new ArrayList<IQuery<? extends T>>(2);
+		ArrayList<IQuery<? extends T>> queries = new ArrayList<>(2);
 		queries.add(query1);
 		queries.add(query2);
 		return createCompoundQuery(queries, and);
@@ -342,7 +342,7 @@ public class QueryUtil {
 	 * @return The created query
 	 */
 	public static IQuery<IInstallableUnit> createMatchQuery(IExpression matchExpression, Object... parameters) {
-		return new ExpressionMatchQuery<IInstallableUnit>(IInstallableUnit.class, matchExpression, parameters);
+		return new ExpressionMatchQuery<>(IInstallableUnit.class, matchExpression, parameters);
 	}
 
 	/**
@@ -354,7 +354,7 @@ public class QueryUtil {
 	 * @return The created query
 	 */
 	public static IQuery<IInstallableUnit> createMatchQuery(String matchExpression, Object... parameters) {
-		return new ExpressionMatchQuery<IInstallableUnit>(IInstallableUnit.class, matchExpression, parameters);
+		return new ExpressionMatchQuery<>(IInstallableUnit.class, matchExpression, parameters);
 	}
 
 	/**
@@ -367,7 +367,7 @@ public class QueryUtil {
 	 * @return The created query
 	 */
 	public static <T> IQuery<T> createMatchQuery(Class<? extends T> matchingClass, IExpression matchExpression, Object... parameters) {
-		return new ExpressionMatchQuery<T>(matchingClass, matchExpression, parameters);
+		return new ExpressionMatchQuery<>(matchingClass, matchExpression, parameters);
 	}
 
 	/**
@@ -381,7 +381,7 @@ public class QueryUtil {
 	 * @return The created query
 	 */
 	public static <T> IQuery<T> createMatchQuery(Class<? extends T> matchingClass, String matchExpression, Object... parameters) {
-		return new ExpressionMatchQuery<T>(matchingClass, matchExpression, parameters);
+		return new ExpressionMatchQuery<>(matchingClass, matchExpression, parameters);
 	}
 
 	/**
@@ -422,7 +422,7 @@ public class QueryUtil {
 	 * @return A query pipe
 	 */
 	public static <T> IQuery<T> createPipeQuery(IQuery<? extends T> query1, IQuery<? extends T> query2) {
-		ArrayList<IQuery<? extends T>> queries = new ArrayList<IQuery<? extends T>>(2);
+		ArrayList<IQuery<? extends T>> queries = new ArrayList<>(2);
 		queries.add(query1);
 		queries.add(query2);
 		return createPipeQuery(queries);
@@ -436,7 +436,7 @@ public class QueryUtil {
 	 * @return The created query
 	 */
 	public static IQuery<IInstallableUnit> createQuery(IExpression expression, Object... parameters) {
-		return new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, expression, parameters);
+		return new ExpressionQuery<>(IInstallableUnit.class, expression, parameters);
 	}
 
 	/**
@@ -447,7 +447,7 @@ public class QueryUtil {
 	 * @return The created query
 	 */
 	public static IQuery<IInstallableUnit> createQuery(String expression, Object... parameters) {
-		return new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, expression, parameters);
+		return new ExpressionQuery<>(IInstallableUnit.class, expression, parameters);
 	}
 
 	/**
@@ -459,7 +459,7 @@ public class QueryUtil {
 	 * @return The created query
 	 */
 	public static <T> IQuery<T> createQuery(Class<? extends T> matchingClass, IExpression expression, Object... parameters) {
-		return new ExpressionQuery<T>(matchingClass, expression, parameters);
+		return new ExpressionQuery<>(matchingClass, expression, parameters);
 	}
 
 	/**
@@ -472,7 +472,7 @@ public class QueryUtil {
 	 * @return The created query
 	 */
 	public static <T> IQuery<T> createQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
-		return new ExpressionQuery<T>(matchingClass, expression, parameters);
+		return new ExpressionQuery<>(matchingClass, expression, parameters);
 	}
 
 	/**

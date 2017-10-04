@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 			this.definition = definition;
 		}
 
+		@Override
 		public int compareTo(EnumSegment other) {
 			if (other == this)
 				return 0;
@@ -69,10 +70,12 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 			return definition.compareTo(other.definition);
 		}
 
+		@Override
 		public boolean equals(Object other) {
 			return other == this || other instanceof EnumSegment && compareTo((EnumSegment) other) == 0;
 		}
 
+		@Override
 		public int hashCode() {
 			return (1 + ordinal) * 31 + definition.getIdentifier(ordinal).hashCode();
 		}
@@ -96,7 +99,7 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 	}
 
 	private static final long serialVersionUID = 7237775466362654473L;
-	private static final Map<EnumDefinition, EnumSegment[]> enumDefinitionCache = new HashMap<EnumDefinition, EnumSegment[]>();
+	private static final Map<EnumDefinition, EnumSegment[]> enumDefinitionCache = new HashMap<>();
 
 	private static EnumSegment[] getEnumSegments(EnumDefinition ed) {
 		EnumSegment[] values = enumDefinitionCache.get(ed);
@@ -226,6 +229,7 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 		return true;
 	}
 
+	@Override
 	public int compareTo(EnumDefinition o) {
 		if (o == this)
 			return 0;

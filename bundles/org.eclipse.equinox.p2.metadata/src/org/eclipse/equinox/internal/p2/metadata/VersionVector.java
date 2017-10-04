@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 			// Empty constructor
 		}
 
+		@Override
 		public int compareTo(Object o) {
 			return o == this ? 0 : (o == MAX_VALUE || o instanceof Integer || o instanceof EnumDefinition.EnumSegment || o instanceof VersionVector ? -1 : 1);
 		}
@@ -40,6 +41,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 			return MAXS_VALUE;
 		}
 
+		@Override
 		public String toString() {
 			return "m"; //$NON-NLS-1$
 		}
@@ -52,6 +54,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 			// Empty constructor
 		}
 
+		@Override
 		public int compareTo(Object o) {
 			return o == this ? 0 : 1;
 		}
@@ -61,6 +64,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 			return MAX_VALUE;
 		}
 
+		@Override
 		public String toString() {
 			return "M"; //$NON-NLS-1$
 		}
@@ -73,6 +77,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 			// Empty constructor
 		}
 
+		@Override
 		public int compareTo(Object o) {
 			return o == this ? 0 : -1;
 		}
@@ -81,6 +86,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 			return MIN_VALUE;
 		}
 
+		@Override
 		public String toString() {
 			return "-M"; //$NON-NLS-1$
 		}
@@ -245,6 +251,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 		this.padValue = (pad == MIN_VALUE) ? null : pad;
 	}
 
+	@Override
 	public int compareTo(VersionVector ov) {
 		if (ov == this)
 			return 0;
@@ -252,6 +259,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 		return compare(vector, padValue, ov.vector, ov.padValue);
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (o == this)
 			return true;
@@ -298,10 +306,12 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 		return vector;
 	}
 
+	@Override
 	public int hashCode() {
 		return hashCode(vector, padValue);
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		toString(sb);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,6 +94,7 @@ public class OmniVersion extends BasicVersion {
 		this.original = original;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (o == this)
 			return true;
@@ -105,26 +106,32 @@ public class OmniVersion extends BasicVersion {
 		return VersionVector.equals(vector, padValue, ov.getVector(), ov.getPad());
 	}
 
+	@Override
 	public IVersionFormat getFormat() {
 		return format;
 	}
 
+	@Override
 	public int getMajor() {
 		return getIntElement(0);
 	}
 
+	@Override
 	public int getMicro() {
 		return getIntElement(2);
 	}
 
+	@Override
 	public int getMinor() {
 		return getIntElement(1);
 	}
 
+	@Override
 	public String getOriginal() {
 		return original;
 	}
 
+	@Override
 	public String getQualifier() {
 		if (vector.length == 3)
 			return VersionVector.MINS_VALUE;
@@ -140,6 +147,7 @@ public class OmniVersion extends BasicVersion {
 		return (String) qualifier;
 	}
 
+	@Override
 	public int hashCode() {
 		return VersionVector.hashCode(vector, padValue);
 	}
@@ -148,6 +156,7 @@ public class OmniVersion extends BasicVersion {
 	 * Checks if this version is in compliance with the OSGi version spec.
 	 * @return A flag indicating whether the version is OSGi compatible or not.
 	 */
+	@Override
 	public boolean isOSGiCompatible() {
 		if (vector.length < 3 || vector.length > 4)
 			return (this == emptyVersion || this == MAX_VERSION);
@@ -172,6 +181,7 @@ public class OmniVersion extends BasicVersion {
 	 * @param sb The buffer that will receive the raw string format
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
 	 */
+	@Override
 	public void originalToString(StringBuffer sb, boolean rangeSafe) {
 		if (original != null) {
 			if (rangeSafe) {
@@ -194,6 +204,7 @@ public class OmniVersion extends BasicVersion {
 	 * @param sb The buffer that will receive the raw string format
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
 	 */
+	@Override
 	public void rawToString(StringBuffer sb, boolean rangeSafe) {
 		VersionVector.toString(sb, vector, padValue, rangeSafe);
 	}
@@ -203,6 +214,7 @@ public class OmniVersion extends BasicVersion {
 	 * <code>sb</code> StringBuffer.
 	 * @param sb The buffer that will receive the version string
 	 */
+	@Override
 	public void toString(StringBuffer sb) {
 		if (this == emptyVersion)
 			sb.append("0.0.0"); //$NON-NLS-1$
@@ -237,22 +249,27 @@ public class OmniVersion extends BasicVersion {
 		return v;
 	}
 
+	@Override
 	public Comparable<?> getPad() {
 		return padValue;
 	}
 
+	@Override
 	public Comparable<?> getSegment(int index) {
 		return vector[index];
 	}
 
+	@Override
 	public int getSegmentCount() {
 		return vector.length;
 	}
 
+	@Override
 	Comparable<?>[] getVector() {
 		return vector;
 	}
 
+	@Override
 	public int compareTo(Version v) {
 		BasicVersion ov = (BasicVersion) v;
 		return VersionVector.compare(vector, padValue, ov.getVector(), ov.getPad());

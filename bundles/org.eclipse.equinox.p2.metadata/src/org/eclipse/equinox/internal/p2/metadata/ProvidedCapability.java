@@ -51,8 +51,7 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 		this.attributes = new HashMap<>(attrs);
 
 		// Verify the name
-		Assert.isTrue(attributes.containsKey(namespace) && (attributes.get(namespace) instanceof String),
-				NLS.bind(Messages.provided_capability_name_not_defined, namespace));
+		Assert.isTrue(attributes.containsKey(namespace) && (attributes.get(namespace) instanceof String), NLS.bind(Messages.provided_capability_name_not_defined, namespace));
 
 		// Verify the version
 		Object version = attributes.get(ATTRIBUTE_VERSION);
@@ -72,6 +71,7 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 		attributes.put(ATTRIBUTE_VERSION, version == null ? Version.emptyVersion : version);
 	}
 
+	@Override
 	public boolean equals(Object other) {
 		if (other == null) {
 			return false;
@@ -94,26 +94,32 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 		return true;
 	}
 
+	@Override
 	public String getNamespace() {
 		return namespace;
 	}
 
+	@Override
 	public String getName() {
 		return (String) attributes.get(namespace);
 	}
 
+	@Override
 	public Version getVersion() {
 		return (Version) attributes.get(ATTRIBUTE_VERSION);
 	}
 
+	@Override
 	public Map<String, Object> getAttributes() {
 		return attributes;
 	}
 
+	@Override
 	public int hashCode() {
 		return namespace.hashCode() * attributes.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 		str.append(namespace);

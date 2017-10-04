@@ -1,5 +1,6 @@
 /******************************************************************************* 
-* Copyright (c) 2008, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2008, 2017 EclipseSource and others. 
+* All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,7 +9,6 @@
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
-
 
 /**
  * Identifies a particular touchpoint. A touchpoint is identified by an id 
@@ -26,10 +26,12 @@ public interface ITouchpointType {
 	 */
 	public static final ITouchpointType NONE = new ITouchpointType() {
 
+		@Override
 		public String getId() {
 			return "null"; //$NON-NLS-1$
 		}
 
+		@Override
 		public Version getVersion() {
 			return Version.emptyVersion;
 		}
@@ -49,6 +51,7 @@ public interface ITouchpointType {
 	 *  <li> The result of <b>getVersion()</b> on both objects are equal
 	 * </ul> 
 	 */
+	@Override
 	public boolean equals(Object obj);
 
 }

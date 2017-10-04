@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,6 +94,7 @@ public class OSGiVersion extends BasicVersion {
 		this.qualifier = qualifier;
 	}
 
+	@Override
 	public int compareTo(Version v) {
 		int result;
 		if (!(v instanceof OSGiVersion)) {
@@ -114,6 +115,7 @@ public class OSGiVersion extends BasicVersion {
 		return result;
 	}
 
+	@Override
 	public boolean equals(Object object) {
 		if (object == this)
 			return true;
@@ -130,42 +132,52 @@ public class OSGiVersion extends BasicVersion {
 		return micro == other.micro && minor == other.minor && major == other.major && qualifier.equals(other.qualifier);
 	}
 
+	@Override
 	public IVersionFormat getFormat() {
 		return VersionFormat.OSGI_FORMAT;
 	}
 
+	@Override
 	public int getMajor() {
 		return major;
 	}
 
+	@Override
 	public int getMicro() {
 		return micro;
 	}
 
+	@Override
 	public int getMinor() {
 		return minor;
 	}
 
+	@Override
 	public String getOriginal() {
 		return toString();
 	}
 
+	@Override
 	public String getQualifier() {
 		return qualifier == VersionVector.MAXS_VALUE ? IVersionFormat.DEFAULT_MAX_STRING_TRANSLATION : (String) qualifier;
 	}
 
+	@Override
 	public int hashCode() {
 		return (major << 24) + (minor << 16) + (micro << 8) + qualifier.hashCode();
 	}
 
+	@Override
 	public boolean isOSGiCompatible() {
 		return true;
 	}
 
+	@Override
 	public void originalToString(StringBuffer sb, boolean rangeSafe) {
 		toString(sb);
 	}
 
+	@Override
 	public void rawToString(StringBuffer sb, boolean rangeSafe) {
 		sb.append(major);
 		sb.append('.');
@@ -178,6 +190,7 @@ public class OSGiVersion extends BasicVersion {
 		sb.append('\'');
 	}
 
+	@Override
 	public void toString(StringBuffer sb) {
 		sb.append(major);
 		sb.append('.');
@@ -190,14 +203,17 @@ public class OSGiVersion extends BasicVersion {
 		}
 	}
 
+	@Override
 	public Comparable<?>[] getVector() {
 		return new Comparable[] {VersionParser.valueOf(major), VersionParser.valueOf(minor), VersionParser.valueOf(micro), qualifier};
 	}
 
+	@Override
 	public Comparable<?> getPad() {
 		return null;
 	}
 
+	@Override
 	public Comparable<?> getSegment(int index) {
 		switch (index) {
 			case 0 :
@@ -212,6 +228,7 @@ public class OSGiVersion extends BasicVersion {
 		throw new ArrayIndexOutOfBoundsException(index); // Not in the imaginary vector array
 	}
 
+	@Override
 	public int getSegmentCount() {
 		return 4;
 	}

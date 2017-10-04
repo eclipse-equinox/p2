@@ -1,5 +1,6 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2017 EclipseSource and others. 
+* All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -35,6 +36,7 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
  * }</pre>
  * @since 2.0
  */
+@Deprecated
 public abstract class MatchQuery<T> implements IMatchQuery<T> {
 
 	/**
@@ -48,14 +50,16 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 * Clients should call {@link #perform(Iterator)}
 	 * @since 2.0
 	 */
+	@Override
 	public abstract boolean isMatch(T candidate);
 
 	/**
 	 * Performs this query on the given iterator, passing all objects in the iterator 
 	 * that match the criteria of this query to the given result.
 	 */
+	@Override
 	public final IQueryResult<T> perform(Iterator<T> iterator) {
-		Collector<T> result = new Collector<T>();
+		Collector<T> result = new Collector<>();
 		while (iterator.hasNext()) {
 			T candidate = iterator.next();
 			if (candidate != null && isMatch(candidate))
@@ -95,6 +99,7 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 		// nothing to do by default
 	}
 
+	@Override
 	public IExpression getExpression() {
 		return null;
 	}

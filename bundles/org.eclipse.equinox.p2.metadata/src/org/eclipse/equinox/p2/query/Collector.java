@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ public class Collector<T> implements IQueryResult<T> {
 	private Set<T> collected = null;
 
 	public static final Collector<?> EMPTY_COLLECTOR = new Collector<Object>() {
+		@Override
 		public boolean accept(Object val) {
 			return false;
 		}
@@ -87,7 +88,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 */
 	protected Collection<T> getCollection() {
 		if (collected == null)
-			collected = new HashSet<T>();
+			collected = new HashSet<>();
 		return collected;
 	}
 
@@ -96,6 +97,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * @return <code>true</code> if this collector has accepted any results,
 	 * and <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean isEmpty() {
 		return collected == null || collected.isEmpty();
 	}
@@ -105,6 +107,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * 
 	 * @return an iterator of the collected objects.
 	 */
+	@Override
 	public Iterator<T> iterator() {
 		return collected == null ? Collections.<T> emptyList().iterator() : collected.iterator();
 	}
@@ -124,6 +127,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * @throws ArrayStoreException the runtime type of the specified array is
 	 *         not a super-type of the runtime type of every collected object
 	 */
+	@Override
 	public T[] toArray(Class<T> clazz) {
 		int size = collected == null ? 0 : collected.size();
 		@SuppressWarnings("unchecked")
@@ -138,13 +142,15 @@ public class Collector<T> implements IQueryResult<T> {
 	 * 
 	 * @return An unmodifiable collection of the collected objects
 	 */
+	@Override
 	public Set<T> toSet() {
-		return collected == null ? new HashSet<T>() : new HashSet<T>(collected);
+		return collected == null ? new HashSet<>() : new HashSet<>(collected);
 	}
 
 	/**
 	 * Performs a query on this results of this collector.  
 	 */
+	@Override
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 		IQueryResult<T> result;
 		if (monitor == null)
@@ -164,6 +170,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * 
 	 * @return An unmodifiable collection of the collected objects
 	 */
+	@Override
 	public Set<T> toUnmodifiableSet() {
 		if (collected == null) {
 			return Collections.emptySet();

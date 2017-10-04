@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,10 +38,12 @@ public class IUMap implements Cloneable {
 			unitIterator = units.values().iterator();
 		}
 
+		@Override
 		public boolean hasNext() {
 			return positionNext();
 		}
 
+		@Override
 		public IInstallableUnit next() {
 			if (!positionNext())
 				throw new NoSuchElementException();
@@ -51,6 +53,7 @@ public class IUMap implements Cloneable {
 			return nxt;
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
@@ -86,7 +89,7 @@ public class IUMap implements Cloneable {
 	/**
 	 * Map<String,Object> mapping IU id to either arrays of iu's or a single iu with that id.
 	 */
-	final Map<String, Object> units = new HashMap<String, Object>();
+	final Map<String, Object> units = new HashMap<>();
 
 	public IUMap() {
 		//
@@ -179,7 +182,7 @@ public class IUMap implements Cloneable {
 		Collection<IInstallableUnit> idUnits = getUnits(id);
 		if (idUnits.isEmpty())
 			return Collector.emptyCollector();
-		return version == null ? new CollectionResult<IInstallableUnit>(idUnits) : QueryUtil.createIUQuery(id, version).perform(idUnits.iterator());
+		return version == null ? new CollectionResult<>(idUnits) : QueryUtil.createIUQuery(id, version).perform(idUnits.iterator());
 	}
 
 	public IInstallableUnit get(String id, Version version) {

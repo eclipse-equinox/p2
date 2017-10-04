@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,22 +24,27 @@ final class Condition extends Binary {
 		this.ifFalse = ifFalse;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return super.equals(o) && ifFalse.equals(((Condition) o).ifFalse);
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return lhs.evaluate(context) == Boolean.TRUE ? rhs.evaluate(context) : ifFalse.evaluate(context);
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		return lhs.evaluate(context) == Boolean.TRUE ? rhs.evaluateAsIterator(context) : ifFalse.evaluateAsIterator(context);
 	}
 
+	@Override
 	public int hashCode() {
 		return super.hashCode() * 31 + ifFalse.hashCode();
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		super.toString(bld, rootVariable);
 		bld.append(' ');
@@ -48,14 +53,17 @@ final class Condition extends Binary {
 		appendOperand(bld, rootVariable, ifFalse, getPriority());
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_CONDITION;
 	}
 
+	@Override
 	public String getOperator() {
 		return OPERATOR_IF;
 	}
 
+	@Override
 	public int getPriority() {
 		return IExpressionConstants.PRIORITY_CONDITION;
 	}

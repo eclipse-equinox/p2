@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 	private final Map<String, Object> capabilityMap;
 
 	public CapabilityIndex(Iterator<IInstallableUnit> itor) {
-		HashMap<String, Object> index = new HashMap<String, Object>(300);
+		HashMap<String, Object> index = new HashMap<>(300);
 		while (itor.hasNext()) {
 			IInstallableUnit iu = itor.next();
 			Collection<IProvidedCapability> pcs = iu.getProvidedCapabilities();
@@ -37,7 +37,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 
 				ArrayList<IInstallableUnit> list;
 				if (prev instanceof IInstallableUnit) {
-					list = new ArrayList<IInstallableUnit>();
+					list = new ArrayList<>();
 					list.add((IInstallableUnit) prev);
 				} else
 					list = (ArrayList<IInstallableUnit>) prev;
@@ -113,6 +113,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 		return RequiredCapability.isSimpleRequirement(rm) ? concatenateUnique(queriedKeys, rm.getParameters()[0]) : getRequirementIDs(rm.createContext(), ((Unary) rm).operand, queriedKeys);
 	}
 
+	@Override
 	public Iterator<IInstallableUnit> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
 		Object queriedKeys = null;
 
@@ -157,7 +158,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 							instance &= (object instanceof IRequiredCapability);
 						}
 						if (instance) {
-							Collection<String> result = new ArrayList<String>();
+							Collection<String> result = new ArrayList<>();
 							for (Object object : collection) {
 								// This instance of check was done above
 								IRequiredCapability capability = (IRequiredCapability) object;
@@ -201,7 +202,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 			// to succeed regardless of input
 			matchingIUs = Collections.<IInstallableUnit> emptySet();
 		} else if (queriedKeys instanceof Collection<?>) {
-			matchingIUs = new HashSet<IInstallableUnit>();
+			matchingIUs = new HashSet<>();
 			for (Object key : (Collection<Object>) queriedKeys)
 				collectMatchingIUs((String) key, matchingIUs);
 		} else {

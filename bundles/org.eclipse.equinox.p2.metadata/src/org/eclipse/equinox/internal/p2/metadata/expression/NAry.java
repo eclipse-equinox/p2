@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ public abstract class NAry extends Expression {
 		this.operands = operands;
 	}
 
+	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		if (super.accept(visitor))
 			for (int idx = 0; idx < operands.length; ++idx)
@@ -30,6 +31,7 @@ public abstract class NAry extends Expression {
 		return true;
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
 		if (cmp == 0)
@@ -37,16 +39,20 @@ public abstract class NAry extends Expression {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return super.equals(o) && equals(operands, ((NAry) o).operands);
 	}
 
+	@Override
 	public abstract String getOperator();
 
+	@Override
 	public int hashCode() {
 		return hashCode(operands);
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		appendOperand(bld, rootVariable, operands[0], getPriority());
 		for (int idx = 1; idx < operands.length; ++idx) {
@@ -57,6 +63,7 @@ public abstract class NAry extends Expression {
 		}
 	}
 
+	@Override
 	int countAccessToEverything() {
 		int cnt = 0;
 		for (int idx = 0; idx < operands.length; ++idx)

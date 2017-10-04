@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,10 +24,12 @@ public class LambdaExpression extends Unary {
 		this.each = each;
 	}
 
+	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		return super.accept(visitor) && each.accept(visitor);
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
 		if (cmp == 0)
@@ -35,19 +37,23 @@ public class LambdaExpression extends Unary {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return super.equals(o) && each.equals(((LambdaExpression) o).each);
 	}
 
+	@Override
 	public int hashCode() {
 		int result = 31 + operand.hashCode();
 		return 31 * result + each.hashCode();
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_LAMBDA;
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		each.toString(bld, rootVariable);
 		bld.append(" | "); //$NON-NLS-1$
@@ -58,10 +64,12 @@ public class LambdaExpression extends Unary {
 		return each;
 	}
 
+	@Override
 	public String getOperator() {
 		return "|"; //$NON-NLS-1$
 	}
 
+	@Override
 	public int getPriority() {
 		return IExpressionConstants.PRIORITY_LAMBDA;
 	}
@@ -70,6 +78,7 @@ public class LambdaExpression extends Unary {
 		return EvaluationContext.create(context, each);
 	}
 
+	@Override
 	int countAccessToEverything() {
 		return 2 * super.countAccessToEverything();
 	}

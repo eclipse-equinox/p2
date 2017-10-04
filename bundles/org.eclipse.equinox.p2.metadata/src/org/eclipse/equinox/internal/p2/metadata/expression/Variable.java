@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ public class Variable extends Expression {
 		this.name = name;
 	}
 
+	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
 		if (cmp == 0)
@@ -31,14 +32,17 @@ public class Variable extends Expression {
 		return cmp;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return super.equals(o) && name.equals(((Variable) o).name);
 	}
 
+	@Override
 	public final Object evaluate(IEvaluationContext context) {
 		return context.getValue(this);
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object value = context.getValue(this);
 		if (value instanceof IRepeatableIterator<?>)
@@ -49,6 +53,7 @@ public class Variable extends Expression {
 		return itor;
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_VARIABLE;
 	}
@@ -57,14 +62,17 @@ public class Variable extends Expression {
 		return name;
 	}
 
+	@Override
 	public String getOperator() {
 		return "<variable>"; //$NON-NLS-1$
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_VARIABLE;
 	}
 
+	@Override
 	public int hashCode() {
 		return name.hashCode();
 	}
@@ -73,10 +81,12 @@ public class Variable extends Expression {
 		context.setValue(this, value);
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		bld.append(name);
 	}
 
+	@Override
 	int countAccessToEverything() {
 		return this == ExpressionFactory.EVERYTHING ? 1 : 0;
 	}

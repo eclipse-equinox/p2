@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
-
-
 /**
  * A function that obtains a class based on a String
  */
@@ -21,10 +19,12 @@ public final class BooleanFunction extends Function {
 		super(assertLength(operands, 1, 1, KEYWORD_BOOLEAN));
 	}
 
+	@Override
 	boolean assertSingleArgumentClass(Object v) {
 		return v instanceof String || v instanceof Boolean;
 	}
 
+	@Override
 	Object createInstance(Object arg) {
 		if (arg instanceof String)
 			return Boolean.valueOf("true".equalsIgnoreCase((String) arg)); //$NON-NLS-1$
@@ -33,6 +33,7 @@ public final class BooleanFunction extends Function {
 		return Boolean.FALSE;
 	}
 
+	@Override
 	public String getOperator() {
 		return KEYWORD_BOOLEAN;
 	}

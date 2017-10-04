@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import org.eclipse.osgi.util.NLS;
 public class LDAPFilterParser {
 	@SuppressWarnings("serial")
 	private static final Map<String, IFilterExpression> filterCache = Collections.<String, IFilterExpression> synchronizedMap(new LinkedHashMap<String, IFilterExpression>() {
+		@Override
 		public boolean removeEldestEntry(Map.Entry<String, IFilterExpression> expr) {
 			return size() > 64;
 		}
@@ -72,7 +73,7 @@ public class LDAPFilterParser {
 		if (c != '(')
 			throw syntaxException(Messages.filter_missing_leftparen);
 
-		ArrayList<IExpression> operands = new ArrayList<IExpression>();
+		ArrayList<IExpression> operands = new ArrayList<>();
 		while (c == '(') {
 			IExpression child = parseFilter();
 			if (!operands.contains(child))
@@ -196,7 +197,7 @@ public class LDAPFilterParser {
 		if (c != '(')
 			throw syntaxException(Messages.filter_missing_leftparen);
 
-		ArrayList<IExpression> operands = new ArrayList<IExpression>();
+		ArrayList<IExpression> operands = new ArrayList<>();
 		while (c == '(') {
 			IExpression child = parseFilter();
 			operands.add(child);

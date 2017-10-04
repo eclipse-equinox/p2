@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ final class Unique extends Binary {
 			this.uniqueSet = uniqueSet;
 		}
 
+		@Override
 		protected boolean isMatch(T val) {
 			synchronized (uniqueSet) {
 				return uniqueSet.add(val);
@@ -41,29 +42,33 @@ final class Unique extends Binary {
 		super(collection, explicitCache);
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return evaluateAsIterator(context);
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object explicitCache = rhs.evaluate(context);
 		Set<Object> uniqueSet;
 		if (explicitCache == null)
 			// No cache, we just ensure that the iteration is unique
-			uniqueSet = new HashSet<Object>();
+			uniqueSet = new HashSet<>();
 		else {
 			if (!(explicitCache instanceof Set<?>))
 				throw new IllegalArgumentException("Unique cache must be a java.util.Set"); //$NON-NLS-1$
 			uniqueSet = (Set<Object>) explicitCache;
 		}
-		return new UniqueIterator<Object>(lhs.evaluateAsIterator(context), uniqueSet);
+		return new UniqueIterator<>(lhs.evaluateAsIterator(context), uniqueSet);
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_UNIQUE;
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		CollectionFilter.appendProlog(bld, rootVariable, lhs, getOperator());
 		if (rhs != Literal.NULL_CONSTANT)
@@ -71,10 +76,12 @@ final class Unique extends Binary {
 		bld.append(')');
 	}
 
+	@Override
 	public String getOperator() {
 		return KEYWORD_UNIQUE;
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_COLLECTION;
 	}

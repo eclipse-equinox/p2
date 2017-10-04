@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,13 +19,15 @@ public final class SetFunction extends Function {
 		super(operands);
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
-		HashSet<Object> result = new HashSet<Object>();
+		HashSet<Object> result = new HashSet<>();
 		for (int idx = 0; idx < operands.length; ++idx)
 			result.add(operands[idx].evaluate(context));
 		return result;
 	}
 
+	@Override
 	public String getOperator() {
 		return KEYWORD_SET;
 	}

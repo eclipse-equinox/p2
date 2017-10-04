@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ public final class WrappedIQuery extends Function {
 		super(assertLength(operands, 1, 2, KEYWORD_IQUERY));
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Object evaluate(IEvaluationContext context) {
 		Object query = operands[0].evaluate(context);
@@ -59,6 +60,7 @@ public final class WrappedIQuery extends Function {
 		return ((IQuery<Object>) query).perform((Iterator<Object>) iterator);
 	}
 
+	@Override
 	public String getOperator() {
 		return KEYWORD_IQUERY;
 	}
@@ -73,6 +75,7 @@ public final class WrappedIQuery extends Function {
 		return false;
 	}
 
+	@Override
 	int countAccessToEverything() {
 		return isReferenceTo(ExpressionFactory.EVERYTHING) ? 1 : 0;
 	}

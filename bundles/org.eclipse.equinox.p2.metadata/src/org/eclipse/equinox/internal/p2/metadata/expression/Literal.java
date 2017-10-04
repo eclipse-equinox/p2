@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ public final class Literal extends Expression {
 		this.value = value;
 	}
 
+	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
@@ -62,6 +63,7 @@ public final class Literal extends Expression {
 		return eValue.getClass().getName().compareTo(value.getClass().getName());
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (super.equals(o)) {
 			Literal bo = (Literal) o;
@@ -70,32 +72,39 @@ public final class Literal extends Expression {
 		return false;
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		return value;
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_LITERAL;
 	}
 
+	@Override
 	public String getOperator() {
 		return "<literal>"; //$NON-NLS-1$
 	}
 
+	@Override
 	public int getPriority() {
 		return PRIORITY_LITERAL;
 	}
 
+	@Override
 	public int hashCode() {
 		return 31 + value.hashCode();
 	}
 
+	@Override
 	public void toLDAPString(StringBuffer buf) {
 		if (!(value instanceof Filter))
 			throw new UnsupportedOperationException();
 		buf.append(value.toString());
 	}
 
+	@Override
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		appendValue(bld, value);
 	}

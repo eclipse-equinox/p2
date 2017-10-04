@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,14 +29,17 @@ public class Pipe extends NAry {
 			this.indexProvider = indexProvider;
 		}
 
+		@Override
 		public IIndex<Object> getIndex(String memberName) {
 			return null;
 		}
 
+		@Override
 		public Iterator<Object> everything() {
 			return everything.getCopy();
 		}
 
+		@Override
 		public Object getManagedProperty(Object client, String memberName, Object key) {
 			if (indexProvider != null)
 				return indexProvider.getManagedProperty(client, memberName, key);
@@ -67,8 +70,8 @@ public class Pipe extends NAry {
 		//  <expr1>, <expr2> becomes select(x | <expr1> && <expr2>)
 
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		ArrayList<Expression> pipeables = new ArrayList<Expression>();
-		ArrayList<Expression> booleans = new ArrayList<Expression>();
+		ArrayList<Expression> pipeables = new ArrayList<>();
+		ArrayList<Expression> booleans = new ArrayList<>();
 		VariableFinder finder = new VariableFinder(ExpressionFactory.EVERYTHING);
 		for (int idx = 0; idx < operands.length; ++idx) {
 			Expression operand = operands[idx];
@@ -120,7 +123,7 @@ public class Pipe extends NAry {
 		}
 		Expression expr = (Expression) factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, boolExpr));
 		if (params != null)
-			expr = new ContextExpression<Object>(expr, params);
+			expr = new ContextExpression<>(expr, params);
 		return expr;
 	}
 
@@ -128,6 +131,7 @@ public class Pipe extends NAry {
 		super(operands);
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_PIPE;
 	}
@@ -156,7 +160,7 @@ public class Pipe extends NAry {
 		nextContext.setIndexProvider(noIndexProvider);
 		for (int idx = 1; idx < operands.length; ++idx) {
 			Expression expr = operands[idx];
-			noIndexProvider.setEverything(new Everything<Object>(elementClass, iterator, expr));
+			noIndexProvider.setEverything(new Everything<>(elementClass, iterator, expr));
 			iterator = expr.evaluateAsIterator(nextContext);
 			if (!iterator.hasNext())
 				break;

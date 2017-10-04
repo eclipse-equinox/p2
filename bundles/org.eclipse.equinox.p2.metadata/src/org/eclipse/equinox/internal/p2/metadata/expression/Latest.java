@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ final class Latest extends UnaryCollectionFilter {
 		super(collection);
 	}
 
+	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		HashMap<String, IVersionedId> greatestIUVersion;
 		if (operand instanceof Select) {
@@ -35,7 +36,7 @@ final class Latest extends UnaryCollectionFilter {
 			if (!iterator.hasNext())
 				return Collections.EMPTY_SET.iterator();
 
-			greatestIUVersion = new HashMap<String, IVersionedId>();
+			greatestIUVersion = new HashMap<>();
 			LambdaExpression lambda = select.lambda;
 			context = lambda.prolog(context);
 			Variable variable = lambda.getItemVariable();
@@ -63,7 +64,7 @@ final class Latest extends UnaryCollectionFilter {
 			if (!iterator.hasNext())
 				return Collections.EMPTY_SET.iterator();
 
-			greatestIUVersion = new HashMap<String, IVersionedId>();
+			greatestIUVersion = new HashMap<>();
 			while (iterator.hasNext()) {
 				Object next = iterator.next();
 				if (!(next instanceof IVersionedId))
@@ -83,10 +84,12 @@ final class Latest extends UnaryCollectionFilter {
 		return greatestIUVersion.values().iterator();
 	}
 
+	@Override
 	public int getExpressionType() {
 		return TYPE_LATEST;
 	}
 
+	@Override
 	public String getOperator() {
 		return IExpressionConstants.KEYWORD_LATEST;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,11 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-
 import java.util.Map;
 import java.util.Map.Entry;
 import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 /**
  * A touchpoint instruction contains either a sequence of instruction statements
@@ -113,6 +112,7 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 		this.importAttribute = importAttribute;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -140,15 +140,18 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	 * 
 	 * @return The body of this touchpoint instruction
 	 */
+	@Override
 	public String getBody() {
 		return body;
 	}
 
 	//TODO What is this? Please doc
+	@Override
 	public String getImportAttribute() {
 		return importAttribute;
 	}
 
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -160,6 +163,7 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	/**
 	 * Returns a string representation of this instruction for debugging purposes only.
 	 */
+	@Override
 	public String toString() {
 		return "Instruction[" + body + ',' + importAttribute + ']'; //$NON-NLS-1$
 	}

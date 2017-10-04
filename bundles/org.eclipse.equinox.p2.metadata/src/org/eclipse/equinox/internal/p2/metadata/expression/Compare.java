@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ final class Compare extends Binary {
 		this.equalOK = equalOK;
 	}
 
+	@Override
 	public Object evaluate(IEvaluationContext context) {
 		Object lhsVal = lhs.evaluate(context);
 		Object rhsVal = rhs.evaluate(context);
@@ -59,14 +60,17 @@ final class Compare extends Binary {
 		return Boolean.valueOf(cmpResult == 0 ? equalOK : (cmpResult < 0 ? compareLess : !compareLess));
 	}
 
+	@Override
 	public int getExpressionType() {
 		return compareLess ? (equalOK ? TYPE_LESS_EQUAL : TYPE_LESS) : (equalOK ? TYPE_GREATER_EQUAL : TYPE_GREATER);
 	}
 
+	@Override
 	public String getOperator() {
 		return compareLess ? (equalOK ? OPERATOR_LT_EQUAL : OPERATOR_LT) : (equalOK ? OPERATOR_GT_EQUAL : OPERATOR_GT);
 	}
 
+	@Override
 	public void toLDAPString(StringBuffer buf) {
 		if (!equalOK)
 			buf.append("(!"); //$NON-NLS-1$

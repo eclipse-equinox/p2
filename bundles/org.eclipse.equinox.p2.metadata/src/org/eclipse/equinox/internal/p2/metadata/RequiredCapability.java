@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2016 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -129,6 +129,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		this.description = description;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -146,10 +147,12 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		return min == other.getMin() && max == other.getMax() && greedy == other.isGreedy() && matchExpression.equals(other.getMatches());
 	}
 
+	@Override
 	public String getName() {
 		return (String) matchExpression.getParameters()[0];
 	}
 
+	@Override
 	public String getNamespace() {
 		return (String) matchExpression.getParameters()[1];
 	}
@@ -160,10 +163,12 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 	 * will satisfy the capability.
 	 * @return the range of versions that satisfy this required capability.
 	 */
+	@Override
 	public VersionRange getRange() {
 		return extractRange(matchExpression);
 	}
 
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -172,10 +177,12 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		return result;
 	}
 
+	@Override
 	public boolean isGreedy() {
 		return greedy;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer();
 		if (matchExpression.getParameters().length == 0)
@@ -212,22 +219,27 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		return result.toString();
 	}
 
+	@Override
 	public int getMin() {
 		return min;
 	}
 
+	@Override
 	public int getMax() {
 		return max;
 	}
 
+	@Override
 	public IMatchExpression<IInstallableUnit> getMatches() {
 		return matchExpression;
 	}
 
+	@Override
 	public IMatchExpression<IInstallableUnit> getFilter() {
 		return filter;
 	}
 
+	@Override
 	public boolean isMatch(IInstallableUnit candidate) {
 		return matchExpression.isMatch(candidate);
 	}
@@ -276,6 +288,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		return expr.equals(allVersionsExpression) || expr.equals(range_II_Expression) || expr.equals(range_IN_Expression) || expr.equals(range_NI_Expression) || expr.equals(range_NN_Expression) || expr.equals(strictVersionExpression) || expr.equals(openEndedExpression) || expr.equals(openEndedNonInclusiveExpression);
 	}
 
+	@Override
 	public Object getMember(String memberName) {
 		// It is OK to use identity comparisons here since
 		// a) All constant valued strings are always interned
@@ -294,6 +307,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
 	}
 
+	@Override
 	public String getDescription() {
 		return description;
 	}
