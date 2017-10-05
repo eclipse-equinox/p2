@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public class VerifierApplication implements IApplication {
 	private static final String ARG_PROPERTIES = "-verifier.properties"; //$NON-NLS-1$
 	private IProvisioningAgent agent;
 	private Properties properties = null;
-	private List ignoreResolved = null;
+	private List<String> ignoreResolved = null;
 
 	/*
 	 * Create and return an error status with the given message.
@@ -58,9 +58,7 @@ public class VerifierApplication implements IApplication {
 		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, message);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
-	 */
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
@@ -70,12 +68,12 @@ public class VerifierApplication implements IApplication {
 		IStatus result = verify();
 		if (!result.isOK()) {
 			//			PrintWriter out = new PrintWriter(new FileWriter(new File("c:/tmp/dropins-debug.txt")));
-			PrintWriter out = new PrintWriter(new OutputStreamWriter(System.err));
-			out.println("Error from dropin verifier application: " + result.getMessage()); //$NON-NLS-1$
-			Throwable t = result.getException();
-			if (t != null)
-				t.printStackTrace(out);
-			out.close();
+			try (PrintWriter out = new PrintWriter(new OutputStreamWriter(System.err))) {
+				out.println("Error from dropin verifier application: " + result.getMessage()); //$NON-NLS-1$
+				Throwable t = result.getException();
+				if (t != null)
+					t.printStackTrace(out);
+			}
 			LogHelper.log(result);
 		}
 		return result.isOK() ? IApplication.EXIT_OK : Integer.valueOf(13);
@@ -124,24 +122,13 @@ public class VerifierApplication implements IApplication {
 	 */
 	private Properties readProperties(File file) throws IOException {
 		Properties result = new Properties();
-		InputStream input = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(file));
+		try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
 			result.load(input);
 			return result;
-		} finally {
-			if (input != null)
-				try {
-					input.close();
-				} catch (IOException e) {
-					// ignore
-				}
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.app.IApplication#stop()
-	 */
+	@Override
 	public void stop() {
 		// nothing to do
 	}
@@ -153,14 +140,14 @@ public class VerifierApplication implements IApplication {
 	 */
 	protected boolean shouldCheckResolved(String bundle) {
 		if (ignoreResolved == null) {
-			ignoreResolved = new ArrayList();
+			ignoreResolved = new ArrayList<>();
 			String list = properties.getProperty("ignore.unresolved");
 			if (list == null)
 				return true;
 			for (StringTokenizer tokenizer = new StringTokenizer(list, ","); tokenizer.hasMoreTokens();)
 				ignoreResolved.add(tokenizer.nextToken().trim());
 		}
-		for (Iterator iter = ignoreResolved.iterator(); iter.hasNext();) {
+		for (Iterator<String> iter = ignoreResolved.iterator(); iter.hasNext();) {
 			if (bundle.equals(iter.next()))
 				return false;
 		}
@@ -175,9 +162,9 @@ public class VerifierApplication implements IApplication {
 	 * will only print out the first reason.
 	 */
 	private IStatus checkResolved() {
-		List allProblems = new ArrayList();
+		List<IStatus> allProblems = new ArrayList<>();
 
-		List<Bundle> unresolved = new ArrayList();
+		List<Bundle> unresolved = new ArrayList<>();
 		for (Bundle b : Activator.getBundleContext().getBundles()) {
 			BundleRevision revision = b.adapt(BundleRevision.class);
 			if (revision != null && revision.getWiring() == null) {
@@ -187,8 +174,8 @@ public class VerifierApplication implements IApplication {
 
 		ResolutionReport report = getResolutionReport(unresolved);
 		Map<Resource, List<ResolutionReport.Entry>> entries = report.getEntries();
-		Collection<Resource> unresolvedResources = new HashSet<Resource>(entries.keySet());
-		Collection<Resource> leafResources = new HashSet<Resource>();
+		Collection<Resource> unresolvedResources = new HashSet<>(entries.keySet());
+		Collection<Resource> leafResources = new HashSet<>();
 		for (Map.Entry<Resource, List<ResolutionReport.Entry>> resourceEntry : entries.entrySet()) {
 			for (ResolutionReport.Entry reportEntry : resourceEntry.getValue()) {
 				if (!reportEntry.getType().equals(ResolutionReport.Entry.Type.UNRESOLVED_PROVIDER)) {
@@ -213,8 +200,8 @@ public class VerifierApplication implements IApplication {
 		}
 
 		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.OK, "Problems checking resolved bundles.", null); //$NON-NLS-1$
-		for (Iterator iter = allProblems.iterator(); iter.hasNext();)
-			result.add((IStatus) iter.next());
+		for (Iterator<IStatus> iter = allProblems.iterator(); iter.hasNext();)
+			result.add(iter.next());
 		return result;
 	}
 
@@ -233,7 +220,7 @@ public class VerifierApplication implements IApplication {
 	}
 
 	private static class DiagReportListener implements ResolverHookFactory {
-		private final Collection<BundleRevision> targetTriggers = new ArrayList<BundleRevision>();
+		private final Collection<BundleRevision> targetTriggers = new ArrayList<>();
 
 		public DiagReportListener(Collection<Bundle> bundles) {
 			for (Bundle bundle : bundles) {
@@ -249,28 +236,34 @@ public class VerifierApplication implements IApplication {
 
 		class DiagResolverHook implements ResolverHook, ResolutionReport.Listener {
 
+			@Override
 			public void handleResolutionReport(ResolutionReport handleReport) {
 				DiagReportListener.this.report = handleReport;
 			}
 
+			@Override
 			public void filterResolvable(Collection<BundleRevision> candidates) {
 				// nothing
 			}
 
+			@Override
 			public void filterSingletonCollisions(BundleCapability singleton, Collection<BundleCapability> collisionCandidates) {
 				// nothing
 			}
 
+			@Override
 			public void filterMatches(BundleRequirement requirement, Collection<BundleCapability> candidates) {
 				// nothing
 			}
 
+			@Override
 			public void end() {
 				// nothing
 			}
 
 		}
 
+		@Override
 		public ResolverHook begin(Collection<BundleRevision> triggers) {
 			if (triggers.containsAll(targetTriggers)) {
 				return new DiagResolverHook();
@@ -294,7 +287,7 @@ public class VerifierApplication implements IApplication {
 		if (profile == null)
 			return createError("SELF profile not available in profile registry."); //$NON-NLS-1$
 		if (properties.get("checkPresenceOfVerifier") != null && !Boolean.FALSE.toString().equals(properties.get("checkPresenceOfVerifier"))) {
-			IQueryResult results = profile.query(QueryUtil.createIUQuery(Activator.PLUGIN_ID), null);
+			IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(Activator.PLUGIN_ID), null);
 			if (results.isEmpty())
 				return createError(NLS.bind("IU for {0} not found in SELF profile.", Activator.PLUGIN_ID)); //$NON-NLS-1$
 		}
@@ -401,18 +394,22 @@ public class VerifierApplication implements IApplication {
 		FrameworkWiring fWiring = Activator.getBundleContext().getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
 		Collection<BundleCapability> existing = fWiring.findProviders(new Requirement() {
 
+			@Override
 			public String getNamespace() {
 				return IdentityNamespace.IDENTITY_NAMESPACE;
 			}
 
+			@Override
 			public Map<String, String> getDirectives() {
 				return Collections.singletonMap(Namespace.REQUIREMENT_FILTER_DIRECTIVE, "(" + IdentityNamespace.IDENTITY_NAMESPACE + "=" + bsn + ")");
 			}
 
+			@Override
 			public Map<String, Object> getAttributes() {
 				return Collections.EMPTY_MAP;
 			}
 
+			@Override
 			public Resource getResource() {
 				return null;
 			}
