@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -47,6 +47,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		// constructor
 	}
 
+	@Override
 	protected Object getInput() {
 		if (input == null) {
 			// view by repo
@@ -62,27 +63,33 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		return input;
 	}
 
+	@Override
 	protected String getAddCommandLabel() {
 		return ProvAdminUIMessages.MetadataRepositoriesView_AddRepositoryLabel;
 	}
 
+	@Override
 	protected String getAddCommandTooltip() {
 		return ProvAdminUIMessages.MetadataRepositoriesView_AddRepositoryTooltip;
 	}
 
+	@Override
 	protected String getRemoveCommandTooltip() {
 		return ProvAdminUIMessages.MetadataRepositoriesView_RemoveRepositoryTooltip;
 	}
 
+	@Override
 	protected int openAddRepositoryDialog(Shell shell) {
 		return new AddMetadataRepositoryDialog(shell, getProvisioningUI()).open();
 	}
 
+	@Override
 	protected void makeActions() {
 		super.makeActions();
 		installAction = new InstallAction(getProvisioningUI(), viewer);
 	}
 
+	@Override
 	protected void fillContextMenu(IMenuManager manager) {
 		if (installAction.isEnabled()) {
 			manager.add(new Separator());
@@ -91,6 +98,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		super.fillContextMenu(manager);
 	}
 
+	@Override
 	protected void configureViewer(final TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
 		// Add drag support for IU's
@@ -104,14 +112,12 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		return IRepositoryManager.REPOSITORIES_ALL;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getListenerEventTypes()
-	 */
+	@Override
 	protected int getListenerEventTypes() {
 		return ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY;
 	}
 
+	@Override
 	protected List<String> getVisualProperties() {
 		List<String> list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_USE_CATEGORIES);
@@ -119,14 +125,13 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		return list;
 	}
 
+	@Override
 	protected void updateCachesForPreferences() {
 		// We want to reconstruct the input's query context based on the latest preferences
 		input = null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getRepositoryTracker()
-	 */
+	@Override
 	protected RepositoryTracker getRepositoryTracker() {
 		if (tracker == null)
 			tracker = new MetadataRepositoryTracker(getProvisioningUI());

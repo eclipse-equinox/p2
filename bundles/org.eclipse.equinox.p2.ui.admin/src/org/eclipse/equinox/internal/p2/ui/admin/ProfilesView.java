@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -52,9 +52,10 @@ public class ProfilesView extends ProvView {
 
 		}
 
+		@Override
 		public void run() {
 			Object[] selections = getSelection().toArray();
-			List<String> profilesOnly = new ArrayList<String>();
+			List<String> profilesOnly = new ArrayList<>();
 			for (int i = 0; i < selections.length; i++) {
 				if (selections[i] instanceof ProfileElement)
 					profilesOnly.add(((ProfileElement) selections[i]).getProfileId());
@@ -71,6 +72,7 @@ public class ProfilesView extends ProvView {
 			setImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.IMG_PROFILE));
 		}
 
+		@Override
 		public void run() {
 			new AddProfileDialog(viewer.getControl().getShell(), getKnownProfileIds()).open();
 		}
@@ -80,17 +82,20 @@ public class ProfilesView extends ProvView {
 		// constructor
 	}
 
+	@Override
 	protected void addListeners() {
 		super.addListeners();
 		listener = new StructuredViewerProvisioningListener(getClass().getName(), viewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE, getProvisioningUI().getOperationRunner());
 		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).addListener(listener);
 	}
 
+	@Override
 	protected void removeListeners() {
 		super.removeListeners();
 		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).removeListener(listener);
 	}
 
+	@Override
 	protected void configureViewer(TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
 		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer);
@@ -99,6 +104,7 @@ public class ProfilesView extends ProvView {
 		treeViewer.addDropSupport(DND.DROP_COPY, transfers, adapter);
 	}
 
+	@Override
 	protected void fillLocalPullDown(IMenuManager manager) {
 		manager.add(addProfileAction);
 		manager.add(removeProfileAction);
@@ -108,6 +114,7 @@ public class ProfilesView extends ProvView {
 		manager.add(uninstallAction);
 	}
 
+	@Override
 	protected void fillContextMenu(IMenuManager manager) {
 		manager.add(addProfileAction);
 		if (removeProfileAction.isEnabled()) {
@@ -123,12 +130,14 @@ public class ProfilesView extends ProvView {
 		}
 	}
 
+	@Override
 	protected void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(new Separator());
 		manager.add(addProfileAction);
 		manager.add(removeProfileAction);
 	}
 
+	@Override
 	protected void makeActions() {
 		super.makeActions();
 		addProfileAction = new AddProfileAction();
@@ -139,17 +148,16 @@ public class ProfilesView extends ProvView {
 		updateAction.setSkipSelectionPage(true);
 
 		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), propertiesAction);
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection ss = (IStructuredSelection) event.getSelection();
-				ProfilesView.this.selectionChanged(ss);
-			}
+		viewer.addSelectionChangedListener(event -> {
+			IStructuredSelection ss = event.getStructuredSelection();
+			ProfilesView.this.selectionChanged(ss);
 		});
 
 		// prime the action validation
 		selectionChanged((IStructuredSelection) viewer.getSelection());
 	}
 
+	@Override
 	protected void selectionChanged(IStructuredSelection ss) {
 		super.selectionChanged(ss);
 		propertiesAction.setEnabled(false);
@@ -170,18 +178,22 @@ public class ProfilesView extends ProvView {
 		}
 	}
 
+	@Override
 	protected IAction getDoubleClickAction() {
 		return propertiesAction;
 	}
 
+	@Override
 	protected IContentProvider getContentProvider() {
 		return new ProvElementContentProvider();
 	}
 
+	@Override
 	protected Object getInput() {
 		return new Profiles(getProvisioningUI());
 	}
 
+	@Override
 	protected String getProfileId() {
 		Object firstElement = getSelection().getFirstElement();
 		if (firstElement instanceof InstalledIUElement) {
@@ -193,6 +205,7 @@ public class ProfilesView extends ProvView {
 		return null;
 	}
 
+	@Override
 	protected List<String> getVisualProperties() {
 		List<String> list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY);
@@ -207,6 +220,7 @@ public class ProfilesView extends ProvView {
 		return ids;
 	}
 
+	@Override
 	protected ProvisioningUI getProvisioningUI() {
 		ProvisioningUI ui = ProvAdminUIActivator.getDefault().getProvisioningUI(getProfileId());
 		if (ui != null)

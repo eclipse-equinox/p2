@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,10 +15,9 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.admin.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.swt.widgets.*;
 
 /**
@@ -41,21 +40,20 @@ public class AddProfileDialog extends StatusDialog {
 		setTitle(ProvAdminUIMessages.AddProfileDialog_Title);
 	}
 
+	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
 		okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 	}
 
+	@Override
 	protected Control createDialogArea(Composite parent) {
-		profileGroup = new ProfileGroup(parent, null, new ModifyListener() {
-			public void modifyText(ModifyEvent event) {
-				verifyComplete();
-			}
-		});
+		profileGroup = new ProfileGroup(parent, null, event -> verifyComplete());
 		Dialog.applyDialogFont(profileGroup.getComposite());
 		return profileGroup.getComposite();
 	}
 
+	@Override
 	protected void okPressed() {
 		verifyComplete();
 		if (okButton.isEnabled()) {
@@ -111,6 +109,7 @@ public class AddProfileDialog extends StatusDialog {
 		return false;
 	}
 
+	@Override
 	protected void updateButtonsEnableState(IStatus status) {
 		setOkEnablement(!status.matches(IStatus.ERROR));
 	}

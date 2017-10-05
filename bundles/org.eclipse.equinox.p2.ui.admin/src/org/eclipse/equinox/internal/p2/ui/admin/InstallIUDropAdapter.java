@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,6 +84,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * 
 	 * @see org.eclipse.swt.dnd.DropTargetListener#drop(org.eclipse.swt.dnd.DropTargetEvent)
 	 */
+	@Override
 	public boolean performDrop(final Object data) {
 		if (DEBUG) {
 			System.out.println("Perform drop on target: " + getCurrentTarget() + " with data: " + data); //$NON-NLS-1$//$NON-NLS-2$
@@ -100,16 +101,12 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 			final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 			ISelectionProvider selectionProvider = new ISelectionProvider() {
 
-				/* (non-Javadoc)
-				 * @see org.eclipse.jface.viewers.ISelectionProvider#addSelectionChangedListener(org.eclipse.jface.viewers.ISelectionChangedListener)
-				 */
+				@Override
 				public void addSelectionChangedListener(ISelectionChangedListener listener) {
 					// Ignore because the selection won't change 
 				}
 
-				/* (non-Javadoc)
-				 * @see org.eclipse.jface.viewers.ISelectionProvider#getSelection()
-				 */
+				@Override
 				public ISelection getSelection() {
 					if (DEBUG) {
 						System.out.println("Selection was queried by action"); //$NON-NLS-1$
@@ -118,16 +115,12 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 					return structuredSelection;
 				}
 
-				/* (non-Javadoc)
-				 * @see org.eclipse.jface.viewers.ISelectionProvider#removeSelectionChangedListener(org.eclipse.jface.viewers.ISelectionChangedListener)
-				 */
+				@Override
 				public void removeSelectionChangedListener(ISelectionChangedListener listener) {
 					// ignore because the selection is static
 				}
 
-				/* (non-Javadoc)
-				 * @see org.eclipse.jface.viewers.ISelectionProvider#setSelection(org.eclipse.jface.viewers.ISelection)
-				 */
+				@Override
 				public void setSelection(ISelection sel) {
 					throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 				}
@@ -144,6 +137,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	/**
 	 * Validate whether the drop is valid for the target
 	 */
+	@Override
 	public boolean validateDrop(Object target, int dragOperation, TransferData transferType) {
 
 		if (LocalSelectionTransfer.getTransfer().isSupportedType(transferType)) {
@@ -158,11 +152,8 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	/*
 	 * Overridden to force a copy when the drag is valid.
-	 * 
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.viewers.ViewerDropAdapter#dragEnter(org.eclipse.swt.dnd.DropTargetEvent)
 	 */
+	@Override
 	public void dragEnter(DropTargetEvent event) {
 		event.detail = DND.DROP_COPY;
 		super.dragEnter(event);
@@ -193,7 +184,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 */
 	private IInstallableUnit[] getSelectedIUs() {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-		List<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> ius = new ArrayList<>();
 
 		if (!(selection instanceof IStructuredSelection) || selection.isEmpty()) {
 			return null;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -39,10 +39,7 @@ public class InstallAction extends ProfileModificationAction {
 		userChosenProfileId = ui.getProfileId();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProfileModificationAction#isEnabledFor(java.lang.Object[])
-	 */
+	@Override
 	protected boolean isEnabledFor(Object[] selectionArray) {
 		if (selectionArray.length == 0)
 			return false;
@@ -61,13 +58,13 @@ public class InstallAction extends ProfileModificationAction {
 
 	/*
 	 * Overridden to reject categories and nested IU's (parent is a non-category IU)
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProfileModificationAction#isSelectable(org.eclipse.equinox.internal.p2.ui.model.IUElement)
 	 */
+	@Override
 	protected boolean isSelectable(IIUElement element) {
 		return super.isSelectable(element) && !(element.getParent(element) instanceof AvailableIUElement);
 	}
 
+	@Override
 	protected int performAction(ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
 		ProvisioningUI ui = ProvAdminUIActivator.getDefault().getProvisioningUI(userChosenProfileId);
 		operation.setProfileId(userChosenProfileId);
@@ -76,12 +73,14 @@ public class InstallAction extends ProfileModificationAction {
 		return ret;
 	}
 
+	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Collection<IInstallableUnit> ius) {
 		InstallOperation op = new InstallOperation(getSession(), ius);
 		op.setProfileId(userChosenProfileId);
 		return op;
 	}
 
+	@Override
 	protected boolean isInvalidProfileId() {
 		if (userChosenProfileId == null) {
 			userChosenProfileId = getUserChosenProfileId();
@@ -114,6 +113,7 @@ public class InstallAction extends ProfileModificationAction {
 		return null;
 	}
 
+	@Override
 	protected void runCanceled() {
 		super.runCanceled();
 		userChosenProfileId = null;

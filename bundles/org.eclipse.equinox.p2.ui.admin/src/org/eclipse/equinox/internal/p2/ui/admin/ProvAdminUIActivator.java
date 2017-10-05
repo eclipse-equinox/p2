@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -23,7 +23,6 @@ import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -71,11 +70,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		// constructor
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
+	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 		plugin = this;
@@ -84,6 +79,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		getPreferenceStore().addPropertyChangeListener(getPreferenceListener());
 	}
 
+	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		plugin = null;
 		getPreferenceStore().removePropertyChangeListener(preferenceListener);
@@ -93,11 +89,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 
 	private IPropertyChangeListener getPreferenceListener() {
 		if (preferenceListener == null) {
-			preferenceListener = new IPropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent event) {
-					updateForPreferences();
-				}
-			};
+			preferenceListener = event -> updateForPreferences();
 		}
 		return preferenceListener;
 	}

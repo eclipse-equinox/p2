@@ -31,10 +31,12 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 		this.ui = ui;
 	}
 
+	@Override
 	public URI[] getKnownRepositories(ProvisioningSession session) {
 		return getArtifactRepositoryManager().getKnownRepositories(getArtifactRepositoryFlags());
 	}
 
+	@Override
 	public void addRepository(URI repoLocation, String nickname, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
 		try {
@@ -46,9 +48,7 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#removeRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession)
-	 */
+	@Override
 	public void removeRepositories(URI[] repoLocations, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
 		try {
@@ -64,6 +64,7 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#refreshRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession, org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@Override
 	public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
 		ui.signalRepositoryOperationStart();
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);

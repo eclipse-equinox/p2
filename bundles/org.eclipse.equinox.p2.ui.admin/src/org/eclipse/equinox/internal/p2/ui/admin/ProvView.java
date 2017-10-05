@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
@@ -54,6 +53,7 @@ abstract class ProvView extends ViewPart {
 	/**
 	 * Create and initialize the viewer
 	 */
+	@Override
 	public void createPartControl(Composite parent) {
 		// Store the display so we can make async calls from listeners
 		display = parent.getDisplay();
@@ -81,13 +81,11 @@ abstract class ProvView extends ViewPart {
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu"); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager manager) {
-				ProvView.this.fillContextMenu(manager);
-				manager.add(new Separator());
-				manager.add(refreshAction);
-				manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-			}
+		menuMgr.addMenuListener(manager -> {
+			ProvView.this.fillContextMenu(manager);
+			manager.add(new Separator());
+			manager.add(refreshAction);
+			manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		});
 		Menu menu = menuMgr.createContextMenu(viewer.getControl());
 		viewer.getControl().setMenu(menu);
@@ -95,12 +93,10 @@ abstract class ProvView extends ViewPart {
 	}
 
 	private void hookDoubleClickAction() {
-		viewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
-				IAction action = getDoubleClickAction();
-				if (action != null && action.isEnabled()) {
-					action.run();
-				}
+		viewer.addDoubleClickListener(event -> {
+			IAction action = getDoubleClickAction();
+			if (action != null && action.isEnabled()) {
+				action.run();
 			}
 		});
 	}
@@ -125,6 +121,7 @@ abstract class ProvView extends ViewPart {
 
 	protected void makeActions() {
 		refreshAction = new RefreshAction(ProvisioningUI.getDefaultUI(), viewer, viewer.getControl()) {
+			@Override
 			protected void refresh() {
 				refreshAll(true);
 			}
@@ -135,15 +132,12 @@ abstract class ProvView extends ViewPart {
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
+	@Override
 	public void setFocus() {
 		viewer.getControl().setFocus();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.part.WorkbenchPart#dispose()
-	 */
+	@Override
 	public void dispose() {
 		removeListeners();
 		super.dispose();
@@ -151,14 +145,11 @@ abstract class ProvView extends ViewPart {
 
 	protected void addListeners() {
 		IPreferenceStore store = ProvAdminUIActivator.getDefault().getPreferenceStore();
-		preferenceListener = new IPropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent event) {
-				if (getVisualProperties().contains(event.getProperty())) {
-					updateCachesForPreferences();
-					ProvView.this.refreshAll(false);
-				}
+		preferenceListener = event -> {
+			if (getVisualProperties().contains(event.getProperty())) {
+				updateCachesForPreferences();
+				ProvView.this.refreshAll(false);
 			}
-
 		};
 		store.addPropertyChangeListener(preferenceListener);
 	}
@@ -228,7 +219,7 @@ abstract class ProvView extends ViewPart {
 	}
 
 	protected List<String> getVisualProperties() {
-		ArrayList<String> list = new ArrayList<String>(1);
+		ArrayList<String> list = new ArrayList<>(1);
 		list.add(PreferenceConstants.PREF_SHOW_GROUPS_ONLY);
 		return list;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,6 +74,7 @@ public class ProfileGroup {
 		Button locationButton = new Button(composite, SWT.PUSH);
 		locationButton.setText(ProvAdminUIMessages.ProfileGroup_Browse);
 		locationButton.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent event) {
 				DirectoryDialog dialog = new DirectoryDialog(parent.getShell(), SWT.APPLICATION_MODAL);
 				dialog.setMessage(ProvAdminUIMessages.ProfileGroup_SelectProfileMessage);
@@ -94,6 +95,7 @@ public class ProfileGroup {
 		locationButton = new Button(composite, SWT.PUSH);
 		locationButton.setText(ProvAdminUIMessages.ProfileGroup_Browse2);
 		locationButton.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent event) {
 				DirectoryDialog dialog = new DirectoryDialog(parent.getShell(), SWT.APPLICATION_MODAL);
 				dialog.setMessage(ProvAdminUIMessages.ProfileGroup_SelectBundlePoolCache);
@@ -176,7 +178,7 @@ public class ProfileGroup {
 
 	public Map<String, String> getProfileProperties() {
 		if (profile == null) {
-			Map<String, String> profileProperties = new HashMap<String, String>();
+			Map<String, String> profileProperties = new HashMap<>();
 
 			String value = location.getText().trim();
 			if (value.length() > 0) {

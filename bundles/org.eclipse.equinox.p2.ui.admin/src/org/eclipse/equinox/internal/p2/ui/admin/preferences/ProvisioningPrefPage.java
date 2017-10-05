@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,11 +30,7 @@ public class ProvisioningPrefPage extends FieldEditorPreferencePage implements I
 		setPreferenceStore(ProvAdminUIActivator.getDefault().getPreferenceStore());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
-	 */
+	@Override
 	public void createFieldEditors() {
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_SHOW_GROUPS_ONLY, ProvAdminUIMessages.ProvisioningPrefPage_ShowGroupsOnly, getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY, ProvAdminUIMessages.ProvisioningPrefPage_ShowInstallRootsOnly, getFieldEditorParent()));
@@ -43,11 +39,7 @@ public class ProvisioningPrefPage extends FieldEditorPreferencePage implements I
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_USE_CATEGORIES, ProvAdminUIMessages.ProvisioningPrefPage_UseCategories, getFieldEditorParent()));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
-	 */
+	@Override
 	public void init(IWorkbench workbench) {
 		// nothing to do
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,10 +31,12 @@ public class MetadataRepositoryTracker extends RepositoryTracker {
 		this.ui = ui;
 	}
 
+	@Override
 	public URI[] getKnownRepositories(ProvisioningSession session) {
 		return getMetadataRepositoryManager().getKnownRepositories(getArtifactRepositoryFlags());
 	}
 
+	@Override
 	public void addRepository(URI repoLocation, String nickname, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
 		try {
@@ -47,9 +49,7 @@ public class MetadataRepositoryTracker extends RepositoryTracker {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#removeRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession)
-	 */
+	@Override
 	public void removeRepositories(URI[] repoLocations, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
 		try {
@@ -61,10 +61,7 @@ public class MetadataRepositoryTracker extends RepositoryTracker {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#refreshRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
 		ui.signalRepositoryOperationStart();
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,6 @@ import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.PropertyPage;
 
@@ -28,6 +26,7 @@ public class InstalledIUPropertyPage extends PropertyPage {
 
 	private IUProfilePropertiesGroup iuGroup;
 
+	@Override
 	protected Control createContents(Composite parent) {
 		Object element = getElement();
 		if (!(element instanceof InstalledIUElement)) {
@@ -35,15 +34,14 @@ public class InstalledIUPropertyPage extends PropertyPage {
 			label.setText(ProvAdminUIMessages.InstalledIUPropertyPage_NoInfoAvailable);
 			return label;
 		}
-		iuGroup = new IUProfilePropertiesGroup(parent, (InstalledIUElement) element, new ModifyListener() {
-			public void modifyText(ModifyEvent event) {
-				// not editable
-			}
+		iuGroup = new IUProfilePropertiesGroup(parent, (InstalledIUElement) element, event -> {
+			// not editable
 		});
 		Dialog.applyDialogFont(iuGroup.getComposite());
 		return iuGroup.getComposite();
 	}
 
+	@Override
 	public boolean performOk() {
 		return true;
 	}

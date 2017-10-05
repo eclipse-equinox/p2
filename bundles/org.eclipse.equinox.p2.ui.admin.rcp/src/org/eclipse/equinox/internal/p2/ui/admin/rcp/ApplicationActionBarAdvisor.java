@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,12 +25,14 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		super(configurer);
 	}
 
+	@Override
 	protected void makeActions(IWorkbenchWindow window) {
 		quitAction = ActionFactory.QUIT.create(window);
 		prefsAction = ActionFactory.PREFERENCES.create(window);
 		aboutAction = ActionFactory.ABOUT.create(window);
 	}
 
+	@Override
 	protected void fillMenuBar(IMenuManager menuBar) {
 		IMenuManager fileMenu = new MenuManager(ProvAdminUIMessages.ApplicationActionBarAdvisor_FileMenuName, "file"); //$NON-NLS-1$
 		menuBar.add(fileMenu);

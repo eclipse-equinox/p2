@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -33,37 +33,37 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		// constructor
 	}
 
+	@Override
 	protected Object getInput() {
 		return new ArtifactRepositories(getProvisioningUI(), new QueryableArtifactRepositoryManager(getProvisioningUI(), false));
 	}
 
+	@Override
 	protected String getAddCommandLabel() {
 		return ProvAdminUIMessages.ArtifactRepositoriesView_AddRepositoryLabel;
 	}
 
+	@Override
 	protected String getAddCommandTooltip() {
 		return ProvAdminUIMessages.ArtifactRepositoriesView_AddRepositoryTooltip;
 	}
 
+	@Override
 	protected String getRemoveCommandTooltip() {
 		return ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryTooltip;
 	}
 
+	@Override
 	protected int openAddRepositoryDialog(Shell shell) {
 		return new AddArtifactRepositoryDialog(shell, getProvisioningUI()).open();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getListenerEventTypes()
-	 */
+	@Override
 	protected int getListenerEventTypes() {
 		return ProvUIProvisioningListener.PROV_EVENT_ARTIFACT_REPOSITORY;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getRepositoryTracker()
-	 */
+	@Override
 	protected RepositoryTracker getRepositoryTracker() {
 		if (tracker == null)
 			tracker = new ArtifactRepositoryTracker(getProvisioningUI());

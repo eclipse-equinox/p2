@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
 import java.util.Collection;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -51,6 +49,7 @@ public class IUImplementationGroup extends IUGroup {
 		super(parent, iu, listener);
 	}
 
+	@Override
 	protected Composite createGroupComposite(Composite parent, ModifyListener listener) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
@@ -179,6 +178,7 @@ public class IUImplementationGroup extends IUGroup {
 		providedCapabilities.setItems(items);
 	}
 
+	@Override
 	public void updateIU() {
 		// If it's not an InstallableUnit it is not editable
 		if (iuElement == null || iuElement instanceof IInstallableUnit) {
@@ -211,16 +211,12 @@ public class IUImplementationGroup extends IUGroup {
 		Menu copyMenu = new Menu(list);
 		MenuItem copyItem = new MenuItem(copyMenu, SWT.NONE);
 		copyItem.addSelectionListener(new SelectionListener() {
-			/*
-			 * @see SelectionListener.widgetSelected (SelectionEvent)
-			 */
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				copySelectionsToClipboard(list);
 			}
 
-			/*
-			 * @see SelectionListener.widgetDefaultSelected(SelectionEvent)
-			 */
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				copySelectionsToClipboard(list);
 			}

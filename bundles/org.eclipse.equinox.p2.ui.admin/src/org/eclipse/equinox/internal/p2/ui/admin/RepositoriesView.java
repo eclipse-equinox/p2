@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
@@ -26,7 +25,6 @@ import org.eclipse.equinox.internal.p2.ui.viewers.StructuredViewerProvisioningLi
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.jface.action.*;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
@@ -53,10 +51,11 @@ abstract class RepositoriesView extends ProvView {
 
 		}
 
+		@Override
 		public void run() {
 			RepositoryTracker tracker = RepositoriesView.this.getRepositoryTracker();
 			Object[] elements = getSelection().toArray();
-			ArrayList<URI> uris = new ArrayList<URI>(elements.length);
+			ArrayList<URI> uris = new ArrayList<>(elements.length);
 			for (int i = 0; i < elements.length; i++) {
 				if (elements[i] instanceof IRepositoryElement<?>)
 					uris.add(((IRepositoryElement<?>) elements[i]).getLocation());
@@ -73,9 +72,10 @@ abstract class RepositoriesView extends ProvView {
 
 		}
 
+		@Override
 		public void run() {
 			Object[] elements = ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput());
-			ArrayList<URI> urls = new ArrayList<URI>();
+			ArrayList<URI> urls = new ArrayList<>();
 			for (int i = 0; i < elements.length; i++)
 				if (elements[i] instanceof IRepositoryElement<?>)
 					urls.add(((IRepositoryElement<?>) elements[i]).getLocation());
@@ -95,9 +95,11 @@ abstract class RepositoriesView extends ProvView {
 		// nothing to do
 	}
 
+	@Override
 	protected void addListeners() {
 		super.addListeners();
 		listener = new StructuredViewerProvisioningListener(getClass().getName(), viewer, getListenerEventTypes(), ui.getOperationRunner()) {
+			@Override
 			protected void refreshViewer() {
 				RepositoriesView.this.refreshAll(false);
 			}
@@ -105,17 +107,20 @@ abstract class RepositoriesView extends ProvView {
 		ProvUI.getProvisioningEventBus(ui.getSession()).addListener(listener);
 	}
 
+	@Override
 	protected void removeListeners() {
 		super.removeListeners();
 		ProvUI.getProvisioningEventBus(ui.getSession()).removeListener(listener);
 	}
 
+	@Override
 	protected void fillLocalPullDown(IMenuManager manager) {
 		manager.add(addRepositoryAction);
 		manager.add(removeRepositoryAction);
 		manager.add(propertiesAction);
 	}
 
+	@Override
 	protected void fillContextMenu(IMenuManager manager) {
 		manager.add(addRepositoryAction);
 		if (removeRepositoryAction.isEnabled()) {
@@ -127,11 +132,13 @@ abstract class RepositoriesView extends ProvView {
 		}
 	}
 
+	@Override
 	protected void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(addRepositoryAction);
 		manager.add(removeRepositoryAction);
 	}
 
+	@Override
 	protected void makeActions() {
 		super.makeActions();
 		addRepositoryAction = new AddRepositoryAction();
@@ -148,18 +155,18 @@ abstract class RepositoriesView extends ProvView {
 			propertiesAction.setEnabled(false);
 			removeRepositoryAction.setEnabled(false);
 		}
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection ss = (IStructuredSelection) event.getSelection();
-				RepositoriesView.this.selectionChanged(ss);
-			}
+		viewer.addSelectionChangedListener(event -> {
+			IStructuredSelection ss = (IStructuredSelection) event.getSelection();
+			RepositoriesView.this.selectionChanged(ss);
 		});
 	}
 
+	@Override
 	protected IAction getDoubleClickAction() {
 		return propertiesAction;
 	}
 
+	@Override
 	protected void selectionChanged(IStructuredSelection selection) {
 		propertiesAction.setEnabled(selection.size() == 1 && ((ProvUI.getAdapter(selection.getFirstElement(), IInstallableUnit.class) != null) || (isRepository(selection.getFirstElement()))));
 		boolean enabled = false;
@@ -174,6 +181,7 @@ abstract class RepositoriesView extends ProvView {
 		removeRepositoryAction.setEnabled(enabled);
 	}
 
+	@Override
 	protected IContentProvider getContentProvider() {
 		return new RepositoryContentProvider();
 
@@ -199,21 +207,19 @@ abstract class RepositoriesView extends ProvView {
 
 	protected abstract int getListenerEventTypes();
 
+	@Override
 	protected List<String> getVisualProperties() {
 		List<String> list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS);
 		return list;
 	}
 
+	@Override
 	protected void refreshUnderlyingModel() {
 		IWorkbenchSiteProgressService service = getSite().getAdapter(IWorkbenchSiteProgressService.class);
 		if (service != null) {
 			try {
-				service.run(true, false, new IRunnableWithProgress() {
-					public void run(IProgressMonitor monitor) {
-						getRepositoryTracker().refreshRepositories(getRepositoryTracker().getKnownRepositories(getProvisioningUI().getSession()), getProvisioningUI().getSession(), monitor);
-					}
-				});
+				service.run(true, false, monitor -> getRepositoryTracker().refreshRepositories(getRepositoryTracker().getKnownRepositories(getProvisioningUI().getSession()), getProvisioningUI().getSession(), monitor));
 			} catch (InvocationTargetException e) {
 				ProvUI.handleException(e, null, StatusManager.SHOW);
 			} catch (InterruptedException e) {
