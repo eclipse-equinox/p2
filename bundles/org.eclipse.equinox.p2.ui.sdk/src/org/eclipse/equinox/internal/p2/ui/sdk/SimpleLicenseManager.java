@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ import org.osgi.service.prefs.Preferences;
  * @since 3.6
  */
 public class SimpleLicenseManager extends LicenseManager {
-	java.util.Set<String> accepted = new HashSet<String>();
+	java.util.Set<String> accepted = new HashSet<>();
 	String profileId;
 
 	public SimpleLicenseManager(String profileId) {
@@ -42,22 +42,26 @@ public class SimpleLicenseManager extends LicenseManager {
 		this(IProfileRegistry.SELF);
 	}
 
+	@Override
 	public boolean accept(ILicense license) {
 		accepted.add(license.getUUID());
 		updatePreferences();
 		return true;
 	}
 
+	@Override
 	public boolean reject(ILicense license) {
 		accepted.remove(license.getUUID());
 		updatePreferences();
 		return true;
 	}
 
+	@Override
 	public boolean isAccepted(ILicense license) {
 		return accepted.contains(license.getUUID());
 	}
 
+	@Override
 	public boolean hasAcceptedLicenses() {
 		return !accepted.isEmpty();
 	}

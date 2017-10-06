@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -45,10 +45,7 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 	private static final int COMPARE_ID = IDialogConstants.CLIENT_ID + 2;
 	Button compareButton;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.about.InstallationPage#createPageButtons(org.eclipse.swt.widgets.Composite)
-	 */
+	@Override
 	public void createPageButtons(Composite parent) {
 		if (ProvisioningUI.getDefaultUI().getProfileId() == null)
 			return;
@@ -58,6 +55,7 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 		super.createPageButtons(parent);
 	}
 
+	@Override
 	protected void buttonPressed(int buttonId) {
 		switch (buttonId) {
 			case COMPARE_ID :
@@ -82,6 +80,7 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 		return false;
 	}
 
+	@Override
 	protected void handleSelectionChanged(IStructuredSelection selection) {
 		super.handleSelectionChanged(selection);
 		if (!selection.isEmpty()) {
@@ -132,6 +131,7 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 			r = new ProvElementNode(rpe[1]);
 		}
 
+		@Override
 		protected Object prepareInput(IProgressMonitor monitor) {
 			initLabels();
 			Differencer d = new Differencer();
@@ -149,6 +149,7 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 			cc.setRightImage(r.getImage());
 		}
 
+		@Override
 		public String getOKButtonLabel() {
 			return IDialogConstants.OK_LABEL;
 		}
@@ -168,8 +169,9 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 			}
 		}
 
+		@Override
 		public Object[] getChildren() {
-			Set<ProvElementNode> children = new HashSet<ProvElementNode>();
+			Set<ProvElementNode> children = new HashSet<>();
 			if (pe instanceof RollbackProfileElement) {
 				Object[] c = ((RollbackProfileElement) pe).getChildren(null);
 				for (int i = 0; i < c.length; i++) {
@@ -189,6 +191,7 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 		 * @param other the object to compare this <code>ProvElementNode</code> against.
 		 * @return <code>true</code> if the <code>ProvElementNodes</code>are equal; <code>false</code> otherwise.
 		 */
+		@Override
 		public boolean equals(Object other) {
 			if (other instanceof ProvElementNode)
 				return id.equals(((ProvElementNode) other).id);
@@ -199,14 +202,17 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 		 * Implementation based on <code>id</code>.
 		 * @return a hash code for this object.
 		 */
+		@Override
 		public int hashCode() {
 			return id.hashCode();
 		}
 
+		@Override
 		public Image getImage() {
 			return pe.getImage(null);
 		}
 
+		@Override
 		public String getName() {
 			if (iu != null) {
 				return iu.getProperty(IInstallableUnit.PROP_NAME, null);
@@ -214,10 +220,12 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 			return pe.getLabel(null);
 		}
 
+		@Override
 		public String getType() {
 			return ITypedElement.UNKNOWN_TYPE;
 		}
 
+		@Override
 		public InputStream getContents() {
 			String contents = BLANK;
 			if (iu != null) {

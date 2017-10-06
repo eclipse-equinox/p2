@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,13 +74,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		// constructor
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-	 * )
-	 */
+	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 		plugin = this;
@@ -91,6 +85,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		PreferenceInitializer.migratePreferences();
 	}
 
+	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		if (scheduler != null) {
 			scheduler.shutdown();
@@ -130,10 +125,9 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	/*
-	 * Overridden to use a profile scoped preference store. (non-Javadoc)
-	 *
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#getPreferenceStore()
+	 * Overridden to use a profile scoped preference store. 
 	 */
+	@Override
 	public IPreferenceStore getPreferenceStore() {
 		// Create the preference store lazily.
 		if (preferenceStore == null) {
@@ -163,6 +157,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 			}
 	}
 
+	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		createImageDescriptor(IMG_TOOL_UPDATE, reg);
 		createImageDescriptor(IMG_TOOL_UPDATE_PROBLEMS, reg);

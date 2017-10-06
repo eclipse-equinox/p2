@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2016 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -49,10 +49,12 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	private Combo remindElapseCombo;
 	private Group updateScheduleGroup, downloadGroup, remindGroup;
 
+	@Override
 	public void init(IWorkbench workbench) {
 		// nothing to init
 	}
 
+	@Override
 	protected Control createContents(Composite parent) {
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IAutomaticUpdaterHelpContextIds.AUTOMATIC_UPDATES_PREFERENCE_PAGE);
 
@@ -82,6 +84,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd.horizontalSpan = 3;
 		onStartupRadio.setLayoutData(gd);
 		onStartupRadio.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				pageChanged();
 			}
@@ -93,6 +96,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd.horizontalSpan = 3;
 		onFuzzyScheduleRadio.setLayoutData(gd);
 		onFuzzyScheduleRadio.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				pageChanged();
 			}
@@ -122,6 +126,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd.horizontalSpan = 3;
 		searchOnlyRadio.setLayoutData(gd);
 		searchOnlyRadio.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				pageChanged();
 			}
@@ -133,6 +138,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd.horizontalSpan = 3;
 		searchAndDownloadRadio.setLayoutData(gd);
 		searchAndDownloadRadio.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				pageChanged();
 			}
@@ -154,6 +160,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd.horizontalSpan = 3;
 		remindOnceRadio.setLayoutData(gd);
 		remindOnceRadio.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				pageChanged();
 			}
@@ -165,6 +172,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd.horizontalSpan = 3;
 		remindScheduleRadio.setLayoutData(gd);
 		remindScheduleRadio.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				pageChanged();
 			}
@@ -186,6 +194,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		initialize();
 
 		enabledCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				pageChanged();
 			}
@@ -253,6 +262,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		showUpdateWizard.setEnabled(master);
 	}
 
+	@Override
 	protected void performDefaults() {
 		super.performDefaults();
 		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault().getPreferenceStore();
@@ -275,6 +285,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	/**
 	 * Method declared on IPreferencePage. Subclasses should override
 	 */
+	@Override
 	public boolean performOk() {
 		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault().getPreferenceStore();
 		pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, enabledCheck.getSelection());

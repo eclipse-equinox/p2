@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Ericsson AB and others.
+ * Copyright (c) 2013, 2017 Ericsson AB and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -97,6 +97,7 @@ public class PreviousConfigurationFinder {
 			return "" + major + '.' + minor + '.' + service; //$NON-NLS-1$
 		}
 
+		@Override
 		public int compareTo(Identifier o) {
 
 			if (o != null) {
@@ -160,6 +161,7 @@ public class PreviousConfigurationFinder {
 	public static class ConfigurationDescriptorComparator implements Comparator<ConfigurationDescriptor> {
 
 		// compare ConfigurationDescriptor according to their versions and when equals according to their lastModified field
+		@Override
 		public int compare(ConfigurationDescriptor o1, ConfigurationDescriptor o2) {
 			int result = -1;
 			if (o1 != null && o2 != null) {
@@ -220,14 +222,12 @@ public class PreviousConfigurationFinder {
 		String[] prefixes = prefixesAsString.split(","); //$NON-NLS-1$
 		for (String prefix : prefixes) {
 			final String p = prefix;
-			File[] match = searchRoot.listFiles(new FileFilter() {
-				public boolean accept(File candidate) {
-					if (!candidate.isDirectory())
-						return false;
-					if (currentConfig.equals(candidate))
-						return false;
-					return candidate.getName().contains(p);
-				}
+			File[] match = searchRoot.listFiles((FileFilter) candidate -> {
+				if (!candidate.isDirectory())
+					return false;
+				if (currentConfig.equals(candidate))
+					return false;
+				return candidate.getName().contains(p);
 			});
 			if (match.length != 0)
 				return new ConfigurationDescriptor("unknown", new Identifier("0.0.0"), "unknown", "unknown", match[0]); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
@@ -283,8 +283,8 @@ public class PreviousConfigurationFinder {
 	public ConfigurationDescriptor findMostRelevantConfigurationFromProductId(List<ConfigurationDescriptor> configurations, ConfigurationDescriptor configToMatch) {
 		ConfigurationDescriptor bestMatch = null;
 
-		List<ConfigurationDescriptor> candidates = new ArrayList<ConfigurationDescriptor>();
-		List<ConfigurationDescriptor> candidatesWithUnkonwArchitecture = new ArrayList<ConfigurationDescriptor>();
+		List<ConfigurationDescriptor> candidates = new ArrayList<>();
+		List<ConfigurationDescriptor> candidatesWithUnkonwArchitecture = new ArrayList<>();
 		for (ConfigurationDescriptor candidate : configurations) {
 			if (configToMatch.getProductId().equals(candidate.getProductId()) && configToMatch.getVersion().isGreaterEqualTo(candidate.getVersion())) {
 				if (configToMatch.getPlatformConfig().equals(candidate.getPlatformConfig())) {
@@ -322,23 +322,16 @@ public class PreviousConfigurationFinder {
 		Identifier appVersion = null;
 		if (eclipseProduct.exists()) {
 			Properties props = new Properties();
-			FileInputStream is = null;
-			try {
-				try {
-					is = new FileInputStream(eclipseProduct);
-					props.load(is);
-					appId = props.getProperty(PRODUCT_SITE_ID);
-					if (appId == null || appId.trim().length() == 0)
-						appId = ECLIPSE;
-					String version = props.getProperty(PRODUCT_SITE_VERSION);
-					if (version == null || version.trim().length() == 0)
-						appVersion = new Identifier(0, 0, 0);
-					else
-						appVersion = new Identifier(version);
-				} finally {
-					if (is != null)
-						is.close();
-				}
+			try (FileInputStream is = new FileInputStream(eclipseProduct)) {
+				props.load(is);
+				appId = props.getProperty(PRODUCT_SITE_ID);
+				if (appId == null || appId.trim().length() == 0)
+					appId = ECLIPSE;
+				String version = props.getProperty(PRODUCT_SITE_VERSION);
+				if (version == null || version.trim().length() == 0)
+					appVersion = new Identifier(0, 0, 0);
+				else
+					appVersion = new Identifier(version);
 			} catch (IOException e) {
 				return new String[0];
 			}
@@ -351,7 +344,7 @@ public class PreviousConfigurationFinder {
 	//Iterate through a folder to look for potential configuration folders and reify them.
 	public List<ConfigurationDescriptor> readPreviousConfigurations(File configurationFolder) {
 		File[] candidates = configurationFolder.listFiles();
-		List<ConfigurationDescriptor> configurations = new ArrayList<ConfigurationDescriptor>(candidates.length);
+		List<ConfigurationDescriptor> configurations = new ArrayList<>(candidates.length);
 		for (File candidate : candidates) {
 			if (!candidate.isDirectory())
 				continue;

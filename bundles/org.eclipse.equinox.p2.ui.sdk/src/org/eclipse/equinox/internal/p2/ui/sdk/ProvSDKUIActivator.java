@@ -26,7 +26,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -75,11 +74,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		// constructor
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
+	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 		plugin = this;
@@ -90,11 +85,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	private IPropertyChangeListener getPreferenceListener() {
 		if (preferenceListener == null) {
-			preferenceListener = new IPropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent event) {
-					updateWithPreferences(getPolicy());
-				}
-			};
+			preferenceListener = event -> updateWithPreferences(getPolicy());
 		}
 		return preferenceListener;
 	}
@@ -111,6 +102,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		return getProvisioningUI().getSession().getProvisioningAgent();
 	}
 
+	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		plugin = null;
 		getPreferenceStore().removePropertyChangeListener(preferenceListener);
@@ -144,9 +136,8 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	/*
 	 * Overridden to use a profile scoped preference store.
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#getPreferenceStore()
 	 */
+	@Override
 	public IPreferenceStore getPreferenceStore() {
 		// Create the preference store lazily.
 		if (preferenceStore == null) {

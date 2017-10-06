@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	/**
 	 * Execute the command.
 	 */
+	@Override
 	public Object execute(ExecutionEvent event) {
 		// Look for a profile.  We may not immediately need it in the
 		// handler, but if we don't have one, whatever we are trying to do
@@ -63,11 +64,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 			// Log the detailed message
 			StatusManager.getManager().handle(ProvSDKUIActivator.getNoSelfProfileStatus());
 		} else {
-			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
-				public void run() {
-					doExecuteAndLoad();
-				}
-			});
+			BusyIndicator.showWhile(getShell().getDisplay(), () -> doExecuteAndLoad());
 		}
 		return null;
 	}
@@ -78,6 +75,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 			Job.getJobManager().cancel(LoadMetadataRepositoryJob.LOAD_FAMILY);
 			final LoadMetadataRepositoryJob loadJob = new LoadMetadataRepositoryJob(getProvisioningUI()) {
 
+				@Override
 				public IStatus runModal(IProgressMonitor monitor) {
 					SubMonitor sub = SubMonitor.convert(monitor, getProgressTaskName(), 1000);
 					IStatus status = super.runModal(sub.newChild(500));
@@ -100,14 +98,11 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 			setLoadJobProperties(loadJob);
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
+					@Override
 					public void done(IJobChangeEvent event) {
 						if (PlatformUI.isWorkbenchRunning())
 							if (event.getResult().isOK()) {
-								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-									public void run() {
-										doExecute(loadJob);
-									}
-								});
+								PlatformUI.getWorkbench().getDisplay().asyncExec(() -> doExecute(loadJob));
 							}
 					}
 				});

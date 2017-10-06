@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
@@ -89,7 +88,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	 *
 	 */
 	final class ImportExportFilteredTree extends FilteredTree {
-		ArrayList<Object> checkState = new ArrayList<Object>();
+		ArrayList<Object> checkState = new ArrayList<>();
 
 		ImportExportFilteredTree(Composite parent, int treeStyle, PatternFilter filter, boolean useNewLook) {
 			super(parent, treeStyle, filter, useNewLook);
@@ -106,42 +105,36 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 			job.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void aboutToRun(IJobChangeEvent event) {
-					Display.getDefault().syncExec(new Runnable() {
-
-						public void run() {
-							Object[] checked = viewer.getCheckedElements();
-							if (checkState == null)
-								checkState = new ArrayList<Object>(checked.length);
-							for (int i = 0; i < checked.length; i++)
-								if (!viewer.getGrayed(checked[i]))
-									if (!checkState.contains(checked[i]))
-										checkState.add(checked[i]);
-						}
+					Display.getDefault().syncExec(() -> {
+						Object[] checked = viewer.getCheckedElements();
+						if (checkState == null)
+							checkState = new ArrayList<>(checked.length);
+						for (int i = 0; i < checked.length; i++)
+							if (!viewer.getGrayed(checked[i]))
+								if (!checkState.contains(checked[i]))
+									checkState.add(checked[i]);
 					});
 				}
 
 				@Override
 				public void done(IJobChangeEvent event) {
 					if (event.getResult().isOK()) {
-						Display.getDefault().asyncExec(new Runnable() {
+						Display.getDefault().asyncExec(() -> {
+							if (viewer == null || viewer.getTree().isDisposed())
+								return;
+							if (checkState == null)
+								return;
 
-							public void run() {
-								if (viewer == null || viewer.getTree().isDisposed())
-									return;
-								if (checkState == null)
-									return;
-
-								viewer.setCheckedElements(new Object[0]);
-								viewer.setGrayedElements(new Object[0]);
-								// Now we are only going to set the check state of the leaf nodes
-								// and rely on our container checked code to update the parents properly.
-								Iterator<Object> iter = checkState.iterator();
-								while (iter.hasNext()) {
-									viewer.setChecked(iter.next(), true);
-								}
-
-								updatePageCompletion();
+							viewer.setCheckedElements(new Object[0]);
+							viewer.setGrayedElements(new Object[0]);
+							// Now we are only going to set the check state of the leaf nodes
+							// and rely on our container checked code to update the parents properly.
+							Iterator<Object> iter = checkState.iterator();
+							while (iter.hasNext()) {
+								viewer.setChecked(iter.next(), true);
 							}
+
+							updatePageCompletion();
 						});
 					}
 				}
@@ -228,7 +221,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 	static {
 		BundleContext context = Platform.getBundle(ProvUIActivator.PLUGIN_ID).getBundleContext();
-		ServiceTracker<IProvisioningAgent, IProvisioningAgent> tracker = new ServiceTracker<IProvisioningAgent, IProvisioningAgent>(context, IProvisioningAgent.class, null);
+		ServiceTracker<IProvisioningAgent, IProvisioningAgent> tracker = new ServiceTracker<>(context, IProvisioningAgent.class, null);
 		tracker.open();
 		agent = tracker.getService();
 		tracker.close();
@@ -305,6 +298,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		viewer.refresh(false);
 	}
 
+	@Override
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 		//		initializeService();
@@ -368,40 +362,37 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		final ITreeContentProvider contentProvider = getContentProvider();
 		viewer.setContentProvider(contentProvider);
 		viewer.setLabelProvider(getLabelProvider());
-		viewer.addCheckStateListener(new ICheckStateListener() {
-
-			public void checkStateChanged(CheckStateChangedEvent event) {
-				if (!event.getChecked() && filteredTree.checkState != null) {
-					ArrayList<Object> toRemove = new ArrayList<Object>(1);
-					// See bug 258117.  Ideally we would get check state changes
-					// for children when the parent state changed, but we aren't, so
-					// we need to remove all children from the additive check state
-					// cache.
-					if (contentProvider.hasChildren(event.getElement())) {
-						Set<Object> unchecked = new HashSet<Object>();
-						Object[] children = contentProvider.getChildren(event.getElement());
-						for (int i = 0; i < children.length; i++) {
-							unchecked.add(children[i]);
-						}
-						Iterator<Object> iter = filteredTree.checkState.iterator();
-						while (iter.hasNext()) {
-							Object current = iter.next();
-							if (current != null && unchecked.contains(current)) {
-								toRemove.add(current);
-							}
-						}
-					} else {
-						for (Object element : filteredTree.checkState) {
-							if (viewer.getComparer().equals(element, event.getElement())) {
-								toRemove.add(element);
-								// Do not break out of the loop.  We may have duplicate equal
-								// elements in the cache.  Since the cache is additive, we want
-								// to be sure we've gotten everything.
-							}
+		viewer.addCheckStateListener(event -> {
+			if (!event.getChecked() && filteredTree.checkState != null) {
+				ArrayList<Object> toRemove = new ArrayList<>(1);
+				// See bug 258117.  Ideally we would get check state changes
+				// for children when the parent state changed, but we aren't, so
+				// we need to remove all children from the additive check state
+				// cache.
+				if (contentProvider.hasChildren(event.getElement())) {
+					Set<Object> unchecked = new HashSet<>();
+					Object[] children = contentProvider.getChildren(event.getElement());
+					for (int i = 0; i < children.length; i++) {
+						unchecked.add(children[i]);
+					}
+					Iterator<Object> iter = filteredTree.checkState.iterator();
+					while (iter.hasNext()) {
+						Object current = iter.next();
+						if (current != null && unchecked.contains(current)) {
+							toRemove.add(current);
 						}
 					}
-					filteredTree.checkState.removeAll(toRemove);
+				} else {
+					for (Object element : filteredTree.checkState) {
+						if (viewer.getComparer().equals(element, event.getElement())) {
+							toRemove.add(element);
+							// Do not break out of the loop.  We may have duplicate equal
+							// elements in the cache.  Since the cache is additive, we want
+							// to be sure we've gotten everything.
+						}
+					}
 				}
+				filteredTree.checkState.removeAll(toRemove);
 			}
 		});
 		parent.addControlListener(new ControlAdapter() {
@@ -452,27 +443,21 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		if (provider != null)
 			viewer.setCheckStateProvider(provider);
 		else
-			viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-				public void selectionChanged(SelectionChangedEvent event) {
-					updatePageCompletion();
-				}
-			});
+			viewer.addSelectionChangedListener(event -> updatePageCompletion());
 		viewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		viewer.setInput(getInput());
 
-		viewer.getTree().addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				if (event.item instanceof TreeItem && event.detail == SWT.CHECK) {
-					TreeItem treeItem = (TreeItem) event.item;
-					IInstallableUnit iu = ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class);
-					if (treeItem.getChecked()) {
-						selectedUnitsToMigrate.add(iu);
-					} else {
-						selectedUnitsToMigrate.remove(iu);
-					}
+		viewer.getTree().addListener(SWT.Selection, event -> {
+			if (event.item instanceof TreeItem && event.detail == SWT.CHECK) {
+				TreeItem treeItem = (TreeItem) event.item;
+				IInstallableUnit iu = ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class);
+				if (treeItem.getChecked()) {
+					selectedUnitsToMigrate.add(iu);
+				} else {
+					selectedUnitsToMigrate.remove(iu);
 				}
-				updatePageCompletion();
 			}
+			updatePageCompletion();
 		});
 
 		Composite buttons = new Composite(sashComposite, SWT.NONE);
@@ -522,7 +507,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 	private Set<IInstallableUnit> identifyUnitsToBeMigrated() {
 
-		Set<IInstallableUnit> ius = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> ius = new HashSet<>();
 		if (profile != null) {
 			for (IInstallableUnit iu : unitsToMigrate) {
 				IQueryResult<IInstallableUnit> collector = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), new NullProgressMonitor());
@@ -556,10 +541,12 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	protected ICheckStateProvider getViewerDefaultState() {
 		return new ICheckStateProvider() {
 
+			@Override
 			public boolean isGrayed(Object element) {
 				return false;
 			}
 
+			@Override
 			public boolean isChecked(Object element) {
 				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 				if (selectedUnitsToMigrate.contains(iu)) {
@@ -610,6 +597,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	}
 
 	//TODO remove the implementation of Listener
+	@Override
 	public void handleEvent(Event event) {
 		//		Widget source = event.widget;
 		//
@@ -690,7 +678,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	protected Object getInput() {
 
 		IUElementListRoot root = new IUElementListRoot(ui);
-		List<AvailableIUElement> elements = new ArrayList<AvailableIUElement>(unitsToMigrate.size());
+		List<AvailableIUElement> elements = new ArrayList<>(unitsToMigrate.size());
 		for (IInstallableUnit unit : unitsToMigrate) {
 			elements.add(new AvailableIUElement(root, unit, toImportFrom.getProfileId(), false));
 		}
@@ -756,10 +744,13 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 	// Both checkedElements and checkedElementsUpdates and the logic inside the getCheckedIUElements method
 	// are used to prevent unnecessary call to getUpdates method due to computational cost.
-	@SuppressWarnings("rawtypes") private Set checkedElements;
-	@SuppressWarnings("rawtypes") private Set checkedElementsUpdates;
+	@SuppressWarnings("rawtypes")
+	private Set checkedElements;
+	@SuppressWarnings("rawtypes")
+	private Set checkedElementsUpdates;
 	private boolean getUpdatesCanceled;
 
+	@Override
 	public Object[] getCheckedIUElements() {
 
 		if (isUpdateToLatest()) {
@@ -799,11 +790,13 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		return this.checkedElementsUpdates.toArray();
 	}
 
+	@Override
 	public Object[] getSelectedIUElements() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public void setCheckedElements(Object[] elements) {
 		new UnsupportedOperationException();
 	}
@@ -811,40 +804,36 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	// Look for update of the current selected installation units and replace the old ons with the updated version
 	private Object[] getUpdates(final Object[] _checkedElements) {
 
-		final Collection<IInstallableUnit> toInstall = new ArrayList<IInstallableUnit>();
+		final Collection<IInstallableUnit> toInstall = new ArrayList<>();
 
 		try {
-			getContainer().run(false, true, new IRunnableWithProgress() {
+			getContainer().run(false, true, monitor -> {
+				SubMonitor sub = SubMonitor.convert(monitor, _checkedElements.length);
+				ProvisioningContext context = new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
 
-				public void run(IProgressMonitor monitor) {
-					SubMonitor sub = SubMonitor.convert(monitor, _checkedElements.length);
-					ProvisioningContext context = new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
+				for (Object iu : _checkedElements) {
 
-					for (Object iu : _checkedElements) {
-
-						if (sub.isCanceled()) {
-							MigrationPage.this.getUpdatesCanceled = true;
-							toInstall.clear();
-							sub.done();
-							return;
-						}
-
-						if (iu instanceof AvailableIUElement) {
-							IInstallableUnit unit = ((AvailableIUElement) iu).getIU();
-							IuUpdateAndPatches updateAndPatches = filterToInstall(unit, updatesFor(unit, context, sub.newChild(1)));
-							if (updateAndPatches.update != null) {
-								toInstall.add(updateAndPatches.update);
-							} else {
-								toInstall.add(updateAndPatches.iu); // because it is not yet installed
-								toInstall.addAll(updateAndPatches.patches);
-							}
-
-						}
-
-						sub.worked(1);
+					if (sub.isCanceled()) {
+						MigrationPage.this.getUpdatesCanceled = true;
+						toInstall.clear();
+						sub.done();
+						return;
 					}
-				}
 
+					if (iu instanceof AvailableIUElement) {
+						IInstallableUnit unit = ((AvailableIUElement) iu).getIU();
+						IuUpdateAndPatches updateAndPatches = filterToInstall(unit, updatesFor(unit, context, sub.newChild(1)));
+						if (updateAndPatches.update != null) {
+							toInstall.add(updateAndPatches.update);
+						} else {
+							toInstall.add(updateAndPatches.iu); // because it is not yet installed
+							toInstall.addAll(updateAndPatches.patches);
+						}
+
+					}
+
+					sub.worked(1);
+				}
 			});
 		} catch (InterruptedException e) {
 			// Nothing to report if thread was interrupted
@@ -877,7 +866,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		//		IPlanner planner = (IPlanner) getProvisioningUI().getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
 		//		return planner.updatesFor(toUpdate, context, monitor).toSet();
 
-		Map<String, IInstallableUnit> resultsMap = new HashMap<String, IInstallableUnit>();
+		Map<String, IInstallableUnit> resultsMap = new HashMap<>();
 
 		SubMonitor sub = SubMonitor.convert(monitor, 1000);
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(sub.newChild(500));
@@ -900,7 +889,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 		IuUpdateAndPatches(IInstallableUnit iu) {
 			this.iu = iu;
-			this.patches = new ArrayList<IInstallableUnit>();
+			this.patches = new ArrayList<>();
 		}
 
 	}

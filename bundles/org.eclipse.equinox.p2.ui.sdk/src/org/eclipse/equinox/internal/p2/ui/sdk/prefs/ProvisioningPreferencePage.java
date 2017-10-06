@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 	private Button showLatestRadio, showAllRadio;
 	private Button alwaysShowFailedPlan, neverShowFailedPlan, promptOnFailedPlan;
 
+	@Override
 	protected Control createContents(Composite parent) {
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IProvSDKHelpContextIds.PROVISIONING_PREFERENCE_PAGE);
 
@@ -96,11 +97,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		//See https://bugs.eclipse.org/bugs/show_bug.cgi?id=313242
 		Link link = new Link(container, SWT.PUSH);
 		link.setText(ProvSDKMessages.ProvisioningPreferencePage_UninstallUpdateLink);
-		link.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				ProvUI.openInstallationDialog(event);
-			}
-		});
+		link.addListener(SWT.Selection, event -> ProvUI.openInstallationDialog(event));
 
 		initialize();
 
@@ -119,6 +116,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		promptOnFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.PROMPT));
 	}
 
+	@Override
 	protected void performDefaults() {
 		super.performDefaults();
 		Preferences pref = DefaultScope.INSTANCE.getNode(ProvSDKUIActivator.PLUGIN_ID);
@@ -130,6 +128,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		promptOnFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.PROMPT));
 	}
 
+	@Override
 	public boolean performOk() {
 		IPreferenceStore pref = ProvSDKUIActivator.getDefault().getPreferenceStore();
 		pref.setValue(PreferenceConstants.PREF_SHOW_LATEST_VERSION, showLatestRadio.getSelection());
@@ -144,6 +143,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		return true;
 	}
 
+	@Override
 	public void init(IWorkbench workbench) {
 		// Nothing to do
 	}

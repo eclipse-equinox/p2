@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2015 Ericsson AB and others. All rights reserved. This
+ * Copyright (c) 2013, 2017 Ericsson AB and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -181,12 +181,10 @@ public class MigrationSupport {
 
 	protected void openMigrationWizard(final IProfile inputProfile, final Collection<IInstallableUnit> unitsToMigrate, final URI[] reposToMigrate) {
 		Display d = Display.getDefault();
-		d.asyncExec(new Runnable() {
-			public void run() {
-				WizardDialog migrateWizard = new MigrationWizardDialog(getWorkbenchWindowShell(), new MigrationWizard(inputProfile, unitsToMigrate, reposToMigrate, reposToMigrate != null));
-				migrateWizard.create();
-				migrateWizard.open();
-			}
+		d.asyncExec(() -> {
+			WizardDialog migrateWizard = new MigrationWizardDialog(getWorkbenchWindowShell(), new MigrationWizard(inputProfile, unitsToMigrate, reposToMigrate, reposToMigrate != null));
+			migrateWizard.create();
+			migrateWizard.open();
 		});
 	}
 

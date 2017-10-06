@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,7 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 	private IProfile toImportFrom;
 	Collection<IInstallableUnit> unitsToMigrate;
 	private URI[] reposToMigrate;
-	private List<URI> addedRepos = new ArrayList<URI>();
+	private List<URI> addedRepos = new ArrayList<>();
 	private boolean firstTime = false;
 
 	public MigrationWizard() {
@@ -67,6 +67,7 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 		super(ui, operation, initialSelections, preloadJob);
 	}
 
+	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		setWindowTitle(firstTime ? ProvUIMessages.MigrationWizard_WINDOWTITLE_FIRSTRUN : ProvUIMessages.MigrationWizard_WINDOWTITLE);
 		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(ProvUIActivator.PLUGIN_ID).getEntry("icons/install_wiz.png"))); //$NON-NLS-1$
@@ -145,6 +146,7 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 		}
 	}
 
+	@Override
 	public boolean performCancel() {
 		String[] buttons = new String[] {IDialogConstants.YES_LABEL, ProvUIMessages.MigrationPage_LATER_BUTTON, IDialogConstants.NO_LABEL};
 		MessageDialog dialog = new MessageDialog(getShell(), ProvUIMessages.MigrationPage_CONFIRMATION_TITLE, null, ProvUIMessages.MigrationPage_CONFIRMATION_DIALOG, MessageDialog.QUESTION, buttons, 2);
@@ -174,6 +176,7 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 		return result;
 	}
 
+	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
 		IWizardPage toReturn = page;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Ericsson AB and others.
+ * Copyright (c) 2013, 2017 Ericsson AB and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ public class MigrationWizardDialog extends WizardDialog {
 		setShellStyle(getShellStyle() | SWT.RESIZE);
 	}
 
+	@Override
 	protected IDialogSettings getDialogBoundsSettings() {
 		IDialogSettings settings = AutomaticUpdatePlugin.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(wizard.getDialogSettingsSectionName());
@@ -50,6 +51,7 @@ public class MigrationWizardDialog extends WizardDialog {
 	/**
 	 * @see org.eclipse.jface.window.Window#close()
 	 */
+	@Override
 	public boolean close() {
 		if (getShell() != null && !getShell().isDisposed()) {
 			wizard.saveBoundsRelatedSettings();

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.p2.ui.sdk;singleton:=true
-Bundle-Version: 1.0.500.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -27,4 +27,4 @@ Import-Package: javax.xml.parsers,
  org.xml.sax
 Service-Component: OSGI-INF/policy_component.xml, OSGI-INF/licenseManager_component.xml
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -56,13 +56,11 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	private void createProfileListener() {
-		profileListener = new ProvisioningListener() {
-			public void notify(EventObject o) {
-				if (o instanceof IProfileEvent) {
-					IProfileEvent event = (IProfileEvent) o;
-					if (event.getReason() == IProfileEvent.CHANGED && sameProfile(event.getProfileId())) {
-						triggerNewUpdateNotification();
-					}
+		profileListener = o -> {
+			if (o instanceof IProfileEvent) {
+				IProfileEvent event = (IProfileEvent) o;
+				if (event.getReason() == IProfileEvent.CHANGED && sameProfile(event.getProfileId())) {
+					triggerNewUpdateNotification();
 				}
 			}
 		};
@@ -85,19 +83,12 @@ public class AutomaticUpdater implements IUpdateListener {
 		return (profileId == another) || (profileId != null && profileId.equals(another));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener
-	 * #
-	 * updatesAvailable(org.eclipse.equinox.internal.provisional.p2.updatechecker
-	 * .UpdateEvent)
-	 */
+	@Override
 	public void updatesAvailable(UpdateEvent event) {
 		updatesAvailable(event, true);
 	}
 
+	@Override
 	public void checkingForUpdates() {
 		new LastAutoCheckForUpdateMemo(AutomaticUpdatePlugin.getDefault().getAgentLocation()).store(Calendar.getInstance().getTime());
 	}
@@ -118,11 +109,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 		if (!status.isOK() || operation.getPossibleUpdates() == null || operation.getPossibleUpdates().length == 0) {
 			if (PlatformUI.isWorkbenchRunning()) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					public void run() {
-						clearUpdateAffordances();
-					}
-				});
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> clearUpdateAffordances());
 			}
 			return;
 		}
@@ -135,15 +122,12 @@ public class AutomaticUpdater implements IUpdateListener {
 			job.setUser(false);
 			job.setSystem(true);
 			job.addJobChangeListener(new JobChangeAdapter() {
+				@Override
 				public void done(IJobChangeEvent jobEvent) {
 					IStatus jobStatus = jobEvent.getResult();
 					if (jobStatus.isOK()) {
 						alreadyDownloaded = true;
-						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-							public void run() {
-								notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup, showUpdateWizard);
-							}
-						});
+						PlatformUI.getWorkbench().getDisplay().asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup, showUpdateWizard));
 					} else if (jobStatus.getSeverity() != IStatus.CANCEL) {
 						StatusManager.getManager().handle(jobStatus, StatusManager.LOG);
 					}
@@ -151,11 +135,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			});
 			job.schedule();
 		} else {
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup, showUpdateWizard);
-				}
-			});
+			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup, showUpdateWizard));
 		}
 
 	}
@@ -178,7 +158,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	 */
 
 	void validateIusToUpdate() {
-		ArrayList<IInstallableUnit> list = new ArrayList<IInstallableUnit>(iusWithUpdates.size());
+		ArrayList<IInstallableUnit> list = new ArrayList<>(iusWithUpdates.size());
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 
 		if (profile != null) {
@@ -267,11 +247,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	void createUpdateAffordance() {
 		updateAffordance = new StatusLineCLabelContribution(AUTO_UPDATE_STATUS_ITEM, 5);
-		updateAffordance.addListener(SWT.MouseDown, new Listener() {
-			public void handleEvent(Event event) {
-				launchUpdate();
-			}
-		});
+		updateAffordance.addListener(SWT.MouseDown, event -> launchUpdate());
 		IStatusLineManager manager = getStatusLineManager();
 		if (manager != null) {
 			manager.add(updateAffordance);
@@ -350,6 +326,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	 */
 	void triggerNewUpdateNotification() {
 		Job notifyJob = new Job("Update validate job") { //$NON-NLS-1$
+			@Override
 			public IStatus run(IProgressMonitor monitor) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;

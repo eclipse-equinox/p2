@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -136,7 +136,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=498116
 		final String autoUpdateSchedule = pref.get(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, null);
 		if (autoUpdateSchedule != null) {
-			if (PreferenceConstants.PREF_UPDATE_ON_SCHEDULE.equals(autoUpdateSchedule)) {				
+			if (PreferenceConstants.PREF_UPDATE_ON_SCHEDULE.equals(autoUpdateSchedule)) {
 				//Before neon.2, the update schedule could be specified to be done daily or at a specific day and time
 				pref.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_FUZZY_SCHEDULE);
 				final String PRE_NEON2_PREF_KEY_FOR_SCHEDULE = "day"; //$NON-NLS-1$
@@ -183,6 +183,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		StatusManager.getManager().handle(new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID, 0, message, e), StatusManager.LOG);
 	}
 
+	@Override
 	public void initializeDefaultPreferences() {
 		// initialize the default scope
 		Preferences node = DefaultScope.INSTANCE.getNode(AutomaticUpdatePlugin.PLUGIN_ID);
