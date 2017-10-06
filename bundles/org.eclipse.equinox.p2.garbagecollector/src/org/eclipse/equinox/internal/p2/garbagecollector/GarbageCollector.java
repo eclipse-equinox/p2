@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -56,10 +56,12 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 			return aProfileMarkSets;
 		}
 
+		@Override
 		public void handleException(Throwable exception) {
 			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.Error_in_extension, exception));
 		}
 
+		@Override
 		public void run() throws Exception {
 			MarkSetProvider aMarkSetProvider = (MarkSetProvider) cfg.createExecutableExtension(ATTRIBUTE_CLASS);
 			if (aMarkSetProvider == null) {
@@ -106,7 +108,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 			Collection<IArtifactKey> keys = markSet.get(aProfileMarkSets[i].getRepo());
 			if (keys == null) {
 				if (addRepositories) {
-					keys = new HashSet<IArtifactKey>();
+					keys = new HashSet<>();
 					markSet.put(aProfileMarkSets[i].getRepo(), keys);
 					addKeys(keys, aProfileMarkSets[i].getKeys());
 				}
@@ -120,7 +122,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		IPreferencesService prefService = GCActivator.getService(IPreferencesService.class);
 		if (prefService == null)
 			return defaultValue;
-		List<IEclipsePreferences> nodes = new ArrayList<IEclipsePreferences>();
+		List<IEclipsePreferences> nodes = new ArrayList<>();
 		// todo we should look in the instance scope as well but have to be careful that the instance location has been set
 		nodes.add(ConfigurationScope.INSTANCE.getNode(GCActivator.ID));
 		nodes.add(DefaultScope.INSTANCE.getNode(GCActivator.ID));
@@ -135,6 +137,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		}
 	}
 
+	@Override
 	public void notify(EventObject o) {
 		if (o instanceof InstallableUnitEvent) {
 			InstallableUnitEvent event = (InstallableUnitEvent) o;
@@ -155,7 +158,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	}
 
 	public void runGC(IProfile profile) {
-		markSet = new HashMap<IArtifactRepository, Collection<IArtifactKey>>();
+		markSet = new HashMap<>();
 		if (!traverseMainProfile(profile))
 			return;
 
@@ -166,9 +169,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		invokeCoreGC();
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#start()
-	 */
+	@Override
 	public void start() {
 		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 		if (eventBus == null)
@@ -176,9 +177,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		eventBus.addListener(this);
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#stop()
-	 */
+	@Override
 	public void stop() {
 		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 		if (eventBus != null)
