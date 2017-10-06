@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2016 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -83,40 +83,27 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		state = value;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
-	 */
+	@Override
 	public Collection<IRepositoryReference> getReferences() {
 		return Collections.emptyList();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addInstallableUnits(java.util.Collection)
-	 */
 	@Override
 	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		throw new UnsupportedOperationException();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeAll()
-	 */
 	@Override
 	public void removeAll() {
 		throw new UnsupportedOperationException();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#removeInstallableUnits(java.util.Collection)
-	 */
 	@Override
 	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		throw new UnsupportedOperationException();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		ensureInitialized();
 		return metadataRepository.query(query, monitor);
@@ -137,11 +124,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	}
 
 	private static boolean containsStandardP2Repository(File base) {
-		File[] foundRepos = base.listFiles(new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return (STANDARD_P2_REPOSITORY_FILE_NAMES.contains(name));
-			}
-		});
+		File[] foundRepos = base.listFiles((FilenameFilter) (dir, name) -> (STANDARD_P2_REPOSITORY_FILE_NAMES.contains(name)));
 		return foundRepos.length > 0;
 	}
 
@@ -185,26 +168,17 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		return plugins.isDirectory() || features.isDirectory();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#getProperties()
-	 */
 	@Override
 	public Map<String, String> getProperties() {
 		ensureInitialized();
 		return metadataRepository.getProperties();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#initialize(org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState)
-	 */
 	@Override
 	public void initialize(RepositoryState repositoryState) {
 		//nothing to do
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#setProperty(java.lang.String, java.lang.String)
-	 */
 	@Override
 	public String setProperty(String key, String value, IProgressMonitor monitor) {
 		try {

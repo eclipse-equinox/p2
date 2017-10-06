@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2016 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -99,11 +99,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 	}
 
 	private static boolean containsStandardP2Repository(File base) {
-		File[] foundRepos = base.listFiles(new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return (STANDARD_P2_REPOSITORY_FILE_NAMES.contains(name));
-			}
-		});
+		File[] foundRepos = base.listFiles((FilenameFilter) (dir, name) -> (STANDARD_P2_REPOSITORY_FILE_NAMES.contains(name)));
 		return foundRepos.length > 0;
 	}
 
@@ -147,119 +143,144 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 		return plugins.isDirectory() || features.isDirectory();
 	}
 
+	@Override
 	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	@Deprecated
 	public void addDescriptor(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	@Deprecated
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void removeAll(IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	@Deprecated
 	public void removeAll() {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	@Deprecated
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	@Deprecated
 	public void removeDescriptor(IArtifactKey key) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	@Deprecated
 	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	@Deprecated
 	public void removeDescriptors(IArtifactKey[] keys) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean contains(IArtifactDescriptor descriptor) {
 		ensureInitialized();
 		return artifactRepository.contains(descriptor);
 	}
 
+	@Override
 	public boolean contains(IArtifactKey key) {
 		ensureInitialized();
 		return artifactRepository.contains(key);
 	}
 
+	@Override
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ensureInitialized();
 		return artifactRepository.getArtifact(descriptor, destination, monitor);
 	}
 
+	@Override
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ensureInitialized();
 		return artifactRepository.getRawArtifact(descriptor, destination, monitor);
 	}
 
+	@Override
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		ensureInitialized();
 		return artifactRepository.getArtifactDescriptors(key);
 	}
 
+	@Override
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		ensureInitialized();
 		return artifactRepository.getArtifacts(requests, monitor);
 	}
 
+	@Override
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		ensureInitialized();
 		return artifactRepository.getOutputStream(descriptor);
 	}
 
+	@Override
 	public File getArtifactFile(IArtifactKey key) {
 		ensureInitialized();
 		return artifactRepository.getArtifactFile(key);
 	}
 
+	@Override
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
 		ensureInitialized();
 		return artifactRepository.getArtifactFile(descriptor);
 	}
 
+	@Override
 	public Map<String, String> getProperties() {
 		ensureInitialized();
 		return artifactRepository.getProperties();
 	}
 
+	@Override
 	public String setProperty(String key, String value, IProgressMonitor monitor) {
 		try {
 			ensureInitialized();
@@ -279,24 +300,29 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 		}
 	}
 
+	@Override
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return artifactRepository.createArtifactDescriptor(key);
 	}
 
+	@Override
 	public IArtifactKey createArtifactKey(String classifier, String id, Version version) {
 		return artifactRepository.createArtifactKey(classifier, id, version);
 	}
 
+	@Override
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 		ensureInitialized();
 		return artifactRepository.descriptorQueryable();
 	}
 
+	@Override
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		ensureInitialized();
 		return artifactRepository.query(query, monitor);
 	}
 
+	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
 			runnable.run(monitor);

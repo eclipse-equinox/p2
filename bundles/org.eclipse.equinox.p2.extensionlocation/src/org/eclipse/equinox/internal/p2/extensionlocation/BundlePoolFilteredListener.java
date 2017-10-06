@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,19 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
-import org.eclipse.equinox.p2.query.IQueryResult;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 
 public class BundlePoolFilteredListener extends DirectoryChangeListener {
 
 	private DirectoryChangeListener delegate;
-	private Set<File> bundlePoolFiles = new HashSet<File>();
+	private Set<File> bundlePoolFiles = new HashSet<>();
 
 	public BundlePoolFilteredListener(DirectoryChangeListener listener) {
 		delegate = listener;
@@ -38,18 +37,22 @@ public class BundlePoolFilteredListener extends DirectoryChangeListener {
 		}
 	}
 
+	@Override
 	public boolean added(File file) {
 		return delegate.added(file);
 	}
 
+	@Override
 	public boolean changed(File file) {
 		return delegate.changed(file);
 	}
 
+	@Override
 	public Long getSeenFile(File file) {
 		return delegate.getSeenFile(file);
 	}
 
+	@Override
 	public boolean isInterested(File file) {
 		if (bundlePoolFiles.contains(file))
 			return false;
@@ -57,14 +60,17 @@ public class BundlePoolFilteredListener extends DirectoryChangeListener {
 		return delegate.isInterested(file);
 	}
 
+	@Override
 	public boolean removed(File file) {
 		return delegate.removed(file);
 	}
 
+	@Override
 	public void startPoll() {
 		delegate.startPoll();
 	}
 
+	@Override
 	public void stopPoll() {
 		delegate.stopPoll();
 	}

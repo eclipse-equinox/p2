@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -120,7 +120,7 @@ public class SiteListener extends DirectoryChangeListener {
 		this.siteLocation = url;
 		this.delegate = delegate;
 		this.policy = properties.get(SITE_POLICY);
-		Collection<String> listCollection = new HashSet<String>();
+		Collection<String> listCollection = new HashSet<>();
 		String listString = properties.get(SITE_LIST);
 		if (listString != null)
 			for (StringTokenizer tokenizer = new StringTokenizer(listString, ","); tokenizer.hasMoreTokens();) //$NON-NLS-1$
@@ -128,9 +128,7 @@ public class SiteListener extends DirectoryChangeListener {
 		this.list = normalize(listCollection.toArray(new String[listCollection.size()]));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
-	 */
+	@Override
 	public boolean isInterested(File file) {
 		// make sure that our delegate and super-class are both interested in 
 		// the file before we consider it
@@ -214,24 +212,15 @@ public class SiteListener extends DirectoryChangeListener {
 		// set it to be empty here in case we don't have a match in the file
 		toBeRemoved = new String[0];
 		Properties properties = new Properties();
-		InputStream input = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(toBeUninstalledFile));
+		try (InputStream input = new BufferedInputStream(new FileInputStream(toBeUninstalledFile))) {
 			properties.load(input);
 		} catch (IOException e) {
 			// TODO
-		} finally {
-			try {
-				if (input != null)
-					input.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 		String urlString = siteLocation;
 		if (urlString.endsWith(Constants.EXTENSION_LOCATION))
 			urlString = urlString.substring(0, urlString.length() - Constants.EXTENSION_LOCATION.length());
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for (Enumeration<Object> e = properties.elements(); e.hasMoreElements();) {
 			String line = (String) e.nextElement();
 			StringTokenizer tokenizer = new StringTokenizer(line, ";"); //$NON-NLS-1$
@@ -260,7 +249,7 @@ public class SiteListener extends DirectoryChangeListener {
 	private String[] getManagedFiles() {
 		if (managedFiles != null)
 			return managedFiles;
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		File siteFile;
 		try {
 			siteFile = URIUtil.toFile(new URI(siteLocation));
@@ -293,7 +282,7 @@ public class SiteListener extends DirectoryChangeListener {
 	 * File to Feature objects (from the generator bundle)
 	 */
 	private Map<File, Feature> getFeatures(File location) {
-		Map<File, Feature> result = new HashMap<File, Feature>();
+		Map<File, Feature> result = new HashMap<>();
 		File featureDir = new File(location, FEATURES);
 		File[] children = featureDir.listFiles();
 		for (int i = 0; children != null && i < children.length; i++) {
@@ -314,7 +303,7 @@ public class SiteListener extends DirectoryChangeListener {
 	 */
 	private Map<String, File> getPlugins(File location) {
 		File[] plugins = new File(location, PLUGINS).listFiles();
-		Map<String, File> result = new HashMap<String, File>();
+		Map<String, File> result = new HashMap<>();
 		for (int i = 0; plugins != null && i < plugins.length; i++) {
 			File bundleLocation = plugins[i];
 			if (bundleLocation.isDirectory() || bundleLocation.getName().endsWith(".jar")) { //$NON-NLS-1$
@@ -329,44 +318,32 @@ public class SiteListener extends DirectoryChangeListener {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener#added(java.io.File)
-	 */
+	@Override
 	public boolean added(File file) {
 		return delegate.added(file);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener#changed(java.io.File)
-	 */
+	@Override
 	public boolean changed(File file) {
 		return delegate.changed(file);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener#getSeenFile(java.io.File)
-	 */
+	@Override
 	public Long getSeenFile(File file) {
 		return delegate.getSeenFile(file);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener#removed(java.io.File)
-	 */
+	@Override
 	public boolean removed(File file) {
 		return delegate.removed(file);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener#startPoll()
-	 */
+	@Override
 	public void startPoll() {
 		delegate.startPoll();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener#stopPoll()
-	 */
+	@Override
 	public void stopPoll() {
 		delegate.stopPoll();
 	}
