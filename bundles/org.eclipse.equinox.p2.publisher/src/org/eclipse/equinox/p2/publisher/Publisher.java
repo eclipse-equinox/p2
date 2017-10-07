@@ -189,11 +189,11 @@ public class Publisher {
 	class ArtifactProcess implements IRunnableWithProgress {
 
 		private final IPublisherAction[] actions;
-		private final IPublisherInfo info;
+		private final IPublisherInfo publisherInfo;
 		private IStatus result = null;
 
 		public ArtifactProcess(IPublisherAction[] actions, IPublisherInfo info) {
-			this.info = info;
+			this.publisherInfo = info;
 			this.actions = actions;
 		}
 
@@ -205,7 +205,7 @@ public class Publisher {
 					result = Status.CANCEL_STATUS;
 					return;
 				}
-				IStatus status = actions[i].perform(info, results, monitor);
+				IStatus status = actions[i].perform(publisherInfo, results, monitor);
 				finalStatus.merge(status);
 				monitor.worked(1);
 			}

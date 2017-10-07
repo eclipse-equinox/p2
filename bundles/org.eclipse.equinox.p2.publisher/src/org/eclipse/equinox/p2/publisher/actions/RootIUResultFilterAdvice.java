@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -23,6 +23,7 @@ public class RootIUResultFilterAdvice extends AbstractAdvice implements IRootIUA
 		this.query = query;
 	}
 
+	@Override
 	public Collection<IInstallableUnit> getChildren(IPublisherResult result) {
 		Collection<IInstallableUnit> value = result.getIUs(null, IPublisherResult.ROOT);
 		if (query == null)

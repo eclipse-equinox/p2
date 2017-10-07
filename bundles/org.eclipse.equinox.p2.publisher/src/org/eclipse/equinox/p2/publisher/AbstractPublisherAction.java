@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. 
+ * All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -446,7 +447,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 		// if all we are doing is indexing things then add the descriptor and get on with it
 		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
-			destination.addDescriptor(descriptor);
+			destination.addDescriptor(descriptor, new NullProgressMonitor());
 			return;
 		}
 
@@ -454,7 +455,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (destination instanceof IFileArtifactRepository) {
 			File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
 			if (inclusion.equals(descriptorFile)) {
-				destination.addDescriptor(descriptor);
+				destination.addDescriptor(descriptor, new NullProgressMonitor());
 				return;
 			}
 		}
@@ -491,7 +492,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			return;
 		// if all we are doing is indexing things then add the descriptor and get on with it
 		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
-			destination.addDescriptor(descriptor);
+			destination.addDescriptor(descriptor, new NullProgressMonitor());
 			return;
 		}
 

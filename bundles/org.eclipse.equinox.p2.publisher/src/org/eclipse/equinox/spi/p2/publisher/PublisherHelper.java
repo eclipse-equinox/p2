@@ -119,7 +119,7 @@ public class PublisherHelper {
 					} catch (IOException e) {
 						// don't care if failed to compute checksum
 						// TODO provide message?
-						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "", e));
+						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "", e)); //$NON-NLS-1$
 					}
 				}
 			}

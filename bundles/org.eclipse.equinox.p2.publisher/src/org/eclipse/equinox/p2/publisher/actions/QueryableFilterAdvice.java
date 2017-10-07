@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+ * Copyright (c) 2009, 2017 EclipseSource and others.
+ * All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -26,6 +27,7 @@ public class QueryableFilterAdvice implements IFilterAdvice {
 		this.queryable = queryable;
 	}
 
+	@Override
 	public IMatchExpression<IInstallableUnit> getFilter(String id, Version version, boolean exact) {
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, version);
 		IQueryResult<IInstallableUnit> result = queryable.query(query, null);
@@ -41,6 +43,7 @@ public class QueryableFilterAdvice implements IFilterAdvice {
 		return null;
 	}
 
+	@Override
 	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
 		return true;
 	}
