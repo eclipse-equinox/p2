@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2017 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,7 @@ public class CatalogItemComparator implements Comparator<CatalogItem> {
 		return -1;
 	}
 
+	@Override
 	public int compare(CatalogItem o1, CatalogItem o2) {
 		if (o1.getCategory() != o2.getCategory()) {
 			throw new IllegalArgumentException();
