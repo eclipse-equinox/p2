@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,25 +27,19 @@ public class SignCommandStep extends CommandStep {
 		exclusions = Utils.getSignExclusions(options);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.update.jarprocessor.IProcessStep#recursionEffect(java.lang.String)
-	 */
+	@Override
 	public String recursionEffect(String entryName) {
 		if (entryName.endsWith(extension) && !exclusions.contains(entryName))
 			return entryName;
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.update.jarprocessor.IProcessStep#preProcess(java.io.File, java.io.File)
-	 */
+	@Override
 	public File preProcess(File input, File workingDirectory, List<Properties> containers) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.update.jarprocessor.IProcessStep#postProcess(java.io.File, java.io.File)
-	 */
+	@Override
 	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (command != null && input != null && shouldSign(input, containers)) {
 			try {
@@ -92,6 +86,7 @@ public class SignCommandStep extends CommandStep {
 		return true;
 	}
 
+	@Override
 	public String getStepName() {
 		return "Sign"; //$NON-NLS-1$
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,17 +69,9 @@ public class Utils {
 	public static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
 	public static final String JAR_SUFFIX = ".jar"; //$NON-NLS-1$
 
-	public static final FileFilter JAR_FILTER = new FileFilter() {
-		public boolean accept(File pathname) {
-			return pathname.isFile() && pathname.getName().endsWith(".jar"); //$NON-NLS-1$
-		}
-	};
+	public static final FileFilter JAR_FILTER = pathname -> pathname.isFile() && pathname.getName().endsWith(".jar"); //$NON-NLS-1$
 
-	public static final FileFilter PACK_GZ_FILTER = new FileFilter() {
-		public boolean accept(File pathname) {
-			return pathname.isFile() && pathname.getName().endsWith(JarProcessor.PACKED_SUFFIX);
-		}
-	};
+	public static final FileFilter PACK_GZ_FILTER = pathname -> pathname.isFile() && pathname.getName().endsWith(JarProcessor.PACKED_SUFFIX);
 
 	public static void close(Object stream) {
 		if (stream != null) {
@@ -194,7 +186,7 @@ public class Utils {
 		String packExcludes = properties.getProperty(PACK_EXCLUDES);
 		if (packExcludes != null) {
 			String[] excludes = toStringArray(packExcludes, ","); //$NON-NLS-1$
-			Set<String> packExclusions = new HashSet<String>();
+			Set<String> packExclusions = new HashSet<>();
 			for (int i = 0; i < excludes.length; i++) {
 				packExclusions.add(excludes[i]);
 			}
@@ -209,7 +201,7 @@ public class Utils {
 		String signExcludes = properties.getProperty(SIGN_EXCLUDES);
 		if (signExcludes != null) {
 			String[] excludes = toStringArray(signExcludes, ","); //$NON-NLS-1$
-			Set<String> signExclusions = new HashSet<String>();
+			Set<String> signExclusions = new HashSet<>();
 			for (int i = 0; i < excludes.length; i++) {
 				signExclusions.add(excludes[i]);
 			}
@@ -255,11 +247,11 @@ public class Utils {
 			jar = new JarFile(jarFile, false);
 			JarEntry mark = jar.getJarEntry(MARK_FILE_NAME);
 			if (mark != null) {
-				InputStream in = jar.getInputStream(mark);
-				Properties props = new Properties();
-				props.load(in);
-				in.close();
-				return props;
+				try (InputStream in = jar.getInputStream(mark)) {
+					Properties props = new Properties();
+					props.load(in);
+					return props;
+				}
 			}
 			return new Properties();
 		} catch (ZipException e) {
@@ -306,7 +298,7 @@ public class Utils {
 	public static void storeProperties(Properties props, OutputStream stream) {
 		PrintStream printStream = new PrintStream(stream);
 		printStream.print("#Processed using Jarprocessor\n"); //$NON-NLS-1$
-		SortedMap<Object, Object> sorted = new TreeMap<Object, Object>(props);
+		SortedMap<Object, Object> sorted = new TreeMap<>(props);
 		for (Iterator<Object> iter = sorted.keySet().iterator(); iter.hasNext();) {
 			String key = (String) iter.next();
 			printStream.print(key);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,12 +18,12 @@ import org.eclipse.equinox.internal.p2.jarprocessor.*;
 public class JarProcessor {
 	public static final String PACKED_SUFFIX = "pack.gz"; //$NON-NLS-1$
 
-	private List<IProcessStep> steps = new ArrayList<IProcessStep>();
+	private List<IProcessStep> steps = new ArrayList<>();
 	private String workingDirectory = ""; //$NON-NLS-1$
 	private int depth = -1;
 	private boolean verbose = false;
 	private boolean processAll = false;
-	private LinkedList<Properties> containingInfs = new LinkedList<Properties>();
+	private LinkedList<Properties> containingInfs = new LinkedList<>();
 
 	static public JarProcessor getUnpackProcessor(Properties properties) {
 		if (!canPerformUnpack())
@@ -307,7 +307,7 @@ public class JarProcessor {
 			JarFile jar = null;
 			try {
 				jar = new JarFile(workingFile, false);
-				Map<String, String> replacements = new HashMap<String, String>();
+				Map<String, String> replacements = new HashMap<>();
 				Properties inf = Utils.getEclipseInf(workingFile, verbose);
 				extractEntries(jar, tempDir, replacements, inf);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,10 +15,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * @author aniefer
- *
- */
 public class UnpackStep extends CommandStep {
 	public static final String UNPACKER_PROPERTY = "org.eclipse.update.jarprocessor.Unpacker"; //$NON-NLS-1$
 	private static Boolean canUnpack = null;
@@ -59,9 +55,7 @@ public class UnpackStep extends CommandStep {
 		super(options, null, null, verbose);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.update.jarprocessor.IProcessStep#recursionEffect(java.lang.String)
-	 */
+	@Override
 	public String recursionEffect(String entryName) {
 		if (canUnpack() && entryName.endsWith(Utils.PACKED_SUFFIX)) {
 			return entryName.substring(0, entryName.length() - Utils.PACKED_SUFFIX.length());
@@ -69,9 +63,7 @@ public class UnpackStep extends CommandStep {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.update.jarprocessor.IProcessStep#preProcess(java.io.File, java.io.File)
-	 */
+	@Override
 	public File preProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (canUnpack() && unpackCommand != null) {
 			String name = input.getName();
@@ -104,13 +96,12 @@ public class UnpackStep extends CommandStep {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.update.jarprocessor.IProcessStep#postProcess(java.io.File, java.io.File)
-	 */
+	@Override
 	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		return null;
 	}
 
+	@Override
 	public String getStepName() {
 		return "Unpack"; //$NON-NLS-1$
 	}

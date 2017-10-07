@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ public class UnsignCommand extends SignCommandStep {
 		super(options, command, verbose);
 	}
 
+	@Override
 	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (command != null && input != null && shouldSign(input, containers)) {
 			execute(input);

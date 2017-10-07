@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,24 +31,22 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 		this.antTaskName = antTaskName;
 	}
 
+	@Override
 	protected FileFilter createFileFilter(Options opt) {
 		baseFilter = super.createFileFilter(opt);
 		if (inputFiles == null || inputFiles.size() == 0)
 			return baseFilter;
 
-		filterSet = new HashSet<File>();
+		filterSet = new HashSet<>();
 		filterSet.addAll(inputFiles);
-		return new FileFilter() {
-			public boolean accept(File pathname) {
-				return getFilterSet().contains(pathname);
-			}
-		};
+		return pathname -> getFilterSet().contains(pathname);
 	}
 
 	protected HashSet<File> getFilterSet() {
 		return filterSet;
 	}
 
+	@Override
 	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor, Properties packProperties) throws FileNotFoundException {
 		if (filterSet != null && filterSet.contains(input)) {
 			File[] files = input.listFiles();
@@ -60,6 +58,7 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 		super.processDirectory(input, filter, verbose, processor, packProperties);
 	}
 
+	@Override
 	public void addSignStep(JarProcessor processor, Properties properties, Options opt) {
 		if (signArguments.get(JarProcessorTask.UNSIGN) != null)
 			processor.addProcessStep(new UnsignCommand(properties, opt.signCommand, opt.verbose));

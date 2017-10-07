@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExec
 public class JarProcessorTask extends Task {
 	private final Options options = new Options();
 	private final Properties signArgs = new Properties();
-	private final ArrayList<File> inputFiles = new ArrayList<File>();
+	private final ArrayList<File> inputFiles = new ArrayList<>();
 
 	public static final String ALIAS = "alias"; //$NON-NLS-1$
 	public static final String KEYSTORE = "keystore"; //$NON-NLS-1$
@@ -100,6 +100,7 @@ public class JarProcessorTask extends Task {
 		}
 	}
 
+	@Override
 	public void execute() {
 		options.processAll = true;
 		adjustAndValidateConfiguration();

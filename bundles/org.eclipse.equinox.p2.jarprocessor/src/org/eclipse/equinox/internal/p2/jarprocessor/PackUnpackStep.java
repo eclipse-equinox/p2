@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ public class PackUnpackStep extends PackStep {
 		exclusions = Utils.getPackExclusions(options);
 	}
 
+	@Override
 	public String recursionEffect(String entryName) {
 		if (canPack() && entryName.endsWith(".jar") && !exclusions.contains(entryName)) { //$NON-NLS-1$
 			return entryName;
@@ -38,9 +39,7 @@ public class PackUnpackStep extends PackStep {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.update.internal.jarprocessor.PackStep#postProcess(java.io.File, java.io.File, java.util.LinkedList)
-	 */
+	@Override
 	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
 		if (canPack() && packCommand != null && input != null) {
 			Properties inf = Utils.getEclipseInf(input, verbose);
@@ -73,13 +72,12 @@ public class PackUnpackStep extends PackStep {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.update.internal.jarprocessor.PackStep#preProcess(java.io.File, java.io.File, java.util.LinkedList)
-	 */
+	@Override
 	public File preProcess(File input, File workingDirectory, List<Properties> containers) {
 		return null;
 	}
 
+	@Override
 	public String getStepName() {
 		return "Repack"; //$NON-NLS-1$
 	}
