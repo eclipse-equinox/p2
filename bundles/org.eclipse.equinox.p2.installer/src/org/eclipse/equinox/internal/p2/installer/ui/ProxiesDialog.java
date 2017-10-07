@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.installer.InstallerActivator;
 import org.eclipse.equinox.internal.p2.installer.Messages;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -107,18 +108,16 @@ public final class ProxiesDialog {
 			typeCombo.add(types.get(i));
 		}
 
-		typeCombo.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				String selection = typeCombo.getText();
-				IProxyData selectedProxy = service.getProxyData(selection);
-				if (selectedProxy == null) {
-					updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_UnknownProxyTypeMessage, null));
-				} else {
-					data = selectedProxy;
-					applyData();
-				}
+		typeCombo.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			String selection = typeCombo.getText();
+			IProxyData selectedProxy = service.getProxyData(selection);
+			if (selectedProxy == null) {
+				updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_UnknownProxyTypeMessage, null));
+			} else {
+				data = selectedProxy;
+				applyData();
 			}
-		});
+		}));
 
 		hostLabel = new Label(composite, SWT.NONE);
 		hostLabel.setText(Messages.ProxiesDialog_HostLabel);
@@ -148,11 +147,7 @@ public final class ProxiesDialog {
 		passwordText.setEchoChar('*');
 		passwordText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true, 3, 1));
 
-		ModifyListener validationListener = new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				updateStatus();
-			}
-		};
+		ModifyListener validationListener = e -> updateStatus();
 		typeCombo.addModifyListener(validationListener);
 		hostText.addModifyListener(validationListener);
 		portText.addModifyListener(validationListener);
@@ -186,21 +181,15 @@ public final class ProxiesDialog {
 		gridData = new GridData(100, SWT.DEFAULT);
 		okButton.setLayoutData(gridData);
 		okButton.setText(Messages.ProxiesDialog_OkLabel);
-		okButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				okPressed();
-				shell.dispose();
-			}
-		});
+		okButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			okPressed();
+			shell.dispose();
+		}));
 
 		cancelButton = new Button(buttonBar, SWT.PUSH);
 		cancelButton.setLayoutData(gridData);
 		cancelButton.setText(Messages.Dialog_CancelButton);
-		cancelButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				shell.dispose();
-			}
-		});
+		cancelButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> shell.dispose()));
 	}
 
 	public void create() {
@@ -306,7 +295,7 @@ public final class ProxiesDialog {
 	}
 
 	private void initTypes() {
-		types = new ArrayList<String>();
+		types = new ArrayList<>();
 		types.add(IProxyData.HTTP_PROXY_TYPE);
 		types.add(IProxyData.HTTPS_PROXY_TYPE);
 		types.add(IProxyData.SOCKS_PROXY_TYPE);

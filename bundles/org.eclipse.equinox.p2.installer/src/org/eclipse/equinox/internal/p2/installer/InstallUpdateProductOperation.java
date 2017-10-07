@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,7 +56,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Determine what top level installable units should be installed by the director
 	 */
 	private Collection<IInstallableUnit> computeUnitsToInstall() throws CoreException {
-		ArrayList<IInstallableUnit> units = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> units = new ArrayList<>();
 		IVersionedId roots[] = installDescription.getRoots();
 		for (int i = 0; i < roots.length; i++) {
 			IVersionedId root = roots[i];
@@ -80,7 +80,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	private IProfile createProfile() throws ProvisionException {
 		IProfile profile = getProfile();
 		if (profile == null) {
-			Map<String, String> properties = new HashMap<String, String>();
+			Map<String, String> properties = new HashMap<>();
 			properties.put(IProfile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
 			EnvironmentInfo info = ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class);
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -198,9 +198,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		return service;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation#install(org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IStatus install(IProgressMonitor pm) {
 		SubMonitor monitor = SubMonitor.convert(pm, Messages.Op_Preparing, 100);
 		try {

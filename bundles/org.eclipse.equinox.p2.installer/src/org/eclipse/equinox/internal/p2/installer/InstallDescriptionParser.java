@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -140,7 +140,7 @@ public class InstallDescriptionParser {
 		String rootSpec = properties.get(PROP_ROOTS);
 		if (rootSpec != null) {
 			String[] rootList = getArrayFromString(rootSpec, ","); //$NON-NLS-1$
-			ArrayList<IVersionedId> roots = new ArrayList<IVersionedId>(rootList.length);
+			ArrayList<IVersionedId> roots = new ArrayList<>(rootList.length);
 			for (int i = 0; i < rootList.length; i++) {
 				try {
 					roots.add(VersionedId.parse(rootList[i]));
@@ -163,7 +163,7 @@ public class InstallDescriptionParser {
 	 */
 	private static void initializeProfileProperties(InstallDescription description, Map<String, String> properties) {
 		//any remaining properties are profile properties
-		Map<String, String> profileProperties = new HashMap<String, String>(properties);
+		Map<String, String> profileProperties = new HashMap<>(properties);
 		profileProperties.remove(PROP_PROFILE_NAME);
 		profileProperties.remove(PROP_ARTIFACT_REPOSITORY);
 		profileProperties.remove(PROP_METADATA_REPOSITORY);
@@ -185,7 +185,7 @@ public class InstallDescriptionParser {
 	 */
 	private static URI[] getURIs(String spec, URI base) {
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
-		ArrayList<URI> result = new ArrayList<URI>(urlSpecs.length);
+		ArrayList<URI> result = new ArrayList<>(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {
 			try {
 				URI uri = URIUtil.fromString(urlSpecs[i]);
@@ -216,7 +216,7 @@ public class InstallDescriptionParser {
 	public static String[] getArrayFromString(String list, String separator) {
 		if (list == null || list.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,20 +23,24 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 	private boolean started = false;
 	private boolean stopped = false;
 
+	@Override
 	public IStatus performInstall(IInstallOperation operation) {
 		return dialog.run(operation);
 	}
 
+	@Override
 	public InstallDescription prepareInstallDescription(InstallDescription description) {
 		if (description.getInstallLocation() == null)
 			dialog.promptForLocations(description);
 		return description;
 	}
 
+	@Override
 	public boolean promptForLaunch(InstallDescription description) {
 		return dialog.promptForLaunch(description);
 	}
 
+	@Override
 	public void setResult(IStatus status) {
 		String message;
 		if (status.getSeverity() == IStatus.CANCEL) {
@@ -47,6 +51,7 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 		dialog.promptForClose(message);
 	}
 
+	@Override
 	public synchronized void start() {
 		if (stopped || started)
 			return;
@@ -58,6 +63,7 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 		dialog.setMessage(Messages.Advisor_Preparing);
 	}
 
+	@Override
 	public synchronized void stop() {
 		if (stopped || !started)
 			return;
@@ -70,11 +76,7 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 		final Display display = activeDialog.getDisplay();
 		if (display == null || display.isDisposed())
 			return;
-		display.syncExec(new Runnable() {
-			public void run() {
-				activeDialog.close();
-			}
-		});
+		display.syncExec(() -> activeDialog.close());
 		display.dispose();
 	}
 

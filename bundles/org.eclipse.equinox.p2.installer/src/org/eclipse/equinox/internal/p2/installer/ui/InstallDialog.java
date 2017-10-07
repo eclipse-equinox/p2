@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,36 +36,43 @@ public class InstallDialog {
 		String subTaskName = ""; //$NON-NLS-1$
 		double totalWork, usedWork;
 
+		@Override
 		public void beginTask(final String name, final int work) {
 			totalWork = work;
 			running = true;
 			update();
 		}
 
+		@Override
 		public void done() {
 			running = false;
 			usedWork = totalWork;
 			update();
 		}
 
+		@Override
 		public void internalWorked(double work) {
 			usedWork = Math.min(usedWork + work, totalWork);
 			update();
 		}
 
+		@Override
 		public boolean isCanceled() {
 			return returnCode == CANCEL;
 		}
 
+		@Override
 		public void setCanceled(boolean value) {
 			returnCode = CANCEL;
 		}
 
+		@Override
 		public void setTaskName(String name) {
 			subTaskName = name == null ? "" : name; //$NON-NLS-1$
 			update();
 		}
 
+		@Override
 		public void subTask(String name) {
 			subTaskName = name == null ? "" : name; //$NON-NLS-1$
 			update();
@@ -76,6 +83,7 @@ public class InstallDialog {
 			if (display == null)
 				return;
 			display.asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					Shell theShell = getShell();
 					if (theShell == null || theShell.isDisposed())
@@ -100,6 +108,7 @@ public class InstallDialog {
 			});
 		}
 
+		@Override
 		public void worked(int work) {
 			internalWorked(work);
 		}
@@ -224,6 +233,7 @@ public class InstallDialog {
 		okButton.setText(Messages.Dialog_InstallButton);
 		okButton.setEnabled(false);
 		okButton.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				buttonPressed(OK);
 			}
@@ -235,6 +245,7 @@ public class InstallDialog {
 		cancelButton.setText(Messages.Dialog_CancelButton);
 		cancelButton.setEnabled(false);
 		cancelButton.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				buttonPressed(CANCEL);
 			}
@@ -250,11 +261,7 @@ public class InstallDialog {
 		settingsGroup.setLayout(layout);
 		settingsGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		Listener validateListener = new Listener() {
-			public void handleEvent(Event event) {
-				validateInstallSettings();
-			}
-		};
+		Listener validateListener = event -> validateInstallSettings();
 
 		//The group asking for the product install directory
 		Group installLocationGroup = new Group(settingsGroup, SWT.NONE);
@@ -276,6 +283,7 @@ public class InstallDialog {
 		settingsLocation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		settingsLocation.addListener(SWT.Modify, validateListener);
 		settingsLocation.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyReleased(KeyEvent event) {
 				if (event.character == SWT.CR || event.character == SWT.KEYPAD_CR)
 					buttonPressed(OK);
@@ -284,11 +292,7 @@ public class InstallDialog {
 		settingsBrowse = new Button(locationFieldGroup, SWT.PUSH);
 		settingsBrowse.setLayoutData(new GridData(BUTTON_WIDTH, SWT.DEFAULT));
 		settingsBrowse.setText(Messages.Dialog_BrowseButton);
-		settingsBrowse.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				browsePressed();
-			}
-		});
+		settingsBrowse.addListener(SWT.Selection, event -> browsePressed());
 
 		//Create the radio button group asking for the kind of install (shared vs. standalone)
 		Group installKindGroup = new Group(settingsGroup, SWT.NONE);
@@ -325,35 +329,31 @@ public class InstallDialog {
 
 		manualProxyTypeCheckBox = new Button(proxySettingsFieldGroup, SWT.CHECK);
 		manualProxyTypeCheckBox.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		manualProxyTypeCheckBox.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				IProxyService proxies = (IProxyService) InstallApplication.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
-				if (proxies != null) {
-					//When the manual check box is selected the system properties should be disabled. 
-					//This cases the net component to switch to manual proxy provider.
-					proxies.setSystemProxiesEnabled(!manualProxyTypeCheckBox.getSelection());
-					if (proxySettingsButton != null) {
-						proxySettingsButton.setEnabled(manualProxyTypeCheckBox.getSelection());
-					}
-				} else {
-					openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
+		manualProxyTypeCheckBox.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			IProxyService proxies = (IProxyService) InstallApplication.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
+			if (proxies != null) {
+				//When the manual check box is selected the system properties should be disabled. 
+				//This cases the net component to switch to manual proxy provider.
+				proxies.setSystemProxiesEnabled(!manualProxyTypeCheckBox.getSelection());
+				if (proxySettingsButton != null) {
+					proxySettingsButton.setEnabled(manualProxyTypeCheckBox.getSelection());
 				}
+			} else {
+				openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
 			}
-		});
+		}));
 		manualProxyTypeCheckBox.setText(Messages.Dialog_ManualProxyCheckBox);
 		proxySettingsButton = new Button(proxySettingsFieldGroup, SWT.PUSH);
 		proxySettingsButton.setLayoutData(new GridData(BUTTON_WIDTH, SWT.DEFAULT));
 		proxySettingsButton.setText(Messages.Dialog_SettingsButton);
 		proxySettingsButton.setEnabled(manualProxyTypeCheckBox.getSelection());
-		proxySettingsButton.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				IProxyService proxies = (IProxyService) InstallApplication.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
-				if (proxies != null) {
-					ProxiesDialog proxiesDialog = new ProxiesDialog(proxies);
-					proxiesDialog.open();
-				} else {
-					openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
-				}
+		proxySettingsButton.addListener(SWT.Selection, event -> {
+			IProxyService proxies = (IProxyService) InstallApplication.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
+			if (proxies != null) {
+				ProxiesDialog proxiesDialog = new ProxiesDialog(proxies);
+				proxiesDialog.open();
+			} else {
+				openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
 			}
 		});
 
@@ -483,6 +483,7 @@ public class InstallDialog {
 	public IStatus run(final IInstallOperation operation) {
 		final Result result = new Result();
 		Thread thread = new Thread() {
+			@Override
 			public void run() {
 				try {
 					result.setStatus(operation.install(new Monitor()));
@@ -497,10 +498,8 @@ public class InstallDialog {
 					Display display = getDisplay();
 					//ensure all events from the operation have run
 					if (display != null) {
-						display.syncExec(new Runnable() {
-							public void run() {
-								//do nothing
-							}
+						display.syncExec(() -> {
+							//do nothing
 						});
 					}
 					result.done();
