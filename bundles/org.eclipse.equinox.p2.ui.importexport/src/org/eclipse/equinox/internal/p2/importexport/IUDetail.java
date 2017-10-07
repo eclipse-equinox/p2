@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ public class IUDetail implements IAdaptable {
 		return referredRepo;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
 		if (IInstallableUnit.class.equals(adapter))
