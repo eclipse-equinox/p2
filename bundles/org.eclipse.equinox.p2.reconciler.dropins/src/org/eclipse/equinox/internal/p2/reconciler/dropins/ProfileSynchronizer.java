@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -69,7 +69,7 @@ public class ProfileSynchronizer {
 	 * locations on disk.
 	 */
 	static class ReconcilerProfileChangeRequest extends ProfileChangeRequest {
-		List<IInstallableUnit> toMove = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> toMove = new ArrayList<>();
 
 		public ReconcilerProfileChangeRequest(IProfile profile) {
 			super(profile);
@@ -90,7 +90,7 @@ public class ProfileSynchronizer {
 	public ProfileSynchronizer(IProvisioningAgent agent, IProfile profile, Collection<IMetadataRepository> repositories) {
 		this.agent = agent;
 		this.profile = profile;
-		this.repositoryMap = new HashMap<String, IMetadataRepository>();
+		this.repositoryMap = new HashMap<>();
 		for (IMetadataRepository repository : repositories) {
 			repositoryMap.put(repository.getLocation().toString(), repository);
 		}
@@ -129,7 +129,7 @@ public class ProfileSynchronizer {
 			return moveResult;
 
 		if (!request.getRemovals().isEmpty()) {
-			Collection<IRequirement> requirements = new ArrayList<IRequirement>();
+			Collection<IRequirement> requirements = new ArrayList<>();
 			for (IInstallableUnit unit : request.getRemovals()) {
 				RequiredCapability req = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, 0, 0, false, null);
 				requirements.add(req);
@@ -220,7 +220,7 @@ public class ProfileSynchronizer {
 		// otherwise collect the roots, pretend they are optional, and see
 		// if the resulting plan affects them
 		Set<IInstallableUnit> strictRoots = getStrictRoots().toUnmodifiableSet();
-		Collection<IRequirement> forceNegation = new ArrayList<IRequirement>(removals.size());
+		Collection<IRequirement> forceNegation = new ArrayList<>(removals.size());
 		for (IInstallableUnit iu : removals)
 			forceNegation.add(createNegation(iu));
 		request.addExtraRequirements(forceNegation);
@@ -246,7 +246,7 @@ public class ProfileSynchronizer {
 			finalRequest.remove(initialRoot);
 			finalRequest.setInstallableUnitProfileProperty(initialRoot, INCLUSION_RULES, INCLUSION_OPTIONAL);
 			IRequirement negation = createNegation(initialRoot);
-			Collection<IRequirement> extra = new ArrayList<IRequirement>();
+			Collection<IRequirement> extra = new ArrayList<>();
 			extra.add(negation);
 			request.addExtraRequirements(extra);
 			LogHelper.log(new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.remove_root, initialRoot.getId(), initialRoot.getVersion())));
@@ -306,8 +306,7 @@ public class ProfileSynchronizer {
 		try {
 			File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
 			Activator.trace("Writing timestamp file to : " + file.getAbsolutePath()); //$NON-NLS-1$
-			OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-			try {
+			try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
 				CollectionUtils.storeProperties(timestamps, os, "Timestamps for " + profile.getProfileId()); //$NON-NLS-1$
 				if (Tracing.DEBUG_RECONCILER) {
 					for (Iterator<String> iter = timestamps.keySet().iterator(); iter.hasNext();) {
@@ -316,9 +315,6 @@ public class ProfileSynchronizer {
 						Activator.trace(key + '=' + value);
 					}
 				}
-			} finally {
-				if (os != null)
-					os.close();
 			}
 		} catch (FileNotFoundException e) {
 			//Ignore
@@ -399,35 +395,31 @@ public class ProfileSynchronizer {
 	 */
 	private void readTimestamps() {
 		if (Boolean.TRUE.toString().equalsIgnoreCase(System.getProperty(PROP_IGNORE_USER_CONFIGURATION))) {
-			timestamps = new HashMap<String, String>();
+			timestamps = new HashMap<>();
 			Activator.trace("Master profile changed."); //$NON-NLS-1$
 			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 			return;
 		}
 		File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
 		try {
-			InputStream is = new BufferedInputStream(new FileInputStream(file));
-			try {
+			try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
 				timestamps = CollectionUtils.loadProperties(is);
-			} finally {
-				if (is != null)
-					is.close();
 			}
 		} catch (FileNotFoundException e) {
 			//Ignore
-			timestamps = new HashMap<String, String>();
+			timestamps = new HashMap<>();
 			Activator.trace("Timestamp file does not exist."); //$NON-NLS-1$
 			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 		} catch (IOException e) {
 			//Ignore
-			timestamps = new HashMap<String, String>();
+			timestamps = new HashMap<>();
 			Activator.trace("Exception loading timestamp file: " + e.getMessage()); //$NON-NLS-1$
 			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 		}
 	}
 
 	private ProvisioningContext getContext() {
-		ArrayList<URI> repoURLs = new ArrayList<URI>();
+		ArrayList<URI> repoURLs = new ArrayList<>();
 		for (Iterator<String> iterator = repositoryMap.keySet().iterator(); iterator.hasNext();) {
 			try {
 				repoURLs.add(new URI(iterator.next()));
@@ -442,10 +434,10 @@ public class ProfileSynchronizer {
 	}
 
 	private String synchronizeCacheExtensions() {
-		List<String> currentExtensions = new ArrayList<String>();
+		List<String> currentExtensions = new ArrayList<>();
 		StringBuffer buffer = new StringBuffer();
 
-		List<String> repositories = new ArrayList<String>(repositoryMap.keySet());
+		List<String> repositories = new ArrayList<>(repositoryMap.keySet());
 		URL installArea = Activator.getOSGiInstallArea();
 		final String OSGiInstallArea;
 		try {
@@ -455,14 +447,12 @@ public class ProfileSynchronizer {
 			OSGiInstallArea = URIUtil.toURI(installArea).toString() + Constants.EXTENSION_LOCATION;
 			// Sort the repositories so the extension location at the OSGi install folder is first.
 			// See https://bugs.eclipse.org/246310.
-			Collections.sort(repositories, new Comparator<String>() {
-				public int compare(String left, String right) {
-					if (OSGiInstallArea.equals(left))
-						return -1;
-					if (OSGiInstallArea.equals(right))
-						return 1;
-					return left.compareTo(right);
-				}
+			Collections.sort(repositories, (left, right) -> {
+				if (OSGiInstallArea.equals(left))
+					return -1;
+				if (OSGiInstallArea.equals(right))
+					return 1;
+				return left.compareTo(right);
 			});
 		} catch (URISyntaxException e) {
 			// This shouldn't happen but if it does we will log the error and continue
@@ -488,7 +478,7 @@ public class ProfileSynchronizer {
 		}
 		String currentExtensionsProperty = (buffer.length() == 0) ? null : buffer.toString();
 
-		List<String> previousExtensions = new ArrayList<String>();
+		List<String> previousExtensions = new ArrayList<>();
 		String previousExtensionsProperty = profile.getProperty(CACHE_EXTENSIONS);
 		if (previousExtensionsProperty != null) {
 			StringTokenizer tokenizer = new StringTokenizer(previousExtensionsProperty, PIPE);
@@ -522,7 +512,7 @@ public class ProfileSynchronizer {
 	 */
 	private Map<IInstallableUnit, IInstallableUnit> getProfileIUs() {
 		IQueryResult<IInstallableUnit> profileQueryResult = profile.query(QueryUtil.createIUAnyQuery(), null);
-		Map<IInstallableUnit, IInstallableUnit> result = new HashMap<IInstallableUnit, IInstallableUnit>();
+		Map<IInstallableUnit, IInstallableUnit> result = new HashMap<>();
 		for (Iterator<IInstallableUnit> it = profileQueryResult.iterator(); it.hasNext();) {
 			IInstallableUnit iu = it.next();
 			result.put(iu, iu);
@@ -536,7 +526,7 @@ public class ProfileSynchronizer {
 	 */
 	private Map<IInstallableUnit, IInstallableUnit> getAvailableProfileIUs() {
 		IQueryResult<IInstallableUnit> profileQueryResult = profile.available(QueryUtil.createIUAnyQuery(), null);
-		Map<IInstallableUnit, IInstallableUnit> result = new HashMap<IInstallableUnit, IInstallableUnit>();
+		Map<IInstallableUnit, IInstallableUnit> result = new HashMap<>();
 		for (Iterator<IInstallableUnit> it = profileQueryResult.iterator(); it.hasNext();) {
 			IInstallableUnit iu = it.next();
 			result.put(iu, iu);
@@ -559,8 +549,8 @@ public class ProfileSynchronizer {
 		if (resolve)
 			request.removeProfileProperty("org.eclipse.equinox.p2.resolve"); //$NON-NLS-1$
 
-		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
-		List<IInstallableUnit> toMove = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> toRemove = new ArrayList<>();
+		List<IInstallableUnit> toMove = new ArrayList<>();
 
 		boolean foundIUsToAdd = false;
 		Map<IInstallableUnit, IInstallableUnit> profileIUs = getProfileIUs();
@@ -661,9 +651,9 @@ public class ProfileSynchronizer {
 			return;
 		final String PREFIX = "[reconciler] [plan] "; //$NON-NLS-1$
 		// get the request
-		List<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>(request.getAdditions());
-		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>(request.getRemovals());
-		List<IInstallableUnit> toMove = new ArrayList<IInstallableUnit>(request.getMoves());
+		List<IInstallableUnit> toAdd = new ArrayList<>(request.getAdditions());
+		List<IInstallableUnit> toRemove = new ArrayList<>(request.getRemovals());
+		List<IInstallableUnit> toMove = new ArrayList<>(request.getMoves());
 
 		// remove from the request everything that is in the plan
 		for (Iterator<IInstallableUnit> iterator = plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null).iterator(); iterator.hasNext();) {
@@ -762,7 +752,7 @@ public class ProfileSynchronizer {
 	 */
 	private IQueryResult<IInstallableUnit> getAllIUsFromRepos() {
 		// TODO: Should consider using a sequenced iterator here instead of collecting
-		Collector<IInstallableUnit> allRepos = new Collector<IInstallableUnit>();
+		Collector<IInstallableUnit> allRepos = new Collector<>();
 		for (IMetadataRepository repository : repositoryMap.values()) {
 			allRepos.addAll(repository.query(QueryUtil.createIUAnyQuery(), null));
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -76,54 +76,40 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		this.root = file;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#added(java.io.File)
-	 */
+	@Override
 	public boolean added(File file) {
 		changed = changed || PLATFORM_XML.equals(file.getName());
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#changed(java.io.File)
-	 */
+	@Override
 	public boolean changed(File file) {
 		changed = changed || PLATFORM_XML.equals(file.getName());
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#getSeenFile(java.io.File)
-	 */
+	@Override
 	public Long getSeenFile(File file) {
 		return Long.valueOf(0);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
-	 */
+	@Override
 	public boolean isInterested(File file) {
 		return file.getName().equals(PLATFORM_XML) && lastModified != file.lastModified();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#removed(java.io.File)
-	 */
+	@Override
 	public boolean removed(File file) {
 		changed = changed || PLATFORM_XML.equals(file.getName());
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#startPoll()
-	 */
+	@Override
 	public void startPoll() {
 		changed = false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#stopPoll()
-	 */
+	@Override
 	public void stopPoll() {
 		if (changed) {
 			lastModified = root.lastModified();
@@ -183,8 +169,8 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	 */
 	protected void synchronizeConfiguration(Configuration config) {
 		List<Site> sites = config.getSites();
-		Set<IMetadataRepository> newRepos = new LinkedHashSet<IMetadataRepository>();
-		Set<Site> toBeRemoved = new HashSet<Site>();
+		Set<IMetadataRepository> newRepos = new LinkedHashSet<>();
+		Set<Site> toBeRemoved = new HashSet<>();
 		for (Site site : sites) {
 			String siteURL = site.getUrl();
 			IMetadataRepository match = getMatchingRepo(Activator.getRepositories(), siteURL);
@@ -206,7 +192,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					// use the URI constructor here and not URIUtil#fromString because 
 					// our string is already encoded
 					URI location = new URI(eclipseExtensionURL);
-					Map<String, String> properties = new HashMap<String, String>();
+					Map<String, String> properties = new HashMap<>();
 					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
 
 					// In a "USER-INCLUDE" we add the site's features to the list

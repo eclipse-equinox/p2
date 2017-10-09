@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -52,7 +52,7 @@ public class Activator implements BundleActivator {
 	private static final String EXT_LINK = ".link"; //$NON-NLS-1$
 	public static final String TRACING_PREFIX = "[reconciler] "; //$NON-NLS-1$
 	private static BundleContext bundleContext;
-	private final static Set<IMetadataRepository> repositories = new HashSet<IMetadataRepository>();
+	private final static Set<IMetadataRepository> repositories = new HashSet<>();
 	private Collection<File> filesToCheck = null;
 
 	/**
@@ -72,7 +72,7 @@ public class Activator implements BundleActivator {
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
 		factory.setAgent(agent);
 		// always compress repositories that we are creating.
-		Map<String, String> repositoryProperties = new HashMap<String, String>();
+		Map<String, String> repositoryProperties = new HashMap<>();
 		repositoryProperties.put(IRepository.PROP_COMPRESSED, Boolean.TRUE.toString());
 		if (properties != null)
 			repositoryProperties.putAll(properties);
@@ -119,7 +119,7 @@ public class Activator implements BundleActivator {
 		ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
 		factory.setAgent(agent);
 		// always compress repositories that we are creating.
-		Map<String, String> repositoryProperties = new HashMap<String, String>();
+		Map<String, String> repositoryProperties = new HashMap<>();
 		repositoryProperties.put(IRepository.PROP_COMPRESSED, Boolean.TRUE.toString());
 		if (properties != null)
 			repositoryProperties.putAll(properties);
@@ -153,9 +153,7 @@ public class Activator implements BundleActivator {
 		return repositories;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		bundleContext = context;
 
@@ -201,15 +199,10 @@ public class Activator implements BundleActivator {
 			// write shared configuration
 			Properties props = new Properties();
 			try {
-				OutputStream os = null;
-				try {
-					os = new BufferedOutputStream(new FileOutputStream(configIni));
+				try (OutputStream os = new BufferedOutputStream(new FileOutputStream(configIni))) {
 					String externalForm = PathUtil.makeRelative(parentConfiguration.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
 					props.put("osgi.sharedConfiguration.area", externalForm); //$NON-NLS-1$
 					props.store(os, "Linked configuration"); //$NON-NLS-1$
-				} finally {
-					if (os != null)
-						os.close();
 				}
 			} catch (IOException e) {
 				LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to create linked configuration location.", e)); //$NON-NLS-1$
@@ -289,19 +282,10 @@ public class Activator implements BundleActivator {
 		if (!file.exists())
 			return result;
 		trace("Reading timestamps from file: " + file.getAbsolutePath()); //$NON-NLS-1$
-		InputStream input = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(file));
+		try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
 			result.load(input);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while reading cached timestamps for reconciliation.", e)); //$NON-NLS-1$
-		} finally {
-			try {
-				if (input != null)
-					input.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 		if (Tracing.DEBUG_RECONCILER) {
 			for (Iterator<Object> iter = result.keySet().iterator(); iter.hasNext();) {
@@ -321,7 +305,7 @@ public class Activator implements BundleActivator {
 		if (filesToCheck != null)
 			return filesToCheck;
 
-		Set<File> result = new HashSet<File>();
+		Set<File> result = new HashSet<>();
 
 		// configuration/org.eclipse.update/platform.xml, configuration/../plugins, configuration/../features
 		File configuration = getConfigurationLocation();
@@ -366,7 +350,7 @@ public class Activator implements BundleActivator {
 	 * return a collection of files that might be interesting to check the timestamps of.
 	 */
 	private Collection<File> getDropinsToCheck(File[] files) {
-		Collection<File> result = new HashSet<File>();
+		Collection<File> result = new HashSet<>();
 		for (int outer = 0; outer < files.length; outer++) {
 			// add top-level file/folder
 			result.add(files[outer]);
@@ -433,10 +417,8 @@ public class Activator implements BundleActivator {
 		// write out the file
 		File file = Activator.getContext().getDataFile(CACHE_FILENAME);
 		trace("Writing out timestamps to file : " + file.getAbsolutePath()); //$NON-NLS-1$
-		OutputStream output = null;
-		try {
-			file.delete();
-			output = new BufferedOutputStream(new FileOutputStream(file));
+		file.delete();
+		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(file))) {
 			timestamps.store(output, null);
 			if (Tracing.DEBUG_RECONCILER) {
 				for (Iterator<Object> iter = timestamps.keySet().iterator(); iter.hasNext();) {
@@ -447,13 +429,6 @@ public class Activator implements BundleActivator {
 			}
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while writing cache timestamps for reconciliation.", e)); //$NON-NLS-1$
-		} finally {
-			if (output != null)
-				try {
-					output.close();
-				} catch (IOException e) {
-					// ignore
-				}
 		}
 	}
 
@@ -524,7 +499,7 @@ public class Activator implements BundleActivator {
 	 * Create a new directory watcher with a repository listener on the drop-ins folder. 
 	 */
 	private void watchDropins() {
-		List<File> directories = new ArrayList<File>();
+		List<File> directories = new ArrayList<>();
 		File[] dropinsDirectories = getDropinsDirectories();
 		directories.addAll(Arrays.asList(dropinsDirectories));
 		File[] linksDirectories = getLinksDirectories();
@@ -533,7 +508,7 @@ public class Activator implements BundleActivator {
 			return;
 
 		// we will compress the repositories and mark them hidden as "system" repos.
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, Boolean.TRUE.toString());
 		properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 
@@ -544,9 +519,7 @@ public class Activator implements BundleActivator {
 		repositories.addAll(listener.getMetadataRepositories());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		bundleContext = null;
 	}
@@ -648,7 +621,7 @@ public class Activator implements BundleActivator {
 	 * more than one to be returned here if we are running in shared mode.
 	 */
 	private static File[] getLinksDirectories() {
-		List<File> linksDirectories = new ArrayList<File>();
+		List<File> linksDirectories = new ArrayList<>();
 		File root = getEclipseHome();
 		if (root != null)
 			linksDirectories.add(new File(root, LINKS));
@@ -671,7 +644,7 @@ public class Activator implements BundleActivator {
 	 * local dropins directory.
 	 */
 	private static File[] getDropinsDirectories() {
-		List<File> dropinsDirectories = new ArrayList<File>();
+		List<File> dropinsDirectories = new ArrayList<>();
 		// did the user specify one via System properties?
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,8 +47,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private static final String DROPIN_METADATA_REPOSITORIES = "dropin.metadataRepositories"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 	private final IProvisioningAgent agent;
-	private List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
-	private List<IArtifactRepository> artifactRepositories = new ArrayList<IArtifactRepository>();
+	private List<IMetadataRepository> metadataRepositories = new ArrayList<>();
+	private List<IArtifactRepository> artifactRepositories = new ArrayList<>();
 
 	static class LinkedRepository {
 		LinkedRepository(File location) {
@@ -83,10 +83,12 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		this.agent = agent;
 	}
 
+	@Override
 	public boolean isInterested(File file) {
 		return true;
 	}
 
+	@Override
 	public boolean added(File file) {
 		if (super.added(file)) {
 			if (Tracing.DEBUG_RECONCILER)
@@ -97,6 +99,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return true;
 	}
 
+	@Override
 	public boolean changed(File file) {
 		if (super.changed(file)) {
 			if (Tracing.DEBUG_RECONCILER)
@@ -111,7 +114,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		URI repoLocation = createRepositoryLocation(file);
 		if (repoLocation == null)
 			return;
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		// if the file pointed to a link file, keep track of the attribute
 		// so we can add it to the repo later
 		if (file.isFile() && file.getName().endsWith(LINK)) {
@@ -130,11 +133,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	static LinkedRepository getLinkedRepository(File file) {
 		Properties links = new Properties();
 		try {
-			InputStream input = new BufferedInputStream(new FileInputStream(file));
-			try {
+			try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
 				links.load(input);
-			} finally {
-				input.close();
 			}
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_reading_link, file.getAbsolutePath()), e));
@@ -265,6 +265,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		}
 	}
 
+	@Override
 	public void stopPoll() {
 		synchronizeDropinMetadataRepositories();
 		synchronizeDropinArtifactRepositories();
@@ -272,7 +273,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void synchronizeDropinMetadataRepositories() {
-		List<String> currentRepositories = new ArrayList<String>();
+		List<String> currentRepositories = new ArrayList<>();
 		for (Iterator<IMetadataRepository> it = metadataRepositories.iterator(); it.hasNext();) {
 			IMetadataRepository repository = it.next();
 			currentRepositories.add(repository.getLocation().toString());
@@ -298,7 +299,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void synchronizeDropinArtifactRepositories() {
-		List<String> currentRepositories = new ArrayList<String>();
+		List<String> currentRepositories = new ArrayList<>();
 		for (Iterator<IArtifactRepository> it = artifactRepositories.iterator(); it.hasNext();) {
 			IArtifactRepository repository = it.next();
 			currentRepositories.add(repository.getLocation().toString());
@@ -324,7 +325,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private List<String> getListRepositoryProperty(IRepository<?> repository, String key) {
-		List<String> listProperty = new ArrayList<String>();
+		List<String> listProperty = new ArrayList<>();
 		String dropinRepositories = repository.getProperties().get(key);
 		if (dropinRepositories != null) {
 			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, PIPE);
@@ -348,7 +349,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public Collection<IMetadataRepository> getMetadataRepositories() {
-		List<IMetadataRepository> result = new ArrayList<IMetadataRepository>(metadataRepositories);
+		List<IMetadataRepository> result = new ArrayList<>(metadataRepositories);
 		result.add(getMetadataRepository());
 		return result;
 	}

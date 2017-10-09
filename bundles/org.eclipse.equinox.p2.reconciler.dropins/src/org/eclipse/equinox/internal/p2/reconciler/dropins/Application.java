@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2008, 2017 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -15,6 +15,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 
 public class Application implements IApplication {
 
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		Object obj = System.getProperties().get(Activator.PROP_APPLICATION_STATUS);
 		// if we have a non-OK status return "unlucky" 13, otherwise return the OK return code
@@ -23,6 +24,7 @@ public class Application implements IApplication {
 		return IApplication.EXIT_OK;
 	}
 
+	@Override
 	public void stop() {
 		//Nothing to do
 	}
