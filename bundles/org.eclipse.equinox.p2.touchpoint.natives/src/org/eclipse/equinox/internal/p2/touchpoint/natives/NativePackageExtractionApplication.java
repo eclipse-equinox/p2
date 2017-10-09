@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 Rapicorp, Inc and others.
+ * Copyright (c) 2014, 2017 Rapicorp, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,6 +58,7 @@ public class NativePackageExtractionApplication implements IApplication {
 
 	private boolean stackTrace = false;
 
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		try {
 			processArguments((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
@@ -114,14 +115,8 @@ public class NativePackageExtractionApplication implements IApplication {
 	}
 
 	private void persistInformation() throws CoreException {
-		try {
-			BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(resultFile));
-			try {
-				extractedData.store(os, "Data extracted from eclipse located at " + installation); //$NON-NLS-1$
-			} finally {
-				if (os != null)
-					os.close();
-			}
+		try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(resultFile))) {
+			extractedData.store(os, "Data extracted from eclipse located at " + installation); //$NON-NLS-1$
 		} catch (IOException e) {
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.NativePackageExtractionApplication_PersistencePb + resultFile.getAbsolutePath(), e));
 		}
@@ -203,7 +198,7 @@ public class NativePackageExtractionApplication implements IApplication {
 
 	//Code copied from the InstructionParser class
 	private Map<String, String> parseInstruction(String statement) {
-		Map<String, String> instructions = new HashMap<String, String>();
+		Map<String, String> instructions = new HashMap<>();
 
 		int openBracket = statement.indexOf('(');
 		int closeBracket = statement.lastIndexOf(')');
@@ -240,21 +235,12 @@ public class NativePackageExtractionApplication implements IApplication {
 		if (profileId == null) {
 			if (installation != null) {
 				File configIni = new File(installation, "configuration/config.ini"); //$NON-NLS-1$
-				InputStream in = null;
-				try {
-					Properties ciProps = new Properties();
-					in = new BufferedInputStream(new FileInputStream(configIni));
+				Properties ciProps = new Properties();
+				try (InputStream in = new BufferedInputStream(new FileInputStream(configIni))) {
 					ciProps.load(in);
 					profileId = ciProps.getProperty(PROP_P2_PROFILE);
 				} catch (IOException e) {
 					// Ignore
-				} finally {
-					if (in != null)
-						try {
-							in.close();
-						} catch (IOException e) {
-							// Ignore;
-						}
 				}
 				if (profileId == null)
 					profileId = installation.toString();
@@ -312,6 +298,7 @@ public class NativePackageExtractionApplication implements IApplication {
 		}
 	}
 
+	@Override
 	public void stop() {
 		//We don't handle application stopping
 	}

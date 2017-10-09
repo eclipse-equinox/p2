@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,10 +26,12 @@ public class CleanupzipAction extends ProvisioningAction {
 	private static final String UNZIPPED = "unzipped"; //$NON-NLS-1$
 	public static final String ACTION_CLEANUPZIP = "cleanupzip"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		return cleanupzip(parameters, true);
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		return new UnzipAction().unzip(parameters, false);
 	}
@@ -70,7 +72,7 @@ public class CleanupzipAction extends ProvisioningAction {
 
 		IBackupStore store = restoreable ? (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP) : null;
 		StringTokenizer tokenizer = new StringTokenizer(unzipped, ActionConstants.PIPE);
-		List<File> directories = new ArrayList<File>();
+		List<File> directories = new ArrayList<>();
 		while (tokenizer.hasMoreTokens()) {
 			String fileName = tokenizer.nextToken();
 			File file = new File(fileName);
@@ -92,23 +94,19 @@ public class CleanupzipAction extends ProvisioningAction {
 		}
 		// sort directories by path length longest path is in top
 		// this will make sure that a sub folder will be removed before its parent
-		Collections.sort(directories, new Comparator<File>() {
-
-			public int compare(File f1, File f2) {
-				if (f1 == f2)
-					return 0;
-				if (f1 != null && f2 == null)
-					return -1;
-				if (f1 == null)
-					return 1;
-				try {
-					return Integer.valueOf(f2.getCanonicalPath().length()).compareTo(f1.getCanonicalPath().length());
-				} catch (IOException e) {
-					// did our best. try an absolute path compare
-					return Integer.valueOf(f2.getAbsolutePath().length()).compareTo(f1.getAbsolutePath().length());
-				}
+		Collections.sort(directories, (f1, f2) -> {
+			if (f1 == f2)
+				return 0;
+			if (f1 != null && f2 == null)
+				return -1;
+			if (f1 == null)
+				return 1;
+			try {
+				return Integer.valueOf(f2.getCanonicalPath().length()).compareTo(f1.getCanonicalPath().length());
+			} catch (IOException e) {
+				// did our best. try an absolute path compare
+				return Integer.valueOf(f2.getAbsolutePath().length()).compareTo(f1.getAbsolutePath().length());
 			}
-
 		});
 		for (File directory : directories) {
 			if (store != null) {

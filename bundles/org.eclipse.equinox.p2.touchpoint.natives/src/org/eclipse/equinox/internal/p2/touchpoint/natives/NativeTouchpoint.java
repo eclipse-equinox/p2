@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2014 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,14 +33,15 @@ public class NativeTouchpoint extends Touchpoint {
 	private static final String INSTALL_COMMANDS = "installCommands.txt"; //$NON-NLS-1$
 	private static final String INSTALL_PREFIX = "installPrefix"; //$NON-NLS-1$
 
-	private static Map<IProfile, IBackupStore> backups = new WeakHashMap<IProfile, IBackupStore>();
+	private static Map<IProfile, IBackupStore> backups = new WeakHashMap<>();
 
-	private List<NativePackageEntry> packagesToInstall = new ArrayList<NativePackageEntry>();
+	private List<NativePackageEntry> packagesToInstall = new ArrayList<>();
 	private Properties installCommandsProperties = new Properties();
 
 	private IProvisioningAgent agent;
 	private String distro;
 
+	@Override
 	public IStatus initializeOperand(IProfile profile, Map<String, Object> parameters) {
 		agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
@@ -57,15 +58,18 @@ public class NativeTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> touchpointParameters) {
 		touchpointParameters.put(PARM_BACKUP, getBackupStore(profile));
 		return null;
 	}
 
+	@Override
 	public String qualifyAction(String actionId) {
 		return Activator.ID + "." + actionId; //$NON-NLS-1$
 	}
 
+	@Override
 	public IStatus prepare(IProfile profile) {
 		// does not have to do anything - everything is already in the correct place
 		// the commit means that the backup is discarded - if that fails it is not a 
@@ -73,6 +77,7 @@ public class NativeTouchpoint extends Touchpoint {
 		return super.prepare(profile);
 	}
 
+	@Override
 	public IStatus commit(IProfile profile) {
 		promptForNativePackage();
 		IBackupStore store = getBackupStore(profile);
@@ -88,7 +93,7 @@ public class NativeTouchpoint extends Touchpoint {
 		UIServices serviceUI = (UIServices) agent.getService(UIServices.SERVICE_NAME);
 		String text = Messages.PromptForNative_IntroText;
 		String downloadLinks = ""; //$NON-NLS-1$
-		List<NativePackageEntry> entriesWithoutDownloadLink = new ArrayList<NativePackageEntry>(packagesToInstall.size());
+		List<NativePackageEntry> entriesWithoutDownloadLink = new ArrayList<>(packagesToInstall.size());
 		for (NativePackageEntry nativePackageEntry : packagesToInstall) {
 			text += '\t' + nativePackageEntry.name + ' ' + formatVersion(nativePackageEntry) + '\n';
 			if (nativePackageEntry.getDownloadLink() != null) {
@@ -128,14 +133,8 @@ public class NativeTouchpoint extends Touchpoint {
 		if (f == null)
 			return;
 
-		try {
-			InputStream is = new BufferedInputStream(new FileInputStream(f));
-			try {
-				properties.load(is);
-			} finally {
-				if (is != null)
-					is.close();
-			}
+		try (InputStream is = new BufferedInputStream(new FileInputStream(f))) {
+			properties.load(is);
 		} catch (IOException e) {
 			//fallthrough to return empty string
 		}
@@ -195,6 +194,7 @@ public class NativeTouchpoint extends Touchpoint {
 		return buffer.toString();
 	}
 
+	@Override
 	public IStatus rollback(IProfile profile) {
 		IStatus returnStatus = Status.OK_STATUS;
 		IBackupStore store = getBackupStore(profile);

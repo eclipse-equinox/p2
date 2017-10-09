@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,7 +61,7 @@ public class Util {
 		} catch (ProvisionException e) {
 			// the download cache doesn't exist or couldn't be read. Create new cache.
 			String repositoryName = location + " - Agent download cache"; //$NON-NLS-1$
-			Map<String, String> properties = new HashMap<String, String>(1);
+			Map<String, String> properties = new HashMap<>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			repository = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		}
@@ -94,16 +94,13 @@ public class Util {
 	 * If a path is specified, the path is consider as entry point in zip, as when the to directory in zip would have been the specified path.
 	 */
 	public static File[] unzipFile(File zipFile, File outputDir, String path, String[] includePatterns, String[] excludePatterns, IBackupStore store, String taskName, IProgressMonitor monitor) throws IOException {
-		InputStream in = new FileInputStream(zipFile);
-		try {
+		try (InputStream in = new FileInputStream(zipFile)) {
 			return unzipStream(in, zipFile.length(), outputDir, path, includePatterns, excludePatterns, store, taskName, monitor);
 		} catch (IOException e) {
 			// add the file name to the message
 			IOException ioException = new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
 			ioException.initCause(e);
 			throw ioException;
-		} finally {
-			in.close();
 		}
 	}
 
@@ -123,90 +120,90 @@ public class Util {
 	 */
 	public static File[] unzipStream(InputStream stream, long size, File outputDir, String path, String[] includePatterns, String[] excludePatterns, IBackupStore store, String taskName, IProgressMonitor monitor) throws IOException {
 		InputStream is = monitor == null ? stream : stream; // new ProgressMonitorInputStream(stream, size, size, taskName, monitor); TODO Commented code
-		ZipInputStream in = new ZipInputStream(new BufferedInputStream(is));
-		ZipEntry ze = in.getNextEntry();
-		if (ze == null) {
-			// There must be at least one entry in a zip file.
-			// When there isn't getNextEntry returns null.
-			in.close();
-			throw new IOException(Messages.Util_Invalid_Zip_File_Format);
-		}
+		try (ZipInputStream in = new ZipInputStream(new BufferedInputStream(is))) {
+			ZipEntry ze = in.getNextEntry();
+			if (ze == null) {
+				// There must be at least one entry in a zip file.
+				// When there isn't getNextEntry returns null.
+				in.close();
+				throw new IOException(Messages.Util_Invalid_Zip_File_Format);
+			}
 
-		if (path != null && path.trim().length() == 0)
-			path = null;
-		Pattern pathRegex = path == null ? null : createAntStylePattern("(" + path + ")(*)"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (path != null && path.trim().length() == 0)
+				path = null;
+			Pattern pathRegex = path == null ? null : createAntStylePattern("(" + path + ")(*)"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		Collection<Pattern> includeRegexp = new ArrayList<Pattern>();
-		Collection<Pattern> excludeRegexp = new ArrayList<Pattern>();
-		if (includePatterns != null) {
-			for (String pattern : includePatterns) {
-				if (pattern != null) {
-					includeRegexp.add(createAntStylePattern(pattern));
+			Collection<Pattern> includeRegexp = new ArrayList<>();
+			Collection<Pattern> excludeRegexp = new ArrayList<>();
+			if (includePatterns != null) {
+				for (String pattern : includePatterns) {
+					if (pattern != null) {
+						includeRegexp.add(createAntStylePattern(pattern));
+					}
 				}
 			}
-		}
-		if (excludePatterns != null) {
-			for (String pattern : excludePatterns) {
-				if (pattern != null) {
-					excludeRegexp.add(createAntStylePattern(pattern));
+			if (excludePatterns != null) {
+				for (String pattern : excludePatterns) {
+					if (pattern != null) {
+						excludeRegexp.add(createAntStylePattern(pattern));
+					}
 				}
 			}
-		}
-		ArrayList<File> unzippedFiles = new ArrayList<File>();
-		do {
-			String name = ze.getName();
-			if (pathRegex == null || pathRegex.matcher(name).matches()) {
-				boolean unzip = includeRegexp.isEmpty();
-				for (Pattern pattern : includeRegexp) {
-					unzip = pattern.matcher(name).matches();
-					if (unzip)
-						break;
-				}
-				if (unzip && !excludeRegexp.isEmpty()) {
-					for (Pattern pattern : excludeRegexp) {
-						if (pattern.matcher(name).matches()) {
-							unzip = false;
+			ArrayList<File> unzippedFiles = new ArrayList<>();
+			do {
+				String name = ze.getName();
+				if (pathRegex == null || pathRegex.matcher(name).matches()) {
+					boolean unzip = includeRegexp.isEmpty();
+					for (Pattern pattern : includeRegexp) {
+						unzip = pattern.matcher(name).matches();
+						if (unzip)
 							break;
+					}
+					if (unzip && !excludeRegexp.isEmpty()) {
+						for (Pattern pattern : excludeRegexp) {
+							if (pattern.matcher(name).matches()) {
+								unzip = false;
+								break;
+							}
 						}
 					}
-				}
-				if (unzip) {
-					if (pathRegex != null) {
-						Matcher matcher = pathRegex.matcher(name);
-						if (matcher.matches()) {
-							name = matcher.group(2);
-							if (name.startsWith("/")) //$NON-NLS-1$
-								name = name.substring(1);
+					if (unzip) {
+						if (pathRegex != null) {
+							Matcher matcher = pathRegex.matcher(name);
+							if (matcher.matches()) {
+								name = matcher.group(2);
+								if (name.startsWith("/")) //$NON-NLS-1$
+									name = name.substring(1);
+							}
 						}
-					}
-					File outFile = new File(outputDir, name);
-					unzippedFiles.add(outFile);
-					if (ze.isDirectory()) {
-						outFile.mkdirs();
-					} else {
-						if (outFile.exists()) {
-							if (store != null)
-								store.backup(outFile);
-							else
-								outFile.delete();
+						File outFile = new File(outputDir, name);
+						unzippedFiles.add(outFile);
+						if (ze.isDirectory()) {
+							outFile.mkdirs();
 						} else {
-							outFile.getParentFile().mkdirs();
+							if (outFile.exists()) {
+								if (store != null)
+									store.backup(outFile);
+								else
+									outFile.delete();
+							} else {
+								outFile.getParentFile().mkdirs();
+							}
+							try {
+								copyStream(in, false, new FileOutputStream(outFile), true);
+							} catch (FileNotFoundException e) {
+								// TEMP: ignore this for now in case we're trying to replace
+								// a running eclipse.exe
+							}
+							outFile.setLastModified(ze.getTime());
 						}
-						try {
-							copyStream(in, false, new FileOutputStream(outFile), true);
-						} catch (FileNotFoundException e) {
-							// TEMP: ignore this for now in case we're trying to replace
-							// a running eclipse.exe
-						}
-						outFile.setLastModified(ze.getTime());
 					}
 				}
-			}
-			in.closeEntry();
-		} while ((ze = in.getNextEntry()) != null);
-		in.close();
+				in.closeEntry();
+			} while ((ze = in.getNextEntry()) != null);
+			return unzippedFiles.toArray(new File[unzippedFiles.size()]);
+		}
 
-		return unzippedFiles.toArray(new File[unzippedFiles.size()]);
 	}
 
 	/**

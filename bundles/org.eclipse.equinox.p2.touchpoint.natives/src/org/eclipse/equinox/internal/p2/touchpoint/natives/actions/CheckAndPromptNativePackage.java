@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2014 Rapicorp, Inc. and others.
+ *  Copyright (c) 2014, 2017 Rapicorp, Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -35,7 +35,7 @@ public class CheckAndPromptNativePackage extends ProvisioningAction {
 
 		if (distro == null || packageName == null || (versionComparator != null && packageVersion == null))
 			return new Status(IStatus.ERROR, Activator.ID, Messages.Incorrect_Command);
-		
+
 		distro = distro.toLowerCase();
 
 		//If we are not running the distro we are provisioning, do nothing and return
@@ -48,7 +48,7 @@ public class CheckAndPromptNativePackage extends ProvisioningAction {
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Find_status, distro));
 
 		try {
-			List<String> cmd = new ArrayList<String>(4);
+			List<String> cmd = new ArrayList<>(4);
 			cmd.add(SHELL);
 			cmd.add(scriptToExecute.getAbsolutePath());
 			cmd.add(packageName);
@@ -84,7 +84,7 @@ public class CheckAndPromptNativePackage extends ProvisioningAction {
 			if (scriptToExecute == null)
 				return false;
 
-			List<String> cmd = new ArrayList<String>(4);
+			List<String> cmd = new ArrayList<>(4);
 			cmd.add(SHELL);
 			cmd.add(scriptToExecute.getAbsolutePath());
 			int exitValue = new ProcessBuilder(cmd).start().waitFor();

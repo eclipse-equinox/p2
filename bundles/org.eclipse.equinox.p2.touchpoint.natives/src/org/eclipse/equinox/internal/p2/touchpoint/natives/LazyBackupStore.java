@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,6 @@ import java.io.IOException;
 /**
  * LazyBackupStore is a BackupStore that only instantiates a real backup store
  * when needed.
- * 
- *
  */
 public class LazyBackupStore implements IBackupStore {
 	private BackupStore delegate;
@@ -31,22 +29,26 @@ public class LazyBackupStore implements IBackupStore {
 		this.prefix = prefix;
 	}
 
+	@Override
 	public boolean backup(File file) throws IOException {
 		loadDelegate();
 		return delegate.backup(file);
 	}
 
+	@Override
 	public boolean backupDirectory(File file) throws IOException {
 		loadDelegate();
 		return delegate.backupDirectory(file);
 	}
 
+	@Override
 	public void discard() {
 		if (delegate == null)
 			return;
 		delegate.discard();
 	}
 
+	@Override
 	public void restore() throws IOException {
 		if (delegate == null)
 			return;
@@ -59,21 +61,25 @@ public class LazyBackupStore implements IBackupStore {
 		delegate = new BackupStore(null, prefix);
 	}
 
+	@Override
 	public String getBackupName() {
 		loadDelegate();
 		return delegate.getBackupName();
 	}
 
+	@Override
 	public boolean backupCopy(File file) throws IOException {
 		loadDelegate();
 		return delegate.backupCopy(file);
 	}
 
+	@Override
 	public void backupCopyAll(File file) throws IOException {
 		loadDelegate();
 		delegate.backupCopyAll(file);
 	}
 
+	@Override
 	public void backupAll(File file) throws IOException {
 		loadDelegate();
 		delegate.backupAll(file);

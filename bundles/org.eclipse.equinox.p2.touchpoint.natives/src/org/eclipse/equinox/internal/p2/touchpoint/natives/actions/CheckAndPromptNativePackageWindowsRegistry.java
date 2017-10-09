@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2015 SAP SE and others.
+ *  Copyright (c) 2015, 2017 SAP SE and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ public class CheckAndPromptNativePackageWindowsRegistry extends ProvisioningActi
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Find_status, WINDOWS_DISTRO));
 
 		try {
-			List<String> cmd = new ArrayList<String>(6);
+			List<String> cmd = new ArrayList<>(6);
 			cmd.add(SHELL);
 			cmd.add("/c"); //$NON-NLS-1$
 			cmd.add(scriptToExecute.getAbsolutePath());

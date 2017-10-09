@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2012 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ public class ChmodAction extends ProvisioningAction {
 	//	 N          Y		N		incorrect, missing the targetFolder
 	//	 N          N		Y               Y
 	//	 N          N		N
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		Object absoluteFiles = parameters.get(ActionConstants.PARM_ABSOLUTE_FILES); //String or String[] 
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
@@ -74,7 +75,7 @@ public class ChmodAction extends ProvisioningAction {
 	private void doChmod(String fileToChmod, String permissions, String optionsString) {
 		String options[] = null;
 		if (optionsString != null) {
-			ArrayList<String> collect = new ArrayList<String>();
+			ArrayList<String> collect = new ArrayList<>();
 			String r = optionsString.trim();
 			while (r.length() > 0) {
 				int spaceIdx = r.indexOf(' ');
@@ -96,6 +97,7 @@ public class ChmodAction extends ProvisioningAction {
 		chmod(fileToChmod, permissions, options);
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		//TODO: implement undo ??
 		return Status.OK_STATUS;
@@ -131,19 +133,12 @@ public class ChmodAction extends ProvisioningAction {
 	}
 
 	private void readOffStream(InputStream inputStream) {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		try {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 			while (reader.readLine() != null) {
 				// do nothing
 			}
 		} catch (IOException e) {
 			// ignore
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 	}
 }

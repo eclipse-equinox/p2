@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,10 +25,12 @@ public class CleanupcopyAction extends ProvisioningAction {
 
 	public static final String ACTION_CLEANUPCOPY = "cleanupcopy"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		return cleanupcopy(parameters, true);
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		return CopyAction.copy(parameters, false);
 	}
@@ -57,7 +59,7 @@ public class CleanupcopyAction extends ProvisioningAction {
 			return Status.OK_STATUS;
 
 		StringTokenizer tokenizer = new StringTokenizer(copied, ActionConstants.PIPE);
-		List<File> directories = new ArrayList<File>();
+		List<File> directories = new ArrayList<>();
 		while (tokenizer.hasMoreTokens()) {
 			String fileName = tokenizer.nextToken();
 			File file = new File(fileName);

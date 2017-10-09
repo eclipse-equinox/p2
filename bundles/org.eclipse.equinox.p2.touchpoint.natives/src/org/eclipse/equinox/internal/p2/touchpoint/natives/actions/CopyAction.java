@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import org.eclipse.osgi.util.NLS;
 public class CopyAction extends ProvisioningAction {
 	public static final String ID = "cp"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		return copy(parameters, true);
 	}
@@ -86,6 +87,7 @@ public class CopyAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		return CleanupcopyAction.cleanupcopy(parameters, false);
 	}
@@ -98,7 +100,7 @@ public class CopyAction extends ProvisioningAction {
 	 * @throws IOException
 	 */
 	private static File[] mergeCopy(File source, File target, boolean overwrite, IBackupStore backupStore) throws IOException {
-		ArrayList<File> copiedFiles = new ArrayList<File>();
+		ArrayList<File> copiedFiles = new ArrayList<>();
 		xcopy(copiedFiles, source, target, overwrite, backupStore);
 		return copiedFiles.toArray(new File[copiedFiles.size()]);
 	}

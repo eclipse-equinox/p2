@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2015 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ public class LinkAction extends ProvisioningAction {
 	public static final String ID = "ln"; //$NON-NLS-1$
 	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
 		if (targetDir == null)
@@ -46,6 +47,7 @@ public class LinkAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		if (WINDOWS)
 			return Status.OK_STATUS;
@@ -96,19 +98,12 @@ public class LinkAction extends ProvisioningAction {
 	}
 
 	private void readOffStream(InputStream inputStream) {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		try {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 			while (reader.readLine() != null) {
 				// do nothing
 			}
 		} catch (IOException e) {
 			// ignore
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 	}
 }

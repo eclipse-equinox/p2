@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -140,7 +140,7 @@ public class BackupStore implements IBackupStore {
 	 */
 	private boolean closed;
 
-	private Map<String, String> renamedInPlace = new HashMap<String, String>();
+	private Map<String, String> renamedInPlace = new HashMap<>();
 
 	/**
 	 * Generates a BackupStore with a default prefix of ".p2bu" for backup directory and
@@ -180,6 +180,7 @@ public class BackupStore implements IBackupStore {
 	 * must be closed if this instance is garbage collected and the user
 	 * of the instance has not either restored or discarded.
 	 */
+	@Override
 	protected void finalize() throws Throwable {
 		try {
 			if (socket != null && !socket.isClosed())
@@ -193,6 +194,7 @@ public class BackupStore implements IBackupStore {
 	 * Returns the unique backup name (this is the name of generated backup directories).
 	 * @return the backup name.
 	 */
+	@Override
 	public String getBackupName() {
 		return backupName;
 	}
@@ -223,6 +225,7 @@ public class BackupStore implements IBackupStore {
 	 * @throws ClosedBackupStoreException - if the BackupStore has been closed
 	 * @throws IllegalArgumentException - on type mismatch (file vs. directory) of earlier backup, or if file does not exist 
 	 */
+	@Override
 	public boolean backup(File file) throws IOException {
 		if (closed)
 			throw new ClosedBackupStoreException("Can not perform backup()"); //$NON-NLS-1$
@@ -331,6 +334,7 @@ public class BackupStore implements IBackupStore {
 	 * @param file - file to backup or directory
 	 * @throws IOException if backup operation failed
 	 */
+	@Override
 	public void backupAll(File file) throws IOException {
 		if (!file.exists())
 			return;
@@ -350,6 +354,7 @@ public class BackupStore implements IBackupStore {
 	 * @param file
 	 * @throws IOException
 	 */
+	@Override
 	public void backupCopyAll(File file) throws IOException {
 		if (!file.exists())
 			return;
@@ -391,6 +396,7 @@ public class BackupStore implements IBackupStore {
 	 * @throws ClosedBackupStoreException - if the BackupStore has been closed
 	 * @throws IllegalArgumentException - on type mismatch (file vs. directory) of earlier backup, or if file is a Directory
 	 */
+	@Override
 	public boolean backupCopy(File file) throws IOException {
 		if (closed)
 			throw new ClosedBackupStoreException(Messages.BackupStore_backupCopy_closed_store);
@@ -435,6 +441,7 @@ public class BackupStore implements IBackupStore {
 	 * @throws IllegalArgumentException if file is not a directory, or is not empty.
 	 * @throws IOException if directory can not be moved to the backup store, or if the directory is not writeable
 	 */
+	@Override
 	public boolean backupDirectory(File file) throws IOException {
 		if (!file.isDirectory())
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_not_a_directory, file.getAbsolutePath()));
@@ -476,12 +483,13 @@ public class BackupStore implements IBackupStore {
 	 * @throws IOException if the backup was not fully restored - unrestored items have been logged.
 	 * @throws ClosedBackupStoreException if the backup is already closed.
 	 */
+	@Override
 	public void restore() throws IOException {
 		if (closed)
 			throw new ClosedBackupStoreException(Messages.BackupStore_restore_closed_store);
 		// put back all files 
 		// collect things that could not be restored (so final status can be reported)
-		Set<File> unrestorable = new HashSet<File>();
+		Set<File> unrestorable = new HashSet<>();
 		boolean restored = true;
 		if (!backupRoot.exists()) {
 			logError(NLS.bind(Messages.BackupStore_missing_backup_directory, backupRoot.getAbsolutePath()));
@@ -509,6 +517,7 @@ public class BackupStore implements IBackupStore {
 	 * Discards and closes this BackupStore. Does nothing if this store is already
 	 * restored or discarded.
 	 */
+	@Override
 	public void discard() {
 		if (closed)
 			return;
