@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2017 Red Hat, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
-import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 
 /**
  * <p>
@@ -66,7 +65,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 	public RemediationOperation(ProvisioningSession session, IProfileChangeRequest originalRequest, RemedyConfig[] remedyConfigs) {
 		super(session);
 		this.originalRequest = originalRequest;
-		remedies = new ArrayList<Remedy>();
+		remedies = new ArrayList<>();
 		this.remedyConfigs = remedyConfigs;
 	}
 
@@ -101,7 +100,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 	private IStatus computeAllRemediations(IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, remedyConfigs.length);
 		sub.setTaskName(Messages.RemediationOperation_ProfileChangeRequestProgress);
-		List<Remedy> tmpRemedies = new ArrayList<Remedy>(remedyConfigs.length);
+		List<Remedy> tmpRemedies = new ArrayList<>(remedyConfigs.length);
 		try {
 			for (int i = 0; i < remedyConfigs.length; i++) {
 				sub.subTask((i + 1) + " / " + remedyConfigs.length); //$NON-NLS-1$
@@ -185,6 +184,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 		return Messages.RemediationOperation_RemediationJobName;
 	}
 
+	@Override
 	public ProvisioningJob getProvisioningJob(IProgressMonitor monitor) {
 		IStatus status = getResolutionResult();
 		if (status.getSeverity() != IStatus.CANCEL && status.getSeverity() != IStatus.ERROR) {
@@ -201,6 +201,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 		return (ProfileChangeRequest) originalRequest;
 	}
 
+	@Override
 	void makeResolveJob(final IProgressMonitor monitor) {
 		// throw away any previous requests
 		request = null;
@@ -209,17 +210,15 @@ public class RemediationOperation extends ProfileChangeOperation {
 		// for the resolution job to get the request from the operation after it has been
 		// computed.
 		final ProfileChangeRequest[] requestHolder = new ProfileChangeRequest[1];
-		job = new RemediationResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassEvaluator(), noChangeRequest, new IRunnableWithProgress() {
-			public void run(IProgressMonitor mon) throws OperationCanceledException {
-				SubMonitor sub = SubMonitor.convert(mon, 2);
-				// We only check for other jobs running if this job is *not* scheduled
-				if (job.getState() == Job.NONE && session.hasScheduledOperationsFor(profileId)) {
-					noChangeRequest.add(PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null));
-				} else {
-					sub.worked(1);
-					computeProfileChangeRequest(noChangeRequest, sub.newChild(1));
-					requestHolder[0] = RemediationOperation.this.request;
-				}
+		job = new RemediationResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassEvaluator(), noChangeRequest, mon -> {
+			SubMonitor sub = SubMonitor.convert(mon, 2);
+			// We only check for other jobs running if this job is *not* scheduled
+			if (job.getState() == Job.NONE && session.hasScheduledOperationsFor(profileId)) {
+				noChangeRequest.add(PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null));
+			} else {
+				sub.worked(1);
+				computeProfileChangeRequest(noChangeRequest, sub.newChild(1));
+				requestHolder[0] = RemediationOperation.this.request;
 			}
 		}, requestHolder, this);
 	}
@@ -232,7 +231,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 	}
 
 	private void computeRemedyDetails(Remedy remedy) {
-		ArrayList<String> updateIds = new ArrayList<String>();
+		ArrayList<String> updateIds = new ArrayList<>();
 		for (IInstallableUnit addedIU : remedy.getRequest().getAdditions()) {
 			for (IInstallableUnit removedIU : remedy.getRequest().getRemovals()) {
 				if (removedIU.getId().equals(addedIU.getId())) {

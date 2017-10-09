@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 
 /**
  * An UpdateOperation describes an operation that updates {@link IInstallableUnit}s in
@@ -68,7 +67,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	public static final int STATUS_NOTHING_TO_UPDATE = IStatusCodes.NOTHING_TO_UPDATE;
 
 	private Collection<IInstallableUnit> iusToUpdate;
-	private HashMap<IInstallableUnit, List<Update>> possibleUpdatesByIU = new HashMap<IInstallableUnit, List<Update>>();
+	private HashMap<IInstallableUnit, List<Update>> possibleUpdatesByIU = new HashMap<>();
 	private List<Update> defaultUpdates;
 
 	/**
@@ -103,7 +102,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * updates. 
 	 */
 	public void setSelectedUpdates(Update[] defaultUpdates) {
-		this.defaultUpdates = new ArrayList<Update>(Arrays.asList(defaultUpdates));
+		this.defaultUpdates = new ArrayList<>(Arrays.asList(defaultUpdates));
 	}
 
 	/**
@@ -126,7 +125,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * @return an array of all possible updates
 	 */
 	public Update[] getPossibleUpdates() {
-		ArrayList<Update> all = new ArrayList<Update>();
+		ArrayList<Update> all = new ArrayList<>();
 		for (List<Update> updates : possibleUpdatesByIU.values())
 			all.addAll(updates);
 		return all.toArray(new Update[all.size()]);
@@ -140,7 +139,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 		} else {
 			// We must consult the planner
 			IQueryResult<IInstallableUnit> replacements = session.getPlanner().updatesFor(iu, context, monitor);
-			updates = new ArrayList<Update>();
+			updates = new ArrayList<>();
 			for (Iterator<IInstallableUnit> replacementIterator = replacements.iterator(); replacementIterator.hasNext();) {
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=273967
 				// In the case of patches, it's possible that a patch is returned as an available update
@@ -158,16 +157,14 @@ public class UpdateOperation extends ProfileChangeOperation {
 		return updates.toArray(new Update[updates.size()]);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#computeProfileChangeRequest(org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		// Here we create a profile change request by finding the latest version available for any replacement, unless
 		// otherwise specified in the selections.
 		// We have to consider the scenario where the only updates available are patches, in which case the original
 		// IU should not be removed as part of the update.
-		Set<IInstallableUnit> toBeUpdated = new HashSet<IInstallableUnit>();
-		HashSet<Update> elementsToPlan = new HashSet<Update>();
+		Set<IInstallableUnit> toBeUpdated = new HashSet<>();
+		HashSet<Update> elementsToPlan = new HashSet<>();
 		boolean selectionSpecified = defaultUpdates != null;
 		IProfile profile = session.getProfileRegistry().getProfile(profileId);
 		if (profile == null)
@@ -192,7 +189,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 				// Patches are keyed by their id because they are unique and should not be compared to
 				// each other.  Updates are keyed by the IU they are updating so we can compare the
 				// versions and select the latest one
-				HashMap<String, Update> latestVersions = new HashMap<String, Update>();
+				HashMap<String, Update> latestVersions = new HashMap<>();
 				boolean foundUpdate = false;
 				boolean foundPatch = false;
 				for (int j = 0; j < updates.length; j++) {
@@ -212,7 +209,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 				// If there is a true update available, ignore any patches found
 				// Patches are keyed by their own id
 				if (foundPatch && foundUpdate) {
-					Set<String> keys = new HashSet<String>();
+					Set<String> keys = new HashSet<>();
 					keys.addAll(latestVersions.keySet());
 					for (String id : keys) {
 						// Get rid of things keyed by a different id.  We've already made sure
@@ -237,7 +234,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 		for (Update update : elementsToPlan) {
 			IInstallableUnit theUpdate = update.replacement;
 			if (defaultUpdates == null) {
-				defaultUpdates = new ArrayList<Update>();
+				defaultUpdates = new ArrayList<>();
 				defaultUpdates.add(update);
 			} else {
 				if (!defaultUpdates.contains(update))
@@ -255,24 +252,17 @@ public class UpdateOperation extends ProfileChangeOperation {
 		sub.done();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#getProvisioningJobName()
-	 */
+	@Override
 	protected String getProvisioningJobName() {
 		return Messages.UpdateOperation_UpdateJobName;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#getResolveJobName()
-	 */
+	@Override
 	protected String getResolveJobName() {
 		return Messages.UpdateOperation_ResolveJobName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#prepareToResolve()
-	 */
+	@Override
 	protected void prepareToResolve() {
 		super.prepareToResolve();
 		if (iusToUpdate == null) {
@@ -303,9 +293,8 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * Overridden to delay computation of the profile change request until the resolution
 	 * occurs.  This is done because computing the request is expensive (it involves searching
 	 * for updates).
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#makeResolveJob(org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@Override
 	void makeResolveJob(IProgressMonitor monitor) {
 		// throw away any previous requests
 		request = null;
@@ -314,15 +303,13 @@ public class UpdateOperation extends ProfileChangeOperation {
 		// for the resolution job to get the request from the operation after it has been
 		// computed.
 		final ProfileChangeRequest[] requestHolder = new ProfileChangeRequest[1];
-		job = new SearchForUpdatesResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassEvaluator(), noChangeRequest, new IRunnableWithProgress() {
-			public void run(IProgressMonitor mon) throws OperationCanceledException {
-				// We only check for other jobs running if this job is *not* scheduled
-				if (job.getState() == Job.NONE && session.hasScheduledOperationsFor(profileId)) {
-					noChangeRequest.add(PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null));
-				} else {
-					computeProfileChangeRequest(noChangeRequest, mon);
-					requestHolder[0] = UpdateOperation.this.request;
-				}
+		job = new SearchForUpdatesResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassEvaluator(), noChangeRequest, mon -> {
+			// We only check for other jobs running if this job is *not* scheduled
+			if (job.getState() == Job.NONE && session.hasScheduledOperationsFor(profileId)) {
+				noChangeRequest.add(PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null));
+			} else {
+				computeProfileChangeRequest(noChangeRequest, mon);
+				requestHolder[0] = UpdateOperation.this.request;
 			}
 		}, requestHolder, this);
 	}
@@ -332,9 +319,8 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * before we've computed the profile change request, so we must ensure that we
 	 * have already computed the profile change request.
 	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#hasResolved()
 	 */
+	@Override
 	public boolean hasResolved() {
 		return request != null && super.hasResolved();
 	}

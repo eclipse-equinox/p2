@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2017 Red Hat, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,10 +41,10 @@ public class RequestFlexer {
 
 	private ProvisioningContext provisioningContext;
 
-	Set<IRequirement> requirementsForElementsBeingInstalled = new HashSet<IRequirement>();
-	Set<IRequirement> requirementsForElementsAlreadyInstalled = new HashSet<IRequirement>();
-	Map<IRequirement, Map<String, String>> propertiesPerRequirement = new HashMap<IRequirement, Map<String, String>>();
-	Map<IRequirement, List<String>> removedPropertiesPerRequirement = new HashMap<IRequirement, List<String>>();
+	Set<IRequirement> requirementsForElementsBeingInstalled = new HashSet<>();
+	Set<IRequirement> requirementsForElementsAlreadyInstalled = new HashSet<>();
+	Map<IRequirement, Map<String, String>> propertiesPerRequirement = new HashMap<>();
+	Map<IRequirement, List<String>> removedPropertiesPerRequirement = new HashMap<>();
 
 	IProfile profile;
 
@@ -137,8 +137,8 @@ public class RequestFlexer {
 	private IProfileChangeRequest computeEffectiveChangeRequest(IProvisioningPlan intermediaryPlan, IProfileChangeRequest loosenedRequest, IProfileChangeRequest originalRequest) {
 		IProfileChangeRequest finalChangeRequest = planner.createChangeRequest(profile);
 		// We have the following two variables because a IPCRequest can not be muted
-		Set<IInstallableUnit> iusToAdd = new HashSet<IInstallableUnit>();
-		Set<IInstallableUnit> iusToRemove = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> iusToAdd = new HashSet<>();
+		Set<IInstallableUnit> iusToRemove = new HashSet<>();
 
 		for (IRequirement beingInstalled : requirementsForElementsBeingInstalled) {
 			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(beingInstalled.getMatches());
@@ -176,7 +176,7 @@ public class RequestFlexer {
 		iusToRemove.addAll(originalRequest.getRemovals());
 
 		//Remove entries that are both in the additions and removals (since this is a no-op)
-		HashSet<IInstallableUnit> commons = new HashSet<IInstallableUnit>(iusToAdd);
+		HashSet<IInstallableUnit> commons = new HashSet<>(iusToAdd);
 		if (commons.retainAll(iusToRemove)) {
 			iusToAdd.removeAll(commons);
 			iusToRemove.removeAll(commons);
@@ -248,11 +248,11 @@ public class RequestFlexer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requestedAdditions.size());
 		for (IInstallableUnit addedIU : requestedAdditions) {
 			SubMonitor iterationMonitor = subMonitor.split(1);
-			Collection<IInstallableUnit> potentialUpdates = allowDifferentVersion ? findAllVersionsAvailable(addedIU, iterationMonitor) : new ArrayList<IInstallableUnit>();
+			Collection<IInstallableUnit> potentialUpdates = allowDifferentVersion ? findAllVersionsAvailable(addedIU, iterationMonitor) : new ArrayList<>();
 			foundDifferentVersionsForElementsToInstall = (foundDifferentVersionsForElementsToInstall || (potentialUpdates.size() == 0 ? false : true));
 			potentialUpdates.add(addedIU); //Make sure that we include the IU that we were initially trying to install
 
-			Collection<IRequirement> newRequirement = new ArrayList<IRequirement>(1);
+			Collection<IRequirement> newRequirement = new ArrayList<>(1);
 			IRequirement req = createORRequirement(potentialUpdates, allowPartialInstall || isRequestedInstallationOptional(addedIU, originalRequest));
 			newRequirement.add(req);
 			newRequest.addExtraRequirements(newRequirement);
@@ -271,9 +271,9 @@ public class RequestFlexer {
 	//This keeps track for each requirement created (those created to loosen the constraint), of the original IU and the properties associated with it in the profile
 	//This is used for more easily construct the final profile change request
 	private void rememberIUProfileProperties(IInstallableUnit iu, IRequirement req, IProfileChangeRequest originalRequest, boolean includeProfile) {
-		Map<String, String> allProperties = new HashMap<String, String>();
+		Map<String, String> allProperties = new HashMap<>();
 		if (includeProfile) {
-			Map<String, String> tmp = new HashMap<String, String>(profile.getInstallableUnitProperties(iu));
+			Map<String, String> tmp = new HashMap<>(profile.getInstallableUnitProperties(iu));
 			List<String> propertiesToRemove = ((ProfileChangeRequest) originalRequest).getInstallableUnitProfilePropertiesToRemove().get(iu);
 			if (propertiesToRemove != null) {
 				for (String toRemove : propertiesToRemove) {
@@ -302,7 +302,7 @@ public class RequestFlexer {
 	}
 
 	private Collection<IInstallableUnit> findAllVersionsAvailable(IInstallableUnit iu, IProgressMonitor monitor) {
-		Collection<IInstallableUnit> allVersions = new HashSet<IInstallableUnit>();
+		Collection<IInstallableUnit> allVersions = new HashSet<>();
 		SubMonitor sub = SubMonitor.convert(monitor, 2);
 		allVersions.addAll(findIUsWithSameId(iu, sub.newChild(1)));
 		allVersions.addAll(findUpdates(iu, sub.newChild(1)));
@@ -317,7 +317,7 @@ public class RequestFlexer {
 
 	private Collection<IInstallableUnit> findUpdates(IInstallableUnit iu, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
-		Collection<IInstallableUnit> availableUpdates = new HashSet<IInstallableUnit>();
+		Collection<IInstallableUnit> availableUpdates = new HashSet<>();
 		IQueryResult<IInstallableUnit> updatesAvailable = planner.updatesFor(iu, provisioningContext, subMonitor.split(1));
 		for (Iterator<IInstallableUnit> iterator = updatesAvailable.iterator(); iterator.hasNext();) {
 			availableUpdates.add(iterator.next());
@@ -350,10 +350,10 @@ public class RequestFlexer {
 		Set<IInstallableUnit> allRoots = getRoots();
 
 		for (IInstallableUnit existingIU : allRoots) {
-			Collection<IInstallableUnit> potentialUpdates = allowInstalledUpdate ? findUpdates(existingIU, monitor) : new HashSet<IInstallableUnit>();
+			Collection<IInstallableUnit> potentialUpdates = allowInstalledUpdate ? findUpdates(existingIU, monitor) : new HashSet<>();
 			foundDifferentVersionsForElementsInstalled = (foundDifferentVersionsForElementsInstalled || (potentialUpdates.size() == 0 ? false : true));
 			potentialUpdates.add(existingIU);
-			Collection<IRequirement> newRequirement = new ArrayList<IRequirement>(1);
+			Collection<IRequirement> newRequirement = new ArrayList<>(1);
 			//when the element is requested for removal or is installed optionally we make sure to mark it optional, otherwise the removal woudl fail
 			IRequirement req = createORRequirement(potentialUpdates, allowInstalledRemoval || removalRequested(existingIU, originalRequest) || isOptionallyInstalled(existingIU, originalRequest));
 			newRequirement.add(req);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -353,10 +353,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		return context;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.IProfileChangeJob#getProfileId()
-	 */
+	@Override
 	public String getProfileId() {
 		return profileId;
 	}
@@ -380,15 +377,11 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	}
 
 	IFailedStatusEvaluator getSecondPassEvaluator() {
-		return new IFailedStatusEvaluator() {
-			public ProvisioningContext getSecondPassProvisioningContext(IProvisioningPlan failedPlan) {
-				return null;
-			}
-		};
+		return failedPlan -> null;
 	}
 
-	protected void updateJobProvisioningContexts(PlannerResolutionJob job, ProvisioningContext context) {
-		job.setFirstPassProvisioningContext(context);
+	protected void updateJobProvisioningContexts(PlannerResolutionJob resolutionJob, ProvisioningContext provisioningContext) {
+		resolutionJob.setFirstPassProvisioningContext(provisioningContext);
 	}
 
 }

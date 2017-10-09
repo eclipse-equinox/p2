@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,10 +66,7 @@ public class InstallOperation extends ProfileChangeOperation {
 		this.toInstall = toInstall;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#computeProfileChangeRequest(org.eclipse.core.runtime.MultiStatus, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		request = ProfileChangeRequest.createByProfileId(session.getProvisioningAgent(), profileId);
 		IProfile profile = session.getProfileRegistry().getProfile(profileId);
@@ -146,16 +143,12 @@ public class InstallOperation extends ProfileChangeOperation {
 			request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#getResolveJobName()
-	 */
+	@Override
 	protected String getResolveJobName() {
 		return Messages.InstallOperation_ResolveJobName;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#getProvisioningJobName()
-	 */
+	@Override
 	protected String getProvisioningJobName() {
 		return Messages.InstallOperation_InstallJobName;
 
@@ -170,14 +163,12 @@ public class InstallOperation extends ProfileChangeOperation {
 
 	@Override
 	IFailedStatusEvaluator getSecondPassEvaluator() {
-		return new IFailedStatusEvaluator() {
-			public ProvisioningContext getSecondPassProvisioningContext(IProvisioningPlan failedPlan) {
-				// Follow metadata repository references if the first try fails
-				// There should be real API for this!
-				if (missingRequirement(failedPlan))
-					context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, Boolean.toString(true));
-				return context;
-			}
+		return failedPlan -> {
+			// Follow metadata repository references if the first try fails
+			// There should be real API for this!
+			if (missingRequirement(failedPlan))
+				context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, Boolean.toString(true));
+			return context;
 		};
 	}
 

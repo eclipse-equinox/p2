@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011 Sonatype, Inc. and others.
+ *  Copyright (c) 2011, 2017 Sonatype, Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -47,10 +47,7 @@ public class SynchronizeOperation extends InstallOperation {
 		super(session, toInstall);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#computeProfileChangeRequest(org.eclipse.core.runtime.MultiStatus, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		request = ProfileChangeRequest.createByProfileId(session.getProvisioningAgent(), profileId);
 		IProfile profile;

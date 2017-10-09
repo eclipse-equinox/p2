@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011 Sonatype, Inc. and others.
+ *  Copyright (c) 2011, 2017 Sonatype, Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -51,7 +51,7 @@ public class OperationFactory {
 
 	//Return a list of IUs from the list of versionedIDs originally provided
 	private Collection<IInstallableUnit> gatherIUs(IQueryable<IInstallableUnit> searchContext, Collection<? extends IVersionedId> ius, boolean checkIUs, IProgressMonitor monitor) throws ProvisionException {
-		Collection<IInstallableUnit> gatheredIUs = new ArrayList<IInstallableUnit>(ius.size());
+		Collection<IInstallableUnit> gatheredIUs = new ArrayList<>(ius.size());
 
 		for (IVersionedId versionedId : ius) {
 			if (!checkIUs && versionedId instanceof IInstallableUnit) {
@@ -134,7 +134,7 @@ public class OperationFactory {
 		IProfileRegistry registry = (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
 		if (profile == null)
-			return new CollectionResult<IInstallableUnit>(null);
+			return new CollectionResult<>(null);
 		if (rootsOnly)
 			return profile.query(new UserVisibleRootQuery(), monitor);
 		return profile.query(QueryUtil.ALL_UNITS, monitor);

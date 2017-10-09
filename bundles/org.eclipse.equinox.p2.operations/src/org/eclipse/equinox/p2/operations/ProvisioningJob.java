@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.operations.Activator;
 import org.eclipse.equinox.internal.p2.operations.Messages;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -40,54 +39,64 @@ public abstract class ProvisioningJob extends Job {
 			additionalMonitor = monitor2;
 		}
 
+		@Override
 		public void beginTask(String name, int totalWork) {
 			super.beginTask(name, totalWork);
 			additionalMonitor.beginTask(name, totalWork);
 		}
 
+		@Override
 		public void clearBlocked() {
 			super.clearBlocked();
 			if (additionalMonitor instanceof IProgressMonitorWithBlocking)
 				((IProgressMonitorWithBlocking) additionalMonitor).clearBlocked();
 		}
 
+		@Override
 		public void done() {
 			super.done();
 			additionalMonitor.done();
 		}
 
+		@Override
 		public void internalWorked(double work) {
 			super.internalWorked(work);
 			additionalMonitor.internalWorked(work);
 		}
 
+		@Override
 		public boolean isCanceled() {
 			if (super.isCanceled())
 				return true;
 			return additionalMonitor.isCanceled();
 		}
 
+		@Override
 		public void setBlocked(IStatus reason) {
 			super.setBlocked(reason);
 			if (additionalMonitor instanceof IProgressMonitorWithBlocking)
 				((IProgressMonitorWithBlocking) additionalMonitor).setBlocked(reason);
 		}
 
+		@Override
 		public void setCanceled(boolean b) {
 			super.setCanceled(b);
 			additionalMonitor.setCanceled(b);
 		}
 
+		@Override
 		public void setTaskName(String name) {
 			super.setTaskName(name);
 			additionalMonitor.setTaskName(name);
 		}
 
+		@Override
 		public void subTask(String name) {
 			super.subTask(name);
 			additionalMonitor.subTask(name);
 		}
 
+		@Override
 		public void worked(int work) {
 			super.worked(work);
 			additionalMonitor.worked(work);
@@ -170,6 +179,7 @@ public abstract class ProvisioningJob extends Job {
 	 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
 	 * 
 	 */
+	@Override
 	public final IStatus run(IProgressMonitor monitor) {
 		IProgressMonitor wrappedMonitor = getCombinedProgressMonitor(monitor, additionalMonitor);
 		IStatus status = Status.OK_STATUS;

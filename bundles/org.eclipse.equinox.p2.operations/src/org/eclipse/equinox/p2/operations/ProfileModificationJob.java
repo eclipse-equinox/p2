@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -55,18 +55,12 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 		this.phaseSet = phaseSet;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.IProfileChangeJob#getProfileId()
-	 */
+	@Override
 	public String getProfileId() {
 		return profileId;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProvisioningJob#runModal(org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	public IStatus runModal(IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
@@ -92,10 +86,7 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 		this.taskName = label;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProvisioningJob#getRestartPolicy()
-	 */
+	@Override
 	public int getRestartPolicy() {
 		//if we are installing into self we must always use the restart policy
 		if (IProfileRegistry.SELF.equals(profileId))

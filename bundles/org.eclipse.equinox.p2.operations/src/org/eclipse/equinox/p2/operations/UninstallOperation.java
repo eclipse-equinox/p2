@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,8 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.operations.IFailedStatusEvaluator;
 import org.eclipse.equinox.internal.p2.operations.Messages;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
@@ -55,9 +56,7 @@ public class UninstallOperation extends ProfileChangeOperation {
 		this.toUninstall = toUninstall;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#computeProfileChangeRequest(org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		request = ProfileChangeRequest.createByProfileId(session.getProvisioningAgent(), profileId);
 		request.removeAll(toUninstall);
@@ -71,16 +70,12 @@ public class UninstallOperation extends ProfileChangeOperation {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#getProvisioningJobName()
-	 */
+	@Override
 	protected String getProvisioningJobName() {
 		return Messages.UninstallOperation_ProvisioningJobName;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#getResolveJobName()
-	 */
+	@Override
 	protected String getResolveJobName() {
 		return Messages.UninstallOperation_ResolveJobName;
 	}
@@ -95,10 +90,6 @@ public class UninstallOperation extends ProfileChangeOperation {
 
 	@Override
 	IFailedStatusEvaluator getSecondPassEvaluator() {
-		return new IFailedStatusEvaluator() {
-			public ProvisioningContext getSecondPassProvisioningContext(IProvisioningPlan failedPlan) {
-				return context;
-			}
-		};
+		return failedPlan -> context;
 	}
 }
