@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2016 IBM Corporation and others.
+ *  Copyright (c) 2007, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -42,7 +42,7 @@ public class UpdateChecker implements IUpdateChecker {
 	/**
 	 * Map of IUpdateListener->UpdateCheckThread.
 	 */
-	private HashMap<IUpdateListener, UpdateCheckThread> checkers = new HashMap<IUpdateListener, UpdateCheckThread>();
+	private HashMap<IUpdateListener, UpdateCheckThread> checkers = new HashMap<>();
 
 	private final IProvisioningAgent agent;
 	IProfileRegistry profileRegistry;
@@ -63,6 +63,7 @@ public class UpdateChecker implements IUpdateChecker {
 			this.listener = listener;
 		}
 
+		@Override
 		public void run() {
 			try {
 				if (delay != ONE_TIME_CHECK && delay > 0) {
@@ -98,9 +99,7 @@ public class UpdateChecker implements IUpdateChecker {
 		this.agent = agent;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#addUpdateCheck(java.lang.String, long, long, org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
-	 */
+	@Override
 	public void addUpdateCheck(String profileId, IQuery<IInstallableUnit> query, long delay, long poll, IUpdateListener listener) {
 		if (checkers.containsKey(listener))
 			return;
@@ -110,9 +109,7 @@ public class UpdateChecker implements IUpdateChecker {
 		thread.start();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#removeUpdateCheck(org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
-	 */
+	@Override
 	public void removeUpdateCheck(IUpdateListener listener) {
 		checkers.remove(listener);
 	}
@@ -123,7 +120,7 @@ public class UpdateChecker implements IUpdateChecker {
 	 */
 	Collection<IInstallableUnit> checkForUpdates(String profileId, IQuery<IInstallableUnit> query) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
-		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<>();
 		if (profile == null)
 			return Collections.<IInstallableUnit> emptyList();
 		ProvisioningContext context = new ProvisioningContext(agent);
@@ -146,7 +143,7 @@ public class UpdateChecker implements IUpdateChecker {
 	private URI[] getAvailableRepositories() {
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		URI[] repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		ArrayList<URI> available = new ArrayList<URI>();
+		ArrayList<URI> available = new ArrayList<>();
 		for (int i = 0; i < repositories.length; i++) {
 			try {
 				repoMgr.loadRepository(repositories[i], null);
