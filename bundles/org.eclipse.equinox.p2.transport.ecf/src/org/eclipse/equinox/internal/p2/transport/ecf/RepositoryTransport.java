@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2016 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -14,7 +14,8 @@ package org.eclipse.equinox.internal.p2.transport.ecf;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
@@ -26,7 +27,8 @@ import org.eclipse.equinox.internal.p2.repository.Messages;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
-import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.osgi.util.NLS;
@@ -65,6 +67,7 @@ public class RepositoryTransport extends Transport {
 		this.agent = agent;
 	}
 
+	@Override
 	public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
 
 		boolean promptUser = false;
@@ -85,14 +88,12 @@ public class RepositoryTransport extends Transport {
 						eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 						if (eventBus != null) {
 							final FileReader fileReader = reader;
-							listener = new ProvisioningListener() {
-								public void notify(EventObject event) {
-									if (event instanceof DownloadPauseResumeEvent) {
-										if (((DownloadPauseResumeEvent) event).getType() == DownloadPauseResumeEvent.TYPE_PAUSE)
-											fileReader.pause();
-										else if (((DownloadPauseResumeEvent) event).getType() == DownloadPauseResumeEvent.TYPE_RESUME)
-											fileReader.resume();
-									}
+							listener = event -> {
+								if (event instanceof DownloadPauseResumeEvent) {
+									if (((DownloadPauseResumeEvent) event).getType() == DownloadPauseResumeEvent.TYPE_PAUSE)
+										fileReader.pause();
+									else if (((DownloadPauseResumeEvent) event).getType() == DownloadPauseResumeEvent.TYPE_RESUME)
+										fileReader.resume();
 								}
 							};
 							eventBus.addListener(listener);
@@ -152,10 +153,12 @@ public class RepositoryTransport extends Transport {
 		return statusOn(target, status, null);
 	}
 
+	@Override
 	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
 		return download(toDownload, target, -1, monitor);
 	}
 
+	@Override
 	public InputStream stream(URI toDownload, IProgressMonitor monitor) throws FileNotFoundException, CoreException, AuthenticationFailedException {
 
 		boolean promptUser = false;
@@ -216,6 +219,7 @@ public class RepositoryTransport extends Transport {
 		return status;
 	}
 
+	@Override
 	public long getLastModified(URI toDownload, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		boolean promptUser = false;
 		boolean useJREHttp = false;
@@ -276,7 +280,7 @@ public class RepositoryTransport extends Transport {
 					if (retry > 0) {
 						Integer retryCount = null;
 						if (socketExceptionRetry == null) {
-							socketExceptionRetry = new HashMap<URI, Integer>();
+							socketExceptionRetry = new HashMap<>();
 							retryCount = Integer.valueOf(1);
 						} else {
 							Integer alreadyRetryCount = socketExceptionRetry.get(toDownload);
@@ -331,7 +335,8 @@ public class RepositoryTransport extends Transport {
 
 		return new DownloadStatus(IStatus.ERROR, Activator.ID, provisionCode, //
 				code == 0 ? NLS.bind(Messages.io_failedRead, toDownload) //
-						: RepositoryStatus.codeToMessage(code, toDownload.toString()), t);
+						: RepositoryStatus.codeToMessage(code, toDownload.toString()),
+				t);
 	}
 
 }

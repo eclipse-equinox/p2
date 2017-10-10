@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015, IBM Corporation, and others.
+ * Copyright (c) 2009, 2017 IBM Corporation, and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -44,9 +44,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	private IRemoteFile[] remoteFiles;
 	private IRemoteFileSystemRequest browseRequest;
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
-	 */
+	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		synchronized (barrier) {
 			while (barrier[0] == null) {
@@ -135,6 +133,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 		return file.getInfo().getLastModified();
 	}
 
+	@Override
 	public void handleRemoteFileEvent(IRemoteFileSystemEvent event) {
 		exception = event.getException();
 		if (exception != null) {

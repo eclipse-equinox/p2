@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2016 Cloudsmith Inc.
+ * Copyright (c) 2006, 2017 Cloudsmith Inc.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -47,10 +47,12 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			super(monitor, ticks);
 		}
 
+		@Override
 		public void setBlocked(IStatus reason) {
 			//do nothing
 		}
 
+		@Override
 		public void clearBlocked() {
 			//do nothing
 		}
@@ -67,7 +69,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	}
 
 	static {
-		Map<String, String> extraRequestHeaders = new HashMap<String, String>(1);
+		Map<String, String> extraRequestHeaders = new HashMap<>(1);
 		String userAgent = null;
 		String javaSpec = getProperty("java.runtime.version", "unknownJava"); //$NON-NLS-1$//$NON-NLS-2$
 		String javaVendor = getProperty("java.vendor", "unknownJavaVendor");//$NON-NLS-1$//$NON-NLS-2$
@@ -76,7 +78,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		String language = getProperty("osgi.nl", "unknownLanguage");//$NON-NLS-1$//$NON-NLS-2$
 		String osVersion = getProperty("org.osgi.framework.os.version", "unknownOSVersion"); //$NON-NLS-1$ //$NON-NLS-2$
 		String p2Version = FrameworkUtil.getBundle(FileReader.class).getVersion().toString();
-		userAgent = "p2/" + p2Version + " (Java " + javaSpec + ' ' + javaVendor + "; " + osName + ' ' + osVersion + ' ' + osgiArch + "; " + language + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		userAgent = "p2/" + p2Version + " (Java " + javaSpec + ' ' + javaVendor + "; " + osName + ' ' + osVersion + ' ' + osgiArch + "; " + language + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		String userAgentProvided = getProperty("p2.userAgent", null); //$NON-NLS-1$
 		if (userAgentProvided == null) {
 			String productId = getProperty("eclipse.product", "unknownProduct"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -87,7 +89,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			userAgent += userAgentProvided;
 		}
 		extraRequestHeaders.put("User-Agent", userAgent); //$NON-NLS-1$
-		options = new HashMap<String, Map<String, String>>(1);
+		options = new HashMap<>(1);
 		options.put(org.eclipse.ecf.filetransfer.IRetrieveFileTransferOptions.REQUEST_HEADERS, extraRequestHeaders);
 	}
 
@@ -145,6 +147,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			setSystem(true);
 		}
 
+		@Override
 		public IStatus run(IProgressMonitor jobMonitor) {
 			while (!done && !jobMonitor.isCanceled()) {
 				try {
@@ -159,6 +162,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			return Status.OK_STATUS;
 		}
 
+		@Override
 		protected void canceling() {
 			//wake up from sleep in run method
 			Thread t = getThread();
@@ -168,6 +172,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	}
 
+	@Override
 	public synchronized void handleTransferEvent(IFileTransferEvent event) {
 		if (event instanceof IFileTransferConnectStartEvent) {
 			// keep the connect event to be able to cancel the transfer
@@ -278,44 +283,53 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		sendRetrieveRequest(url, output, null, true, monitor);
 
 		return new InputStream() {
+			@Override
 			public int available() throws IOException {
 				checkException();
 				return input.available();
 			}
 
+			@Override
 			public void close() throws IOException {
 				hardClose(input);
 				checkException();
 			}
 
+			@Override
 			public void mark(int readlimit) {
 				input.mark(readlimit);
 			}
 
+			@Override
 			public boolean markSupported() {
 				return input.markSupported();
 			}
 
+			@Override
 			public int read() throws IOException {
 				checkException();
 				return input.read();
 			}
 
+			@Override
 			public int read(byte b[]) throws IOException {
 				checkException();
 				return input.read(b);
 			}
 
+			@Override
 			public int read(byte b[], int off, int len) throws IOException {
 				checkException();
 				return input.read(b, off, len);
 			}
 
+			@Override
 			public void reset() throws IOException {
 				checkException();
 				input.reset();
 			}
 
+			@Override
 			public long skip(long n) throws IOException {
 				checkException();
 				return input.skip(n);
@@ -348,6 +362,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		readInto(uri, anOutputStream, -1, monitor);
 	}
 
+	@Override
 	public boolean belongsTo(Object family) {
 		return family == this;
 	}
@@ -532,10 +547,12 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			startPosition = startPos;
 		}
 
+		@Override
 		public long getEndPosition() {
 			return -1;
 		}
 
+		@Override
 		public long getStartPosition() {
 			return startPosition;
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2017 Cloudsmith Inc and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -42,11 +42,13 @@ public class Activator implements BundleActivator {
 	// The shared instance
 	private static Activator plugin;
 
+	@Override
 	public void start(BundleContext aContext) throws Exception {
 		Activator.context = aContext;
 		Activator.plugin = this;
 	}
 
+	@Override
 	public void stop(BundleContext aContext) throws Exception {
 		Activator.context = null;
 		Activator.plugin = null;
@@ -130,7 +132,7 @@ public class Activator implements BundleActivator {
 	 */
 	private synchronized ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> getFileTransferServiceTracker() {
 		if (retrievalFactoryTracker == null) {
-			retrievalFactoryTracker = new ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory>(Activator.getContext(), IRetrieveFileTransferFactory.class, null);
+			retrievalFactoryTracker = new ServiceTracker<>(Activator.getContext(), IRetrieveFileTransferFactory.class, null);
 			retrievalFactoryTracker.open();
 			startBundle("org.eclipse.ecf"); //$NON-NLS-1$
 			startBundle("org.eclipse.ecf.provider.filetransfer"); //$NON-NLS-1$
@@ -140,7 +142,7 @@ public class Activator implements BundleActivator {
 
 	private IFileTransferProtocolToFactoryMapper getProtocolToFactoryMapper() {
 		if (protocolToFactoryMapperTracker == null) {
-			protocolToFactoryMapperTracker = new ServiceTracker<IFileTransferProtocolToFactoryMapper, IFileTransferProtocolToFactoryMapper>(context, IFileTransferProtocolToFactoryMapper.class, null);
+			protocolToFactoryMapperTracker = new ServiceTracker<>(context, IFileTransferProtocolToFactoryMapper.class, null);
 			protocolToFactoryMapperTracker.open();
 		}
 		return protocolToFactoryMapperTracker.getService();
