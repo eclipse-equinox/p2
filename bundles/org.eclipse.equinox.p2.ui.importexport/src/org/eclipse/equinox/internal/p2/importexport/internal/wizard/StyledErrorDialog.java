@@ -23,8 +23,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.accessibility.AccessibleAdapter;
-import org.eclipse.swt.accessibility.AccessibleEvent;
+import org.eclipse.swt.accessibility.AccessibleListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.*;
@@ -140,16 +139,13 @@ public class StyledErrorDialog extends MessageDialog {
 	}
 
 	private void addAccessibleListeners(Label label, final Image image) {
-		label.getAccessible().addAccessibleListener(new AccessibleAdapter() {
-			@Override
-			public void getName(AccessibleEvent event) {
-				final String accessibleMessage = getAccessibleMessageFor(image);
-				if (accessibleMessage == null) {
-					return;
-				}
-				event.result = accessibleMessage;
+		label.getAccessible().addAccessibleListener(AccessibleListener.getNameAdapter(event -> {
+			final String accessibleMessage = getAccessibleMessageFor(image);
+			if (accessibleMessage == null) {
+				return;
 			}
-		});
+			event.result = accessibleMessage;
+		}));
 	}
 
 	private String getAccessibleMessageFor(Image image) {

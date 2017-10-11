@@ -97,8 +97,8 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 						if (planSelections.length == 0) {
 							operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent), new ArrayList<IInstallableUnit>()) {
 								@Override
-								protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
-									monitor.done();
+								protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor progressMonitor) {
+									progressMonitor.done();
 								}
 
 								@Override
@@ -117,18 +117,17 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 						throw new InterruptedException();
 					if (operation.resolveModal(sub.newChild(200)).getSeverity() == IStatus.CANCEL)
 						throw new InterruptedException();
-					else {
-						if (withRemediation) {
-							IStatus status = operation.getResolutionResult();
-							if (remediationPage != null && shouldRemediate(status)) {
-								computeRemediationOperation(operation, ui, monitor);
-							}
+					if (withRemediation) {
+						IStatus status = operation.getResolutionResult();
+						if (remediationPage != null && shouldRemediate(status)) {
+							computeRemediationOperation(operation, ui, monitor);
 						}
 					}
 					Display.getDefault().asyncExec(() -> planChanged());
 				});
 			} catch (InterruptedException e) {
 				operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent), new ArrayList<IInstallableUnit>()) {
+
 					@Override
 					public IStatus getResolutionResult() {
 						return Status.CANCEL_STATUS;
