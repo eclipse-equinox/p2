@@ -30,7 +30,7 @@ public class ProvisioningWizardDialog extends WizardDialog {
 	public ProvisioningWizardDialog(Shell parent, ProvisioningOperationWizard wizard) {
 		super(parent, wizard);
 		this.wizard = wizard;
-		setShellStyle(SWT.RESIZE | SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
+		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
 		setBlockOnOpen(false);
 	}
 
