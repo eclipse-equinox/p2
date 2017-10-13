@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Lars Vogel <Lars.Vogel@vogella.com> - Bug 506432
  ******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui.dialogs;
@@ -30,8 +29,7 @@ public class ProvisioningWizardDialog extends WizardDialog {
 	public ProvisioningWizardDialog(Shell parent, ProvisioningOperationWizard wizard) {
 		super(parent, wizard);
 		this.wizard = wizard;
-		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
-		setBlockOnOpen(false);
+		setShellStyle(getShellStyle() | SWT.RESIZE);
 	}
 
 	@Override
