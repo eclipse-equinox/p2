@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 IBM Corporation and others.
+ * Copyright (c) 2009, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
  *     Red Hat Inc. - Bug 460967
- *     Lars Vogel <Lars.Vogel@vogella.com> - Bug 506432
  ******************************************************************************/
 
 package org.eclipse.equinox.p2.ui;
@@ -35,7 +34,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.*;
@@ -223,15 +221,6 @@ public class ProvisioningUI {
 	public int openInstallWizard(Collection<IInstallableUnit> initialSelections, InstallOperation operation, RemediationOperation remediationOperation, LoadMetadataRepositoryJob job) {
 		if (operation == null) {
 			InstallWizard wizard = new InstallWizard(this, operation, initialSelections, job);
-			// check if provitiondialog is already open and give focus to it, if that is the case
-			Shell[] shells = Display.getCurrent().getShells();
-			for (Shell shell : shells) {
-				if (shell.getData() instanceof ProvisioningWizardDialog) {
-					shell.forceActive();
-					shell.setFocus();
-					return Window.OK;
-				}
-			}
 			WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 			dialog.create();
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);
