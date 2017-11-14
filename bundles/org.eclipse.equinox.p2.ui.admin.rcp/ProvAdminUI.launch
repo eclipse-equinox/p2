@@ -43,7 +43,6 @@
 <mapEntry key="org.eclipse.osgi/resolver/debug" value="false"/>
 <mapEntry key="org.eclipse.team.core/refreshjob" value="false"/>
 <mapEntry key="org.eclipse.jface.text/debug/AbstractInformationControlManager" value="false"/>
-<mapEntry key="org.eclipse.update.core/debug/installhandler" value="false"/>
 <mapEntry key="org.eclipse.ui/debug" value="false"/>
 <mapEntry key="org.eclipse.help.ui/debug/infopop" value="false"/>
 <mapEntry key="org.eclipse.pde.core/classpath" value="false"/>
@@ -55,7 +54,6 @@
 <mapEntry key="org.eclipse.debug.core/debug/commands" value="false"/>
 <mapEntry key="org.eclipse.team.core/threading" value="false"/>
 <mapEntry key="org.eclipse.ui/perf/workbench.restore" value="30000"/>
-<mapEntry key="org.eclipse.update.core/debug/parsing" value="false"/>
 <mapEntry key="org.eclipse.jdt.core/debug/postaction" value="false"/>
 <mapEntry key="org.eclipse.jdt.apt.core/debug/generatedFileMaps" value="false"/>
 <mapEntry key="org.eclipse.ui/trace/graphics" value="false"/>
@@ -72,7 +70,6 @@
 <mapEntry key="org.eclipse.jdt.ui/perf/search/participants" value="300"/>
 <mapEntry key="org.eclipse.ecf.filetransfer/debug/exceptions/throwing" value="false"/>
 <mapEntry key="org.eclipse.ui/perf/perspective.create" value="800"/>
-<mapEntry key="org.eclipse.update.core/debug/type" value="false"/>
 <mapEntry key="org.eclipse.osgi/eclipseadaptor/debug/platformadmin" value="false"/>
 <mapEntry key="org.eclipse.ui/listeners/IWorkbenchPage.IPropertyChangeListener" value="false"/>
 <mapEntry key="org.eclipse.osgi/resolver/generics" value="false"/>
@@ -100,7 +97,6 @@
 <mapEntry key="org.eclipse.ui/listeners/IWorkbenchWindow.IPageListener" value="false"/>
 <mapEntry key="org.eclipse.core.resources/contenttype/cache" value="false"/>
 <mapEntry key="org.eclipse.core.jobs/jobs/locks" value="false"/>
-<mapEntry key="org.eclipse.update.core/debug/configuration" value="false"/>
 <mapEntry key="org.eclipse.ecf/debug" value="true"/>
 <mapEntry key="org.eclipse.core.runtime/url/debug/connect" value="false"/>
 <mapEntry key="org.eclipse.ui/trace/handlers.verbose.commandId" value=""/>
@@ -133,7 +129,6 @@
 <mapEntry key="org.eclipse.equinox.p2.core/artifacts/mirrors" value="true"/>
 <mapEntry key="org.eclipse.ui/perf/part.activate" value="200"/>
 <mapEntry key="org.eclipse.ecf.filetransfer/debug/methods/exiting" value="false"/>
-<mapEntry key="org.eclipse.update.core/debug" value="true"/>
 <mapEntry key="org.eclipse.osgi/debug/security" value="false"/>
 <mapEntry key="org.eclipse.core.resources/build/needbuild" value="false"/>
 <mapEntry key="org.eclipse.core.resources/restore/metainfo" value="false"/>
@@ -176,7 +171,6 @@
 <mapEntry key="org.eclipse.ui/listeners/IWorkbenchPage.IPartListener2" value="false"/>
 <mapEntry key="org.eclipse.ui/trace/operations" value="false"/>
 <mapEntry key="org.eclipse.ui.ide/debug/markers" value="false"/>
-<mapEntry key="org.eclipse.update.core/debug/install" value="false"/>
 <mapEntry key="org.eclipse.equinox.registry/debug/events" value="false"/>
 <mapEntry key="org.eclipse.equinox.p2.garbagecollector/debug" value="false"/>
 <mapEntry key="org.eclipse.core.resources/save/metainfo" value="false"/>
@@ -232,7 +226,6 @@
 <mapEntry key="org.eclipse.jdt.core/debug/javadelta/verbose" value="false"/>
 <mapEntry key="org.eclipse.core.resources/save/tree" value="false"/>
 <mapEntry key="org.eclipse.ui/debug/contributions" value="false"/>
-<mapEntry key="org.eclipse.update.core/debug/warning" value="false"/>
 <mapEntry key="org.eclipse.core.resources/natures" value="false"/>
 <mapEntry key="org.eclipse.equinox.p2.core/metadata/parsing" value="true"/>
 <mapEntry key="org.eclipse.jdt.core.manipulation/debug" value="true"/>
@@ -252,7 +245,6 @@
 <mapEntry key="org.eclipse.jdt.apt.core/debug/compilationEnv" value="false"/>
 <mapEntry key="org.eclipse.core.runtime/compatibility/debug" value="false"/>
 <mapEntry key="org.eclipse.ui/debug/declaredImages" value="false"/>
-<mapEntry key="org.eclipse.update.core/debug/reconciler" value="false"/>
 <mapEntry key="org.eclipse.ecf.identity/debug/methods/entering" value="false"/>
 <mapEntry key="org.eclipse.ui.ide/debug/gc" value="false"/>
 <mapEntry key="org.eclipse.debug.ui/debug/viewers/contentProvider" value="false"/>
@@ -265,7 +257,6 @@
 <mapEntry key="org.eclipse.jdt.core/debug/zipaccess" value="false"/>
 <mapEntry key="org.eclipse.ui.browser/debug" value="false"/>
 <mapEntry key="org.eclipse.osgi/profile/impl" value="org.eclipse.osgi.internal.profile.DefaultProfileLogger"/>
-<mapEntry key="org.eclipse.update.core/debug/web" value="false"/>
 <mapEntry key="org.eclipse.team.cvs.core/debug" value="false"/>
 <mapEntry key="org.eclipse.help/debug" value="true"/>
 <mapEntry key="org.eclipse.core.runtime/perf" value="false"/>
