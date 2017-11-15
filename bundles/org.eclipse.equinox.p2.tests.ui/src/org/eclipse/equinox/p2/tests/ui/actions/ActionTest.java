@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,30 +21,22 @@ public abstract class ActionTest extends AbstractProvisioningUITest {
 
 		return new ISelectionProvider() {
 
-			/* (non-Javadoc)
-			 * @see org.eclipse.jface.viewers.ISelectionProvider#addSelectionChangedListener(org.eclipse.jface.viewers.ISelectionChangedListener)
-			 */
+			@Override
 			public void addSelectionChangedListener(ISelectionChangedListener listener) {
 				// Ignore because the selection won't change 
 			}
 
-			/* (non-Javadoc)
-			 * @see org.eclipse.jface.viewers.ISelectionProvider#getSelection()
-			 */
+			@Override
 			public ISelection getSelection() {
 				return new StructuredSelection(selections);
 			}
 
-			/* (non-Javadoc)
-			 * @see org.eclipse.jface.viewers.ISelectionProvider#removeSelectionChangedListener(org.eclipse.jface.viewers.ISelectionChangedListener)
-			 */
+			@Override
 			public void removeSelectionChangedListener(ISelectionChangedListener listener) {
 				// ignore because the selection is static
 			}
 
-			/* (non-Javadoc)
-			 * @see org.eclipse.jface.viewers.ISelectionProvider#setSelection(org.eclipse.jface.viewers.ISelection)
-			 */
+			@Override
 			public void setSelection(ISelection sel) {
 				throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 			}

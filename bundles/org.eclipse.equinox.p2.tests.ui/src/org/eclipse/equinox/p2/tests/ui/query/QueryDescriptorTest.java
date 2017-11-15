@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -21,10 +21,11 @@ import org.eclipse.equinox.p2.query.*;
  */
 public class QueryDescriptorTest extends TestCase {
 
-	class SimpleQueryable implements IQueryable {
-		List elements = Arrays.asList(new String[] {"a", "b", "c", "d", "e"});
+	class SimpleQueryable implements IQueryable<String> {
+		List<String> elements = Arrays.asList(new String[] {"a", "b", "c", "d", "e"});
 
-		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		@Override
+		public IQueryResult<String> query(IQuery<String> query, IProgressMonitor monitor) {
 			return query.perform(elements.iterator());
 		}
 	}
@@ -36,6 +37,7 @@ public class QueryDescriptorTest extends TestCase {
 			this.string = string;
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
@@ -47,22 +49,23 @@ public class QueryDescriptorTest extends TestCase {
 			return this.string.equals(other.string);
 		}
 
+		@Override
 		public int hashCode() {
 			return string.hashCode();
 		}
 	}
 
 	class StringWrapper extends ElementWrapper {
+		@Override
 		protected Object wrap(Object item) {
 			return new WrappedString((String) item);
 		}
 	}
 
-	class SimpleMatchQuery extends MatchQuery {
+	class SimpleMatchQuery extends MatchQuery<Object> {
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.equinox.internal.provisional.p2.query.MatchQuery#isMatch(java.lang.Object)
-		 */
+		@Override
+		@Deprecated
 		public boolean isMatch(Object candidate) {
 			if (candidate == "a" || candidate == "b")
 				return true;
@@ -70,10 +73,9 @@ public class QueryDescriptorTest extends TestCase {
 		}
 	}
 
-	class SimpleMatchQuery2 extends MatchQuery {
-		/* (non-Javadoc)
-		 * @see org.eclipse.equinox.internal.provisional.p2.query.MatchQuery#isMatch(java.lang.Object)
-		 */
+	class SimpleMatchQuery2 extends MatchQuery<Object> {
+		@Override
+		@Deprecated
 		public boolean isMatch(Object candidate) {
 			if (candidate == "b" || candidate == "c")
 				return true;
@@ -82,33 +84,33 @@ public class QueryDescriptorTest extends TestCase {
 	}
 
 	public void testSimpleDescriptorWithWrapper() {
-		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), new SimpleMatchQuery(), new Collector(), new StringWrapper());
-		Collection collection = eqDescriptor.performQuery(null);
+		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), new SimpleMatchQuery(), new Collector<>(), new StringWrapper());
+		Collection<?> collection = eqDescriptor.performQuery(null);
 		assertEquals("1.0", 2, collection.size());
 		assertTrue("1.1", collection.contains(new WrappedString("a")));
 		assertTrue("1.1", collection.contains(new WrappedString("b")));
 	}
 
 	public void testSimpleDescriptorWithoutWrapper() {
-		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), new SimpleMatchQuery(), new Collector());
-		Collection collection = eqDescriptor.performQuery(null);
+		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), new SimpleMatchQuery(), new Collector<>());
+		Collection<?> collection = eqDescriptor.performQuery(null);
 		assertEquals("1.0", 2, collection.size());
 		assertTrue("1.1", collection.contains("a"));
 		assertTrue("1.1", collection.contains("b"));
 	}
 
 	public void testCompoundDescriptorAND() {
-		IQuery query = QueryUtil.createCompoundQuery(new SimpleMatchQuery(), new SimpleMatchQuery2(), true);
-		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), query, new Collector(), new StringWrapper());
-		Collection collection = eqDescriptor.performQuery(null);
+		IQuery<Object> query = QueryUtil.createCompoundQuery(new SimpleMatchQuery(), new SimpleMatchQuery2(), true);
+		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), query, new Collector<>(), new StringWrapper());
+		Collection<?> collection = eqDescriptor.performQuery(null);
 		assertEquals("1.0", 1, collection.size());
 		assertTrue("1.1", collection.contains(new WrappedString("b")));
 	}
 
 	public void testCompoundDescriptorOR() {
-		IQuery query = QueryUtil.createCompoundQuery(new SimpleMatchQuery(), new SimpleMatchQuery2(), false);
-		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), query, new Collector(), new StringWrapper());
-		Collection collection = eqDescriptor.performQuery(null);
+		IQuery<Object> query = QueryUtil.createCompoundQuery(new SimpleMatchQuery(), new SimpleMatchQuery2(), false);
+		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), query, new Collector<>(), new StringWrapper());
+		Collection<?> collection = eqDescriptor.performQuery(null);
 		assertEquals("1.0", 3, collection.size());
 		assertTrue("1.1", collection.contains(new WrappedString("a")));
 		assertTrue("1.1", collection.contains(new WrappedString("b")));

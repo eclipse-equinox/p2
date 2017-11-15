@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010-2012 IBM Corporation and others.
+ *  Copyright (c) 2010, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -105,7 +105,7 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 		IExpression expr = ExpressionUtil.parse(orExpression);
 		IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
 
-		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<IMatchExpression<IInstallableUnit>>();
+		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<>();
 		updateExpression.add(matchExpression);
 		iud.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateExpression, IUpdateDescriptor.HIGH, (String) null, (URI) null));
 		IInstallableUnit newIUB = MetadataFactory.createInstallableUnit(iud);
@@ -116,7 +116,7 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 		//Setup the profile
 		installAsRoots(profile, new IInstallableUnit[] {installed}, true, createPlanner(), createEngine());
 
-		List<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> ius = new ArrayList<>();
 		ius.add(newIUB);
 		InstallOperation op = new InstallOperation(getSession(), ius);
 		op.setProfileId(TESTPROFILE);

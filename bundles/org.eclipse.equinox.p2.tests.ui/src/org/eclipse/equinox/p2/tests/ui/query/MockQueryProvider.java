@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,14 +22,15 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  * A fake query provider for unit testing.
  */
 public class MockQueryProvider extends QueryProvider {
-	private IQuery query;
+	private IQuery<?> query;
 
-	public MockQueryProvider(IQuery query, ProvisioningUI ui) {
+	public MockQueryProvider(IQuery<?> query, ProvisioningUI ui) {
 		super(ui);
 		this.query = query;
 	}
 
+	@Override
 	public ElementQueryDescriptor getQueryDescriptor(QueriedElement element) {
-		return new ElementQueryDescriptor(new MockQueryable(element), query, new Collector());
+		return new ElementQueryDescriptor(new MockQueryable(element), query, new Collector<>());
 	}
 }

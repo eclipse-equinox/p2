@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -70,11 +70,11 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		manager.setEnabled(uri2, false);
 		getArtifactRepositoryManager().setEnabled(uri2, false);
 
-		List children = new ArrayList();
+		List<MetadataRepositoryElement> children = new ArrayList<>();
 		children.add(new MetadataRepositoryElement(null, known1, true));
 		// Add known2, this is as if a user added it in the pref page
 		children.add(new MetadataRepositoryElement(null, known2, true));
-		MetadataRepositoryElement[] elements = (MetadataRepositoryElement[]) children.toArray(new MetadataRepositoryElement[children.size()]);
+		MetadataRepositoryElement[] elements = children.toArray(new MetadataRepositoryElement[children.size()]);
 
 		// Add a visible repo not known by the elements
 		URI uri3 = new URI("http://example.com/3");

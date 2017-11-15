@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ public class UpdateWizardTest extends WizardTest {
 	private static final String MAIN_IU = "MainIU";
 	IInstallableUnit main, mainUpgrade1, mainUpgrade2, mainUpgradeWithLicense;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
@@ -64,7 +65,7 @@ public class UpdateWizardTest extends WizardTest {
 	 * This is the SDK 
 	 */
 	public void testUpdateWizardResolved() {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(main);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
@@ -99,7 +100,7 @@ public class UpdateWizardTest extends WizardTest {
 	}
 
 	public void testUpdateWizardResolvedWithLicense() {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(main);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
@@ -132,7 +133,7 @@ public class UpdateWizardTest extends WizardTest {
 	 * Tests the wizard when a prior resolution has been done, but is in error.
 	 */
 	public void testUpdateWizardResolvedError() {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(main);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
@@ -154,7 +155,7 @@ public class UpdateWizardTest extends WizardTest {
 	 * directly on the resolution page
 	 */
 	public void testUpdateWizardResolvedSkipSelections() {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(main);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
@@ -176,7 +177,7 @@ public class UpdateWizardTest extends WizardTest {
 	 * Tests the wizard when multiple versions are available.
 	 */
 	public void testBug277554MultipleVersions() {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(main);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());

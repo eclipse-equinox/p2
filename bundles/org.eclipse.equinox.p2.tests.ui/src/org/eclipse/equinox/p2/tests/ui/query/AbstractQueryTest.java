@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  * Abstract class to set up the mock query provider
  */
 public abstract class AbstractQueryTest extends AbstractProvisioningTest {
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		// use test query provider
@@ -37,6 +38,7 @@ public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 		manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		RepositoryTracker manipulator = ProvisioningUI.getDefaultUI().getRepositoryTracker();
@@ -45,8 +47,10 @@ public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 		//		ProvUI.setQueryProvider(null);
 	}
 
-	protected IQuery getMockQuery() {
-		return new MatchQuery() {
+	protected IQuery<?> getMockQuery() {
+		return new MatchQuery<Object>() {
+			@Deprecated
+			@Override
 			public boolean isMatch(Object candidate) {
 				return true;
 			}

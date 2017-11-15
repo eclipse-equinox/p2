@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,11 +30,12 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 	static final String C = "C";
 	IMetadataRepository testRepo;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		HashMap categoryProperties = new HashMap();
+		HashMap<String, String> categoryProperties = new HashMap<>();
 		categoryProperties.put("org.eclipse.equinox.p2.type.category", "true");
-		HashMap groupProperties = new HashMap();
+		HashMap<String, String> groupProperties = new HashMap<>();
 		groupProperties.put("org.eclipse.equinox.p2.type.group", "true");
 		category = createIU(CAT, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, NESTED), categoryProperties, true);
 		nestedCategory = createIU(NESTED, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, A), categoryProperties, true);
@@ -67,12 +68,12 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		IUElementListRoot root = new IUElementListRoot();
 		AvailableIUElement element = new AvailableIUElement(root, a, TESTPROFILE, getPolicy().getShowDrilldownRequirements());
 		root.setChildren(new Object[] {element});
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a);
 		InstallOperation op = new InstallOperation(getSession(), iusInvolved);
 		op.setProfileId(TESTPROFILE);
 		op.resolveModal(getMonitor());
-		IQueryable queryable = op.getProvisioningPlan().getAdditions();
+		IQueryable<IInstallableUnit> queryable = op.getProvisioningPlan().getAdditions();
 		element.setQueryable(queryable);
 		Object[] children = element.getChildren(element);
 		assertTrue("1.1", children.length == 1);

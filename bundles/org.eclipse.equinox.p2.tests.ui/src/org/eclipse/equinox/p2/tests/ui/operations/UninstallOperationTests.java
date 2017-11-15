@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 IBM Corporation and others.
+ *  Copyright (c) 2010, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 public class UninstallOperationTests extends AbstractProvisioningUITest {
 	public void testUninstallContactsNoRepositories() {
 
-		HashSet<IInstallableUnit> ius = new HashSet<IInstallableUnit>();
+		HashSet<IInstallableUnit> ius = new HashSet<>();
 		ius.add(top1);
 		UninstallOperation op = new UninstallOperation(getSession(), ius);
 		// We set the provisioning context to the same one we use for install
@@ -43,7 +43,7 @@ public class UninstallOperationTests extends AbstractProvisioningUITest {
 		IQueryable<IInstallableUnit> queryable = pc.getMetadata(getMonitor());
 		assertTrue("metadata queryable should be empty", queryable.query(QueryUtil.ALL_UNITS, getMonitor()).isEmpty());
 		IQueryable<IArtifactRepository> artifactQueryable = pc.getArtifactRepositories(getMonitor());
-		IQuery<IArtifactRepository> all = new ExpressionMatchQuery<IArtifactRepository>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
+		IQuery<IArtifactRepository> all = new ExpressionMatchQuery<>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
 		assertTrue("artifact queryable should be empty", artifactQueryable.query(all, getMonitor()).isEmpty());
 	}
 }

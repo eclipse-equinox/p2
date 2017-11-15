@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.p2.ui.sdk.SimpleLicenseManager;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.operations.Update;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.*;
@@ -58,13 +59,10 @@ public class RemediationTest extends WizardTest {
 
 	IInstallableUnit toInstall;
 
-	public void setUp() throws Exception {
-	}
-
 	public void visibleSetup(int type) throws Exception {
 		//Clearout repositories
 		name = "PROFILE_" + type;
-		URI[] repos = getMetadataRepositoryManager().getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		URI[] repos = getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (URI uri : repos) {
 			getMetadataRepositoryManager().removeRepository(uri);
 		}
@@ -80,9 +78,9 @@ public class RemediationTest extends WizardTest {
 
 		// register alternate services
 		SimpleLicenseManager manager = new SimpleLicenseManager(name);
-		Dictionary<String, Object> properties = new Hashtable<String, Object>(5);
+		Dictionary<String, Object> properties = new Hashtable<>(5);
 		properties.put(Constants.SERVICE_RANKING, Integer.valueOf(1));
-		regLicenseManager = TestActivator.getContext().registerService(LicenseManager.class.getName(), manager, properties);
+		regLicenseManager = TestActivator.getContext().registerService(LicenseManager.class, manager, properties);
 		profileElement = new ProfileElement(null, name);
 		IULoader.loadIUs(this);
 		ILicense[] licenses = new ILicense[] {MetadataFactory.createLicense(URI.create("http://eclipse.org"), "license text"), MetadataFactory.createLicense(URI.create("http://apache.org"), "license text2")};

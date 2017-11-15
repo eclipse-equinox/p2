@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -28,14 +28,16 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
  */
 public class TranslationSupportTests extends AbstractQueryTest {
 	Profile profile;
-	IQueryable oldTranslationSource;
+	IQueryable<IInstallableUnit> oldTranslationSource;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		profile = (Profile) createProfile("testLocalizedLicense");
 		oldTranslationSource = TranslationSupport.getInstance().setTranslationSource(profile);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		TranslationSupport.getInstance().setTranslationSource(oldTranslationSource);
@@ -52,9 +54,9 @@ public class TranslationSupportTests extends AbstractQueryTest {
 			fail("1.99", e);
 			return;
 		}
-		IQueryResult result = repository.query(QueryUtil.createIUQuery("test.feature.feature.group"), getMonitor());
+		IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUQuery("test.feature.feature.group"), getMonitor());
 		assertTrue("1.0", !result.isEmpty());
-		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit unit = result.iterator().next();
 
 		ICopyright copyright = unit.getCopyright(null);
 		assertEquals("1.1", "Test Copyright", copyright.getBody());
@@ -97,7 +99,7 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		// Create fragment with a German license
 		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription installableUnitFragmentDescription = new org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription();
 		IProvidedCapability providedCapability = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.localization", "de", Version.createOSGi(1, 0, 0));
-		ArrayList list = new ArrayList();
+		ArrayList<IProvidedCapability> list = new ArrayList<>();
 		list.add(providedCapability);
 		installableUnitFragmentDescription.addProvidedCapabilities(list);
 		installableUnitFragmentDescription.setId("german fragment");
@@ -111,7 +113,7 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		// Create a French fragment with an fr_CA license
 		installableUnitFragmentDescription = new org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription();
 		providedCapability = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.localization", "fr", Version.createOSGi(1, 0, 0));
-		list = new ArrayList();
+		list = new ArrayList<>();
 		list.add(providedCapability);
 		installableUnitFragmentDescription.addProvidedCapabilities(list);
 		installableUnitFragmentDescription.setId("cnd french fragment");

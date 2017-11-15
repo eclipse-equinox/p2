@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 	ProvisioningUI ui;
 	ProvisioningSession session;
 
+	@Override
 	protected void setUp() throws Exception {
 		ui = ProvisioningUI.getDefaultUI();
 		session = ui.getSession();
@@ -107,7 +108,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		IQueryResult result = manager.query(QueryUtil.createIUQuery("test.bundle", Version.createOSGi(1, 0, 0)), new CancelingProgressMonitor());
+		IQueryResult<IInstallableUnit> result = manager.query(QueryUtil.createIUQuery("test.bundle", Version.createOSGi(1, 0, 0)), new CancelingProgressMonitor());
 		assertTrue("1.0", result.isEmpty());
 	}
 
@@ -176,18 +177,18 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		IQueryResult result = manager.query(QueryUtil.createIUQuery("test.bundle", Version.createOSGi(1, 0, 0)), getMonitor());
+		IQueryResult<IInstallableUnit> result = manager.query(QueryUtil.createIUQuery("test.bundle", Version.createOSGi(1, 0, 0)), getMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit iu = result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());
 
 		// RepoLocationQuery must cause repository URI's to be collected and no repository
 		// loading should occur.
-		result = manager.locationsQueriable().query(new RepositoryLocationQuery(), getMonitor());
-		assertEquals("2.0", 3, queryResultSize(result));
-		assertContains("2.1", result, existing);
-		assertContains("2.1", result, nonExisting);
-		assertContains("2.1", result, broken);
+		IQueryResult<URI> result2 = manager.locationsQueriable().query(new RepositoryLocationQuery(), getMonitor());
+		assertEquals("2.0", 3, queryResultSize(result2));
+		assertContains("2.1", result2, existing);
+		assertContains("2.1", result2, nonExisting);
+		assertContains("2.1", result2, broken);
 
 		// null IUPropertyQuery collects all IUs
 		result = manager.query(QueryUtil.createIUQuery((String) null), getMonitor());
@@ -216,7 +217,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		MetadataRepositories rootElement = new MetadataRepositories(context, ui, manager);
 		QueryProvider queryProvider = new QueryProvider(ui);
 		ElementQueryDescriptor queryDescriptor = queryProvider.getQueryDescriptor(rootElement);
-		Collection collection = queryDescriptor.performQuery(null);
+		Collection<?> collection = queryDescriptor.performQuery(null);
 		assertEquals("1.0", 5, collection.size());
 	}
 
@@ -240,7 +241,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		MetadataRepositories rootElement = new MetadataRepositories(context, ui, manager);
 		QueryProvider queryProvider = new QueryProvider(ui);
 		ElementQueryDescriptor queryDescriptor = queryProvider.getQueryDescriptor(rootElement);
-		Collection collection = queryDescriptor.performQuery(null);
+		Collection<?> collection = queryDescriptor.performQuery(null);
 		assertEquals("1.0", 1, collection.size());
 		AvailableIUElement next = (AvailableIUElement) collection.iterator().next();
 		assertEquals("1.1", Version.createOSGi(3, 0, 0), next.getIU().getVersion());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,7 @@ public class InstallWithRemediationTest extends WizardTest {
 	@IUDescription(content = "package: egit \n" + "singleton: true\n" + "version: 1 \n" + "depends: TopLevelIU = 1")
 	public IInstallableUnit anotherIUToInstall;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		IULoader.loadIUs(this);

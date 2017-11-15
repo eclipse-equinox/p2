@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ public class ImportExportTests extends AbstractProvisioningTest {
 	private P2ImportExport importexportService;
 
 	private List<IStatus> getChildren(IStatus s) {
-		List<IStatus> rt = new ArrayList<IStatus>();
+		List<IStatus> rt = new ArrayList<>();
 		if (s.isMultiStatus()) {
 			for (IStatus child : s.getChildren()) {
 				rt.addAll(getChildren(child));
@@ -45,7 +45,7 @@ public class ImportExportTests extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<P2ImportExport, P2ImportExport>(TestActivator.getContext(), P2ImportExport.class, null);
+		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<>(TestActivator.getContext(), P2ImportExport.class, null);
 		tracker.open();
 		importexportService = tracker.getService();
 		assertNotNull("Fail to get ImportExport service", importexportService);
@@ -60,8 +60,8 @@ public class ImportExportTests extends AbstractProvisioningTest {
 
 	public void testLoadP2f() throws IOException {
 		File p2fFile = getTestData("Error load test file.", "testData/importexport/test.p2f");
-		InputStream input = new FileInputStream(p2fFile);
-		try {
+
+		try (InputStream input = new FileInputStream(p2fFile)) {
 			List<IUDetail> iuDetails = importexportService.importP2F(input);
 			assertTrue("Should load two features from the p2f file.", iuDetails.size() == 2);
 			int counter = 0;
@@ -75,32 +75,26 @@ public class ImportExportTests extends AbstractProvisioningTest {
 				}
 			}
 			assertEquals("Load unexpected content.", 2, counter);
-		} finally {
-			input.close();
 		}
 	}
 
 	public void testLoadUnknownP2f() throws IOException {
 		File p2fFile = getTestData("Error load test file.", "testData/importexport/unknownformat.p2f");
-		InputStream input = new FileInputStream(p2fFile);
-		try {
+
+		try (InputStream input = new FileInputStream(p2fFile)) {
 			List<IUDetail> iuDetails = importexportService.importP2F(input);
 			assertEquals("Should not load any detail.", 0, iuDetails.size());
-		} finally {
-			input.close();
 		}
 	}
 
 	public void testIncompatibleP2f() throws IOException {
 		File p2fFile = getTestData("Error load test file.", "testData/importexport/incompatible.p2f");
-		InputStream input = new FileInputStream(p2fFile);
-		try {
+
+		try (InputStream input = new FileInputStream(p2fFile)) {
 			importexportService.importP2F(input);
 			assertTrue("Didn't complain the given file is not supported by current version.", false);
 		} catch (VersionIncompatibleException e) {
 			// expected
-		} finally {
-			input.close();
 		}
 	}
 
@@ -112,16 +106,16 @@ public class ImportExportTests extends AbstractProvisioningTest {
 			IMetadataRepository repo = metaManager.loadRepository(localRepoFile.toURI(), null);
 			assertNotNull("Fail to load local repo", repo);
 			IInstallableUnit iu = createIU("A", Version.create("1.0.0"));
-			OutputStream output = new FileOutputStream(testFile);
-			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
-			assertFalse("Not expected return result.", status.isOK());
-			assertTrue("Should be a multiple status", status.isMultiStatus());
-			boolean hasFeaturesIgnored = false;
-			for (IStatus s : getChildren(status))
-				if (s.getCode() == ImportExportImpl.IGNORE_LOCAL_REPOSITORY)
-					hasFeaturesIgnored = true;
-			assertTrue("Should have features ignored due to they're installed from local repository.", hasFeaturesIgnored);
-			output.close();
+			try (OutputStream output = new FileOutputStream(testFile)) {
+				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
+				assertFalse("Not expected return result.", status.isOK());
+				assertTrue("Should be a multiple status", status.isMultiStatus());
+				boolean hasFeaturesIgnored = false;
+				for (IStatus s : getChildren(status))
+					if (s.getCode() == ImportExportImpl.IGNORE_LOCAL_REPOSITORY)
+						hasFeaturesIgnored = true;
+				assertTrue("Should have features ignored due to they're installed from local repository.", hasFeaturesIgnored);
+			}
 		} finally {
 			testFile.delete();
 		}
@@ -135,10 +129,10 @@ public class ImportExportTests extends AbstractProvisioningTest {
 			IMetadataRepository repo = metaManager.loadRepository(localRepoFile.toURI(), null);
 			assertNotNull("Fail to load local repo", repo);
 			IInstallableUnit iu = createIU("A", Version.create("1.0.0"));
-			OutputStream output = new FileOutputStream(testFile);
-			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, true, null);
-			assertTrue(status.isOK());
-			output.close();
+			try (OutputStream output = new FileOutputStream(testFile)) {
+				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, true, null);
+				assertTrue(status.isOK());
+			}
 		} finally {
 			testFile.delete();
 		}

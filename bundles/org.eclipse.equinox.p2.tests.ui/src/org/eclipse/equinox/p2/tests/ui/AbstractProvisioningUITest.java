@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2016 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -58,8 +58,9 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	protected IInstallableUnit uninstalled;
 	protected IInstallableUnit category;
 	protected ProvisioningUI ui;
-	protected ServiceRegistration regLicenseManager;
+	protected ServiceRegistration<LicenseManager> regLicenseManager;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		// create test profile
@@ -73,9 +74,9 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 
 		// register alternate services
 		SimpleLicenseManager manager = new SimpleLicenseManager(TESTPROFILE);
-		Dictionary<String, Object> properties = new Hashtable<String, Object>(5);
+		Dictionary<String, Object> properties = new Hashtable<>(5);
 		properties.put(Constants.SERVICE_RANKING, Integer.valueOf(1));
-		regLicenseManager = TestActivator.getContext().registerService(LicenseManager.class.getName(), manager, properties);
+		regLicenseManager = TestActivator.getContext().registerService(LicenseManager.class, manager, properties);
 
 		profileElement = new ProfileElement(null, TESTPROFILE);
 		install((top1 = createIU(TOPLEVELIU, Version.create("1.0.0"))), true, false);
@@ -97,6 +98,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		artifactManager.addRepository(testRepoLocation);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		metaManager.removeRepository(testRepoLocation);
@@ -155,6 +157,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 
 	protected ProfileModificationJob getLongTestOperation() {
 		return new ProfileModificationJob("Test Operation", getSession(), TESTPROFILE, null, null) {
+			@Override
 			public IStatus runModal(IProgressMonitor monitor) {
 				while (true) {
 					// spin unless cancelled

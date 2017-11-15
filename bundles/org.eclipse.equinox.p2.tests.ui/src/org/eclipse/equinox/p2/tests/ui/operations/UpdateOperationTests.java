@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	IInstallableUnit a140WithDifferentId;
 	IInstallableUnitPatch firstPatchForA1, secondPatchForA1, thirdPatchForA1, patchFora2;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		a1 = createIU("A", Version.create("1.0.0"));
@@ -53,7 +54,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	public void testChooseUpdateOverPatch() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
@@ -67,7 +68,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	public void testForcePatchOverUpdate() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
@@ -92,7 +93,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
 		install(firstPatchForA1, true, false);
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
@@ -108,7 +109,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	public void testChooseNotTheNewest() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
@@ -134,13 +135,13 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	public void testChooseLatestPatches() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1});
 		install(a1, true, false);
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		IProfileChangeRequest request = op.getProfileChangeRequest();
 		// the latest two patches were selected
-		HashSet chosen = new HashSet();
+		HashSet<IInstallableUnit> chosen = new HashSet<>();
 		assertTrue("1.0", request.getAdditions().size() == 2);
 		chosen.addAll(request.getAdditions());
 		assertTrue("1.1", chosen.contains(secondPatchForA1));
@@ -152,7 +153,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	public void testLatestHasDifferentId() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1, a120WithDifferentId, a130, a140WithDifferentId});
 		install(a1, true, false);
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
@@ -168,7 +169,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	public void testRemoveSelectionAfterResolve() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a130, b1, b12});
 		install(a1, true, false);
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
 		iusInvolved.add(b1);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
@@ -185,7 +186,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	public void testSearchForUpdatesInJob() {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a130, b1, b12});
 		install(a1, true, false);
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
 		iusInvolved.add(b1);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);

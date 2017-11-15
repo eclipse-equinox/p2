@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011 Sonatype, Inc. and others.
+ *  Copyright (c) 2011, 2017 Sonatype, Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -33,9 +33,9 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 
 	public void testCreateInstallOperation() {
 		OperationFactory of = new OperationFactory();
-		Collection<IVersionedId> versions = new ArrayList<IVersionedId>();
+		Collection<IVersionedId> versions = new ArrayList<>();
 		versions.add(new VersionedId("aBundle", "1.0.0"));
-		Collection<URI> coll = new ArrayList<URI>();
+		Collection<URI> coll = new ArrayList<>();
 		coll.add(getTestData("Simple repository", "testData/testRepos/simple.1").toURI());
 		try {
 			of.createInstallOperation(versions, coll, new NullProgressMonitor());
@@ -46,9 +46,9 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 
 	public void testCreateInstallOperationWithUnspecifiedVersion() {
 		OperationFactory of = new OperationFactory();
-		Collection<IVersionedId> versions = new ArrayList<IVersionedId>();
+		Collection<IVersionedId> versions = new ArrayList<>();
 		versions.add(new VersionedId("aBundle", (Version) null));
-		Collection<URI> coll = new ArrayList<URI>();
+		Collection<URI> coll = new ArrayList<>();
 		coll.add(getTestData("Simple repository", "testData/testRepos/simple.1").toURI());
 		try {
 			of.createInstallOperation(versions, coll, new NullProgressMonitor());
@@ -59,7 +59,7 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 
 	public void testMissingVersionedIdInInstallOperation() {
 		OperationFactory of = new OperationFactory();
-		Collection<IVersionedId> versions = new ArrayList<IVersionedId>();
+		Collection<IVersionedId> versions = new ArrayList<>();
 		versions.add(new VersionedId("aBundle", "1.0.0"));
 		Exception exceptionMet = null;
 		try {
@@ -102,9 +102,9 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 
 		//install something using the install operation
 		OperationFactory of = new OperationFactory();
-		Collection<IVersionedId> versions = new ArrayList<IVersionedId>();
+		Collection<IVersionedId> versions = new ArrayList<>();
 		versions.add(new VersionedId("aBundle", (Version) null));
-		Collection<URI> coll = new ArrayList<URI>();
+		Collection<URI> coll = new ArrayList<>();
 		coll.add(getTestData("Simple repository", "testData/testRepos/simple.1").toURI());
 		try {
 			InstallOperation iop = of.createInstallOperation(versions, coll, new NullProgressMonitor());
@@ -120,7 +120,7 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 
 	private void testUninstall(IVersionedId vid, boolean shouldFail) {
 		OperationFactory of = new OperationFactory();
-		Collection<IVersionedId> toRemove = new ArrayList<IVersionedId>();
+		Collection<IVersionedId> toRemove = new ArrayList<>();
 		toRemove.add(vid);
 		Exception expectedException = null;
 		try {
@@ -138,9 +138,9 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		createProfileWithOneIU(getUniqueString());
 		OperationFactory of = new OperationFactory();
 		{
-			Collection<IVersionedId> toUpdate = new ArrayList<IVersionedId>();
+			Collection<IVersionedId> toUpdate = new ArrayList<>();
 			toUpdate.add(new VersionedId("doesNotExist", (Version) null));
-			Collection<URI> repos = new ArrayList<URI>();
+			Collection<URI> repos = new ArrayList<>();
 			repos.add(getTestData("second repository", "testData/testRepos/simple.2").toURI());
 			Exception expectedException = null;
 			try {
@@ -152,9 +152,9 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		}
 
 		{
-			Collection<IVersionedId> toUpdate = new ArrayList<IVersionedId>();
+			Collection<IVersionedId> toUpdate = new ArrayList<>();
 			toUpdate.add(new VersionedId("aBundle", Version.parseVersion("1.0.0")));
-			Collection<URI> repos = new ArrayList<URI>();
+			Collection<URI> repos = new ArrayList<>();
 			repos.add(getTestData("second repository", "testData/testRepos/simple.2").toURI());
 			try {
 				UpdateOperation op = of.createUpdateOperation(toUpdate, repos, new NullProgressMonitor());
@@ -166,7 +166,7 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		}
 
 		{
-			Collection<URI> repos = new ArrayList<URI>();
+			Collection<URI> repos = new ArrayList<>();
 			repos.add(getTestData("second repository", "testData/testRepos/simple.2").toURI());
 			try {
 				UpdateOperation op = of.createUpdateOperation(null, repos, new NullProgressMonitor());

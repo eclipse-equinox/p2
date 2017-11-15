@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2017 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,7 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<P2ImportExport, P2ImportExport>(TestActivator.getContext(), P2ImportExport.class, null);
+		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<>(TestActivator.getContext(), P2ImportExport.class, null);
 		tracker.open();
 		importexportService = tracker.getService();
 		assertNotNull("Fail to get ImportExport service", importexportService);
@@ -64,17 +64,17 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 			IMetadataRepository repo = metaManager.loadRepository(uri, null);
 			assertNotNull("Fail to load remote repo", repo);
 			IInstallableUnit iu = AbstractProvisioningTest.createIU("A", Version.create("1.0.0"));
-			OutputStream output = new FileOutputStream(testFile);
-			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
-			assertTrue("Not expected return result.", status.isOK());
-			output.close();
-			InputStream input = new FileInputStream(testFile);
-			List<IUDetail> ius = importexportService.importP2F(input);
-			assertEquals("Exported the number of features is not expected.", 1, ius.size());
-			assertTrue("Exported feature is not expected.", iu.equals(ius.get(0).getIU()));
-			assertEquals("Exported the number of referred repositories is not expected.", 1, ius.get(0).getReferencedRepositories().size());
-			assertEquals("Exported referred repository is not expected.", uri, ius.get(0).getReferencedRepositories().get(0));
-			input.close();
+			try (OutputStream output = new FileOutputStream(testFile)) {
+				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
+				assertTrue("Not expected return result.", status.isOK());
+			}
+			try (InputStream input = new FileInputStream(testFile)) {
+				List<IUDetail> ius = importexportService.importP2F(input);
+				assertEquals("Exported the number of features is not expected.", 1, ius.size());
+				assertTrue("Exported feature is not expected.", iu.equals(ius.get(0).getIU()));
+				assertEquals("Exported the number of referred repositories is not expected.", 1, ius.get(0).getReferencedRepositories().size());
+				assertEquals("Exported referred repository is not expected.", uri, ius.get(0).getReferencedRepositories().get(0));
+			}
 		} finally {
 			testFile.delete();
 		}
@@ -110,17 +110,17 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 			IMetadataRepository repo = metaManager.loadRepository(uri, null);
 			assertNotNull("Fail to load remote repo", repo);
 			IInstallableUnit iu = AbstractProvisioningTest.createIU("A", Version.create("1.0.0"));
-			OutputStream output = new FileOutputStream(testFile);
-			IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
-			assertTrue("Not expected return result.", status.isOK());
-			output.close();
-			InputStream input = new FileInputStream(testFile);
-			List<IUDetail> ius = importexportService.importP2F(input);
-			assertEquals("Exported the number of features is not expected.", 1, ius.size());
-			assertTrue("Exported feature is not expected.", iu.equals(ius.get(0).getIU()));
-			assertEquals("Exported the number of referred repositories is not expected.", 1, ius.get(0).getReferencedRepositories().size());
-			assertEquals("Exported referred repository is not expected.", uri, ius.get(0).getReferencedRepositories().get(0));
-			input.close();
+			try (OutputStream output = new FileOutputStream(testFile)) {
+				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
+				assertTrue("Not expected return result.", status.isOK());
+			}
+			try (InputStream input = new FileInputStream(testFile)) {
+				List<IUDetail> ius = importexportService.importP2F(input);
+				assertEquals("Exported the number of features is not expected.", 1, ius.size());
+				assertTrue("Exported feature is not expected.", iu.equals(ius.get(0).getIU()));
+				assertEquals("Exported the number of referred repositories is not expected.", 1, ius.get(0).getReferencedRepositories().size());
+				assertEquals("Exported referred repository is not expected.", uri, ius.get(0).getReferencedRepositories().get(0));
+			}
 		} finally {
 			testFile.delete();
 		}

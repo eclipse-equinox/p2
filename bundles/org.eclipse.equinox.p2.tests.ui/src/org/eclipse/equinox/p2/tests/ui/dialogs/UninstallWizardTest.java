@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class UninstallWizardTest extends WizardTest {
 	 * This is the normal SDK workflow.
 	 */
 	public void testUninstallWizardResolved() {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(top1);
 		iusInvolved.add(top2);
 		UninstallOperation op = getProvisioningUI().getUninstallOperation(iusInvolved, null);
@@ -77,7 +77,7 @@ public class UninstallWizardTest extends WizardTest {
 	 */
 	public void testUninstallWizardUnresolved() {
 		// This test is pretty useless right now but at least it opens the wizard
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(top1);
 		iusInvolved.add(top2);
 		UninstallOperation operation = getProvisioningUI().getUninstallOperation(iusInvolved, null);

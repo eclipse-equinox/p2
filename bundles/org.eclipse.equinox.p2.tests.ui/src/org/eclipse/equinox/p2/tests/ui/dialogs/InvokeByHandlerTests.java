@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2015 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -31,23 +31,13 @@ public class InvokeByHandlerTests extends AbstractProvisioningUITest {
 	private static final String UPDATE = "org.eclipse.equinox.p2.ui.sdk.update";
 
 	public void testInstallHandler() throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				Display.getDefault().getActiveShell().close();
-			}
-
-		});
+		Display.getDefault().asyncExec(() -> Display.getDefault().getActiveShell().close());
 		runCommand(INSTALL);
 
 	}
 
 	public void testUpdateHandler() throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				Display.getDefault().getActiveShell().close();
-			}
-
-		});
+		Display.getDefault().asyncExec(() -> Display.getDefault().getActiveShell().close());
 		runCommand(UPDATE);
 	}
 

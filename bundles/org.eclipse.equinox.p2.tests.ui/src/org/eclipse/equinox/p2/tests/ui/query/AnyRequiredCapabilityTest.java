@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -26,10 +26,10 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		IRequirement requires = MetadataFactory.createRequirement("org.eclipse.equinox.p2.iu", "test.bundle", ANY_VERSION, null, false, false);
 		IInstallableUnit match = createIU("test.bundle");
 		IInstallableUnit noMatch = createIU("another.bundle");
-		List items = new ArrayList();
+		List<IInstallableUnit> items = new ArrayList<>();
 		items.add(match);
 		items.add(noMatch);
-		IQueryResult result = QueryUtil.createMatchQuery(requires.getMatches()).perform(items.iterator());
+		IQueryResult<IInstallableUnit> result = QueryUtil.createMatchQuery(requires.getMatches()).perform(items.iterator());
 		assertEquals("1.0", 1, queryResultSize(result));
 		assertEquals("1.1", match, result.iterator().next());
 	}
@@ -46,9 +46,9 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(location);
 		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(ProvisioningUI.getDefaultUI(), false);
 		IRequirement requires = MetadataFactory.createRequirement("org.eclipse.equinox.p2.iu", "test.bundle", ANY_VERSION, null, false, false);
-		IQueryResult result = manager.query(QueryUtil.createMatchQuery(requires.getMatches()), getMonitor());
+		IQueryResult<IInstallableUnit> result = manager.query(QueryUtil.createMatchQuery(requires.getMatches()), getMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
+		IInstallableUnit iu = result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());
 	}
 

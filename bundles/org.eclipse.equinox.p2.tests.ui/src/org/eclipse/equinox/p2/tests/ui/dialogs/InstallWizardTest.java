@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,7 @@ public class InstallWizardTest extends WizardTest {
 
 	IInstallableUnit toInstall;
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
@@ -55,7 +56,7 @@ public class InstallWizardTest extends WizardTest {
 	}
 
 	public void testInstallWizardResolved() {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(toInstall);
 		InstallOperation op = new InstallOperation(getSession(), iusInvolved);
 		op.setProfileId(TESTPROFILE);
@@ -101,7 +102,7 @@ public class InstallWizardTest extends WizardTest {
 	}
 
 	public void testInstallWizard() throws Exception {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(toInstall);
 		InstallOperation op = new MyNewInstallOperation(getSession(), iusInvolved);
 		op.setProfileId(TESTPROFILE);
@@ -130,7 +131,7 @@ public class InstallWizardTest extends WizardTest {
 	}
 
 	public void testInstallWizardWithoutLicenceBypass() throws Exception {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(toInstall);
 		InstallOperation op = new MyNewInstallOperation(getSession(), iusInvolved);
 		op.setProfileId(TESTPROFILE);
@@ -160,7 +161,7 @@ public class InstallWizardTest extends WizardTest {
 	}
 
 	public void testInstallWizardWithLicenceBypass() throws Exception {
-		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(toInstall);
 		InstallOperation op = new MyNewInstallOperation(getSession(), iusInvolved);
 		op.setProfileId(TESTPROFILE);

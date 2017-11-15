@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,10 +48,10 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	 */
 	public void testCollectObject() {
 		AvailableIUWrapper wrapper = createWrapper();
-		Collector<Object> collector = new Collector<Object>();
+		Collector<Object> collector = new Collector<>();
 		Object object = new Object();
 		collector.accept(object);
-		Collection results = wrapper.getElements(collector);
+		Collection<?> results = wrapper.getElements(collector);
 		assertEquals("1.0", 1, results.size());
 		assertEquals("1.1", object, results.iterator().next());
 	}
@@ -61,10 +61,10 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	 */
 	public void testCollectIU() {
 		AvailableIUWrapper wrapper = createWrapper();
-		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
+		Collector<IInstallableUnit> collector = new Collector<>();
 		IInstallableUnit unit = createIU("f1");
 		collector.accept(unit);
-		Collection results = wrapper.getElements(collector);
+		Collection<?> results = wrapper.getElements(collector);
 		assertEquals("1.0", 1, results.size());
 		IInstallableUnit collectedIU = getIU(results.iterator().next());
 		assertEquals("1.1", unit, collectedIU);
@@ -75,18 +75,18 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	 */
 	public void testMakeCategory() {
 		AvailableIUWrapper wrapper = createWrapper(true);
-		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
-		Map<String, String> properties = new HashMap<String, String>();
+		Collector<IInstallableUnit> collector = new Collector<>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(InstallableUnitDescription.PROP_TYPE_CATEGORY, "true");
 		IInstallableUnit category = createIU("category", Version.createOSGi(1, 0, 0), NO_REQUIRES, properties, false);
 		IInstallableUnit unit = createIU("basicIU");
 		collector.accept(category);
 		collector.accept(unit);
 
-		Collection results = wrapper.getElements(collector);
+		Collection<?> results = wrapper.getElements(collector);
 		assertEquals("1.0", 2, collector.size());
 		boolean categoryFound = false;
-		for (Iterator it = results.iterator(); it.hasNext();) {
+		for (Iterator<?> it = results.iterator(); it.hasNext();) {
 			Object element = it.next();
 			IInstallableUnit collected = getIU(element);
 			if (collected.equals(category)) {
@@ -104,18 +104,18 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	 */
 	public void testNoMakeCategory() {
 		AvailableIUWrapper wrapper = createWrapper(false);
-		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
-		Map<String, String> properties = new HashMap<String, String>();
+		Collector<IInstallableUnit> collector = new Collector<>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(InstallableUnitDescription.PROP_TYPE_CATEGORY, "true");
 		IInstallableUnit category = createIU("category", Version.createOSGi(1, 0, 0), NO_REQUIRES, properties, false);
 		IInstallableUnit unit = createIU("basicIU");
 		collector.accept(category);
 		collector.accept(unit);
 
-		Collection results = wrapper.getElements(collector);
+		Collection<?> results = wrapper.getElements(collector);
 		assertEquals("1.0", 2, results.size());
 		boolean categoryFound = false;
-		for (Iterator it = results.iterator(); it.hasNext();) {
+		for (Iterator<?> it = results.iterator(); it.hasNext();) {
 			Object element = it.next();
 			IInstallableUnit collected = getIU(element);
 			if (collected.equals(category)) {
@@ -134,7 +134,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	public void testHideInstalled() {
 		IProfile profile = createProfile("TestProfile");
 		AvailableIUWrapper wrapper = createWrapper(true);
-		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
+		Collector<IInstallableUnit> collector = new Collector<>();
 		IInstallableUnit installed = createIU("installed");
 		IInstallableUnit notInstalled = createIU("notInstalled");
 		install(profile, new IInstallableUnit[] {installed}, true, createPlanner(), createEngine());
@@ -144,7 +144,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		collector.accept(installed);
 		collector.accept(notInstalled);
 
-		Collection results = wrapper.getElements(collector);
+		Collection<?> results = wrapper.getElements(collector);
 
 		assertEquals("1.1", 1, results.size());
 		Object iuElement = results.iterator().next();
@@ -161,7 +161,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		IExpression expr = ExpressionUtil.parse(orExpression);
 		IMatchExpression<IInstallableUnit> matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
 
-		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<IMatchExpression<IInstallableUnit>>();
+		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<>();
 		updateExpression.add(matchExpression);
 		iud.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateExpression, IUpdateDescriptor.HIGH, (String) null, (URI) null));
 		IInstallableUnit newIUB = MetadataFactory.createInstallableUnit(iud);
@@ -172,14 +172,14 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		//Setup the profile
 		IProfile profile = createProfile("TestProfile");
 		AvailableIUWrapper wrapper = createWrapper(true);
-		Collector<IInstallableUnit> collector = new Collector<IInstallableUnit>();
+		Collector<IInstallableUnit> collector = new Collector<>();
 		installAsRoots(profile, new IInstallableUnit[] {installed}, true, createPlanner(), createEngine());
 		wrapper.markInstalledIUs(profile, true);
 
 		//now feed in the installed and non-installed units, and the installed unit should be ignored.
 		collector.accept(newIUB);
 
-		Collection results = wrapper.getElements(collector);
+		Collection<?> results = wrapper.getElements(collector);
 
 		//Verify 
 		assertEquals("1.1", 1, results.size());
@@ -188,7 +188,8 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		Assert.assertTrue(((AvailableIUElement) iuElement).isUpdate());
 	}
 
-	protected IQuery getMockQuery() {
+	@Override
+	protected IQuery<IInstallableUnit> getMockQuery() {
 		return QueryUtil.createIUPropertyQuery("key", "value");
 	}
 }

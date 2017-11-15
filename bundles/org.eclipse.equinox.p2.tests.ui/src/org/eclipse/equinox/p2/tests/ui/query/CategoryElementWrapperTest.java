@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -40,9 +40,9 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 
 	public void testCollectObject() {
 		CategoryElementWrapper wrapper = createWrapper();
-		Collector collector = new Collector();
+		Collector<String> collector = new Collector<>();
 		collector.accept("AnObjectThatIsNotAnIU");
-		Iterator results = wrapper.getElements(collector).iterator();
+		Iterator<?> results = wrapper.getElements(collector).iterator();
 		// Collection should either be empty or explain its emptiness.
 		while (results.hasNext())
 			assertTrue("1.0", results.next() instanceof EmptyElementExplanation);
@@ -53,12 +53,12 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 	 */
 	public void testIsEmpty() {
 		CategoryElementWrapper wrapper = createWrapper();
-		Collector collector = new Collector();
+		Collector<IInstallableUnit> collector = new Collector<>();
 		assertTrue("1.1", collector.isEmpty());
 
 		IInstallableUnit category1 = createIU("category1");
 		collector.accept(category1);
-		Collection results = wrapper.getElements(collector);
+		Collection<?> results = wrapper.getElements(collector);
 		assertTrue("1.2", !results.isEmpty());
 	}
 
@@ -67,12 +67,12 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 	 */
 	public void testSize() {
 		CategoryElementWrapper wrapper = createWrapper();
-		Collector collector = new Collector();
+		Collector<IInstallableUnit> collector = new Collector<>();
 		assertEquals("1.1", 0, collector.size());
 
 		IInstallableUnit category1 = createIU("category1");
 		collector.accept(category1);
-		Collection results = wrapper.getElements(collector);
+		Collection<?> results = wrapper.getElements(collector);
 		assertEquals("1.2", 1, collector.size());
 		assertEquals("1.3", category1, ((CategoryElement) results.iterator().next()).getIU());
 
@@ -91,12 +91,12 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 
 	public void testCategoryMerging() {
 		CategoryElementWrapper wrapper = createWrapper();
-		Collector collector = new Collector();
+		Collector<IInstallableUnit> collector = new Collector<>();
 		assertEquals("1.1", 0, collector.size());
 
 		IInstallableUnit category1 = createNamedCategory("qualifier1.foo", "Foo", DEFAULT_VERSION);
 		collector.accept(category1);
-		Collection results = wrapper.getElements(collector);
+		Collection<?> results = wrapper.getElements(collector);
 		assertEquals("1.2", 1, collector.size());
 		assertEquals("1.3", category1, ((CategoryElement) results.iterator().next()).getIU());
 
