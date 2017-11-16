@@ -7,11 +7,13 @@
  * 
  *  Contributors:
  *     Red Hat, Inc. - initial API and implementation
+ *     Karsten Thoms, itemis - Bug#448789
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.*;
 import java.util.List;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -364,6 +366,7 @@ public class RemediationGroup {
 	}
 
 	public void update(RemediationOperation operation) {
+		Assert.isNotNull(operation, "operation"); //$NON-NLS-1$
 		this.remediationOperation = operation;
 		currentRemedy = searchBestDefaultRemedy();
 
@@ -394,8 +397,11 @@ public class RemediationGroup {
 	}
 
 	Remedy searchRemedyMatchingUserChoices() {
-		List<Remedy> remedies = remediationOperation.getRemedies();
-		for (Remedy remedy : remedies) {
+		if (remediationOperation == null) {
+			ProvUIActivator.getDefault().getLog().log(new Status(IStatus.ERROR, ProvUIActivator.getContext().getBundle().getSymbolicName(), "RemediationOperation was not initialized yet.")); //$NON-NLS-1$
+			return null;
+		}
+		for (Remedy remedy : remediationOperation.getRemedies()) {
 			if (isContraintOK(ALLOWPARTIALINSTALL_INDEX, remedy.getConfig().allowPartialInstall) && isContraintOK(ALLOWDIFFERENTVERSION_INDEX, remedy.getConfig().allowDifferentVersion) && isContraintOK(ALLOWINSTALLEDUPDATE_INDEX, remedy.getConfig().allowInstalledUpdate) && isContraintOK(ALLOWINSTALLEDREMOVAL_INDEX, remedy.getConfig().allowInstalledRemoval)) {
 				if (remedy.getRequest() != null) {
 					return remedy;
