@@ -9,16 +9,20 @@
       </text>
    </aboutInfo>
 
+   <configIni>
+   </configIni>
+
    <launcherArgs>
       <vmArgs>-Xms40m
--Xmx256m</vmArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Xms40m -Xmx256m</vmArgsMac>
+-Xmx256m
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Xms40m -Xmx256m
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/org.eclipse.equinox.p2.ui.admin/icons/provision.gif"/>
 
    <launcher name="eclipse">
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
@@ -227,7 +231,6 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
-      <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="3" />
    </configurations>
 
 </product>

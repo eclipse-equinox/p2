@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -36,7 +36,6 @@ import org.osgi.framework.Constants;
  */
 public class ConfigCUsAction extends AbstractPublisherAction {
 
-	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 	protected static final String DEFAULT_START_LEVEL = "osgi.bundles.defaultStartLevel"; //$NON-NLS-1$
 	private static Collection<String> PROPERTIES_TO_SKIP;
 	private static HashSet<String> PROGRAM_ARGS_TO_SKIP;
@@ -348,12 +347,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 				continue;
 
 			// TODO need to factor this out into its own action
-			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
-				bundle.setStartLevel(BundleInfo.NO_LEVEL);
-				bundle.setMarkedAsStarted(false);
-				bundle.setSpecialConfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:false);"); //$NON-NLS-1$
-				bundle.setSpecialUnconfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:);"); //$NON-NLS-1$
-			} else if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
+			if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
 				// this bundle does not require any particular configuration, the plug-in default IU will handle installing it
 				continue;
 			}

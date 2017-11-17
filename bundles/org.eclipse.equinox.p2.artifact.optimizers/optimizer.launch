@@ -16,7 +16,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <booleanAttribute key="show_selected_only" value="false"/>
-<stringAttribute key="target_bundles" value="org.eclipse.ant.core@default:default,org.eclipse.core.contenttype@default:default,org.eclipse.core.jobs@default:default,org.eclipse.core.runtime@default:default,org.eclipse.core.runtime.compatibility.registry@default:default,org.eclipse.core.variables@default:default,org.eclipse.equinox.app@default:true,org.eclipse.equinox.common@default:default,org.eclipse.equinox.launcher@default:default,org.eclipse.equinox.launcher.win32.win32.x86@default:default,org.eclipse.equinox.preferences@default:default,org.eclipse.equinox.registry@default:default,org.eclipse.osgi@:,org.eclipse.osgi.services@default:default,org.eclipse.update.configurator@default:default"/>
+<stringAttribute key="target_bundles" value="org.eclipse.ant.core@default:default,org.eclipse.core.contenttype@default:default,org.eclipse.core.jobs@default:default,org.eclipse.core.runtime@default:default,org.eclipse.core.runtime.compatibility.registry@default:default,org.eclipse.core.variables@default:default,org.eclipse.equinox.app@default:true,org.eclipse.equinox.common@default:default,org.eclipse.equinox.launcher@default:default,org.eclipse.equinox.launcher.win32.win32.x86@default:default,org.eclipse.equinox.preferences@default:default,org.eclipse.equinox.registry@default:default,org.eclipse.osgi@:,org.eclipse.osgi.services@default:default"/>
 <booleanAttribute key="tracing" value="false"/>
 <booleanAttribute key="useDefaultConfigArea" value="true"/>
 <booleanAttribute key="useNamedJRE" value="true"/>

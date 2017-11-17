@@ -284,7 +284,6 @@
 <mapEntry key="org.eclipse.osgi/resolver/cycles" value="false"/>
 <mapEntry key="org.eclipse.ui/listeners/IWorkbenchWindow.IPartListener" value="false"/>
 <mapEntry key="org.eclipse.jdt.core/debug/resolution" value="false"/>
-<mapEntry key="org.eclipse.update.configurator/debug" value="false"/>
 <mapEntry key="org.eclipse.debug.ui/debug/viewers/deltas" value="false"/>
 <mapEntry key="org.eclipse.help.ui/debug" value="true"/>
 <mapEntry key="org.eclipse.osgi/eclipseadaptor/debug/location" value="false"/>

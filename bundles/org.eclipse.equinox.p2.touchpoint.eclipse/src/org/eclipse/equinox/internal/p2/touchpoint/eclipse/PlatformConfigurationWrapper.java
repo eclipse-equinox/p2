@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -218,9 +218,6 @@ public class PlatformConfigurationWrapper {
 		return null;
 	}
 
-	/*
-	 * @see org.eclipse.update.configurator.IPlatformConfiguration#createFeatureEntry(java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, java.net.URL[])
-	 */
 	public IStatus addFeatureEntry(File file, String id, String version, String pluginIdentifier, String pluginVersion, boolean primary, String application, URL[] root, String linkFile) {
 		loadDelegate();
 		if (configuration == null)
@@ -259,9 +256,6 @@ public class PlatformConfigurationWrapper {
 		return Status.OK_STATUS;
 	}
 
-	/*
-	 * @see org.eclipse.update.configurator.IPlatformConfiguration#findConfiguredFeatureEntry(java.lang.String)
-	 */
 	public IStatus removeFeatureEntry(String id, String version) {
 		loadDelegate();
 		if (configuration == null)
@@ -288,9 +282,6 @@ public class PlatformConfigurationWrapper {
 		return site.getFeature(featureId, featureVersion) != null;
 	}
 
-	/*
-	 * @see org.eclipse.update.configurator.IPlatformConfiguration#save()
-	 */
 	public void save() throws ProvisionException {
 		if (configuration != null) {
 			configFile.getParentFile().mkdirs();
@@ -301,7 +292,5 @@ public class PlatformConfigurationWrapper {
 	private static String makeFeatureURL(String id, String version) {
 		return FEATURES + id + "_" + version + "/"; //$NON-NLS-1$ //$NON-NLS-2$;
 	}
-
-	//	}
 
 }

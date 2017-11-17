@@ -81,13 +81,10 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 	 */
 	public void testGetBundles() {
 		BundleInfo[] bundles = productFileAdviceWin32.getBundles();
-		assertEquals("1.0", 4, bundles.length);
-		for (int i = 0; i < 4; i++) {
+		assertEquals("1.0", 3, bundles.length);
+		for (int i = 0; i < 3; i++) {
 			if (bundles[i].getSymbolicName().equals("org.eclipse.equinox.common")) {
 				assertEquals(2, bundles[i].getStartLevel());
-				assertEquals(true, bundles[i].isMarkedAsStarted());
-			} else if (bundles[i].getSymbolicName().equals("org.eclipse.update.configurator")) {
-				assertEquals(3, bundles[i].getStartLevel());
 				assertEquals(true, bundles[i].isMarkedAsStarted());
 			} else if (bundles[i].getSymbolicName().equals("org.eclipse.core.runtime")) {
 				// nothing yet
@@ -208,7 +205,6 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("org.eclipse.equinox.common,3.5.100.v20090817,plugins/org.eclipse.equinox.common_3.5.100.v20090817.jar,2,true\n");
-		buffer.append("org.eclipse.update.configurator,3.3.100.v20090813,plugins/org.eclipse.update.configurator_3.3.100.v20090813.jar,4,false\n");
 		buffer.append("org.eclipse.equinox.simpleconfigurator,1.0.200.v20090729-1800,plugins/org.eclipse.equinox.simpleconfigurator_1.0.200.v20090729-1800.jar,1,true\n");
 		writeBuffer(new File(rootFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), buffer);
 
@@ -220,9 +216,6 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 			if (bundles[i].getSymbolicName().equals("org.eclipse.equinox.common")) {
 				assertEquals("equinox.common start level", 2, bundles[i].getStartLevel());
 				assertEquals("equinox.common started", true, bundles[i].isMarkedAsStarted());
-			} else if (bundles[i].getSymbolicName().equals("org.eclipse.update.configurator")) {
-				assertEquals("update.configurator start level", 4, bundles[i].getStartLevel());
-				assertEquals("update.configurator started", false, bundles[i].isMarkedAsStarted());
 			}
 		}
 	}
