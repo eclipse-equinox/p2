@@ -9,6 +9,7 @@
  * 	IBM Corporation - initial API and implementation
  *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
  *	Sonatype, Inc. - ongoing development
+ *  Karsten Thoms - Bug#527874
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
@@ -39,6 +40,10 @@ public class ProvisioningContext {
 	private URI[] metadataRepositories; //metadata repositories to consult
 	private final Map<String, String> properties = new HashMap<>();
 	private Map<String, URI> referencedArtifactRepositories = null;
+	private Map<URI, IArtifactRepository> loadedArtifactRepositories = new HashMap<>();
+	private Map<URI, IMetadataRepository> loadedMetadataRepositories = new HashMap<>();
+	private Set<URI> failedArtifactRepositories = new HashSet<>();
+	private Set<URI> failedMetadataRepositories = new HashSet<>();
 
 	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 
@@ -156,15 +161,8 @@ public class ProvisioningContext {
 		List<IArtifactRepository> repos = new ArrayList<>();
 		SubMonitor sub = SubMonitor.convert(monitor, (repositories.length + 1) * 100);
 		for (int i = 0; i < repositories.length; i++) {
-			if (sub.isCanceled()) {
-				throw new OperationCanceledException();
-			}
 			URI location = repositories[i];
-			try {
-				repos.add(repoManager.loadRepository(location, sub.newChild(100)));
-			} catch (ProvisionException e) {
-				//skip unreadable repositories
-			}
+			getLoadedRepository(location, repoManager, repos, sub);
 			// Remove this URI from the list of extra references if it is there.
 			if (referencedArtifactRepositories != null && location != null) {
 				referencedArtifactRepositories.remove(location.toString());
@@ -174,14 +172,30 @@ public class ProvisioningContext {
 		if (referencedArtifactRepositories != null && referencedArtifactRepositories.size() > 0 && shouldFollowArtifactReferences()) {
 			SubMonitor innerSub = SubMonitor.convert(sub.newChild(100), referencedArtifactRepositories.size() * 100);
 			for (URI referencedURI : referencedArtifactRepositories.values()) {
-				try {
-					repos.add(repoManager.loadRepository(referencedURI, innerSub.newChild(100)));
-				} catch (ProvisionException e) {
-					// skip unreadable repositories
-				}
+				getLoadedRepository(referencedURI, repoManager, repos, innerSub);
 			}
 		}
 		return repos;
+	}
+
+	private void getLoadedRepository(URI location, IArtifactRepositoryManager repoManager, List<IArtifactRepository> repos, SubMonitor monitor) {
+		if (monitor.isCanceled()) {
+			throw new OperationCanceledException();
+		}
+		if (failedArtifactRepositories.contains(location)) {
+			return;
+		}
+		try {
+			IArtifactRepository repository = loadedArtifactRepositories.get(location);
+			if (repository == null) {
+				repository = repoManager.loadRepository(location, monitor.newChild(100));
+				loadedArtifactRepositories.put(location, repository);
+			}
+			repos.add(repository);
+		} catch (ProvisionException e) {
+			//skip and remember unreadable repositories
+			failedArtifactRepositories.add(location);
+		}
 	}
 
 	private Set<IMetadataRepository> getLoadedMetadataRepositories(IProgressMonitor monitor) {
@@ -204,19 +218,26 @@ public class ProvisioningContext {
 	}
 
 	private void loadMetadataRepository(IMetadataRepositoryManager manager, URI location, HashMap<String, IMetadataRepository> repos, boolean followMetadataRepoReferences, IProgressMonitor monitor) {
+		if (monitor.isCanceled()) {
+			throw new OperationCanceledException();
+		}
 		// if we've already processed this repo, don't do it again.  This keeps us from getting
 		// caught up in circular references.
-		if (repos.containsKey(location.toString()))
+		if (repos.containsKey(location.toString()) || failedMetadataRepositories.contains(location)) {
 			return;
+		}
 
 		SubMonitor sub = SubMonitor.convert(monitor, 1000);
 		// First load the repository itself.
-		IMetadataRepository repository;
-		try {
-			repository = manager.loadRepository(location, sub.newChild(500));
-		} catch (ProvisionException e) {
-			// nothing more to do
-			return;
+		IMetadataRepository repository = loadedMetadataRepositories.get(location);
+		if (repository == null) {
+			try {
+				repository = manager.loadRepository(location, sub.newChild(500));
+				loadedMetadataRepositories.put(location, repository);
+			} catch (ProvisionException e) {
+				failedMetadataRepositories.add(location);
+				return;
+			}
 		}
 		repos.put(location.toString(), repository);
 		Collection<IRepositoryReference> references = repository.getReferences();
