@@ -13,7 +13,9 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import static org.easymock.EasyMock.expect;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -21,11 +23,24 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
-import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.p2.publisher.eclipse.ConfigAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.ConfigCUsAction;
+import org.eclipse.equinox.p2.publisher.eclipse.IConfigAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.IExecutableAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.LaunchingAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
 public class ConfigCUsActionTest extends ActionTest {
 	private static File configLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/level2/config.ini"); //$NON-NLS-1$
@@ -63,8 +78,8 @@ public class ConfigCUsActionTest extends ActionTest {
 
 		//verify RequiredCapabilities
 		List<IRequirement> requiredCapability = iu.getRequirements();
-		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".config." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
-		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".ini." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
+		verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".config." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
+		verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".ini." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 		assertTrue(requiredCapability.size() == 2);
 
 		//verify non root IUs

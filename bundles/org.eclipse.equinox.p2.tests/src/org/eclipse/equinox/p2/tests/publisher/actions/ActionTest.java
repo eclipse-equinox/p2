@@ -9,21 +9,44 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertThat;
 
-import java.io.*;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.publisher.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.p2.publisher.PublisherResult;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Assert;
 
 public abstract class ActionTest extends AbstractProvisioningTest {
@@ -65,39 +88,33 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		Assert.fail("Missing ProvidedCapability: " + name + version.toString()); //$NON-NLS-1$
 	}
 
-	protected void verifyRequiredCapability(Collection<IRequirement> requirement, String namespace, String name, VersionRange range) {
-		verifyRequiredCapability(requirement, namespace, name, range, 1, 1, true);
+	protected void verifyRequirement(Collection<IRequirement> actual, String namespace, String name, VersionRange range) {
+		verifyRequirement(actual, namespace, name, range, null, 1, 1, true);
 	}
 
-	protected void verifyRequiredCapability(Collection<IRequirement> requirement, String namespace, String name, VersionRange range, int min, int max, boolean greedy) {
-		for (Iterator<IRequirement> iterator = requirement.iterator(); iterator.hasNext();) {
-			IRequiredCapability required = (IRequiredCapability) iterator.next();
-			if (required.getName().equalsIgnoreCase(name) && required.getNamespace().equalsIgnoreCase(namespace) && required.getRange().equals(range)) {
-				String requirementDescr = "RequiredCapability " + name + " " + range.toString();
-				Assert.assertEquals("Min of " + requirementDescr, min, required.getMin());
-				Assert.assertEquals("Max of " + requirementDescr, max, required.getMax());
-				Assert.assertEquals("Greedy of " + requirementDescr, greedy, required.isGreedy());
+	protected void verifyRequirement(Collection<IRequirement> actual, String namespace, String name, VersionRange range, String filterStr, int minCard, int maxCard, boolean greedy) {
+		IRequirement expected = MetadataFactory.createRequirement(namespace, name, range, null, minCard, maxCard, greedy);
+		verifyRequirement(actual, expected);
+	}
+
+	protected void verifyRequirement(Collection<IRequirement> actual, String matchExpr, int minCard, int maxCard, boolean greedy) {
+		IExpression expr = ExpressionUtil.parse(matchExpr);
+		IMatchExpression<IInstallableUnit> matcher = ExpressionUtil.getFactory().matchExpression(expr);
+		IRequirement expected = MetadataFactory.createRequirement(matcher, null, minCard, maxCard, greedy);
+		verifyRequirement(actual, expected);
+	}
+
+	protected void verifyRequirement(Collection<IRequirement> actual, IRequirement expected) {
+		for (IRequirement act : actual) {
+			if (expected.getMatches().equals(act.getMatches())) {
+				String descr = "IRequirement " + expected.getMatches();
+				Assert.assertEquals("Min of " + descr, expected.getMin(), act.getMin());
+				Assert.assertEquals("Max of " + descr, expected.getMax(), act.getMax());
+				Assert.assertEquals("Greedy of " + descr, expected.isGreedy(), act.isGreedy());
 				return;
 			}
 		}
-		Assert.fail("Missing RequiredCapability: " + name + " " + range.toString()); //$NON-NLS-1$
-	}
-
-	protected void verifyRequirement(Collection<IRequirement> requirement, String filter, int min, int max, boolean greedy) {
-		IExpression expr = ExpressionUtil.parse(filter);
-		IMatchExpression<IInstallableUnit> matchExpr = ExpressionUtil.getFactory().matchExpression(expr);
-
-		for (Iterator iterator = requirement.iterator(); iterator.hasNext();) {
-			IRequirement required = (IRequirement) iterator.next();
-			if (required.getMatches().equals(matchExpr)) {
-				String requirementDescr = "IRequirement " + filter;
-				Assert.assertEquals("Min of " + requirementDescr, min, required.getMin());
-				Assert.assertEquals("Max of " + requirementDescr, max, required.getMax());
-				Assert.assertEquals("Greedy of " + requirementDescr, greedy, required.isGreedy());
-				return;
-			}
-		}
-		Assert.fail("Missing IRequirement: " + filter); //$NON-NLS-1$
+		Assert.fail("Missing IRequirement: " + expected); //$NON-NLS-1$
 	}
 
 	protected IInstallableUnit mockIU(String id, Version version) {
@@ -133,36 +150,6 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 			}
 		}
 		return map;
-	}
-
-	protected void contains(Collection<IProvidedCapability> capabilities, String namespace, String name, Version version) {
-		for (IProvidedCapability capability : capabilities) {
-			if (capability.getNamespace().equals(namespace) && capability.getName().equals(name) && capability.getVersion().equals(version))
-				return;
-		}
-		fail();
-	}
-
-	protected void contains(Collection<IRequirement> capabilities, String namespace, String name, VersionRange range, String filterStr, boolean optional, boolean multiple) {
-		IMatchExpression<IInstallableUnit> filter = InstallableUnit.parseFilter(filterStr);
-		for (Iterator<IRequirement> iterator = capabilities.iterator(); iterator.hasNext();) {
-			IRequiredCapability capability = (IRequiredCapability) iterator.next();
-			if (filter == null) {
-				if (capability.getFilter() != null)
-					continue;
-			} else if (!filter.equals(capability.getFilter()))
-				continue;
-			if (!name.equals(capability.getName()))
-				continue;
-			if (!namespace.equals(capability.getNamespace()))
-				continue;
-			if (optional != (capability.getMin() == 0))
-				continue;
-			if (!range.equals(capability.getRange()))
-				continue;
-			return;
-		}
-		fail();
 	}
 
 	public void setupPublisherResult() {

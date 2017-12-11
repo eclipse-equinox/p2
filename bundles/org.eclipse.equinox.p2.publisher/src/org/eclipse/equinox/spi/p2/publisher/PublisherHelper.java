@@ -4,7 +4,7 @@
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
@@ -46,14 +46,14 @@ public class PublisherHelper {
 
 	public static final String NAMESPACE_FLAVOR = "org.eclipse.equinox.p2.flavor"; //$NON-NLS-1$"
 	/**
-	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing a feature
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_FEATURE = "feature"; //$NON-NLS-1$
 
 	/**
-	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing a source bundle
 	 * @see IProvidedCapability#getName()
 	 */
@@ -214,22 +214,35 @@ public class PublisherHelper {
 	 * @return The created omni version
 	 */
 	public static Version fromOSGiVersion(org.osgi.framework.Version version) {
-		if (version == null)
-			return null;
-		if (version.getMajor() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE)
+		if (version == null) {
 			return Version.MAX_VERSION;
+		}
+		if (version.getMajor() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE) {
+			return Version.MAX_VERSION;
+		}
 		return Version.createOSGi(version.getMajor(), version.getMinor(), version.getMicro(), version.getQualifier());
 	}
 
 	public static org.eclipse.osgi.service.resolver.VersionRange toOSGiVersionRange(VersionRange range) {
-		if (range.equals(VersionRange.emptyRange))
+		if (range.equals(VersionRange.emptyRange)) {
 			return org.eclipse.osgi.service.resolver.VersionRange.emptyRange;
+		}
 		return new org.eclipse.osgi.service.resolver.VersionRange(toOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), toOSGiVersion(range.getMaximum()), range.getIncludeMinimum());
 	}
 
 	public static VersionRange fromOSGiVersionRange(org.eclipse.osgi.service.resolver.VersionRange range) {
-		if (range.equals(org.eclipse.osgi.service.resolver.VersionRange.emptyRange))
+		if (range.equals(org.eclipse.osgi.service.resolver.VersionRange.emptyRange)) {
 			return VersionRange.emptyRange;
-		return new VersionRange(fromOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), fromOSGiVersion(range.getMaximum()), range.getIncludeMaximum());
+		}
+
+		Version min = fromOSGiVersion(range.getLeft());
+		boolean includeMin = range.getIncludeMinimum();
+
+		Version max = fromOSGiVersion(range.getRight());
+		// TODO The OSGi open ended range does not include the max value, where as the p2 does
+		// Fix the p2 range to not include maximum as well (how will this affect the projector)?.
+		boolean includeMax = Version.MAX_VERSION.equals(max) ? true : range.getIncludeMaximum();
+
+		return new VersionRange(min, includeMin, max, includeMax);
 	}
 }

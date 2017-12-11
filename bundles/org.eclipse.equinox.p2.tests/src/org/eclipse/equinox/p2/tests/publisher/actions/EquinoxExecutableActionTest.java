@@ -10,10 +10,21 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyBoolean;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.expect;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -23,8 +34,16 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxExecutableAction;
 import org.eclipse.equinox.p2.publisher.eclipse.IBrandingAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -123,7 +142,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + confSpec, version); //$NON-NLS-1$
 				assertTrue(providedCapability.size() == 1);
 				Collection<IRequirement> requiredCapability = fragment.getHost();
-				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
+				verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 				assertTrue(requiredCapability.size() == 1);
 
 				assertTrue(fragment.getFilter().getParameters()[0].toString().indexOf("(osgi.ws=" + _ws + ")") != -1);
@@ -172,7 +191,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				assertTrue(providedCapabilities.size() == 2);
 
 				Collection<IRequirement> requiredCapability = possibleExec.getRequirements();
-				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? confSpec.substring(0, confSpec.lastIndexOf(".")) : confSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? confSpec.substring(0, confSpec.lastIndexOf(".")) : confSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				assertTrue(requiredCapability.size() == 1);
 
 				try {
