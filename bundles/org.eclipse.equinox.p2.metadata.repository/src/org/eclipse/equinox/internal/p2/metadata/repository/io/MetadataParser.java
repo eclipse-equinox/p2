@@ -134,7 +134,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		private PropertiesHandler propertiesHandler = null;
 		private ProvidedCapabilitiesHandler providedCapabilitiesHandler = null;
-		private RequiredCapabilitiesHandler requiredCapabilitiesHandler = null;
+		private RequirementsHandler requiredCapabilitiesHandler = null;
 		private HostRequiredCapabilitiesHandler hostRequiredCapabilitiesHandler = null;
 		private MetaRequiredCapabilitiesHandler metaRequiredCapabilitiesHandler = null;
 		private TextHandler filterHandler = null;
@@ -188,7 +188,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				}
 			} else if (REQUIREMENTS_ELEMENT.equals(name)) {
 				if (requiredCapabilitiesHandler == null) {
-					requiredCapabilitiesHandler = new RequiredCapabilitiesHandler(this, attributes);
+					requiredCapabilitiesHandler = new RequirementsHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
@@ -369,7 +369,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class ApplicabilityScopeHandler extends AbstractHandler {
-		private RequiredCapabilitiesHandler children;
+		private RequirementsHandler children;
 		private List<IRequirement[]> scopes;
 
 		public ApplicabilityScopeHandler(AbstractHandler parentHandler, Attributes attributes, List<IRequirement[]> scopes) {
@@ -380,7 +380,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (REQUIREMENTS_ELEMENT.equals(name)) {
-				children = new RequiredCapabilitiesHandler(this, attributes);
+				children = new RequirementsHandler(this, attributes);
 			} else {
 				duplicateElement(this, name, attributes);
 			}
@@ -690,10 +690,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 	}
 
-	protected class RequiredCapabilitiesHandler extends AbstractMetadataHandler {
+	protected class RequirementsHandler extends AbstractMetadataHandler {
 		private List<IRequirement> requiredCapabilities;
 
-		public RequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
+		public RequirementsHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REQUIREMENTS_ELEMENT);
 			requiredCapabilities = new ArrayList<>(getOptionalSize(attributes, 4));
 		}
@@ -715,11 +715,15 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	protected class RequirementHandler extends AbstractHandler {
 		private List<IRequirement> capabilities;
 
+		// Expression based requirement
 		private String match;
 		private String matchParams;
+
+		// Simple requirement
 		private String namespace;
 		private String name;
 		private VersionRange range;
+
 		private int min;
 		private int max;
 		private boolean greedy;
@@ -783,8 +787,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			if (match != null) {
 				IMatchExpression<IInstallableUnit> matchExpr = createMatchExpression(match, matchParams);
 				requirement = MetadataFactory.createRequirement(matchExpr, filter, min, max, greedy, description);
-			} else
+			} else {
 				requirement = MetadataFactory.createRequirement(namespace, name, range, filter, min, max, greedy, description);
+			}
 			capabilities.add(requirement);
 		}
 

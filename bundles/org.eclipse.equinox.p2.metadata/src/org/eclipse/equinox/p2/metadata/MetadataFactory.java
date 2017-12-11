@@ -13,10 +13,31 @@
 package org.eclipse.equinox.p2.metadata;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.internal.p2.metadata.Copyright;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
+import org.eclipse.equinox.internal.p2.metadata.License;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.Requirement;
+import org.eclipse.equinox.internal.p2.metadata.RequirementChange;
+import org.eclipse.equinox.internal.p2.metadata.ResolvedInstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.TouchpointData;
+import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
+import org.eclipse.equinox.internal.p2.metadata.TouchpointType;
+import org.eclipse.equinox.internal.p2.metadata.UpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
@@ -495,7 +516,17 @@ public final class MetadataFactory {
 	 * @return the requirement
 	 */
 	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy) {
-		return new RequiredCapability(requirement, filter, minCard, maxCard, greedy, null);
+		// IRequiredCapability is simply a requirement with a match expression derived from a  (namespace, name, version) tripet.
+		// However the xml format also requires that maxCard > 1 or it is serialized in the generic format.
+		// When parsing back from xml try to convert to an IRequiredCapability to retain the representation prior to serialization
+		if (RequiredCapability.isSimpleRequirement(requirement)) {
+			String namespace = RequiredCapability.extractNamespace(requirement);
+			String name = RequiredCapability.extractName(requirement);
+			VersionRange range = RequiredCapability.extractRange(requirement);
+			return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy, null);
+		}
+
+		return new Requirement(requirement, filter, minCard, maxCard, greedy, null);
 	}
 
 	/**
@@ -513,7 +544,7 @@ public final class MetadataFactory {
 	 * @return the requirement
 	 */
 	public static IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
-		return new RequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
+		return new RequiredCapability(namespace, name, range, InstallableUnit.parseFilter(filter), optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, greedy, null);
 	}
 
 	/**
@@ -546,7 +577,17 @@ public final class MetadataFactory {
 	 * @return the requirement
 	 */
 	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy, String description) {
-		return new RequiredCapability(requirement, filter, minCard, maxCard, greedy, description);
+		// IRequiredCapability is simply a requirement with a match expression derived from a  (namespace, name, version) tripet.
+		// However the xml format also requires that maxCard > 1 or it is serialized in the generic format.
+		// When parsing back from xml try to convert to an IRequiredCapability to retain the representation prior to serialization
+		if (RequiredCapability.isSimpleRequirement(requirement)) {
+			String namespace = RequiredCapability.extractNamespace(requirement);
+			String name = RequiredCapability.extractName(requirement);
+			VersionRange range = RequiredCapability.extractRange(requirement);
+			return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy, description);
+		}
+
+		return new Requirement(requirement, filter, minCard, maxCard, greedy, description);
 	}
 
 	/**
@@ -725,69 +766,8 @@ public final class MetadataFactory {
 	 */
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description, URI location) {
 		Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<>(1);
-		descriptors.add(createMatchExpressionFromRange(IInstallableUnit.NAMESPACE_IU_ID, id, range));
+		descriptors.add(RequiredCapability.createMatchExpressionFromRange(IInstallableUnit.NAMESPACE_IU_ID, id, range));
 		return createUpdateDescriptor(descriptors, severity, description, location);
-	}
-
-	private static final IExpression allVersionsExpression;
-	private static final IExpression range_II_Expression;
-	private static final IExpression range_IN_Expression;
-	private static final IExpression range_NI_Expression;
-	private static final IExpression range_NN_Expression;
-	private static final IExpression strictVersionExpression;
-	private static final IExpression openEndedExpression;
-	private static final IExpression openEndedNonInclusiveExpression;
-
-	static {
-		IExpressionFactory factory = ExpressionUtil.getFactory();
-		IExpression xVar = factory.variable("x"); //$NON-NLS-1$
-		IExpression nameEqual = factory.equals(factory.member(xVar, ProvidedCapability.MEMBER_NAME), factory.indexedParameter(0));
-		IExpression namespaceEqual = factory.equals(factory.member(xVar, ProvidedCapability.MEMBER_NAMESPACE), factory.indexedParameter(1));
-
-		IExpression versionMember = factory.member(xVar, ProvidedCapability.MEMBER_VERSION);
-
-		IExpression versionCmpLow = factory.indexedParameter(2);
-		IExpression versionEqual = factory.equals(versionMember, versionCmpLow);
-		IExpression versionGt = factory.greater(versionMember, versionCmpLow);
-		IExpression versionGtEqual = factory.greaterEqual(versionMember, versionCmpLow);
-
-		IExpression versionCmpHigh = factory.indexedParameter(3);
-		IExpression versionLt = factory.less(versionMember, versionCmpHigh);
-		IExpression versionLtEqual = factory.lessEqual(versionMember, versionCmpHigh);
-
-		IExpression pvMember = factory.member(factory.thisVariable(), InstallableUnit.MEMBER_PROVIDED_CAPABILITIES);
-		allVersionsExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual)));
-		strictVersionExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionEqual)));
-		openEndedExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual)));
-		openEndedNonInclusiveExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt)));
-		range_II_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual, versionLtEqual)));
-		range_IN_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual, versionLt)));
-		range_NI_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt, versionLtEqual)));
-		range_NN_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt, versionLt)));
-	}
-
-	private static IMatchExpression<IInstallableUnit> createMatchExpressionFromRange(String namespace, String name, VersionRange range) {
-		IMatchExpression<IInstallableUnit> resultExpression = null;
-		IExpressionFactory factory = ExpressionUtil.getFactory();
-		if (range == null || range.equals(VersionRange.emptyRange)) {
-			resultExpression = factory.matchExpression(allVersionsExpression, name, namespace);
-		} else {
-			if (range.getMinimum().equals(range.getMaximum())) {
-				// Explicit version appointed
-				resultExpression = factory.matchExpression(strictVersionExpression, name, namespace, range.getMinimum());
-			} else {
-				if (range.getMaximum().equals(Version.MAX_VERSION)) {
-					// Open ended
-					resultExpression = factory.matchExpression(range.getIncludeMinimum() ? openEndedExpression : openEndedNonInclusiveExpression, name, namespace, range.getMinimum());
-				} else {
-					resultExpression = factory.matchExpression(//
-							range.getIncludeMinimum() ? (range.getIncludeMaximum() ? range_II_Expression : range_IN_Expression) //
-									: (range.getIncludeMaximum() ? range_NI_Expression : range_NN_Expression), //
-							name, namespace, range.getMinimum(), range.getMaximum());
-				}
-			}
-		}
-		return resultExpression;
 	}
 
 	private static ITouchpointType getCachedTouchpointType(String id, Version version) {

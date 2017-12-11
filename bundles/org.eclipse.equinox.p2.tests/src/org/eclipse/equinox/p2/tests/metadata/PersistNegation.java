@@ -15,9 +15,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
-import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -29,7 +33,7 @@ public class PersistNegation extends AbstractProvisioningTest {
 		iud1.setId("NegateRWT");
 		iud1.setVersion(Version.create("1.0.0"));
 
-		RequiredCapability req1 = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.rap.rwt", new VersionRange("[1.0.0, 2.0.0)"), null, 0, 0, false, null);
+		IRequirement req1 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.rap.rwt", new VersionRange("[1.0.0, 2.0.0)"), null, 0, 0, false, null);
 		Collection<IRequirement> requirements = new ArrayList<>();
 		requirements.add(req1);
 		iud1.addRequirements(requirements);

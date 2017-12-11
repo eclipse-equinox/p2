@@ -18,14 +18,38 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.ICopyright;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+import org.eclipse.equinox.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.IRequirementChange;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.MatchQuery;
@@ -57,30 +81,27 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	class SPIRequiredCapability extends MatchQuery<IInstallableUnit> implements IRequiredCapability {
-		IMatchExpression<IInstallableUnit> filter;
-		String name;
-		String namespace;
-		VersionRange versionRange;
-		boolean isGreedy;
-		int min;
-		int max;
-		private String description;
+	class SPIRequiredCapability implements IRequiredCapability {
+		private final IMatchExpression<IInstallableUnit> filter;
+		private final String name;
+		private final String namespace;
+		private final VersionRange versionRange;
+		private final boolean isGreedy;
+		private final int min;
+		private final int max;
+
+		public SPIRequiredCapability(String namespace, String name, VersionRange versionRange) {
+			this(namespace, name, versionRange, null, true, false, false);
+		}
 
 		public SPIRequiredCapability(String namespace, String name, VersionRange versionRange, String filter, boolean isGreedy, boolean isMultiple, boolean isOptional) {
 			this.namespace = namespace;
 			this.name = name;
 			this.versionRange = versionRange;
-			setFilter(filter);
+			this.filter = filter == null ? null : InstallableUnit.parseFilter(filter);
 			this.isGreedy = isGreedy;
 			this.min = isOptional ? 0 : 1;
 			this.max = isMultiple ? Integer.MAX_VALUE : 1;
-		}
-
-		public SPIRequiredCapability(String namespace, String name, VersionRange versionRange) {
-			this.namespace = namespace;
-			this.name = name;
-			this.versionRange = versionRange;
 		}
 
 		@Override
@@ -108,38 +129,26 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return isGreedy;
 		}
 
-		public void setFilter(String filter) {
-			this.filter = filter == null ? null : InstallableUnit.parseFilter(filter);
-		}
-
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
+			}
 
-			if (!(obj instanceof IRequirement))
+			if (!(obj instanceof IRequirement)) {
 				return false;
+			}
 
 			IRequirement other = (IRequirement) obj;
 			if (filter == null) {
-				if (other.getFilter() != null)
+				if (other.getFilter() != null) {
 					return false;
-			} else if (!filter.equals(other.getFilter()))
+				}
+			} else if (!filter.equals(other.getFilter())) {
 				return false;
+			}
 
 			return min == other.getMin() && max == other.getMax() && isGreedy == other.isGreedy() && getMatches().equals(other.getMatches());
-		}
-
-		public boolean isNegation() {
-			return false;
-		}
-
-		public boolean satisfiedBy(IProvidedCapability cap) {
-			if (getName() == null || !getName().equals(cap.getName()))
-				return false;
-			if (getNamespace() == null || !getNamespace().equals(cap.getNamespace()))
-				return false;
-			return getRange().isIncluded(cap.getVersion());
 		}
 
 		@Override
@@ -154,30 +163,23 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean isMatch(IInstallableUnit candidate) {
-			if (!candidate.satisfies(this))
-				return false;
-			return true;
-		}
-
-		public boolean isVersionStrict() {
-			// TODO Auto-generated method stub
-			return false;
+			return candidate.satisfies(this);
 		}
 
 		@Override
 		public IMatchExpression<IInstallableUnit> getMatches() {
-			return ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version ~= $2)"), name, namespace, versionRange);
+			return RequiredCapability.createMatchExpressionFromRange(namespace, name, versionRange);
 		}
 
 		@Override
 		public String getDescription() {
-			return description;
+			return "";
 		}
 	}
 
 	class SPIProvidedCapability implements IProvidedCapability {
-		String namespace;
-		Map<String, Object> attributes;
+		private final String namespace;
+		private final Map<String, Object> attributes;
 
 		public SPIProvidedCapability(String namespace, String name, Version version) {
 			this.namespace = namespace;
@@ -189,13 +191,17 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof IProvidedCapability))
+			if (!(other instanceof IProvidedCapability)) {
 				return false;
+			}
+
 			IProvidedCapability otherCapability = (IProvidedCapability) other;
-			if (!(namespace.equals(otherCapability.getNamespace())))
+			if (!(namespace.equals(otherCapability.getNamespace()))) {
 				return false;
-			if (!(attributes.equals(otherCapability.getAttributes())))
+			}
+			if (!(attributes.equals(otherCapability.getAttributes()))) {
 				return false;
+			}
 			return true;
 		}
 
@@ -221,7 +227,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public Map<String, Object> getAttributes() {
-			return attributes;
+			return Collections.unmodifiableMap(attributes);
 		}
 	}
 

@@ -11,7 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import junit.framework.*;
+import junit.framework.JUnit4TestAdapter;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Performs all metadata tests.
@@ -32,6 +35,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PersistFragment.class);
 		suite.addTestSuite(ProvidedCapabilityTest.class);
 		suite.addTestSuite(RequirementToString.class);
+		suite.addTest(new JUnit4TestAdapter(RequirementParsingTest.class));
 		return suite;
 	}
 

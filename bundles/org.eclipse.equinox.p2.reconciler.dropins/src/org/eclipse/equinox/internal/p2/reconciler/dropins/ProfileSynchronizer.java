@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
-import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -131,7 +130,7 @@ public class ProfileSynchronizer {
 		if (!request.getRemovals().isEmpty()) {
 			Collection<IRequirement> requirements = new ArrayList<>();
 			for (IInstallableUnit unit : request.getRemovals()) {
-				RequiredCapability req = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, 0, 0, false, null);
+				IRequirement req = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, 0, 0, false);
 				requirements.add(req);
 			}
 			request.addExtraRequirements(requirements);
