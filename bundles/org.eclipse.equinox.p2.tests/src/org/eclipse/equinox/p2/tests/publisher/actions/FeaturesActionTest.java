@@ -10,18 +10,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.and;
-import static org.easymock.EasyMock.capture;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -29,32 +22,15 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.ITouchpointData;
-import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.IPublisherResult;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.actions.IAdditionalInstallableUnitAdvice;
-import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
-import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
-import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
-import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
-import org.eclipse.equinox.p2.publisher.actions.IUpdateDescriptorAdvice;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.p2.tests.TestData;
-import org.eclipse.equinox.p2.tests.TestMetadataRepository;
+import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -108,9 +84,11 @@ public class FeaturesActionTest extends ActionTest {
 		IRequirement[][] applicabilityScope = iu.getApplicabilityScope();
 		assertEquals(1, applicabilityScope.length);
 		IRequiredCapability require = (IRequiredCapability) applicabilityScope[0][0];
-
-		IRequirement expected = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "org.foo.feature.group", VersionRange.create("[1.0.0, 2.0.0)"), null, false, false, true);
-		verifyRequirement(Collections.singleton(expected), require);
+		assertEquals("org.foo.feature.group", require.getName());
+		IMatchExpression<IInstallableUnit> matches = require.getMatches();
+		assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2 && x.version < $3)", matches.toString());
+		assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+		assertEquals(Version.parseVersion("2.0.0"), matches.getParameters()[3]);
 	}
 
 	public void testMatchRange() throws Exception {
@@ -133,14 +111,16 @@ public class FeaturesActionTest extends ActionTest {
 		Collection<IRequirement> requires = iu.getRequirements();
 		assertEquals(3, requires.size());
 		for (IRequirement require : requires) {
-			String requireName = ((IRequiredCapability) require).getName();
-
-			if (requireName.equals("org.foo.feature.group")) {
-				IRequirement expected = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "org.foo.feature.group", VersionRange.create("[1.0.0, 2.0.0)"), null, false, false, true);
-				verifyRequirement(Collections.singleton(expected), require);
-			} else if (requireName.equals("org.plug")) {
-				IRequirement expected = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "org.plug", VersionRange.create("[1.0.0, 2.0.0)"), null, false, false, true);
-				verifyRequirement(Collections.singleton(expected), require);
+			if (((IRequiredCapability) require).getName().equals("org.foo.feature.group")) {
+				IMatchExpression<IInstallableUnit> matches = require.getMatches();
+				assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2 && x.version < $3)", matches.toString());
+				assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+				assertEquals(Version.parseVersion("2.0.0"), matches.getParameters()[3]);
+			} else if (((IRequiredCapability) require).getName().equals("org.plug")) {
+				IMatchExpression<IInstallableUnit> matches = require.getMatches();
+				assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2 && x.version < $3)", matches.toString());
+				assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+				assertEquals(Version.parseVersion("2.0.0"), matches.getParameters()[3]);
 			}
 		}
 	}
@@ -165,14 +145,14 @@ public class FeaturesActionTest extends ActionTest {
 		Collection<IRequirement> requires = iu.getRequirements();
 		assertEquals(3, requires.size());
 		for (IRequirement require : requires) {
-			String requireName = ((IRequiredCapability) require).getName();
-
-			if (requireName.equals("org.foo.feature.group")) {
-				IRequirement expected = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "org.foo.feature.group", VersionRange.create("1.0.0"), null, false, false, true);
-				verifyRequirement(Collections.singleton(expected), require);
-			} else if (requireName.equals("org.plug")) {
-				IRequirement expected = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "org.plug", VersionRange.create("1.0.0"), null, false, false, true);
-				verifyRequirement(Collections.singleton(expected), require);
+			if (((IRequiredCapability) require).getName().equals("org.foo.feature.group")) {
+				IMatchExpression<IInstallableUnit> matches = require.getMatches();
+				assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2)", matches.toString());
+				assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+			} else if (((IRequiredCapability) require).getName().equals("org.plug")) {
+				IMatchExpression<IInstallableUnit> matches = require.getMatches();
+				assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2)", matches.toString());
+				assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
 			}
 		}
 	}
@@ -245,9 +225,9 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(fooRequiredCapabilities.size() == 0);
 
 		Collection<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
-		verifyProvidedCapability(fooProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "foo.feature.jar", fooVersion); //$NON-NLS-1$
-		verifyProvidedCapability(fooProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$
-		verifyProvidedCapability(fooProvidedCapabilities, "org.eclipse.update.feature", FOO, fooVersion); //$NON-NLS-1$
+		contains(fooProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "foo.feature.jar", fooVersion); //$NON-NLS-1$
+		contains(fooProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$
+		contains(fooProvidedCapabilities, "org.eclipse.update.feature", FOO, fooVersion); //$NON-NLS-1$
 		assertTrue(fooProvidedCapabilities.size() == 3);
 
 		//feature group IU for foo
@@ -280,8 +260,8 @@ public class FeaturesActionTest extends ActionTest {
 		IInstallableUnit barGroup = barIUs.get(0);
 		Collection<IRequirement> barRequiredCapabilities = barGroup.getRequirements();
 		//contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
-		verifyRequirement(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", 1, 1, true); //$NON-NLS-1$//$NON-NLS-2$
-		verifyRequirement(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", 1, 1, true); //$NON-NLS-1$//$NON-NLS-2$
+		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
+		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		assertEquals(barGroup.getFilter().getParameters()[0], ExpressionUtil.parseLDAP("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))"));
 
 		//check zipped=true in touchpointData
@@ -297,9 +277,9 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(barRequiredCapabilities.size() == 0);
 
 		Collection<IProvidedCapability> barProvidedCapabilities = bar.getProvidedCapabilities();
-		verifyProvidedCapability(barProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", barVersion); //$NON-NLS-1$
-		verifyProvidedCapability(barProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$
-		verifyProvidedCapability(barProvidedCapabilities, "org.eclipse.update.feature", BAR, barVersion); //$NON-NLS-1$
+		contains(barProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", barVersion); //$NON-NLS-1$
+		contains(barProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$
+		contains(barProvidedCapabilities, "org.eclipse.update.feature", BAR, barVersion); //$NON-NLS-1$
 		assertTrue(barProvidedCapabilities.size() == 3);
 	}
 

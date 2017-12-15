@@ -8,17 +8,12 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
- *     Todor Boev
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import static org.eclipse.equinox.internal.p2.metadata.InstallableUnit.MEMBER_PROVIDED_CAPABILITIES;
-import static org.eclipse.equinox.internal.p2.metadata.ProvidedCapability.MEMBER_NAME;
-import static org.eclipse.equinox.internal.p2.metadata.ProvidedCapability.MEMBER_NAMESPACE;
-import static org.eclipse.equinox.internal.p2.metadata.ProvidedCapability.MEMBER_VERSION;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
@@ -39,26 +34,41 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
 public class RequiredCapability extends Requirement implements IRequiredCapability {
-	private static final IExpression simpleMatchExpression;
+	private static final IExpression allVersionsExpression;
+	private static final IExpression range_II_Expression;
+	private static final IExpression range_IN_Expression;
+	private static final IExpression range_NI_Expression;
+	private static final IExpression range_NN_Expression;
+	private static final IExpression strictVersionExpression;
+	private static final IExpression openEndedExpression;
+	private static final IExpression openEndedNonInclusiveExpression;
 
 	static {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
+		IExpression xVar = factory.variable("x"); //$NON-NLS-1$
+		IExpression nameEqual = factory.equals(factory.member(xVar, ProvidedCapability.MEMBER_NAME), factory.indexedParameter(0));
+		IExpression namespaceEqual = factory.equals(factory.member(xVar, ProvidedCapability.MEMBER_NAMESPACE), factory.indexedParameter(1));
 
-		IExpression xVar = factory.variable("cap"); //$NON-NLS-1$
+		IExpression versionMember = factory.member(xVar, ProvidedCapability.MEMBER_VERSION);
 
-		IExpression name = factory.member(xVar, MEMBER_NAME);
-		IExpression nameEqual = factory.equals(name, factory.indexedParameter(0));
+		IExpression versionCmpLow = factory.indexedParameter(2);
+		IExpression versionEqual = factory.equals(versionMember, versionCmpLow);
+		IExpression versionGt = factory.greater(versionMember, versionCmpLow);
+		IExpression versionGtEqual = factory.greaterEqual(versionMember, versionCmpLow);
 
-		IExpression namespace = factory.member(xVar, MEMBER_NAMESPACE);
-		IExpression namespaceEqual = factory.equals(namespace, factory.indexedParameter(1));
+		IExpression versionCmpHigh = factory.indexedParameter(3);
+		IExpression versionLt = factory.less(versionMember, versionCmpHigh);
+		IExpression versionLtEqual = factory.lessEqual(versionMember, versionCmpHigh);
 
-		IExpression version = factory.member(xVar, MEMBER_VERSION);
-		IExpression versionInRange = factory.matches(version, factory.indexedParameter(2));
-
-		IExpression pvMember = factory.member(factory.thisVariable(), MEMBER_PROVIDED_CAPABILITIES);
-
-		// Place nameEqual first to eliminate quickly most non-matching candidates
-		simpleMatchExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionInRange)));
+		IExpression pvMember = factory.member(factory.thisVariable(), InstallableUnit.MEMBER_PROVIDED_CAPABILITIES);
+		allVersionsExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual)));
+		strictVersionExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionEqual)));
+		openEndedExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual)));
+		openEndedNonInclusiveExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt)));
+		range_II_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual, versionLtEqual)));
+		range_IN_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual, versionLt)));
+		range_NI_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt, versionLtEqual)));
+		range_NN_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt, versionLt)));
 	}
 
 	/**
@@ -122,9 +132,28 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 	public static IMatchExpression<IInstallableUnit> createMatchExpressionFromRange(String namespace, String name, VersionRange range) {
 		Assert.isNotNull(namespace);
 		Assert.isNotNull(name);
-		Object resolvedRange = (range != null) ? range : VersionRange.emptyRange;
+
+		// Empty range - matches everything
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		return factory.matchExpression(simpleMatchExpression, name, namespace, resolvedRange);
+		if (range == null || range.equals(VersionRange.emptyRange)) {
+			return factory.matchExpression(allVersionsExpression, name, namespace);
+		}
+
+		// Point range - matches exactly one version
+		if (range.getMinimum().equals(range.getMaximum())) {
+			return factory.matchExpression(strictVersionExpression, name, namespace, range.getMinimum());
+		}
+
+		// Semi-closed ranged - matches a minimum version
+		if (range.getMaximum().equals(Version.MAX_VERSION)) {
+			return factory.matchExpression(range.getIncludeMinimum() ? openEndedExpression : openEndedNonInclusiveExpression, name, namespace, range.getMinimum());
+		}
+
+		// Closed range - matches version between a minimum and a maximum
+		return factory.matchExpression(//
+				range.getIncludeMinimum() ? (range.getIncludeMaximum() ? range_II_Expression : range_IN_Expression) //
+						: (range.getIncludeMaximum() ? range_NI_Expression : range_NN_Expression), //
+				name, namespace, range.getMinimum(), range.getMaximum());
 	}
 
 	public static String extractNamespace(IMatchExpression<IInstallableUnit> matchExpression) {
@@ -138,28 +167,39 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 	}
 
 	public static VersionRange extractRange(IMatchExpression<IInstallableUnit> matchExpression) {
-		assertValid(matchExpression);
+		IExpression expr = assertValid(matchExpression);
 		Object[] params = matchExpression.getParameters();
-		return (VersionRange) params[2];
+		if (params.length < 3) {
+			return VersionRange.emptyRange;
+		}
+		Version v = (Version) params[2];
+		if (params.length < 4) {
+			if (expr.equals(strictVersionExpression)) {
+				return new VersionRange(v, true, v, true);
+			}
+			return new VersionRange(v, expr.equals(openEndedExpression), Version.MAX_VERSION, true);
+		}
+		Version h = (Version) params[3];
+		return new VersionRange(v, expr.equals(range_II_Expression) || expr.equals(range_IN_Expression), h, expr.equals(range_II_Expression) || expr.equals(range_NI_Expression));
 	}
 
 	public static boolean isVersionStrict(IMatchExpression<IInstallableUnit> matchExpression) {
-		if (!isSimpleRequirement(matchExpression)) {
-			return false;
-		}
-
-		Object[] params = matchExpression.getParameters();
-		VersionRange range = (VersionRange) params[2];
-		return range.getMinimum().equals(range.getMaximum());
+		return ExpressionUtil.getOperand(matchExpression) == strictVersionExpression;
 	}
 
 	public static boolean isSimpleRequirement(IMatchExpression<IInstallableUnit> matchExpression) {
-		return simpleMatchExpression.equals(ExpressionUtil.getOperand(matchExpression));
+		return isPredefined(ExpressionUtil.getOperand(matchExpression));
 	}
 
-	private static void assertValid(IMatchExpression<IInstallableUnit> matchExpression) {
-		if (!isSimpleRequirement(matchExpression)) {
+	private static IExpression assertValid(IMatchExpression<IInstallableUnit> matchExpression) {
+		IExpression expr = ExpressionUtil.getOperand(matchExpression);
+		if (!isPredefined(expr)) {
 			throw new IllegalArgumentException();
 		}
+		return expr;
+	}
+
+	private static boolean isPredefined(IExpression expr) {
+		return expr.equals(allVersionsExpression) || expr.equals(range_II_Expression) || expr.equals(range_IN_Expression) || expr.equals(range_NI_Expression) || expr.equals(range_NN_Expression) || expr.equals(strictVersionExpression) || expr.equals(openEndedExpression) || expr.equals(openEndedNonInclusiveExpression);
 	}
 }

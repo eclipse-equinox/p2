@@ -12,44 +12,22 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
-import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
-import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.okStatus;
-import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
-import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.p2.tests.TestData;
-import org.eclipse.equinox.p2.tests.TestMetadataRepository;
+import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -210,7 +188,7 @@ public class JREActionTest extends ActionTest {
 		assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(bar instanceof IInstallableUnitFragment);
 		Collection<IRequirement> requiredCapability = ((IInstallableUnitFragment) bar).getHost();
-		verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(jreVersion, true, Version.MAX_VERSION, true));
+		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(jreVersion, true, Version.MAX_VERSION, true));
 		assertTrue(requiredCapability.size() == 1);
 
 		Collection<IProvidedCapability> providedCapability = bar.getProvidedCapabilities();

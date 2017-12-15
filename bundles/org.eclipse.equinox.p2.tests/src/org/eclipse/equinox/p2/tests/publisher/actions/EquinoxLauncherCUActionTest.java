@@ -10,19 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
@@ -69,8 +62,8 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 			if (iu.getId().equals(flavorArg + EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
 				assertTrue(iu instanceof InstallableUnitFragment);
 				//verify required capability
-				verifyRequirement(((InstallableUnitFragment) iu).getHost(), PublisherHelper.OSGI_BUNDLE_CLASSIFIER, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, VersionRange.emptyRange);
-				verifyRequirement(((InstallableUnitFragment) iu).getHost(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false), null, 1, 1, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.OSGI_BUNDLE_CLASSIFIER, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, VersionRange.emptyRange);
+				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false), 1, 1, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				assertEquals(2, (((InstallableUnitFragment) iu).getHost().size()));
 
 				Collection<IProvidedCapability> cap = iu.getProvidedCapabilities();

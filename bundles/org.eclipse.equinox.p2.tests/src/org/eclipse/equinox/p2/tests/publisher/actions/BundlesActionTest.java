@@ -11,59 +11,23 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.and;
-import static org.easymock.EasyMock.capture;
-import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.*;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 import org.easymock.EasyMock;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
-import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.ITouchpointData;
-import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
-import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.publisher.AbstractPublisherApplication;
-import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.IPublisherResult;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherResult;
-import org.eclipse.equinox.p2.publisher.actions.IAdditionalInstallableUnitAdvice;
-import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
-import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
-import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
-import org.eclipse.equinox.p2.publisher.actions.IUpdateDescriptorAdvice;
+import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -118,21 +82,21 @@ public class BundlesActionTest extends ActionTest {
 	private static final String TEST2_PROV_X_NAMESPACE = JAVA_PACKAGE;
 	private static final String TEST1_PROV_Z_NAMESPACE = JAVA_PACKAGE;
 
-	private static final Version BUNDLE1_VERSION = Version.create("0.1.0");//$NON-NLS-1$
-	private static final Version BUNDLE2_VERSION = Version.create("1.0.0.qualifier");//$NON-NLS-1$
-	private static final Version BUNDLE3_VERSION = Version.create("0.1.0.qualifier");//$NON-NLS-1$
-	private static final Version BUNDLE4_VERSION = Version.create("2.0.1");//$NON-NLS-1$
-	private static final Version BUNDLE5_VERSION = Version.create("0.1.0.qualifier");//$NON-NLS-1$
+	private final Version BUNDLE1_VERSION = Version.create("0.1.0");//$NON-NLS-1$
+	private final Version BUNDLE2_VERSION = Version.create("1.0.0.qualifier");//$NON-NLS-1$
+	private final Version BUNDLE3_VERSION = Version.create("0.1.0.qualifier");//$NON-NLS-1$
+	private final Version BUNDLE4_VERSION = Version.create("2.0.1");//$NON-NLS-1$
+	private final Version BUNDLE5_VERSION = Version.create("0.1.0.qualifier");//$NON-NLS-1$
 
-	private static final VersionRange DEFAULT_VERSION_RANGE = VersionRange.emptyRange;
-	private static final Version PROVBUNDLE2_VERSION = BUNDLE2_VERSION;
-	private static final Version TEST2_PROVZ_VERSION = Version.emptyVersion;
-	private static final Version TEST2_PROVY_VERSION = Version.emptyVersion;
-	private static final Version TEST2_PROVX_VERSION = Version.emptyVersion;
-	private static final VersionRange TEST2_IU_A_VERSION_RANGE = VersionRange.emptyRange;
-	private static final VersionRange TEST2_IU_B_VERSION_RANGE = VersionRange.emptyRange;
-	private static final VersionRange TEST2_IU_C_VERSION_RANGE = VersionRange.create("1.0.0");//$NON-NLS-1$
-	private static final VersionRange TEST1_IU_D_VERSION_RANGE = VersionRange.create("1.3.0");//$NON-NLS-1$
+	private final VersionRange DEFAULT_VERSION_RANGE = VersionRange.emptyRange;
+	private final Version PROVBUNDLE2_VERSION = BUNDLE2_VERSION;
+	private final Version TEST2_PROVZ_VERSION = Version.emptyVersion;
+	private final Version TEST2_PROVY_VERSION = Version.emptyVersion;
+	private final Version TEST2_PROVX_VERSION = Version.emptyVersion;
+	private final VersionRange TEST2_IUA_VERSION_RANGE = VersionRange.emptyRange;
+	private final VersionRange TEST2_IUB_VERSION_RANGE = VersionRange.emptyRange;
+	private final VersionRange TEST2_IUC_VERSION_RANGE = new VersionRange(Version.create("1.0.0"), true, Version.MAX_VERSION, true);//$NON-NLS-1$
+	private final VersionRange TEST1_IUD_VERSION_RANGE = new VersionRange(Version.create("1.3.0"), true, Version.MAX_VERSION, true);//$NON-NLS-1$
 
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 
@@ -253,7 +217,7 @@ public class BundlesActionTest extends ActionTest {
 
 		// check required capabilities
 		Collection<IRequirement> requiredCapability = bundle1IU.getRequirements();
-		verifyRequirement(requiredCapability, TEST1_IU_D_NAMESPACE, TEST1_IUD_NAME, TEST1_IU_D_VERSION_RANGE);
+		verifyRequiredCapability(requiredCapability, TEST1_IU_D_NAMESPACE, TEST1_IUD_NAME, TEST1_IUD_VERSION_RANGE);
 		verifyRequirement(requiredCapability, TEST1_REQ_EE_FILTER, 0, 1, true);
 		assertEquals("2.0", 2, requiredCapability.size());
 
@@ -290,9 +254,9 @@ public class BundlesActionTest extends ActionTest {
 
 		// check required capabilities
 		Collection<IRequirement> requirements = bundle2IU.getRequirements();
-		verifyRequirement(requirements, TEST2_IU_A_NAMESPACE, TEST2_REQ_A_NAME, TEST2_IU_A_VERSION_RANGE);
-		verifyRequirement(requirements, TEST2_IU_B_NAMESPACE, TEST2_REQ_B_NAME, TEST2_IU_B_VERSION_RANGE);
-		verifyRequirement(requirements, TEST2_IU_C_NAMESPACE, TEST2_REQ_C_NAME, TEST2_IU_C_VERSION_RANGE);
+		verifyRequiredCapability(requirements, TEST2_IU_A_NAMESPACE, TEST2_REQ_A_NAME, TEST2_IUA_VERSION_RANGE);
+		verifyRequiredCapability(requirements, TEST2_IU_B_NAMESPACE, TEST2_REQ_B_NAME, TEST2_IUB_VERSION_RANGE);
+		verifyRequiredCapability(requirements, TEST2_IU_C_NAMESPACE, TEST2_REQ_C_NAME, TEST2_IUC_VERSION_RANGE);
 		verifyRequirement(requirements, TEST2_REQ_EE_FILTER, 0, 1, true);
 		assertTrue(requirements.size() == 4 /*number of tested elements*/);
 
@@ -357,10 +321,10 @@ public class BundlesActionTest extends ActionTest {
 
 		// check required capabilities
 		Collection<IRequirement> requirements = bundle4IU.getRequirements();
-		verifyRequirement(requirements, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, false);
-		verifyRequirement(requirements, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, true);
-		verifyRequirement(requirements, OSGI, TEST4_REQ_BUNDLE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, false);
-		verifyRequirement(requirements, OSGI, TEST4_REQ_BUNDLE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, true);
+		verifyRequiredCapability(requirements, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
+		verifyRequiredCapability(requirements, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
+		verifyRequiredCapability(requirements, OSGI, TEST4_REQ_BUNDLE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
+		verifyRequiredCapability(requirements, OSGI, TEST4_REQ_BUNDLE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
 		assertEquals("2.0", 4, requirements.size());
 	}
 
