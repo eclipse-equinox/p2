@@ -12,7 +12,9 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import static org.easymock.EasyMock.expect;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -20,15 +22,30 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
-import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.p2.publisher.eclipse.ConfigAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.ConfigCUsAction;
+import org.eclipse.equinox.p2.publisher.eclipse.IConfigAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.IExecutableAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.LaunchingAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
 public class ANYConfigCUsActionTest extends ActionTest {
 	private static final String BUNDLE_VERSION = "5.0.0"; //$NON-NLS-1$
@@ -72,9 +89,9 @@ public class ANYConfigCUsActionTest extends ActionTest {
 		//verify RequiredCapabilities
 		List<IRequirement> requiredCapability = iu.getRequirements();
 		assertTrue(requiredCapability.size() == 3);
-		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".config." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
-		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".ini." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
-		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + configSpec + ORG_ECLIPSE_CORE_COMMANDS, new VersionRange(version, true, version, true));
+		verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".config." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
+		verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".ini." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
+		verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + configSpec + ORG_ECLIPSE_CORE_COMMANDS, new VersionRange(version, true, version, true));
 
 		//verify non root IUs
 		verifyFragment("ini"); //$NON-NLS-1$
@@ -132,8 +149,8 @@ public class ANYConfigCUsActionTest extends ActionTest {
 		assertEquals(0, fragment.getRequirements().size());
 
 		final Collection<IRequirement> hostRequirements = fragment.getHost();
-		verifyRequiredCapability(hostRequirements, "osgi.bundle", ORG_ECLIPSE_CORE_COMMANDS, new VersionRange(BUNDLE_VERSION)); //$NON-NLS-1$
-		verifyRequiredCapability(hostRequirements, "org.eclipse.equinox.p2.eclipse.type", "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false), 1, 1, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		verifyRequirement(hostRequirements, "osgi.bundle", ORG_ECLIPSE_CORE_COMMANDS, new VersionRange(BUNDLE_VERSION)); //$NON-NLS-1$
+		verifyRequirement(hostRequirements, "org.eclipse.equinox.p2.eclipse.type", "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false), null, 1, 1, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertTrue(hostRequirements.size() == 2);
 
 		final Collection<ITouchpointData> touchpointData = fragment.getTouchpointData();

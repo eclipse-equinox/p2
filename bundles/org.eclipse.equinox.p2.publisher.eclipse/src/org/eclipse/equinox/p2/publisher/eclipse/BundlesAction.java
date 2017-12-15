@@ -292,12 +292,13 @@ public class BundlesAction extends AbstractPublisherAction {
 		VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
 		final boolean optional = isOptional(importSpec);
 		final boolean greedy;
-		if (optional)
+		if (optional) {
 			greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(importSpec.getName(), rawImportPackageHeader));
-		else
+		} else {
 			greedy = true;
+		}
 		//TODO this needs to be refined to take into account all the attribute handled by imports
-		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional ? 0 : 1, 1, greedy));
+		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional, false, greedy));
 	}
 
 	// TODO Handle all attributes and directives somehow? Especially the "effective" directive.
