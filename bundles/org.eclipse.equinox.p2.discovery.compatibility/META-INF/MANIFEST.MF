@@ -15,3 +15,4 @@ Export-Package: org.eclipse.equinox.internal.p2.discovery.compatibility;x-friend
 Bundle-Localization: plugin
 Bundle-Activator: org.eclipse.equinox.internal.p2.discovery.compatibility.Activator
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.eclipse.equinox.p2.discovery.compatibility

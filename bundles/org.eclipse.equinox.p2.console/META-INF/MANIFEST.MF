@@ -25,3 +25,4 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.osgi.util.tracker;version="1.4.0"
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.3.0"
+Automatic-Module-Name: org.eclipse.equinox.p2.console

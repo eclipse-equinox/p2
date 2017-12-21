@@ -66,3 +66,4 @@ Import-Package: com.ibm.icu.text,
 Service-Component: OSGI-INF/repositoryTracker_component.xml, OSGI-INF/serviceui.xml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: org.eclipse.equinox.p2.ui

@@ -26,3 +26,4 @@ Export-Package: org.eclipse.equinox.internal.p2.ui.discovery;x-internal:=true,
 Bundle-ClassPath: .
 Import-Package: com.ibm.icu.text,
  org.eclipse.equinox.p2.planner;version="2.0.0"
+Automatic-Module-Name: org.eclipse.equinox.p2.ui.discovery

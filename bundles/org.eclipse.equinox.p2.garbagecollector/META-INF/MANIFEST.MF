@@ -26,3 +26,4 @@ Import-Package: org.eclipse.core.runtime.preferences,
 Service-Component: OSGI-INF/garbagecollector.xml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: org.eclipse.equinox.p2.garbagecollector

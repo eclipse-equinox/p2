@@ -20,3 +20,4 @@ Export-Package: org.eclipse.equinox.internal.simpleconfigurator.manipulator;x-fr
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.0"
 Service-Component: OSGI-INF/configurator.xml
+Automatic-Module-Name: org.eclipse.equinox.simpleconfigurator.manipulator

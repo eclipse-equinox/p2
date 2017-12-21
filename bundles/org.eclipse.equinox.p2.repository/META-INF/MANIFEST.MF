@@ -65,3 +65,4 @@ Import-Package: javax.crypto,
  org.xml.sax,
  org.xml.sax.helpers
 Service-Component: OSGI-INF/cacheManager.xml
+Automatic-Module-Name: org.eclipse.equinox.p2.repository

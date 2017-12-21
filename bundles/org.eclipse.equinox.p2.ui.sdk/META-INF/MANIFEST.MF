@@ -28,3 +28,4 @@ Import-Package: javax.xml.parsers,
 Service-Component: OSGI-INF/policy_component.xml, OSGI-INF/licenseManager_component.xml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: org.eclipse.equinox.p2.ui.sdk

@@ -11,3 +11,4 @@ Export-Package: org.eclipse.equinox.internal.p2.discovery;x-friends:="org.eclips
  org.eclipse.equinox.internal.p2.discovery.model;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.ui.discovery,org.eclipse.equinox.p2.discovery.repository",
  org.eclipse.equinox.internal.p2.discovery.util;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.ui.discovery,org.eclipse.equinox.p2.discovery.repository"
 Bundle-Localization: plugin
+Automatic-Module-Name: org.eclipse.equinox.p2.discovery

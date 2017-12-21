@@ -50,3 +50,4 @@ Import-Package: org.eclipse.equinox.app;version="1.0.0";resolution:=optional,
  org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.6.0",
  org.osgi.service.application;version="1.1.0"
+Automatic-Module-Name: org.eclipse.equinox.p2.publisher

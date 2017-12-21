@@ -41,3 +41,4 @@ Import-Package: javax.xml.parsers,
  org.w3c.dom,
  org.xml.sax,
  org.xml.sax.helpers
+Automatic-Module-Name: org.eclipse.equinox.p2.updatesite

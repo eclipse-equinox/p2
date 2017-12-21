@@ -20,3 +20,4 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: bin/,
  .
+Automatic-Module-Name: org.eclipse.equinox.p2.tests.verifier

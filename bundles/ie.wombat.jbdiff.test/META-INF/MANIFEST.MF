@@ -10,3 +10,4 @@ Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Require-Bundle: org.junit,
  ie.wombat.jbdiff
+Automatic-Module-Name: ie.wombat.jbdiff.test

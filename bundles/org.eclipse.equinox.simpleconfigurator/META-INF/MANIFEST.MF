@@ -26,3 +26,4 @@ Export-Package: org.eclipse.equinox.internal.provisional.configurator;
  org.eclipse.equinox.internal.simpleconfigurator.console;x-internal:=true,
  org.eclipse.equinox.internal.simpleconfigurator.utils;x-friends:="org.eclipse.equinox.simpleconfigurator.manipulator"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: org.eclipse.equinox.simpleconfigurator

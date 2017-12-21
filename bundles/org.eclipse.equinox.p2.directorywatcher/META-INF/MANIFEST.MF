@@ -28,3 +28,4 @@ Import-Package: org.eclipse.equinox.internal.p2.artifact.repository.simple,
  org.eclipse.osgi.util,
  org.osgi.framework;version="1.4.0",
  org.osgi.service.packageadmin;version="1.2.0"
+Automatic-Module-Name: org.eclipse.equinox.p2.directorywatcher

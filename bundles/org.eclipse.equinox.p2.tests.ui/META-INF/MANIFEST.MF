@@ -24,3 +24,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.equinox.internal.p2.operations,
  org.eclipse.equinox.p2.operations;version="[2.0.0,3.0.0)"
 Eclipse-BundleShape: dir
+Automatic-Module-Name: org.eclipse.equinox.p2.tests.ui

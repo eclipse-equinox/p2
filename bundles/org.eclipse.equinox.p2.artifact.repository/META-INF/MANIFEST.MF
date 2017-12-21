@@ -62,3 +62,4 @@ Import-Package: javax.xml.parsers,
 Service-Component: OSGI-INF/repositoryManager.xml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: org.eclipse.equinox.p2.artifact.repository

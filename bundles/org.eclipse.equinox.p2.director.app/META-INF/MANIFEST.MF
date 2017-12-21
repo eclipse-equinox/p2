@@ -33,3 +33,4 @@ Import-Package: org.eclipse.equinox.app,
  org.eclipse.osgi.util,
  org.osgi.framework;version="1.6.0",
  org.osgi.service.packageadmin
+Automatic-Module-Name: org.eclipse.equinox.p2.director.app

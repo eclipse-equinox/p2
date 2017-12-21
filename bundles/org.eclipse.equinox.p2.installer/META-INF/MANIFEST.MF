@@ -24,3 +24,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.equinox.internal.p2.installer;x-internal:=true,
  org.eclipse.equinox.internal.p2.installer.ui;x-internal:=true,
  org.eclipse.equinox.internal.provisional.p2.installer;x-internal:=true
+Automatic-Module-Name: org.eclipse.equinox.p2.installer
