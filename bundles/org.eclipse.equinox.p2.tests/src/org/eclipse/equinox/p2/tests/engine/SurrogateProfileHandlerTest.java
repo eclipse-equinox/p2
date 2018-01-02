@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2017 IBM Corporation and others.
+ *  Copyright (c) 2005, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,11 +11,13 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.Profile;
+import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.p2.engine.SurrogateProfileHandler;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -92,7 +94,7 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		assertEquals(2, queryResultSize(surrogateProfile.available(QueryUtil.createIUAnyQuery(), null)));
 	}
 
-	public void testDropletsCanDetectFeatureGroup() throws IOException, ProvisionException {
+	public void testDropletsCanDetectFeatureGroup() throws ProvisionException {
 		// Droplet containing 'org.foo.bar', 'org.foo.bar.feature.feature.jar' and 'org.foo.bar.feature.feature.group'
 		File fragTestData = getTestData("0.1", "/testData/testRepos/foo-droplet");
 		File fragDir = getTempFolder();
