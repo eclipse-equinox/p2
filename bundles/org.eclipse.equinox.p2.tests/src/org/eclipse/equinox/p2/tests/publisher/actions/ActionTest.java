@@ -27,15 +27,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
@@ -92,18 +90,25 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		verifyRequirement(actual, namespace, name, range, null, 1, 1, true);
 	}
 
-	protected void verifyRequirement(Collection<IRequirement> actual, String namespace, String name, VersionRange range, String filterStr, int minCard, int maxCard, boolean greedy) {
-		IRequirement expected = MetadataFactory.createRequirement(namespace, name, range, null, minCard, maxCard, greedy);
+	protected void verifyRequirement(Collection<IRequirement> actual, String namespace, String name, VersionRange range, String envFilter, int minCard, int maxCard, boolean greedy) {
+		IRequirement expected = MetadataFactory.createRequirement(namespace, name, range, InstallableUnit.parseFilter(envFilter), minCard, maxCard, greedy);
 		verifyRequirement(actual, expected);
 	}
 
-	protected void verifyRequirement(Collection<IRequirement> actual, String matchExpr, int minCard, int maxCard, boolean greedy) {
-		IExpression expr = ExpressionUtil.parse(matchExpr);
-		IMatchExpression<IInstallableUnit> matcher = ExpressionUtil.getFactory().matchExpression(expr);
-		IRequirement expected = MetadataFactory.createRequirement(matcher, null, minCard, maxCard, greedy);
+	protected void verifyRequirement(Collection<IRequirement> actual, String namespace, String propsFilter, String envFilter, int minCard, int maxCard, boolean greedy) {
+		IRequirement expected = MetadataFactory.createRequirement(namespace, propsFilter, InstallableUnit.parseFilter(envFilter), minCard, maxCard, greedy);
 		verifyRequirement(actual, expected);
 	}
 
+	/**
+	 * Safe to use only if actual and expected were created by the same method of {@link MetadataFactory}
+	 * because match expressions are not safe to compare for equality.
+	 *
+	 * This must be guaranteed by all sub-class test cases
+	 *
+	 * @param actual
+	 * @param expected
+	 */
 	protected void verifyRequirement(Collection<IRequirement> actual, IRequirement expected) {
 		for (IRequirement act : actual) {
 			if (expected.getMatches().equals(act.getMatches())) {

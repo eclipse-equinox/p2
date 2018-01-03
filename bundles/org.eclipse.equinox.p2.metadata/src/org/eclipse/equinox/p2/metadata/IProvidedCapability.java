@@ -6,11 +6,13 @@
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
- *   IBM - ongoing development
+*   IBM - ongoing development
+*   Todor Boev
 ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
 import java.util.Map;
+import org.eclipse.equinox.p2.metadata.expression.IFilterExpression;
 
 /**
  * Describes a capability that is exposed by an installable unit. These capabilities
@@ -29,45 +31,56 @@ import java.util.Map;
  */
 public interface IProvidedCapability {
 	/**
+	 * The name of the property under which the capability version is stored.
+	 * 
+	 * Can be used with {@link #getProperties()}. The same value can be obtained with {@link #getVersion()}
+	 * 
+	 * @since 2.4
+	 */
+	String PROPERTY_VERSION = "version"; //$NON-NLS-1$
+
+	/**
 	 * 
 	 * @return String the namespace of this capability.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public String getNamespace();
+	String getNamespace();
 
 	/**
 	 * 
-	 * @return String the attribute stored under a key equal to {@link #getNamespace()} attribute of this capability.
+	 * @return String the attribute stored under a key equal to the {@link #getNamespace()} attribute of this capability.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * 
-	 * @return String the special <code>version</code> attribute of this capability.
+	 * @return String the special {@link #PROPERTY_VERSION} attribute of this capability.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public Version getVersion();
+	Version getVersion();
 
 	/**
+	 * A full description of this capability including the name and the version.
+	 * <p>
+	 * Such a description can be used to match this capability with an {@link IFilterExpression LDAP filter} for example.
 	 * 
-	 * @return A full description of this capability
+	 * @return An unmodifiable map
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 2.4
 	 */
-	public Map<String, Object> getAttributes();
+	Map<String, Object> getProperties();
 
 	/**
 	 * Returns whether this provided capability is equal to the given object.
 	 * 
 	 * This method returns <i>true</i> if:
 	 * <ul>
-	 *  <li> Both this object and the given object are of type IProvidedCapability
-	 *  <li> The result of <b>getNamespace()</b> on both objects are equal
-	 *  <li> The result of <b>getAttributes()</b> on both objects are equal
+	 *  <li>Both this object and the given object are of type IProvidedCapability</li>
+	 *  <li>The result of {@link #getNamespace()} on both objects are equal</li>
+	 *  <li>The result of {@link #getProperties()} on both objects are equal</li>
 	 * </ul> 
 	 */
 	@Override
-	public boolean equals(Object other);
-
+	boolean equals(Object other);
 }

@@ -104,7 +104,7 @@ public class MetadataRepositoryIO {
 
 		// A format version number for metadata repository XML.
 		public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
-		public static final Version CURRENT_VERSION = Version.createOSGi(1, 1, 0);
+		public static final Version CURRENT_VERSION = Version.createOSGi(1, 2, 0);
 		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
 		// Constants for processing Instructions
