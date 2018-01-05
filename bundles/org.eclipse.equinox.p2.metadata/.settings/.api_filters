@@ -1,35 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.equinox.p2.metadata" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter comment="API tools bug - there is no breaking change" id="923795461">
-            <message_arguments>
-                <message_argument value="2.1.100"/>
-                <message_argument value="2.1.0"/>
-            </message_arguments>
-        </filter>
-        <filter id="923795461">
-            <message_arguments>
-                <message_argument value="2.2.0"/>
-                <message_argument value="2.1.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/equinox/p2/metadata/IInstallableUnitPatch.java" type="org.eclipse.equinox.p2.metadata.IInstallableUnitPatch">
-        <filter comment="API tools can't handle @noreference methods" id="1211105284">
-            <message_arguments>
-                <message_argument value="getApplicabilityScope()"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/equinox/p2/metadata/IRequirement.java" type="org.eclipse.equinox.p2.metadata.IRequirement">
-        <filter comment="API tools can't handle @noreference methods" id="1209008130">
-            <message_arguments>
-                <message_argument value="2.0"/>
-                <message_argument value="2.2"/>
-                <message_argument value="getFilter()"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="src/org/eclipse/equinox/p2/query/CompoundQueryable.java" type="org.eclipse.equinox.p2.query.CompoundQueryable">
         <filter id="576720909">
             <message_arguments>
