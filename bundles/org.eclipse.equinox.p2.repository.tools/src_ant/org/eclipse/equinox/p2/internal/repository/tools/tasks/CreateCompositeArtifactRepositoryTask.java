@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,9 +55,8 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 				if (failOnExists)
 					throw new BuildException("Composite repository already exists at location: " + location);
 				return;
-			} else {
-				// we have a non-composite repo at this location. that is ok because we can co-exist.
 			}
+			// we have a non-composite repo at this location. that is ok because we can co-exist.
 		} catch (ProvisionException e) {
 			// re-throw the exception if we got anything other than "repo not found"
 			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)

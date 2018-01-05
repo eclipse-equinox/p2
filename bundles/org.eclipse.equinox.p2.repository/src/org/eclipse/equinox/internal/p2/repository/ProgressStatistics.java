@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 Cloudsmith Inc.
+ * Copyright (c) 2006, 2018 Cloudsmith Inc.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -152,9 +152,8 @@ public class ProgressStatistics {
 			// no meaningful speed data available
 			if (m_total == -1) {
 				return NLS.bind(Messages.fetching_0_from_1, new String[] {m_fileName, uriString});
-			} else {
-				return NLS.bind(Messages.fetching_0_from_1_2, new String[] {m_fileName, uriString, convert(m_total)});
 			}
+			return NLS.bind(Messages.fetching_0_from_1_2, new String[] {m_fileName, uriString, convert(m_total)});
 		}
 		return m_total != -1 ? NLS.bind(Messages.fetching_0_from_1_2_of_3_at_4, new String[] {m_fileName, uriString, convert(m_current), convert(m_total), convert(getRecentSpeed())}) : NLS.bind(Messages.fetching_0_from_1_2_at_3, new String[] {m_fileName, uriString, convert(m_current), convert(getRecentSpeed())});
 	}
