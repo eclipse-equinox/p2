@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2018 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -102,7 +102,7 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction("OSGi/Minimum-1.2"));
 
 		Version jreVersion = Version.create("1.2.0");
-		verifyMetadataIU("a.jre.osgi.minimum", 1, 3, jreVersion);
+		verifyMetadataIU("a.jre.osgi.minimum", 16, 3, jreVersion);
 		// verifyConfigIU("a.jre.osgi.minimum", jreVersion); // TODO config IU is not needed!?
 	}
 
@@ -129,7 +129,7 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction((String) null));
 
 		// these assertions need to be changed each time the default java profile, hardcoded in o.e.e.p2.publisher.actions.JREAction, is changed;
-		verifyMetadataIU("a.jre.javase", 158, 12, Version.parseVersion("1.6"));
+		verifyMetadataIU("a.jre.javase", 210, 12, Version.parseVersion("1.6"));
 		// verifyConfigIU(DEFAULT_JRE_NAME, DEFAULT_JRE_VERSION); // TODO config IU is not needed!?
 	}
 
