@@ -63,10 +63,6 @@ public class DirectorTask extends Task implements ILog {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.tools.ant.Task#execute()
-	 */
 	@Override
 	public void execute() throws BuildException {
 		Object result = null;
