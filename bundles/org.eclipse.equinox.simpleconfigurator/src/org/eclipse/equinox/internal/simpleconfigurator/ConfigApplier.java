@@ -397,7 +397,7 @@ class ConfigApplier {
 		Set<Bundle> allSameBSNs = new LinkedHashSet<>(); // maintain order and avoid duplicates
 		for (Bundle bundle : bundles) {
 			allSameBSNs.add(bundle);
-			String bsn = bundle.getLocation();
+			String bsn = bundle.getSymbolicName();
 			if (bsn != null) {
 				// look for others with same BSN
 				Bundle[] sameBSNs = packageAdminService.getBundles(bsn, null);
