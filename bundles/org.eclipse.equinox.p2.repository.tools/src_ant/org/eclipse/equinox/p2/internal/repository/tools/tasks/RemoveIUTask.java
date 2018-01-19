@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.util.*;
 import org.apache.tools.ant.BuildException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.AbstractApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
@@ -40,7 +39,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			return null;
 		}
 
-		public void finalizeRepos() throws ProvisionException {
+		public void finalizeRepos() {
 			super.finalizeRepositories();
 		}
 	}
@@ -86,12 +85,12 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 						boolean removeMetadata = (filter != null ? keys.size() > 0 : true);
 						for (IArtifactKey key : keys) {
 							if (filter == null) {
-								artifacts.removeDescriptor(key);
+								artifacts.removeDescriptor(key, new NullProgressMonitor());
 							} else {
 								IArtifactDescriptor[] descriptors = artifacts.getArtifactDescriptors(key);
 								for (int j = 0; j < descriptors.length; j++) {
 									if (filter.match(createDictionary(descriptors[j]))) {
-										artifacts.removeDescriptor(descriptors[j]);
+										artifacts.removeDescriptor(descriptors[j], new NullProgressMonitor());
 									} else {
 										removeMetadata = false;
 									}
@@ -110,11 +109,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
 		} finally {
-			try {
-				((RemoveIUApplication) application).finalizeRepos();
-			} catch (ProvisionException e) {
-				throw new BuildException(e);
-			}
+			((RemoveIUApplication) application).finalizeRepos();
 		}
 	}
 
