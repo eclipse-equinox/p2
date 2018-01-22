@@ -30,7 +30,6 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.RequiredPropertiesMatch;
 import org.eclipse.equinox.internal.p2.metadata.Requirement;
 import org.eclipse.equinox.internal.p2.metadata.RequirementChange;
 import org.eclipse.equinox.internal.p2.metadata.ResolvedInstallableUnit;
@@ -38,8 +37,6 @@ import org.eclipse.equinox.internal.p2.metadata.TouchpointData;
 import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
 import org.eclipse.equinox.internal.p2.metadata.TouchpointType;
 import org.eclipse.equinox.internal.p2.metadata.UpdateDescriptor;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.metadata.expression.IFilterExpression;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 /**
@@ -464,29 +461,11 @@ public final class MetadataFactory {
 	 * Returns a {@link IProvidedCapability} with the given values.
 	 * 
 	 * @param namespace The capability namespace
-	 * @param properties The description of the capability
+	 * @param attributes The description of the capability
 	 * @since 2.4
 	 */
-	public static IProvidedCapability createProvidedCapability(String namespace, Map<String, Object> properties) {
-		return new ProvidedCapability(namespace, properties);
-	}
-
-	/**
-	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
-	 * 
-	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
-	 * @param name the name for the requirement. Must not be <code>null</code>.
-	 * @param range the version range. A value of <code>null</code> is equivalent to {@link VersionRange#emptyRange} and matches all versions.
-	 * @param filter The filter used to evaluate whether this capability is applicable in the
-	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
-	 * @param optional <code>true</code> if this requirement is optional, and <code>false</code> otherwise.
-	 * @param multiple <code>true</code> if this requirement can be satisfied by multiple provided capabilities, or <code>false</code> 
-	 * 	if it requires exactly one match
-	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
-	 * @return the requirement
-	 */
-	public static IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
-		return new RequiredCapability(namespace, name, range, InstallableUnit.parseFilter(filter), optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, greedy, null);
+	public static IProvidedCapability createProvidedCapability(String namespace, Map<String, Object> attributes) {
+		return new ProvidedCapability(namespace, attributes);
 	}
 
 	/**
@@ -528,6 +507,49 @@ public final class MetadataFactory {
 	/**
 	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
 	 * 
+	 * @param requirement the match expression
+	 * @param filter The filter used to evaluate whether this capability is applicable in the
+	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
+	 * @param minCard minimum cardinality
+	 * @param maxCard maximum cardinality
+	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @return the requirement
+	 */
+	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy) {
+		// IRequiredCapability is simply a requirement with a match expression derived from a  (namespace, name, version) tripet.
+		// However the xml format also requires that maxCard > 1 or it is serialized in the generic format.
+		// When parsing back from xml try to convert to an IRequiredCapability to retain the representation prior to serialization
+		if (RequiredCapability.isSimpleRequirement(requirement)) {
+			String namespace = RequiredCapability.extractNamespace(requirement);
+			String name = RequiredCapability.extractName(requirement);
+			VersionRange range = RequiredCapability.extractRange(requirement);
+			return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy, null);
+		}
+
+		return new Requirement(requirement, filter, minCard, maxCard, greedy, null);
+	}
+
+	/**
+	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * 
+	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
+	 * @param name the name for the requirement. Must not be <code>null</code>.
+	 * @param range the version range. A value of <code>null</code> is equivalent to {@link VersionRange#emptyRange} and matches all versions.
+	 * @param filter The filter used to evaluate whether this capability is applicable in the
+	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
+	 * @param optional <code>true</code> if this requirement is optional, and <code>false</code> otherwise.
+	 * @param multiple <code>true</code> if this requirement can be satisfied by multiple provided capabilities, or <code>false</code> 
+	 * 	if it requires exactly one match
+	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @return the requirement
+	 */
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
+		return new RequiredCapability(namespace, name, range, InstallableUnit.parseFilter(filter), optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, greedy, null);
+	}
+
+	/**
+	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * 
 	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
 	 * @param name the name for the requirement. Must not be <code>null</code>.
 	 * @param range the version range. A value of <code>null</code> is equivalent to {@link VersionRange#emptyRange} and matches all versions.
@@ -544,65 +566,28 @@ public final class MetadataFactory {
 	}
 
 	/**
-	 * 
-	 * @param namespace
-	 * @param propsFilter filter applied on {@link IProvidedCapability#getProperties()} of every {@link IInstallableUnit#getProvidedCapabilities()}
-	 * @param envFilter matcher over {@link IInstallableUnit#getProperties()}
-	 * @param minCard
-	 * @param maxCard
-	 * @param greedy
-	 * @return the requirement
-	 * @since 2.4
-	 */
-	public static IRequirement createRequirement(String namespace, String propsFilter, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy) {
-		IFilterExpression attrFilterExpr = ExpressionUtil.parseLDAP(propsFilter);
-		return new RequiredPropertiesMatch(namespace, attrFilterExpr, envFilter, minCard, maxCard, greedy, null);
-	}
-
-	/**
-	 * 
-	 * @param namespace
-	 * @param propsFilter
-	 * @param envFilter
-	 * @param minCard
-	 * @param maxCard
-	 * @param greedy
-	 * @param description
-	 * @return the requirement
-	 * @since 2.4
-	 */
-	public static IRequirement createRequirement(String namespace, IFilterExpression propsFilter, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy, String description) {
-		return new RequiredPropertiesMatch(namespace, propsFilter, envFilter, minCard, maxCard, greedy, null);
-	}
-
-	/**
-	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
-	 * 
-	 * @param requirement the match expression
-	 * @param envFilter The filter used to evaluate whether this capability is applicable in the
-	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
-	 * @param minCard minimum cardinality
-	 * @param maxCard maximum cardinality
-	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
-	 * @return the requirement
-	 */
-	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy) {
-		return createRequirementInternal(requirement, envFilter, minCard, maxCard, greedy, null);
-	}
-
-	/**
 	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
 	 *  
 	 * @param requirement the match expression
-	 * @param envFilter the filter, or <code>null</code>
+	 * @param filter the filter, or <code>null</code>
 	 * @param minCard minimum cardinality
 	 * @param maxCard maximum cardinality
 	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
 	 * @param description a <code>String</code> description of the requirement, or <code>null</code>
 	 * @return the requirement
 	 */
-	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy, String description) {
-		return createRequirementInternal(requirement, envFilter, minCard, maxCard, greedy, description);
+	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy, String description) {
+		// IRequiredCapability is simply a requirement with a match expression derived from a  (namespace, name, version) tripet.
+		// However the xml format also requires that maxCard > 1 or it is serialized in the generic format.
+		// When parsing back from xml try to convert to an IRequiredCapability to retain the representation prior to serialization
+		if (RequiredCapability.isSimpleRequirement(requirement)) {
+			String namespace = RequiredCapability.extractNamespace(requirement);
+			String name = RequiredCapability.extractName(requirement);
+			VersionRange range = RequiredCapability.extractRange(requirement);
+			return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy, description);
+		}
+
+		return new Requirement(requirement, filter, minCard, maxCard, greedy, description);
 	}
 
 	/**
@@ -752,14 +737,6 @@ public final class MetadataFactory {
 		}
 	}
 
-	/**
-	 * 
-	 * @param descriptors
-	 * @param severity
-	 * @param description
-	 * @param location
-	 * @return A new update descriptor
-	 */
 	public static IUpdateDescriptor createUpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description, URI location) {
 		return new UpdateDescriptor(descriptors, severity, description, location);
 	}
@@ -791,26 +768,6 @@ public final class MetadataFactory {
 		Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<>(1);
 		descriptors.add(RequiredCapability.createMatchExpressionFromRange(IInstallableUnit.NAMESPACE_IU_ID, id, range));
 		return createUpdateDescriptor(descriptors, severity, description, location);
-	}
-
-	private static IRequirement createRequirementInternal(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy, String description) {
-		// IRequiredCapability is simply a requirement with a match expression derived from a  (namespace, name, version) tripet.
-		// However the xml format also requires that maxCard > 1 or it is serialized in the generic format.
-		// When parsing back from xml try to convert to an IRequiredCapability to retain the representation prior to serialization
-		if (RequiredCapability.isVersionRangeRequirement(requirement)) {
-			String namespace = RequiredCapability.extractNamespace(requirement);
-			String name = RequiredCapability.extractName(requirement);
-			VersionRange range = RequiredCapability.extractRange(requirement);
-			return new RequiredCapability(namespace, name, range, envFilter, minCard, maxCard, greedy, description);
-		}
-
-		if (RequiredPropertiesMatch.isPropertiesMatchRequirement(requirement)) {
-			String namespace = RequiredPropertiesMatch.extractNamespace(requirement);
-			IFilterExpression attrMatch = RequiredPropertiesMatch.extractPropertiesMatch(requirement);
-			return new RequiredPropertiesMatch(namespace, attrMatch, envFilter, minCard, maxCard, greedy, description);
-		}
-
-		return new Requirement(requirement, envFilter, minCard, maxCard, greedy, description);
 	}
 
 	private static ITouchpointType getCachedTouchpointType(String id, Version version) {

@@ -39,14 +39,27 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
 public class RequiredCapability extends Requirement implements IRequiredCapability {
-	/**
-	 * Argument $0 must evaluate to a String
-	 * Argument $1 must evaluate to a String
-	 * Argument $2 must evaluate to a {@link VersionRange}
-	 */
-	private static final IExpression VERSION_RANGE_MATCH = ExpressionUtil.parse(
-			String.format("%s.exists(cap | cap.%s == $0 && cap.%s == $1 && cap.%s ~= $2)", //$NON-NLS-1$
-					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAME, MEMBER_NAMESPACE, MEMBER_VERSION));
+	private static final IExpression simpleMatchExpression;
+
+	static {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+
+		IExpression xVar = factory.variable("cap"); //$NON-NLS-1$
+
+		IExpression name = factory.member(xVar, MEMBER_NAME);
+		IExpression nameEqual = factory.equals(name, factory.indexedParameter(0));
+
+		IExpression namespace = factory.member(xVar, MEMBER_NAMESPACE);
+		IExpression namespaceEqual = factory.equals(namespace, factory.indexedParameter(1));
+
+		IExpression version = factory.member(xVar, MEMBER_VERSION);
+		IExpression versionInRange = factory.matches(version, factory.indexedParameter(2));
+
+		IExpression pvMember = factory.member(factory.thisVariable(), MEMBER_PROVIDED_CAPABILITIES);
+
+		// Place nameEqual first to eliminate quickly most non-matching candidates
+		simpleMatchExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionInRange)));
+	}
 
 	/**
 	 * TODO Remove. This is a private impl class. Users must call the analogous MetadataFactory.createRequirement()
@@ -91,11 +104,17 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 
+		// Namespace
 		result.append(getNamespace());
-		result.append("; "); //$NON-NLS-1$
+		result.append(' ');
+
+		// Name
 		result.append(getName());
-		result.append(" "); //$NON-NLS-1$
-		result.append(getRange());
+		result.append(' ');
+
+		// Version range
+		VersionRange range = getRange();
+		result.append(range);
 
 		return result.toString();
 	}
@@ -105,7 +124,7 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 		Assert.isNotNull(name);
 		Object resolvedRange = (range != null) ? range : VersionRange.emptyRange;
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		return factory.matchExpression(VERSION_RANGE_MATCH, name, namespace, resolvedRange);
+		return factory.matchExpression(simpleMatchExpression, name, namespace, resolvedRange);
 	}
 
 	public static String extractNamespace(IMatchExpression<IInstallableUnit> matchExpression) {
@@ -125,7 +144,7 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 	}
 
 	public static boolean isVersionStrict(IMatchExpression<IInstallableUnit> matchExpression) {
-		if (!isVersionRangeRequirement(matchExpression)) {
+		if (!isSimpleRequirement(matchExpression)) {
 			return false;
 		}
 
@@ -134,12 +153,12 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 		return range.getMinimum().equals(range.getMaximum());
 	}
 
-	public static boolean isVersionRangeRequirement(IMatchExpression<IInstallableUnit> matchExpression) {
-		return VERSION_RANGE_MATCH.equals(ExpressionUtil.getOperand(matchExpression));
+	public static boolean isSimpleRequirement(IMatchExpression<IInstallableUnit> matchExpression) {
+		return simpleMatchExpression.equals(ExpressionUtil.getOperand(matchExpression));
 	}
 
 	private static void assertValid(IMatchExpression<IInstallableUnit> matchExpression) {
-		if (!isVersionRangeRequirement(matchExpression)) {
+		if (!isSimpleRequirement(matchExpression)) {
 			throw new IllegalArgumentException();
 		}
 	}

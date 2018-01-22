@@ -12,9 +12,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -31,7 +28,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -46,8 +43,6 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.pde.internal.publishing.Activator;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
-import org.osgi.framework.wiring.BundleRequirement;
-import org.osgi.resource.Namespace;
 
 /**
  * Publish IUs for all of the bundles in a given set of locations or described by a set of
@@ -83,6 +78,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
 	public static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
 	public static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
+	public static final String CAPABILITY_ATTR_VERSION = "version"; //$NON-NLS-1$
 
 	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, Version.createOSGi(1, 0, 0));
 	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, Version.createOSGi(1, 0, 0));
@@ -198,7 +194,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		// Process generic requirements
 		ManifestElement[] rawRequireCapHeader = parseManifestHeader(Constants.REQUIRE_CAPABILITY, manifest, bd.getLocation());
 		for (GenericSpecification requiredCap : bd.getGenericRequires()) {
-			addRequirement(requirements, requiredCap, rawRequireCapHeader);
+			addGenericRequirement(requirements, requiredCap, rawRequireCapHeader);
 		}
 
 		iu.setRequirements(requirements.toArray(new IRequirement[requirements.size()]));
@@ -227,7 +223,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		int capNo = 0;
 		for (GenericDescription genericCap : bd.getGenericCapabilities()) {
-			addCapability(providedCapabilities, genericCap, iu, capNo);
+			addGenericCapability(providedCapabilities, genericCap, iu, capNo);
 			capNo++;
 		}
 
@@ -305,45 +301,36 @@ public class BundlesAction extends AbstractPublisherAction {
 		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional, false, greedy));
 	}
 
-	protected void addRequireBundleRequirement(List<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
-		final boolean optional = requiredBundle.isOptional();
-		final boolean greedy;
-		if (optional) {
-			greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(requiredBundle.getName(), rawRequireBundleHeader));
-		} else {
-			greedy = true;
-		}
-		reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundle.getName(), PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange()), null, optional ? 0 : 1, 1, greedy));
-	}
+	// TODO Handle all attributes and directives somehow? Especially the "effective" directive.
+	protected void addGenericRequirement(List<IRequirement> reqsDeps, GenericSpecification requireCapSpec, ManifestElement[] rawRequiresPackageHeader) {
+		String ns = requireCapSpec.getType();
+		String ldap = requireCapSpec.getMatchingFilter();
+		String matcher = "providedCapabilities.exists(pc | pc.namespace == '" + ns + "' && pc.attributes ~= filter('" + ldap + "'))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-	// TODO Handle the "effective:=" directive somehow?
-	protected void addRequirement(List<IRequirement> reqsDeps, GenericSpecification requireCapSpec, ManifestElement[] rawRequireCapabilities) {
-		BundleRequirement req = requireCapSpec.getRequirement();
+		IExpression expr = ExpressionUtil.parse(matcher);
+		IMatchExpression<IInstallableUnit> matchExpr = ExpressionUtil.getFactory().matchExpression(expr);
 
-		String namespace = req.getNamespace();
-		Map<String, String> directives = req.getDirectives();
+		// Optional and greedy in order to be backward compatible.
+		IRequirement requireCap = MetadataFactory.createRequirement(matchExpr, null, 0, 1, true);
 
-		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
-		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
-		boolean greedy = optional
-				? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE))
-				: true;
-
-		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1, greedy);
 		reqsDeps.add(requireCap);
 	}
 
-	protected void addCapability(List<IProvidedCapability> caps, GenericDescription provideCapDesc, InstallableUnitDescription iu, int capNo) {
-		// Convert the values to String, Version, List of String or Version
-		Map<String, Object> capAttrs = provideCapDesc.getDeclaredAttributes()
-				.entrySet()
-				.stream()
-				.collect(toMap(Entry::getKey, e -> convertAttribute(e.getValue())));
+	protected void addRequireBundleRequirement(List<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
+		final boolean optional = requiredBundle.isOptional();
+		final boolean greedy;
+		if (optional)
+			greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(requiredBundle.getName(), rawRequireBundleHeader));
+		else
+			greedy = true;
+		reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundle.getName(), PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange()), null, optional ? 0 : 1, 1, greedy));
+	}
 
-		// Resolve the namespace
+	protected void addGenericCapability(List<IProvidedCapability> caps, GenericDescription provideCapDesc, InstallableUnitDescription iu, int capNo) {
 		String capNs = provideCapDesc.getType();
+		Map<String, Object> capAttrs = new HashMap<>(provideCapDesc.getDeclaredAttributes());
 
-		// Resolve the mandatory p2 name
+		// Resolve the p2 name
 		// By convention OSGi capabilities have an attribute named like the capability namespace.
 		// If this is not the case synthesize a unique name (e.g. "osgi.service" has an "objectClass" attribute instead).
 		// TODO If present but not a String log a warning somehow that it is ignored? Or fail the publication?
@@ -351,30 +338,26 @@ public class BundlesAction extends AbstractPublisherAction {
 				capNs,
 				(k, v) -> (v instanceof String) ? v : String.format("%s_%s-%s", iu.getId(), iu.getVersion(), capNo)); //$NON-NLS-1$
 
-		// Resolve the mandatory p2 version
+		// Convert all OSGi versions to P2 versions
+		for (String key : new HashSet<>(capAttrs.keySet())) {
+			Object val = capAttrs.get(key);
+			if (!(val instanceof org.osgi.framework.Version)) {
+				continue;
+			}
+			org.osgi.framework.Version osgiVer = (org.osgi.framework.Version) val;
+			Version p2Ver = Version.createOSGi(osgiVer.getMajor(), osgiVer.getMinor(), osgiVer.getMicro(), osgiVer.getQualifier());
+			capAttrs.put(key, p2Ver);
+		}
+
+		// Resolve the version
 		// By convention versioned OSGi capabilities have a "version" attribute containing the OSGi Version object
 		// If this is not the case use an empty version (e.g. "osgi.ee" has a list of versions).
 		// TODO If present but not a Version log a warning somehow that it is ignored? Or fail the publication?
 		capAttrs.compute(
-				IProvidedCapability.PROPERTY_VERSION,
+				CAPABILITY_ATTR_VERSION,
 				(k, v) -> (v instanceof Version) ? v : Version.emptyVersion);
 
 		caps.add(MetadataFactory.createProvidedCapability(capNs, capAttrs));
-	}
-
-	private Object convertAttribute(Object attr) {
-		if (attr instanceof Collection<?>) {
-			return ((Collection<?>) attr).stream().map(this::convertScalarAttribute).collect(toList());
-		}
-		return convertScalarAttribute(attr);
-	}
-
-	private Object convertScalarAttribute(Object attr) {
-		if (attr instanceof org.osgi.framework.Version) {
-			org.osgi.framework.Version osgiVer = (org.osgi.framework.Version) attr;
-			return Version.createOSGi(osgiVer.getMajor(), osgiVer.getMinor(), osgiVer.getMicro(), osgiVer.getQualifier());
-		}
-		return attr.toString();
 	}
 
 	static VersionRange computeUpdateRange(org.osgi.framework.Version base) {

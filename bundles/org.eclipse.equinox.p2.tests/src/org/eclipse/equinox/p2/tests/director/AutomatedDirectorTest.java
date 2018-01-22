@@ -10,16 +10,14 @@ package org.eclipse.equinox.p2.tests.director;
 
 import java.util.HashMap;
 import java.util.Map;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -27,6 +25,20 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
  * Various automated tests of the {@link IDirector} API.
  */
 public class AutomatedDirectorTest extends AbstractProvisioningTest {
+	//private static Version version = Version.createOSGi(1, 0, 0);
+
+	public static Test suite() {
+		return new TestSuite(AutomatedDirectorTest.class);
+	}
+
+	public AutomatedDirectorTest() {
+		super("");
+	}
+
+	public AutomatedDirectorTest(String name) {
+		super(name);
+	}
+
 	/**
 	 * Tests installing an IU that has a filtered dependency on another IU. When
 	 * the filter is satisfied, the dependency is active and the required IU should
@@ -34,39 +46,26 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * and the second IU should not be installed.
 	 */
 	public void testInstallFilteredCapability() {
-		final String envKey = "filterKey";
-		final String envVal = "true";
-
-		// The IU that is required
+		//The IU that is required
 		IInstallableUnit requiredIU = createIU("required." + getName());
 
 		// The IU to be installed
-		IMatchExpression<IInstallableUnit> requirementFilter = createFilter(envKey, envVal);
-		IRequirement[] requires = new IRequirement[] {
-				MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), ANY_VERSION, requirementFilter, false, false)
-		};
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), requires);
+		IMatchExpression<IInstallableUnit> filter = createFilter("FilterKey", "true");
+		IRequirement capability = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), ANY_VERSION, filter, false, false);
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequirement[] {capability});
 
-		// Metadata repository
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
 		createTestMetdataRepository(allUnits);
+		IDirector director = createDirector();
 
-		// Install into a profile in which the requirement filter is satisfied
+		//Install into a profile in which the filter is satisfied
 		Map<String, String> properties = new HashMap<>();
-		properties.put(IProfile.PROP_ENVIRONMENTS, envKey + "=" + envVal);
-
-		// Profile
+		properties.put(IProfile.PROP_ENVIRONMENTS, "FilterKey=true");
 		IProfile satisfied = createProfile("Satisfied." + getName(), properties);
-
-		// Profile change request
 		ProfileChangeRequest request = new ProfileChangeRequest(satisfied);
 		request.add(toInstallIU);
-
-		// Provision
-		IDirector director = createDirector();
 		IStatus result = director.provision(request, null, null);
-
-		assertTrue(result.isOK());
+		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", satisfied, allUnits);
 	}
 
@@ -74,41 +73,25 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * Tests installing an IU that has an optional prerequisite that is available.
 	 */
 	public void testInstallOptionalAvailable() {
-		final String capabilityNamespace = "test.capability";
-		final String capabilityName = "test." + getName();
-		final Version capabilityVersion = DEFAULT_VERSION;
-
+		String capabilityId = "test." + getName();
 		//The IU that exports the capability
-		IProvidedCapability[] provides = new IProvidedCapability[] {
-				MetadataFactory.createProvidedCapability(capabilityNamespace, capabilityName, capabilityVersion)
-		};
-		IInstallableUnit requiredIU = createIU("required." + getName(), provides);
+		IInstallableUnit requiredIU = createIU("required." + getName(), new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
 
 		//The IU that optionally requires the capability
-		IRequirement[] requires = new IRequirement[] {
-				MetadataFactory.createRequirement(capabilityNamespace, capabilityName, ANY_VERSION, null, /* optional=> */true, /* multiple=> */false, /* greedy=>*/false)
-		};
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), requires);
+		IRequirement required = MetadataFactory.createRequirement("test.capability", capabilityId, ANY_VERSION, null, /* optional=> */true, /* multiple=> */false, /* greedy=>*/false);
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequirement[] {required});
 
-		// Metadata repository
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU, requiredIU};
+		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
 		IProfile profile = createProfile("TestProfile." + getName());
-
-		// Change request
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
-		request.addInstallableUnits(toInstallArray);
-
-		// Provision
 		IDirector director = createDirector();
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
 		IStatus result = director.provision(request, null, null);
-		if (!result.isOK()) {
+		if (!result.isOK())
 			LogHelper.log(result);
-		}
-
-		// The requiredIu is not installed, because the optional requirement is not greedy
 		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", profile, toInstallArray);
 	}
@@ -117,34 +100,21 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * Tests installing an IU that has an optional prerequisite that is not available.
 	 */
 	public void testInstallOptionalUnavailable() {
-		final String capabilityNamespace = "test.capability";
-		final String capabilityName = "test." + getName();
+		String capabilityId = "test." + getName();
+		//no IU will be available that exports this capability
+		IRequirement required = MetadataFactory.createRequirement("test.capability", capabilityId, ANY_VERSION, null, true, false);
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequirement[] {required});
 
-		// no IU will be available that exports this capability
-		IRequirement[] requires = new IRequirement[] {
-				MetadataFactory.createRequirement(capabilityNamespace, capabilityName, ANY_VERSION, null, /* optional=> */true, /* multiple=> */false)
-		};
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), requires);
-
-		// Metadata repo
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		// Profile
 		IProfile profile = createProfile("TestProfile." + getName());
-
-		// Change request
+		IDirector director = createDirector();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(allUnits);
-
-		// Provision
-		IDirector director = createDirector();
 		IStatus result = director.provision(request, null, null);
-		if (!result.isOK()) {
+		if (!result.isOK())
 			LogHelper.log(result);
-		}
-
-		// The UI is installed because the requirement is optional
 		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", profile, allUnits);
 	}
@@ -154,50 +124,30 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * the capability has a platform filter that is not satisfied.
 	 */
 	public void testInstallPlatformFilter() {
-		// Profile environment
-		final String osKey = "osgi.os";
-		final String osVal = "blort";
+		//The IU that exports the capability
+		String capabilityId = "test." + getName();
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)};
+		IInstallableUnit requiredIU = createIU("required." + getName(), createFilter("osgi.os", "blort"), provides);
 
-		// Test capability
-		final String capabilityNamespace = "test.capability";
-		final String capabilityName = "test." + getName();
-		final Version capabilityVersion = DEFAULT_VERSION;
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, (IMatchExpression<IInstallableUnit>) null));
 
-		// The IU that exports the capability
-		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability(capabilityNamespace, capabilityName, capabilityVersion)};
-		IInstallableUnit requiredIU = createIU("required." + getName(), createFilter(osKey, osVal), provides);
-
-		// Installed IU
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createRequiredCapabilities(capabilityNamespace, capabilityName, ANY_VERSION, (IMatchExpression<IInstallableUnit>) null));
-
-		// Metadata repo
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
+		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		IDirector director = createDirector();
-
-		// Profile that does not satisfy the OS requirement
 		IProfile profile = createProfile("TestProfile." + getName());
-
-		// Request
+		IDirector director = createDirector();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		request.addInstallableUnits(toInstallArray);
-
-		// Provision - should fail since requireIU can't be installed on the current environment
 		IStatus result = director.provision(request, null, null);
 		assertTrue("1.0", !result.isOK());
 
-		// New profile that satisfies the OS requirement
+		//try again with the filter satisfied
 		Map<String, String> properties = new HashMap<>();
-		properties.put(IProfile.PROP_ENVIRONMENTS, osKey + "=" + osVal);
-		profile = createProfile("TestProfile2." + getName(), properties);
-
-		// New request
-		request = new ProfileChangeRequest(profile);
+		properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=blort");
+		IProfile profile2 = createProfile("TestProfile2." + getName(), properties);
+		request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(toInstallArray);
-
-		// New provisioning - should succeed
 		result = director.provision(request, null, null);
 		assertTrue("2.0", result.isOK());
 	}
@@ -206,42 +156,27 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * Tests installing an IU that has an unsatisfied platform filter
 	 */
 	public void testInstallPlatformFilterUnsatisfied() {
-		// Profile environment
-		final String osKey = "osgi.os";
-		final String osVal = "blort";
-
-		// The IU to install that needs a concrete environment
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createFilter(osKey, osVal), NO_PROVIDES);
-
-		// Metadata repo
+		//The IU to install
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createFilter("osgi.os", "blort"), NO_PROVIDES);
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU};
+		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		// Profile without a matching environment
 		IProfile profile = createProfile("TestProfile." + getName());
-
-		// Change request
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
-		request.addInstallableUnits(toInstallArray);
-
-		// Provisioning failure: incompatible environment
 		IDirector director = createDirector();
-		IStatus result = director.provision(request, null, null);
-		assertTrue(!result.isOK());
-
-		// Profile with matching environment
-		Map<String, String> properties = new HashMap<>();
-		properties.put(IProfile.PROP_ENVIRONMENTS, osKey + "=" + osVal);
-		profile = createProfile("TestProfile2." + getName(), properties);
-
-		// New change request
-		request = new ProfileChangeRequest(profile);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(toInstallArray);
+		IStatus result = director.provision(request, null, null);
+		assertTrue("1.0", !result.isOK());
 
-		// Provisioning success
+		//try again with the filter satisfied
+		Map<String, String> properties = new HashMap<>();
+		properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=blort");
+		IProfile profile2 = createProfile("TestProfile2." + getName(), properties);
+		request = new ProfileChangeRequest(profile2);
+		request.addInstallableUnits(toInstallArray);
 		result = director.provision(request, null, null);
-		assertTrue(result.isOK());
+		assertTrue("2.0", result.isOK());
 	}
 
 	/**
@@ -249,39 +184,24 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * that the IU providing the capability is installed.
 	 */
 	public void testSimpleInstallRequired() {
-		// Test capability
-		String capabilityNamespace = "test.capability";
-		String capabilityName = "test." + getName();
-
+		String capabilityId = "test." + getName();
 		//The IU that exports the capability
-		IProvidedCapability[] provides = new IProvidedCapability[] {
-				MetadataFactory.createProvidedCapability(capabilityNamespace, capabilityName, DEFAULT_VERSION)
-		};
-		IInstallableUnit requiredIU = createIU("required." + getName(), provides);
+		IInstallableUnit requiredIU = createIU("required." + getName(), new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
 
-		// The IU that requires the capability
-		IRequirement[] requires = createRequiredCapabilities(capabilityNamespace, capabilityName, ANY_VERSION, (IMatchExpression<IInstallableUnit>) null);
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), requires);
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, (IMatchExpression<IInstallableUnit>) null));
 
-		// Crate the metadata repo
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
+		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		// Provision
 		IProfile profile = createProfile("TestProfile." + getName());
 
-		// Create the profile change request
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
-		request.addInstallableUnits(toInstallArray);
-
-		// Provision
 		IDirector director = createDirector();
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
 		IStatus result = director.provision(request, null, null);
-		if (!result.isOK()) {
+		if (!result.isOK())
 			LogHelper.log(result);
-		}
-
 		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", profile, allUnits);
 	}
@@ -291,34 +211,24 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * specifying a version range (any version will do).
 	 */
 	public void testInstallRequiredNoVersion() {
-		// The IU that is needed
+		//The IU that is needed
 		IInstallableUnit requiredIU = createIU("required." + getName());
 
-		// The IU that is installed
-		IRequirement[] requires = new IRequirement[] {
-				MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), null, null, false, false)
-		};
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), requires);
+		IRequirement capability = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), null, null, false, false);
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequirement[] {capability});
 
-		// Metadata repo
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
+		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		// Profile
 		IProfile profile = createProfile("TestProfile." + getName());
 
-		// Profile change request
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
-		request.addInstallableUnits(toInstallArray);
-
-		// Provision
 		IDirector director = createDirector();
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
 		IStatus result = director.provision(request, null, null);
-		if (!result.isOK()) {
+		if (!result.isOK())
 			LogHelper.log(result);
-		}
-
 		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", profile, allUnits);
 	}
@@ -329,34 +239,25 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * capability on the IU namespace.
 	 */
 	public void testSimpleInstallRequiredIU() {
-		// The IU that is required. It exports it's identity capability by default.
+		//The IU that exports the capability
 		IInstallableUnit requiredIU = createIU("required." + getName());
 
-		// The IU that is installed
-		IRequirement[] requires = new IRequirement[] {
-				MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), ANY_VERSION, null, false, false)
-		};
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), requires);
+		IRequirement capability = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), ANY_VERSION, null, false, false);
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequirement[] {capability});
 
-		// Create the metadata repo
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
+		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
 		IProfile profile = createProfile("TestProfile." + getName());
 
-		// Create the profile change request
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
-		request.addInstallableUnits(toInstallArray);
-
-		// Provision
 		IDirector director = createDirector();
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
 		IStatus result = director.provision(request, null, null);
-		if (!result.isOK()) {
+		if (!result.isOK())
 			LogHelper.log(result);
-		}
-
-		assertTrue(result.isOK());
+		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", profile, allUnits);
 	}
 

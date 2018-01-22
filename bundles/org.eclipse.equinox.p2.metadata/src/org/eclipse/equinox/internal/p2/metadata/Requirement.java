@@ -11,11 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 
@@ -70,14 +66,10 @@ public class Requirement implements IRequirement, IMemberProvider {
 		// Parameters
 		Object[] params = matchExpression.getParameters();
 		if (params.length > 0) {
-			result.append(" ("); //$NON-NLS-1$
+			result.append(' ');
 			for (int i = 0; i < params.length; i++) {
-				if (i > 0) {
-					result.append(", "); //$NON-NLS-1$
-				}
-				result.append(params[i]);
+				result.append(params[i]).append(' ');
 			}
-			result.append(')');
 		}
 
 		return result.toString();

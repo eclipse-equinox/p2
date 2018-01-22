@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
-import java.util.List;
-import org.eclipse.equinox.p2.metadata.Version;
-
 public interface XMLConstants {
 
 	// Constants used in defining a default processing instruction
@@ -32,20 +29,7 @@ public interface XMLConstants {
 	public static final String PROPERTY_ELEMENT = "property"; //$NON-NLS-1$
 	public static final String PROPERTY_NAME_ATTRIBUTE = "name"; //$NON-NLS-1$
 	public static final String PROPERTY_VALUE_ATTRIBUTE = "value"; //$NON-NLS-1$
-	public static final String PROPERTY_TYPE_ATTRIBUTE = "type"; //$NON-NLS-1$
 	public static final String[] PROPERTY_ATTRIBUTES = new String[] {PROPERTY_NAME_ATTRIBUTE, PROPERTY_VALUE_ATTRIBUTE};
-	public static final String[] PROPERTY_OPTIONAL_ATTRIBUTES = new String[] {PROPERTY_TYPE_ATTRIBUTE};
-	public static final String PROPERTY_TYPE_LIST = List.class.getSimpleName();
-	public static final String PROPERTY_TYPE_STRING = String.class.getSimpleName();
-	public static final String PROPERTY_TYPE_INTEGER = Integer.class.getSimpleName();
-	public static final String PROPERTY_TYPE_LONG = Long.class.getSimpleName();
-	public static final String PROPERTY_TYPE_FLOAT = Float.class.getSimpleName();
-	public static final String PROPERTY_TYPE_DOUBLE = Double.class.getSimpleName();
-	public static final String PROPERTY_TYPE_BYTE = Byte.class.getSimpleName();
-	public static final String PROPERTY_TYPE_SHORT = Short.class.getSimpleName();
-	public static final String PROPERTY_TYPE_CHARACTER = Character.class.getSimpleName();
-	public static final String PROPERTY_TYPE_BOOLEAN = Boolean.class.getSimpleName();
-	public static final String PROPERTY_TYPE_VERSION = Version.class.getSimpleName();
 
 	// Constants for the names of common general attributes
 	public static final String ID_ATTRIBUTE = "id"; //$NON-NLS-1$

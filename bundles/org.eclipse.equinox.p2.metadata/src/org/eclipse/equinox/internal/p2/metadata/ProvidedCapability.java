@@ -9,14 +9,10 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *     SAP - ongoing development
- *     Todor Boev
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
@@ -35,65 +31,44 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 	public static final String MEMBER_NAME = "name"; //$NON-NLS-1$
 	/** Used for fast access from P2 queries to the {@link #getVersion} method */
 	public static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
-	/** Used for fast access from P2 queries to the {@link #getProperties} method */
-	public static final String MEMBER_PROPERTIES = "properties"; //$NON-NLS-1$
+	/** Used for fast access from P2 queries to the {@link #getAttributes} method */
+	public static final String MEMBER_ATTRIBUTES = "attributes"; //$NON-NLS-1$
+
+	// TODO Move this to IProvidedCapability?
+	// The "version" attribute is part of the public contract of getVersion() and getAttributes()
+	public static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
 
 	private final String namespace;
-	private final Map<String, Object> properties;
+	private final Map<String, Object> attributes;
 
-	public ProvidedCapability(String namespace, Map<String, Object> props) {
+	public ProvidedCapability(String namespace, Map<String, Object> attrs) {
 		Assert.isNotNull(namespace, NLS.bind(Messages.provided_capability_namespace_not_defined, null));
 		this.namespace = namespace;
 
-		Assert.isNotNull(props);
-		Assert.isTrue(!props.isEmpty());
+		Assert.isNotNull(attrs);
+		Assert.isTrue(!attrs.isEmpty());
 
-		assertValidPropertyTypes(props);
-
-		Map<String, Object> resolvedProps = new HashMap<>(props);
+		this.attributes = new HashMap<>(attrs);
 
 		// Verify the name
-		Assert.isTrue(resolvedProps.containsKey(namespace) && (resolvedProps.get(namespace) instanceof String), NLS.bind(Messages.provided_capability_name_not_defined, namespace));
+		Assert.isTrue(attributes.containsKey(namespace) && (attributes.get(namespace) instanceof String), NLS.bind(Messages.provided_capability_name_not_defined, namespace));
 
 		// Verify the version
-		Object version = resolvedProps.get(PROPERTY_VERSION);
+		Object version = attributes.get(ATTRIBUTE_VERSION);
 		if (version != null) {
-			Assert.isTrue(props.get(PROPERTY_VERSION) instanceof Version);
+			Assert.isTrue(attributes.get(ATTRIBUTE_VERSION) instanceof Version);
 		} else {
-			resolvedProps.put(PROPERTY_VERSION, Version.emptyVersion);
+			attributes.put(ATTRIBUTE_VERSION, Version.emptyVersion);
 		}
-
-		this.properties = Collections.unmodifiableMap(props);
 	}
 
 	public ProvidedCapability(String namespace, String name, Version version) {
 		Assert.isNotNull(namespace, NLS.bind(Messages.provided_capability_namespace_not_defined, null));
 		Assert.isNotNull(name, NLS.bind(Messages.provided_capability_name_not_defined, namespace));
 		this.namespace = namespace;
-		this.properties = new HashMap<>();
-		properties.put(namespace, name);
-		properties.put(PROPERTY_VERSION, version == null ? Version.emptyVersion : version);
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
-		str.append(namespace);
-
-		for (Entry<String, Object> attr : properties.entrySet()) {
-			String key = attr.getKey();
-			Object val = attr.getValue();
-			String type = val.getClass().getSimpleName();
-
-			str.append("; ").append(key).append(":").append(type).append("=").append(val); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-
-		return str.toString();
-	}
-
-	@Override
-	public int hashCode() {
-		return namespace.hashCode() * properties.hashCode();
+		this.attributes = new HashMap<>();
+		attributes.put(namespace, name);
+		attributes.put(ATTRIBUTE_VERSION, version == null ? Version.emptyVersion : version);
 	}
 
 	@Override
@@ -112,7 +87,7 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 			return false;
 		}
 
-		if (!(properties.equals(otherCapability.getProperties()))) {
+		if (!(attributes.equals(otherCapability.getAttributes()))) {
 			return false;
 		}
 
@@ -126,17 +101,38 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 
 	@Override
 	public String getName() {
-		return (String) properties.get(namespace);
+		return (String) attributes.get(namespace);
 	}
 
 	@Override
 	public Version getVersion() {
-		return (Version) properties.get(PROPERTY_VERSION);
+		return (Version) attributes.get(ATTRIBUTE_VERSION);
 	}
 
 	@Override
-	public Map<String, Object> getProperties() {
-		return properties;
+	public Map<String, Object> getAttributes() {
+		return attributes;
+	}
+
+	@Override
+	public int hashCode() {
+		return namespace.hashCode() * attributes.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		str.append(namespace);
+
+		for (Entry<String, Object> attr : attributes.entrySet()) {
+			String key = attr.getKey();
+			Object val = attr.getValue();
+			String type = val.getClass().getSimpleName();
+
+			str.append("; ").append(key).append(":").append(type).append("=").append(val); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+
+		return str.toString();
 	}
 
 	@Override
@@ -145,36 +141,13 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 			case MEMBER_NAMESPACE :
 				return namespace;
 			case MEMBER_NAME :
-				return properties.get(namespace);
+				return attributes.get(namespace);
 			case MEMBER_VERSION :
-				return properties.get(PROPERTY_VERSION);
-			case MEMBER_PROPERTIES :
-				return properties;
+				return attributes.get(ATTRIBUTE_VERSION);
+			case MEMBER_ATTRIBUTES :
+				return attributes;
 			default :
-				throw new IllegalArgumentException(String.format("No such member: %s", memberName)); //$NON-NLS-1$
+				throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
 		}
-	}
-
-	private void assertValidPropertyTypes(Map<String, Object> props) {
-		props.forEach(this::assertValidValueType);
-	}
-
-	private void assertValidValueType(String key, Object prop) {
-		if (prop instanceof List<?>) {
-			int idx = 0;
-			for (Object scalar : (List<?>) prop) {
-				assertValidScalarType(String.format("%s[%s]", key, idx++), scalar); //$NON-NLS-1$
-			}
-		} else {
-			assertValidScalarType(key, prop);
-		}
-	}
-
-	private void assertValidScalarType(String key, Object scalar) {
-		Arrays.asList(Version.class, String.class, Long.class, Integer.class, Short.class, Byte.class, Double.class, Float.class, Boolean.class, Character.class)
-				.stream()
-				.filter(t -> t.isAssignableFrom(scalar.getClass()))
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException(String.format("Invalid type %s of property %s", scalar.getClass(), key))); //$NON-NLS-1$
 	}
 }

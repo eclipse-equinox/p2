@@ -110,7 +110,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 		// index usage query
 		//
 		IMatchExpression<IInstallableUnit> rm = ((IRequirement) rhsObj).getMatches();
-		return RequiredCapability.isVersionRangeRequirement(rm) ? concatenateUnique(queriedKeys, rm.getParameters()[0]) : getRequirementIDs(rm.createContext(), ((Unary) rm).operand, queriedKeys);
+		return RequiredCapability.isSimpleRequirement(rm) ? concatenateUnique(queriedKeys, rm.getParameters()[0]) : getRequirementIDs(rm.createContext(), ((Unary) rm).operand, queriedKeys);
 	}
 
 	@Override
@@ -185,7 +185,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 				// index usage query
 				//
 				IMatchExpression<IInstallableUnit> rm = ((IRequirement) rhsObj).getMatches();
-				queriedKeys = RequiredCapability.isVersionRangeRequirement(rm) ? concatenateUnique(queriedKeys, rm.getParameters()[0]) : getRequirementIDs(rm.createContext(), ((Unary) rm).operand, queriedKeys);
+				queriedKeys = RequiredCapability.isSimpleRequirement(rm) ? concatenateUnique(queriedKeys, rm.getParameters()[0]) : getRequirementIDs(rm.createContext(), ((Unary) rm).operand, queriedKeys);
 				break;
 
 			default :

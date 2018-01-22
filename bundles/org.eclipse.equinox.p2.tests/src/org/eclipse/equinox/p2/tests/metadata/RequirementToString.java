@@ -23,23 +23,18 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 public class RequirementToString extends TestCase {
 	public void testRequirementWithEmptyRange() {
 		IRequirement req = MetadataFactory.createRequirement("expectedNameSpace", "expectedName", VersionRange.emptyRange, null, false, false);
-		assertEquals("expectedNameSpace; expectedName 0.0.0", req.toString());
+		assertEquals("expectedNameSpace expectedName 0.0.0", req.toString());
 	}
 
 	public void testStandardRequirement() {
 		IRequirement req = MetadataFactory.createRequirement("expectedNameSpace", "expectedName", new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
-		assertEquals("expectedNameSpace; expectedName [1.0.0,2.0.0)", req.toString());
-	}
-
-	public void testPropertiesRequirement() {
-		IRequirement req = MetadataFactory.createRequirement("expectedNameSpace", "(key=val)", null, 1, 1, true);
-		assertEquals("expectedNameSpace; (key=val)", req.toString());
+		assertEquals("expectedNameSpace expectedName [1.0.0,2.0.0)", req.toString());
 	}
 
 	public void testFancyRequirement() {
-		Object[] expressionParameters = new Object[] {"expectedId1", "expectedVersion1", "expectedId2", "expectedVersion2"};
+		Object[] expressionParameters = new Object[] {"expectedId1, expectedVersion1", "expectedId2, expectedVersion2"};
 		IMatchExpression<IInstallableUnit> iuMatcher = ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(ExpressionUtil.parse("(id == $0 && version == $1) || (id == $2 && version == $3)"), expressionParameters);
 		IRequirement req = MetadataFactory.createRequirement(iuMatcher, null, 1, 1, true);
-		assertEquals("id == $0 && version == $1 || id == $2 && version == $3 (expectedId1, expectedVersion1, expectedId2, expectedVersion2)", req.toString().trim());
+		assertEquals("id == $0 && version == $1 || id == $2 && version == $3 expectedId1, expectedVersion1 expectedId2, expectedVersion2", req.toString().trim());
 	}
 }
