@@ -39,9 +39,7 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String REQUIREMENTS_ELEMENT = "requires"; //$NON-NLS-1$
 	public static final String HOST_REQUIREMENTS_ELEMENT = "hostRequirements"; //$NON-NLS-1$
 	public static final String META_REQUIREMENTS_ELEMENT = "metaRequirements"; //$NON-NLS-1$
-	public static final String REQUIREMENT_ELEMENT = "required"; //$NON-NLS-1$
 	public static final String PROVIDED_CAPABILITIES_ELEMENT = "provides"; //$NON-NLS-1$
-	public static final String PROVIDED_CAPABILITY_ELEMENT = "provided"; //$NON-NLS-1$
 	public static final String[] REQUIRED_PROVIDED_CAPABILITY_ATTRIBUTES = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_ATTRIBUTE};
 	public static final String TOUCHPOINT_TYPE_ELEMENT = "touchpoint"; //$NON-NLS-1$
 	public static final String TOUCHPOINT_DATA_ELEMENT = "touchpointData"; //$NON-NLS-1$
@@ -63,26 +61,26 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String[] OPTIONAL_IU_ATTRIBUTES = new String[] {SINGLETON_ATTRIBUTE};
 	public static final String GENERATION_ATTRIBUTE = "generation"; //$NON-NLS-1$
 
+	// Constants for the provided capability element
+	public static final String PROVIDED_CAPABILITY_ELEMENT = "provided"; //$NON-NLS-1$
+
 	// Constants for sub-elements of a required capability element
-	public static final String CAPABILITY_FILTER_ELEMENT = "filter"; //$NON-NLS-1$
+	public static final String REQUIREMENT_ELEMENT = "required"; //$NON-NLS-1$
+	public static final String REQUIREMENT_PROPERTIES_ELEMENT = "requiredProperties"; //$NON-NLS-1$
+	public static final String REQUIREMENT_FILTER_ELEMENT = "filter"; //$NON-NLS-1$
 	public static final String REQUIREMENT_DESCRIPTION_ELEMENT = "description"; //$NON-NLS-1$
+	public static final String REQUIREMENT_GREED_ATTRIBUTE = "greedy"; //$NON-NLS-1$
 
-	// Constants for attributes of a required capability element
-	public static final String CAPABILITY_OPTIONAL_ATTRIBUTE = "optional"; //$NON-NLS-1$
-	public static final String CAPABILITY_MULTIPLE_ATTRIBUTE = "multiple"; //$NON-NLS-1$
-	public static final String CAPABILITY_GREED_ATTRIBUTE = "greedy"; //$NON-NLS-1$
-
-	public static final String CAPABILITY_ATTRIBUTES_ELEMENT = "attributes"; //$NON-NLS-1$
-	public static final String CAPABILITY_ATTRIBUTE_ELEMENT = "attribute"; //$NON-NLS-1$
-	public static final String CAPABILITY_ATTRIBUTE_NAME_ATTRIBUTE = "name"; //$NON-NLS-1$
-	public static final String CAPABILITY_ATTRIBUTE_TYPE_ATTRIBUTE = "type"; //$NON-NLS-1$
-	public static final String CAPABILITY_ATTRIBUTE_VALUE_ATTRIBUTE = "value"; //$NON-NLS-1$
-	public static final String[] CAPABILITY_ATTRIBUTE_REQUIRED_ATTRIBUTES = new String[] {CAPABILITY_ATTRIBUTE_NAME_ATTRIBUTE, CAPABILITY_ATTRIBUTE_VALUE_ATTRIBUTE, CAPABILITY_ATTRIBUTE_TYPE_ATTRIBUTE};
-
+	public static final String REQUIRED_CAPABILITY_OPTIONAL_ATTRIBUTE = "optional"; //$NON-NLS-1$
+	public static final String REQUIRED_CAPABILITY_MULTIPLE_ATTRIBUTE = "multiple"; //$NON-NLS-1$
 	public static final String[] REQIURED_CAPABILITY_ATTRIBUTES = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
-	public static final String[] REQIUREMENT_ATTRIBUTES = new String[] {MATCH_ATTRIBUTE};
-	public static final String[] OPTIONAL_CAPABILITY_ATTRIBUTES = new String[] {CAPABILITY_OPTIONAL_ATTRIBUTE, CAPABILITY_MULTIPLE_ATTRIBUTE, CAPABILITY_GREED_ATTRIBUTE};
-	public static final String[] OPTIONAL_REQUIREMENT_ATTRIBUTES = new String[] {MATCH_PARAMETERS_ATTRIBUTE, MIN_ATTRIBUTE, MAX_ATTRIBUTE, CAPABILITY_GREED_ATTRIBUTE};
+	public static final String[] REQUIRED_CAPABILITY_OPTIONAL_ATTRIBUTES = new String[] {REQUIRED_CAPABILITY_OPTIONAL_ATTRIBUTE, REQUIRED_CAPABILITY_MULTIPLE_ATTRIBUTE, REQUIREMENT_GREED_ATTRIBUTE};
+
+	public static final String[] REQIURED_PROPERTIES_MATCH_ATTRIBUTES = new String[] {NAMESPACE_ATTRIBUTE, MATCH_ATTRIBUTE};
+	public static final String[] REQIURED_PROPERTIES_MATCH_OPTIONAL_ATTRIBUTES = new String[] {MIN_ATTRIBUTE, MAX_ATTRIBUTE, REQUIREMENT_GREED_ATTRIBUTE};
+
+	public static final String[] REQUIRED_IU_MATCH_ATTRIBUTES = new String[] {MATCH_ATTRIBUTE};
+	public static final String[] REQUIRED_IU_MATCH_OPTIONAL_ATTRIBUTES = new String[] {MATCH_PARAMETERS_ATTRIBUTE, MIN_ATTRIBUTE, MAX_ATTRIBUTE, REQUIREMENT_GREED_ATTRIBUTE};
 
 	// Constants for attributes of an artifact key element
 	public static final String ARTIFACT_KEY_CLASSIFIER_ATTRIBUTE = "classifier"; //$NON-NLS-1$

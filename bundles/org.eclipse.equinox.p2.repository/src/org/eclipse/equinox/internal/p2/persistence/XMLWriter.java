@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Stack;
+import java.util.*;
 import org.eclipse.equinox.p2.metadata.Version;
 
 public class XMLWriter implements XMLConstants {
@@ -220,26 +220,80 @@ public class XMLWriter implements XMLConstants {
 		this.pw.flush();
 	}
 
-	public void writeProperties(Map<String, String> properties) {
+	public void writeProperties(Map<String, ?> properties) {
 		writeProperties(PROPERTIES_ELEMENT, properties);
 	}
 
-	public void writeProperties(String propertiesElement, Map<String, String> properties) {
-		if (properties != null && properties.size() > 0) {
-			start(propertiesElement);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, properties.size());
-			for (Entry<String, String> entry : properties.entrySet()) {
-				writeProperty(entry.getKey(), entry.getValue());
-			}
-			end(propertiesElement);
+	public void writeProperties(String propertiesElement, Map<String, ?> properties) {
+		if (properties == null || properties.isEmpty()) {
+			return;
 		}
+
+		start(propertiesElement);
+		attribute(COLLECTION_SIZE_ATTRIBUTE, properties.size());
+		properties.forEach(this::writeProperty);
+		end();
 	}
 
-	public void writeProperty(String name, String value) {
+	public void writeProperty(String name, Object value) {
+		String type;
+		String valueStr;
+
+		if (Collection.class.isAssignableFrom(value.getClass())) {
+			Collection<?> coll = (Collection<?>) value;
+
+			type = PROPERTY_TYPE_LIST;
+			String elType = resolvePropertyType(coll.iterator().next());
+			if (elType != null) {
+				type += String.format("<%s>", elType); //$NON-NLS-1$
+			}
+
+			valueStr = coll.stream().map(Object::toString).collect(joining(",")); //$NON-NLS-1$
+		} else {
+			type = resolvePropertyType(value);
+			valueStr = value.toString();
+		}
+
 		start(PROPERTY_ELEMENT);
 		attribute(PROPERTY_NAME_ATTRIBUTE, name);
-		attribute(PROPERTY_VALUE_ATTRIBUTE, value);
+		attribute(PROPERTY_VALUE_ATTRIBUTE, valueStr);
+		attributeOptional(PROPERTY_TYPE_ATTRIBUTE, type);
 		end();
+	}
+
+	private String resolvePropertyType(Object value) {
+		if (value instanceof Integer) {
+			return PROPERTY_TYPE_INTEGER;
+		}
+		if (value instanceof Long) {
+			return PROPERTY_TYPE_LONG;
+		}
+		if (value instanceof Float) {
+			return PROPERTY_TYPE_FLOAT;
+		}
+		if (value instanceof Double) {
+			return PROPERTY_TYPE_DOUBLE;
+		}
+		if (value instanceof Byte) {
+			return PROPERTY_TYPE_BYTE;
+		}
+		if (value instanceof Short) {
+			return PROPERTY_TYPE_SHORT;
+		}
+		if (value instanceof Character) {
+			return PROPERTY_TYPE_CHARACTER;
+		}
+		if (value instanceof Boolean) {
+			return PROPERTY_TYPE_BOOLEAN;
+		}
+		if (value instanceof Version) {
+			return PROPERTY_TYPE_VERSION;
+		}
+
+		// Null is read back as String
+		// NOTE: Using string as default is needed for backward compatibility with properties that are always String like
+		// the IU properties
+		return null;
 	}
 
 	protected static String attributeImage(String name, String value) {

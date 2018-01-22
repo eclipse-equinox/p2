@@ -395,7 +395,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		}
 
 		IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
-		if (!RequiredCapability.isSimpleRequirement(requiredCapability.getMatches())) {
+		if (!RequiredCapability.isVersionRangeRequirement(requiredCapability.getMatches())) {
 			return null;
 		}
 

@@ -12,11 +12,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
+import static java.util.stream.Collectors.toList;
+
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.*;
@@ -29,18 +32,6 @@ import org.xml.sax.ContentHandler;
 
 public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	static final ILicense[] NO_LICENSES = new ILicense[0];
-
-	static final String ATTR_TYPE_LIST_HEAD = "List<"; //$NON-NLS-1$
-	static final String ATTR_TYPE_STRING = String.class.getSimpleName();
-	static final String ATTR_TYPE_INTEGER = Integer.class.getSimpleName();
-	static final String ATTR_TYPE_LONG = Long.class.getSimpleName();
-	static final String ATTR_TYPE_FLOAT = Float.class.getSimpleName();
-	static final String ATTR_TYPE_DOUBLE = Double.class.getSimpleName();
-	static final String ATTR_TYPE_BYTE = Byte.class.getSimpleName();
-	static final String ATTR_TYPE_SHORT = Short.class.getSimpleName();
-	static final String ATTR_TYPE_CHARACTER = Character.class.getSimpleName();
-	static final String ATTR_TYPE_BOOLEAN = Boolean.class.getSimpleName();
-	static final String ATTR_TYPE_VERSION = Version.class.getSimpleName();
 
 	public MetadataParser(BundleContext context, String bundleId) {
 		super(context, bundleId);
@@ -322,7 +313,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 				IProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new IProvidedCapability[0] : providedCapabilitiesHandler.getProvidedCapabilities());
 				currentUnit.setCapabilities(providedCapabilities);
-				IRequirement[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new IRequirement[0] : requiredCapabilitiesHandler.getRequiredCapabilities());
+				IRequirement[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new IRequirement[0] : requiredCapabilitiesHandler.getRequirements());
 				currentUnit.setRequirements(requiredCapabilities);
 				IRequirement[] metaRequiredCapabilities = (metaRequiredCapabilitiesHandler == null ? new IRequirement[0] : metaRequiredCapabilitiesHandler.getMetaRequiredCapabilities());
 				currentUnit.setMetaRequirements(metaRequiredCapabilities);
@@ -389,7 +380,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		@Override
 		protected void finished() {
 			if (children != null) {
-				scopes.add(children.getRequiredCapabilities());
+				scopes.add(children.getRequirements());
 			}
 		}
 	}
@@ -517,7 +508,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private String namespace;
 		private String name;
 		private Version version;
-		private ProvidedCapabilityAttributesHandler attributesHandler;
+		private ProvidedCapabilityPropertiesHandler propertiesHandler;
 
 		private List<IProvidedCapability> capabilities;
 
@@ -534,63 +525,68 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		@Override
 		public void startElement(String elem, Attributes attributes) {
-			if (elem.equals(CAPABILITY_ATTRIBUTES_ELEMENT)) {
-				this.attributesHandler = new ProvidedCapabilityAttributesHandler(this, attributes);
-			} else {
-				invalidElement(elem, attributes);
+			switch (elem) {
+				case PROPERTIES_ELEMENT :
+					this.propertiesHandler = new ProvidedCapabilityPropertiesHandler(this, attributes);
+					break;
+				default :
+					invalidElement(elem, attributes);
+					break;
 			}
 		}
 
 		@Override
 		protected void finished() {
-			Map<String, Object> capAttrs = (attributesHandler != null)
-					? attributesHandler.getAttributes()
+			Map<String, Object> properties = (propertiesHandler != null)
+					? propertiesHandler.getProperties()
 					: new HashMap<>();
 
-			capAttrs.put(namespace, name);
-			capAttrs.put(ProvidedCapability.ATTRIBUTE_VERSION, version);
-			IProvidedCapability cap = MetadataFactory.createProvidedCapability(namespace, capAttrs);
+			properties.put(namespace, name);
+			properties.put(IProvidedCapability.PROPERTY_VERSION, version);
+			IProvidedCapability cap = MetadataFactory.createProvidedCapability(namespace, properties);
 			capabilities.add(cap);
 		}
 	}
 
-	protected class ProvidedCapabilityAttributesHandler extends AbstractMetadataHandler {
-		private Map<String, Object> capAttributes;
+	protected class ProvidedCapabilityPropertiesHandler extends AbstractMetadataHandler {
+		private Map<String, Object> properties;
 
-		public ProvidedCapabilityAttributesHandler(AbstractHandler parentHandler, Attributes attributes) {
-			super(parentHandler, CAPABILITY_ATTRIBUTES_ELEMENT);
-			// TODO add getOptionalSize(attributes, 4)
-			this.capAttributes = new HashMap<>();
+		public ProvidedCapabilityPropertiesHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, PROPERTIES_ELEMENT);
+			this.properties = new HashMap<>(getOptionalSize(attributes, 2));
 		}
 
-		public Map<String, Object> getAttributes() {
-			return capAttributes;
+		public Map<String, Object> getProperties() {
+			return properties;
 		}
 
 		@Override
-		public void startElement(String name, Attributes attributes) {
-			if (name.equals(CAPABILITY_ATTRIBUTE_ELEMENT)) {
-				new ProvidedCapabilityAttributeHandler(this, attributes, capAttributes);
-			} else {
-				invalidElement(name, attributes);
+		public void startElement(String elem, Attributes attributes) {
+			switch (elem) {
+				case PROPERTY_ELEMENT :
+					new ProvidedCapabilityPropertyHandler(this, attributes, properties);
+					break;
+				default :
+					invalidElement(elem, attributes);
+					break;
 			}
 		}
 	}
 
-	protected class ProvidedCapabilityAttributeHandler extends AbstractMetadataHandler {
-		public ProvidedCapabilityAttributeHandler(AbstractHandler parentHandler, Attributes attributes, Map<String, Object> capAttributes) {
-			super(parentHandler, CAPABILITY_ATTRIBUTE_ELEMENT);
+	protected class ProvidedCapabilityPropertyHandler extends AbstractMetadataHandler {
+		public ProvidedCapabilityPropertyHandler(AbstractHandler parentHandler, Attributes attributes, Map<String, Object> properties) {
+			super(parentHandler, PROPERTY_ELEMENT);
 
-			String[] values = parseRequiredAttributes(attributes, CAPABILITY_ATTRIBUTE_REQUIRED_ATTRIBUTES);
+			String[] values = parseAttributes(attributes, PROPERTY_ATTRIBUTES, PROPERTY_OPTIONAL_ATTRIBUTES);
 
 			String name = values[0];
 			String value = values[1];
-			String type = values[2];
+			String type = values[2] == null ? PROPERTY_TYPE_STRING : values[2];
 
-			if (type.startsWith(ATTR_TYPE_LIST_HEAD)) {
-				capAttributes.put(name, parseList(type, value));
+			if (type.startsWith(PROPERTY_TYPE_LIST)) {
+				properties.put(name, parseList(type, value));
 			} else {
-				capAttributes.put(name, parseScalar(type, value));
+				properties.put(name, parseScalar(type, value));
 			}
 		}
 
@@ -600,49 +596,53 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		private List<Object> parseList(String type, String value) {
-			String elType = type.substring(ATTR_TYPE_LIST_HEAD.length(), type.length() - 1);
-
-			List<Object> res = new ArrayList<>();
-			for (String el : value.split("\\s*,\\s*")) { //$NON-NLS-1$
-				res.add(parseScalar(elType, el));
+			final String elType;
+			if (type.length() > PROPERTY_TYPE_LIST.length()) {
+				// Strip the leading "List<" and trailing ">"
+				elType = type.substring(PROPERTY_TYPE_LIST.length() + 1, type.length() - 1);
+			} else {
+				elType = PROPERTY_TYPE_STRING;
 			}
 
-			return res;
+			return Arrays.stream(value.split("\\s*,\\s*")) //$NON-NLS-1$
+					.map(val -> parseScalar(elType, val))
+					.collect(toList());
 		}
 
 		private Object parseScalar(String type, String value) {
-			if (ATTR_TYPE_STRING.equals(type)) {
+			if (PROPERTY_TYPE_STRING.equals(type)) {
 				return value;
 			}
-			if (ATTR_TYPE_INTEGER.equals(type)) {
+			if (PROPERTY_TYPE_INTEGER.equals(type)) {
 				return Integer.parseInt(value);
 			}
-			if (ATTR_TYPE_LONG.equals(type)) {
+			if (PROPERTY_TYPE_LONG.equals(type)) {
 				return Long.parseLong(value);
 			}
-			if (ATTR_TYPE_FLOAT.equals(type)) {
+			if (PROPERTY_TYPE_FLOAT.equals(type)) {
 				return Float.parseFloat(value);
 			}
-			if (ATTR_TYPE_DOUBLE.equals(type)) {
+			if (PROPERTY_TYPE_DOUBLE.equals(type)) {
 				return Double.parseDouble(value);
 			}
-			if (ATTR_TYPE_BYTE.equals(type)) {
+			if (PROPERTY_TYPE_BYTE.equals(type)) {
 				return Byte.parseByte(value);
 			}
-			if (ATTR_TYPE_SHORT.equals(type)) {
+			if (PROPERTY_TYPE_SHORT.equals(type)) {
 				return Short.parseShort(value);
 			}
-			if (ATTR_TYPE_CHARACTER.equals(type)) {
+			if (PROPERTY_TYPE_CHARACTER.equals(type)) {
 				return value.charAt(0);
 			}
-			if (ATTR_TYPE_BOOLEAN.equals(type)) {
+			if (PROPERTY_TYPE_BOOLEAN.equals(type)) {
 				return Boolean.parseBoolean(value);
 			}
-			if (ATTR_TYPE_VERSION.equals(type)) {
+			if (PROPERTY_TYPE_VERSION.equals(type)) {
 				return Version.create(value);
 			}
-			// TODO Throw what?
-			return value.toString();
+
+			// String is the default
+			return value;
 		}
 	}
 
@@ -691,23 +691,29 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequirementsHandler extends AbstractMetadataHandler {
-		private List<IRequirement> requiredCapabilities;
+		private List<IRequirement> requirements;
 
 		public RequirementsHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REQUIREMENTS_ELEMENT);
-			requiredCapabilities = new ArrayList<>(getOptionalSize(attributes, 4));
+			requirements = new ArrayList<>(getOptionalSize(attributes, 4));
 		}
 
-		public IRequirement[] getRequiredCapabilities() {
-			return requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]);
+		public IRequirement[] getRequirements() {
+			return requirements.toArray(new IRequirement[requirements.size()]);
 		}
 
 		@Override
 		public void startElement(String name, Attributes attributes) {
-			if (name.equals(REQUIREMENT_ELEMENT)) {
-				new RequirementHandler(this, attributes, requiredCapabilities);
-			} else {
-				invalidElement(name, attributes);
+			switch (name) {
+				case REQUIREMENT_ELEMENT :
+					new RequirementHandler(this, attributes, requirements);
+					break;
+				case REQUIREMENT_PROPERTIES_ELEMENT :
+					new RequirementPropertiesHandler(this, attributes, requirements);
+					break;
+				default :
+					invalidElement(name, attributes);
+					break;
 			}
 		}
 	}
@@ -734,31 +740,34 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public RequirementHandler(AbstractHandler parentHandler, Attributes attributes, List<IRequirement> capabilities) {
 			super(parentHandler, REQUIREMENT_ELEMENT);
 			this.capabilities = capabilities;
+
+			// Version range requirement
 			if (attributes.getIndex(NAMESPACE_ATTRIBUTE) >= 0) {
-				String[] values = parseAttributes(attributes, REQIURED_CAPABILITY_ATTRIBUTES, OPTIONAL_CAPABILITY_ATTRIBUTES);
+				String[] values = parseAttributes(attributes, REQIURED_CAPABILITY_ATTRIBUTES, REQUIRED_CAPABILITY_OPTIONAL_ATTRIBUTES);
 				namespace = values[0];
 				name = values[1];
 				range = checkVersionRange(REQUIREMENT_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[2]);
-				boolean isOptional = checkBoolean(REQUIREMENT_ELEMENT, CAPABILITY_OPTIONAL_ATTRIBUTE, values[3], false).booleanValue();
+				boolean isOptional = checkBoolean(REQUIREMENT_ELEMENT, REQUIRED_CAPABILITY_OPTIONAL_ATTRIBUTE, values[3], false).booleanValue();
 				min = isOptional ? 0 : 1;
-				boolean isMultiple = checkBoolean(REQUIREMENT_ELEMENT, CAPABILITY_MULTIPLE_ATTRIBUTE, values[4], false).booleanValue();
+				boolean isMultiple = checkBoolean(REQUIREMENT_ELEMENT, REQUIRED_CAPABILITY_MULTIPLE_ATTRIBUTE, values[4], false).booleanValue();
 				max = isMultiple ? Integer.MAX_VALUE : 1;
-				greedy = checkBoolean(REQUIREMENT_ELEMENT, CAPABILITY_GREED_ATTRIBUTE, values[5], true).booleanValue();
-			} else {
-				// Expression based requirement
-				String[] values = parseAttributes(attributes, REQIUREMENT_ATTRIBUTES, OPTIONAL_REQUIREMENT_ATTRIBUTES);
+				greedy = checkBoolean(REQUIREMENT_ELEMENT, REQUIREMENT_GREED_ATTRIBUTE, values[5], true).booleanValue();
+			}
+			// IU match expression requirement
+			else {
+				String[] values = parseAttributes(attributes, REQUIRED_IU_MATCH_ATTRIBUTES, REQUIRED_IU_MATCH_OPTIONAL_ATTRIBUTES);
 				match = values[0];
 				matchParams = values[1];
 				min = values[2] == null ? 1 : checkInteger(REQUIREMENT_ELEMENT, MIN_ATTRIBUTE, values[2]);
 				max = values[3] == null ? 1 : checkInteger(REQUIREMENT_ELEMENT, MAX_ATTRIBUTE, values[3]);
-				greedy = checkBoolean(REQUIREMENT_ELEMENT, CAPABILITY_GREED_ATTRIBUTE, values[4], true).booleanValue();
+				greedy = checkBoolean(REQUIREMENT_ELEMENT, REQUIREMENT_GREED_ATTRIBUTE, values[4], true).booleanValue();
 			}
 		}
 
 		@Override
 		public void startElement(String elem, Attributes attributes) {
-			if (elem.equals(CAPABILITY_FILTER_ELEMENT)) {
-				filterHandler = new TextHandler(this, CAPABILITY_FILTER_ELEMENT, attributes);
+			if (elem.equals(REQUIREMENT_FILTER_ELEMENT)) {
+				filterHandler = new TextHandler(this, REQUIREMENT_FILTER_ELEMENT, attributes);
 			} else if (elem.equals(REQUIREMENT_DESCRIPTION_ELEMENT)) {
 				descriptionHandler = new TextHandler(this, REQUIREMENT_DESCRIPTION_ELEMENT, attributes);
 			} else {
@@ -791,6 +800,83 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				requirement = MetadataFactory.createRequirement(namespace, name, range, filter, min, max, greedy, description);
 			}
 			capabilities.add(requirement);
+		}
+
+		private String removeWhiteSpace(String s) {
+			if (s == null)
+				return ""; //$NON-NLS-1$
+			StringBuffer builder = new StringBuffer();
+			for (int i = 0; i < s.length(); i++) {
+				if (s.charAt(i) != ' ')
+					builder.append(s.charAt(i));
+			}
+			return builder.toString();
+		}
+	}
+
+	protected class RequirementPropertiesHandler extends AbstractHandler {
+		private List<IRequirement> requirements;
+
+		private String namespace;
+		private String match;
+		private int min;
+		private int max;
+		private boolean greedy;
+
+		private TextHandler filterHandler;
+		private TextHandler descriptionHandler;
+
+		public RequirementPropertiesHandler(AbstractHandler parentHandler, Attributes attributes, List<IRequirement> requirements) {
+			super(parentHandler, REQUIREMENT_PROPERTIES_ELEMENT);
+			this.requirements = requirements;
+
+			String[] values = parseAttributes(attributes, REQIURED_PROPERTIES_MATCH_ATTRIBUTES, REQIURED_PROPERTIES_MATCH_OPTIONAL_ATTRIBUTES);
+			namespace = values[0];
+			match = values[1];
+			min = (values[2] == null) ? 1 : checkInteger(REQUIREMENT_PROPERTIES_ELEMENT, MIN_ATTRIBUTE, values[2]);
+			max = (values[3] == null) ? 1 : checkInteger(REQUIREMENT_PROPERTIES_ELEMENT, MAX_ATTRIBUTE, values[3]);
+			greedy = checkBoolean(REQUIREMENT_PROPERTIES_ELEMENT, REQUIREMENT_GREED_ATTRIBUTE, values[4], true).booleanValue();
+		}
+
+		@Override
+		public void startElement(String elem, Attributes attributes) {
+			switch (elem) {
+				case REQUIREMENT_FILTER_ELEMENT :
+					filterHandler = new TextHandler(this, REQUIREMENT_FILTER_ELEMENT, attributes);
+					break;
+				case REQUIREMENT_DESCRIPTION_ELEMENT :
+					descriptionHandler = new TextHandler(this, REQUIREMENT_DESCRIPTION_ELEMENT, attributes);
+					break;
+				default :
+					invalidElement(elem, attributes);
+					break;
+			}
+		}
+
+		@Override
+		protected void finished() {
+			if (!isValidXML()) {
+				return;
+			}
+
+			IMatchExpression<IInstallableUnit> filter = null;
+			if (filterHandler != null) {
+				try {
+					filter = InstallableUnit.parseFilter(filterHandler.getText());
+				} catch (ExpressionParseException e) {
+					if (removeWhiteSpace(filterHandler.getText()).equals("(&(|)(|)(|))")) {//$NON-NLS-1$
+						// We could log this I guess
+					} else {
+						throw e;
+					}
+				}
+			}
+
+			String description = (descriptionHandler != null) ? descriptionHandler.getText() : null;
+
+			IFilterExpression attrMatch = ExpressionUtil.parseLDAP(match);
+			IRequirement requirement = MetadataFactory.createRequirement(namespace, attrMatch, filter, min, max, greedy, description);
+			requirements.add(requirement);
 		}
 
 		private String removeWhiteSpace(String s) {

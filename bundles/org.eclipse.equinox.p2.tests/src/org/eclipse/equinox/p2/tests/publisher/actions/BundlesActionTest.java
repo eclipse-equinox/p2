@@ -77,18 +77,19 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 public class BundlesActionTest extends ActionTest {
 	private static final String OSGI = PublisherHelper.OSGI_BUNDLE_CLASSIFIER;
 	private static final String OSGI_IDENTITY = "osgi.identity";
+	private static final String OSGI_EE = "osgi.ee";
 	private static final String JAVA_PACKAGE = "java.package";//$NON-NLS-1$
-	private static final String JAVA_EE_1_4_REQ = "providedCapabilities.exists(pc | pc.namespace == 'osgi.ee' && pc.attributes ~= filter('(|(&(osgi.ee=JavaSE)(version=1.4))(&(osgi.ee=CDC/Foundation)(version=1.1)))'))";
-	private static final String JAVA_EE_1_6_REQ = "providedCapabilities.exists(pc | pc.namespace == 'osgi.ee' && pc.attributes ~= filter('(&(osgi.ee=JavaSE)(version=1.6))'))";
+	private static final String JAVA_EE_1_4 = "(|(&(osgi.ee=JavaSE)(version=1.4))(&(osgi.ee=CDC/Foundation)(version=1.1)))";
+	private static final String JAVA_EE_1_6 = "(&(osgi.ee=JavaSE)(version=1.6))";
 
 	private static final String TEST1_IUD_NAME = "iud";//$NON-NLS-1$
 	private static final String TEST1_PROVZ_NAME = "iuz";//$NON-NLS-1$
 	private static final String TEST1_PROVBUNDLE_NAME = "test1";//$NON-NLS-1$
-	private static final String TEST1_REQ_EE_FILTER = JAVA_EE_1_4_REQ;
+	private static final String TEST1_REQ_EE = JAVA_EE_1_4;
 	private static final String TEST2_REQ_A_NAME = "iua";//$NON-NLS-1$
 	private static final String TEST2_REQ_B_NAME = "iub";//$NON-NLS-1$
 	private static final String TEST2_REQ_C_NAME = "iuc";//$NON-NLS-1$
-	private static final String TEST2_REQ_EE_FILTER = JAVA_EE_1_4_REQ;
+	private static final String TEST2_REQ_EE = JAVA_EE_1_4;
 	private static final String TEST2_PROV_Z_NAME = "iuz";//$NON-NLS-1$
 	private static final String TEST2_PROV_Y_NAME = "iuy";//$NON-NLS-1$
 	private static final String TEST2_PROV_X_NAME = "iux";//$NON-NLS-1$
@@ -99,9 +100,9 @@ public class BundlesActionTest extends ActionTest {
 	private static final String TEST4_REQ_PACKAGE_OPTGREEDY_NAME = "iuf";//$NON-NLS-1$
 	private static final String TEST4_REQ_BUNDLE_OPTIONAL_NAME = "iug";//$NON-NLS-1$
 	private static final String TEST4_REQ_BUNDLE_OPTGREEDY_NAME = "iuh";//$NON-NLS-1$
-	private static final String TEST5_REQ_EE_FILTER = JAVA_EE_1_4_REQ;
+	private static final String TEST5_REQ_EE = JAVA_EE_1_4;
 	private static final String TEST5_PROV_BUNDLE_NAME = "test5";//$NON-NLS-1$
-	private static final String TESTDYN_REQ_EE_FILTER = JAVA_EE_1_6_REQ;
+	private static final String TESTDYN_REQ_EE = JAVA_EE_1_6;
 
 	private static final File TEST_BASE = new File(TestActivator.getTestDataFolder(), "BundlesActionTest");//$NON-NLS-1$
 	private static final File TEST_FILE1 = new File(TEST_BASE, TEST1_PROVBUNDLE_NAME);
@@ -173,32 +174,32 @@ public class BundlesActionTest extends ActionTest {
 
 		bundlesAction.perform(info, results, new NullProgressMonitor());
 		Collection<IInstallableUnit> ius = results.getIUs(null, null);
-		assertEquals("1.0", 1, ius.size());
+		assertEquals(1, ius.size());
 
 		info = new PublisherInfo();
 		results = new PublisherResult();
 		bundlesAction = new BundlesAction(new File[] {foo});
 		bundlesAction.perform(info, results, new NullProgressMonitor());
 		ius = results.getIUs(null, null);
-		assertEquals("2.0", 1, ius.size());
+		assertEquals(1, ius.size());
 		QueryableArray queryableArray = new QueryableArray(ius.toArray(new IInstallableUnit[ius.size()]));
 		IQueryResult<IInstallableUnit> result = queryableArray.query(QueryUtil.createIUQuery("foo"), null);
-		assertEquals("3.1", 1, queryResultSize(result));
+		assertEquals(1, queryResultSize(result));
 		IInstallableUnit iu = result.iterator().next();
 		TranslationSupport utils = new TranslationSupport();
 		utils.setTranslationSource(queryableArray);
-		assertEquals("3.2", "English Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
+		assertEquals("English Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
 
 		bundlesAction = new BundlesAction(new File[] {foo_fragment});
 		bundlesAction.perform(info, results, new NullProgressMonitor());
 		ius = results.getIUs(null, null);
-		assertEquals("2.0", 3, ius.size());
+		assertEquals(3, ius.size());
 		queryableArray = new QueryableArray(ius.toArray(new IInstallableUnit[ius.size()]));
 		result = queryableArray.query(QueryUtil.createIUQuery("foo"), null);
-		assertEquals("2.1", 1, queryResultSize(result));
+		assertEquals(1, queryResultSize(result));
 		iu = result.iterator().next();
 		utils.setTranslationSource(queryableArray);
-		assertEquals("2.2", "German Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
+		assertEquals("German Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 	}
 
 	private void verifyBundlesAction() throws Exception {
@@ -217,7 +218,7 @@ public class BundlesActionTest extends ActionTest {
 		IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key2);
 
 		// Should have one canonical and one packed
-		assertTrue("1.0", descriptors.length == 2);
+		assertEquals(2, descriptors.length);
 
 		int packedIdx;
 		int canonicalIdx;
@@ -244,18 +245,18 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void verifyBundle1() {
-		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST1_PROVBUNDLE_NAME, IPublisherResult.ROOT));
-		assertTrue(ius.size() == 1);
+		List<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST1_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+		assertEquals(1, ius.size());
 		IInstallableUnit bundle1IU = ius.get(0);
 
-		assertNotNull("1.0", bundle1IU);
-		assertEquals("1.1", bundle1IU.getVersion(), BUNDLE1_VERSION);
+		assertNotNull(bundle1IU);
+		assertEquals(bundle1IU.getVersion(), BUNDLE1_VERSION);
 
 		// check required capabilities
-		Collection<IRequirement> requiredCapability = bundle1IU.getRequirements();
-		verifyRequirement(requiredCapability, TEST1_IU_D_NAMESPACE, TEST1_IUD_NAME, TEST1_IU_D_VERSION_RANGE);
-		verifyRequirement(requiredCapability, TEST1_REQ_EE_FILTER, 0, 1, true);
-		assertEquals("2.0", 2, requiredCapability.size());
+		Collection<IRequirement> requirements = bundle1IU.getRequirements();
+		verifyRequirement(requirements, TEST1_IU_D_NAMESPACE, TEST1_IUD_NAME, TEST1_IU_D_VERSION_RANGE);
+		verifyRequirement(requirements, OSGI_EE, TEST1_REQ_EE, null, 1, 1, true);
+		assertEquals(2, requirements.size());
 
 		// check provided capabilities
 		Collection<IProvidedCapability> providedCapabilities = bundle1IU.getProvidedCapabilities();
@@ -264,7 +265,7 @@ public class BundlesActionTest extends ActionTest {
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST1_PROV_Z_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
-		assertEquals("2.1", 5, providedCapabilities.size());
+		assertEquals(5, providedCapabilities.size());
 
 		Collection<ITouchpointData> data = bundle1IU.getTouchpointData();
 		boolean found = false;
@@ -277,27 +278,27 @@ public class BundlesActionTest extends ActionTest {
 				found = true;
 			}
 		}
-		assertTrue("3.0", found);
+		assertTrue(found);
 	}
 
 	private void verifyBundle2() {
-		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST2_PROV_BUNDLE_NAME, IPublisherResult.ROOT));
-		assertTrue(ius.size() == 1);
-		IInstallableUnit bundle2IU = ius.get(0);
+		List<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST2_PROV_BUNDLE_NAME, IPublisherResult.ROOT));
+		assertEquals(1, ius.size());
 
-		assertNotNull(bundle2IU);
-		assertEquals(bundle2IU.getVersion(), BUNDLE2_VERSION);
+		IInstallableUnit bundleIu = ius.get(0);
+		assertNotNull(bundleIu);
+		assertEquals(bundleIu.getVersion(), BUNDLE2_VERSION);
 
 		// check required capabilities
-		Collection<IRequirement> requirements = bundle2IU.getRequirements();
+		Collection<IRequirement> requirements = bundleIu.getRequirements();
 		verifyRequirement(requirements, TEST2_IU_A_NAMESPACE, TEST2_REQ_A_NAME, TEST2_IU_A_VERSION_RANGE);
 		verifyRequirement(requirements, TEST2_IU_B_NAMESPACE, TEST2_REQ_B_NAME, TEST2_IU_B_VERSION_RANGE);
 		verifyRequirement(requirements, TEST2_IU_C_NAMESPACE, TEST2_REQ_C_NAME, TEST2_IU_C_VERSION_RANGE);
-		verifyRequirement(requirements, TEST2_REQ_EE_FILTER, 0, 1, true);
-		assertTrue(requirements.size() == 4 /*number of tested elements*/);
+		verifyRequirement(requirements, OSGI_EE, TEST2_REQ_EE, null, 1, 1, true);
+		assertEquals(4, requirements.size());
 
 		// check provided capabilities
-		Collection<IProvidedCapability> providedCapabilities = bundle2IU.getProvidedCapabilities();
+		Collection<IProvidedCapability> providedCapabilities = bundleIu.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST2_PROV_BUNDLE_NAME, PROVBUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI_IDENTITY, TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION);
@@ -308,11 +309,11 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals(7, providedCapabilities.size()); /*number of tested elements*/
 
 		// check %bundle name is correct
-		Map<String, String> prop = bundle2IU.getProperties();
+		Map<String, String> prop = bundleIu.getProperties();
 		assertTrue(prop.get("org.eclipse.equinox.p2.name").toString().equalsIgnoreCase("%bundleName"));//$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(prop.get("org.eclipse.equinox.p2.provider").toString().equalsIgnoreCase("%providerName"));//$NON-NLS-1$//$NON-NLS-2$
 
-		Collection<ITouchpointData> data = bundle2IU.getTouchpointData();
+		Collection<ITouchpointData> data = bundleIu.getTouchpointData();
 		boolean found = false;
 		for (ITouchpointData td : data) {
 			ITouchpointInstruction configure = td.getInstruction("configure");
@@ -323,18 +324,17 @@ public class BundlesActionTest extends ActionTest {
 				found = true;
 			}
 		}
-		assertFalse("3.0", found);
-
+		assertFalse(found);
 	}
 
 	private void verifyBundle3() {
 		// also a regression test for bug 393051: manifest headers use uncommon (but valid) capitalization
 		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST3_PROV_BUNDLE_NAME, IPublisherResult.ROOT));
+		assertEquals(1, ius.size());
 
-		assertTrue(ius.size() == 1);
-		IInstallableUnit bundle3IU = ius.get(0);
+		IInstallableUnit bundleIu = ius.get(0);
 
-		IUpdateDescriptor updateDescriptor = bundle3IU.getUpdateDescriptor();
+		IUpdateDescriptor updateDescriptor = bundleIu.getUpdateDescriptor();
 		String name = RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
 		VersionRange range = RequiredCapability.extractRange(updateDescriptor.getIUsBeingUpdated().iterator().next());
 		String description = updateDescriptor.getDescription();
@@ -349,36 +349,31 @@ public class BundlesActionTest extends ActionTest {
 
 	private void verifyBundle4() {
 		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST4_PROV_BUNDLE_NAME, IPublisherResult.ROOT));
-		assertTrue(ius.size() == 1);
-		IInstallableUnit bundle4IU = ius.get(0);
+		assertEquals(1, ius.size());
 
-		assertNotNull("1.0", bundle4IU);
-		assertEquals("1.1", bundle4IU.getVersion(), BUNDLE4_VERSION);
+		IInstallableUnit bundleIu = ius.get(0);
+		assertNotNull(bundleIu);
+		assertEquals(bundleIu.getVersion(), BUNDLE4_VERSION);
 
 		// check required capabilities
-		Collection<IRequirement> requirements = bundle4IU.getRequirements();
+		Collection<IRequirement> requirements = bundleIu.getRequirements();
 		verifyRequirement(requirements, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, false);
 		verifyRequirement(requirements, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, true);
 		verifyRequirement(requirements, OSGI, TEST4_REQ_BUNDLE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, false);
 		verifyRequirement(requirements, OSGI, TEST4_REQ_BUNDLE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, true);
-		assertEquals("2.0", 4, requirements.size());
+		assertEquals(4, requirements.size());
 	}
 
 	private void verifyBundle5() {
 		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(TEST5_PROV_BUNDLE_NAME, IPublisherResult.ROOT));
-		assertTrue(ius.size() == 1);
+		assertEquals(1, ius.size());
+
 		IInstallableUnit bundle5IU = ius.get(0);
 
 		Collection<IRequirement> requirements = bundle5IU.getRequirements();
-		verifyRequirement(requirements, TEST5_REQ_EE_FILTER, 0, 1, true);
-		assertTrue(requirements.size() == 2);
-		IRequirement requirement = requirements.iterator().next();
-
-		int min = requirement.getMin();
-		int max = requirement.getMax();
-
-		assertTrue(min == 6);
-		assertTrue(max == 7);
+		verifyRequirement(requirements, OSGI_EE, TEST5_REQ_EE, null, 1, 1, true);
+		verifyRequirement(requirements, "bar", "foo", VersionRange.emptyRange, null, 6, 7, true);
+		assertEquals(2, requirements.size());
 	}
 
 	@Override
@@ -491,7 +486,7 @@ public class BundlesActionTest extends ActionTest {
 		IInstallableUnit iu = BundlesAction.createBundleIU(BundlesAction.createBundleDescription(testData), null, new PublisherInfo());
 
 		Collection<IRequirement> requirements = iu.getRequirements();
-		verifyRequirement(requirements, TESTDYN_REQ_EE_FILTER, 0, 1, true);
+		verifyRequirement(requirements, OSGI_EE, TESTDYN_REQ_EE, null, 1, 1, true);
 		assertEquals(1, requirements.size());
 	}
 

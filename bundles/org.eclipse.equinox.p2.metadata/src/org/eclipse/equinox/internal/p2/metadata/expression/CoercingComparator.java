@@ -229,8 +229,6 @@ public abstract class CoercingComparator<T> {
 		Version coerce(Object v) {
 			if (v instanceof Version)
 				return (Version) v;
-			if (v instanceof String)
-				return Version.create((String) v);
 			if (v instanceof String) {
 				try {
 					return Version.create((String) v);
@@ -333,7 +331,7 @@ public abstract class CoercingComparator<T> {
 	 * @return The coercing comparator
 	 */
 	@SuppressWarnings("unchecked")
-	public static <V extends Object> CoercingComparator<V> getComparator(V value, Object v2) {
+	public static <V> CoercingComparator<V> getComparator(V value, Object v2) {
 		Class<V> vClass = (Class<V>) value.getClass();
 		CoercingComparator<?>[] carr = coercers;
 		int idx = carr.length;

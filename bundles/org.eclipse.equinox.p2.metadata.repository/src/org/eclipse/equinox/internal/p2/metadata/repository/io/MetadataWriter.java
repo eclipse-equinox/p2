@@ -14,11 +14,10 @@ package org.eclipse.equinox.internal.p2.metadata.repository.io;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.*;
-import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredPropertiesMatch;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.metadata.*;
@@ -96,23 +95,23 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 
 	private boolean hasOnlySimpleRequirements(IInstallableUnit iu) {
 		for (IRequirement r : iu.getRequirements())
-			if (r.getMax() == 0 || !RequiredCapability.isSimpleRequirement(r.getMatches()))
+			if (r.getMax() == 0 || !RequiredCapability.isVersionRangeRequirement(r.getMatches()))
 				return false;
 
 		if (iu.getUpdateDescriptor() != null) {
 			for (IMatchExpression<IInstallableUnit> m : iu.getUpdateDescriptor().getIUsBeingUpdated()) {
-				if (!RequiredCapability.isSimpleRequirement(m))
+				if (!RequiredCapability.isVersionRangeRequirement(m))
 					return false;
 			}
 		}
 
 		for (IRequirement r : iu.getMetaRequirements())
-			if (r.getMax() == 0 || !RequiredCapability.isSimpleRequirement(r.getMatches()))
+			if (r.getMax() == 0 || !RequiredCapability.isVersionRangeRequirement(r.getMatches()))
 				return false;
 
 		if (iu instanceof IInstallableUnitFragment) {
 			for (IRequirement r : ((IInstallableUnitFragment) iu).getHost())
-				if (!RequiredCapability.isSimpleRequirement(r.getMatches()))
+				if (!RequiredCapability.isVersionRangeRequirement(r.getMatches()))
 					return false;
 		}
 
@@ -120,11 +119,11 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 			IInstallableUnitPatch iuPatch = (IInstallableUnitPatch) iu;
 			for (IRequirement[] rArr : iuPatch.getApplicabilityScope())
 				for (IRequirement r : rArr)
-					if (!RequiredCapability.isSimpleRequirement(r.getMatches()))
+					if (!RequiredCapability.isVersionRangeRequirement(r.getMatches()))
 						return false;
 
 			IRequirement lifeCycle = iuPatch.getLifeCycle();
-			if (lifeCycle != null && !RequiredCapability.isSimpleRequirement(lifeCycle.getMatches()))
+			if (lifeCycle != null && !RequiredCapability.isVersionRangeRequirement(lifeCycle.getMatches()))
 				return false;
 		}
 		return true;
@@ -167,50 +166,12 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 		attribute(NAME_ATTRIBUTE, capability.getName());
 		attribute(VERSION_ATTRIBUTE, capability.getVersion());
 
-		Map<String, Object> attrs = new HashMap<>(capability.getAttributes());
-		attrs.remove(capability.getNamespace());
-		attrs.remove(ProvidedCapability.ATTRIBUTE_VERSION);
+		Map<String, Object> props = new HashMap<>(capability.getProperties());
+		props.remove(capability.getNamespace());
+		props.remove(IProvidedCapability.PROPERTY_VERSION);
 
-		if (!attrs.isEmpty()) {
-			start(CAPABILITY_ATTRIBUTES_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, attrs.size());
-
-			for (Entry<String, Object> attr : attrs.entrySet()) {
-				start(CAPABILITY_ATTRIBUTE_ELEMENT);
-
-				String name = attr.getKey();
-				Object val = attr.getValue();
-				String type;
-
-				if (Collection.class.isAssignableFrom(val.getClass())) {
-					Collection<?> coll = (Collection<?>) val;
-
-					String elType = coll.iterator().next().getClass().getSimpleName();
-					type = String.format("List<%s>", elType); //$NON-NLS-1$
-
-					StringBuilder valBuff = new StringBuilder();
-					for (Iterator<?> iter = coll.iterator(); iter.hasNext();) {
-						String el = iter.next().toString();
-
-						valBuff.append(el);
-						if (iter.hasNext()) {
-							valBuff.append(","); //$NON-NLS-1$
-						}
-					}
-
-					val = valBuff.toString();
-				} else {
-					type = val.getClass().getSimpleName();
-					val = val.toString();
-				}
-
-				attribute(CAPABILITY_ATTRIBUTE_NAME_ATTRIBUTE, name);
-				attribute(CAPABILITY_ATTRIBUTE_TYPE_ATTRIBUTE, type);
-				attribute(CAPABILITY_ATTRIBUTE_VALUE_ATTRIBUTE, val);
-
-				end(CAPABILITY_ATTRIBUTE_ELEMENT);
-			}
-			end(CAPABILITY_ATTRIBUTES_ELEMENT);
+		if (!props.isEmpty()) {
+			writeProperties(props);
 		}
 
 		end(PROVIDED_CAPABILITY_ELEMENT);
@@ -246,7 +207,7 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 			throw new IllegalStateException();
 		IMatchExpression<IInstallableUnit> singleUD = descriptor.getIUsBeingUpdated().iterator().next();
 		start(UPDATE_DESCRIPTOR_ELEMENT);
-		if (RequiredCapability.isSimpleRequirement(singleUD)) {
+		if (RequiredCapability.isVersionRangeRequirement(singleUD)) {
 			attribute(ID_ATTRIBUTE, RequiredCapability.extractName(singleUD));
 			attribute(VERSION_RANGE_ATTRIBUTE, RequiredCapability.extractRange(singleUD));
 		} else {
@@ -291,27 +252,59 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 	}
 
 	protected void writeRequirement(IRequirement requirement) {
-		start(REQUIREMENT_ELEMENT);
 		IMatchExpression<IInstallableUnit> match = requirement.getMatches();
-		if (requirement.getMax() > 0 && RequiredCapability.isSimpleRequirement(match)) {
+
+		// A (namespace, name, version-range) type of requirement
+		if (requirement.getMax() > 0 && RequiredCapability.isVersionRangeRequirement(match)) {
+			start(REQUIREMENT_ELEMENT);
+
 			attribute(NAMESPACE_ATTRIBUTE, RequiredCapability.extractNamespace(match));
 			attribute(NAME_ATTRIBUTE, RequiredCapability.extractName(match));
 			attribute(VERSION_RANGE_ATTRIBUTE, RequiredCapability.extractRange(match));
-			attribute(CAPABILITY_OPTIONAL_ATTRIBUTE, requirement.getMin() == 0, false);
-			attribute(CAPABILITY_MULTIPLE_ATTRIBUTE, requirement.getMax() > 1, false);
-		} else {
-			writeMatchExpression(match);
-			if (requirement.getMin() != 1)
-				attribute(MIN_ATTRIBUTE, requirement.getMin());
-			if (requirement.getMax() != 1)
-				attribute(MAX_ATTRIBUTE, requirement.getMax());
+			attribute(REQUIRED_CAPABILITY_OPTIONAL_ATTRIBUTE, requirement.getMin() == 0, false);
+			attribute(REQUIRED_CAPABILITY_MULTIPLE_ATTRIBUTE, requirement.getMax() > 1, false);
 		}
-		attribute(CAPABILITY_GREED_ATTRIBUTE, requirement.isGreedy(), true);
-		if (requirement.getFilter() != null)
-			writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, requirement.getFilter().getParameters()[0].toString());
-		if (requirement.getDescription() != null)
+		// A (namespace, attributes-match) type of requirement
+		else if (RequiredPropertiesMatch.isPropertiesMatchRequirement(match)) {
+			start(REQUIREMENT_PROPERTIES_ELEMENT);
+
+			attribute(NAMESPACE_ATTRIBUTE, RequiredPropertiesMatch.extractNamespace(match));
+			attribute(MATCH_ATTRIBUTE, RequiredPropertiesMatch.extractPropertiesMatch(match));
+
+			if (requirement.getMin() != 1) {
+				attribute(MIN_ATTRIBUTE, requirement.getMin());
+			}
+
+			if (requirement.getMax() != 1) {
+				attribute(MAX_ATTRIBUTE, requirement.getMax());
+			}
+		}
+		// A general match expression type of requirement
+		else {
+			start(REQUIREMENT_ELEMENT);
+
+			writeMatchExpression(match);
+
+			if (requirement.getMin() != 1) {
+				attribute(MIN_ATTRIBUTE, requirement.getMin());
+			}
+
+			if (requirement.getMax() != 1) {
+				attribute(MAX_ATTRIBUTE, requirement.getMax());
+			}
+		}
+
+		attribute(REQUIREMENT_GREED_ATTRIBUTE, requirement.isGreedy(), true);
+
+		if (requirement.getFilter() != null) {
+			writeTrimmedCdata(REQUIREMENT_FILTER_ELEMENT, requirement.getFilter().getParameters()[0].toString());
+		}
+
+		if (requirement.getDescription() != null) {
 			writeTrimmedCdata(REQUIREMENT_DESCRIPTION_ELEMENT, requirement.getDescription());
-		end(REQUIREMENT_ELEMENT);
+		}
+
+		end();
 	}
 
 	private void writeMatchExpression(IMatchExpression<IInstallableUnit> match) {

@@ -179,14 +179,14 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	class SPIProvidedCapability implements IProvidedCapability {
 		private final String namespace;
-		private final Map<String, Object> attributes;
+		private final Map<String, Object> properties;
 
 		public SPIProvidedCapability(String namespace, String name, Version version) {
 			this.namespace = namespace;
 
-			this.attributes = new HashMap<>();
-			attributes.put(namespace, name);
-			attributes.put(ProvidedCapability.ATTRIBUTE_VERSION, version);
+			this.properties = new HashMap<>();
+			properties.put(namespace, name);
+			properties.put(IProvidedCapability.PROPERTY_VERSION, version);
 		}
 
 		@Override
@@ -199,7 +199,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			if (!(namespace.equals(otherCapability.getNamespace()))) {
 				return false;
 			}
-			if (!(attributes.equals(otherCapability.getAttributes()))) {
+			if (!(properties.equals(otherCapability.getProperties()))) {
 				return false;
 			}
 			return true;
@@ -207,12 +207,12 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public String toString() {
-			return namespace + "; " + attributes;
+			return namespace + "; " + properties;
 		}
 
 		@Override
 		public String getName() {
-			return (String) attributes.get(namespace);
+			return (String) properties.get(namespace);
 		}
 
 		@Override
@@ -222,12 +222,12 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public Version getVersion() {
-			return (Version) attributes.get(ProvidedCapability.ATTRIBUTE_VERSION);
+			return (Version) properties.get(IProvidedCapability.PROPERTY_VERSION);
 		}
 
 		@Override
-		public Map<String, Object> getAttributes() {
-			return Collections.unmodifiableMap(attributes);
+		public Map<String, Object> getProperties() {
+			return Collections.unmodifiableMap(properties);
 		}
 	}
 
