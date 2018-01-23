@@ -129,7 +129,7 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction((String) null));
 
 		// these assertions need to be changed each time the default java profile, hardcoded in o.e.e.p2.publisher.actions.JREAction, is changed;
-		verifyMetadataIU("a.jre.javase", 210, 12, Version.parseVersion("1.6"));
+		verifyMetadataIU("a.jre.javase", 226, 21, Version.parseVersion("9.0.0"));
 		// verifyConfigIU(DEFAULT_JRE_NAME, DEFAULT_JRE_VERSION); // TODO config IU is not needed!?
 	}
 

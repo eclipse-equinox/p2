@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2018 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP AG - ongoing development
@@ -33,8 +33,8 @@ import org.osgi.framework.*;
 
 public class JREAction extends AbstractPublisherAction {
 	private static final String DEFAULT_JRE_NAME = "a.jre"; //$NON-NLS-1$
-	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion("1.6"); //$NON-NLS-1$
-	private static final String DEFAULT_PROFILE = "JavaSE-1.6"; //$NON-NLS-1$
+	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion("9.0"); //$NON-NLS-1$
+	private static final String DEFAULT_PROFILE = "JavaSE-9"; //$NON-NLS-1$
 	private static final String PROFILE_LOCATION = "jre.action.profile.location"; //$NON-NLS-1$
 	private static final String PROFILE_NAME = "osgi.java.profile.name"; //$NON-NLS-1$
 	private static final String PROFILE_TARGET_VERSION = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$

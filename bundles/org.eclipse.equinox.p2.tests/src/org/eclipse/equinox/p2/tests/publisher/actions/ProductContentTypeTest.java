@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 SAP AG and others.
+ * Copyright (c) 2011, 2018 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,10 +16,15 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
@@ -121,8 +126,8 @@ public class ProductContentTypeTest extends ActionTest {
 		cusList.add(createIU(flavor + ".source.default"));
 		cusList.add(createIU(flavor + ".osgi.bundle.default"));
 		cusList.add(createIU(flavor + ".org.eclipse.update.feature.default"));
-		cusList.add(createIU("a.jre.javase", Version.create("1.6.0")));
-		cusList.add(createIU("config.a.jre.javase", Version.create("1.6.0")));
+		cusList.add(createIU("a.jre.javase", Version.create("9.0")));
+		cusList.add(createIU("config.a.jre.javase", Version.create("9.0")));
 	}
 
 	private void testTemplate(String productFileName, String productVersion, int expectedRequirementsSize, IInstallableUnit... requiredInstallableUnits) throws Exception {
