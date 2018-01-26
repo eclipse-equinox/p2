@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -245,15 +245,6 @@ public class UpdateManagerCompatibility {
 	 */
 	public static void openInstaller() {
 		ProvUI.openUpdateManagerInstaller(null);
-	}
-
-	/**
-	 * Open the old UpdateManager configuration manager UI using the specified shell. 
-	 * We do not call the UpdateManagerUI class directly because we want to be able to be configured 
-	 * without requiring those plug-ins.  Instead, we invoke a known command.
-	 */
-	public static void openConfigurationManager() {
-		ProvUI.openUpdateManagerConfigurationManager(null);
 	}
 
 	private static void logFail(Throwable t) {

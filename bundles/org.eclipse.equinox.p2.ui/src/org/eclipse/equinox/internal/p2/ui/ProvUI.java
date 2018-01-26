@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -32,8 +32,7 @@ import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -78,7 +77,6 @@ public class ProvUI {
 
 	// These values rely on the command markup in org.eclipse.ui.ide that defines the update commands
 	private static final String UPDATE_MANAGER_FIND_AND_INSTALL = "org.eclipse.ui.update.findAndInstallUpdates"; //$NON-NLS-1$
-	private static final String UPDATE_MANAGER_MANAGE_CONFIGURATION = "org.eclipse.ui.update.manageConfiguration"; //$NON-NLS-1$
 	// This value relies on the command markup in org.eclipse.ui 
 	private static final String INSTALLATION_DIALOG = "org.eclipse.ui.help.installationDialog"; //$NON-NLS-1$
 
@@ -100,12 +98,7 @@ public class ProvUI {
 			if (status.getSeverity() == IStatus.INFO) {
 				final MessageDialogWithLink dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), ProvUIMessages.ProvUI_InformationTitle, null, status.getMessage(), MessageDialog.INFORMATION, 0, IDialogConstants.OK_LABEL);
 				if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE) {
-					dialog.addSelectionListener(new SelectionAdapter() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							ProvisioningUI.getDefaultUI().manipulateRepositories(dialog.getShell());
-						}
-					});
+					dialog.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> ProvisioningUI.getDefaultUI().manipulateRepositories(dialog.getShell())));
 				}
 				dialog.open();
 				// unset the dialog bits
@@ -171,10 +164,6 @@ public class ProvUI {
 
 	public static void openUpdateManagerInstaller(Event event) {
 		runCommand(UPDATE_MANAGER_FIND_AND_INSTALL, ProvUIMessages.UpdateManagerCompatibility_UnableToOpenFindAndInstall, event);
-	}
-
-	public static void openUpdateManagerConfigurationManager(Event event) {
-		runCommand(UPDATE_MANAGER_MANAGE_CONFIGURATION, ProvUIMessages.UpdateManagerCompatibility_UnableToOpenManageConfiguration, event);
 	}
 
 	public static void openInstallationDialog(Event event) {

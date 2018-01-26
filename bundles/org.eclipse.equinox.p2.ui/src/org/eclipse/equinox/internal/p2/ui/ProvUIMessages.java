@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -279,7 +279,6 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateManagerCompatibility_InvalidSitesTitle;
 	public static String UpdateManagerCompatibility_ItemRequiresUpdateManager;
 	public static String UpdateManagerCompatibility_UnableToOpenFindAndInstall;
-	public static String UpdateManagerCompatibility_UnableToOpenManageConfiguration;
 	public static String ServiceUI_LoginDetails;
 	public static String ServiceUI_LoginRequired;
 	public static String ServiceUI_unsigned_message;
