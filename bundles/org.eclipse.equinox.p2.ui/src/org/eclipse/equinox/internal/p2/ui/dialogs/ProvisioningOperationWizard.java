@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2013 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.operation.IRunnableContext;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.*;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
@@ -76,10 +75,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return remediationOperation;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#addPages()
-	 */
 	@Override
 	public void addPages() {
 		mainPage = createMainPage(root, planSelections);
@@ -111,11 +106,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return repoPreloadJob;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#getPreviousPage(org.eclipse.jface.wizard.IWizardPage)
-	 * 
-	 */
 	@Override
 	public IWizardPage getPreviousPage(IWizardPage page) {
 		if (page == errorPage) {
@@ -124,11 +114,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return super.getPreviousPage(page);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
-	 * 
-	 */
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
 		// If we are moving from the main page or error page, we may need to resolve before
@@ -136,12 +121,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 		if (page == remediationPage) {
 			try {
-				getContainer().run(true, true, new IRunnableWithProgress() {
-					@Override
-					public void run(IProgressMonitor monitor) {
-						remediationOperation.setCurrentRemedy(remediationPage.getRemediationGroup().getCurrentRemedy());
-						remediationOperation.resolveModal(monitor);
-					}
+				getContainer().run(true, true, monitor -> {
+					remediationOperation.setCurrentRemedy(remediationPage.getRemediationGroup().getCurrentRemedy());
+					remediationOperation.resolveModal(monitor);
 				});
 			} catch (InterruptedException e) {
 				// Nothing to report if thread was interrupted
@@ -289,15 +271,12 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			operation = getProfileChangeOperation(planSelections);
 			operation.setProvisioningContext(provisioningContext);
 			try {
-				runnableContext.run(true, true, new IRunnableWithProgress() {
-					@Override
-					public void run(IProgressMonitor monitor) {
-						operation.resolveModal(monitor);
-						if (withRemediation) {
-							IStatus status = operation.getResolutionResult();
-							if (remediationPage != null && shouldRemediate(status)) {
-								computeRemediationOperation(operation, ui, monitor);
-							}
+				runnableContext.run(true, true, monitor -> {
+					operation.resolveModal(monitor);
+					if (withRemediation) {
+						IStatus status = operation.getResolutionResult();
+						if (remediationPage != null && shouldRemediate(status)) {
+							computeRemediationOperation(operation, ui, monitor);
 						}
 					}
 				});
@@ -421,10 +400,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#dispose()
-	 */
 	@Override
 	public void dispose() {
 		ui.signalRepositoryOperationComplete(null, false);
@@ -433,12 +408,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	void asyncReportLoadFailures() {
 		if (repoPreloadJob != null && getShell() != null && !getShell().isDisposed()) {
-			getShell().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (PlatformUI.isWorkbenchRunning() && getShell() != null && !getShell().isDisposed())
-						repoPreloadJob.reportAccumulatedStatus();
-				}
+			getShell().getDisplay().asyncExec(() -> {
+				if (PlatformUI.isWorkbenchRunning() && getShell() != null && !getShell().isDisposed())
+					repoPreloadJob.reportAccumulatedStatus();
 			});
 		}
 	}

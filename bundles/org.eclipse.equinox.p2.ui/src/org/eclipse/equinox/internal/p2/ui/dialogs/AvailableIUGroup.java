@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2016 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -29,7 +29,8 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.*;
@@ -195,12 +196,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		};
 		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).addListener(listener);
 
-		availableIUViewer.getControl().addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).removeListener(listener);
-			}
-		});
+		availableIUViewer.getControl().addDisposeListener(e -> ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).removeListener(listener));
 		updateAvailableViewState();
 		return availableIUViewer;
 	}
@@ -340,28 +336,20 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// to make a repo visible. 
 		if (!(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO)) {
 			if (Display.getCurrent() == null)
-				display.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						updateAvailableViewState();
-					}
-				});
+				display.asyncExec(() -> updateAvailableViewState());
 			else
 				updateAvailableViewState();
 			return;
 		}
 		// First reset the input so that the new repo shows up
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				final TreeViewer treeViewer = filteredTree.getViewer();
-				final Tree tree = treeViewer.getTree();
-				IWorkbench workbench = PlatformUI.getWorkbench();
-				if (workbench.isClosing())
-					return;
-				if (tree != null && !tree.isDisposed()) {
-					updateAvailableViewState();
-				}
+		Runnable runnable = () -> {
+			final TreeViewer treeViewer = filteredTree.getViewer();
+			final Tree tree = treeViewer.getTree();
+			IWorkbench workbench = PlatformUI.getWorkbench();
+			if (workbench.isClosing())
+				return;
+			if (tree != null && !tree.isDisposed()) {
+				updateAvailableViewState();
 			}
 		};
 		if (Display.getCurrent() == null)
@@ -391,27 +379,23 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			@Override
 			public void done(final IJobChangeEvent event) {
 				if (event.getResult().isOK())
-					display.asyncExec(new Runnable() {
-						@Override
-						@SuppressWarnings("rawtypes")
-						public void run() {
-							final TreeViewer treeViewer = filteredTree.getViewer();
-							IWorkbench workbench = PlatformUI.getWorkbench();
-							if (workbench.isClosing())
-								return;
-							// Expand only if there have been no other jobs started for other repos.
-							if (event.getJob() == lastRequestedLoadJob) {
-								final Tree tree = treeViewer.getTree();
-								if (tree != null && !tree.isDisposed()) {
-									TreeItem[] items = tree.getItems();
-									for (int i = 0; i < items.length; i++) {
-										if (items[i].getData() instanceof IRepositoryElement) {
-											URI url = ((IRepositoryElement) items[i].getData()).getLocation();
-											if (url.equals(location)) {
-												treeViewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
-												tree.select(items[i]);
-												return;
-											}
+					display.asyncExec(() -> {
+						final TreeViewer treeViewer = filteredTree.getViewer();
+						IWorkbench workbench = PlatformUI.getWorkbench();
+						if (workbench.isClosing())
+							return;
+						// Expand only if there have been no other jobs started for other repos.
+						if (event.getJob() == lastRequestedLoadJob) {
+							final Tree tree = treeViewer.getTree();
+							if (tree != null && !tree.isDisposed()) {
+								TreeItem[] items = tree.getItems();
+								for (int i = 0; i < items.length; i++) {
+									if (items[i].getData() instanceof IRepositoryElement) {
+										URI url = ((IRepositoryElement) items[i].getData()).getLocation();
+										if (url.equals(location)) {
+											treeViewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
+											tree.select(items[i]);
+											return;
 										}
 									}
 								}
@@ -430,14 +414,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		final Composite parent = getComposite().getParent();
 		setUseBoldFontForFilteredItems(queryContext.getViewType() != IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 
-		BusyIndicator.showWhile(display, new Runnable() {
-			@Override
-			public void run() {
-				parent.setRedraw(false);
-				getCheckboxTreeViewer().setInput(getNewInput());
-				parent.layout(true);
-				parent.setRedraw(true);
-			}
+		BusyIndicator.showWhile(display, () -> {
+			parent.setRedraw(false);
+			getCheckboxTreeViewer().setInput(getNewInput());
+			parent.layout(true);
+			parent.setRedraw(true);
 		});
 	}
 
@@ -506,38 +487,33 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	}
 
 	private IPreFilterJobProvider getPreFilterJobProvider() {
-		return new IPreFilterJobProvider() {
-
-			@Override
-			public Job getPreFilterJob() {
-				switch (filterConstant) {
-					case AVAILABLE_ALL :
-						Job preFilterJob = new LoadMetadataRepositoryJob(getProvisioningUI());
-						preFilterJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_EVENTS, Boolean.toString(true));
-						return preFilterJob;
-					case AVAILABLE_NONE :
-					case AVAILABLE_LOCAL :
+		return () -> {
+			switch (filterConstant) {
+				case AVAILABLE_ALL :
+					Job preFilterJob = new LoadMetadataRepositoryJob(getProvisioningUI());
+					preFilterJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_EVENTS, Boolean.toString(true));
+					return preFilterJob;
+				case AVAILABLE_NONE :
+				case AVAILABLE_LOCAL :
+					return null;
+				default :
+					if (repositoryFilter == null)
 						return null;
-					default :
-						if (repositoryFilter == null)
-							return null;
-						Job job = new Job("Repository Load Job") { //$NON-NLS-1$
-							@Override
-							protected IStatus run(IProgressMonitor monitor) {
-								try {
-									getProvisioningUI().loadMetadataRepository(repositoryFilter, false, monitor);
-									return Status.OK_STATUS;
-								} catch (ProvisionException e) {
-									return e.getStatus();
-								}
+					Job job = new Job("Repository Load Job") { //$NON-NLS-1$
+						@Override
+						protected IStatus run(IProgressMonitor monitor) {
+							try {
+								getProvisioningUI().loadMetadataRepository(repositoryFilter, false, monitor);
+								return Status.OK_STATUS;
+							} catch (ProvisionException e) {
+								return e.getStatus();
 							}
+						}
 
-						};
-						job.setPriority(Job.SHORT);
-						return job;
-				}
+					};
+					job.setPriority(Job.SHORT);
+					return job;
 			}
-
 		};
 	}
 }

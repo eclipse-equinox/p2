@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -97,16 +97,13 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 */
 	@Override
 	protected void profileChanged(final String profileId) {
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (isClosing())
-					return;
-				// We want to refresh the affected profile, so we
-				// construct a profile element on this profile.
-				ProfileElement element = new ProfileElement(null, profileId);
-				viewer.refresh(element);
-			}
+		display.asyncExec(() -> {
+			if (isClosing())
+				return;
+			// We want to refresh the affected profile, so we
+			// construct a profile element on this profile.
+			ProfileElement element = new ProfileElement(null, profileId);
+			viewer.refresh(element);
 		});
 	}
 
@@ -140,13 +137,10 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 			return;
 		}
 
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (isClosing())
-					return;
-				refreshViewer();
-			}
+		display.asyncExec(() -> {
+			if (isClosing())
+				return;
+			refreshViewer();
 		});
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2018 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -277,12 +277,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 			}
 
 			final int columnIndex = i;
-			column.getColumn().addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					updateTableSorting(columnIndex);
-				}
-			});
+			column.getColumn().addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> updateTableSorting(columnIndex)));
 		}
 	}
 
@@ -465,43 +460,37 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 		buttons.setLayout(new RowLayout(SWT.HORIZONTAL));
 		Button selectAll = new Button(buttons, SWT.PUSH);
 		selectAll.setText(ProvUIMessages.AbstractPage_ButtonSelectAll);
-		selectAll.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				for (TreeItem item : viewer.getTree().getItems()) {
-					if (!item.getChecked()) {
-						item.setChecked(true);
-						Event event = new Event();
-						event.widget = item.getParent();
-						event.detail = SWT.CHECK;
-						event.item = item;
-						event.type = SWT.Selection;
-						viewer.getTree().notifyListeners(SWT.Selection, event);
-					}
+		selectAll.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			for (TreeItem item : viewer.getTree().getItems()) {
+				if (!item.getChecked()) {
+					item.setChecked(true);
+					Event event = new Event();
+					event.widget = item.getParent();
+					event.detail = SWT.CHECK;
+					event.item = item;
+					event.type = SWT.Selection;
+					viewer.getTree().notifyListeners(SWT.Selection, event);
 				}
-				updatePageCompletion();
 			}
-		});
+			updatePageCompletion();
+		}));
 		Button deselectAll = new Button(buttons, SWT.PUSH);
 		deselectAll.setText(ProvUIMessages.AbstractPage_ButtonDeselectAll);
-		deselectAll.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				for (TreeItem item : viewer.getTree().getItems()) {
-					if (item.getChecked()) {
-						item.setChecked(false);
-						Event event = new Event();
-						event.widget = item.getParent();
-						event.detail = SWT.CHECK;
-						event.item = item;
-						event.type = SWT.Selection;
-						viewer.getTree().notifyListeners(SWT.Selection, event);
-					}
-					viewer.setSubtreeChecked(item.getData(), false);
+		deselectAll.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			for (TreeItem item : viewer.getTree().getItems()) {
+				if (item.getChecked()) {
+					item.setChecked(false);
+					Event event = new Event();
+					event.widget = item.getParent();
+					event.detail = SWT.CHECK;
+					event.item = item;
+					event.type = SWT.Selection;
+					viewer.getTree().notifyListeners(SWT.Selection, event);
 				}
-				updatePageCompletion();
+				viewer.setSubtreeChecked(item.getData(), false);
 			}
-		});
+			updatePageCompletion();
+		}));
 
 	}
 

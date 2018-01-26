@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,8 +25,6 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * Based on {@link org.eclipse.ui.internal.progress.ProgressInfoItem}.
- * 
- * @author Steffen Pingel
  */
 @SuppressWarnings("restriction")
 public abstract class ControlListItem<T> extends Composite {
@@ -60,7 +58,7 @@ public abstract class ControlListItem<T> extends Composite {
 
 	private boolean selected;
 
-	private final MouseAdapter mouseListener;
+	private final MouseListener mouseListener;
 
 	private boolean isShowing = true;
 
@@ -146,19 +144,16 @@ public abstract class ControlListItem<T> extends Composite {
 		};
 	}
 
-	private MouseAdapter doCreateMouseListener() {
-		return new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				if (indexListener != null) {
-					if (e.count == 2) {
-						indexListener.open();
-					} else {
-						indexListener.select();
-					}
+	private MouseListener doCreateMouseListener() {
+		return MouseListener.mouseDownAdapter(e -> {
+			if (indexListener != null) {
+				if (e.count == 2) {
+					indexListener.open();
+				} else {
+					indexListener.select();
 				}
 			}
-		};
+		});
 	}
 
 	public boolean isHot() {

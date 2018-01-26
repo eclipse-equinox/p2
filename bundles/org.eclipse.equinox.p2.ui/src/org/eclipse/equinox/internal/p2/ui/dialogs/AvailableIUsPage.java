@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -146,18 +146,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// Details area
 		iuDetailsGroup = new IUDetailsGroup(sashForm, availableIUGroup.getStructuredViewer(), SWT.DEFAULT, true);
 		// Clear highlighted text pattern
-		availableIUGroup.getCheckboxTreeViewer().getTree().addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				iuDetailsGroup.setDetailHighlight(null);
-			}
-		});
-		availableIUGroup.getDefaultFocusControl().addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				iuDetailsGroup.setDetailHighlight(null);
-			}
-		});
+		availableIUGroup.getCheckboxTreeViewer().getTree().addFocusListener(FocusListener.focusLostAdapter(e -> iuDetailsGroup.setDetailHighlight(null)));
+		availableIUGroup.getDefaultFocusControl().addFocusListener(FocusListener.focusLostAdapter(e -> iuDetailsGroup.setDetailHighlight(null)));
 
 		sashForm.setWeights(getSashWeights());
 

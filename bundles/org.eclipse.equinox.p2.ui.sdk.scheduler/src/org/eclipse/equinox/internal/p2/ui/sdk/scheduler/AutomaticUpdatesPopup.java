@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,8 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -59,12 +60,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		downloaded = alreadyDownloaded;
 		this.prefs = prefs;
 		remindDelay = computeRemindDelay();
-		clickListener = new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().launchUpdate();
-			}
-		};
+		clickListener = MouseListener.mouseDownAdapter(e -> AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().launchUpdate());
 	}
 
 	@Override
@@ -94,14 +90,11 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	private void createRemindSection(Composite parent) {
 		remindLink = new Link(parent, SWT.MULTI | SWT.WRAP | SWT.RIGHT);
 		updateRemindText();
-		remindLink.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getShell(), PreferenceConstants.PREF_PAGE_AUTO_UPDATES, null, null);
-				dialog.open();
+		remindLink.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getShell(), PreferenceConstants.PREF_PAGE_AUTO_UPDATES, null, null);
+			dialog.open();
 
-			}
-		});
+		}));
 		remindLink.setLayoutData(new GridData(GridData.FILL_BOTH));
 	}
 
@@ -265,19 +258,9 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(toolBar);
 		closeButton.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_CLOSE)));
 		closeButton.setHotImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_CLOSE_HOT)));
-		closeButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				close();
-			}
-		});
+		closeButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> close()));
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=177183
-		toolBar.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				close();
-			}
-		});
+		toolBar.addMouseListener(MouseListener.mouseDownAdapter(e -> close()));
 		return titleComposite;
 	}
 

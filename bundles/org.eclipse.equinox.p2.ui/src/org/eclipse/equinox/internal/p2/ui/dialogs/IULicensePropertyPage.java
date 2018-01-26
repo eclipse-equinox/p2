@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -17,8 +17,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ILicense;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -62,16 +61,13 @@ public class IULicensePropertyPage extends IUPropertyPage {
 				gd = new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_BEGINNING);
 				gd.widthHint = computeWidthLimit(link, 80);
 				link.setLayoutData(gd);
-				link.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						try {
-							showURL(license.getLocation().toURL());
-						} catch (Exception e1) {
-							//can't browse invalid location
-						}
+				link.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+					try {
+						showURL(license.getLocation().toURL());
+					} catch (Exception e1) {
+						//can't browse invalid location
 					}
-				});
+				}));
 			}
 
 			return composite;

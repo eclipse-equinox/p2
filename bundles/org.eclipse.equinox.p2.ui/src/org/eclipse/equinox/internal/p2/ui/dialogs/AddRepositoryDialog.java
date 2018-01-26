@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -22,8 +22,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -68,20 +67,17 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 
 		Button localButton = new Button(comp, SWT.PUSH);
 		localButton.setText(ProvUIMessages.RepositoryGroup_LocalRepoBrowseButton);
-		localButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.APPLICATION_MODAL);
-				dialog.setMessage(ProvUIMessages.RepositoryGroup_SelectRepositoryDirectory);
-				dialog.setFilterPath(lastLocalLocation);
-				String path = dialog.open();
-				if (path != null) {
-					lastLocalLocation = path;
-					url.setText(makeLocalURIString(path));
-					validateRepositoryURL(false);
-				}
+		localButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> {
+			DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.APPLICATION_MODAL);
+			dialog.setMessage(ProvUIMessages.RepositoryGroup_SelectRepositoryDirectory);
+			dialog.setFilterPath(lastLocalLocation);
+			String path = dialog.open();
+			if (path != null) {
+				lastLocalLocation = path;
+				url.setText(makeLocalURIString(path));
+				validateRepositoryURL(false);
 			}
-		});
+		}));
 		setButtonLayoutData(localButton);
 
 		// Location: []
@@ -89,21 +85,18 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 
 		Button archiveButton = new Button(comp, SWT.PUSH);
 		archiveButton.setText(ProvUIMessages.RepositoryGroup_ArchivedRepoBrowseButton);
-		archiveButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				FileDialog dialog = new FileDialog(getShell(), SWT.APPLICATION_MODAL);
-				dialog.setText(ProvUIMessages.RepositoryGroup_RepositoryFile);
-				dialog.setFilterExtensions(ARCHIVE_EXTENSIONS);
-				dialog.setFileName(lastArchiveLocation);
-				String path = dialog.open();
-				if (path != null) {
-					lastArchiveLocation = path;
-					url.setText(makeLocalURIString(path));
-					validateRepositoryURL(false);
-				}
+		archiveButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> {
+			FileDialog dialog = new FileDialog(getShell(), SWT.APPLICATION_MODAL);
+			dialog.setText(ProvUIMessages.RepositoryGroup_RepositoryFile);
+			dialog.setFilterExtensions(ARCHIVE_EXTENSIONS);
+			dialog.setFileName(lastArchiveLocation);
+			String path = dialog.open();
+			if (path != null) {
+				lastArchiveLocation = path;
+				url.setText(makeLocalURIString(path));
+				validateRepositoryURL(false);
 			}
-		});
+		}));
 		setButtonLayoutData(archiveButton);
 		comp.setTabList(new Control[] {nickname, url, localButton, archiveButton});
 		Dialog.applyDialogFont(comp);

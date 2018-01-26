@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2018 Red Hat, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,8 +22,7 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -120,30 +119,27 @@ public class RemediationGroup {
 		Label descriptionLabel = new Label(remediationComposite, SWT.NONE);
 		descriptionLabel.setText(ProvUIMessages.RemediationPage_SubDescription);
 
-		solutionslistener = new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				Button btn = (Button) e.widget;
-				Remedy remedy = (btn.getData() == null ? null : (Remedy) btn.getData());
-				checkboxes.get(ALLOWPARTIALINSTALL_INDEX).setSelection(remedy != null && remedy.getConfig().allowPartialInstall);
-				checkboxes.get(ALLOWDIFFERENTVERSION_INDEX).setSelection(remedy != null && remedy.getConfig().allowDifferentVersion);
-				checkboxes.get(ALLOWINSTALLEDUPDATE_INDEX).setSelection(remedy != null && remedy.getConfig().allowInstalledUpdate);
-				checkboxes.get(ALLOWINSTALLEDREMOVAL_INDEX).setSelection(remedy != null && remedy.getConfig().allowInstalledRemoval);
-				for (Iterator<Button> iterator = checkboxes.iterator(); iterator.hasNext();) {
-					Button btn1 = iterator.next();
-					btn1.setVisible(true);
-				}
-				if (btn == buildMyOwnSolution && btn.getSelection()) {
-					checkBoxesComposite.setVisible(true);
-					((GridData) checkBoxesComposite.getLayoutData()).exclude = false;
-				} else {
-					checkBoxesComposite.setVisible(false);
-					((GridData) checkBoxesComposite.getLayoutData()).exclude = true;
-				}
-				currentRemedy = searchRemedyMatchingUserChoices();
-				refreshResultComposite();
-				remediationComposite.layout(false);
+		solutionslistener = e -> {
+			Button btn = (Button) e.widget;
+			Remedy remedy = (btn.getData() == null ? null : (Remedy) btn.getData());
+			checkboxes.get(ALLOWPARTIALINSTALL_INDEX).setSelection(remedy != null && remedy.getConfig().allowPartialInstall);
+			checkboxes.get(ALLOWDIFFERENTVERSION_INDEX).setSelection(remedy != null && remedy.getConfig().allowDifferentVersion);
+			checkboxes.get(ALLOWINSTALLEDUPDATE_INDEX).setSelection(remedy != null && remedy.getConfig().allowInstalledUpdate);
+			checkboxes.get(ALLOWINSTALLEDREMOVAL_INDEX).setSelection(remedy != null && remedy.getConfig().allowInstalledRemoval);
+			for (Iterator<Button> iterator = checkboxes.iterator(); iterator.hasNext();) {
+				Button btn1 = iterator.next();
+				btn1.setVisible(true);
 			}
+			if (btn == buildMyOwnSolution && btn.getSelection()) {
+				checkBoxesComposite.setVisible(true);
+				((GridData) checkBoxesComposite.getLayoutData()).exclude = false;
+			} else {
+				checkBoxesComposite.setVisible(false);
+				((GridData) checkBoxesComposite.getLayoutData()).exclude = true;
+			}
+			currentRemedy = searchRemedyMatchingUserChoices();
+			refreshResultComposite();
+			remediationComposite.layout(false);
 		};
 
 		bestBeingInstalledRelaxedButton = new Button(remediationComposite, SWT.RADIO);
@@ -158,12 +154,9 @@ public class RemediationGroup {
 		buildMyOwnSolution.setText(ProvUIMessages.RemediationPage_BestSolutionBuilt);
 		buildMyOwnSolution.addListener(SWT.Selection, solutionslistener);
 
-		Listener checkboxListener = new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				currentRemedy = searchRemedyMatchingUserChoices();
-				refreshResultComposite();
-			}
+		Listener checkboxListener = e -> {
+			currentRemedy = searchRemedyMatchingUserChoices();
+			refreshResultComposite();
 		};
 		checkBoxesComposite = new Composite(remediationComposite, SWT.NONE);
 		checkBoxesComposite.setLayout(new GridLayout(1, false));
@@ -484,13 +477,8 @@ public class RemediationGroup {
 		}
 	}
 
-	private SelectionAdapter columnChangeListener(final int index) {
-		return new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				updateTableSorting(index);
-			}
-		};
+	private SelectionListener columnChangeListener(final int index) {
+		return SelectionListener.widgetSelectedAdapter(e -> updateTableSorting(index));
 	}
 
 	private void updateTableSorting(int columnIndex) {

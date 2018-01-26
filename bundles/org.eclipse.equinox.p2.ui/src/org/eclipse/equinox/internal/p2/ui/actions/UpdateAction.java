@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -54,25 +54,16 @@ public class UpdateAction extends ExistingIUInProfileAction {
 		return resolveIsVisible;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.AlterExistingProfileIUAction#getLockConstant()
-	 */
 	@Override
 	protected int getLockConstant() {
 		return IProfile.LOCK_UPDATE;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#getProfileChangeOperation(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
-	 */
 	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Collection<IInstallableUnit> ius) {
 		return ui.getUpdateOperation(ius, null);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#performAction(org.eclipse.equinox.p2.operations.ProfileChangeOperation, org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
-	 */
 	@Override
 	protected int performAction(final ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
 		if (operation.getResolutionResult() == Status.OK_STATUS)
@@ -93,12 +84,7 @@ public class UpdateAction extends ExistingIUInProfileAction {
 			@Override
 			public void done(IJobChangeEvent event) {
 				if (PlatformUI.isWorkbenchRunning()) {
-					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, remediationOperation, null);
-						}
-					});
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, remediationOperation, null));
 				}
 			}
 

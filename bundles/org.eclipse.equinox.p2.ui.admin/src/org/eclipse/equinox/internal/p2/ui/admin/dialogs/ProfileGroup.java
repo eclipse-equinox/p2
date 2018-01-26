@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -73,17 +74,14 @@ public class ProfileGroup {
 
 		Button locationButton = new Button(composite, SWT.PUSH);
 		locationButton.setText(ProvAdminUIMessages.ProfileGroup_Browse);
-		locationButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				DirectoryDialog dialog = new DirectoryDialog(parent.getShell(), SWT.APPLICATION_MODAL);
-				dialog.setMessage(ProvAdminUIMessages.ProfileGroup_SelectProfileMessage);
-				String dir = dialog.open();
-				if (dir != null) {
-					location.setText(dir);
-				}
+		locationButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> {
+			DirectoryDialog dialog = new DirectoryDialog(parent.getShell(), SWT.APPLICATION_MODAL);
+			dialog.setMessage(ProvAdminUIMessages.ProfileGroup_SelectProfileMessage);
+			String dir = dialog.open();
+			if (dir != null) {
+				location.setText(dir);
 			}
-		});
+		}));
 		setEditable(locationButton, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
@@ -94,17 +92,14 @@ public class ProfileGroup {
 
 		locationButton = new Button(composite, SWT.PUSH);
 		locationButton.setText(ProvAdminUIMessages.ProfileGroup_Browse2);
-		locationButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				DirectoryDialog dialog = new DirectoryDialog(parent.getShell(), SWT.APPLICATION_MODAL);
-				dialog.setMessage(ProvAdminUIMessages.ProfileGroup_SelectBundlePoolCache);
-				String dir = dialog.open();
-				if (dir != null) {
-					cache.setText(dir);
-				}
+		locationButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> {
+			DirectoryDialog dialog = new DirectoryDialog(parent.getShell(), SWT.APPLICATION_MODAL);
+			dialog.setMessage(ProvAdminUIMessages.ProfileGroup_SelectBundlePoolCache);
+			String dir = dialog.open();
+			if (dir != null) {
+				cache.setText(dir);
 			}
-		});
+		}));
 		setEditable(locationButton, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);

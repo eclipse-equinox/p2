@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2018 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -345,7 +345,7 @@ public class CatalogViewer extends FilteredViewer {
 		contentProvider = doCreateContentProvider();
 		contentProvider.setHasCategories(isShowCategories());
 		_viewer.setContentProvider(contentProvider);
-		_viewer.setSorter(new ViewerSorter() {
+		_viewer.setComparator(new ViewerComparator() {
 			CatalogCategoryComparator categoryComparator = new CatalogCategoryComparator();
 
 			CatalogItemComparator itemComparator = new CatalogItemComparator();
@@ -378,14 +378,6 @@ public class CatalogViewer extends FilteredViewer {
 				return i;
 			}
 
-			//					private int compare(Comparator<Object> comparator, Object key1, Object key2) {
-			//						if (key1 == null) {
-			//							return (key2 != null) ? 1 : 0;
-			//						} else if (key2 == null) {
-			//							return -1;
-			//						}
-			//						return comparator.compare(key1, key2);
-			//					}
 			private CatalogCategory getCategory(Object o) {
 				if (o instanceof CatalogCategory) {
 					return (CatalogCategory) o;

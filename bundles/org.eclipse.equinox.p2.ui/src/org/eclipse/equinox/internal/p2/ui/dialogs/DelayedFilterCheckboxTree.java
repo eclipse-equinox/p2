@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2016 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,10 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.util.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
-import org.eclipse.equinox.internal.p2.ui.viewers.IInputChangeListener;
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
@@ -62,48 +59,45 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	@Override
 	protected TreeViewer doCreateTreeViewer(Composite composite, int style) {
 		checkboxViewer = new ContainerCheckedTreeViewer(composite, style);
-		checkboxViewer.addCheckStateListener(new ICheckStateListener() {
-			@Override
-			public void checkStateChanged(CheckStateChangedEvent event) {
-				// We use an additive check state cache so we need to remove
-				// previously checked items if the user unchecked them.
-				if (!event.getChecked() && checkState != null) {
-					if (event.getElement() == ALL_ITEMS_HACK) {
-						clearCheckStateCache();
-					} else {
-						ArrayList<Object> toRemove = new ArrayList<>(1);
-						// See bug 258117.  Ideally we would get check state changes 
-						// for children when the parent state changed, but we aren't, so
-						// we need to remove all children from the additive check state
-						// cache.
-						if (contentProvider.hasChildren(event.getElement())) {
-							Set<Object> unchecked = new HashSet<>();
-							Object[] children = contentProvider.getChildren(event.getElement());
-							for (Object element : children) {
-								unchecked.add(element);
-							}
-							Iterator<Object> iter = checkState.iterator();
-							while (iter.hasNext()) {
-								Object current = iter.next();
-								if (current != null && unchecked.contains(current)) {
-									toRemove.add(current);
-								}
-							}
-						} else {
-							for (Object element : checkState) {
-								if (checkboxViewer.getComparer().equals(element, event.getElement())) {
-									toRemove.add(element);
-									// Do not break out of the loop.  We may have duplicate equal
-									// elements in the cache.  Since the cache is additive, we want
-									// to be sure we've gotten everything.
-								}
+		checkboxViewer.addCheckStateListener(event -> {
+			// We use an additive check state cache so we need to remove
+			// previously checked items if the user unchecked them.
+			if (!event.getChecked() && checkState != null) {
+				if (event.getElement() == ALL_ITEMS_HACK) {
+					clearCheckStateCache();
+				} else {
+					ArrayList<Object> toRemove = new ArrayList<>(1);
+					// See bug 258117.  Ideally we would get check state changes 
+					// for children when the parent state changed, but we aren't, so
+					// we need to remove all children from the additive check state
+					// cache.
+					if (contentProvider.hasChildren(event.getElement())) {
+						Set<Object> unchecked = new HashSet<>();
+						Object[] children = contentProvider.getChildren(event.getElement());
+						for (Object element1 : children) {
+							unchecked.add(element1);
+						}
+						Iterator<Object> iter = checkState.iterator();
+						while (iter.hasNext()) {
+							Object current = iter.next();
+							if (current != null && unchecked.contains(current)) {
+								toRemove.add(current);
 							}
 						}
-						checkState.removeAll(toRemove);
+					} else {
+						for (Object element2 : checkState) {
+							if (checkboxViewer.getComparer().equals(element2, event.getElement())) {
+								toRemove.add(element2);
+								// Do not break out of the loop.  We may have duplicate equal
+								// elements in the cache.  Since the cache is additive, we want
+								// to be sure we've gotten everything.
+							}
+						}
 					}
-				} else if (event.getChecked()) {
-					rememberLeafCheckState();
+					checkState.removeAll(toRemove);
 				}
+			} else if (event.getChecked()) {
+				rememberLeafCheckState();
 			}
 		});
 		return checkboxViewer;
@@ -112,52 +106,41 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	@Override
 	protected Composite createFilterControls(Composite filterParent) {
 		super.createFilterControls(filterParent);
-		filterParent.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				cancelPreFilterJob();
-			}
-		});
+		filterParent.addDisposeListener(e -> cancelPreFilterJob());
 		return filterParent;
 	}
 
 	public void contentProviderSet(final DeferredQueryContentProvider deferredProvider) {
 		this.contentProvider = deferredProvider;
-		deferredProvider.addListener(new IInputChangeListener() {
-			@Override
-			public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-				if (newInput == null) {
+		deferredProvider.addListener((v, oldInput, newInput) -> {
+			if (newInput == null) {
+				return;
+			}
+			// Store the input because it's not reset in the viewer until
+			// after this listener is run.
+			viewerInput = newInput;
+
+			// If we were loading repos, we want to cancel because there may be more.
+			cancelPreFilterJob();
+			// Cancel any filtering
+			cancelAndResetFilterJob();
+			contentProvider.setSynchronous(false);
+			// Remember any previous expansions
+			rememberExpansions();
+			// If there are remembered check states, try to restore them.
+			// Must be done in an async because we are in the middle of a buggy
+			// selection preserving viewer refresh.
+			checkboxViewer.getTree().setRedraw(false);
+			display.asyncExec(() -> {
+				if (checkboxViewer.getTree().isDisposed()) {
 					return;
 				}
-				// Store the input because it's not reset in the viewer until
-				// after this listener is run.
-				viewerInput = newInput;
-
-				// If we were loading repos, we want to cancel because there may be more.
-				cancelPreFilterJob();
-				// Cancel any filtering
-				cancelAndResetFilterJob();
-				contentProvider.setSynchronous(false);
-				// Remember any previous expansions
 				rememberExpansions();
-				// If there are remembered check states, try to restore them.
-				// Must be done in an async because we are in the middle of a buggy
-				// selection preserving viewer refresh.
-				checkboxViewer.getTree().setRedraw(false);
-				display.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (checkboxViewer.getTree().isDisposed()) {
-							return;
-						}
-						rememberExpansions();
-						restoreLeafCheckState();
-						rememberExpansions();
-						restoreExpansions();
-						checkboxViewer.getTree().setRedraw(true);
-					}
-				});
-			}
+				restoreLeafCheckState();
+				rememberExpansions();
+				restoreExpansions();
+				checkboxViewer.getTree().setRedraw(true);
+			});
 		});
 	}
 
@@ -183,22 +166,19 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				}
 				final boolean[] shouldPreFilter = new boolean[1];
 				shouldPreFilter[0] = false;
-				display.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (filterText != null && !filterText.isDisposed()) {
-							String text = getFilterString();
-							// If we are about to filter and there is
-							// actually filtering to do, check for a prefilter
-							// job and the content  provider to synchronous mode.
-							// We want the prefilter job to complete before continuing with filtering.
-							if (text == null || (initialText != null && initialText.equals(text))) {
-								return;
-							}
-							if (!contentProvider.getSynchronous() && preFilterJob == null) {
-								if (filterText != null && !filterText.isDisposed()) {
-									shouldPreFilter[0] = true;
-								}
+				display.syncExec(() -> {
+					if (filterText != null && !filterText.isDisposed()) {
+						String text = getFilterString();
+						// If we are about to filter and there is
+						// actually filtering to do, check for a prefilter
+						// job and the content  provider to synchronous mode.
+						// We want the prefilter job to complete before continuing with filtering.
+						if (text == null || (initialText != null && initialText.equals(text))) {
+							return;
+						}
+						if (!contentProvider.getSynchronous() && preFilterJob == null) {
+							if (filterText != null && !filterText.isDisposed()) {
+								shouldPreFilter[0] = true;
 							}
 						}
 					}
@@ -217,33 +197,25 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 
 			@Override
 			public void running(IJobChangeEvent event) {
-				display.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						rememberLeafCheckState();
-					}
-				});
+				display.syncExec(() -> rememberLeafCheckState());
 			}
 
 			@Override
 			public void done(IJobChangeEvent event) {
 				if (event.getResult().isOK()) {
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							if (checkboxViewer.getTree().isDisposed()) {
-								return;
-							}
-
-							checkboxViewer.getTree().setRedraw(false);
-							// remember things expanded by the filter
-							rememberExpansions();
-							restoreLeafCheckState();
-							// now restore expansions because we may have
-							// had others
-							restoreExpansions();
-							checkboxViewer.getTree().setRedraw(true);
+					display.asyncExec(() -> {
+						if (checkboxViewer.getTree().isDisposed()) {
+							return;
 						}
+
+						checkboxViewer.getTree().setRedraw(false);
+						// remember things expanded by the filter
+						rememberExpansions();
+						restoreLeafCheckState();
+						// now restore expansions because we may have
+						// had others
+						restoreExpansions();
+						checkboxViewer.getTree().setRedraw(true);
 					});
 				}
 			}
@@ -350,10 +322,6 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		return checkboxViewer;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.FilteredTree#getRefreshJobDelay()
-	 */
 	@Override
 	protected long getRefreshJobDelay() {
 		return FILTER_DELAY;

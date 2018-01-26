@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -212,19 +212,11 @@ public class InstallWizard extends WizardWithLicenses {
 			// Is the update manager installer present?  If so, offer to open it.
 			// In either case, the failure will be reported in this wizard.
 			if (ProvUI.isUpdateManagerInstallerPresent()) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						Shell shell = ProvUI.getDefaultParentShell();
-						MessageDialog dialog = new MessageDialog(shell, ProvUIMessages.Policy_RequiresUpdateManagerTitle, null, ProvUIMessages.Policy_RequiresUpdateManagerMessage, MessageDialog.WARNING, new String[] {ProvUIMessages.LaunchUpdateManagerButton, IDialogConstants.CANCEL_LABEL}, 0);
-						if (dialog.open() == 0)
-							BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
-								@Override
-								public void run() {
-									UpdateManagerCompatibility.openInstaller();
-								}
-							});
-					}
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					Shell shell = ProvUI.getDefaultParentShell();
+					MessageDialog dialog = new MessageDialog(shell, ProvUIMessages.Policy_RequiresUpdateManagerTitle, null, ProvUIMessages.Policy_RequiresUpdateManagerMessage, MessageDialog.WARNING, new String[] {ProvUIMessages.LaunchUpdateManagerButton, IDialogConstants.CANCEL_LABEL}, 0);
+					if (dialog.open() == 0)
+						BusyIndicator.showWhile(shell.getDisplay(), () -> UpdateManagerCompatibility.openInstaller());
 				});
 			}
 			return installHandlerStatus;

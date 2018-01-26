@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2018 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,8 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ICheckStateProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.TreeItem;
 
 public abstract class AbstractImportPage extends AbstractPage {
 
@@ -50,19 +51,15 @@ public abstract class AbstractImportPage extends AbstractPage {
 	@Override
 	protected void createInstallationTable(Composite parent) {
 		super.createInstallationTable(parent);
-		viewer.getTree().addListener(SWT.Selection, new Listener() {
-
-			@Override
-			public void handleEvent(Event event) {
-				if (event.detail == SWT.CHECK) {
-					if (hasInstalled(ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class))) {
-						viewer.getTree().setRedraw(false);
-						((TreeItem) event.item).setChecked(false);
-						viewer.getTree().setRedraw(true);
-					}
+		viewer.getTree().addListener(SWT.Selection, event -> {
+			if (event.detail == SWT.CHECK) {
+				if (hasInstalled(ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class))) {
+					viewer.getTree().setRedraw(false);
+					((TreeItem) event.item).setChecked(false);
+					viewer.getTree().setRedraw(true);
 				}
-				updatePageCompletion();
 			}
+			updatePageCompletion();
 		});
 	}
 

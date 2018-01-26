@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2018 WindRiver Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -245,12 +245,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			if (Messages.Column_Name.equals(titles[i]))
 				updateTableSorting(i);
 			final int columnIndex = i;
-			column.getColumn().addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					updateTableSorting(columnIndex);
-				}
-			});
+			column.getColumn().addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> updateTableSorting(columnIndex)));
 		}
 	}
 
@@ -306,35 +301,23 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		restoreWidgetValues();
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
 		destinationNameField.setLayoutData(data);
-		destinationNameField.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
+		destinationNameField.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> handleDestinationChanged(getDestinationValue())));
+		destinationNameField.addKeyListener(KeyListener.keyPressedAdapter(e -> {
+			if (e.character == SWT.CR) {
+				entryChanged = false;
+				modifyDestinationValue(getDestinationValue());
 				handleDestinationChanged(getDestinationValue());
 			}
-		});
-		destinationNameField.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.character == SWT.CR) {
-					entryChanged = false;
-					modifyDestinationValue(getDestinationValue());
-					handleDestinationChanged(getDestinationValue());
-				}
-			}
-		});
+		}));
 		destinationNameField.addModifyListener(e -> entryChanged = true);
-		destinationNameField.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				//Clear the flag to prevent constant update
-				if (entryChanged) {
-					entryChanged = false;
-					handleDestinationChanged(getDestinationValue());
-				}
-
+		destinationNameField.addFocusListener(FocusListener.focusLostAdapter(e -> {
+			//Clear the flag to prevent constant update
+			if (entryChanged) {
+				entryChanged = false;
+				handleDestinationChanged(getDestinationValue());
 			}
-		});
+
+		}));
 
 		destinationBrowseButton = new Button(composite, SWT.PUSH);
 		destinationBrowseButton.setText(Messages.Page_BUTTON_BROWSER);
@@ -465,34 +448,28 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		buttons.setLayout(new RowLayout(SWT.HORIZONTAL));
 		Button selectAll = new Button(buttons, SWT.PUSH);
 		selectAll.setText(Messages.AbstractPage_ButtonSelectAll);
-		selectAll.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				for (TreeItem item : viewer.getTree().getItems()) {
-					if (!item.getChecked()) {
-						item.setChecked(true);
-						Event event = new Event();
-						event.widget = item.getParent();
-						event.detail = SWT.CHECK;
-						event.item = item;
-						event.type = SWT.Selection;
-						viewer.getTree().notifyListeners(SWT.Selection, event);
-					}
+		selectAll.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			for (TreeItem item : viewer.getTree().getItems()) {
+				if (!item.getChecked()) {
+					item.setChecked(true);
+					Event event = new Event();
+					event.widget = item.getParent();
+					event.detail = SWT.CHECK;
+					event.item = item;
+					event.type = SWT.Selection;
+					viewer.getTree().notifyListeners(SWT.Selection, event);
 				}
-				updatePageCompletion();
 			}
-		});
+			updatePageCompletion();
+		}));
 		Button deselectAll = new Button(buttons, SWT.PUSH);
 		deselectAll.setText(Messages.AbstractPage_ButtonDeselectAll);
-		deselectAll.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				for (TreeItem item : viewer.getTree().getItems()) {
-					viewer.setSubtreeChecked(item.getData(), false);
-				}
-				updatePageCompletion();
+		deselectAll.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			for (TreeItem item : viewer.getTree().getItems()) {
+				viewer.setSubtreeChecked(item.getData(), false);
 			}
-		});
+			updatePageCompletion();
+		}));
 	}
 
 	protected PatternFilter getPatternFilter() {

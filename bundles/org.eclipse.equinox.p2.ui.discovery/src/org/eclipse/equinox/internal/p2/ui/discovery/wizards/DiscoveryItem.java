@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 Tasktop Technologies and others.
+ * Copyright (c) 2010, 2018 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -141,12 +141,7 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 		if (item.getCertification() != null) {
 			providerLabel.setText(NLS.bind(Messages.DiscoveryViewer_Certification_Label0, new String[] {item.getProvider(), item.getLicense(), item.getCertification().getName()}));
 			if (item.getCertification().getUrl() != null) {
-				providerLabel.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						WorkbenchUtil.openUrl(item.getCertification().getUrl(), IWorkbenchBrowserSupport.AS_EXTERNAL);
-					}
-				});
+				providerLabel.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> WorkbenchUtil.openUrl(item.getCertification().getUrl(), IWorkbenchBrowserSupport.AS_EXTERNAL)));
 			}
 			Overview overview = new Overview();
 			overview.setSummary(item.getCertification().getDescription());
@@ -177,15 +172,12 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 				maybeModifySelection(selected);
 			}
 		});
-		MouseListener connectorItemMouseListener = new MouseAdapter() {
-			@Override
-			public void mouseUp(MouseEvent e) {
-				boolean selected = !checkbox.getSelection();
-				if (maybeModifySelection(selected)) {
-					checkbox.setSelection(selected);
-				}
+		MouseListener connectorItemMouseListener = MouseListener.mouseUpAdapter(e -> {
+			boolean selected = !checkbox.getSelection();
+			if (maybeModifySelection(selected)) {
+				checkbox.setSelection(selected);
 			}
-		};
+		});
 		checkboxContainer.addMouseListener(connectorItemMouseListener);
 		this.addMouseListener(connectorItemMouseListener);
 		iconLabel.addMouseListener(connectorItemMouseListener);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,6 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.osgi.util.NLS;
@@ -133,23 +132,16 @@ public class RepositorySelectionGroup {
 		// Auto complete - install before our own key listeners, so that auto complete gets first shot.
 		repoAutoComplete = new ComboAutoCompleteField(repoCombo);
 		repoCombo.setVisibleItemCount(COUNT_VISIBLE_ITEMS);
-		repoCombo.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)
-					addRepository(false);
-			}
-		});
+		repoCombo.addKeyListener(KeyListener.keyPressedAdapter(e -> {
+			if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)
+				addRepository(false);
+		}));
 
 		// We don't ever want this to be interpreted as a default
 		// button event
-		repoCombo.addTraverseListener(new TraverseListener() {
-			@Override
-			public void keyTraversed(TraverseEvent e) {
-				if (e.detail == SWT.TRAVERSE_RETURN) {
-					e.doit = false;
-				}
+		repoCombo.addTraverseListener(e -> {
+			if (e.detail == SWT.TRAVERSE_RETURN) {
+				e.doit = false;
 			}
 		});
 
@@ -158,27 +150,24 @@ public class RepositorySelectionGroup {
 		gd.horizontalIndent = DEC_MARGIN_WIDTH * 2;
 		repoCombo.setLayoutData(gd);
 		repoCombo.setFont(comboComposite.getFont());
-		repoCombo.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent event) {
-				URI location = null;
-				IStatus status = null;
-				String text = repoCombo.getText().trim();
-				int index = getComboIndex(text);
-				// only validate text that doesn't match existing text in combo
-				if (index < 0) {
-					location = tracker.locationFromString(repoCombo.getText());
-					if (location == null) {
-						status = tracker.getInvalidLocationStatus(repoCombo.getText());
-					} else {
-						status = tracker.validateRepositoryLocation(ui.getSession(), location, false, new NullProgressMonitor());
-					}
+		repoCombo.addModifyListener(event -> {
+			URI location = null;
+			IStatus status = null;
+			String text = repoCombo.getText().trim();
+			int index = getComboIndex(text);
+			// only validate text that doesn't match existing text in combo
+			if (index < 0) {
+				location = tracker.locationFromString(repoCombo.getText());
+				if (location == null) {
+					status = tracker.getInvalidLocationStatus(repoCombo.getText());
 				} else {
-					// user typed or pasted an existing location.  Select it.
-					repoComboSelectionChanged();
+					status = tracker.validateRepositoryLocation(ui.getSession(), location, false, new NullProgressMonitor());
 				}
-				setRepoComboDecoration(status);
+			} else {
+				// user typed or pasted an existing location.  Select it.
+				repoComboSelectionChanged();
 			}
+			setRepoComboDecoration(status);
 		});
 
 		repoDec = new ControlDecoration(repoCombo, SWT.LEFT | SWT.TOP);
@@ -187,9 +176,6 @@ public class RepositorySelectionGroup {
 		DropTarget target = new DropTarget(repoCombo, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 		target.addDropListener(new URLDropAdapter(true) {
-			/* (non-Javadoc)
-			 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLDropAdapter#handleURLString(java.lang.String, org.eclipse.swt.dnd.DropTargetEvent)
-			 */
 			@Override
 			protected void handleDrop(String urlText, DropTargetEvent event) {
 				repoCombo.setText(urlText);
@@ -217,13 +203,7 @@ public class RepositorySelectionGroup {
 		createRepoManipulatorButton(comboComposite);
 
 		addComboProvisioningListeners();
-		parent.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				removeProvisioningListeners();
-			}
-
-		});
+		parent.addDisposeListener(e -> removeProvisioningListeners());
 	}
 
 	private void createRepoManipulatorButton(Composite comboComposite) {
@@ -305,12 +285,9 @@ public class RepositorySelectionGroup {
 		repoDec.setShowOnlyOnFocus(false);
 		// use a delay to show the validation method because the very next
 		// selection or keystroke might fix it
-		repoCombo.getDisplay().timerExec(500, new Runnable() {
-			@Override
-			public void run() {
-				if (repoDec != null && repoDec.getImage() != info)
-					repoDec.showHoverText(status.getMessage());
-			}
+		repoCombo.getDisplay().timerExec(500, () -> {
+			if (repoDec != null && repoDec.getImage() != info)
+				repoDec.showHoverText(status.getMessage());
 		});
 
 	}
@@ -344,39 +321,36 @@ public class RepositorySelectionGroup {
 			items[items.length - 1] = SITE_LOCAL;
 		if (sites.length > 0)
 			sortRepoItems(items, comboRepos, hasLocalSites);
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				if (repoCombo == null || repoCombo.isDisposed())
-					return;
-				String repoToSelect = selection;
-				if (repoToSelect == null) {
-					// If the combo is open and something is selected, use that index if we
-					// weren't given a string to select.
-					int selIndex = repoCombo.getSelectionIndex();
-					if (selIndex >= 0)
-						repoToSelect = repoCombo.getItem(selIndex);
-					else
-						repoToSelect = repoCombo.getText();
-				}
-				repoCombo.setItems(items);
-				repoAutoComplete.setProposalStrings(getComboProposals());
-				boolean selected = false;
-				for (int i = 0; i < items.length; i++)
-					if (items[i].equals(repoToSelect)) {
-						selected = true;
-						if (repoCombo.getListVisible())
-							repoCombo.select(i);
-						repoCombo.setText(repoToSelect);
-						break;
-					}
-				if (!selected) {
-					if (repoCombo.getListVisible())
-						repoCombo.select(INDEX_SITE_NONE);
-					repoCombo.setText(SITE_NONE);
-				}
-				repoComboSelectionChanged();
+		Runnable runnable = () -> {
+			if (repoCombo == null || repoCombo.isDisposed())
+				return;
+			String repoToSelect = selection;
+			if (repoToSelect == null) {
+				// If the combo is open and something is selected, use that index if we
+				// weren't given a string to select.
+				int selIndex = repoCombo.getSelectionIndex();
+				if (selIndex >= 0)
+					repoToSelect = repoCombo.getItem(selIndex);
+				else
+					repoToSelect = repoCombo.getText();
 			}
+			repoCombo.setItems(items);
+			repoAutoComplete.setProposalStrings(getComboProposals());
+			boolean selected = false;
+			for (int i = 0; i < items.length; i++)
+				if (items[i].equals(repoToSelect)) {
+					selected = true;
+					if (repoCombo.getListVisible())
+						repoCombo.select(i);
+					repoCombo.setText(repoToSelect);
+					break;
+				}
+			if (!selected) {
+				if (repoCombo.getListVisible())
+					repoCombo.select(INDEX_SITE_NONE);
+				repoCombo.setText(SITE_NONE);
+			}
+			repoComboSelectionChanged();
 		};
 		if (Display.getCurrent() == null)
 			repoCombo.getDisplay().asyncExec(runnable);
@@ -409,18 +383,8 @@ public class RepositorySelectionGroup {
 			uriToString.put(locations[i], strings[i]);
 		}
 		final Collator collator = Collator.getInstance(Locale.getDefault());
-		Comparator<String> stringComparator = new Comparator<String>() {
-			@Override
-			public int compare(String a, String b) {
-				return collator.compare(a, b);
-			}
-		};
-		Comparator<URI> uriComparator = new Comparator<URI>() {
-			@Override
-			public int compare(URI a, URI b) {
-				return collator.compare(uriToString.get(a), uriToString.get(b));
-			}
-		};
+		Comparator<String> stringComparator = (a, b) -> collator.compare(a, b);
+		Comparator<URI> uriComparator = (a, b) -> collator.compare(uriToString.get(a), uriToString.get(b));
 
 		Arrays.sort(strings, sortStart, sortEnd, stringComparator);
 		Arrays.sort(locations, sortStart, sortEnd, uriComparator);
@@ -563,32 +527,29 @@ public class RepositorySelectionGroup {
 				fillRepoCombo(getSiteString(location));
 		} else if (isNewText) {
 			try {
-				container.run(false, false, new IRunnableWithProgress() {
-					@Override
-					public void run(IProgressMonitor monitor) {
-						URI location;
-						IStatus status;
-						// This might be a disabled repo.  If so, no need to validate further.
-						if (disabledRepoProposals.containsKey(selectedRepo)) {
-							location = disabledRepoProposals.get(selectedRepo);
-							status = Status.OK_STATUS;
-						} else {
-							location = manipulator.locationFromString(selectedRepo);
-							if (location == null)
-								status = manipulator.getInvalidLocationStatus(selectedRepo);
-							else {
-								status = manipulator.validateRepositoryLocation(ui.getSession(), location, false, monitor);
-							}
+				container.run(false, false, monitor -> {
+					URI location;
+					IStatus status;
+					// This might be a disabled repo.  If so, no need to validate further.
+					if (disabledRepoProposals.containsKey(selectedRepo)) {
+						location = disabledRepoProposals.get(selectedRepo);
+						status = Status.OK_STATUS;
+					} else {
+						location = manipulator.locationFromString(selectedRepo);
+						if (location == null)
+							status = manipulator.getInvalidLocationStatus(selectedRepo);
+						else {
+							status = manipulator.validateRepositoryLocation(ui.getSession(), location, false, monitor);
 						}
-						if (status.isOK() && location != null) {
-							String nick = null;
-							if (manipulator instanceof ColocatedRepositoryTracker)
-								nick = ((ColocatedRepositoryTracker) manipulator).getParsedNickname(location);
-							manipulator.addRepository(location, nick, ui.getSession());
-							fillRepoCombo(getSiteString(location));
-						}
-						setRepoComboDecoration(status);
 					}
+					if (status.isOK() && location != null) {
+						String nick = null;
+						if (manipulator instanceof ColocatedRepositoryTracker)
+							nick = ((ColocatedRepositoryTracker) manipulator).getParsedNickname(location);
+						manipulator.addRepository(location, nick, ui.getSession());
+						fillRepoCombo(getSiteString(location));
+					}
+					setRepoComboDecoration(status);
 				});
 			} catch (InvocationTargetException e) {
 				// ignore

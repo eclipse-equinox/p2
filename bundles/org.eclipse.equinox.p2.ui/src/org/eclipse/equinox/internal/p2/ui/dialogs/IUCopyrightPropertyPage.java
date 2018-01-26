@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,8 +17,7 @@ import org.eclipse.equinox.p2.metadata.ICopyright;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -60,16 +59,13 @@ public class IUCopyrightPropertyPage extends IUPropertyPage {
 				gd = new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_BEGINNING);
 				gd.widthHint = computeWidthLimit(link, 80);
 				link.setLayoutData(gd);
-				link.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						try {
-							showURL(copyright.getLocation().toURL());
-						} catch (MalformedURLException e1) {
-							//cannot show this URL
-						}
+				link.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+					try {
+						showURL(copyright.getLocation().toURL());
+					} catch (MalformedURLException e1) {
+						//cannot show this URL
 					}
-				});
+				}));
 			}
 
 			return composite;

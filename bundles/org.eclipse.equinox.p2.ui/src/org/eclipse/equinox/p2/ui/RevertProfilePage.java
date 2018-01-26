@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,7 +13,8 @@ package org.eclipse.equinox.p2.ui;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Iterator;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.CopyUtils;
 import org.eclipse.equinox.internal.p2.ui.dialogs.InstalledIUGroup;
@@ -118,10 +119,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.about.InstallationPage#createPageButtons(org.eclipse.swt.widgets.Composite)
-	 */
 	@Override
 	public void createPageButtons(Composite parent) {
 		if (profileId == null)
@@ -134,10 +131,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		revertButton.setEnabled(revertAction.isEnabled());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
-	 */
 	@Override
 	public void createControl(Composite parent) {
 		profileId = getProvisioningUI().getProfileId();
@@ -214,13 +207,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		});
 		configsViewer.setInput(getInput());
 
-		configsViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				handleSelectionChanged((IStructuredSelection) event.getSelection());
-			}
-
-		});
+		configsViewer.addSelectionChangedListener(event -> handleSelectionChanged((IStructuredSelection) event.getSelection()));
 		CopyUtils.activateCopy(this, configsViewer.getControl());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		configsViewer.getControl().setLayoutData(gd);
@@ -382,15 +369,12 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		if (snapshot == null)
 			return false;
 		final IProvisioningPlan[] plan = new IProvisioningPlan[1];
-		IRunnableWithProgress runnable = new IRunnableWithProgress() {
-			@Override
-			public void run(IProgressMonitor monitor) {
-				IProfile currentProfile;
-				IProfileRegistry registry = ProvUI.getProfileRegistry(getSession());
-				IPlanner planner = (IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
-				currentProfile = registry.getProfile(profileId);
-				plan[0] = planner.getDiffPlan(currentProfile, snapshot, monitor);
-			}
+		IRunnableWithProgress runnable = monitor -> {
+			IProfile currentProfile;
+			IProfileRegistry registry = ProvUI.getProfileRegistry(getSession());
+			IPlanner planner = (IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
+			currentProfile = registry.getProfile(profileId);
+			plan[0] = planner.getDiffPlan(currentProfile, snapshot, monitor);
 		};
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
 		try {
@@ -424,10 +408,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		return reverted;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.ICopyable#copyToClipboard(org.eclipse.swt.widgets.Control)
-	 */
 	@Override
 	public void copyToClipboard(Control activeControl) {
 		String text = ""; //$NON-NLS-1$

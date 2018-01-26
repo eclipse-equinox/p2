@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,57 +48,54 @@ public class ComboAutoCompleteField {
 	}
 
 	IContentProposalProvider getProposalProvider() {
-		return new IContentProposalProvider() {
-			@Override
-			public IContentProposal[] getProposals(String contents, int position) {
-				String[] items = getStringItems();
-				if (contents.length() == 0 || items.length == 0)
-					return new IContentProposal[0];
-				StringMatcher matcher = new StringMatcher("*" + contents + "*", true, false); //$NON-NLS-1$ //$NON-NLS-2$
-				ArrayList<String> matches = new ArrayList<>();
-				for (int i = 0; i < items.length; i++)
-					if (matcher.match(items[i]))
-						matches.add(items[i]);
+		return (contents, position) -> {
+			String[] items = getStringItems();
+			if (contents.length() == 0 || items.length == 0)
+				return new IContentProposal[0];
+			StringMatcher matcher = new StringMatcher("*" + contents + "*", true, false); //$NON-NLS-1$ //$NON-NLS-2$
+			ArrayList<String> matches = new ArrayList<>();
+			for (int i1 = 0; i1 < items.length; i1++)
+				if (matcher.match(items[i1]))
+					matches.add(items[i1]);
 
-				// We don't want to autoactivate if the only proposal exactly matches
-				// what is in the combo.  This prevents the popup from
-				// opening when the user is merely scrolling through the combo values or
-				// has accepted a combo value.
-				if (matches.size() == 1 && matches.get(0).equals(combo.getText()))
-					return new IContentProposal[0];
+			// We don't want to autoactivate if the only proposal exactly matches
+			// what is in the combo.  This prevents the popup from
+			// opening when the user is merely scrolling through the combo values or
+			// has accepted a combo value.
+			if (matches.size() == 1 && matches.get(0).equals(combo.getText()))
+				return new IContentProposal[0];
 
-				if (matches.isEmpty())
-					return new IContentProposal[0];
+			if (matches.isEmpty())
+				return new IContentProposal[0];
 
-				// Make the proposals
-				IContentProposal[] proposals = new IContentProposal[matches.size()];
-				for (int i = 0; i < matches.size(); i++) {
-					final String proposal = matches.get(i);
-					proposals[i] = new IContentProposal() {
+			// Make the proposals
+			IContentProposal[] proposals = new IContentProposal[matches.size()];
+			for (int i2 = 0; i2 < matches.size(); i2++) {
+				final String proposal = matches.get(i2);
+				proposals[i2] = new IContentProposal() {
 
-						@Override
-						public String getContent() {
-							return proposal;
-						}
+					@Override
+					public String getContent() {
+						return proposal;
+					}
 
-						@Override
-						public int getCursorPosition() {
-							return proposal.length();
-						}
+					@Override
+					public int getCursorPosition() {
+						return proposal.length();
+					}
 
-						@Override
-						public String getDescription() {
-							return null;
-						}
+					@Override
+					public String getDescription() {
+						return null;
+					}
 
-						@Override
-						public String getLabel() {
-							return null;
-						}
-					};
-				}
-				return proposals;
+					@Override
+					public String getLabel() {
+						return null;
+					}
+				};
 			}
+			return proposals;
 		};
 	}
 }

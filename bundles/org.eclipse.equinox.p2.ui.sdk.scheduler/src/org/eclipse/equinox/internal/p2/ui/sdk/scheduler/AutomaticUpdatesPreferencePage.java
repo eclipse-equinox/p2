@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -25,8 +25,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -83,24 +82,14 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		onStartupRadio.setLayoutData(gd);
-		onStartupRadio.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				pageChanged();
-			}
-		});
+		onStartupRadio.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> pageChanged()));
 
 		onFuzzyScheduleRadio = new Button(updateScheduleGroup, SWT.RADIO);
 		onFuzzyScheduleRadio.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_findOnSchedule);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		onFuzzyScheduleRadio.setLayoutData(gd);
-		onFuzzyScheduleRadio.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				pageChanged();
-			}
-		});
+		onFuzzyScheduleRadio.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> pageChanged()));
 
 		fuzzyRecurrenceCombo = new Combo(updateScheduleGroup, SWT.READ_ONLY);
 		fuzzyRecurrenceCombo.setItems(AutomaticUpdateScheduler.FUZZY_RECURRENCE);
@@ -125,24 +114,14 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		searchOnlyRadio.setLayoutData(gd);
-		searchOnlyRadio.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				pageChanged();
-			}
-		});
+		searchOnlyRadio.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> pageChanged()));
 
 		searchAndDownloadRadio = new Button(downloadGroup, SWT.RADIO);
 		searchAndDownloadRadio.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_downloadAndNotify);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		searchAndDownloadRadio.setLayoutData(gd);
-		searchAndDownloadRadio.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				pageChanged();
-			}
-		});
+		searchAndDownloadRadio.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> pageChanged()));
 
 		createSpacer(container, 1);
 
@@ -159,24 +138,14 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		remindOnceRadio.setLayoutData(gd);
-		remindOnceRadio.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				pageChanged();
-			}
-		});
+		remindOnceRadio.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> pageChanged()));
 
 		remindScheduleRadio = new Button(remindGroup, SWT.RADIO);
 		remindScheduleRadio.setText(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_RemindSchedule);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		remindScheduleRadio.setLayoutData(gd);
-		remindScheduleRadio.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				pageChanged();
-			}
-		});
+		remindScheduleRadio.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> pageChanged()));
 
 		remindElapseCombo = new Combo(remindGroup, SWT.READ_ONLY);
 		remindElapseCombo.setItems(AutomaticUpdatesPopup.ELAPSED_LOCALIZED_STRINGS);
@@ -193,12 +162,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 		initialize();
 
-		enabledCheck.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				pageChanged();
-			}
-		});
+		enabledCheck.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> pageChanged()));
 
 		Dialog.applyDialogFont(container);
 		return container;

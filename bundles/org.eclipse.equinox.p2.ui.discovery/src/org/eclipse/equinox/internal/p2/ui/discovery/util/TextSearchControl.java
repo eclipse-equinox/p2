@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 Tasktop Technologies and others.
+ * Copyright (c) 2010, 2018 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -132,25 +132,17 @@ public class TextSearchControl extends Composite {
 	}
 
 	private void registerListeners() {
-		addSelectionListener(new SelectionAdapter() {
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (textControl != null && !textControl.isDisposed()) {
-					addToSearchHistory(textControl.getText());
-				}
-
+		addSelectionListener(SelectionListener.widgetDefaultSelectedAdapter(e -> {
+			if (textControl != null && !textControl.isDisposed()) {
+				addToSearchHistory(textControl.getText());
 			}
-		});
-		textControl.addFocusListener(new FocusAdapter() {
 
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (textControl != null && !textControl.isDisposed()) {
-					addToSearchHistory(textControl.getText());
-				}
+		}));
+		textControl.addFocusListener(FocusListener.focusLostAdapter(e -> {
+			if (textControl != null && !textControl.isDisposed()) {
+				addToSearchHistory(textControl.getText());
 			}
-		});
+		}));
 	}
 
 	private static int getCompositeStyle(boolean automaticFind, Composite parent) {
@@ -268,12 +260,7 @@ public class TextSearchControl extends Composite {
 
 		});
 
-		labelButton.getAccessible().addAccessibleListener(new AccessibleAdapter() {
-			@Override
-			public void getName(AccessibleEvent e) {
-				e.result = accessibilityText;
-			}
-		});
+		labelButton.getAccessible().addAccessibleListener(AccessibleListener.getNameAdapter(e -> e.result = accessibilityText));
 		labelButton.getAccessible().addAccessibleControlListener(new AccessibleControlAdapter() {
 			@Override
 			public void getRole(AccessibleControlEvent e) {

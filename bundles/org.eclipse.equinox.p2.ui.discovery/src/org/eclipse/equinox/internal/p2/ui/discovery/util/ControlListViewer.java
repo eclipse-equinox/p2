@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,6 @@ import org.eclipse.swt.widgets.*;
 /**
  * Based on {@link org.eclipse.ui.internal.progress.DetailedProgressViewer}.
  * 
- * @author Steffen Pingel
  */
 @SuppressWarnings("restriction")
 public abstract class ControlListViewer extends StructuredViewer {
@@ -98,12 +97,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 
 		scrolled.setExpandHorizontal(true);
 		scrolled.setExpandVertical(true);
-		scrolled.addControlListener(new ControlAdapter() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				updateSize(scrolled.getContent());
-			}
-		});
+		scrolled.addControlListener(ControlListener.controlResizedAdapter(e -> updateSize(scrolled.getContent())));
 		control.addTraverseListener(new TraverseListener() {
 			private boolean handleEvent = true;
 

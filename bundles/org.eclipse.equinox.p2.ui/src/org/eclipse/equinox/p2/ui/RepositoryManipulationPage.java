@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2013 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -28,14 +28,12 @@ import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.*;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.accessibility.AccessibleAdapter;
-import org.eclipse.swt.accessibility.AccessibleEvent;
+import org.eclipse.swt.accessibility.AccessibleListener;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
@@ -214,49 +212,30 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		// Filter box
 		pattern = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.CANCEL);
-		pattern.getAccessible().addAccessibleListener(new AccessibleAdapter() {
-			@Override
-			public void getName(AccessibleEvent e) {
-				e.result = DEFAULT_FILTER_TEXT;
-			}
-		});
+		pattern.getAccessible().addAccessibleListener(AccessibleListener.getNameAdapter(e -> e.result = DEFAULT_FILTER_TEXT));
 		pattern.setText(DEFAULT_FILTER_TEXT);
 		pattern.selectAll();
-		pattern.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				applyFilter();
-			}
-		});
+		pattern.addModifyListener(e -> applyFilter());
 
-		pattern.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.ARROW_DOWN) {
-					if (table.getItemCount() > 0) {
-						table.setFocus();
-					} else if (e.character == SWT.CR) {
-						return;
-					}
+		pattern.addKeyListener(KeyListener.keyPressedAdapter(e -> {
+			if (e.keyCode == SWT.ARROW_DOWN) {
+				if (table.getItemCount() > 0) {
+					table.setFocus();
+				} else if (e.character == SWT.CR) {
+					return;
 				}
 			}
-		});
+		}));
 
-		pattern.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				display.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (!pattern.isDisposed()) {
-							if (DEFAULT_FILTER_TEXT.equals(pattern.getText().trim())) {
-								pattern.selectAll();
-							}
-						}
+		pattern.addFocusListener(FocusListener.focusGainedAdapter(e -> {
+			display.asyncExec(() -> {
+				if (!pattern.isDisposed()) {
+					if (DEFAULT_FILTER_TEXT.equals(pattern.getText().trim())) {
+						pattern.selectAll();
 					}
-				});
-			}
-		});
+				}
+			});
+		}));
 
 		// spacer to fill other column
 		if (policy.getRepositoriesVisible())
@@ -267,14 +246,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		repositoryViewer = new CheckboxTableViewer(table);
 
 		// Key listener for delete
-		table.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.DEL) {
-					removeRepositories();
-				}
+		table.addKeyListener(KeyListener.keyPressedAdapter(e -> {
+			if (e.keyCode == SWT.DEL) {
+				removeRepositories();
 			}
-		});
+		}));
 		setTableColumns();
 		CopyUtils.activateCopy(this, table);
 
@@ -327,13 +303,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		repositoryViewer.setColumnProperties(new String[] {"nickname"}); //$NON-NLS-1$
 		repositoryViewer.setCellEditors(new CellEditor[] {new TextCellEditor(repositoryViewer.getTable())});
 
-		repositoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				if (policy.getRepositoriesVisible())
-					validateButtons();
-				setDetails();
-			}
+		repositoryViewer.addSelectionChangedListener(event -> {
+			if (policy.getRepositoriesVisible())
+				validateButtons();
+			setDetails();
 		});
 
 		repositoryViewer.setCheckStateProvider(new ICheckStateProvider() {
@@ -348,17 +321,14 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			}
 		});
 
-		repositoryViewer.addCheckStateListener(new ICheckStateListener() {
-			@Override
-			public void checkStateChanged(CheckStateChangedEvent event) {
-				MetadataRepositoryElement element = (MetadataRepositoryElement) event.getElement();
-				element.setEnabled(event.getChecked());
-				// paranoid that an equal but not identical element was passed in as the selection.
-				// update the cache map just in case.
-				getInput().put(element);
-				// update the viewer to show the change
-				updateForEnablementChange(new MetadataRepositoryElement[] {element});
-			}
+		repositoryViewer.addCheckStateListener(event -> {
+			MetadataRepositoryElement element = (MetadataRepositoryElement) event.getElement();
+			element.setEnabled(event.getChecked());
+			// paranoid that an equal but not identical element was passed in as the selection.
+			// update the cache map just in case.
+			getInput().put(element);
+			// update the viewer to show the change
+			updateForEnablementChange(new MetadataRepositoryElement[] {element});
 		});
 
 		// Input last
@@ -376,12 +346,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			listener = getViewerProvisioningListener();
 
 			ProvUI.getProvisioningEventBus(ui.getSession()).addListener(listener);
-			composite.addDisposeListener(new DisposeListener() {
-				@Override
-				public void widgetDisposed(DisposeEvent event) {
-					ProvUI.getProvisioningEventBus(ui.getSession()).removeListener(listener);
-				}
-			});
+			composite.addDisposeListener(event -> ProvUI.getProvisioningEventBus(ui.getSession()).removeListener(listener));
 
 			validateButtons();
 		}
@@ -394,11 +359,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 		details.setLayoutData(data);
 
-		GridLayoutFactory.fillDefaults()
-			.numColumns(policy.getRepositoriesVisible() ? 2 : 1)
-			.margins(LayoutConstants.getMargins())
-			.spacing(LayoutConstants.getSpacing())
-			.generateLayout(composite);
+		GridLayoutFactory.fillDefaults().numColumns(policy.getRepositoriesVisible() ? 2 : 1).margins(LayoutConstants.getMargins()).spacing(LayoutConstants.getSpacing()).generateLayout(composite);
 
 		Dialog.applyDialogFont(composite);
 		return composite;
@@ -490,60 +451,25 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	private void createVerticalButtons(Composite parent) {
 		addButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Add, false);
-		addButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				addRepository();
-			}
-		});
+		addButton.addListener(SWT.Selection, event -> addRepository());
 
 		editButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Edit, false);
-		editButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				changeRepositoryProperties();
-			}
-		});
+		editButton.addListener(SWT.Selection, event -> changeRepositoryProperties());
 
 		removeButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Remove, false);
-		removeButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				removeRepositories();
-			}
-		});
+		removeButton.addListener(SWT.Selection, event -> removeRepositories());
 
 		refreshButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_RefreshConnection, false);
-		refreshButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				refreshRepository();
-			}
-		});
+		refreshButton.addListener(SWT.Selection, event -> refreshRepository());
 
 		disableButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_DisableButton, false);
-		disableButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				toggleRepositoryEnablement();
-			}
-		});
+		disableButton.addListener(SWT.Selection, event -> toggleRepositoryEnablement());
 
 		Button button = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Import, false);
-		button.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				importRepositories();
-			}
-		});
+		button.addListener(SWT.Selection, event -> importRepositories());
 
 		exportButton = createVerticalButton(parent, ProvUIMessages.RepositoryManipulationPage_Export, false);
-		exportButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				exportRepositories();
-			}
-		});
+		exportButton.addListener(SWT.Selection, event -> exportRepositories());
 	}
 
 	CachedMetadataRepositories getInput() {
@@ -552,10 +478,6 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		return input;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.preference.PreferencePage#performOk()
-	 */
 	@Override
 	public boolean performOk() {
 		if (changed)
@@ -632,57 +554,54 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		final URI location = selected[0].getLocation();
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
 		try {
-			dialog.run(true, true, new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-					monitor.beginTask(NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 100);
-					try {
-						// Batch the events for this operation so that any events on reload (discovery, etc.) will be ignored
-						// in the UI as they happen.
-						ui.signalRepositoryOperationStart();
-						tracker.clearRepositoryNotFound(location);
-						// If the managers don't know this repo, refreshing it will not work.
-						// We temporarily add it, but we must remove it in case the user cancels out of this page.
-						if (!includesRepo(tracker.getKnownRepositories(ui.getSession()), location)) {
-							remove[0] = true;
-							// We don't want to use the tracker here because it ensures that additions are
-							// reported as user events to be responded to.  We don't want, for example, the
-							// install wizard to change combo selections based on what is done here.
-							ProvUI.getMetadataRepositoryManager(ui.getSession()).addRepository(location);
-							ProvUI.getArtifactRepositoryManager(ui.getSession()).addRepository(location);
-						}
-						// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=312332
-						// We assume repository colocation here.  Ideally we should not do this, but the
-						// RepositoryTracker API is swallowing the refresh errors.
-						SubMonitor sub = SubMonitor.convert(monitor, 200);
-						try {
-							ProvUI.getMetadataRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
-						} catch (ProvisionException e) {
-							fail[0] = e;
-						}
-						try {
-							ProvUI.getArtifactRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
-						} catch (ProvisionException e) {
-							// Failure in the artifact repository.  We will not report this because the user has no separate visibility
-							// of the artifact repository.  We should log the error.  If this repository fails during a download, the error
-							// will be reported at that time to the user, when it matters.  This also prevents false error reporting when
-							// a metadata repository didn't actually have a colocated artifact repository.
-							LogHelper.log(e);
-						}
-					} catch (OperationCanceledException e) {
-						// Catch canceled login attempts
-						fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled, e));
-					} finally {
-						// Check if the monitor was canceled
-						if (fail[0] == null && monitor.isCanceled())
-							fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled));
-						// If we temporarily added a repo so we could read it, remove it.
-						if (remove[0]) {
-							ProvUI.getMetadataRepositoryManager(ui.getSession()).removeRepository(location);
-							ProvUI.getArtifactRepositoryManager(ui.getSession()).removeRepository(location);
-						}
-						ui.signalRepositoryOperationComplete(null, false);
+			dialog.run(true, true, monitor -> {
+				monitor.beginTask(NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 100);
+				try {
+					// Batch the events for this operation so that any events on reload (discovery, etc.) will be ignored
+					// in the UI as they happen.
+					ui.signalRepositoryOperationStart();
+					tracker.clearRepositoryNotFound(location);
+					// If the managers don't know this repo, refreshing it will not work.
+					// We temporarily add it, but we must remove it in case the user cancels out of this page.
+					if (!includesRepo(tracker.getKnownRepositories(ui.getSession()), location)) {
+						remove[0] = true;
+						// We don't want to use the tracker here because it ensures that additions are
+						// reported as user events to be responded to.  We don't want, for example, the
+						// install wizard to change combo selections based on what is done here.
+						ProvUI.getMetadataRepositoryManager(ui.getSession()).addRepository(location);
+						ProvUI.getArtifactRepositoryManager(ui.getSession()).addRepository(location);
 					}
+					// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=312332
+					// We assume repository colocation here.  Ideally we should not do this, but the
+					// RepositoryTracker API is swallowing the refresh errors.
+					SubMonitor sub = SubMonitor.convert(monitor, 200);
+					try {
+						ProvUI.getMetadataRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
+					} catch (ProvisionException e1) {
+						fail[0] = e1;
+					}
+					try {
+						ProvUI.getArtifactRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
+					} catch (ProvisionException e2) {
+						// Failure in the artifact repository.  We will not report this because the user has no separate visibility
+						// of the artifact repository.  We should log the error.  If this repository fails during a download, the error
+						// will be reported at that time to the user, when it matters.  This also prevents false error reporting when
+						// a metadata repository didn't actually have a colocated artifact repository.
+						LogHelper.log(e2);
+					}
+				} catch (OperationCanceledException e3) {
+					// Catch canceled login attempts
+					fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled, e3));
+				} finally {
+					// Check if the monitor was canceled
+					if (fail[0] == null && monitor.isCanceled())
+						fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled));
+					// If we temporarily added a repo so we could read it, remove it.
+					if (remove[0]) {
+						ProvUI.getMetadataRepositoryManager(ui.getSession()).removeRepository(location);
+						ProvUI.getArtifactRepositoryManager(ui.getSession()).removeRepository(location);
+					}
+					ui.signalRepositoryOperationComplete(null, false);
 				}
 			});
 		} catch (InvocationTargetException e) {
@@ -739,29 +658,23 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	void importRepositories() {
-		BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
-			@Override
-			public void run() {
-				MetadataRepositoryElement[] imported = UpdateManagerCompatibility.importSites(getShell());
-				if (imported.length > 0) {
-					changed = true;
-					for (int i = 0; i < imported.length; i++)
-						getInput().put(imported[i]);
-					safeRefresh(null);
-				}
+		BusyIndicator.showWhile(getShell().getDisplay(), () -> {
+			MetadataRepositoryElement[] imported = UpdateManagerCompatibility.importSites(getShell());
+			if (imported.length > 0) {
+				changed = true;
+				for (int i = 0; i < imported.length; i++)
+					getInput().put(imported[i]);
+				safeRefresh(null);
 			}
 		});
 	}
 
 	void exportRepositories() {
-		BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
-			@Override
-			public void run() {
-				MetadataRepositoryElement[] elements = getSelectedElements();
-				if (elements.length == 0)
-					elements = getElements();
-				UpdateManagerCompatibility.exportSites(getShell(), elements);
-			}
+		BusyIndicator.showWhile(getShell().getDisplay(), () -> {
+			MetadataRepositoryElement[] elements = getSelectedElements();
+			if (elements.length == 0)
+				elements = getElements();
+			UpdateManagerCompatibility.exportSites(getShell(), elements);
 		});
 	}
 
@@ -846,13 +759,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	void safeRefresh(final MetadataRepositoryElement elementToSelect) {
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				repositoryViewer.refresh();
-				if (elementToSelect != null)
-					repositoryViewer.setSelection(new StructuredSelection(elementToSelect), true);
-			}
+		Runnable runnable = () -> {
+			repositoryViewer.refresh();
+			if (elementToSelect != null)
+				repositoryViewer.setSelection(new StructuredSelection(elementToSelect), true);
 		};
 		if (Display.getCurrent() == null)
 			display.asyncExec(runnable);
@@ -894,9 +804,6 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
-	 */
 	@Override
 	public void init(IWorkbench workbench) {
 		noDefaultAndApplyButton();
@@ -977,10 +884,6 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		return localCacheRepoManipulator;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.ICopyable#copyToClipboard(org.eclipse.swt.widgets.Control)
-	 */
 	@Override
 	public void copyToClipboard(Control activeControl) {
 		MetadataRepositoryElement[] elements = getSelectedElements();

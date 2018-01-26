@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -51,10 +51,6 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getKnownRepositories()
-	 */
 	@Override
 	public URI[] getKnownRepositories(ProvisioningSession session) {
 		return getMetadataRepositoryManager().getKnownRepositories(getMetadataRepositoryFlags());
@@ -79,9 +75,6 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#removeRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession)
-	 */
 	@Override
 	public void removeRepositories(URI[] repoLocations, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
@@ -95,10 +88,6 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#refreshRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession, org.eclipse.core.runtime.IProgressMonitor)
-	 */
 	@Override
 	public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
 		ui.signalRepositoryOperationStart();
@@ -130,38 +119,35 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
 			if (!hasNotFoundStatusBeenReported(location)) {
 				addNotFound(location);
-				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						IWorkbench workbench = PlatformUI.getWorkbench();
-						if (workbench.isClosing())
-							return;
-						Shell shell = ProvUI.getDefaultParentShell();
-						int result = MessageDialog.open(MessageDialog.QUESTION, shell, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFoundTitle, NLS.bind(ProvUIMessages.ColocatedRepositoryTracker_PromptForSiteLocationEdit, URIUtil.toUnencodedString(location)), SWT.NONE, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFound_EditButtonLabel, IDialogConstants.NO_LABEL);
-						if (result == 0) {
-							RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(shell, ui) {
-								@Override
-								protected String getInitialLocationText() {
-									return URIUtil.toUnencodedString(location);
-								}
+				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+					IWorkbench workbench = PlatformUI.getWorkbench();
+					if (workbench.isClosing())
+						return;
+					Shell shell = ProvUI.getDefaultParentShell();
+					int result = MessageDialog.open(MessageDialog.QUESTION, shell, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFoundTitle, NLS.bind(ProvUIMessages.ColocatedRepositoryTracker_PromptForSiteLocationEdit, URIUtil.toUnencodedString(location)), SWT.NONE, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFound_EditButtonLabel, IDialogConstants.NO_LABEL);
+					if (result == 0) {
+						RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(shell, ui) {
+							@Override
+							protected String getInitialLocationText() {
+								return URIUtil.toUnencodedString(location);
+							}
 
-								@Override
-								protected String getInitialNameText() {
-									String nickname = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
-									return nickname == null ? "" : nickname; //$NON-NLS-1$
-								}
-							};
-							int ret = dialog.open();
-							if (ret == Window.OK) {
-								URI correctedLocation = dialog.getLocation();
-								if (correctedLocation != null) {
-									ui.signalRepositoryOperationStart();
-									try {
-										removeRepositories(new URI[] {location}, ui.getSession());
-										addRepository(correctedLocation, dialog.getName(), ui.getSession());
-									} finally {
-										ui.signalRepositoryOperationComplete(null, true);
-									}
+							@Override
+							protected String getInitialNameText() {
+								String nickname = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+								return nickname == null ? "" : nickname; //$NON-NLS-1$
+							}
+						};
+						int ret = dialog.open();
+						if (ret == Window.OK) {
+							URI correctedLocation = dialog.getLocation();
+							if (correctedLocation != null) {
+								ui.signalRepositoryOperationStart();
+								try {
+									removeRepositories(new URI[] {location}, ui.getSession());
+									addRepository(correctedLocation, dialog.getName(), ui.getSession());
+								} finally {
+									ui.signalRepositoryOperationComplete(null, true);
 								}
 							}
 						}

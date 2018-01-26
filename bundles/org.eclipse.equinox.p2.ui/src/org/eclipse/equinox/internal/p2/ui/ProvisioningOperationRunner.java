@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -81,17 +81,14 @@ public class ProvisioningOperationRunner {
 			return;
 		}
 
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (PlatformUI.getWorkbench().isClosing())
-					return;
-				int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getDefaultParentShell(), restartPolicy == Policy.RESTART_POLICY_PROMPT);
-				if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
-					applyProfileChanges();
-				} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
-					PlatformUI.getWorkbench().restart(true);
-				}
+		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+			if (PlatformUI.getWorkbench().isClosing())
+				return;
+			int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getDefaultParentShell(), restartPolicy == Policy.RESTART_POLICY_PROMPT);
+			if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
+				applyProfileChanges();
+			} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
+				PlatformUI.getWorkbench().restart(true);
 			}
 		});
 	}

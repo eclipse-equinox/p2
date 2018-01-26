@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2014 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -25,8 +25,7 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
@@ -53,18 +52,15 @@ public class ValidationDialogServiceUI extends UIServices {
 
 			Link link = new Link(parent, SWT.NONE);
 			link.setText(linkText);
-			link.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					try {
-						URL url = new URL(e.text);
-						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(url);
-					} catch (Exception x) {
-						ProvUIActivator.getDefault().getLog().log(//
-								new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, x.getMessage(), x));
-					}
+			link.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+				try {
+					URL url = new URL(e.text);
+					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(url);
+				} catch (Exception x) {
+					ProvUIActivator.getDefault().getLog().log(//
+							new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, x.getMessage(), x));
 				}
-			});
+			}));
 			return link;
 		}
 	}
@@ -87,29 +83,21 @@ public class ValidationDialogServiceUI extends UIServices {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.IServiceUI#getUsernamePassword(java.lang.String)
-	 */
 	@Override
 	public AuthenticationInfo getUsernamePassword(final String location) {
 
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		if (!suppressAuthentication() && !isHeadless()) {
-			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					Shell shell = ProvUI.getDefaultParentShell();
-					String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
-					UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
-					int dialogCode = dialog.open();
-					if (dialogCode == Window.OK) {
-						result[0] = dialog.getResult();
-					} else if (dialogCode == Window.CANCEL) {
-						result[0] = AUTHENTICATION_PROMPT_CANCELED;
-					}
+			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+				Shell shell = ProvUI.getDefaultParentShell();
+				String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
+				UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
+				int dialogCode = dialog.open();
+				if (dialogCode == Window.OK) {
+					result[0] = dialog.getResult();
+				} else if (dialogCode == Window.CANCEL) {
+					result[0] = AUTHENTICATION_PROMPT_CANCELED;
 				}
-
 			});
 		}
 		return result[0];
@@ -123,10 +111,6 @@ public class ValidationDialogServiceUI extends UIServices {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.IServiceUI#showCertificates(java.lang.Object)
-	 */
 	@Override
 	public TrustInfo getTrustInfo(Certificate[][] untrustedChains, final String[] unsignedDetail) {
 		boolean trustUnsigned = true;
@@ -164,20 +148,17 @@ public class ValidationDialogServiceUI extends UIServices {
 			final Object[] result = new Object[1];
 			final TreeNode[] input = createTreeNodes(untrustedChains);
 
-			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					Shell shell = ProvUI.getDefaultParentShell();
-					ILabelProvider labelProvider = new CertificateLabelProvider();
-					TreeNodeContentProvider contentProvider = new TreeNodeContentProvider();
-					TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input, labelProvider, contentProvider);
-					trustCertificateDialog.open();
-					Certificate[] values = new Certificate[trustCertificateDialog.getResult() == null ? 0 : trustCertificateDialog.getResult().length];
-					for (int i = 0; i < values.length; i++) {
-						values[i] = (Certificate) ((TreeNode) trustCertificateDialog.getResult()[i]).getValue();
-					}
-					result[0] = values;
+			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+				Shell shell = ProvUI.getDefaultParentShell();
+				ILabelProvider labelProvider = new CertificateLabelProvider();
+				TreeNodeContentProvider contentProvider = new TreeNodeContentProvider();
+				TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input, labelProvider, contentProvider);
+				trustCertificateDialog.open();
+				Certificate[] values = new Certificate[trustCertificateDialog.getResult() == null ? 0 : trustCertificateDialog.getResult().length];
+				for (int i = 0; i < values.length; i++) {
+					values[i] = (Certificate) ((TreeNode) trustCertificateDialog.getResult()[i]).getValue();
 				}
+				result[0] = values;
 			});
 			persistTrust = true;
 			trusted = (Certificate[]) result[0];
@@ -205,25 +186,21 @@ public class ValidationDialogServiceUI extends UIServices {
 	public AuthenticationInfo getUsernamePassword(final String location, final AuthenticationInfo previousInfo) {
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		if (!suppressAuthentication() && !isHeadless()) {
-			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					Shell shell = ProvUI.getDefaultParentShell();
-					String message = null;
-					if (previousInfo.saveResult())
-						message = NLS.bind(ProvUIMessages.ProvUIMessages_SavedNotAccepted_EnterFor_0, location);
-					else
-						message = NLS.bind(ProvUIMessages.ProvUIMessages_NotAccepted_EnterFor_0, location);
+			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+				Shell shell = ProvUI.getDefaultParentShell();
+				String message = null;
+				if (previousInfo.saveResult())
+					message = NLS.bind(ProvUIMessages.ProvUIMessages_SavedNotAccepted_EnterFor_0, location);
+				else
+					message = NLS.bind(ProvUIMessages.ProvUIMessages_NotAccepted_EnterFor_0, location);
 
-					UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
-					int dialogCode = dialog.open();
-					if (dialogCode == Window.OK) {
-						result[0] = dialog.getResult();
-					} else if (dialogCode == Window.CANCEL) {
-						result[0] = AUTHENTICATION_PROMPT_CANCELED;
-					}
+				UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
+				int dialogCode = dialog.open();
+				if (dialogCode == Window.OK) {
+					result[0] = dialog.getResult();
+				} else if (dialogCode == Window.CANCEL) {
+					result[0] = AUTHENTICATION_PROMPT_CANCELED;
 				}
-
 			});
 		}
 		return result[0];
@@ -235,12 +212,9 @@ public class ValidationDialogServiceUI extends UIServices {
 			super.showInformationMessage(title, text, linkText);
 			return;
 		}
-		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				MessageDialog dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), title, null, text, MessageDialog.INFORMATION, new String[] {IDialogConstants.OK_LABEL}, 0, linkText);
-				dialog.open();
-			}
+		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+			MessageDialog dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), title, null, text, MessageDialog.INFORMATION, new String[] {IDialogConstants.OK_LABEL}, 0, linkText);
+			dialog.open();
 		});
 	}
 

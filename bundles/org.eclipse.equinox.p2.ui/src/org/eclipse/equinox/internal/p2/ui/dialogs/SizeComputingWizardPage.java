@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -65,12 +65,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 				if (display != null) {
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							updateSizingInfo();
-						}
-					});
+					display.asyncExec(() -> updateSizingInfo());
 				}
 				return Status.OK_STATUS;
 			}

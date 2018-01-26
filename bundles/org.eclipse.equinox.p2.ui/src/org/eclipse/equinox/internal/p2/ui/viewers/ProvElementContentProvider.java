@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -41,10 +41,6 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 		// Default constructor
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
-	 */
 	@Override
 	public Object[] getElements(final Object input) {
 		// Simple deferred fetch handling for table viewers
@@ -80,18 +76,15 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 
 					}, monitor);
 					if (!monitor.isCanceled()) {
-						display.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								AbstractTableViewer tableViewer = (AbstractTableViewer) viewer;
-								if (monitor.isCanceled() || tableViewer == null || tableViewer.getControl().isDisposed())
-									return;
-								tableViewer.getControl().setRedraw(false);
-								tableViewer.remove(pending);
-								tableViewer.add(children.toArray());
-								finishedFetchingElements(input);
-								tableViewer.getControl().setRedraw(true);
-							}
+						display.asyncExec(() -> {
+							AbstractTableViewer tableViewer = (AbstractTableViewer) viewer;
+							if (monitor.isCanceled() || tableViewer == null || tableViewer.getControl().isDisposed())
+								return;
+							tableViewer.getControl().setRedraw(false);
+							tableViewer.remove(pending);
+							tableViewer.add(children.toArray());
+							finishedFetchingElements(input);
+							tableViewer.getControl().setRedraw(true);
 						});
 					}
 					return Status.OK_STATUS;
@@ -111,10 +104,6 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 		return elements;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
-	 */
 	@Override
 	public Object getParent(Object child) {
 		if (child instanceof ProvElement) {
@@ -123,10 +112,6 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
-	 */
 	@Override
 	public boolean hasChildren(Object element) {
 		if (element instanceof ProvElement)
@@ -134,10 +119,6 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
-	 */
 	@Override
 	public Object[] getChildren(final Object parent) {
 		if (parent instanceof ProvElement) {
@@ -146,9 +127,6 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 		return new Object[0];
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
-	 */
 	@Override
 	public void dispose() {
 		viewer = null;
@@ -158,9 +136,6 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
-	 */
 	@Override
 	public void inputChanged(Viewer aViewer, Object oldInput, Object newInput) {
 		this.viewer = aViewer;

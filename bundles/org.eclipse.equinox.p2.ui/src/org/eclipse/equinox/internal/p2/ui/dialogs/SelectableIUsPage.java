@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,8 @@ import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.CheckboxTableViewer;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -67,10 +68,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
-	 */
 	@Override
 	public void createControl(Composite parent) {
 		display = parent.getDisplay();
@@ -103,36 +100,28 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 			tc.setWidth(columns[i].getWidthInPixels(table));
 		}
 
-		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				setDetailText(resolvedOperation);
-			}
-		});
+		tableViewer.addSelectionChangedListener(event -> setDetailText(resolvedOperation));
 
-		tableViewer.addCheckStateListener(new ICheckStateListener() {
-			@Override
-			public void checkStateChanged(CheckStateChangedEvent event) {
-				// If the checkEvent is on a locked update element, uncheck it and select it.
-				if (event.getElement() instanceof AvailableUpdateElement) {
-					AvailableUpdateElement checkedElement = (AvailableUpdateElement) event.getElement();
-					if (checkedElement.isLockedForUpdate()) {
-						event.getCheckable().setChecked(checkedElement, false);
-						// Select the element so that the locked description is displayed
-						CheckboxTableViewer viewer = ((CheckboxTableViewer) event.getSource());
-						int itemCount = viewer.getTable().getItemCount();
-						for (int i = 0; i < itemCount; i++) {
-							if (viewer.getElementAt(i).equals(checkedElement)) {
-								viewer.getTable().deselectAll();
-								viewer.getTable().select(i);
-								setDetailText(resolvedOperation);
-								break;
-							}
+		tableViewer.addCheckStateListener(event -> {
+			// If the checkEvent is on a locked update element, uncheck it and select it.
+			if (event.getElement() instanceof AvailableUpdateElement) {
+				AvailableUpdateElement checkedElement = (AvailableUpdateElement) event.getElement();
+				if (checkedElement.isLockedForUpdate()) {
+					event.getCheckable().setChecked(checkedElement, false);
+					// Select the element so that the locked description is displayed
+					CheckboxTableViewer viewer = ((CheckboxTableViewer) event.getSource());
+					int itemCount = viewer.getTable().getItemCount();
+					for (int i = 0; i < itemCount; i++) {
+						if (viewer.getElementAt(i).equals(checkedElement)) {
+							viewer.getTable().deselectAll();
+							viewer.getTable().select(i);
+							setDetailText(resolvedOperation);
+							break;
 						}
 					}
 				}
-				updateSelection();
 			}
+			updateSelection();
 		});
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
@@ -185,23 +174,17 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		Button selectAll = new Button(buttonParent, SWT.PUSH);
 		selectAll.setText(ProvUIMessages.SelectableIUsPage_Select_All);
 		setButtonLayoutData(selectAll);
-		selectAll.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				tableViewer.setAllChecked(true);
-				updateSelection();
-			}
+		selectAll.addListener(SWT.Selection, event -> {
+			tableViewer.setAllChecked(true);
+			updateSelection();
 		});
 
 		Button deselectAll = new Button(buttonParent, SWT.PUSH);
 		deselectAll.setText(ProvUIMessages.SelectableIUsPage_Deselect_All);
 		setButtonLayoutData(deselectAll);
-		deselectAll.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				tableViewer.setAllChecked(false);
-				updateSelection();
-			}
+		deselectAll.addListener(SWT.Selection, event -> {
+			tableViewer.setAllChecked(false);
+			updateSelection();
 		});
 
 		// dummy to take extra space
@@ -323,10 +306,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		return tableViewer != null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionStatusPage#updateCaches(org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot, org.eclipse.equinox.p2.operations.ProfileChangeOperation)
-	 */
 	@Override
 	protected void updateCaches(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		resolvedOperation = op;
@@ -338,9 +317,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage#setCheckedElements(java.lang.Object[])
-	 */
 	@Override
 	public void setCheckedElements(Object[] elements) {
 		if (tableViewer == null)

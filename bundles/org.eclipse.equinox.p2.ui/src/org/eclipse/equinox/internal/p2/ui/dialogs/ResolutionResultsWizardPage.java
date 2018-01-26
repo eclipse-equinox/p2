@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,8 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.Collection;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
@@ -26,7 +27,6 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -64,10 +64,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 			this.input = input;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
-	 */
 	@Override
 	public void createControl(Composite parent) {
 		display = parent.getDisplay();
@@ -182,28 +178,17 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		controlsComposite.setLayoutData(gd);
 
-		final Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-					@Override
-					public void selectionChanged(SelectionChangedEvent event) {
-						setDetailText(resolvedOperation);
-					}
-				});
-				setDrilldownElements(input, resolvedOperation);
-				treeViewer.setInput(input);
-			}
+		final Runnable runnable = () -> {
+			treeViewer.addSelectionChangedListener(event -> setDetailText(resolvedOperation));
+			setDrilldownElements(input, resolvedOperation);
+			treeViewer.setInput(input);
 		};
 
 		if (resolvedOperation != null && !resolvedOperation.hasResolved()) {
 			try {
-				getContainer().run(true, false, new IRunnableWithProgress() {
-					@Override
-					public void run(IProgressMonitor monitor) {
-						resolvedOperation.resolveModal(monitor);
-						display.asyncExec(runnable);
-					}
+				getContainer().run(true, false, monitor -> {
+					resolvedOperation.resolveModal(monitor);
+					display.asyncExec(runnable);
 				});
 			} catch (Exception e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e));

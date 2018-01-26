@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,8 +23,6 @@ import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -151,12 +149,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 				// the location is reverted to the original one that has not been saved
 				status[0] = Status.OK_STATUS;
 			else
-				BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
-					@Override
-					public void run() {
-						status[0] = getRepositoryTracker().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null);
-					}
-				});
+				BusyIndicator.showWhile(getShell().getDisplay(), () -> status[0] = getRepositoryTracker().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null));
 		}
 		// At this point the subclasses may have decided to opt out of
 		// this dialog.
@@ -220,12 +213,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		DropTarget target = new DropTarget(url, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 		target.addDropListener(new TextURLDropAdapter(url, true));
-		url.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				validateRepositoryURL(false);
-			}
-		});
+		url.addModifyListener(e -> validateRepositoryURL(false));
 		initialURL = getInitialLocationText();
 		url.setText(initialURL);
 		url.setSelection(0, url.getText().length());

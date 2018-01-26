@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2017 IBM Corporation and others.
+ * Copyright (c) 2004, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,8 +21,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.progress.WorkbenchJob;
@@ -107,18 +106,16 @@ public abstract class FilteredViewer {
 				}
 			});
 		}
-		filterText.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.detail == SWT.ICON_CANCEL) {
-					clearFilterText();
-				} else {
-					// search icon and enter
-					filterTextChanged();
-				}
+		filterText.addSelectionListener(SelectionListener.widgetDefaultSelectedAdapter(e -> {
+			if (e.detail == SWT.ICON_CANCEL) {
+				clearFilterText();
+			} else {
+				// search icon and enter
+				filterTextChanged();
 			}
-		});
+		}));
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(filterText);
+
 	}
 
 	private void doCreateHeader() {
