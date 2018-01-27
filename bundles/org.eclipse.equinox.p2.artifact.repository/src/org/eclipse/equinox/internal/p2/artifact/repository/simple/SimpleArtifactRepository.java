@@ -459,8 +459,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		steps.add(new SignatureVerifier());
-		if (ARTIFACT_MD5_CHECKSUM_ENABLED && descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5) != null)
-			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5)));
+		addChecksumVerifiers(steps, ARTIFACT_MD5_CHECKSUM_ENABLED, descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5));
+
 		if (steps.isEmpty())
 			return destination;
 		ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
@@ -472,14 +472,22 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
-		if (DOWNLOAD_MD5_CHECKSUM_ENABLED && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
-			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5)));
+		addChecksumVerifiers(steps, DOWNLOAD_MD5_CHECKSUM_ENABLED, descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+
 		// Add steps here if needed
 		if (steps.isEmpty())
 			return destination;
 		ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 		// TODO should probably be using createAndLink here
 		return handler.link(stepArray, destination, monitor);
+	}
+
+	/**
+	 * Adds checksum verifier to steps only if isChecksumEnabled and checksum is not null
+	 */
+	private void addChecksumVerifiers(ArrayList<ProcessingStep> steps, boolean isChecksumEnabled, String checksum) {
+		if (isChecksumEnabled && checksum != null)
+			steps.add(new MD5Verifier(checksum));
 	}
 
 	private byte[] bytesFromHexString(String string) {
