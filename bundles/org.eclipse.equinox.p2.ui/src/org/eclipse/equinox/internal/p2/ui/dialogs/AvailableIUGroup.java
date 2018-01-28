@@ -391,7 +391,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 								TreeItem[] items = tree.getItems();
 								for (int i = 0; i < items.length; i++) {
 									if (items[i].getData() instanceof IRepositoryElement) {
-										URI url = ((IRepositoryElement) items[i].getData()).getLocation();
+										URI url = ((IRepositoryElement<?>) items[i].getData()).getLocation();
 										if (url.equals(location)) {
 											treeViewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
 											tree.select(items[i]);
