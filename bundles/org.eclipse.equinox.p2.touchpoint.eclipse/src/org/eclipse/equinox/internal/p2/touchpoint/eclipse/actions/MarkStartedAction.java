@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2015 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ public class MarkStartedAction extends ProvisioningAction {
 			return Status.OK_STATUS;
 		}
 
-		getMemento().put(ActionConstants.PARM_PREVIOUS_STARTED, new Boolean(bundleInfo.isMarkedAsStarted()));
+		getMemento().put(ActionConstants.PARM_PREVIOUS_STARTED, Boolean.valueOf(bundleInfo.isMarkedAsStarted()));
 		bundleInfo.setMarkedAsStarted(Boolean.valueOf(started).booleanValue());
 		return Status.OK_STATUS;
 	}

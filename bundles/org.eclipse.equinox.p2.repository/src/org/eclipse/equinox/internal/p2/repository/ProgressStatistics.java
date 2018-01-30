@@ -111,7 +111,7 @@ public class ProgressStatistics {
 		removeObsoleteRecentSpeedData(getDuration() / SPEED_RESOLUTION);
 		long dur = 0L;
 		long amount = 0L;
-		SortedMap<Long, Long> relevantData = m_recentSpeedMap.headMap(new Long(m_recentSpeedMapKey));
+		SortedMap<Long, Long> relevantData = m_recentSpeedMap.headMap(Long.valueOf(m_recentSpeedMapKey));
 
 		if (!relevantData.isEmpty()) {
 			for (Long rl : relevantData.values()) {
@@ -176,13 +176,13 @@ public class ProgressStatistics {
 	}
 
 	synchronized private void registerRecentSpeed(long key, long inc) {
-		Long keyL = new Long(key);
+		Long keyL = Long.valueOf(key);
 		Long currentValueL = m_recentSpeedMap.get(keyL);
 		long currentValue = 0L;
 		if (currentValueL != null)
 			currentValue = currentValueL.longValue();
 
-		m_recentSpeedMap.put(keyL, new Long(inc + currentValue));
+		m_recentSpeedMap.put(keyL, Long.valueOf(inc + currentValue));
 
 		if (m_recentSpeedMapKey != key) {
 			m_recentSpeedMapKey = key;
@@ -192,6 +192,6 @@ public class ProgressStatistics {
 
 	synchronized private void removeObsoleteRecentSpeedData(long lastKey) {
 		long threshold = lastKey - SPEED_INTERVAL / SPEED_RESOLUTION;
-		m_recentSpeedMap.headMap(new Long(threshold)).clear();
+		m_recentSpeedMap.headMap(Long.valueOf(threshold)).clear();
 	}
 }

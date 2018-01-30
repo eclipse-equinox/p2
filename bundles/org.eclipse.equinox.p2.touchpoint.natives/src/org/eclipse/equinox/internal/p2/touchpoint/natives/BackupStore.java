@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -531,9 +531,9 @@ public class BackupStore implements IBackupStore {
 		// check external tampering with backup store
 		if (backupCounter != restoreCounter) {
 			if (!fullyRestored)
-				logError(NLS.bind(Messages.BackupStore_0_of_1_items_restored, new Long(restoreCounter), new Long(backupCounter)));
+				logError(NLS.bind(Messages.BackupStore_0_of_1_items_restored, Long.valueOf(restoreCounter), Long.valueOf(backupCounter)));
 			else {
-				logError(NLS.bind(Messages.BackupStore_externally_modified_0_of_1_restored, new Long(restoreCounter), new Long(backupCounter)));
+				logError(NLS.bind(Messages.BackupStore_externally_modified_0_of_1_restored, Long.valueOf(restoreCounter), Long.valueOf(backupCounter)));
 				fullyRestored = false;
 			}
 		}

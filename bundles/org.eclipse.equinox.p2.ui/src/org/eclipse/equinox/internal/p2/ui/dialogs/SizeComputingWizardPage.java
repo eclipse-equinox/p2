@@ -101,9 +101,9 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;
-			return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_KB, NumberFormat.getInstance().format(new Long(kb)));
+			return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_KB, NumberFormat.getInstance().format(Long.valueOf(kb)));
 		}
-		return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_Bytes, NumberFormat.getInstance().format(new Long(size)));
+		return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_Bytes, NumberFormat.getInstance().format(Long.valueOf(size)));
 	}
 
 	@Override

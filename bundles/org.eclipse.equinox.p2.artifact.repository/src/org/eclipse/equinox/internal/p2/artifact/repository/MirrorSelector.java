@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -239,7 +239,7 @@ public class MirrorSelector {
 			// similarities from o1 to Q and o2 to Q (where q=query)
 			double sim1 = dp_1 / (qel * o1_el);
 			double sim2 = dp_2 / (qel * o2_el);
-			return new Double(sim2).compareTo(new Double(sim1));
+			return Double.valueOf(sim2).compareTo(Double.valueOf(sim1));
 		}
 
 	}

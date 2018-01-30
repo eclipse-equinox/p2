@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -303,7 +303,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			return null;
 		}
 		Properties properties = new Properties();
-		try (InputStream input = new BufferedInputStream(new FileInputStream(file))){
+		try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
 			properties.load(input);
 		} catch (IOException e) {
 			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Problem_loading_file, file.getAbsolutePath()), e));
@@ -1114,7 +1114,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 					performPrintTags();
 				if (purgeRegistry)
 					purgeRegistry();
-				printMessage(NLS.bind(Messages.Operation_complete, new Long(System.currentTimeMillis() - time)));
+				printMessage(NLS.bind(Messages.Operation_complete, Long.valueOf(System.currentTimeMillis() - time)));
 			}
 			return IApplication.EXIT_OK;
 		} catch (CoreException e) {

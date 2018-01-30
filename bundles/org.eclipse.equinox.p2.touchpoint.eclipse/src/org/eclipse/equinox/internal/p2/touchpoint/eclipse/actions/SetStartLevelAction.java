@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2016 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ public class SetStartLevelAction extends ProvisioningAction {
 			return Status.OK_STATUS;
 		}
 
-		getMemento().put(ActionConstants.PARM_PREVIOUS_START_LEVEL, new Integer(bundleInfo.getStartLevel()));
+		getMemento().put(ActionConstants.PARM_PREVIOUS_START_LEVEL, Integer.valueOf(bundleInfo.getStartLevel()));
 		try {
 			bundleInfo.setStartLevel(Integer.parseInt(startLevel));
 			return Status.OK_STATUS;

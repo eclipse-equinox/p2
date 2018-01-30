@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -168,7 +168,7 @@ public abstract class CoercingComparator<T> {
 			if (v instanceof Long)
 				return (Long) v;
 			if (v instanceof Number)
-				return new Long(((Number) v).longValue());
+				return Long.valueOf(((Number) v).longValue());
 			if (v instanceof String) {
 				try {
 					return Long.valueOf(((String) v).trim());
