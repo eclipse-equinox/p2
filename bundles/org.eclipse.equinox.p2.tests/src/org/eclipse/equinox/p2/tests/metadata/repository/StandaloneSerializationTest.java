@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 Sonatype, Inc. and others.
+ * Copyright (c) 2011, 2018 Sonatype, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,15 +10,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import java.io.*;
-import java.util.*;
-import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import junit.framework.TestCase;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.io.IUDeserializer;
 import org.eclipse.equinox.p2.metadata.io.IUSerializer;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 
 public class StandaloneSerializationTest extends TestCase {
 	public void testNothingToWrite() {
@@ -38,7 +46,7 @@ public class StandaloneSerializationTest extends TestCase {
 		}
 	}
 
-	public void testNoContent() throws SAXNotRecognizedException, SAXNotSupportedException, ParserConfigurationException {
+	public void testNoContent() {
 		//Write file w/o content
 		File f = null;
 		try {
@@ -71,7 +79,7 @@ public class StandaloneSerializationTest extends TestCase {
 		f.delete();
 	}
 
-	public void testWritingThenLoading() throws SAXNotRecognizedException, SAXNotSupportedException, ParserConfigurationException {
+	public void testWritingThenLoading() {
 		MetadataFactory.InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId("foo");
 		iu.setVersion(Version.create("1.0.0"));

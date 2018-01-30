@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2018 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -701,7 +701,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	static class Writer extends ProfileWriter {
 
-		public Writer(OutputStream output) throws IOException {
+		public Writer(OutputStream output) {
 			super(output, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(PROFILE_TARGET, ProfileXMLConstants.CURRENT_VERSION)});
 		}
 	}

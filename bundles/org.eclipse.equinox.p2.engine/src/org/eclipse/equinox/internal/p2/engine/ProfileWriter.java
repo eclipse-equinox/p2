@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
@@ -20,7 +19,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants {
 
-	public ProfileWriter(OutputStream output, ProcessingInstruction[] processingInstructions) throws IOException {
+	public ProfileWriter(OutputStream output, ProcessingInstruction[] processingInstructions) {
 		super(output, processingInstructions);
 	}
 

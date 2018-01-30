@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,21 +10,34 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler;
+import org.eclipse.equinox.internal.p2.engine.Profile;
+import org.eclipse.equinox.internal.p2.engine.ProfileParser;
+import org.eclipse.equinox.internal.p2.engine.ProfileWriter;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.BundleContext;
-import org.xml.sax.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Simple test of the engine API.
@@ -160,7 +173,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 	class ProfileStringWriter extends ProfileWriter {
 
-		public ProfileStringWriter(ByteArrayOutputStream stream) throws IOException {
+		public ProfileStringWriter(ByteArrayOutputStream stream) {
 			super(stream, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(PROFILE_TEST_TARGET, PROFILE_TEST_VERSION)});
 		}
 
