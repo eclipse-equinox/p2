@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2018 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,7 +108,7 @@ public class ConnectorDiscoveryExtensionReader {
 	public <T extends CatalogItem> T readConnectorDescriptor(IConfigurationElement element, Class<T> clazz) throws ValidationException {
 		T connectorDescriptor;
 		try {
-			connectorDescriptor = clazz.newInstance();
+			connectorDescriptor = clazz.getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
@@ -187,7 +187,7 @@ public class ConnectorDiscoveryExtensionReader {
 	public <T extends CatalogCategory> T readConnectorCategory(IConfigurationElement element, Class<T> clazz) throws ValidationException {
 		T connectorCategory;
 		try {
-			connectorCategory = clazz.newInstance();
+			connectorCategory = clazz.getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
@@ -226,7 +226,7 @@ public class ConnectorDiscoveryExtensionReader {
 	public <T extends Certification> T readCertification(IConfigurationElement element, Class<T> clazz) throws ValidationException {
 		T certification;
 		try {
-			certification = clazz.newInstance();
+			certification = clazz.getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
