@@ -16,9 +16,14 @@ import static org.eclipse.equinox.internal.p2.metadata.InstallableUnit.MEMBER_PR
 import static org.eclipse.equinox.internal.p2.metadata.ProvidedCapability.MEMBER_NAME;
 import static org.eclipse.equinox.internal.p2.metadata.ProvidedCapability.MEMBER_NAMESPACE;
 import static org.eclipse.equinox.internal.p2.metadata.ProvidedCapability.MEMBER_VERSION;
+import static org.eclipse.equinox.p2.metadata.Version.MAX_VERSION;
+import static org.eclipse.equinox.p2.metadata.VersionRange.emptyRange;
 
+import java.util.Arrays;
+import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
@@ -39,14 +44,40 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
 public class RequiredCapability extends Requirement implements IRequiredCapability {
-	/**
-	 * Argument $0 must evaluate to a String
-	 * Argument $1 must evaluate to a String
-	 * Argument $2 must evaluate to a {@link VersionRange}
-	 */
-	private static final IExpression VERSION_RANGE_MATCH = ExpressionUtil.parse(
-			String.format("%s.exists(cap | cap.%s == $0 && cap.%s == $1 && cap.%s ~= $2)", //$NON-NLS-1$
+	private static final IExpression ALL = ExpressionUtil.parse(
+			String.format("%s.exists(x | x.%s == $0 && x.%s == $1)", //$NON-NLS-1$
+					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAME, MEMBER_NAMESPACE));
+
+	private static final IExpression STRICT = ExpressionUtil.parse(
+			String.format("%s.exists(x | x.%s == $0 && x.%s == $1 && x.%s == $2)", //$NON-NLS-1$
 					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAME, MEMBER_NAMESPACE, MEMBER_VERSION));
+
+	private static final IExpression OPEN_I = ExpressionUtil.parse(
+			String.format("%s.exists(x | x.%s == $0 && x.%s == $1 && x.%s >= $2)", //$NON-NLS-1$
+					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAME, MEMBER_NAMESPACE, MEMBER_VERSION));
+
+	private static final IExpression OPEN_N = ExpressionUtil.parse(
+			String.format("%s.exists(x | x.%s == $0 && x.%s == $1 && x.%s > $2)", //$NON-NLS-1$
+					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAME, MEMBER_NAMESPACE, MEMBER_VERSION));
+
+	private static final IExpression CLOSED_II = ExpressionUtil.parse(
+			String.format("%s.exists(x | x.%s == $0 && x.%s == $1 && x.%s >= $2 && x.%s <= $3)", //$NON-NLS-1$
+					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAME, MEMBER_NAMESPACE, MEMBER_VERSION, MEMBER_VERSION));
+
+	private static final IExpression CLOSED_IN = ExpressionUtil.parse(
+			String.format("%s.exists(x | x.%s == $0 && x.%s == $1 && x.%s >= $2 && x.%s < $3)", //$NON-NLS-1$
+					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAME, MEMBER_NAMESPACE, MEMBER_VERSION, MEMBER_VERSION));
+
+	private static final IExpression CLOSED_NI = ExpressionUtil.parse(
+			String.format("%s.exists(x | x.%s == $0 && x.%s == $1 && x.%s > $2 && x.%s <= $3)", //$NON-NLS-1$
+					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAME, MEMBER_NAMESPACE, MEMBER_VERSION, MEMBER_VERSION));
+
+	private static final IExpression CLOSED_NN = ExpressionUtil.parse(
+			String.format("%s.exists(x | x.%s == $0 && x.%s == $1 && x.%s > $2 && x.%s < $3)", //$NON-NLS-1$
+					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAME, MEMBER_NAMESPACE, MEMBER_VERSION, MEMBER_VERSION));
+
+	private static final List<IExpression> PREDEFINED = Arrays.asList(
+			ALL, STRICT, OPEN_I, OPEN_N, CLOSED_II, CLOSED_IN, CLOSED_NI, CLOSED_NN);
 
 	/**
 	 * TODO Remove. This is a private impl class. Users must call the analogous MetadataFactory.createRequirement()
@@ -103,42 +134,83 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 	public static IMatchExpression<IInstallableUnit> createMatchExpressionFromRange(String namespace, String name, VersionRange range) {
 		Assert.isNotNull(namespace);
 		Assert.isNotNull(name);
-		Object resolvedRange = (range != null) ? range : VersionRange.emptyRange;
-		IExpressionFactory factory = ExpressionUtil.getFactory();
-		return factory.matchExpression(VERSION_RANGE_MATCH, name, namespace, resolvedRange);
-	}
 
-	public static String extractNamespace(IMatchExpression<IInstallableUnit> matchExpression) {
-		assertValid(matchExpression);
-		return (String) matchExpression.getParameters()[1];
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+
+		// All versions
+		if (range == null || range.equals(emptyRange)) {
+			return factory.matchExpression(ALL, name, namespace);
+		}
+
+		// Exact version
+		if (range.getMinimum().equals(range.getMaximum())) {
+			return factory.matchExpression(STRICT, name, namespace, range.getMinimum());
+		}
+
+		// Open range
+		if (range.getMaximum().equals(MAX_VERSION)) {
+			// Open inclusive or non-inclusive
+			IExpression expr = range.getIncludeMinimum() ? OPEN_I : OPEN_N;
+			return factory.matchExpression(expr, name, namespace, range.getMinimum());
+		}
+
+		// Closed range
+		IExpression expr = range.getIncludeMinimum()
+				// Left inclusive. Right inclusive or non-inclusive
+				? (range.getIncludeMaximum() ? CLOSED_II : CLOSED_IN)
+				// Left non-inclusive. Right inclusive or non-inclusive
+				: (range.getIncludeMaximum() ? CLOSED_NI : CLOSED_NN);
+		return factory.matchExpression(expr, name, namespace, range.getMinimum(), range.getMaximum());
 	}
 
 	public static String extractName(IMatchExpression<IInstallableUnit> matchExpression) {
-		assertValid(matchExpression);
+		assertVersionRangeRequirement(matchExpression);
 		return (String) matchExpression.getParameters()[0];
 	}
 
-	public static VersionRange extractRange(IMatchExpression<IInstallableUnit> matchExpression) {
-		assertValid(matchExpression);
-		Object[] params = matchExpression.getParameters();
-		return (VersionRange) params[2];
+	public static String extractNamespace(IMatchExpression<IInstallableUnit> matchExpression) {
+		assertVersionRangeRequirement(matchExpression);
+		return (String) matchExpression.getParameters()[1];
 	}
 
-	public static boolean isVersionStrict(IMatchExpression<IInstallableUnit> matchExpression) {
-		if (!isVersionRangeRequirement(matchExpression)) {
-			return false;
-		}
+	public static VersionRange extractRange(IMatchExpression<IInstallableUnit> matchExpression) {
+		assertVersionRangeRequirement(matchExpression);
 
+		IExpression expr = ExpressionUtil.getOperand(matchExpression);
 		Object[] params = matchExpression.getParameters();
-		VersionRange range = (VersionRange) params[2];
-		return range.getMinimum().equals(range.getMaximum());
+
+		switch (params.length) {
+			// No version parameter
+			case 2 :
+				return emptyRange;
+			// One version parameter: strict or one of the open ranges
+			case 3 :
+				Version v = (Version) params[2];
+				if (expr.equals(STRICT)) {
+					return new VersionRange(v, true, v, true);
+				}
+				return new VersionRange(v, expr.equals(OPEN_I), MAX_VERSION, true);
+			// Two version parameters: one of the closed ranges
+			default :
+				Version left = (Version) params[2];
+				boolean leftInclusive = expr.equals(CLOSED_II) || expr.equals(CLOSED_IN);
+
+				Version right = (Version) params[3];
+				boolean rightInclusive = expr.equals(CLOSED_II) || expr.equals(CLOSED_NI);
+
+				return new VersionRange(left, leftInclusive, right, rightInclusive);
+		}
+	}
+
+	public static boolean isStrictVersionRequirement(IMatchExpression<IInstallableUnit> matchExpression) {
+		return STRICT == ExpressionUtil.getOperand(matchExpression);
 	}
 
 	public static boolean isVersionRangeRequirement(IMatchExpression<IInstallableUnit> matchExpression) {
-		return VERSION_RANGE_MATCH.equals(ExpressionUtil.getOperand(matchExpression));
+		return PREDEFINED.contains(ExpressionUtil.getOperand(matchExpression));
 	}
 
-	private static void assertValid(IMatchExpression<IInstallableUnit> matchExpression) {
+	private static void assertVersionRangeRequirement(IMatchExpression<IInstallableUnit> matchExpression) {
 		if (!isVersionRangeRequirement(matchExpression)) {
 			throw new IllegalArgumentException();
 		}

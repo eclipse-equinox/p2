@@ -49,7 +49,7 @@ public class PermissiveSlicer extends Slicer {
 				return false;
 
 		if (considerOnlyStrictDependency) {
-			if (!RequiredCapability.isVersionStrict(req.getMatches()))
+			if (!RequiredCapability.isStrictVersionRequirement(req.getMatches()))
 				return false;
 		}
 
