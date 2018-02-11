@@ -27,10 +27,11 @@ public class ArtifactRepositoryValidator {
 	private IArtifactComparator comparator;
 
 	public ArtifactRepositoryValidator(String comparatorId) throws ProvisionException {
-		comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorId);
-		if (comparatorId == null)
+		try {
+			comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorId);
+		} catch (IllegalArgumentException e) {
 			throw new ProvisionException(Messages.invalidComparatorId);
-
+		}
 	}
 
 	public IStatus validateRepository(IArtifactRepository repository) {
