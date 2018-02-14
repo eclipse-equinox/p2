@@ -13,6 +13,7 @@
 package org.eclipse.equinox.p2.repository.tools.comparator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.RegistryFactory;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
@@ -40,8 +41,10 @@ public class ArtifactComparatorFactory {
 		if (artifactComparator.isPresent())
 			return artifactComparator.get();
 
-		if (comparatorID != null)
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_comparatorNotFound, comparatorID));
+		if (comparatorID != null) {
+			String comparators = extensions.stream().map(extension -> extension.getAttribute(ATTR_ID)).collect(Collectors.joining(", ")); //$NON-NLS-1$
+			throw new IllegalArgumentException(NLS.bind(Messages.exception_comparatorNotFound, comparatorID, comparators));
+		}
 		throw new IllegalArgumentException(Messages.exception_noComparators);
 	}
 
