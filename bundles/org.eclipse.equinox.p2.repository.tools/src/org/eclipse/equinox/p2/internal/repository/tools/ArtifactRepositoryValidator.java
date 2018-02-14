@@ -30,7 +30,7 @@ public class ArtifactRepositoryValidator {
 		try {
 			comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorId);
 		} catch (IllegalArgumentException e) {
-			throw new ProvisionException(Messages.invalidComparatorId);
+			throw new ProvisionException(Messages.invalidComparatorId, e);
 		}
 	}
 
