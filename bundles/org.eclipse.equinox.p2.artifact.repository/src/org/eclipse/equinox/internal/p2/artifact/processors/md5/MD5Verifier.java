@@ -73,7 +73,7 @@ public class MD5Verifier extends ProcessingStep {
 	@Override
 	public void close() throws IOException {
 		byte[] digest = md5.digest();
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		for (byte element : digest) {
 			if ((element & 0xFF) < 0x10)
 				buf.append('0');
