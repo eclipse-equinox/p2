@@ -74,10 +74,10 @@ public class MD5Verifier extends ProcessingStep {
 	public void close() throws IOException {
 		byte[] digest = md5.digest();
 		StringBuffer buf = new StringBuffer();
-		for (int i = 0; i < digest.length; i++) {
-			if ((digest[i] & 0xFF) < 0x10)
+		for (byte element : digest) {
+			if ((element & 0xFF) < 0x10)
 				buf.append('0');
-			buf.append(Integer.toHexString(digest[i] & 0xFF));
+			buf.append(Integer.toHexString(element & 0xFF));
 		}
 
 		// if the hashes don't line up set the status to error.
