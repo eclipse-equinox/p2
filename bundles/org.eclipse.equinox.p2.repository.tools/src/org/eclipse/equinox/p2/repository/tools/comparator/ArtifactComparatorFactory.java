@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.RegistryFactory;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
+import org.eclipse.equinox.p2.internal.repository.comparator.*;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -28,7 +29,11 @@ public class ArtifactComparatorFactory {
 	private static final String ATTR_CLASS = "class"; //$NON-NLS-1$
 
 	/**
-	 * Find artifact comparator by comparator's extension id.
+	 * Find artifact comparator by comparator's extension id, for instance:
+	 * <ul>
+	 * <li><code>org.eclipse.equinox.p2.repository.tools.jar.comparator</code> for {@link JarComparator}</li>
+	 * <li><code>org.eclipse.equinox.artifact.md5.comparator</code> for {@link MD5ArtifactComparator}</li>
+	 * </ul>
 	 *
 	 * @param comparatorID id of the extension contributed to <code>org.eclipse.equinox.p2.artifact.repository.artifactComparators</code> extension point
 	 * @return if found, instance of artifact comparator
