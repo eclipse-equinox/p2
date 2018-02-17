@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2018 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -292,6 +292,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
+	@Deprecated
+	protected void addImportPackageRequirement(ArrayList<IRequirement> reqsDeps, ImportPackageSpecification importSpec, ManifestElement[] rawImportPackageHeader) {
+		addImportPackageRequirement((List) reqsDeps, importSpec, rawImportPackageHeader);
+	}
+
 	protected void addImportPackageRequirement(List<IRequirement> reqsDeps, ImportPackageSpecification importSpec, ManifestElement[] rawImportPackageHeader) {
 		VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
 		final boolean optional = isOptional(importSpec);
@@ -303,6 +308,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 		//TODO this needs to be refined to take into account all the attribute handled by imports
 		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional, false, greedy));
+	}
+
+	@Deprecated
+	protected void addRequireBundleRequirement(ArrayList<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
+		addRequireBundleRequirement((List) reqsDeps, requiredBundle, rawRequireBundleHeader);
 	}
 
 	protected void addRequireBundleRequirement(List<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
