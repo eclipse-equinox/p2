@@ -42,9 +42,9 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 * Since we are running a job that will always be blocked by another job that
 	 * is actually performing the transfer, these messages are unnecessary and ugly.
 	 */
-	static class SuppressBlockedMonitor extends SubProgressMonitor {
+	static class SuppressBlockedMonitor extends ProgressMonitorWrapper {
 		public SuppressBlockedMonitor(IProgressMonitor monitor, int ticks) {
-			super(monitor, ticks);
+			super(SubMonitor.convert(monitor, ticks));
 		}
 
 		@Override

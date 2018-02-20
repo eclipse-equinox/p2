@@ -97,7 +97,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 
 	private InstallOperation resolve(IProgressMonitor monitor, final IInstallableUnit[] ius, URI[] repositories) {
 		final InstallOperation installOperation = provisioningUI.getInstallOperation(Arrays.asList(ius), repositories);
-		installOperation.resolveModal(new SubProgressMonitor(monitor, installableConnectors.size()));
+		installOperation.resolveModal(SubMonitor.convert(monitor, installableConnectors.size()));
 		return installOperation;
 	}
 

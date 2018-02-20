@@ -82,7 +82,7 @@ public class Catalog {
 				discoveryStrategy.setCertifications(newCertifications);
 				discoveryStrategy.setTags(newTags);
 				try {
-					discoveryStrategy.performDiscovery(new SubProgressMonitor(monitor, discoveryTicks / discoveryStrategies.size()));
+					discoveryStrategy.performDiscovery(SubMonitor.convert(monitor, discoveryTicks / discoveryStrategies.size()));
 				} catch (CoreException e) {
 					status.add(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_Strategy_failed_Error, discoveryStrategy.getClass().getSimpleName()), e));
 				}

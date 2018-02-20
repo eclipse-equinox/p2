@@ -81,7 +81,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 				TransportUtil.readResource(new URI(directoryUrl), reader -> {
 					DirectoryParser parser = new DirectoryParser();
 					temp[0] = parser.parse(reader);
-				}, new SubProgressMonitor(monitor, ticksTenPercent));
+				}, SubMonitor.convert(monitor, ticksTenPercent));
 				directory = temp[0];
 				if (directory == null) {
 					throw new IllegalStateException();
@@ -160,7 +160,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 					if (extensionPoint != null) {
 						IExtension[] extensions = extensionPoint.getExtensions();
 						if (extensions.length > 0) {
-							processExtensions(new SubProgressMonitor(monitor, ticksTenPercent * 3), extensions);
+							processExtensions(SubMonitor.convert(monitor, ticksTenPercent * 3), extensions);
 						}
 					}
 				} finally {

@@ -53,7 +53,7 @@ public class DownloadJob extends Job {
 			if (masterMonitor.isCanceled())
 				return Status.CANCEL_STATUS;
 			// process the actual request
-			SubProgressMonitor subMonitor = new SubProgressMonitor(masterMonitor, 1);
+			SubMonitor subMonitor = SubMonitor.convert(masterMonitor, 1);
 			subMonitor.beginTask("", 1); //$NON-NLS-1$
 			try {
 				IStatus status = repository.getArtifact(request, subMonitor);

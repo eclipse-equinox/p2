@@ -42,7 +42,7 @@ public class BundleDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		monitor.beginTask(Messages.BundleDiscoveryStrategy_task_loading_local_extensions, extensions.length == 0 ? 1 : extensions.length);
 		try {
 			if (extensions.length > 0) {
-				processExtensions(new SubProgressMonitor(monitor, extensions.length), extensions);
+				processExtensions(SubMonitor.convert(monitor, extensions.length), extensions);
 			}
 		} finally {
 			monitor.done();

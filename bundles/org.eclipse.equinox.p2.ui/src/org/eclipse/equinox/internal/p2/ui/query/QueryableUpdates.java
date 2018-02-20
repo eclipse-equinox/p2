@@ -47,7 +47,7 @@ public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 			for (int i = 0; i < iusToUpdate.length; i++) {
 				if (monitor.isCanceled())
 					return Collector.emptyCollector();
-				IQueryResult<IInstallableUnit> updates = planner.updatesFor(iusToUpdate[i], new ProvisioningContext(ui.getSession().getProvisioningAgent()), new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
+				IQueryResult<IInstallableUnit> updates = planner.updatesFor(iusToUpdate[i], new ProvisioningContext(ui.getSession().getProvisioningAgent()), SubMonitor.convert(monitor, totalWork / 2 / iusToUpdate.length));
 				allUpdates.addAll(updates.toUnmodifiableSet());
 			}
 			return query.perform(allUpdates.iterator());
