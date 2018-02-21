@@ -294,7 +294,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	@Deprecated
 	protected void addImportPackageRequirement(ArrayList<IRequirement> reqsDeps, ImportPackageSpecification importSpec, ManifestElement[] rawImportPackageHeader) {
-		addImportPackageRequirement((List) reqsDeps, importSpec, rawImportPackageHeader);
+		addImportPackageRequirement((List<IRequirement>) reqsDeps, importSpec, rawImportPackageHeader);
 	}
 
 	protected void addImportPackageRequirement(List<IRequirement> reqsDeps, ImportPackageSpecification importSpec, ManifestElement[] rawImportPackageHeader) {
@@ -312,7 +312,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	@Deprecated
 	protected void addRequireBundleRequirement(ArrayList<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
-		addRequireBundleRequirement((List) reqsDeps, requiredBundle, rawRequireBundleHeader);
+		addRequireBundleRequirement((List<IRequirement>) reqsDeps, requiredBundle, rawRequireBundleHeader);
 	}
 
 	protected void addRequireBundleRequirement(List<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
@@ -335,9 +335,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
 		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
-		boolean greedy = optional
-				? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE))
-				: true;
+		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
 
 		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1, greedy);
 		reqsDeps.add(requireCap);
@@ -345,10 +343,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	protected void addCapability(List<IProvidedCapability> caps, GenericDescription provideCapDesc, InstallableUnitDescription iu, int capNo) {
 		// Convert the values to String, Version, List of String or Version
-		Map<String, Object> capAttrs = provideCapDesc.getDeclaredAttributes()
-				.entrySet()
-				.stream()
-				.collect(toMap(Entry::getKey, e -> convertAttribute(e.getValue())));
+		Map<String, Object> capAttrs = provideCapDesc.getDeclaredAttributes().entrySet().stream().collect(toMap(Entry::getKey, e -> convertAttribute(e.getValue())));
 
 		// Resolve the namespace
 		String capNs = provideCapDesc.getType();
@@ -357,17 +352,13 @@ public class BundlesAction extends AbstractPublisherAction {
 		// By convention OSGi capabilities have an attribute named like the capability namespace.
 		// If this is not the case synthesize a unique name (e.g. "osgi.service" has an "objectClass" attribute instead).
 		// TODO If present but not a String log a warning somehow that it is ignored? Or fail the publication?
-		capAttrs.compute(
-				capNs,
-				(k, v) -> (v instanceof String) ? v : String.format("%s_%s-%s", iu.getId(), iu.getVersion(), capNo)); //$NON-NLS-1$
+		capAttrs.compute(capNs, (k, v) -> (v instanceof String) ? v : String.format("%s_%s-%s", iu.getId(), iu.getVersion(), capNo)); //$NON-NLS-1$
 
 		// Resolve the mandatory p2 version
 		// By convention versioned OSGi capabilities have a "version" attribute containing the OSGi Version object
 		// If this is not the case use an empty version (e.g. "osgi.ee" has a list of versions).
 		// TODO If present but not a Version log a warning somehow that it is ignored? Or fail the publication?
-		capAttrs.compute(
-				IProvidedCapability.PROPERTY_VERSION,
-				(k, v) -> (v instanceof Version) ? v : Version.emptyVersion);
+		capAttrs.compute(IProvidedCapability.PROPERTY_VERSION, (k, v) -> (v instanceof Version) ? v : Version.emptyVersion);
 
 		caps.add(MetadataFactory.createProvidedCapability(capNs, capAttrs));
 	}
