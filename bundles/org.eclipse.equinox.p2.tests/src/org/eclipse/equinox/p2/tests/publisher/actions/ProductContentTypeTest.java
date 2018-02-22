@@ -40,12 +40,12 @@ public class ProductContentTypeTest extends ActionTest {
 	private static final String TEST_DATA_FOLDER = "ProductContentTypeTest";
 	private static final String flavor = "tooling";
 
-	private List<IInstallableUnit> cusList;
+	private List<IInstallableUnit> requiredUnits;
+	private List<IInstallableUnit> additionalPublishedUnits;
 	private IInstallableUnit featureIU = createIU("TestFeature.feature.group");
 	private IInstallableUnit bundleIU = createIU("TestBundle");
 
-	@Override
-	public void setUp() throws Exception {
+	@Override public void setUp() throws Exception {
 		setupPublisherResult();
 		initCUsList();
 	}
@@ -53,28 +53,28 @@ public class ProductContentTypeTest extends ActionTest {
 	/**
 	 * Publish product with attribute <code>type="bundles"</code>.
 	 * Check that the generated product IU
-	 * requires the default CU list + CU for the product + bundle IU.
+	 * requires the default CU list + CU for the product + bundle IU  + EE requirement.
 	 */
 	public void test01PublishWithBundle() throws Exception {
-		testTemplate("ProductWithBundle.product", "1", cusList.size() + 2, bundleIU);
+		testTemplate("ProductWithBundle.product", "1", requiredUnits.size() + 3, bundleIU);
 	}
 
 	/**
 	 * Publish product with attribute <code>type="features"</code>.
 	 * Check that the generated product IU
-	 * requires the default CU list + CU for the product + feature IU.
+	 * requires the default CU list + CU for the product + feature IU  + EE requirement.
 	 */
 	public void test02PublishWithFeature() throws Exception {
-		testTemplate("ProductWithFeature.product", "1", cusList.size() + 2, featureIU);
+		testTemplate("ProductWithFeature.product", "1", requiredUnits.size() + 3, featureIU);
 	}
 
 	/**
 	 * Publish product with attribute <code>type="mixed"</code>.
 	 * Check that the generated product IU
-	 * requires the default CU list + CU for the product + bundle IU + feature IU.
+	 * requires the default CU list + CU for the product + bundle IU + feature IU  + EE requirement.
 	 */
 	public void test03PublishWithMixedContent() throws Exception {
-		testTemplate("MixedContentProduct.product", "1", cusList.size() + 3, bundleIU, featureIU);
+		testTemplate("MixedContentProduct.product", "1", requiredUnits.size() + 4, bundleIU, featureIU);
 	}
 
 	/**
@@ -106,33 +106,34 @@ public class ProductContentTypeTest extends ActionTest {
 	/**
 	 * Publish product with attributes <code>type="bundles"</code> and <code>useFeatures="true"</code>.
 	 * Check that the generated product IU
-	 * requires the default CU list + CU for the product + bundle IU.
+	 * requires the default CU list + CU for the product + bundle IU + EE requirement.
 	 */
 	public void test06OverrideUseFeaturesAttr() throws Exception {
-		testTemplate("OverrideUseFeaturesAttr.product", "1", cusList.size() + 2, bundleIU);
+		testTemplate("OverrideUseFeaturesAttr.product", "1", requiredUnits.size() + 3, bundleIU);
 	}
 
 	/**
 	 * Publish product with attributes <code>type="mixed"</code> and <code>useFeatures="true"</code>.
 	 * Check that the generated product IU
-	 * requires the default CU list + CU for the product + bundle IU + feature IU.
+	 * requires the default CU list + CU for the product + bundle IU + feature IU + EE requirement.
 	 */
 	public void test07OverrideUseFeaturesAttr2() throws Exception {
-		testTemplate("OverrideUseFeaturesAttr2.product", "1", cusList.size() + 3, bundleIU, featureIU);
+		testTemplate("OverrideUseFeaturesAttr2.product", "1", requiredUnits.size() + 4, bundleIU, featureIU);
 	}
 
 	private void initCUsList() {
-		cusList = new ArrayList<>();
-		cusList.add(createIU(flavor + ".source.default"));
-		cusList.add(createIU(flavor + ".osgi.bundle.default"));
-		cusList.add(createIU(flavor + ".org.eclipse.update.feature.default"));
-		cusList.add(createIU("a.jre.javase", Version.create("9.0")));
-		cusList.add(createIU("config.a.jre.javase", Version.create("9.0")));
+		requiredUnits = new ArrayList<>(3);
+		requiredUnits.add(createIU(flavor + ".source.default"));
+		requiredUnits.add(createIU(flavor + ".osgi.bundle.default"));
+		requiredUnits.add(createIU(flavor + ".org.eclipse.update.feature.default"));
+		additionalPublishedUnits = new ArrayList<>(2);
+		additionalPublishedUnits.add(createIU("a.jre.javase", Version.create("9.0")));
+		additionalPublishedUnits.add(createIU("config.a.jre.javase", Version.create("9.0")));
 	}
 
 	private void testTemplate(String productFileName, String productVersion, int expectedRequirementsSize, IInstallableUnit... requiredInstallableUnits) throws Exception {
-		for (int i = 0; i < requiredInstallableUnits.length; i++) {
-			publisherResult.addIU(requiredInstallableUnits[i], IPublisherResult.NON_ROOT);
+		for (IInstallableUnit requiredUnit : requiredInstallableUnits) {
+			publisherResult.addIU(requiredUnit, IPublisherResult.NON_ROOT);
 		}
 
 		File productFileLocation = TestData.getFile(TEST_DATA_FOLDER, productFileName);
@@ -156,8 +157,7 @@ public class ProductContentTypeTest extends ActionTest {
 	}
 
 	private void verifyRequirementsForConfigurationUnits(Collection<IRequirement> requirements, String productName, String productVersion) {
-
-		List<IInstallableUnit> cusListCopy = new ArrayList<>(cusList);
+		List<IInstallableUnit> cusListCopy = new ArrayList<>(requiredUnits);
 		cusListCopy.add(createIU(flavor + productName + ".configuration", Version.create(productVersion)));
 		for (Iterator<IInstallableUnit> cusIterator = cusListCopy.iterator(); cusIterator.hasNext();) {
 			IInstallableUnit cu = cusIterator.next();
@@ -165,19 +165,15 @@ public class ProductContentTypeTest extends ActionTest {
 				cusIterator.remove();
 			}
 		}
-
 		assertTrue("Some of the default configuration units are not included in the product - " + cusListCopy, cusListCopy.isEmpty());
 	}
 
 	private boolean verifyRequirement(Collection<IRequirement> requirements, IInstallableUnit iu) {
-
-		for (Iterator<IRequirement> iterator = requirements.iterator(); iterator.hasNext();) {
-			IRequirement requirement = iterator.next();
+		for (IRequirement requirement : requirements) {
 			if (requirement.isMatch(iu)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 }

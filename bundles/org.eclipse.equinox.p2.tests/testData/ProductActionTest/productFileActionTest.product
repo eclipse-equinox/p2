@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SampleProduct" version="1.0.0" useFeatures="false" includeLaunchers="true">
+<product name="SampleProduct" uid="SampleProduct" version="1.0.0" useFeatures="false" includeLaunchers="true">
 
    <configIni use="">
    </configIni>
 
    <launcherArgs>
-      <programArgs>-product &quot;com,ma&quot;</programArgs>
-      <vmArgs>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8272</vmArgs>
+      <programArgs>-product &quot;com,ma&quot;
+      </programArgs>
+      <vmArgs>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8272
+      </vmArgs>
    </launcherArgs>
 
    <windowImages/>
 
    <launcher>
-      <solaris/>
       <win useIco="false">
          <bmp
             winSmallLow="icon.bmp"/>
@@ -22,6 +23,8 @@
    </launcher>
 
    <vm>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-9</linux>
+      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/OSGi%Minimum-1.0</windows>
    </vm>
 
    <plugins>

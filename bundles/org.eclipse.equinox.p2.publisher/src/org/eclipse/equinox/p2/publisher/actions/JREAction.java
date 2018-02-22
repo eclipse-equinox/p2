@@ -56,8 +56,7 @@ public class JREAction extends AbstractPublisherAction {
 		this.environment = environment;
 	}
 
-	@Override
-	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+	@Override public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		String problemMessage = NLS.bind(Messages.message_problemsWhilePublishingEE, jreLocation != null ? jreLocation : environment);
 		resultStatus = new MultiStatus(Activator.ID, 0, problemMessage, null);
 

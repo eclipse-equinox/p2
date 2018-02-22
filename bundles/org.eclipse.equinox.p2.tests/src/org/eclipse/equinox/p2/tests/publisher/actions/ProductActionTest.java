@@ -12,20 +12,38 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.createNiceMock;
-import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.okStatus;
+import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.publisher.actions.QueryableFilterAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.IConfigAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
@@ -49,20 +67,17 @@ public class ProductActionTest extends ActionTest {
 	String source = "";
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 
-	@Override
-	protected IPublisherInfo createPublisherInfoMock() {
+	@Override protected IPublisherInfo createPublisherInfoMock() {
 		//override to create a nice mock, because we don't care about other method calls.
 		return createNiceMock(IPublisherInfo.class);
 	}
 
-	@Override
-	public void setUp() throws Exception {
+	@Override public void setUp() throws Exception {
 		setupPublisherInfo();
 		setupPublisherResult();
 	}
 
-	@Override
-	public void setupPublisherInfo() {
+	@Override public void setupPublisherInfo() {
 		PublisherInfo publisherInfoImpl = new PublisherInfo();
 		publisherInfoImpl.setArtifactRepository(artifactRepository);
 		publisherInfoImpl.setArtifactOptions(IPublisherInfo.A_PUBLISH);
@@ -337,6 +352,44 @@ public class ProductActionTest extends ActionTest {
 		// expect a warning about redundant, ignored content in product file -> requested in bug 325611
 		assertThat(Arrays.asList(status.getChildren()), hasItem(statusWithMessageWhich(containsString("are ignored"))));
 		// TODO the message should have a code identifying it
+	}
+
+	public void testJREIncluded() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString());
+		addContextIU("org.eclipse.platform.feature.group", "1.2.3");
+
+		performProductAction(productFile);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("branded.product", IPublisherResult.NON_ROOT);
+		assertEquals(1, ius.size());
+		assertEquals("Missing a.jre.javase", 1, publisherResult.getIUs("a.jre.javase", IPublisherResult.ROOT).size());
+		assertEquals("Missing config.a.jre.javase", 1, publisherResult.getIUs("config.a.jre.javase", IPublisherResult.ROOT).size());
+	}
+
+	public void testRequiredEEAsSpecified() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "productFileActionTest.product").toString());
+		addContextIU("org.eclipse.core.commands", "5.0.0");
+
+		performProductAction(productFile);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("SampleProduct", IPublisherResult.NON_ROOT);
+		assertEquals(1, ius.size());
+		IInstallableUnit productIU = ius.iterator().next();
+		IInstallableUnit aJre = publisherResult.getIUs("a.jre.javase", IPublisherResult.ROOT).iterator().next();
+		boolean found = false;
+		for (IRequirement req : productIU.getRequirements()) {
+			if (req instanceof RequiredCapability) {
+				RequiredCapability required = (RequiredCapability) req;
+				if (JREAction.NAMESPACE_OSGI_EE.equals(required.getNamespace())) {
+					found = true;
+					assertEquals("OSGi/Minimum", required.getName());
+					assertEquals("1.0.0", required.getRange().getMinimum().toString());
+					assertEquals("1.0.0", required.getRange().getMaximum().toString());
+					assertTrue(req.isMatch(aJre));
+				} else if (required.getName().contains("a.jre")) {
+					fail("instead of unit requirement, should use a osgi.ee requirement");
+				}
+			}
+		}
+		assertTrue(found);
 	}
 
 	private void performProductAction(ProductFile productFile) {

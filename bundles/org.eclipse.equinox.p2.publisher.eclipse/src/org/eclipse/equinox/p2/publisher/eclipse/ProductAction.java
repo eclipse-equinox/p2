@@ -16,12 +16,14 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.pde.internal.publishing.Activator;
 
 public class ProductAction extends AbstractPublisherAction {
+	protected static final String DEFAULT_EE_CAPABILITY_NAME = "JavaSE"; //$NON-NLS-1$
 	protected String source;
 	protected String id;
 	protected Version version;
@@ -61,9 +63,9 @@ public class ProductAction extends AbstractPublisherAction {
 			actions.add(createApplicationExecutableAction(info.getConfigurations()));
 		// add the actions that just configure things.
 		actions.add(createConfigCUsAction());
-		actions.add(createJREAction());
 		actions.add(createDefaultCUsAction());
 		actions.add(createRootIUAction());
+		actions.add(createJREAction());
 		return actions.toArray(new IPublisherAction[actions.size()]);
 	}
 
@@ -76,8 +78,49 @@ public class ProductAction extends AbstractPublisherAction {
 	}
 
 	protected IPublisherAction createRootIUAction() {
-		return new RootIUAction(id, version, name);
+		return new RootIUAction(id, version, name) {
+			@Override
+			protected Collection<IRequirement> createIURequirements(Collection<? extends IVersionedId> children) {
+				Collection<IRequirement> res = new ArrayList<>(super.createIURequirements(children));
+				Set<String> processedOs = new HashSet<>();
+				Set<String> osWithUndefinedVM = new HashSet<>();
+				for (String configSpec : info.getConfigurations()) {
+					String os = parseConfigSpec(configSpec)[1];
+					if (processedOs.contains(os)) {
+						continue;
+					}
+					processedOs.add(os);
+					String vm = product.getVM(os);
+					if (vm != null) {
+						IMatchExpression<IInstallableUnit> filter = createFilterSpec(createConfigSpec(CONFIG_ANY, os, CONFIG_ANY));
+						String[] segments = vm.split("/"); //$NON-NLS-1$
+						String ee = segments[segments.length - 1];
+						String[] eeSegments = ee.split("-"); //$NON-NLS-1$
+						String eeName = eeSegments[0].replace('%', '/');
+						String eeVersion = eeSegments[1];
+						res.add(MetadataFactory.createRequirement(JREAction.NAMESPACE_OSGI_EE, eeName, VersionRange.create('[' + eeVersion + ',' + eeVersion + ']'), filter, false, false));
+					} else {
+						osWithUndefinedVM.add(os);
+					}
+				}
+				if (osWithUndefinedVM.equals(processedOs)) {
+					res.add(MetadataFactory.createRequirement(JREAction.NAMESPACE_OSGI_EE, DEFAULT_EE_CAPABILITY_NAME, VersionRange.create("0.0.0"), null, false, false)); //$NON-NLS-1$
+				} else {
+					osWithUndefinedVM.forEach(os -> {
+						IMatchExpression<IInstallableUnit> filter = createFilterSpec(createConfigSpec(CONFIG_ANY, os, CONFIG_ANY));
+						res.add(MetadataFactory.createRequirement(JREAction.NAMESPACE_OSGI_EE, DEFAULT_EE_CAPABILITY_NAME, VersionRange.create("0.0.0"), filter, false, false)); //$NON-NLS-1$
+					});
+				}
+				return res;
+			}
+		};
 	}
+
+	/*protected Collection<IRequirement> createJRERequirements() {
+		VersionRange jreRange = VersionRange.create(versionRange);
+		MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "a.jre.javase", jreRange)));
+		MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "config.a.jre.javase", jreRange)));
+	}*/
 
 	protected IPublisherAction createConfigCUsAction() {
 		return new ConfigCUsAction(info, flavor, id, version);
