@@ -198,4 +198,11 @@ public interface IProductDescriptor {
 	 */
 	public List<IRepositoryReference> getRepositoryEntries();
 
+	/**
+	 * Returns the VM associated as Execution Environment with the given OS.
+	 * @param os the OS
+	 * @return the VM for this OS, null if none is set
+	 */
+	public String getVM(String os);
+
 }

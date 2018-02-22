@@ -17,10 +17,13 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.tests.TestData;
 
 /**
@@ -267,4 +270,11 @@ public class ProductFileTest extends TestCase {
 		assertEquals("1.0", "This is the liCenSE.", product.getLicenseText().trim());
 	}
 
+	public void testGetVM() throws Exception {
+		String productWithVM = TestData.getFile("ProductActionTest", "productWithVM.product").toString();
+		ProductFile product = new ProductFile(productWithVM);
+		assertEquals("org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/OSGi%Minimum-1.2", product.getVM(Platform.OS_WIN32));
+		assertEquals("org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-9", product.getVM(Platform.OS_LINUX));
+		assertNull(product.getVM(Platform.OS_MACOSX));
+	}
 }

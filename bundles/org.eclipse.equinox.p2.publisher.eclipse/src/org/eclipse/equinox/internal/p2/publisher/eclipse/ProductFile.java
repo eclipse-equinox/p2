@@ -71,6 +71,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String PROGRAM_ARGS_MAC = "programArgsMac"; //$NON-NLS-1$
 	private static final String PROGRAM_ARGS_SOLARIS = "programArgsSol"; //$NON-NLS-1$
 	private static final String PROGRAM_ARGS_WIN = "programArgsWin"; //$NON-NLS-1$
+	private static final String VM = "vm"; //$NON-NLS-1$
 	private static final String VM_ARGS = "vmArgs"; //$NON-NLS-1$
 	private static final String VM_ARGS_LINUX = "vmArgsLin"; //$NON-NLS-1$
 	private static final String VM_ARGS_MAC = "vmArgsMac"; //$NON-NLS-1$
@@ -94,6 +95,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String OS_LINUX = "linux";//$NON-NLS-1$
 	private static final String OS_SOLARIS = "solaris";//$NON-NLS-1$
 	private static final String OS_MACOSX = "macosx";//$NON-NLS-1$
+	private static final String OS_MACOS = "macos";//$NON-NLS-1$
+	private static final String OS_WINDOWS = "windows";//$NON-NLS-1$
 
 	// These must match Platform constant values
 	private static final String ARCH_X86 = "x86"; //$NON-NLS-1$
@@ -159,6 +162,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final int STATE_ARCH_PA_RISC = 26;
 	private static final int STATE_ARCH_SPARC = 27;
 	private static final int STATE_REPOSITORIES = 28;
+	private static final int STATE_VM = 29;
+	private static final int STATE_VM_LINUX = 31;
+	private static final int STATE_VM_MACOS = 32;
+	private static final int STATE_VM_WINDOWS = 33;
 
 	private static final String PI_PDEBUILD = "org.eclipse.pde.build"; //$NON-NLS-1$
 	private final static int EXCEPTION_PRODUCT_FORMAT = 23;
@@ -197,6 +204,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private String licenseText = null;
 	private final String currentOS;
 	private final List<IRepositoryReference> repositories = new ArrayList<>();
+	private final Map<String, String> vms = new HashMap<>();
 
 	private static String normalize(String text) {
 		if (text == null || text.trim().length() == 0)
@@ -752,6 +760,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 					state = STATE_LICENSE;
 				} else if (EL_REPOSITORIES.equals(localName)) {
 					state = STATE_REPOSITORIES;
+				} else if (VM.equals(localName)) {
+					state = STATE_VM;
 				}
 				break;
 
@@ -886,6 +896,16 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 					processPropertyConfiguration(attributes);
 				}
 				break;
+
+			case STATE_VM :
+				if (OS_LINUX.equals(localName)) {
+					state = STATE_VM_LINUX;
+				} else if (OS_WINDOWS.equals(localName)) {
+					state = STATE_VM_WINDOWS;
+				} else if (OS_MACOS.equals(localName)) {
+					state = STATE_VM_MACOS;
+				}
+				break;
 		}
 	}
 
@@ -1003,6 +1023,14 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				if (EL_LICENSE.equals(localName))
 					state = STATE_PRODUCT;
 				break;
+			case STATE_VM :
+				state = STATE_PRODUCT;
+				break;
+			case STATE_VM_LINUX :
+			case STATE_VM_WINDOWS :
+			case STATE_VM_MACOS :
+				state = STATE_VM;
+				break;
 
 			case STATE_PROGRAM_ARGS :
 			case STATE_PROGRAM_ARGS_LINUX :
@@ -1111,7 +1139,30 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				if (licenseText != null)
 					licenseText += String.valueOf(ch, start, length);
 				break;
+			case STATE_VM_LINUX :
+				addVM(OS_LINUX, String.valueOf(ch, start, length));
+				break;
+			case STATE_VM_WINDOWS :
+				addVM(OS_WINDOWS, String.valueOf(ch, start, length));
+				break;
+			case STATE_VM_MACOS :
+				addVM(OS_MACOS, String.valueOf(ch, start, length));
+				break;
 		}
+	}
+
+	private void addVM(String os, String vm) {
+		vms.put(os, vm);
+	}
+
+	@Override
+	public String getVM(String os) {
+		if (os.equals(OS_MACOSX)) {
+			os = OS_MACOS;
+		} else if (os.equals(OS_WIN32)) {
+			os = OS_WINDOWS;
+		}
+		return vms.get(os);
 	}
 
 	private void addLaunchArgumentToMap(String key, String value) {
