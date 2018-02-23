@@ -42,6 +42,8 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
  * by the provisioning framework.
  * 
  * @see IInstallableUnit#NAMESPACE_IU_ID
+ *
+ * @noreference This class is not intended to be referenced by clients.
  */
 public class RequiredCapability extends Requirement implements IRequiredCapability {
 	private static final IExpression ALL = ExpressionUtil.parse(
