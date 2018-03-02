@@ -41,7 +41,7 @@ public interface IArtifactDescriptor {
 	/**
 	 * A prefix of an artifact descriptor properties (value "download.checksums") storing checksum
 	 * of the artifact bytes that are transferred.
-	 * @since 2.4.0
+	 * @since 2.4
 	 */
 	public static final String DOWNLOAD_CHECKSUM = "download.checksum"; //$NON-NLS-1$
 
@@ -67,7 +67,7 @@ public interface IArtifactDescriptor {
 	 * An artifact descriptor property (value "artifact.checksums") storing list of
 	 * checksums of the artifact bytes in its native format (after processing steps have
 	 * been applied).
-	 * @since 2.4.0
+	 * @since 2.4
 	 */
 	public static final String ARTIFACT_CHECKSUM = "artifact.checksum"; //$NON-NLS-1$
 
