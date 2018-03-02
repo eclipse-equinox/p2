@@ -106,7 +106,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 
 	@Override
 	public Set<Map.Entry<String, String>> entrySet() {
-		return propertyMap != null ? propertyMap.entrySet() : Collections.<Map.Entry<String, String>> emptySet();
+		return propertyMap != null ? propertyMap.entrySet() : Collections.emptySet();
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 
 	@Override
 	public Set<String> keySet() {
-		return propertyMap != null ? propertyMap.keySet() : Collections.<String> emptySet();
+		return propertyMap != null ? propertyMap.keySet() : Collections.emptySet();
 	}
 
 	@Override
@@ -132,7 +132,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 
 	@Override
 	public Collection<String> values() {
-		return propertyMap != null ? propertyMap.values() : Collections.<String> emptyList();
+		return propertyMap != null ? propertyMap.values() : Collections.emptyList();
 	}
 
 	@Override

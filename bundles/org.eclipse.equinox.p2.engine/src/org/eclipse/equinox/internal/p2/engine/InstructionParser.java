@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public class InstructionParser {
 
 	private Map<String, ActionEntry> parseImportAttribute(String importAttribute) {
 		if (importAttribute == null)
-			return Collections.<String, ActionEntry> emptyMap();
+			return Collections.emptyMap();
 
 		Map<String, ActionEntry> result = new HashMap<>();
 		StringTokenizer tokenizer = new StringTokenizer(importAttribute, ","); //$NON-NLS-1$
@@ -82,7 +82,7 @@ public class InstructionParser {
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
 		if (nameValuePairs.length() == 0)
-			return new ParameterizedProvisioningAction(action, Collections.<String, String> emptyMap(), statement);
+			return new ParameterizedProvisioningAction(action, Collections.emptyMap(), statement);
 
 		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ","); //$NON-NLS-1$
 		Map<String, String> parameters = new HashMap<>();

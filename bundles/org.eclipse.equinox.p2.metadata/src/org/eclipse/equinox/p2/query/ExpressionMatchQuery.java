@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
-import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.index.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
+import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.expression.MatchExpression;
+import org.eclipse.equinox.internal.p2.metadata.expression.QueryResult;
+import org.eclipse.equinox.internal.p2.metadata.expression.RepeatableIterator;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
+import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
 
 /**
  * A query that matches candidates against an expression.
@@ -27,7 +38,7 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 
 	public ExpressionMatchQuery(Class<? extends T> matchingClass, IExpression expression, Object... parameters) {
 		this.matchingClass = matchingClass;
-		this.expression = ExpressionUtil.getFactory().<T> matchExpression(expression, parameters);
+		this.expression = ExpressionUtil.getFactory().matchExpression(expression, parameters);
 		this.context = this.expression.createContext();
 		this.indexedMembers = Expression.getIndexCandidateMembers(matchingClass, ExpressionFactory.THIS, (Expression) expression);
 	}
@@ -78,7 +89,7 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 				result.add(value);
 			}
 		}
-		return result == null ? Collector.<T> emptyCollector() : new CollectionResult<>(result);
+		return result == null ? Collector.emptyCollector() : new CollectionResult<>(result);
 	}
 
 	@Override

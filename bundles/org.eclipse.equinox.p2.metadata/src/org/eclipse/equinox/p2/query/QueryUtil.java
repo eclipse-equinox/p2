@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,8 +17,16 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.ContextExpression;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression.VariableFinder;
 import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IContextExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
 
 /**
  * Helper class for query related tasks.
@@ -94,7 +102,7 @@ public class QueryUtil {
 
 		Class<? extends T> elementClass = (Class<T>) Object.class;
 		if (top == 0)
-			return QueryUtil.<T> createMatchQuery(elementClass, ExpressionUtil.TRUE_EXPRESSION);
+			return QueryUtil.createMatchQuery(elementClass, ExpressionUtil.TRUE_EXPRESSION);
 
 		IExpression[] expressions = new IExpression[top];
 		boolean justBooleans = true;
@@ -129,7 +137,7 @@ public class QueryUtil {
 
 		if (justBooleans) {
 			IExpression compound = and ? factory.and(expressions) : factory.or(expressions);
-			return QueryUtil.<T> createMatchQuery(elementClass, compound);
+			return QueryUtil.createMatchQuery(elementClass, compound);
 		}
 
 		if (!justContexts) {
@@ -141,7 +149,7 @@ public class QueryUtil {
 		IExpression compound = expressions[0];
 		for (idx = 1; idx < expressions.length; ++idx)
 			compound = and ? factory.intersect(compound, expressions[idx]) : factory.union(compound, expressions[idx]);
-		return QueryUtil.<T> createQuery(elementClass, compound);
+		return QueryUtil.createQuery(elementClass, compound);
 	}
 
 	/**
@@ -408,7 +416,7 @@ public class QueryUtil {
 		IExpression pipe = factory.pipe(expressions);
 		VariableFinder finder = new VariableFinder(ExpressionFactory.EVERYTHING);
 		pipe.accept(finder);
-		return finder.isFound() ? QueryUtil.<T> createQuery((Class<T>) Object.class, pipe) : QueryUtil.<T> createMatchQuery((Class<T>) Object.class, pipe);
+		return finder.isFound() ? QueryUtil.createQuery((Class<T>) Object.class, pipe) : QueryUtil.createMatchQuery((Class<T>) Object.class, pipe);
 	}
 
 	/**

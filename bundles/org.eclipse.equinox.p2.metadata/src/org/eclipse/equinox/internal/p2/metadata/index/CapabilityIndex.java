@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,32 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.index;
 
-import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.expression.CollectionFilter;
+import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
+import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.expression.LambdaExpression;
+import org.eclipse.equinox.internal.p2.metadata.expression.Matches;
+import org.eclipse.equinox.internal.p2.metadata.expression.Member;
+import org.eclipse.equinox.internal.p2.metadata.expression.Parameter;
+import org.eclipse.equinox.internal.p2.metadata.expression.Unary;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 /**
  * An in-memory implementation of a CapabilityIndex based on a Map.
@@ -200,7 +221,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 		if (queriedKeys == Boolean.FALSE) {
 			// It has been determined that the expression has no chance
 			// to succeed regardless of input
-			matchingIUs = Collections.<IInstallableUnit> emptySet();
+			matchingIUs = Collections.emptySet();
 		} else if (queriedKeys instanceof Collection<?>) {
 			matchingIUs = new HashSet<>();
 			for (Object key : (Collection<Object>) queriedKeys)
@@ -208,7 +229,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 		} else {
 			Object v = capabilityMap.get(queriedKeys);
 			if (v == null)
-				matchingIUs = Collections.<IInstallableUnit> emptySet();
+				matchingIUs = Collections.emptySet();
 			else if (v instanceof IInstallableUnit)
 				matchingIUs = Collections.singleton((IInstallableUnit) v);
 			else

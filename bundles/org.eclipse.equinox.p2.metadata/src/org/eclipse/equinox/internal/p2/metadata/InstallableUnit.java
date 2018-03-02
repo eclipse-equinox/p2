@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,11 +11,30 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.ICopyright;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
+import org.eclipse.equinox.p2.metadata.expression.IFilterExpression;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 
 public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	@SuppressWarnings("serial")
@@ -137,7 +156,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 
 	@Override
 	public Collection<IInstallableUnitFragment> getFragments() {
-		return Collections.<IInstallableUnitFragment> emptyList();
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -261,7 +280,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 			if (matchExpr != null)
 				return matchExpr;
 
-			matchExpr = ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(filterWrap, filter);
+			matchExpr = ExpressionUtil.getFactory().matchExpression(filterWrap, filter);
 			filterCache.put(filter, matchExpr);
 			return matchExpr;
 		}

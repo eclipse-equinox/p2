@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -147,15 +147,15 @@ public class Property extends Phase {
 	@Override
 	protected List<ProvisioningAction> getActions(Operand operand) {
 		if (operand instanceof PropertyOperand)
-			return Collections.<ProvisioningAction> singletonList(new ProfilePropertyAction());
+			return Collections.singletonList(new ProfilePropertyAction());
 
 		if (operand instanceof InstallableUnitOperand) {
 			InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 			if (iuOperand.first() != null) {
 				if (iuOperand.second() != null) {
-					return Collections.<ProvisioningAction> singletonList(new UpdateInstallableUnitProfilePropertiesAction());
+					return Collections.singletonList(new UpdateInstallableUnitProfilePropertiesAction());
 				}
-				return Collections.<ProvisioningAction> singletonList(new RemoveInstallableUnitProfilePropertiesAction());
+				return Collections.singletonList(new RemoveInstallableUnitProfilePropertiesAction());
 			}
 		}
 		return null;

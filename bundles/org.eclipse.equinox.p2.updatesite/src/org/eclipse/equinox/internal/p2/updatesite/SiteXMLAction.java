@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2018 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -270,7 +270,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		String expression = siteIU.getQueryExpression();
 		Object[] params = siteIU.getQueryParams();
 		if (id == null && (type == null || expression == null))
-			return Collections.<IInstallableUnit> emptyList();
+			return Collections.emptyList();
 		IQuery<IInstallableUnit> query = null;
 		if (id != null) {
 			VersionRange vRange = VersionRange.create(range);
@@ -280,7 +280,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		} else if (type.equals("match")) //$NON-NLS-1$
 			query = QueryUtil.createMatchQuery(expression, params);
 		if (query == null)
-			return Collections.<IInstallableUnit> emptyList();
+			return Collections.emptyList();
 		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
 		if (queryResult.isEmpty())
 			queryResult = publisherInfo.getMetadataRepository().query(query, null);
@@ -629,13 +629,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		String categoryId = buildCategoryId(category.getName());
 		cat.setId(categoryId);
 		if (categoryVersion == null)
-			cat.setVersion(Version.createOSGi(1, 0, 0, versionSuffixGenerator.generateSuffix(childrenIUs, Collections.<IVersionedId> emptyList())));
+			cat.setVersion(Version.createOSGi(1, 0, 0, versionSuffixGenerator.generateSuffix(childrenIUs, Collections.emptyList())));
 		else {
 			if (categoryVersion.isOSGiCompatible()) {
 				org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(categoryVersion);
 				String qualifier = osgiVersion.getQualifier();
 				if (qualifier.endsWith(QUALIFIER)) {
-					String suffix = versionSuffixGenerator.generateSuffix(childrenIUs, Collections.<IVersionedId> emptyList());
+					String suffix = versionSuffixGenerator.generateSuffix(childrenIUs, Collections.emptyList());
 					qualifier = qualifier.substring(0, qualifier.length() - 9) + suffix;
 					categoryVersion = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor(), osgiVersion.getMicro(), qualifier);
 				}

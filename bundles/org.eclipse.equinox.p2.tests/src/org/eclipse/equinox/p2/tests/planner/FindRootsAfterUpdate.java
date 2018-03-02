@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 Sonatype, Inc. and others. All rights reserved. This
+ * Copyright (c) 2011, 2018 Sonatype, Inc. and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -12,8 +12,13 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.util.Arrays;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -52,7 +57,7 @@ public class FindRootsAfterUpdate extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 		IRequirement[] reqs = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 4.0.0]"));
-		req.addExtraRequirements(Arrays.<IRequirement> asList(reqs[0]));
+		req.addExtraRequirements(Arrays.asList(reqs[0]));
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, b3);
@@ -65,7 +70,7 @@ public class FindRootsAfterUpdate extends AbstractProvisioningTest {
 		IRequirement reqOnB = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[3.0.0, 4.0.0]"))[0];
 		IRequirement reqOnX = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "X", new VersionRange("[2.0.0, 2.0.0]"))[0];
 		IRequirement[] extraReqs = new IRequirement[] {reqOnB, reqOnX};
-		req.addExtraRequirements(Arrays.<IRequirement> asList(extraReqs));
+		req.addExtraRequirements(Arrays.asList(extraReqs));
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
 		assertNotOK(plan.getStatus());
 	}

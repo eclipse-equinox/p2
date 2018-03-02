@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ public final class LocalizationHelper {
 
 	// Extract the locale string from the properties file with the given filename
 	// where the locale string follows the given prefix. For example, return "zh_HK"
-	// from filename == "plugin_zh_HK.properties" and prefix == "plugin". 
+	// from filename == "plugin_zh_HK.properties" and prefix == "plugin".
 	static public String getLocaleString(String filename, String prefix) {
 		String localeString = null;
 		if (filename.startsWith(prefix) && filename.endsWith(PROPERTIES_FILE_EXTENSION)) {
@@ -132,7 +132,7 @@ public final class LocalizationHelper {
 				}
 			} catch (FileNotFoundException e) {
 				// if there is no messages file then just return;
-				return Collections.<String, String> emptyMap();
+				return Collections.emptyMap();
 			}
 			return CollectionUtils.loadProperties(propertyStream);
 		} finally {
@@ -142,7 +142,7 @@ public final class LocalizationHelper {
 	}
 
 	// Given a list of keys and the corresponding localized property set,
-	// return a new property set with those keys and the localized values. 
+	// return a new property set with those keys and the localized values.
 	static public Map<String, String> getLocalizedProperties(String[] propertyKeys, Map<String, String> properties) {
 		Map<String, String> localizedProperties = new HashMap<>();
 		for (int i = 0; i < propertyKeys.length; i++) {

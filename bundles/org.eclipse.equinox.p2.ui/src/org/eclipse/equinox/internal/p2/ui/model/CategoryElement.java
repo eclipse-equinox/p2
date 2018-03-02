@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -114,7 +114,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	@Override
 	public Collection<IRequirement> getRequirements() {
 		if (ius == null || ius.isEmpty())
-			return Collections.<IRequirement> emptyList();
+			return Collections.emptyList();
 		if (requirements == null) {
 			if (ius.size() == 1)
 				requirements = getIU().getRequirements();

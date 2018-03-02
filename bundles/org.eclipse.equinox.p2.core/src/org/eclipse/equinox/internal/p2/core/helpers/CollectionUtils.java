@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -191,7 +191,7 @@ public class CollectionUtils {
 	 * @return The unmodifiable list
 	 */
 	public static <T> List<T> unmodifiableList(T[] array) {
-		return array == null || array.length == 0 ? Collections.<T> emptyList() : new UnmodifiableArrayList<>(array);
+		return array == null || array.length == 0 ? Collections.emptyList() : new UnmodifiableArrayList<>(array);
 	}
 
 	/**
@@ -214,7 +214,7 @@ public class CollectionUtils {
 	 */
 	public static Map<String, String> toMap(Properties properties) {
 		if (properties == null || properties.isEmpty())
-			return Collections.<String, String> emptyMap();
+			return Collections.emptyMap();
 
 		Map<String, String> props = new HashMap<>(properties.size());
 		putAll(properties, props);

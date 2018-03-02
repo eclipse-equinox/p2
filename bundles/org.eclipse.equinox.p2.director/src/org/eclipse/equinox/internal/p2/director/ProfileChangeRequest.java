@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -153,14 +153,14 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	@Override
 	public Collection<IInstallableUnit> getRemovals() {
 		if (iusToRemove == null)
-			return Collections.<IInstallableUnit> emptyList();
+			return Collections.emptyList();
 		return Collections.unmodifiableList(iusToRemove);
 	}
 
 	@Override
 	public Collection<IInstallableUnit> getAdditions() {
 		if (iusToAdd == null)
-			return Collections.<IInstallableUnit> emptyList();
+			return Collections.emptyList();
 		return Collections.unmodifiableList(iusToAdd);
 	}
 
@@ -174,14 +174,14 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	// map of key value pairs
 	public Map<String, String> getPropertiesToAdd() {
 		if (propertiesToAdd == null)
-			return Collections.<String, String> emptyMap();
+			return Collections.emptyMap();
 		return propertiesToAdd;
 	}
 
 	// map of iu->list of property keys to be removed for an iu	
 	public Map<IInstallableUnit, List<String>> getInstallableUnitProfilePropertiesToRemove() {
 		if (iuPropertiesToRemove == null)
-			return Collections.<IInstallableUnit, List<String>> emptyMap();
+			return Collections.emptyMap();
 		return iuPropertiesToRemove;
 	}
 
@@ -189,7 +189,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	// map iu->map of key->value pairs for properties to be added for an iu
 	public Map<IInstallableUnit, Map<String, String>> getInstallableUnitProfilePropertiesToAdd() {
 		if (iuPropertiesToAdd == null)
-			return Collections.<IInstallableUnit, Map<String, String>> emptyMap();
+			return Collections.emptyMap();
 		return iuPropertiesToAdd;
 	}
 

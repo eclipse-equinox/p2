@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2017 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2018 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -9,9 +9,17 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import junit.framework.TestCase;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -29,7 +37,7 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testEmptyCompositeQuery() {
-		IQuery<String> query = QueryUtil.createPipeQuery(Collections.<IQuery<String>> emptySet());
+		IQuery<String> query = QueryUtil.createPipeQuery(Collections.emptySet());
 		query.perform(getABCDE().iterator());
 		// We should not throw an exception.  No guarantee on what perform
 		// will return in this case

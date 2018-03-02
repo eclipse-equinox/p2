@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,9 +16,9 @@ import java.util.*;
  * @since 2.0
  */
 public final class Memento {
-	private static final Collection<Class<?>> simples = Arrays.<Class<?>> asList(String.class, Integer.class, Long.class, Float.class, Double.class, Byte.class, Short.class, Character.class, Boolean.class);
-	private static final Collection<Class<?>> simpleArrays = Arrays.<Class<?>> asList(String[].class, Integer[].class, Long[].class, Float[].class, Double[].class, Byte[].class, Short[].class, Character[].class, Boolean[].class);
-	private static final Collection<Class<?>> primitiveArrays = Arrays.<Class<?>> asList(long[].class, int[].class, short[].class, char[].class, byte[].class, double[].class, float[].class, boolean[].class);
+	private static final Collection<Class<?>> simples = Arrays.asList(String.class, Integer.class, Long.class, Float.class, Double.class, Byte.class, Short.class, Character.class, Boolean.class);
+	private static final Collection<Class<?>> simpleArrays = Arrays.asList(String[].class, Integer[].class, Long[].class, Float[].class, Double[].class, Byte[].class, Short[].class, Character[].class, Boolean[].class);
+	private static final Collection<Class<?>> primitiveArrays = Arrays.asList(long[].class, int[].class, short[].class, char[].class, byte[].class, double[].class, float[].class, boolean[].class);
 
 	Map<String, Object> mementoMap = new HashMap<>();
 

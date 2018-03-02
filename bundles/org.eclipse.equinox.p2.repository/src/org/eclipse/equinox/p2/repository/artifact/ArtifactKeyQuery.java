@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public final class ArtifactKeyQuery extends ExpressionMatchQuery<IArtifactKey> {
 	private static IExpression createMatchExpression(IArtifactKey key) {
 		if (key == null)
 			return ExpressionUtil.TRUE_EXPRESSION;
-		return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchKey, key);
+		return ExpressionUtil.getFactory().matchExpression(matchKey, key);
 	}
 
 	private static IExpression createMatchExpression(String classifier, String id, VersionRange range) {
@@ -41,11 +41,11 @@ public final class ArtifactKeyQuery extends ExpressionMatchQuery<IArtifactKey> {
 			if (classifier == null) {
 				if (id == null)
 					return ExpressionUtil.TRUE_EXPRESSION;
-				return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchID, id);
+				return ExpressionUtil.getFactory().matchExpression(matchID, id);
 			}
 			range = VersionRange.emptyRange;
 		}
-		return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchIDClassifierRange, id, classifier, range);
+		return ExpressionUtil.getFactory().matchExpression(matchIDClassifierRange, id, classifier, range);
 	}
 
 	/**

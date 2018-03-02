@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2017 Rapicorp Inc. and others. 
+ * Copyright (c) 2013, 2018 Rapicorp Inc. and others. 
  * All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
@@ -43,11 +43,11 @@ public class OptimizationFunction {
 
 		Set<IInstallableUnit> transitiveClosure; //The transitive closure of the IUs we are adding (this also means updating)
 		if (newRoots.isEmpty()) {
-			transitiveClosure = Collections.<IInstallableUnit> emptySet();
+			transitiveClosure = Collections.emptySet();
 		} else {
 			IQueryable<IInstallableUnit> queryable = new Slicer(picker, selectionContext, false).slice(newRoots.toArray(new IInstallableUnit[newRoots.size()]), new NullProgressMonitor());
 			if (queryable == null) {
-				transitiveClosure = Collections.<IInstallableUnit> emptySet();
+				transitiveClosure = Collections.emptySet();
 			} else {
 				transitiveClosure = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet();
 			}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,11 +70,11 @@ public class KeyIndex extends Index<IArtifactKey> {
 				}
 			}
 			if (collector == null)
-				collector = Collections.<IArtifactKey> emptySet();
+				collector = Collections.emptySet();
 		} else {
 			Object v = artifactMap.get(queriedKeys);
 			if (v == null)
-				collector = Collections.<IArtifactKey> emptySet();
+				collector = Collections.emptySet();
 			else if (v instanceof IArtifactKey)
 				collector = Collections.singleton((IArtifactKey) v);
 			else

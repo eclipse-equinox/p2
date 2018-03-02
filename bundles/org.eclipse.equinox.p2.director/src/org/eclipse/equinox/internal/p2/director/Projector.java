@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -150,7 +151,7 @@ public class Projector {
 			} finally {
 				//must never have a null result, because caller is waiting on result to be non-null
 				if (explanation == null)
-					explanation = Collections.<Explanation> emptySet();
+					explanation = Collections.emptySet();
 			}
 			synchronized (this) {
 				ExplanationJob.this.notify();
@@ -815,7 +816,7 @@ public class Projector {
 		IRequirement req = patch.getLifeCycle();
 		if (req == null)
 			return;
-		expandRequirement(req, iu, Collections.<AbstractVariable> emptyList(), isRootIu);
+		expandRequirement(req, iu, Collections.emptyList(), isRootIu);
 	}
 
 	private void missingRequirement(IInstallableUnit iu, IRequirement req) throws ContradictionException {

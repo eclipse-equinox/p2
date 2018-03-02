@@ -1,10 +1,10 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -52,7 +52,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	 * Creates advice for an advice file at the given location. If <tt>basePath</tt>
 	 * is a directory, then <tt>adviceFilePath</tt> is appended to this location to
 	 * obtain the location of the advice file. If <tt>basePath</tt> is a file, then
-	 * <tt>adviceFilePath</tt> is used to 
+	 * <tt>adviceFilePath</tt> is used to
 	 * @param id The symbolic id of the installable unit this advice applies to
 	 * @param version The version of the installable unit this advice applies to
 	 * @param basePath The root location of the the advice file. This is either the location of
@@ -102,7 +102,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	private static Map<String, String> loadAdviceMap(IPath basePath, IPath adviceFilePath) {
 		File location = basePath.toFile();
 		if (location == null || !location.exists())
-			return Collections.<String, String> emptyMap();
+			return Collections.emptyMap();
 
 		ZipFile jar = null;
 		InputStream stream = null;
@@ -110,13 +110,13 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 			if (location.isDirectory()) {
 				File adviceFile = new File(location, adviceFilePath.toString());
 				if (!adviceFile.isFile())
-					return Collections.<String, String> emptyMap();
+					return Collections.emptyMap();
 				stream = new BufferedInputStream(new FileInputStream(adviceFile));
 			} else if (location.isFile()) {
 				jar = new ZipFile(location);
 				ZipEntry entry = jar.getEntry(adviceFilePath.toString());
 				if (entry == null)
-					return Collections.<String, String> emptyMap();
+					return Collections.emptyMap();
 
 				stream = new BufferedInputStream(jar.getInputStream(entry));
 			}
@@ -125,7 +125,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 			String message = "An error occured while reading advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + "."; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
-			return Collections.<String, String> emptyMap();
+			return Collections.emptyMap();
 		} finally {
 			if (stream != null)
 				try {

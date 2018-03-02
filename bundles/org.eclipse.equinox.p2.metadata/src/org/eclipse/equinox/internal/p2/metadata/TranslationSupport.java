@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,13 +13,31 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.lang.ref.SoftReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.ICopyright;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.KeyWithLocale;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.service.localization.LocaleProvider;
 
 /**
@@ -242,7 +260,7 @@ public class TranslationSupport {
 				return cached;
 		}
 
-		IQuery<IInstallableUnit> iuQuery = QueryUtil.<IInstallableUnit> createMatchQuery(IInstallableUnitFragment.class, capabilityMatch, NAMESPACE_IU_LOCALIZATION, localeVariants);
+		IQuery<IInstallableUnit> iuQuery = QueryUtil.createMatchQuery(IInstallableUnitFragment.class, capabilityMatch, NAMESPACE_IU_LOCALIZATION, localeVariants);
 		IQueryResult<IInstallableUnit> collected = fragmentSource.query(iuQuery, null);
 		localeCollectorCache.put(locale, new SoftReference<>(collected));
 		return collected;
@@ -267,7 +285,7 @@ public class TranslationSupport {
 		IQueryResult<IInstallableUnit> localizationFragments = getLocalizationFragments(locales, locale);
 
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		IQuery<IInstallableUnit> iuQuery = QueryUtil.<IInstallableUnit> createMatchQuery(IInstallableUnitFragment.class, factory.matchExpression(haveHostMatch, theUnit));
+		IQuery<IInstallableUnit> iuQuery = QueryUtil.createMatchQuery(IInstallableUnitFragment.class, factory.matchExpression(haveHostMatch, theUnit));
 		IQueryResult<IInstallableUnit> collected = iuQuery.perform(localizationFragments.iterator());
 		if (!collected.isEmpty()) {
 			String translation = null;

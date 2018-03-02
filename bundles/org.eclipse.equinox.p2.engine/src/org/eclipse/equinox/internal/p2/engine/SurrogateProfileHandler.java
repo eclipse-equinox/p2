@@ -85,7 +85,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		IQueryResult<IInstallableUnit> allIUs = sharedProfile.query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
-			IMatchExpression<IInstallableUnit> iuMatcher = ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(ExpressionUtil.parse("id == $0 && version == $1"), iu.getId(), iu.getVersion()); //$NON-NLS-1$
+			IMatchExpression<IInstallableUnit> iuMatcher = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse("id == $0 && version == $1"), iu.getId(), iu.getVersion()); //$NON-NLS-1$
 			iuRequirements.add(MetadataFactory.createRequirement(iuMatcher, null, 0, 1, true));
 		}
 		iuDescription.addRequirements(iuRequirements);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -356,7 +356,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	public Collection<IInstallableUnit> getInstalledIUs() {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		if (profile == null)
-			return Collections.<IInstallableUnit> emptyList();
+			return Collections.emptyList();
 		IQuery<IInstallableUnit> query = new UserVisibleRootQuery();
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
 		return queryResult.toUnmodifiableSet();

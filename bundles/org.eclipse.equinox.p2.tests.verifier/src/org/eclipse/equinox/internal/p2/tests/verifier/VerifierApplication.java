@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -344,7 +344,7 @@ public class VerifierApplication implements IApplication {
 		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
 
-		MigrationWizard wizardPage = new MigrationWizard(profile, Collections.<IInstallableUnit> emptyList(), new URI[0], false);
+		MigrationWizard wizardPage = new MigrationWizard(profile, Collections.emptyList(), new URI[0], false);
 		int cancelAnswer = Integer.parseInt(properties.getProperty("checkMigration.cancelAnswer"));
 		wizardPage.rememberCancellationDecision(cancelAnswer);
 	}

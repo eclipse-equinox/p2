@@ -137,7 +137,7 @@ public class PublisherHelper {
 
 	private static void calculateChecksums(File pathOnDisk, ArtifactDescriptor descriptor) {
 		// TODO disable specific algorithms
-		List<String> checksumsToSkip = Collections.<String> emptyList();
+		List<String> checksumsToSkip = Collections.emptyList();
 		Map<String, String> checksums = new HashMap<>();
 		IStatus status = ChecksumUtilities.calculateChecksums(pathOnDisk, checksums, checksumsToSkip);
 		if (!status.isOK()) {

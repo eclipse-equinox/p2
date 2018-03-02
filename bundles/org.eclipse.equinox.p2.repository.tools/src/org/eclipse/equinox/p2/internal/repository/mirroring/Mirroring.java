@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -41,7 +41,7 @@ public class Mirroring {
 	private boolean validate = false;
 	private IArtifactComparator comparator;
 	private IQuery<IArtifactDescriptor> compareExclusionQuery = null;
-	private Set<IArtifactDescriptor> compareExclusions = Collections.<IArtifactDescriptor> emptySet();
+	private Set<IArtifactDescriptor> compareExclusions = Collections.emptySet();
 	private String comparatorID;
 	private List<IArtifactKey> keysToMirror;
 	private IArtifactMirrorLog comparatorLog;

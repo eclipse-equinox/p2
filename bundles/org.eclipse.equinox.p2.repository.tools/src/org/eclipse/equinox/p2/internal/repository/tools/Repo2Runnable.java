@@ -93,7 +93,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 			IInstallableUnit unit = operand.second();
 			if (unit.getTouchpointType().getId().equals(NATIVE_TYPE)) {
-				return Collections.<ProvisioningAction> singletonList(new CollectNativesAction());
+				return Collections.singletonList(new CollectNativesAction());
 			}
 			return null;
 		}

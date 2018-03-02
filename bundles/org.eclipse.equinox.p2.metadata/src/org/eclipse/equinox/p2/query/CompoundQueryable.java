@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2017 EclipseSource and others.
+* Copyright (c) 2009, 2018 EclipseSource and others.
 * All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
@@ -10,7 +10,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;

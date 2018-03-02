@@ -113,7 +113,7 @@ public abstract class InstallableUnitPhase extends Phase {
 		Collection<ITouchpointData> data = unit.getTouchpointData();
 		int dataSize = data.size();
 		if (dataSize == 0)
-			return Collections.<ITouchpointInstruction> emptyList();
+			return Collections.emptyList();
 
 		ArrayList<ITouchpointInstruction> matches = new ArrayList<>(dataSize);
 		for (ITouchpointData td : data) {

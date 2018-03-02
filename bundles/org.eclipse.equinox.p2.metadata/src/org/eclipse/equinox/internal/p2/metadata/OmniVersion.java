@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,13 +70,13 @@ public class OmniVersion extends BasicVersion {
 
 	public static Version createMinVersion() {
 		if (minimumVersion == null)
-			minimumVersion = new OmniVersion(Collections.<Comparable<?>> singletonList(null), null, null);
+			minimumVersion = new OmniVersion(Collections.singletonList(null), null, null);
 		return minimumVersion;
 	}
 
 	public static Version createMaxVersion() {
 		if (maximumVersion == null)
-			maximumVersion = new OmniVersion(Collections.<Comparable<?>> singletonList(VersionVector.MAX_VALUE), null, null);
+			maximumVersion = new OmniVersion(Collections.singletonList(VersionVector.MAX_VALUE), null, null);
 		return maximumVersion;
 	}
 

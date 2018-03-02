@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,10 +40,10 @@ public final class ArtifactDescriptorQuery extends ExpressionMatchQuery<IArtifac
 				properties.put(IArtifactDescriptor.FORMAT, format);
 			}
 		} else if (properties == null)
-			properties = Collections.<String, String> emptyMap();
+			properties = Collections.emptyMap();
 
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		return factory.<IArtifactDescriptor> matchExpression(descriptorMatch, id, range, properties);
+		return factory.matchExpression(descriptorMatch, id, range, properties);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,11 @@
 package org.eclipse.equinox.p2.query;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -22,7 +26,7 @@ public class CollectionResult<T> implements IQueryResult<T> {
 	private final Collection<T> collection;
 
 	public CollectionResult(Collection<T> collection) {
-		this.collection = collection == null ? Collections.<T> emptySet() : collection;
+		this.collection = collection == null ? Collections.emptySet() : collection;
 	}
 
 	@Override
@@ -57,7 +61,7 @@ public class CollectionResult<T> implements IQueryResult<T> {
 
 	@Override
 	public Set<T> toUnmodifiableSet() {
-		return collection instanceof Set<?> ? Collections.<T> unmodifiableSet((Set<T>) collection) : toSet();
+		return collection instanceof Set<?> ? Collections.unmodifiableSet((Set<T>) collection) : toSet();
 	}
 
 	@Override

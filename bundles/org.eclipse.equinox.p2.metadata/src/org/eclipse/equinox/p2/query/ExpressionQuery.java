@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,8 +11,14 @@
 package org.eclipse.equinox.p2.query;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.internal.p2.metadata.expression.ContextExpression;
+import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.expression.MatchExpression;
+import org.eclipse.equinox.internal.p2.metadata.expression.QueryResult;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IContextExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
 
@@ -26,7 +32,7 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 
 	public ExpressionQuery(Class<? extends T> elementClass, IExpression expression, Object... parameters) {
 		this.elementClass = elementClass;
-		this.expression = ExpressionUtil.getFactory().<T> contextExpression(expression, parameters);
+		this.expression = ExpressionUtil.getFactory().contextExpression(expression, parameters);
 	}
 
 	public ExpressionQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {

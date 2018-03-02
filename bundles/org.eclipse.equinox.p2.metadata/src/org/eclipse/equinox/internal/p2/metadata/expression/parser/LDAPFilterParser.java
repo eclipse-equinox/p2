@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2018 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression.parser;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.Messages;
 import org.eclipse.equinox.internal.p2.metadata.expression.IExpressionConstants;
 import org.eclipse.equinox.internal.p2.metadata.expression.LDAPApproximation;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionParseException;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
+import org.eclipse.equinox.p2.metadata.expression.IFilterExpression;
+import org.eclipse.equinox.p2.metadata.expression.SimplePattern;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -23,7 +30,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public class LDAPFilterParser {
 	@SuppressWarnings("serial")
-	private static final Map<String, IFilterExpression> filterCache = Collections.<String, IFilterExpression> synchronizedMap(new LinkedHashMap<String, IFilterExpression>() {
+	private static final Map<String, IFilterExpression> filterCache = Collections.synchronizedMap(new LinkedHashMap<String, IFilterExpression>() {
 		@Override
 		public boolean removeEldestEntry(Map.Entry<String, IFilterExpression> expr) {
 			return size() > 64;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ public class IUProfilePropertyQuery extends ExpressionMatchQuery<IInstallableUni
 
 	private static IMatchExpression<IInstallableUnit> createMatch(String propertyName, String propertyValue) {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		return ANY.equals(propertyValue) ? factory.<IInstallableUnit> matchExpression(matchAny, propertyName) : factory.<IInstallableUnit> matchExpression(matchValue, propertyName, propertyValue);
+		return ANY.equals(propertyValue) ? factory.matchExpression(matchAny, propertyName) : factory.<IInstallableUnit> matchExpression(matchValue, propertyName, propertyValue);
 	}
 
 	/**

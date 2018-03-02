@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011, 2017 Sonatype, Inc. and others.
+ *  Copyright (c) 2011, 2018 Sonatype, Inc. and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -63,7 +63,7 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		versions.add(new VersionedId("aBundle", "1.0.0"));
 		Exception exceptionMet = null;
 		try {
-			of.createInstallOperation(versions, Collections.<URI> emptyList(), new NullProgressMonitor());
+			of.createInstallOperation(versions, Collections.emptyList(), new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			exceptionMet = e;
 		}
@@ -124,7 +124,7 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		toRemove.add(vid);
 		Exception expectedException = null;
 		try {
-			of.createUninstallOperation(toRemove, Collections.<URI> emptyList(), new NullProgressMonitor());
+			of.createUninstallOperation(toRemove, Collections.emptyList(), new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			expectedException = e;
 		}

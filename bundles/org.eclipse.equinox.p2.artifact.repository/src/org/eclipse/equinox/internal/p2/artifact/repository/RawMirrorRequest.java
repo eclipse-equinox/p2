@@ -84,7 +84,7 @@ public class RawMirrorRequest extends MirrorRequest {
 	protected IStatus getArtifact(IArtifactDescriptor artifactDescriptor, OutputStream destination, IProgressMonitor monitor) {
 
 		if (SimpleArtifactRepository.CHECKSUMS_ENABLED) {
-			Collection<ProcessingStep> steps = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor, IArtifactDescriptor.DOWNLOAD_CHECKSUM, Collections.<String> emptySet());
+			Collection<ProcessingStep> steps = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor, IArtifactDescriptor.DOWNLOAD_CHECKSUM, Collections.emptySet());
 			ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 			// TODO should probably be using createAndLink here
 			ProcessingStepHandler handler = new ProcessingStepHandler();
