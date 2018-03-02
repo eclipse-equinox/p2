@@ -136,6 +136,7 @@ public class ChecksumUtilities {
 		}
 
 		if (md5 != null) {
+			@SuppressWarnings("resource") //It's used later so shouldn't be closed
 			MD5Verifier checksumVerifier = new MD5Verifier(md5);
 			if (checksumVerifier.getStatus().isOK())
 				return Optional.of(checksumVerifier);
