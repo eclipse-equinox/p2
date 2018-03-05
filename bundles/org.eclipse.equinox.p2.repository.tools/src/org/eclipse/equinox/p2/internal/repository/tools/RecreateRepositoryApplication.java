@@ -31,7 +31,6 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class RecreateRepositoryApplication extends AbstractApplication {
-	private static final String MD5_CHECKSUM_ID = "md5"; //$NON-NLS-1$
 	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 	private URI repoLocation;
 	private String repoName = null;
@@ -123,17 +122,14 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 				newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, size);
 
 				Map<String, String> checksums = new HashMap<>();
-				IStatus status = ChecksumUtilities.calculateChecksums(artifactFile, checksums, Collections.emptyList());
+				List<String> checksumsToSkip = Collections.emptyList();
+				IStatus status = ChecksumUtilities.calculateChecksums(artifactFile, checksums, checksumsToSkip);
 				if (!status.isOK())
 					// TODO handle errors in some way
 					LogHelper.log(status);
 
-				String md5 = checksums.get(MD5_CHECKSUM_ID);
-				if (md5 != null)
-					// preserve legacy MD5 checksum location
-					newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
-
-				newDescriptor.addProperties(ChecksumUtilities.checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums));
+				Map<String, String> checksumsToProperties = ChecksumUtilities.checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums);
+				newDescriptor.addProperties(checksumsToProperties);
 
 				File temp = new File(artifactFile.getParentFile(), artifactFile.getName() + ".pack.gz"); //$NON-NLS-1$
 				if (temp.exists()) {

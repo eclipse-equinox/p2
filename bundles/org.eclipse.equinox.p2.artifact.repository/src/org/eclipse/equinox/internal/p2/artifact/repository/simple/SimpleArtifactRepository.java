@@ -472,7 +472,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		steps.add(new SignatureVerifier());
 
-		Set<String> skipChecksums = ARTIFACT_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumUtilities.MD5);
+		Set<String> skipChecksums = ARTIFACT_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumUtilities.MD5_ID);
 		addChecksumVerifiers(descriptor, steps, skipChecksums, IArtifactDescriptor.ARTIFACT_CHECKSUM);
 
 		if (steps.isEmpty())
@@ -487,7 +487,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
 
-		Set<String> skipChecksums = DOWNLOAD_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumUtilities.MD5);
+		Set<String> skipChecksums = DOWNLOAD_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumUtilities.MD5_ID);
 		addChecksumVerifiers(descriptor, steps, skipChecksums, IArtifactDescriptor.DOWNLOAD_CHECKSUM);
 
 		// Add steps here if needed

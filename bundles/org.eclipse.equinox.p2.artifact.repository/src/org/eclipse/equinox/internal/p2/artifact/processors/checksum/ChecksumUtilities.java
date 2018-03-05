@@ -28,7 +28,8 @@ import org.eclipse.osgi.util.NLS;
 public class ChecksumUtilities {
 
 	private static final String ARTIFACT_CHECKSUMS_POINT = "org.eclipse.equinox.p2.artifact.repository.artifactChecksums"; //$NON-NLS-1$
-	public static final String MD5 = "md5"; //$NON-NLS-1$
+	public static final String MD5_ID = "md5"; //$NON-NLS-1$
+	private static final String MD5_MESSAGE_DIGEST = "MD5"; //$NON-NLS-1$
 
 	/**
 	 * Instances of checksum verifiers applicable for the artifact descriptor
@@ -91,20 +92,33 @@ public class ChecksumUtilities {
 				// don't calculate checksum if algo is disabled
 				continue;
 			String algorithm = checksumVerifierConfiguration.getAttribute("algorithm"); //$NON-NLS-1$
-			try {
-				String checksum = ChecksumProducer.produce(pathOnDisk, algorithm);
-				checksums.put(id, checksum);
-				String message = NLS.bind(Messages.calculateChecksum_ok, new Object[] {id, algorithm, checksum});
-				status.add(new Status(IStatus.OK, Activator.ID, message));
-			} catch (NoSuchAlgorithmException e) {
-				String message = NLS.bind(Messages.calculateChecksum_error, id, algorithm);
-				status.add(new Status(IStatus.ERROR, Activator.ID, message, e));
-			} catch (IOException e) {
-				String message = NLS.bind(Messages.calculateChecksum_error, id, algorithm);
-				status.add(new Status(IStatus.ERROR, Activator.ID, message, e));
-			}
+			Optional<String> checksum = calculateChecksum(pathOnDisk, status, id, algorithm);
+			checksum.ifPresent(c -> checksums.put(id, c));
 		}
+
+		boolean doNotSkipMd5 = !checksumsToSkip.contains(MD5_ID);
+		if (doNotSkipMd5) {
+			Optional<String> md5 = calculateChecksum(pathOnDisk, status, MD5_ID, MD5_MESSAGE_DIGEST);
+			md5.ifPresent(c -> checksums.put(MD5_ID, c));
+		}
+
 		return status;
+	}
+
+	private static Optional<String> calculateChecksum(File pathOnDisk, MultiStatus status, String id, String algorithm) {
+		try {
+			String checksum = ChecksumProducer.produce(pathOnDisk, algorithm);
+			String message = NLS.bind(Messages.calculateChecksum_ok, new Object[] {id, algorithm, checksum});
+			status.add(new Status(IStatus.OK, Activator.ID, message));
+			return Optional.of(checksum);
+		} catch (NoSuchAlgorithmException e) {
+			String message = NLS.bind(Messages.calculateChecksum_error, id, algorithm);
+			status.add(new Status(IStatus.ERROR, Activator.ID, message, e));
+		} catch (IOException e) {
+			String message = NLS.bind(Messages.calculateChecksum_error, id, algorithm);
+			status.add(new Status(IStatus.ERROR, Activator.ID, message, e));
+		}
+		return Optional.empty();
 	}
 
 	/**
@@ -146,7 +160,7 @@ public class ChecksumUtilities {
 	}
 
 	private static void putLegacyMd5Property(String propertyNamespace, Map<String, String> checksums, HashMap<String, String> result) {
-		String md5 = checksums.get(ChecksumUtilities.MD5);
+		String md5 = checksums.get(ChecksumUtilities.MD5_ID);
 		if (md5 != null) {
 			if (IArtifactDescriptor.ARTIFACT_CHECKSUM.equals(propertyNamespace))
 				result.put(IArtifactDescriptor.ARTIFACT_MD5, md5);

@@ -15,16 +15,12 @@
 package org.eclipse.equinox.spi.p2.publisher;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.BasicVersion;
-import org.eclipse.equinox.internal.p2.publisher.Activator;
-import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -115,24 +111,11 @@ public class PublisherHelper {
 
 				boolean generateChecksums = info == null || (info.getArtifactOptions() & IPublisherInfo.A_NO_MD5) == 0;
 				if (generateChecksums) {
-					calculateLegacyMd5(pathOnDisk, descriptor);
 					calculateChecksums(pathOnDisk, descriptor);
 				}
 			}
 		}
 		return result;
-	}
-
-	private static void calculateLegacyMd5(File pathOnDisk, ArtifactDescriptor descriptor) {
-		try {
-			String md5 = ChecksumProducer.computeMD5(pathOnDisk);
-			if (md5 != null)
-				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
-		} catch (IOException e) {
-			// don't care if failed to compute checksum
-			// TODO provide message?
-			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "", e)); //$NON-NLS-1$
-		}
 	}
 
 	private static void calculateChecksums(File pathOnDisk, ArtifactDescriptor descriptor) {
