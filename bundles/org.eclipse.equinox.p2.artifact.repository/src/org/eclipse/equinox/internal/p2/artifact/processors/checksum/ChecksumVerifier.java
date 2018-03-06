@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors.checksum;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
@@ -18,17 +17,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
-final public class ChecksumVerifier extends ProcessingStep {
+final public class ChecksumVerifier extends MessageDigestProcessingStep {
 
 	private String expectedChecksum;
-	private MessageDigest messageDigest;
 	private String algorithmName;
 	private String algorithmId;
 
@@ -66,21 +63,11 @@ final public class ChecksumVerifier extends ProcessingStep {
 	}
 
 	@Override
-	final public void write(int b) throws IOException {
-		messageDigest.update((byte) b);
-		getDestination().write(b);
-	}
-
-	@Override
-	final public void close() throws IOException {
-		byte[] hashBytes = messageDigest.digest();
-		String hash = ChecksumHelper.toHexString(hashBytes);
-
+	final protected void onClose(String digestString) {
 		// if the hashes don't line up set the status to error.
-		if (!hash.equals(expectedChecksum))
+		if (!digestString.equals(expectedChecksum))
 			// TODO like ProvisionException.ARTIFACT_MD5_NOT_MATCH but for any checksum
-			setStatus(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_MD5_NOT_MATCH, NLS.bind(Messages.Error_unexpected_checksum, new Object[] {algorithmName, expectedChecksum, hash}), null));
-		super.close();
+			setStatus(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_MD5_NOT_MATCH, NLS.bind(Messages.Error_unexpected_checksum, new Object[] {algorithmName, expectedChecksum, digestString}), null));
 	}
 
 }

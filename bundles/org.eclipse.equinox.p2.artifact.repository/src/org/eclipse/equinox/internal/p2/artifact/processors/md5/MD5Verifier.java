@@ -8,17 +8,16 @@
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  * 	IBM Corporation - ongoing development
+ * 	Mykola Nikishov - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors.md5;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.artifact.processors.checksum.MessageDigestProcessingStep;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
-import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -26,10 +25,9 @@ import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 @Deprecated
-public class MD5Verifier extends ProcessingStep {
+public class MD5Verifier extends MessageDigestProcessingStep {
 
 	protected String expectedMD5;
-	private MessageDigest md5;
 
 	public MD5Verifier() {
 		super();
@@ -60,26 +58,16 @@ public class MD5Verifier extends ProcessingStep {
 		if (expectedMD5 == null || expectedMD5.length() != 32)
 			setStatus(new Status(code, Activator.ID, NLS.bind(Messages.Error_invalid_hash, expectedMD5)));
 		try {
-			md5 = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+			messageDigest = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
 		} catch (NoSuchAlgorithmException e) {
 			setStatus(new Status(code, Activator.ID, Messages.Error_MD5_unavailable, e));
 		}
 	}
 
 	@Override
-	public void write(int b) throws IOException {
-		md5.update((byte) b);
-		getDestination().write(b);
-	}
-
-	@Override
-	public void close() throws IOException {
-		byte[] digest = md5.digest();
-		String buf = ChecksumHelper.toHexString(digest);
-
+	protected void onClose(String digestString) {
 		// if the hashes don't line up set the status to error.
-		if (!buf.equals(expectedMD5))
-			setStatus(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_MD5_NOT_MATCH, NLS.bind(Messages.Error_unexpected_hash, expectedMD5, buf), null));
-		super.close();
+		if (!digestString.equals(expectedMD5))
+			setStatus(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_MD5_NOT_MATCH, NLS.bind(Messages.Error_unexpected_hash, expectedMD5, digestString), null));
 	}
 }
