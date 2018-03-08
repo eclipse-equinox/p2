@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.artifact.processors.checksum;
 
 import java.io.IOException;
-import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumHelper;
@@ -31,13 +30,12 @@ public abstract class MessageDigestProcessingStep extends ProcessingStep {
 	public void write(int b) throws IOException {
 		getDestination().write(b);
 
-		// TODO exceptions are expensive
-		try {
-			buffer.put((byte) b);
-		} catch (BufferOverflowException e) {
+		boolean isBufferFull = buffer.remaining() == 0;
+		if (isBufferFull) {
 			processBufferredBytes();
-			buffer.put((byte) b);
 		}
+
+		buffer.put((byte) b);
 	}
 
 	private void processBufferredBytes() {
