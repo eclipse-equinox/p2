@@ -61,7 +61,7 @@ public class XMLWriter implements XMLConstants {
 	private PrintWriter pw;
 
 	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements) {
-		this.pw = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), false);
+		this.pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8)), false);
 		println(ProcessingInstruction.XML_UTF8);
 		this.elements = new Stack<String>();
 		this.open = false;
