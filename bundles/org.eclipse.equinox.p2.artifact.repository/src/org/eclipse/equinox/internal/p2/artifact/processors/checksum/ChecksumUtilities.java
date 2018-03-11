@@ -19,7 +19,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumHelper;
@@ -66,9 +65,6 @@ public class ChecksumUtilities {
 				}
 			}
 		}
-
-		Optional<MD5Verifier> legacyMd5Verifier = getLegacyMd5Verifier(checksums.get(ChecksumHelper.MD5));
-		legacyMd5Verifier.ifPresent(verifier -> steps.add(verifier));
 
 		return steps;
 	}
@@ -136,17 +132,6 @@ public class ChecksumUtilities {
 		putLegacyMd5Property(property, checksums, properties);
 
 		return properties;
-	}
-
-	private static Optional<MD5Verifier> getLegacyMd5Verifier(String md5) {
-		if (md5 != null) {
-			@SuppressWarnings("resource") //It's used later so shouldn't be closed
-			MD5Verifier checksumVerifier = new MD5Verifier(md5);
-			if (checksumVerifier.getStatus().isOK())
-				return Optional.of(checksumVerifier);
-		}
-
-		return Optional.empty();
 	}
 
 	private static void putLegacyMd5Property(String propertyNamespace, Map<String, String> checksums, HashMap<String, String> result) {

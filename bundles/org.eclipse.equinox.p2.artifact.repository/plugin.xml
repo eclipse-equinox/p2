@@ -35,13 +35,15 @@
 
    	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
-			id="org.eclipse.equinox.p2.processing.MD5Verifier">
-		<step class="org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier"/>
-	</extension>
-   	<extension
-			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
 			id="org.eclipse.equinox.p2.processing.ChecksumVerifier">
 		<step class="org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumVerifier"/>
+	</extension>
+	<extension
+			point="org.eclipse.equinox.p2.artifact.repository.artifactChecksums">
+		<artifactChecksum
+			algorithm="MD5"
+			id="md5">
+		</artifactChecksum>
 	</extension>
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.artifactChecksums">

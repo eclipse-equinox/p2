@@ -15,6 +15,8 @@
 *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository.processing;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -202,12 +204,24 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertEquals(ByteShifter.class, steps[0].getClass());
 	}
 
+	@SuppressWarnings("deprecation")
 	public void testCreateMD5VerifierPS() {
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.MD5Verifier", "1", true)};
+		String processorId = "org.eclipse.equinox.p2.processing.MD5Verifier";
+		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor(processorId, "1", true)};
 		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
-		assertEquals(MD5Verifier.class, steps[0].getClass());
+		assertNotEquals(String.format("Step '%s' is not available anymore", processorId), MD5Verifier.class, steps[0].getClass());
+		assertEquals(IStatus.ERROR, steps[0].getStatus().getSeverity());
+	}
+
+	public void testCreateChecksumVerifierPS() {
+		ProcessingStepDescriptor processingStepDescriptor = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ChecksumVerifier", "1", true);
+		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {processingStepDescriptor};
+		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
+		assertNotNull(steps);
+		assertEquals(1, steps.length);
+		assertEquals(IStatus.ERROR, steps[0].getStatus().getSeverity());
 	}
 
 	public void testCreateAdderPS() {

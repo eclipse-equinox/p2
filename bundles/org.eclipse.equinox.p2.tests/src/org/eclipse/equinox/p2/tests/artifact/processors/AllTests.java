@@ -25,6 +25,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Pack200ProcessorTest.class);
 		suite.addTestSuite(ZipVerifierProcessorTest.class);
 		suite.addTest(new JUnit4TestAdapter(ChecksumVerifierTest.class));
+		suite.addTest(new JUnit4TestAdapter(ChecksumUtilitiesTest.class));
 		return suite;
 	}
 

@@ -73,4 +73,16 @@ final public class ChecksumVerifier extends MessageDigestProcessingStep {
 			setStatus(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_MD5_NOT_MATCH, NLS.bind(Messages.Error_unexpected_checksum, new Object[] {algorithmName, expectedChecksum, digestString}), null));
 	}
 
+	public String getExpectedChecksum() {
+		return expectedChecksum;
+	}
+
+	public String getAlgorithmName() {
+		return algorithmName;
+	}
+
+	public String getAlgorithmId() {
+		return algorithmId;
+	}
+
 }
