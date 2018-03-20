@@ -572,7 +572,7 @@ public final class MetadataFactory {
 	 * @since 2.4
 	 */
 	public static IRequirement createRequirement(String namespace, IFilterExpression propsFilter, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy, String description) {
-		return new RequiredPropertiesMatch(namespace, propsFilter, envFilter, minCard, maxCard, greedy, null);
+		return new RequiredPropertiesMatch(namespace, propsFilter, envFilter, minCard, maxCard, greedy, description);
 	}
 
 	/**
