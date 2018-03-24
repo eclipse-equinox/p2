@@ -335,16 +335,15 @@ public class MirrorSelector {
 	}
 
 	/**
-	 * Returns the mirror locations for this repository, or <code>null</code> if
+	 * Initialize @{link #mirrors} for @{link #repository}, or <code>null</code> if
 	 * they could not be computed.
 	 */
-	private MirrorInfo[] initMirrors(IProgressMonitor monitor) {
+	private void initMirrors(IProgressMonitor monitor) {
 		if (mirrors != null)
-			return mirrors;
+			return;
 		String mirrorsURL = repository.getProperties().get(IRepository.PROP_MIRRORS_URL);
 		if (mirrorsURL != null)
 			mirrors = computeMirrors(mirrorsURL, monitor);
-		return mirrors;
 	}
 
 	private MirrorInfoComparator getComparator() {
