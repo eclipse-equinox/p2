@@ -18,18 +18,18 @@ import static java.lang.Math.min;
 import static java.lang.Math.sqrt;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
-import org.eclipse.equinox.internal.p2.repository.Transport;
+import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Mirror support class for repositories. This class implements
@@ -253,12 +253,7 @@ public class MirrorSelector {
 	private MirrorInfo[] computeMirrors(String mirrorsURL, IProgressMonitor monitor) {
 		try {
 			mirrorsURL = enrichWithClientLocation(mirrorsURL);
-			DocumentBuilderFactory domFactory = SecureXMLUtil.newSecureDocumentBuilderFactory();
-			DocumentBuilder builder = domFactory.newDocumentBuilder();
-			// Use Transport to read the mirrors list (to benefit from proxy support, authentication, etc)
-			InputSource input = new InputSource(mirrorsURL);
-			input.setByteStream(transport.stream(URIUtil.fromString(mirrorsURL), monitor));
-			Document document = builder.parse(input);
+			Document document = getMirrorsDocument(mirrorsURL, monitor);
 			if (document == null)
 				return null;
 			NodeList mirrorNodes = document.getElementsByTagName("mirror"); //$NON-NLS-1$
@@ -282,6 +277,15 @@ public class MirrorSelector {
 				log("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
 			return null;
 		}
+	}
+
+	private Document getMirrorsDocument(String mirrorsURL, IProgressMonitor monitor) throws ParserConfigurationException, FileNotFoundException, CoreException, AuthenticationFailedException, URISyntaxException, SAXException, IOException {
+		DocumentBuilderFactory domFactory = SecureXMLUtil.newSecureDocumentBuilderFactory();
+		DocumentBuilder builder = domFactory.newDocumentBuilder();
+		// Use Transport to read the mirrors list (to benefit from proxy support, authentication, etc)
+		InputSource input = new InputSource(mirrorsURL);
+		input.setByteStream(transport.stream(URIUtil.fromString(mirrorsURL), monitor));
+		return builder.parse(input);
 	}
 
 	private String enrichWithClientLocation(String baseURL) {
