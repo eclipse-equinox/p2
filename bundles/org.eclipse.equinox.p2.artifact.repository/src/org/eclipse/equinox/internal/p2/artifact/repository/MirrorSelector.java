@@ -252,27 +252,13 @@ public class MirrorSelector {
 	 */
 	private MirrorInfo[] computeMirrors(String mirrorsURL, IProgressMonitor monitor) {
 		try {
-			String countryCode = Activator.getContext().getProperty("eclipse.p2.countryCode"); //$NON-NLS-1$
-			if (countryCode == null || countryCode.trim().length() == 0)
-				countryCode = Locale.getDefault().getCountry().toLowerCase();
-			String timeZone = Activator.getContext().getProperty("eclipse.p2.timeZone"); //$NON-NLS-1$
-			if (timeZone == null || timeZone.trim().length() == 0)
-				timeZone = Integer.toString(new GregorianCalendar().get(Calendar.ZONE_OFFSET) / (60 * 60 * 1000));
-
-			if (mirrorsURL.indexOf('?') != -1) {
-				mirrorsURL = mirrorsURL + '&';
-			} else {
-				mirrorsURL = mirrorsURL + '?';
-			}
-			mirrorsURL = mirrorsURL + "countryCode=" + countryCode + "&timeZone=" + timeZone + "&format=xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
+			mirrorsURL = enrichWithClientLocation(mirrorsURL);
 			DocumentBuilderFactory domFactory = SecureXMLUtil.newSecureDocumentBuilderFactory();
 			DocumentBuilder builder = domFactory.newDocumentBuilder();
-			Document document = null;
 			// Use Transport to read the mirrors list (to benefit from proxy support, authentication, etc)
 			InputSource input = new InputSource(mirrorsURL);
 			input.setByteStream(transport.stream(URIUtil.fromString(mirrorsURL), monitor));
-			document = builder.parse(input);
+			Document document = builder.parse(input);
 			if (document == null)
 				return null;
 			NodeList mirrorNodes = document.getElementsByTagName("mirror"); //$NON-NLS-1$
@@ -296,6 +282,22 @@ public class MirrorSelector {
 				log("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
 			return null;
 		}
+	}
+
+	private String enrichWithClientLocation(String baseURL) {
+		String countryCode = Activator.getContext().getProperty("eclipse.p2.countryCode"); //$NON-NLS-1$
+		if (countryCode == null || countryCode.trim().length() == 0)
+			countryCode = Locale.getDefault().getCountry().toLowerCase();
+		String timeZone = Activator.getContext().getProperty("eclipse.p2.timeZone"); //$NON-NLS-1$
+		if (timeZone == null || timeZone.trim().length() == 0)
+			timeZone = Integer.toString(new GregorianCalendar().get(Calendar.ZONE_OFFSET) / (60 * 60 * 1000));
+
+		if (baseURL.indexOf('?') != -1) {
+			baseURL = baseURL + '&';
+		} else {
+			baseURL = baseURL + '?';
+		}
+		return baseURL + "countryCode=" + countryCode + "&timeZone=" + timeZone + "&format=xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	/**
