@@ -256,17 +256,7 @@ public class MirrorSelector {
 			Document document = getMirrorsDocument(mirrorsURL, monitor);
 			if (document == null)
 				return null;
-			NodeList mirrorNodes = document.getElementsByTagName("mirror"); //$NON-NLS-1$
-			int mirrorCount = mirrorNodes.getLength();
-			MirrorInfo[] infos = new MirrorInfo[mirrorCount + 1];
-			for (int i = 0; i < mirrorCount; i++) {
-				Element mirrorNode = (Element) mirrorNodes.item(i);
-				String infoURL = mirrorNode.getAttribute("url"); //$NON-NLS-1$
-				infos[i] = new MirrorInfo(infoURL, i);
-			}
-			//p2: add the base site as the last resort mirror so we can track download speed and failure rate
-			infos[mirrorCount] = new MirrorInfo(baseURI.toString(), mirrorCount);
-			return infos;
+			return buildMirrorInfos(document);
 		} catch (Exception e) {
 			// log if absolute url
 			if (mirrorsURL != null && (mirrorsURL.startsWith("http://") //$NON-NLS-1$
@@ -277,6 +267,20 @@ public class MirrorSelector {
 				log("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
 			return null;
 		}
+	}
+
+	private MirrorInfo[] buildMirrorInfos(Document document) {
+		NodeList mirrorNodes = document.getElementsByTagName("mirror"); //$NON-NLS-1$
+		int mirrorCount = mirrorNodes.getLength();
+		MirrorInfo[] infos = new MirrorInfo[mirrorCount + 1];
+		for (int i = 0; i < mirrorCount; i++) {
+			Element mirrorNode = (Element) mirrorNodes.item(i);
+			String infoURL = mirrorNode.getAttribute("url"); //$NON-NLS-1$
+			infos[i] = new MirrorInfo(infoURL, i);
+		}
+		//p2: add the base site as the last resort mirror so we can track download speed and failure rate
+		infos[mirrorCount] = new MirrorInfo(baseURI.toString(), mirrorCount);
+		return infos;
 	}
 
 	private Document getMirrorsDocument(String mirrorsURL, IProgressMonitor monitor) throws ParserConfigurationException, FileNotFoundException, CoreException, AuthenticationFailedException, URISyntaxException, SAXException, IOException {
