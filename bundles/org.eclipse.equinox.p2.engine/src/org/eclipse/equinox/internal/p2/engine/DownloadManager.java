@@ -89,20 +89,31 @@ public class DownloadManager {
 			if (provContext == null)
 				provContext = new ProvisioningContext(agent);
 
-			IQueryable<IArtifactRepository> repoQueryable = provContext.getArtifactRepositories(subMonitor.newChild(250));
-			IQuery<IArtifactRepository> all = new ExpressionMatchQuery<>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
-			IArtifactRepository[] repositories = repoQueryable.query(all, subMonitor.newChild(250)).toArray(IArtifactRepository.class);
+			IArtifactRepository[] repositories = getArtifactRepositories(subMonitor);
 			if (repositories.length == 0)
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
-			// Although we get a sorted list back from the ProvisioningContext above, it 
-			// gets unsorted when we convert the queryable into an array so we must re-sort it.
-			// See https://bugs.eclipse.org/335153.
-			Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
 			fetch(repositories, subMonitor.newChild(500));
 			return overallStatus(monitor);
 		} finally {
 			subMonitor.done();
 		}
+	}
+
+	/**
+	 * @return artifact repositories sorted according to LOCAL_FIRST_COMPARATOR
+	 */
+	private IArtifactRepository[] getArtifactRepositories(SubMonitor subMonitor) {
+		IQuery<IArtifactRepository> queryArtifactRepositories = new ExpressionMatchQuery<>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
+		IQueryable<IArtifactRepository> artifactRepositories = provContext.getArtifactRepositories(subMonitor.newChild(250));
+		IQueryResult<IArtifactRepository> queryResult = artifactRepositories.query(queryArtifactRepositories, subMonitor.newChild(250));
+		IArtifactRepository[] repositories = queryResult.toArray(IArtifactRepository.class);
+
+		// Although we get a sorted list back from the ProvisioningContext above, it
+		// gets unsorted when we convert the queryable into an array so we must re-sort it.
+		// See https://bugs.eclipse.org/335153.
+		Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
+
+		return repositories;
 	}
 
 	private void fetch(IArtifactRepository[] repositories, IProgressMonitor mon) {
