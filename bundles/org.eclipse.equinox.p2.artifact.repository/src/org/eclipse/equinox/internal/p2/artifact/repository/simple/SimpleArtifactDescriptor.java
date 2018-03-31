@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,8 +36,13 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	}
 
 	public void setRepositoryProperty(String key, String value) {
-		if (value == null && repositoryProperties != null) {
-			repositoryProperties.remove(key);
+		if (value == null) {
+			if (repositoryProperties != null) {
+				repositoryProperties.remove(key);
+				if (repositoryProperties.isEmpty()) {
+					repositoryProperties = null;
+				}
+			}
 		} else {
 			if (repositoryProperties == null) {
 				// first value => store in singletonMap (most repositoryProperties have at most 1 entry)
