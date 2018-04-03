@@ -130,13 +130,13 @@ public class InstallWizardTest extends WizardTest {
 		}
 	}
 
-	public void testInstallWizardWithoutLicenceBypass() throws Exception {
+	public void testInstallWizardWithoutLicenseBypass() throws Exception {
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(toInstall);
 		InstallOperation op = new MyNewInstallOperation(getSession(), iusInvolved);
 		op.setProfileId(TESTPROFILE);
 		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, iusInvolved, null);
-		wizard.setBypassLicencePage(false);
+		wizard.setBypassLicensePage(false);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -149,7 +149,7 @@ public class InstallWizardTest extends WizardTest {
 			// simulate the next button by getting next page and showing
 			InstallWizardPage installWizardPage = (InstallWizardPage) selectableIUsPage.getNextPage();
 
-			assertFalse("Licence page bypass flag must be false", wizard.isBypassLicencePage());
+			assertFalse("License page bypass flag must be false", wizard.isBypassLicensePage());
 			IWizardPage licensePage = installWizardPage.getNextPage();
 			assertTrue("Expected instance of AcceptLicensesWizardPage", licensePage instanceof AcceptLicensesWizardPage);
 
@@ -160,13 +160,13 @@ public class InstallWizardTest extends WizardTest {
 		}
 	}
 
-	public void testInstallWizardWithLicenceBypass() throws Exception {
+	public void testInstallWizardWithLicenseBypass() throws Exception {
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(toInstall);
 		InstallOperation op = new MyNewInstallOperation(getSession(), iusInvolved);
 		op.setProfileId(TESTPROFILE);
 		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, iusInvolved, null);
-		wizard.setBypassLicencePage(true);
+		wizard.setBypassLicensePage(true);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -179,7 +179,7 @@ public class InstallWizardTest extends WizardTest {
 			// simulate the next button by getting next page and showing
 			InstallWizardPage installWizardPage = (InstallWizardPage) selectableIUsPage.getNextPage();
 
-			assertTrue("Licence page bypass flag must be true", wizard.isBypassLicencePage());
+			assertTrue("License page bypass flag must be true", wizard.isBypassLicensePage());
 			IWizardPage licensePage = installWizardPage.getNextPage();
 			assertNull("Expected instance of AcceptLicensesWizardPage must be null", licensePage);
 

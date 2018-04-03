@@ -17,7 +17,7 @@ import java.util.WeakHashMap;
 import org.eclipse.equinox.internal.p2.metadata.*;
 
 /**
- * A class that represents a Version in the Omni Version format. A Version can be though of as an
+ * A class that represents a Version in the Omni Version format. A Version can be thought of as an
  * array of comparable elements and an optional pad value. The pad value is used when comparing
  * two versions with a different number of segments.
  *

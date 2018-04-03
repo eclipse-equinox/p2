@@ -31,26 +31,26 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 	private static final String BYPASS_LICENSE_PAGE = "bypassLicensePage"; //$NON-NLS-1$
 
 	AcceptLicensesWizardPage licensePage;
-	boolean bypassLicencePage;
+	boolean bypassLicensePage;
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.wizard.Wizard#addPages()
 	 */
 
-	public boolean isBypassLicencePage() {
-		return bypassLicencePage;
+	public boolean isBypassLicensePage() {
+		return bypassLicensePage;
 	}
 
-	public void setBypassLicencePage(boolean bypassLicencePage) {
-		this.bypassLicencePage = bypassLicencePage;
+	public void setBypassLicensePage(boolean bypassLicensePage) {
+		this.bypassLicensePage = bypassLicensePage;
 	}
 
 	@Override
 	public void addPages() {
 		super.addPages();
 
-		if (!bypassLicencePage) {
+		if (!bypassLicensePage) {
 			licensePage = createLicensesPage();
 			addPage(licensePage);
 		}
@@ -58,7 +58,7 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 
 	public WizardWithLicenses(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob job) {
 		super(ui, operation, initialSelections, job);
-		this.bypassLicencePage = canBypassLicencePage();
+		this.bypassLicensePage = canBypassLicensePage();
 	}
 
 	protected AcceptLicensesWizardPage createLicensesPage() {
@@ -79,7 +79,7 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 		// ensure there are actually licenses that need acceptance.
 		IWizardPage proposedPage = super.getNextPage(page);
 
-		if (!bypassLicencePage) {
+		if (!bypassLicensePage) {
 			if (proposedPage == licensePage && licensePage != null) {
 				if (!licensePage.hasLicensesToAccept()) {
 					proposedPage = null;
@@ -95,7 +95,7 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 	@Override
 	protected void planChanged() {
 		super.planChanged();
-		if (!bypassLicencePage) {
+		if (!bypassLicensePage) {
 			licensePage.update(ElementUtils.elementsToIUs(planSelections).toArray(new IInstallableUnit[0]), operation);
 		}
 	}
@@ -107,14 +107,14 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 	@Override
 	public boolean performFinish() {
 
-		if (!bypassLicencePage) {
+		if (!bypassLicensePage) {
 			licensePage.performFinish();
 		}
 
 		return super.performFinish();
 	}
 
-	public static boolean canBypassLicencePage() {
+	public static boolean canBypassLicensePage() {
 		IScopeContext[] contexts = new IScopeContext[] {InstanceScope.INSTANCE, DefaultScope.INSTANCE, BundleDefaultsScope.INSTANCE, ConfigurationScope.INSTANCE};
 		boolean bypass = Platform.getPreferencesService().getBoolean(ProvUIActivator.PLUGIN_ID, BYPASS_LICENSE_PAGE, false, contexts);
 		return bypass;
