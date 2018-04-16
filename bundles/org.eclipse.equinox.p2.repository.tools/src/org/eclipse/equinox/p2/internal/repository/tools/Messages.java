@@ -63,6 +63,7 @@ public class Messages extends NLS {
 	public static String Mirroring_differentDescriptorProperty;
 
 	public static String invalidComparatorId;
+
 	public static String info_noMD5Infomation;
 	public static String info_noMD5InRepository;
 	public static String warning_differentMD5;
