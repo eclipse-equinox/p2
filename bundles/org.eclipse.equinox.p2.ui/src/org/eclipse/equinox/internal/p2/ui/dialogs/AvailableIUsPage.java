@@ -30,7 +30,6 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.IContentProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -603,7 +602,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 	void updateDetails() {
 		// First look for an empty explanation.
-		Object[] elements = ((IStructuredSelection) availableIUGroup.getStructuredViewer().getSelection()).toArray();
+		Object[] elements = availableIUGroup.getStructuredViewer().getStructuredSelection().toArray();
 		if (elements.length == 1 && elements[0] instanceof EmptyElementExplanation) {
 			String description = ((EmptyElementExplanation) elements[0]).getDescription();
 			if (description != null) {

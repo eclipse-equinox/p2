@@ -291,7 +291,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	// overridden to weed out non-IU elements, such as repositories or empty explanations
 	@Override
 	public Object[] getSelectedIUElements() {
-		Object[] elements = ((IStructuredSelection) viewer.getSelection()).toArray();
+		Object[] elements = viewer.getStructuredSelection().toArray();
 		ArrayList<Object> list = new ArrayList<>(elements.length);
 		for (int i = 0; i < elements.length; i++)
 			if (ElementUtils.getIU(elements[i]) != null)

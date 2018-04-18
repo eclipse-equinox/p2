@@ -227,7 +227,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	@Override
 	protected Object[] getSelectedElements() {
-		return ((IStructuredSelection) treeViewer.getSelection()).toArray();
+		return treeViewer.getStructuredSelection().toArray();
 	}
 
 	@Override

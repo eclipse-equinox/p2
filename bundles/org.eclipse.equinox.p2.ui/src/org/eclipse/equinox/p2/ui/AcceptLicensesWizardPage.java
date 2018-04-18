@@ -217,7 +217,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		iuViewer.setComparator(new ViewerComparator());
 		iuViewer.setInput(licensesToIUs);
 
-		iuViewer.addSelectionChangedListener(event -> handleSelectionChanged((IStructuredSelection) event.getSelection()));
+		iuViewer.addSelectionChangedListener(event -> handleSelectionChanged(event.getStructuredSelection()));
 		gd = new GridData(GridData.FILL_BOTH);
 		gd.widthHint = convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH);
 		gd.heightHint = convertHeightInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_HEIGHT);

@@ -207,7 +207,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		});
 		configsViewer.setInput(getInput());
 
-		configsViewer.addSelectionChangedListener(event -> handleSelectionChanged((IStructuredSelection) event.getSelection()));
+		configsViewer.addSelectionChangedListener(event -> handleSelectionChanged(event.getStructuredSelection()));
 		CopyUtils.activateCopy(this, configsViewer.getControl());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		configsViewer.getControl().setLayoutData(gd);
@@ -333,7 +333,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	boolean computeDeleteEnablement() {
 		// delete is permitted if none of the selected elements are the current profile
 		boolean okToDelete = true;
-		Iterator<?> iter = ((IStructuredSelection) configsViewer.getSelection()).iterator();
+		Iterator<?> iter = configsViewer.getStructuredSelection().iterator();
 		while (iter.hasNext()) {
 			Object selected = iter.next();
 			// If it's not a recognized element or if it is the current profile, we can't delete.  Stop iterating.
@@ -358,7 +358,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	}
 
 	private IProfile getSelectedSnapshot() {
-		Object selected = ((IStructuredSelection) configsViewer.getSelection()).getFirstElement();
+		Object selected = configsViewer.getStructuredSelection().getFirstElement();
 		if (selected != null && selected instanceof RollbackProfileElement)
 			return ((RollbackProfileElement) selected).getProfileSnapshot(new NullProgressMonitor());
 		return null;
@@ -412,9 +412,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	public void copyToClipboard(Control activeControl) {
 		String text = ""; //$NON-NLS-1$
 		if (activeControl == configContentsViewer.getControl()) {
-			text = CopyUtils.getIndentedClipboardText(((IStructuredSelection) configContentsViewer.getSelection()).toArray(), labelProvider);
+			text = CopyUtils.getIndentedClipboardText(configContentsViewer.getStructuredSelection().toArray(), labelProvider);
 		} else if (activeControl == configsViewer.getControl()) {
-			Object[] elements = ((IStructuredSelection) configsViewer.getSelection()).toArray();
+			Object[] elements = configsViewer.getStructuredSelection().toArray();
 			StringBuffer buffer = new StringBuffer();
 			for (int i = 0; i < elements.length; i++) {
 				if (elements[i] instanceof RollbackProfileElement) {
@@ -434,7 +434,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	}
 
 	void deleteSelectedSnapshots() {
-		IStructuredSelection selection = (IStructuredSelection) configsViewer.getSelection();
+		IStructuredSelection selection = configsViewer.getStructuredSelection();
 		if (selection.isEmpty())
 			return;
 		String title = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_DeleteSingleConfigurationTitle : ProvUIMessages.RevertProfilePage_DeleteMultipleConfigurationsTitle;
@@ -472,7 +472,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	}
 
 	protected IStructuredSelection getSelection() {
-		return (IStructuredSelection) configsViewer.getSelection();
+		return configsViewer.getStructuredSelection();
 	}
 
 	/**

@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -215,12 +214,12 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 	@Override
 	public Object[] getSelectedIUElements() {
-		return ((IStructuredSelection) tableViewer.getSelection()).toArray();
+		return tableViewer.getStructuredSelection().toArray();
 	}
 
 	@Override
 	protected Object[] getSelectedElements() {
-		return ((IStructuredSelection) tableViewer.getSelection()).toArray();
+		return tableViewer.getStructuredSelection().toArray();
 	}
 
 	protected IInstallableUnit[] elementsToIUs(Object[] elements) {
