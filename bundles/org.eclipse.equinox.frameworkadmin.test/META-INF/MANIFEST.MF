@@ -1,8 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Test Plug-in for Framework Admin
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin.test
 Bundle-Version: 1.2.0.qualifier
+Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.frameworkadmin.equinox;bundle-version="1.0.100",
