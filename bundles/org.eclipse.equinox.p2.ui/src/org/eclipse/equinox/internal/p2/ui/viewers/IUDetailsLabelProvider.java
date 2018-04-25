@@ -54,8 +54,8 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			this.columnConfig = ProvUI.getIUColumnConfig();
 		else
 			this.columnConfig = columnConfig;
-		for (int i = 0; i < this.columnConfig.length; i++)
-			if (this.columnConfig[i].getColumnType() == IUColumnConfig.COLUMN_ID) {
+		for (IUColumnConfig config : this.columnConfig)
+			if (config.getColumnType() == IUColumnConfig.COLUMN_ID) {
 				showingId = true;
 				break;
 			}

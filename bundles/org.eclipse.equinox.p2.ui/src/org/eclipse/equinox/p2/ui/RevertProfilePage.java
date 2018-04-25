@@ -415,7 +415,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			text = CopyUtils.getIndentedClipboardText(configContentsViewer.getStructuredSelection().toArray(), labelProvider);
 		} else if (activeControl == configsViewer.getControl()) {
 			Object[] elements = configsViewer.getStructuredSelection().toArray();
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			for (int i = 0; i < elements.length; i++) {
 				if (elements[i] instanceof RollbackProfileElement) {
 					if (i > 0)
@@ -426,7 +426,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			text = buffer.toString();
 		} else
 			return;
-		if (text.length() == 0)
+		if (text.isEmpty())
 			return;
 		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
 		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});

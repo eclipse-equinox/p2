@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -445,9 +445,9 @@ public class ProvisioningUI {
 			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
 			// This will keep the name in the manager even when the repo is not loaded
 			String name = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
-			if (name == null || name.length() == 0) {
+			if (name == null || name.isEmpty()) {
 				name = repo.getName();
-				if (name != null && name.length() > 0)
+				if (name != null && !name.isEmpty())
 					manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 			}
 		} catch (ProvisionException e) {

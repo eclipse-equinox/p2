@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,17 +82,11 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getErrorReportingPage()
-	 */
 	@Override
 	protected IResolutionErrorReportingPage createErrorReportingPage() {
 		return (IResolutionErrorReportingPage) mainPage;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getProfileChangeOperation(java.lang.Object[])
-	 */
 	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		InstallOperation op = new InstallOperation(ui.getSession(), ElementUtils.elementsToIUs(elements));

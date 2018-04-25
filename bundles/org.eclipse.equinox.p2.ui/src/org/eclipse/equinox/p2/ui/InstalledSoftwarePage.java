@@ -204,12 +204,12 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		if (updateButton == null || updateButton.isDisposed())
 			return;
 		Button[] buttons = {updateButton, uninstallButton, propertiesButton};
-		for (int i = 0; i < buttons.length; i++) {
-			Action action = (Action) buttons[i].getData(BUTTON_ACTION);
+		for (Button button : buttons) {
+			Action action = (Action) button.getData(BUTTON_ACTION);
 			if (action == null || !action.isEnabled())
-				buttons[i].setEnabled(false);
+				button.setEnabled(false);
 			else
-				buttons[i].setEnabled(true);
+				button.setEnabled(true);
 		}
 	}
 
@@ -220,8 +220,8 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	private int getDefaultWidth(Control control) {
 		IUColumnConfig[] columns = getColumnConfig();
 		int totalWidth = 0;
-		for (int i = 0; i < columns.length; i++) {
-			totalWidth += columns[i].getWidthInPixels(control);
+		for (IUColumnConfig column : columns) {
+			totalWidth += column.getWidthInPixels(control);
 		}
 		return totalWidth + 20; // buffer for surrounding composites
 	}

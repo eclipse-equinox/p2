@@ -639,9 +639,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		MetadataRepositoryElement[] selected = getSelectedElements();
 		if (selected.length >= 1) {
 			boolean enableSites = !toggleMeansDisable(selected);
-			for (int i = 0; i < selected.length; i++) {
-				selected[i].setEnabled(enableSites);
-				getInput().put(selected[i]);
+			for (MetadataRepositoryElement select : selected) {
+				select.setEnabled(enableSites);
+				getInput().put(select);
 			}
 			updateForEnablementChange(selected);
 		}
@@ -652,8 +652,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_ENABLEMENT)
 			repositoryViewer.refresh(true);
 		else
-			for (int i = 0; i < updated.length; i++)
-				repositoryViewer.update(updated[i], null);
+			for (MetadataRepositoryElement element : updated)
+				repositoryViewer.update(element, null);
 		changed = true;
 	}
 
@@ -662,8 +662,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			MetadataRepositoryElement[] imported = UpdateManagerCompatibility.importSites(getShell());
 			if (imported.length > 0) {
 				changed = true;
-				for (int i = 0; i < imported.length; i++)
-					getInput().put(imported[i]);
+				for (MetadataRepositoryElement element : imported)
+					getInput().put(element);
 				safeRefresh(null);
 			}
 		});
@@ -821,8 +821,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			if (MessageDialog.openQuestion(getShell(), ProvUIMessages.RepositoryManipulationPage_RemoveConfirmTitle, message)) {
 
 				changed = true;
-				for (int i = 0; i < selections.length; i++) {
-					getInput().remove(selections[i]);
+				for (MetadataRepositoryElement selection : selections) {
+					getInput().remove(selection);
 				}
 				safeRefresh(null);
 			}
@@ -909,9 +909,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	// Otherwise it means enable.
 	private boolean toggleMeansDisable(MetadataRepositoryElement[] elements) {
 		double count = 0;
-		for (int i = 0; i < elements.length; i++)
-			if (elements[i].isEnabled())
+		for (MetadataRepositoryElement element : elements) {
+			if (element.isEnabled()) {
 				count++;
+			}
+		}
 		return (count / elements.length) > 0.5;
 	}
 
