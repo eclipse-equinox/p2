@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -23,8 +23,7 @@ import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.framework.BundleContext;
 
 /**
  * Controls the lifecycle of the provisioning UI bundle
@@ -33,8 +32,6 @@ import org.osgi.service.packageadmin.PackageAdmin;
  */
 public class ProvUIActivator extends AbstractUIPlugin {
 	private static BundleContext context;
-	private static PackageAdmin packageAdmin = null;
-	private static ServiceReference<PackageAdmin> packageAdminRef = null;
 	private static ProvUIActivator plugin;
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
 
@@ -54,38 +51,16 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	public static Bundle getBundle(String symbolicName) {
-		if (packageAdmin == null)
-			return null;
-		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
-		if (bundles == null)
-			return null;
-		// Return the first bundle that is not installed or uninstalled
-		for (int i = 0; i < bundles.length; i++) {
-			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
-				return bundles[i];
-			}
-		}
-		return null;
-	}
-
 	public ProvUIActivator() {
 		// do nothing
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 
 		plugin = this;
 		ProvUIActivator.context = bundleContext;
-		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class);
-		packageAdmin = bundleContext.getService(packageAdminRef);
 	}
 
 	@Override
