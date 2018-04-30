@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,14 +13,22 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -69,11 +77,11 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		boolean jarFilePresent = false;
 		boolean xmlFilePresent = false;
 		// one of the files in the repository should be the content.xml.jar
-		for (int i = 0; i < files.length; i++) {
-			if ("content.jar".equalsIgnoreCase(files[i].getName())) {
+		for (File file : files) {
+			if ("content.jar".equalsIgnoreCase(file.getName())) {
 				jarFilePresent = true;
 			}
-			if ("content.xml".equalsIgnoreCase(files[i].getName())) {
+			if ("content.xml".equalsIgnoreCase(file.getName())) {
 				xmlFilePresent = true;
 			}
 		}
@@ -165,8 +173,8 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		File[] files = repoLocation.listFiles();
 		boolean jarFilePresent = false;
 		// none of the files in the repository should be the content.xml.jar
-		for (int i = 0; i < files.length; i++) {
-			if ("content.jar".equalsIgnoreCase(files[i].getName())) {
+		for (File file : files) {
+			if ("content.jar".equalsIgnoreCase(file.getName())) {
 				jarFilePresent = true;
 			}
 		}

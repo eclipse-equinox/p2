@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,20 +10,42 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.IRequirementChange;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
-import org.xml.sax.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 
@@ -82,8 +104,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 
 	private static Map<String, String> createProperties(String[][] keyValuePairs) {
 		OrderedProperties props = new OrderedProperties(keyValuePairs.length);
-		for (int i = 0; i < keyValuePairs.length; i++) {
-			String[] nextPair = keyValuePairs[i];
+		for (String[] nextPair : keyValuePairs) {
 			props.put(nextPair[0], nextPair[1]);
 		}
 		return props;
@@ -110,8 +131,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 
 	private static ITouchpointData createTouchpointData(String[][] instructionData) {
 		Map<String, Object> map = new LinkedHashMap<>(instructionData.length);
-		for (int i = 0; i < instructionData.length; i++) {
-			String[] nextInstruction = instructionData[i];
+		for (String[] nextInstruction : instructionData) {
 			map.put(nextInstruction[0], nextInstruction[1]);
 		}
 		return MetadataFactory.createTouchpointData(map);
@@ -329,10 +349,8 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		Set<String> keys = props.keySet();
 		String[][] pairs = new String[keys.size()][2];
 		int index = 0;
-		for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
-			String nextKey = iter.next();
-			String nextValue = props.get(nextKey);
-			pairs[index] = new String[] {nextKey, nextValue};
+		for (Entry<String, String> entry : props.entrySet()) {
+			pairs[index] = new String[] {entry.getKey(), entry.getValue()};
 			index++;
 		}
 		return pairs;
@@ -362,8 +380,8 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		Collection<IRequirement> reqs = iu.getRequirements();
 		String[][] tuples = new String[reqs.size()][4];
 		int i = 0;
-		for (Iterator<IRequirement> iterator = reqs.iterator(); iterator.hasNext();) {
-			IRequiredCapability next = (IRequiredCapability) iterator.next();
+		for (IRequirement iRequirement : reqs) {
+			IRequiredCapability next = (IRequiredCapability) iRequirement;
 			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;
@@ -373,8 +391,8 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		Collection<IRequirement> requyres = iu.getMetaRequirements();
 		String[][] tuples = new String[requyres.size()][4];
 		int i = 0;
-		for (Iterator<IRequirement> iterator = requyres.iterator(); iterator.hasNext();) {
-			IRequiredCapability next = (IRequiredCapability) iterator.next();
+		for (IRequirement iRequirement : requyres) {
+			IRequiredCapability next = (IRequiredCapability) iRequirement;
 			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;

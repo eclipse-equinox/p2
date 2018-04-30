@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class FragmentMethodTest extends TestCase {
@@ -38,8 +44,7 @@ public class FragmentMethodTest extends TestCase {
 		hash.add(iu1);
 		hash.add(iu3);
 		//		Collection result = new ResolutionHelper(new Hashtable(), null).attachCUs(hash);
-		for (Iterator<IInstallableUnit> iterator = hash.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : hash) {
 			if (iu.getId().equals(iu1.getId()))
 				iu1 = iu;
 			if (iu.getId().equals(iu3.getId()))

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,8 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.FileLocator;
@@ -126,8 +135,7 @@ public class TestData {
 	public static void assertEquals(ZipInputStream expected, ZipInputStream actual) throws IOException {
 		Map<String, Object[]> jar1 = getEntries(expected);
 		Map<String, Object[]> jar2 = getEntries(actual);
-		for (Iterator<String> i = jar1.keySet().iterator(); i.hasNext();) {
-			String name = i.next();
+		for (String name : jar1.keySet()) {
 			Object[] file1 = jar1.get(name);
 			Object[] file2 = jar2.remove(name);
 			Assert.assertNotNull(file2);
@@ -163,8 +171,7 @@ public class TestData {
 	public static void assertContains(Map<String, Object[]> fileMap, ZipInputStream input2, boolean compareContent) throws IOException {
 		Map<String, Object[]> jar2 = getEntries(input2);
 
-		for (Iterator<String> i = fileMap.keySet().iterator(); i.hasNext();) {
-			String name = i.next();
+		for (String name : fileMap.keySet()) {
 			Object[] file1 = fileMap.get(name);
 			Object[] file2 = jar2.remove(name);
 			Assert.assertNotNull(file2);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010, 2017 IBM Corporation and others.
+ *  Copyright (c) 2010, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -203,21 +203,21 @@ public class FilterTest {
 
 	private static class SampleComparable implements Comparable<SampleComparable> {
 		private int value = -1;
-	
+
 		public SampleComparable(String value) {
 			this.value = Integer.parseInt(value);
 		}
-	
+
 		@Override
 		public boolean equals(Object o) {
 			return o instanceof SampleComparable && value == ((SampleComparable) o).value;
 		}
-	
+
 		@Override
 		public int compareTo(SampleComparable o) {
 			return value - o.value;
 		}
-	
+
 		@Override
 		public String toString() {
 			return String.valueOf(value);
@@ -226,9 +226,9 @@ public class FilterTest {
 
 	private static class DictionaryServiceReference implements ServiceReference {
 		private final Map<String, ? extends Object> dictionary;
-	
+
 		private final String[] keys;
-	
+
 		DictionaryServiceReference(Map<String, ? extends Object> dictionary) {
 			if (dictionary == null) {
 				this.dictionary = null;
@@ -248,43 +248,42 @@ public class FilterTest {
 			}
 			this.keys = keyList.toArray(new String[keyList.size()]);
 		}
-	
+
 		@Override
 		public int compareTo(Object reference) {
 			throw new UnsupportedOperationException();
 		}
-	
+
 		@Override
 		public Bundle getBundle() {
 			return null;
 		}
-	
+
 		@Override
 		public Object getProperty(String k) {
-			for (int i = 0, length = keys.length; i < length; i++) {
-				String key = keys[i];
+			for (String key : keys) {
 				if (key.equalsIgnoreCase(k)) {
 					return dictionary.get(key);
 				}
 			}
 			return null;
 		}
-	
+
 		@Override
 		public String[] getPropertyKeys() {
 			return keys.clone();
 		}
-	
+
 		@Override
 		public Bundle[] getUsingBundles() {
 			throw new UnsupportedOperationException();
 		}
-	
+
 		@Override
 		public boolean isAssignableTo(Bundle bundle, String className) {
 			throw new UnsupportedOperationException();
 		}
-	
+
 		@Override
 		public Dictionary<String, Object> getProperties() {
 			return new Hashtable<>(dictionary);
