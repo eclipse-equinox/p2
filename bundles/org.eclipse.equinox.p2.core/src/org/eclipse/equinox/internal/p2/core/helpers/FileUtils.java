@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -20,9 +20,8 @@ import org.eclipse.osgi.util.NLS;
 public class FileUtils {
 
 	private static File[] untarFile(File source, File outputDir) throws IOException, TarException {
-		TarFile tarFile = new TarFile(source);
 		List<File> untarredFiles = new ArrayList<>();
-		try {
+		try (TarFile tarFile = new TarFile(source)) {
 			for (Enumeration<TarEntry> e = tarFile.entries(); e.hasMoreElements();) {
 				TarEntry entry = e.nextElement();
 				try (InputStream input = tarFile.getInputStream(entry)) {
@@ -46,8 +45,6 @@ public class FileUtils {
 					}
 				}
 			}
-		} finally {
-			tarFile.close();
 		}
 		return untarredFiles.toArray(new File[untarredFiles.size()]);
 	}

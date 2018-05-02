@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import java.util.zip.GZIPInputStream;
 /**
  * Copied from org.eclipse.ui.internal.wizards.datatransfer.TarFile.
  */
-public class TarFile {
+public class TarFile implements Closeable {
 	private File file;
 	private TarInputStream entryEnumerationStream;
 	private TarEntry curEntry;
@@ -59,6 +59,7 @@ public class TarFile {
 	 * 
 	 * @throws IOException if the file cannot be successfully closed
 	 */
+	@Override
 	public void close() throws IOException {
 		entryEnumerationStream.close();
 		if (internalEntryStream != null)
