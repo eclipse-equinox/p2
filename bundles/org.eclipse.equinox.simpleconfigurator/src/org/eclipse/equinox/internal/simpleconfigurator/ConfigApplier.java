@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2018 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -70,12 +70,12 @@ class ConfigApplier {
 		String systemBundleSymbolicName = manipulatingContext.getBundle(0).getSymbolicName();
 		Version systemBundleVersion = manipulatingContext.getBundle(0).getVersion();
 		if (systemBundleSymbolicName != null) {
-			for (int i = 0; i < expectedState.length; i++) {
-				String symbolicName = expectedState[i].getSymbolicName();
+			for (BundleInfo element : expectedState) {
+				String symbolicName = element.getSymbolicName();
 				if (!systemBundleSymbolicName.equals(symbolicName))
 					continue;
 
-				Version version = Version.parseVersion(expectedState[i].getVersion());
+				Version version = Version.parseVersion(element.getVersion());
 				if (!systemBundleVersion.equals(version))
 					throw new IllegalStateException("The System Bundle was updated. The framework must be restarted to finalize the configuration change");
 			}
@@ -116,16 +116,15 @@ class ConfigApplier {
 		// Use standard OSGi API.
 		final Set<Bundle> additionalRefresh = new HashSet<>();
 		final Set<Bundle> originalRefresh = new HashSet<>(toRefresh);
-		for (Iterator<Bundle> iToRefresh = toRefresh.iterator(); iToRefresh.hasNext();) {
-			Bundle bundle = iToRefresh.next();
+		for (Bundle bundle : toRefresh) {
 			BundleRevision revision = bundle.adapt(BundleRevision.class);
 			if (bundle.getState() == Bundle.INSTALLED && revision != null && (revision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
 				// this is an unresolved fragment; look to see if it has additional payload requirements
 				boolean foundPayLoadReq = false;
 				BundleRequirement hostReq = null;
 				Collection<Requirement> requirements = revision.getRequirements(null);
-				for (Iterator<Requirement> iReqs = requirements.iterator(); iReqs.hasNext();) {
-					BundleRequirement req = (BundleRequirement) iReqs.next();
+				for (Requirement requirement : requirements) {
+					BundleRequirement req = (BundleRequirement) requirement;
 					if (HostNamespace.HOST_NAMESPACE.equals(req.getNamespace())) {
 						hostReq = req;
 					}
@@ -136,8 +135,7 @@ class ConfigApplier {
 				}
 				if (foundPayLoadReq) {
 					Collection<BundleCapability> candidates = frameworkWiring.findProviders(hostReq);
-					for (Iterator<BundleCapability> iCandidates = candidates.iterator(); iCandidates.hasNext();) {
-						BundleCapability candidate = iCandidates.next();
+					for (BundleCapability candidate : candidates) {
 						if (!originalRefresh.contains(candidate.getRevision().getBundle())) {
 							additionalRefresh.add(candidate.getRevision().getBundle());
 						}
@@ -146,15 +144,13 @@ class ConfigApplier {
 			}
 		}
 
-		for (Iterator<Bundle> iPreviouslyResolved = previouslyResolved.iterator(); iPreviouslyResolved.hasNext();) {
-			Bundle bundle = iPreviouslyResolved.next();
+		for (Bundle bundle : previouslyResolved) {
 			BundleRevision revision = bundle.adapt(BundleRevision.class);
 			BundleWiring wiring = revision == null ? null : revision.getWiring();
 			if (wiring != null) {
 				Collection<BundleRequirement> reqs = revision.getDeclaredRequirements(null);
 				Set<BundleRequirement> optionalReqs = new HashSet<>();
-				for (Iterator<BundleRequirement> iReqs = reqs.iterator(); iReqs.hasNext();) {
-					BundleRequirement req = iReqs.next();
+				for (BundleRequirement req : reqs) {
 					String namespace = req.getNamespace();
 					// only do this for package and bundle namespaces
 					if (PackageNamespace.PACKAGE_NAMESPACE.equals(namespace) || BundleNamespace.BUNDLE_NAMESPACE.equals(namespace)) {
@@ -167,14 +163,13 @@ class ConfigApplier {
 					wiring = getHostWiring(wiring);
 					// check that all optional requirements are wired
 					Collection<BundleWire> requiredWires = wiring.getRequiredWires(null);
-					for (Iterator<BundleWire> iRequiredWires = requiredWires.iterator(); iRequiredWires.hasNext();) {
-						BundleWire requiredWire = iRequiredWires.next();
+					for (BundleWire requiredWire : requiredWires) {
 						optionalReqs.remove(requiredWire.getRequirement());
 					}
 					if (!optionalReqs.isEmpty()) {
 						// there are a number of optional requirements not wired
-						for (Iterator<BundleRequirement> iOptionalReqs = optionalReqs.iterator(); iOptionalReqs.hasNext();) {
-							Collection<BundleCapability> candidates = frameworkWiring.findProviders(iOptionalReqs.next());
+						for (BundleRequirement bundleRequirement : optionalReqs) {
+							Collection<BundleCapability> candidates = frameworkWiring.findProviders(bundleRequirement);
 							// Filter out candidates that were previously resolved or are currently not resolved.
 							// There is no need to refresh the resource if the candidate was previously available.
 							for (Iterator<BundleCapability> iCandidates = candidates.iterator(); iCandidates.hasNext();) {
@@ -215,16 +210,15 @@ class ConfigApplier {
 	private Set<Bundle> getResolvedBundles() {
 		Set<Bundle> resolved = new HashSet<>();
 		Bundle[] allBundles = manipulatingContext.getBundles();
-		for (int i = 0; i < allBundles.length; i++)
-			if ((allBundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
-				resolved.add(allBundles[i]);
+		for (Bundle bundle : allBundles)
+			if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
+				resolved.add(bundle);
 		return resolved;
 	}
 
 	private Collection<Bundle> uninstallBundles(HashSet<BundleInfo> toUninstall) {
 		Collection<Bundle> removedBundles = new ArrayList<>(toUninstall.size());
-		for (Iterator<BundleInfo> iterator = toUninstall.iterator(); iterator.hasNext();) {
-			BundleInfo current = iterator.next();
+		for (BundleInfo current : toUninstall) {
 			Bundle[] matchingBundles = packageAdminService.getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
 			for (int j = 0; matchingBundles != null && j < matchingBundles.length; j++) {
 				try {
@@ -239,30 +233,20 @@ class ConfigApplier {
 	}
 
 	private void saveStateAsLast(URL url) {
-		InputStream sourceStream = null;
-		OutputStream destinationStream = null;
 
 		File lastBundlesTxt = getLastBundleInfo();
-		try {
-			try {
-				destinationStream = new FileOutputStream(lastBundlesTxt);
-				ArrayList<File> sourcesLocation = SimpleConfiguratorUtils.getInfoFiles();
-				List<InputStream> sourceStreams = new ArrayList<>(sourcesLocation.size() + 1);
-				sourceStreams.add(url.openStream());
-				if (Activator.EXTENDED) {
-					for (int i = 0; i < sourcesLocation.size(); i++) {
-						sourceStreams.add(new FileInputStream(sourcesLocation.get(i)));
-					}
+		try (OutputStream destinationStream = new FileOutputStream(lastBundlesTxt)) {
+			ArrayList<File> sourcesLocation = SimpleConfiguratorUtils.getInfoFiles();
+			List<InputStream> sourceStreams = new ArrayList<>(sourcesLocation.size() + 1);
+			sourceStreams.add(url.openStream());
+			if (Activator.EXTENDED) {
+				for (int i = 0; i < sourcesLocation.size(); i++) {
+					sourceStreams.add(new FileInputStream(sourcesLocation.get(i)));
 				}
-				SimpleConfiguratorUtils.transferStreams(sourceStreams, destinationStream);
-			} catch (URISyntaxException e) {
-				// nothing, was discovered when starting framework
-			} finally {
-				if (destinationStream != null)
-					destinationStream.close();
-				if (sourceStream != null)
-					sourceStream.close();
 			}
+			SimpleConfiguratorUtils.transferStreams(sourceStreams, destinationStream);
+		} catch (URISyntaxException e) {
+			// nothing, was discovered when starting framework
 		} catch (IOException e) {
 			//nothing
 		}
@@ -289,20 +273,20 @@ class ConfigApplier {
 		String useReferenceProperty = manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE);
 		boolean useReference = useReferenceProperty == null ? runningOnEquinox : Boolean.parseBoolean(useReferenceProperty);
 
-		for (int i = 0; i < finalList.length; i++) {
-			if (finalList[i] == null)
+		for (BundleInfo element : finalList) {
+			if (element == null)
 				continue;
 			//TODO here we do not deal with bundles that don't have a symbolic id
 			//TODO Need to handle the case where getBundles return multiple value
 
-			String symbolicName = finalList[i].getSymbolicName();
-			String version = finalList[i].getVersion();
+			String symbolicName = element.getSymbolicName();
+			String version = element.getVersion();
 
 			Bundle[] matches = null;
 			if (symbolicName != null && version != null)
 				matches = packageAdminService.getBundles(symbolicName, getVersionRange(version));
 
-			String bundleLocation = SimpleConfiguratorUtils.getBundleLocation(finalList[i], useReference);
+			String bundleLocation = SimpleConfiguratorUtils.getBundleLocation(element, useReference);
 
 			Bundle current = matches == null ? null : (matches.length == 0 ? null : matches[0]);
 			if (current == null) {
@@ -325,11 +309,11 @@ class ConfigApplier {
 					}
 
 					if (Activator.DEBUG)
-						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
+						System.out.println("installed bundle:" + element); //$NON-NLS-1$
 					toRefresh.add(current);
 				} catch (BundleException e) {
 					if (Activator.DEBUG) {
-						System.err.println("Can't install " + symbolicName + '/' + version + " from location " + finalList[i].getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
+						System.err.println("Can't install " + symbolicName + '/' + version + " from location " + element.getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
 						e.printStackTrace();
 					}
 					continue;
@@ -350,11 +334,11 @@ class ConfigApplier {
 				try {
 					current = manipulatingContext.installBundle(bundleLocation);
 					if (Activator.DEBUG)
-						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
+						System.out.println("installed bundle:" + element); //$NON-NLS-1$
 					toRefresh.add(current);
 				} catch (BundleException e) {
 					if (Activator.DEBUG) {
-						System.err.println("Can't install " + symbolicName + '/' + version + " from location " + finalList[i].getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
+						System.err.println("Can't install " + symbolicName + '/' + version + " from location " + element.getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
 						e.printStackTrace();
 					}
 					continue;
@@ -362,12 +346,12 @@ class ConfigApplier {
 			}
 
 			// Mark Started
-			if (finalList[i].isMarkedAsStarted()) {
+			if (element.isMarkedAsStarted()) {
 				toStart.add(current);
 			}
 
 			// Set Start Level
-			int startLevel = finalList[i].getStartLevel();
+			int startLevel = element.getStartLevel();
 			if (startLevel < 1)
 				continue;
 			if (current.getBundleId() == 0)
@@ -380,7 +364,7 @@ class ConfigApplier {
 			try {
 				startLevelService.setBundleStartLevel(current, startLevel);
 			} catch (IllegalArgumentException ex) {
-				Utils.log(4, null, null, "Failed to set start level of Bundle:" + finalList[i], ex); //$NON-NLS-1$
+				Utils.log(4, null, null, "Failed to set start level of Bundle:" + element, ex); //$NON-NLS-1$
 			}
 		}
 		return toRefresh;
@@ -437,8 +421,7 @@ class ConfigApplier {
 	}
 
 	private void startBundles(Bundle[] bundles) {
-		for (int i = 0; i < bundles.length; i++) {
-			Bundle bundle = bundles[i];
+		for (Bundle bundle : bundles) {
 			if (bundle.getState() == Bundle.UNINSTALLED) {
 				System.err.println("Could not start: " + bundle.getSymbolicName() + '(' + bundle.getLocation() + ':' + bundle.getBundleId() + ')' + ". It's state is uninstalled.");
 				continue;
@@ -482,10 +465,10 @@ class ConfigApplier {
 		}
 
 		//Remove all the bundles appearing in the final list from the set of installed bundles
-		for (int i = 0; i < finalList.length; i++) {
-			if (finalList[i] == null)
+		for (BundleInfo element : finalList) {
+			if (element == null)
 				continue;
-			Bundle[] toAdd = packageAdmin.getBundles(finalList[i].getSymbolicName(), getVersionRange(finalList[i].getVersion()));
+			Bundle[] toAdd = packageAdmin.getBundles(element.getSymbolicName(), getVersionRange(element.getVersion()));
 			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
 				removedBundles.remove(toAdd[j]);
 			}
