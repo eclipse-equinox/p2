@@ -49,7 +49,6 @@ import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
 
 public class DirectorApplication implements IApplication, ProvisioningListener {
 	public static class AvoidTrustPromptService extends UIServices {
@@ -276,8 +275,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private IEngine engine;
 	private boolean noProfileId = false;
-	private PackageAdmin packageAdmin;
-	private ServiceReference<PackageAdmin> packageAdminRef;
 	private IPlanner planner;
 	private ILog log = null;
 
@@ -438,22 +435,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		return allRoots;
 	}
 
-	synchronized Bundle getBundle(String symbolicName) {
-		if (packageAdmin == null)
-			return null;
-
-		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
-		if (bundles == null)
-			return null;
-		//Return the first bundle that is not installed or uninstalled
-		for (int i = 0; i < bundles.length; i++) {
-			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
-				return bundles[i];
-			}
-		}
-		return null;
-	}
-
 	private String getEnvironmentProperty() {
 		HashMap<String, String> values = new HashMap<>();
 		if (os != null)
@@ -581,7 +562,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (destination == null)
 			return;
 		if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(os) && destination.getName().endsWith(".app")) //$NON-NLS-1$
-			destination = new File(destination, "Contents/Eclipse");
+			destination = new File(destination, "Contents/Eclipse"); //$NON-NLS-1$
 	}
 
 	private URI getP2DataAreaLocation(BundleContext context) {
@@ -608,10 +589,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		return p2DataArea;
 	}
 
-	private void initializeServices() throws CoreException { //TODO FAIRE QQCHE ICI POUR POSITIONNER p2 folder CORRECTEMENT
+	//TODO Translate this into English: FAIRE QQCHE ICI POUR POSITIONNER p2 folder CORRECTEMENT
+	private void initializeServices() throws CoreException {
 		BundleContext context = Activator.getContext();
-		packageAdminRef = context.getServiceReference(PackageAdmin.class);
-		packageAdmin = context.getService(packageAdminRef);
 		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider provider = context.getService(agentProviderRef);
 
@@ -1074,14 +1054,11 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private void cleanupServices() {
-		BundleContext context = Activator.getContext();
 		//dispose agent, only if it is not already up and running
 		if (targetAgent != null && !targetAgentIsSelfAndUp) {
 			targetAgent.stop();
 			targetAgent = null;
 		}
-		if (packageAdminRef != null)
-			context.ungetService(packageAdminRef);
 	}
 
 	public Object run(String[] args) {
@@ -1125,10 +1102,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			setSystemProperty("eclipse.exitdata", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			return EXIT_ERROR;
 		} finally {
-			if (packageAdminRef != null) {
-				cleanupRepositories();
-				cleanupServices();
-			}
+			cleanupRepositories();
+			cleanupServices();
 		}
 	}
 
