@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2018 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -150,19 +150,13 @@ public class SimpleConfiguratorImpl implements Configurator {
 			return result;
 
 		Properties p = new Properties();
-		InputStream is = null;
-		try {
-			try {
-				is = new BufferedInputStream(new FileInputStream(storedSharedTimestamp));
-				p.load(is);
-				if (p.get(KEY_BUNDLESINFO_TIMESTAMP) != null) {
-					result[0] = Long.valueOf((String) p.get(KEY_BUNDLESINFO_TIMESTAMP)).longValue();
-				}
-				if (p.get(KEY_EXT_TIMESTAMP) != null) {
-					result[1] = Long.valueOf((String) p.get(KEY_EXT_TIMESTAMP)).longValue();
-				}
-			} finally {
-				is.close();
+		try (InputStream is = new BufferedInputStream(new FileInputStream(storedSharedTimestamp))) {
+			p.load(is);
+			if (p.get(KEY_BUNDLESINFO_TIMESTAMP) != null) {
+				result[0] = Long.valueOf((String) p.get(KEY_BUNDLESINFO_TIMESTAMP)).longValue();
+			}
+			if (p.get(KEY_EXT_TIMESTAMP) != null) {
+				result[1] = Long.valueOf((String) p.get(KEY_EXT_TIMESTAMP)).longValue();
 			}
 		} catch (IOException e) {
 			return result;

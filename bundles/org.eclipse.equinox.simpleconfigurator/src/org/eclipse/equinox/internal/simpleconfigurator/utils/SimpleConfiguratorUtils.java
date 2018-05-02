@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2018 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -206,10 +206,9 @@ public class SimpleConfiguratorUtils {
 
 		BufferedInputStream bufferedStream = new BufferedInputStream(stream);
 		String encoding = determineEncoding(bufferedStream);
-		BufferedReader r = new BufferedReader(encoding == null ? new InputStreamReader(bufferedStream) : new InputStreamReader(bufferedStream, encoding));
 
 		String line;
-		try {
+		try (BufferedReader r = new BufferedReader(encoding == null ? new InputStreamReader(bufferedStream) : new InputStreamReader(bufferedStream, encoding));) {
 			while ((line = r.readLine()) != null) {
 				line = line.trim();
 				//ignore any comment or empty lines
@@ -224,12 +223,6 @@ public class SimpleConfiguratorUtils {
 				BundleInfo bundleInfo = parseBundleInfoLine(line, base);
 				if (bundleInfo != null)
 					bundles.add(bundleInfo);
-			}
-		} finally {
-			try {
-				r.close();
-			} catch (IOException ex) {
-				// ignore
 			}
 		}
 		return bundles;
@@ -336,20 +329,13 @@ public class SimpleConfiguratorUtils {
 		destination = new BufferedOutputStream(destination);
 		try {
 			for (int i = 0; i < sources.size(); i++) {
-				InputStream source = new BufferedInputStream(sources.get(i));
-				try {
+				try (InputStream source = new BufferedInputStream(sources.get(i))) {
 					byte[] buffer = new byte[8192];
 					while (true) {
 						int bytesRead = -1;
 						if ((bytesRead = source.read(buffer)) == -1)
 							break;
 						destination.write(buffer, 0, bytesRead);
-					}
-				} finally {
-					try {
-						source.close();
-					} catch (IOException e) {
-						// ignore
 					}
 				}
 			}
