@@ -589,7 +589,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		return p2DataArea;
 	}
 
-	//TODO Translate this into English: FAIRE QQCHE ICI POUR POSITIONNER p2 folder CORRECTEMENT
+	// Implement something here to position "p2 folder" correctly
 	private void initializeServices() throws CoreException {
 		BundleContext context = Activator.getContext();
 		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.class);
