@@ -10,15 +10,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.director.app.ant;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import org.apache.tools.ant.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
-import org.eclipse.equinox.internal.p2.director.app.*;
+import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
+import org.eclipse.equinox.internal.p2.director.app.ILog;
+import org.eclipse.equinox.internal.p2.director.app.Messages;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.osgi.util.NLS;
 
@@ -247,6 +256,7 @@ public class DirectorTask extends Task implements ILog {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void log(String msg) {
 		if (outputBuffer != null) {
 			outputBuffer.append(msg);

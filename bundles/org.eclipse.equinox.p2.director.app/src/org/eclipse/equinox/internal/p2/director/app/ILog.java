@@ -12,13 +12,54 @@ package org.eclipse.equinox.internal.p2.director.app;
 
 import org.eclipse.core.runtime.IStatus;
 
+/**
+ * Manages all outputs of the director application: logs to a file as well as the standard streams
+ * <p>
+ * This indirection is needed in order to manage the outputs when the director is called from ant, where
+ * the standard streams are handled differently.
+ */
 public interface ILog {
+	/**
+	 * Send status to the standard log
+	 * 
+	 * @param status
+	 */
+	void log(IStatus status);
 
-	// Log a status
-	public void log(IStatus status);
+	/**
+	 * 
+	 * @param message
+	 * @deprecated Use {@link ILog#printOut()} or {@link ILog#printErr()}
+	 */
+	@Deprecated
+	default void log(String message) {
+		printOut(message);
+	}
 
-	public void log(String message);
+	/**
+	 * Notify that logging is completed & cleanup resources
+	 */
+	void close();
 
-	// Notify that logging is completed & cleanup resources 
-	public void close();
+	/**
+	 * Print status on stdout or stderr.
+	 * 
+	 * By default calls {@link #log}
+	 * 
+	 * @param status
+	 */
+	default void printOut(String line) {
+		System.out.println(line);
+	}
+
+	/**
+	 * Send line to stdout
+	 * 
+	 * By default does nothing
+	 * 
+	 * @param message line
+	 */
+	default void printErr(String line) {
+		System.err.println(line);
+	}
 }

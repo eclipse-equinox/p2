@@ -13,6 +13,7 @@
  *     Pascal Rapicault - Support for bundled macosx 431116
  *     Red Hat, Inc. - support repositories passed via fragments (see bug 378329).Bug 460967
  *     SAP AG - list formatting (bug 423538)
+ *     Todor Boev - Software AG
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
@@ -22,10 +23,13 @@ import java.net.URISyntaxException;
 import java.security.cert.Certificate;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.StringHelper;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -45,7 +49,6 @@ import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
@@ -261,7 +264,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private boolean verifyOnly = false;
 	private boolean roamingProfile = false;
 	private boolean purgeRegistry = false;
-	private boolean stackTrace = false;
 	private boolean followReferences = false;
 	private boolean downloadOnly = false;
 	private String profileId;
@@ -276,7 +278,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private IEngine engine;
 	private boolean noProfileId = false;
 	private IPlanner planner;
-	private ILog log = null;
+	private ILog log = new DefaultLog();
 
 	private IProvisioningAgent targetAgent;
 	private boolean targetAgentIsSelfAndUp = false;
@@ -296,14 +298,14 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private Properties loadProperties(File file) {
 		if (!file.exists()) {
 			// log a warning and return
-			logStatus(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.File_does_not_exist, file.getAbsolutePath())));
+			log.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.File_does_not_exist, file.getAbsolutePath())));
 			return null;
 		}
 		Properties properties = new Properties();
 		try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
 			properties.load(input);
 		} catch (IOException e) {
-			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Problem_loading_file, file.getAbsolutePath()), e));
+			log.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Problem_loading_file, file.getAbsolutePath()), e));
 			return null;
 		}
 		return properties;
@@ -343,10 +345,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				// skip over the keyword
 				id = line.substring(0, index);
 			} catch (NumberFormatException e) {
-				logStatus(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
+				log.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
 				continue;
 			} catch (IndexOutOfBoundsException e) {
-				logStatus(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
+				log.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
 				continue;
 			}
 
@@ -368,7 +370,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 			if (key == null || value == null) {
 				String message = NLS.bind(Messages.Unmatched_iu_profile_property_key_value, key + '/' + value);
-				logStatus(new Status(IStatus.WARNING, Activator.ID, message));
+				log.log(new Status(IStatus.WARNING, Activator.ID, message));
 				continue;
 			}
 
@@ -380,7 +382,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			IQueryResult<IInstallableUnit> qr = getInstallableUnits(null, query, null);
 			if (qr.isEmpty()) {
 				String msg = NLS.bind(Messages.Cannot_set_iu_profile_property_iu_does_not_exist, id + '/' + version);
-				logStatus(new Status(IStatus.WARNING, Activator.ID, msg));
+				log.log(new Status(IStatus.WARNING, Activator.ID, msg));
 				continue;
 			}
 			IInstallableUnit iu = qr.iterator().next();
@@ -508,7 +510,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				anyValid = true;
 			} catch (ProvisionException e) {
 				//one of the repositories did not load
-				logStatus(e.getStatus());
+				log.log(e.getStatus());
 			}
 		}
 		if (!anyValid)
@@ -535,7 +537,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				anyValid = true;
 			} catch (ProvisionException e) {
 				//one of the repositories did not load
-				logStatus(e.getStatus());
+				log.log(e.getStatus());
 			}
 		}
 		if (!anyValid)
@@ -681,30 +683,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 	}
 
-	private void logStatus(IStatus status) {
-		if (log != null)
-			log.log(status);
-		else
-			LogHelper.log(status);
-	}
-
-	private void printMessage(String message) {
-		if (log != null)
-			log.log(message);
-		else
-			System.out.println(message);
-	}
-
-	private void logFailure(IStatus status) {
-		if (log == null) {
-			FrameworkLog frameworkLog = ServiceHelper.getService(Activator.getContext(), FrameworkLog.class);
-			if (frameworkLog != null)
-				System.err.println("Application failed, log file location: " + frameworkLog.getFile()); //$NON-NLS-1$
-		}
-
-		logStatus(status);
-	}
-
 	private void markRoots(IProfileChangeRequest request, Collection<IInstallableUnit> roots) {
 		for (IInstallableUnit root : roots) {
 			request.setInstallableUnitProfileProperty(root, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
@@ -786,7 +764,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				break;
 			case IStatus.INFO :
 			case IStatus.WARNING :
-				logStatus(operationStatus);
+				log.log(operationStatus);
 				break;
 			//. All other status codes correspond to IStatus.isOk() == false
 			default :
@@ -814,17 +792,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			}
 		}
 		return false;
-	}
-
-	private void printRequest(ProfileChangeRequest request) {
-		Collection<IInstallableUnit> toAdd = request.getAdditions();
-		for (IInstallableUnit added : toAdd) {
-			printMessage(NLS.bind(Messages.Installing, added.getId(), added.getVersion()));
-		}
-		Collection<IInstallableUnit> toRemove = request.getRemovals();
-		for (IInstallableUnit removed : toRemove) {
-			printMessage(NLS.bind(Messages.Uninstalling, removed.getId(), removed.getVersion()));
-		}
 	}
 
 	public void processArguments(String[] args) throws CoreException {
@@ -1024,7 +991,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 
 		else if (!printHelpInfo && !printIUList && !printRootIUList && !printTags && !purgeRegistry && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty() && revertToPreviousState == NOTHING_TO_REVERT_TO) {
-			printMessage(Messages.Help_Missing_argument);
+			log.printOut(Messages.Help_Missing_argument);
 			printHelpInfo = true;
 		}
 
@@ -1073,7 +1040,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				initializeServices();
 				if (!(printIUList || printRootIUList || printTags)) {
 					if (!canInstallInDestination()) {
-						printMessage(NLS.bind(Messages.Cant_write_in_destination, destination.getAbsolutePath()));
+						log.printOut(NLS.bind(Messages.Cant_write_in_destination, destination.getAbsolutePath()));
 						return EXIT_ERROR;
 					}
 				}
@@ -1091,17 +1058,20 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 					performPrintTags();
 				if (purgeRegistry)
 					purgeRegistry();
-				printMessage(NLS.bind(Messages.Operation_complete, Long.valueOf(System.currentTimeMillis() - time)));
+				log.printOut(NLS.bind(Messages.Operation_complete, Long.valueOf(System.currentTimeMillis() - time)));
 			}
 			return IApplication.EXIT_OK;
 		} catch (CoreException e) {
-			printMessage(Messages.Operation_failed);
-			deeplyPrint(e.getStatus(), System.err, 0);
-			logFailure(e.getStatus());
+			log.printOut(Messages.Operation_failed);
+			printError(e.getStatus(), 0);
+
+			log.log(e.getStatus());
+
 			//set empty exit data to suppress error dialog from launcher
 			setSystemProperty("eclipse.exitdata", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			return EXIT_ERROR;
 		} finally {
+			log.close();
 			cleanupRepositories();
 			cleanupServices();
 		}
@@ -1177,11 +1147,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 	}
 
-	private static void appendLevelPrefix(PrintStream strm, int level) {
-		for (int idx = 0; idx < level; ++idx)
-			strm.print(' ');
-	}
-
 	IQueryResult<IInstallableUnit> getInstallableUnits(URI location, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		IQueryable<IInstallableUnit> queryable = null;
 		if (location == null) {
@@ -1196,49 +1161,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (queryable != null)
 			return queryable.query(query, monitor);
 		return Collector.emptyCollector();
-	}
-
-	private void deeplyPrint(CoreException ce, PrintStream strm, int level) {
-		appendLevelPrefix(strm, level);
-		if (stackTrace)
-			ce.printStackTrace(strm);
-		deeplyPrint(ce.getStatus(), strm, level);
-	}
-
-	private void deeplyPrint(IStatus status, PrintStream strm, int level) {
-		appendLevelPrefix(strm, level);
-		String msg = status.getMessage();
-		strm.println(msg);
-		Throwable cause = status.getException();
-		if (cause != null) {
-			strm.print("Caused by: "); //$NON-NLS-1$
-			if (stackTrace || !(msg.equals(cause.getMessage()) || msg.equals(cause.toString())))
-				deeplyPrint(cause, strm, level);
-		}
-
-		if (status.isMultiStatus()) {
-			IStatus[] children = status.getChildren();
-			for (int i = 0; i < children.length; i++)
-				deeplyPrint(children[i], strm, level + 1);
-		}
-	}
-
-	private void deeplyPrint(Throwable t, PrintStream strm, int level) {
-		if (t instanceof CoreException)
-			deeplyPrint((CoreException) t, strm, level);
-		else {
-			appendLevelPrefix(strm, level);
-			if (stackTrace)
-				t.printStackTrace(strm);
-			else {
-				strm.println(t.toString());
-				Throwable cause = t.getCause();
-				if (cause != null) {
-					strm.print("Caused by: "); //$NON-NLS-1$
-					deeplyPrint(cause, strm, level);
-				}
-			}
-		}
 	}
 
 	private void performHelpInfo() {
@@ -1319,16 +1241,19 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		IStatus status = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 		if (!status.isOK())
-			throw new CoreException(new MultiStatus(org.eclipse.equinox.internal.p2.director.app.Activator.ID, IStatus.ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
+			throw new CoreException(new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
 	}
 
 	@Override
 	public void stop() {
 		IProvisioningEventBus eventBus = (IProvisioningEventBus) targetAgent.getService(IProvisioningEventBus.SERVICE_NAME);
-		if (eventBus != null)
+		if (eventBus != null) {
 			eventBus.removeListener(this);
-		if (log != null)
+		}
+
+		if (log != null) {
 			log.close();
+		}
 	}
 
 	public void setLog(ILog log) {
@@ -1353,6 +1278,60 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		for (String timestamp : timeStamps) {
 			System.out.println(tags.get(timestamp));
 		}
+	}
+
+	private void printRequest(IProfileChangeRequest request) {
+		Collection<IInstallableUnit> toAdd = request.getAdditions();
+		for (IInstallableUnit added : toAdd) {
+			log.printOut(NLS.bind(Messages.Installing, added.getId(), added.getVersion()));
+		}
+
+		Collection<IInstallableUnit> toRemove = request.getRemovals();
+		for (IInstallableUnit removed : toRemove) {
+			log.printOut(NLS.bind(Messages.Uninstalling, removed.getId(), removed.getVersion()));
+		}
+	}
+
+	private void printError(IStatus status, int level) {
+		String prefix = emptyString(level);
+
+		String msg = status.getMessage();
+		log.printErr(prefix + msg);
+
+		Throwable cause = status.getException();
+		if (cause != null) {
+			// TODO This is very unreliable. It assumes that if the IStatus message is the same as the IStatus cause
+			// message the cause exception has no more data to offer. Better to just print it. 
+			boolean isCauseMsg = msg.equals(cause.getMessage()) || msg.equals(cause.toString());
+			if (!isCauseMsg) {
+				log.printErr(prefix + "Caused by: "); //$NON-NLS-1$
+				printError(cause, level);
+			}
+		}
+
+		for (IStatus child : status.getChildren()) {
+			printError(child, level + 1);
+		}
+	}
+
+	private void printError(Throwable trace, int level) {
+		if (trace instanceof CoreException) {
+			printError(((CoreException) trace).getStatus(), level);
+		} else {
+			String prefix = emptyString(level);
+
+			log.printErr(prefix + trace.toString());
+
+			Throwable cause = trace.getCause();
+			if (cause != null) {
+				log.printErr(prefix + "Caused by: "); //$NON-NLS-1$
+				printError(cause, level);
+			}
+		}
+	}
+
+	private static String emptyString(int size) {
+		return IntStream.range(0, size).mapToObj(i -> "\t").collect(Collectors.joining()); //$NON-NLS-1$
 	}
 
 	private boolean canInstallInDestination() {
