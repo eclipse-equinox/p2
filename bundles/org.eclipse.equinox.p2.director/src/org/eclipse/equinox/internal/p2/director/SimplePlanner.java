@@ -12,13 +12,39 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import static org.eclipse.core.runtime.IStatus.CANCEL;
+import static org.eclipse.core.runtime.IStatus.ERROR;
+import static org.eclipse.core.runtime.IStatus.INFO;
+import static org.eclipse.core.runtime.IStatus.OK;
+import static org.eclipse.equinox.internal.p2.director.DirectorActivator.PI_DIRECTOR;
+import static org.eclipse.equinox.internal.provisional.p2.director.RequestStatus.ADDED;
+import static org.eclipse.equinox.internal.provisional.p2.director.RequestStatus.REMOVED;
+
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.stream.Stream;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.director.Explanation.MissingIU;
+import org.eclipse.equinox.internal.p2.director.Explanation.Singleton;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
@@ -26,12 +52,28 @@ import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.planner.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.CompoundQueryable;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.util.NLS;
 
 public class SimplePlanner implements IPlanner {
@@ -69,11 +111,12 @@ public class SimplePlanner implements IPlanner {
 			}
 		}
 
-		Map<IInstallableUnit, RequestStatus>[] changes = computeActualChangeRequest(toState, changeRequest);
+		Map<IInstallableUnit, RequestStatus>[] changes = buildDetailedSuccess(toState, changeRequest);
 		Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
 		Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
+		IStatus status = convertChangesToStatus(requestChanges, requestSideEffects);
 		QueryableArray plannedState = new QueryableArray(toState.toArray(new IInstallableUnit[toState.size()]));
-		PlannerStatus plannerStatus = new PlannerStatus(Status.OK_STATUS, null, requestChanges, requestSideEffects, plannedState);
+		PlannerStatus plannerStatus = new PlannerStatus(status, null, requestChanges, requestSideEffects, plannedState);
 		plan.setStatus(plannerStatus);
 		plan.setInstallerPlan(installerPlan);
 		return plan;
@@ -82,36 +125,33 @@ public class SimplePlanner implements IPlanner {
 	private Map<IInstallableUnit, RequestStatus>[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
 		Collection<IInstallableUnit> requestedAdditions = changeRequest.getAdditions();
 		Collection<IInstallableUnit> requestedRemovals = changeRequest.getRemovals();
-		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<>(requestedAdditions.size() + requestedAdditions.size());
+		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<>(requestedAdditions.size() + requestedRemovals.size());
 		for (IInstallableUnit added : requestedAdditions) {
-			requestStatus.put(added, new RequestStatus(added, RequestStatus.ADDED, IStatus.ERROR, null));
+			requestStatus.put(added, new RequestStatus(added, ADDED, ERROR, null));
 		}
 		for (IInstallableUnit removed : requestedRemovals) {
-			requestStatus.put(removed, new RequestStatus(removed, RequestStatus.REMOVED, IStatus.ERROR, null));
+			requestStatus.put(removed, new RequestStatus(removed, REMOVED, ERROR, null));
 		}
 		@SuppressWarnings("unchecked")
 		Map<IInstallableUnit, RequestStatus>[] maps = new Map[] {requestStatus, null};
 		return maps;
 	}
 
-	private Map<IInstallableUnit, RequestStatus>[] computeActualChangeRequest(Collection<IInstallableUnit> toState, ProfileChangeRequest changeRequest) {
+	private Map<IInstallableUnit, RequestStatus>[] buildDetailedSuccess(Collection<IInstallableUnit> toState, ProfileChangeRequest changeRequest) {
 		Collection<IInstallableUnit> requestedAdditions = changeRequest.getAdditions();
 		Collection<IInstallableUnit> requestedRemovals = new ArrayList<>(changeRequest.getRemovals());
 		requestedRemovals.removeAll(requestedAdditions);
 
 		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<>(requestedAdditions.size() + requestedRemovals.size());
+
 		for (IInstallableUnit added : requestedAdditions) {
-			if (toState.contains(added))
-				requestStatus.put(added, new RequestStatus(added, RequestStatus.ADDED, IStatus.OK, null));
-			else
-				requestStatus.put(added, new RequestStatus(added, RequestStatus.ADDED, IStatus.ERROR, null));
+			int status = toState.contains(added) ? OK : ERROR;
+			requestStatus.put(added, new RequestStatus(added, ADDED, status, null));
 		}
 
 		for (IInstallableUnit removed : requestedRemovals) {
-			if (!toState.contains(removed))
-				requestStatus.put(removed, new RequestStatus(removed, RequestStatus.REMOVED, IStatus.OK, null));
-			else
-				requestStatus.put(removed, new RequestStatus(removed, RequestStatus.REMOVED, IStatus.ERROR, null));
+			int status = !toState.contains(removed) ? OK : ERROR;
+			requestStatus.put(removed, new RequestStatus(removed, REMOVED, status, null));
 		}
 
 		//Compute the side effect changes (e.g. things installed optionally going away)
@@ -120,7 +160,7 @@ public class SimplePlanner implements IPlanner {
 		while (includedIUs.hasNext()) {
 			IInstallableUnit removal = includedIUs.next();
 			if (!toState.contains(removal) && !requestStatus.containsKey(removal)) {
-				sideEffectStatus.put(removal, new RequestStatus(removal, RequestStatus.REMOVED, IStatus.INFO, null));
+				sideEffectStatus.put(removal, new RequestStatus(removal, REMOVED, INFO, null));
 			}
 		}
 		@SuppressWarnings("unchecked")
@@ -129,48 +169,109 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	/**
-	 * Converts a set containing a list of resolver explanations into a human-readable status object.
+	 * Converts a list of {@link Projector#getExplanation() resolver explanations} to a human-readable status object
+	 * 
+	 * @param explanations List of resolver explanations ordered by logical causality. 
+	 *     I.e. read from start to end should forms logical chain of statements as to why resolution failed. 
+	 * @return the {@link IStatus}
 	 */
-	private IStatus convertExplanationToStatus(Set<Explanation> explanations) {
-		if (explanations == null)
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_Unsatisfied_Dependencies);
+	private static IStatus convertExplanationToStatus(Set<Explanation> explanations) {
+		// Hack to create a useful message when a user installs something intended only for the PDE target platform into a general purpose profile.
+		List<IStatus> forTargets = new ArrayList<>(0);
+		for (Explanation next : explanations) {
+			if (next instanceof MissingIU) {
+				MissingIU missingIU = (MissingIU) next;
+				if (missingIU.req instanceof IRequiredCapability &&
+						missingIU.req.getMatches().getParameters().length == 3 &&
+						"A.PDE.Target.Platform".equals(((IRequiredCapability) missingIU.req).getNamespace())) {//$NON-NLS-1$
+					// This IU requires the PDE target platform IU and it is missing.
+					// I.e. this IU is intended only for the PDE target platform.
+					forTargets.add(new Status(ERROR, PI_DIRECTOR, Explanation.getUserReadableName(missingIU.iu)));
+				}
+			}
+		}
+		if (!forTargets.isEmpty()) {
+			// The following line could be removed if Bug 309863 is fixed
+			forTargets.add(new Status(ERROR, PI_DIRECTOR, Messages.Director_For_Target_Unselect_Required));
+			// Return a multi status with all the IUs that require A.PDE.Target.Platform
+			return new MultiStatus(PI_DIRECTOR, 1, forTargets.stream().toArray(IStatus[]::new), Messages.Director_For_Target, null);
+		}
 
-		// hack to create a useful message when a user installs something intended for a target platform into the IDE
-		ArrayList<IStatus> forTargets = new ArrayList<>(0);
+		// Use the most specific message for the root of the MultiStatus
+		// Missing IU takes precedence over singleton conflicts
+		String message = Messages.Director_Unsatisfied_Dependencies;
+		int errorCode = 1;
 		for (Explanation next : explanations) {
-			if (next instanceof Explanation.MissingIU) {
-				Explanation.MissingIU missingIU = (MissingIU) next;
-				if (missingIU.req instanceof IRequiredCapability && missingIU.req.getMatches().getParameters().length == 3 && "A.PDE.Target.Platform".equals(((IRequiredCapability) missingIU.req).getNamespace())) //$NON-NLS-1$
-					forTargets.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, missingIU.getUserReadableName(missingIU.iu)));
-			}
-		}
-		if (forTargets.size() > 0) {
-			// add a blurb about disabling 'include required software'.  The following line could be removed if bug 309863 is fixed
-			forTargets.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_For_Target_Unselect_Required));
-			// return a multi status with all the IUs that require A.PDE.Target.Platform
-			return new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, forTargets.toArray(new IStatus[forTargets.size()]), Messages.Director_For_Target, null);
-		}
-		MultiStatus root = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Unsatisfied_Dependencies, null);
-		//try to find a more specific root message if possible
-		String specificMessage = null;
-		int errorCode = 0;
-		for (Explanation next : explanations) {
-			root.add(next.toStatus());
-			if (specificMessage == null && next instanceof Explanation.MissingIU) {
-				specificMessage = Messages.Explanation_rootMissing;
+			if (next instanceof MissingIU) {
+				message = Messages.Explanation_rootMissing;
 				errorCode = 10053;
-			} else if (specificMessage == null && next instanceof Explanation.Singleton) {
-				specificMessage = Messages.Explanation_rootSingleton;
+				break;
+			}
+
+			if (next instanceof Singleton) {
+				message = Messages.Explanation_rootSingleton;
 				errorCode = 10054;
+				break;
 			}
 		}
-		//use a more specific root message if available
-		if (specificMessage != null) {
-			MultiStatus newRoot = new MultiStatus(DirectorActivator.PI_DIRECTOR, errorCode, specificMessage, null);
-			newRoot.merge(root);
-			root = newRoot;
-		}
+
+		// The children follow the order of logical causality as produced by the Projector
+		MultiStatus root = new MultiStatus(PI_DIRECTOR, errorCode, message, null);
+		explanations.stream().map(Explanation::toStatus).forEach(root::add);
 		return root;
+	}
+
+	/**
+	 * TODO Find a way to emit INFO status. The issue is that all {@link IStatus#isOK()} calls will fail.
+	 * 
+	 * @param requestChanges
+	 * @param requestSideEffects
+	 * @return the {@link IStatus}
+	 */
+	private static IStatus convertChangesToStatus(Map<IInstallableUnit, RequestStatus> requestChanges, Map<IInstallableUnit, RequestStatus> requestSideEffects) {
+		MultiStatus root = new MultiStatus(PI_DIRECTOR, OK, Messages.Director_Satisfied_Dependencies, null);
+
+		Stream.concat(requestChanges.values().stream(), requestSideEffects.values().stream())
+				.map(SimplePlanner::buildChangeStatus)
+				.forEach(root::add);
+
+		return root;
+	}
+
+	private static IStatus buildChangeStatus(RequestStatus rs) {
+		final String change;
+		switch (rs.getInitialRequestType()) {
+			case ADDED :
+				change = "Add"; //$NON-NLS-1$
+				break;
+			case REMOVED :
+				change = "Remove"; //$NON-NLS-1$
+				break;
+			default :
+				change = "UNKNOWN change type " + rs.getInitialRequestType(); //$NON-NLS-1$
+				break;
+		}
+
+		final IStatus status;
+		if (!rs.isOK()) {
+			String message = NLS.bind(Messages.Director_Unsatisfied_Change, change, Explanation.getUserReadableName(rs.getIu()));
+
+			if (rs.getExplanations().isEmpty()) {
+				status = new Status(OK, PI_DIRECTOR, message, rs.getException());
+			} else {
+				status = new MultiStatus(
+						PI_DIRECTOR,
+						OK,
+						rs.getExplanations().stream().map(Explanation::toStatus).toArray(IStatus[]::new),
+						message,
+						rs.getException());
+			}
+		} else {
+			String message = NLS.bind(Messages.Director_Satisfied_Change, change, Explanation.getUserReadableName(rs.getIu()));
+			status = new Status(OK, PI_DIRECTOR, message, rs.getException());
+		}
+
+		return status;
 	}
 
 	private void planPropertyOperations(IProvisioningPlan plan, ProfileChangeRequest profileChangeRequest, Collection<IInstallableUnit> toState) {
@@ -306,8 +407,16 @@ public class SimplePlanner implements IPlanner {
 		return satisfyMetaRequirements(p.getProperties());
 	}
 
-	// Return the set of IUs representing the complete future state of the profile to satisfy the request or return a 
-	// ProvisioningPlan when the request can not be satisfied
+	/**
+	 * Performs a provisioning request resolution
+	 * 
+	 * @param profileChangeRequest The requested change.
+	 * @param context The context for the resolution pass
+	 * @param monitor
+	 * 
+	 * @return Return a {@link Projector} that captures the complete future state of the profile that satisfies the request.
+	 * 	If the request can't be satisfied return an {@link IProvisioningPlan} where the error is captured in {@link IProvisioningPlan#getStatus()}
+	 */
 	private Object getSolutionFor(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
@@ -322,12 +431,12 @@ public class SimplePlanner implements IPlanner {
 			extraIUs.addAll(profileChangeRequest.getRemovals());
 			if (context == null || context.getProperty(INCLUDE_PROFILE_IUS) == null || context.getProperty(INCLUDE_PROFILE_IUS).equalsIgnoreCase(Boolean.TRUE.toString())) {
 				Iterator<IInstallableUnit> itor = profile.available(QueryUtil.createIUAnyQuery(), null).iterator();
-				while (itor.hasNext())
+				while (itor.hasNext()) {
 					extraIUs.add(itor.next());
+				}
 			}
 
-			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), context, sub.newChild(ExpandWork / 4));
-
+			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(extraIUs.stream().toArray(IInstallableUnit[]::new), context, sub.newChild(ExpandWork / 4));
 			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, sub.newChild(ExpandWork / 4));
 			if (slice == null) {
@@ -335,45 +444,59 @@ public class SimplePlanner implements IPlanner {
 				plan.setStatus(slicer.getStatus());
 				return plan;
 			}
+
 			@SuppressWarnings("unchecked")
-			final IQueryable<IInstallableUnit>[] queryables = new IQueryable[] {slice, new QueryableArray(profileChangeRequest.getAdditions().toArray(new IInstallableUnit[profileChangeRequest.getAdditions().size()]))};
+			IQueryable<IInstallableUnit>[] queryables = new IQueryable[] {slice, new QueryableArray(profileChangeRequest.getAdditions().stream().toArray(IInstallableUnit[]::new))};
 			slice = new CompoundQueryable<>(queryables);
+
 			Projector projector = new Projector(slice, newSelectionContext, slicer.getNonGreedyIUs(), satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
-			projector.setUserDefined(profileChangeRequest.getPropertiesToAdd().containsKey("_internal_user_defined_"));
+			projector.setUserDefined(profileChangeRequest.getPropertiesToAdd().containsKey("_internal_user_defined_")); //$NON-NLS-1$
 			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profile, profileChangeRequest.getAdditions(), sub.newChild(ExpandWork / 4));
+
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
-			if (s.getSeverity() == IStatus.CANCEL) {
-				IProvisioningPlan plan = engine.createPlan(profile, context);
-				plan.setStatus(s);
-				return plan;
-			}
-			if (s.getSeverity() == IStatus.ERROR) {
-				sub.setTaskName(Messages.Planner_NoSolution);
-				if (s.getCode() != UNSATISFIABLE || (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION))))) {
+			switch (s.getSeverity()) {
+				case CANCEL : {
 					IProvisioningPlan plan = engine.createPlan(profile, context);
 					plan.setStatus(s);
 					return plan;
 				}
 
-				//Extract the explanation
-				Set<Explanation> explanation = projector.getExplanation(sub.newChild(ExpandWork / 4));
-				IStatus explanationStatus = convertExplanationToStatus(explanation);
+				// Convert the projector explanation chain into an IStatus
+				case ERROR : {
+					sub.setTaskName(Messages.Planner_NoSolution);
+					if (s.getCode() != UNSATISFIABLE || (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.parseBoolean(context.getProperty(EXPLANATION))))) {
+						IProvisioningPlan plan = engine.createPlan(profile, context);
+						plan.setStatus(s);
+						return plan;
+					}
 
-				Map<IInstallableUnit, RequestStatus>[] changes = buildDetailedErrors(profileChangeRequest);
-				Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
-				Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
-				PlannerStatus plannerStatus = new PlannerStatus(explanationStatus, new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation), requestChanges, requestSideEffects, null);
+					//Extract the explanation
+					Set<Explanation> explanation = projector.getExplanation(sub.newChild(ExpandWork / 4));
+					IStatus explanationStatus = convertExplanationToStatus(explanation);
 
-				IProvisioningPlan plan = engine.createPlan(profile, context);
-				plan.setStatus(plannerStatus);
-				return plan;
+					Map<IInstallableUnit, RequestStatus>[] changes = buildDetailedErrors(profileChangeRequest);
+					Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
+					Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
+					PlannerStatus plannerStatus = new PlannerStatus(explanationStatus, new RequestStatus(null, REMOVED, ERROR, explanation), requestChanges, requestSideEffects, null);
+
+					IProvisioningPlan plan = engine.createPlan(profile, context);
+					plan.setStatus(plannerStatus);
+					return plan;
+				}
+
+				//The resolution succeeded. We can forget about the warnings since there is a solution.
+				case OK : {
+					return projector;
+				}
+
+				// Log the unexpected status type, but continue
+				default : {
+					if (Tracing.DEBUG) {
+						LogHelper.log(s);
+					}
+					return projector;
+				}
 			}
-			//The resolution succeeded. We can forget about the warnings since there is a solution.
-			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
-				LogHelper.log(s);
-			s = Status.OK_STATUS;
-
-			return projector;
 		} finally {
 			sub.done();
 		}
@@ -388,8 +511,9 @@ public class SimplePlanner implements IPlanner {
 			//Get the solution for the initial request
 			Object resolutionResult = getSolutionFor(pcr, context, sub.newChild(ExpandWork / 2));
 			// a return value of a plan indicates failure when resolving so return.
-			if (resolutionResult instanceof IProvisioningPlan)
+			if (resolutionResult instanceof IProvisioningPlan) {
 				return (IProvisioningPlan) resolutionResult;
+			}
 
 			Collection<IInstallableUnit> newState = ((Projector) resolutionResult).extractSolution();
 			Collection<IInstallableUnit> fullState = new ArrayList<>();
@@ -471,7 +595,7 @@ public class SimplePlanner implements IPlanner {
 			sub.setTaskName(Messages.Director_Task_installer_plan);
 			if (profileRegistry == null) {
 				IProvisioningPlan plan = engine.createPlan(initialRequest.getProfile(), initialContext);
-				plan.setStatus(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_no_profile_registry));
+				plan.setStatus(new Status(ERROR, PI_DIRECTOR, Messages.Planner_no_profile_registry));
 				return plan;
 			}
 
@@ -490,7 +614,7 @@ public class SimplePlanner implements IPlanner {
 				if (profile.getProfileId().equals(installerProfile.getProfileId())) {
 					if (profile.getTimestamp() != installerProfile.getTimestamp()) {
 						IProvisioningPlan plan = engine.createPlan(initialRequest.getProfile(), initialContext);
-						plan.setStatus(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_profile_out_of_sync, profile.getProfileId())));
+						plan.setStatus(new Status(ERROR, PI_DIRECTOR, NLS.bind(Messages.Planner_profile_out_of_sync, profile.getProfileId())));
 						return plan;
 					}
 					return createInstallerPlanForCohostedCase(profile, initialRequest, initialPlan, unattachedState, expectedState, initialContext, sub);
@@ -543,8 +667,8 @@ public class SimplePlanner implements IPlanner {
 		if (previousActionsIU != null)
 			agentRequest.remove(previousActionsIU);
 		Object externalInstallerPlan = getSolutionFor(agentRequest, initialContext, sub.newChild(10));
-		if (externalInstallerPlan instanceof IProvisioningPlan && ((IProvisioningPlan) externalInstallerPlan).getStatus().getSeverity() == IStatus.ERROR) {
-			MultiStatus externalInstallerStatus = new MultiStatus(DirectorActivator.PI_DIRECTOR, 0, Messages.Planner_can_not_install_preq, null);
+		if (externalInstallerPlan instanceof IProvisioningPlan && ((IProvisioningPlan) externalInstallerPlan).getStatus().getSeverity() == ERROR) {
+			MultiStatus externalInstallerStatus = new MultiStatus(PI_DIRECTOR, 0, Messages.Planner_can_not_install_preq, null);
 			externalInstallerStatus.add(((IProvisioningPlan) externalInstallerPlan).getStatus());
 			IProvisioningPlan plan = engine.createPlan(initialRequest.getProfile(), initialContext);
 			plan.setStatus(externalInstallerStatus);
@@ -594,8 +718,8 @@ public class SimplePlanner implements IPlanner {
 		ArrayList<IInstallableUnit> extraIUs = new ArrayList<>(unattachedState);
 		agentCtx.setExtraInstallableUnits(extraIUs);
 		Object agentSolution = getSolutionFor(agentRequest, agentCtx, monitor.newChild(3));
-		if (agentSolution instanceof IProvisioningPlan && ((IProvisioningPlan) agentSolution).getStatus().getSeverity() == IStatus.ERROR) {
-			MultiStatus agentStatus = new MultiStatus(DirectorActivator.PI_DIRECTOR, 0, Messages.Planner_actions_and_software_incompatible, null);
+		if (agentSolution instanceof IProvisioningPlan && ((IProvisioningPlan) agentSolution).getStatus().getSeverity() == ERROR) {
+			MultiStatus agentStatus = new MultiStatus(PI_DIRECTOR, 0, Messages.Planner_actions_and_software_incompatible, null);
 			agentStatus.add(((IProvisioningPlan) agentSolution).getStatus());
 			IProvisioningPlan plan = engine.createPlan(initialRequest.getProfile(), initialContext);
 			plan.setStatus(agentStatus);
@@ -614,7 +738,7 @@ public class SimplePlanner implements IPlanner {
 		//...This computes the attachment of what is currently in the profile 
 		Object initialSolution = getSolutionFor(new ProfileChangeRequest(new EverythingOptionalProfile(initialRequest.getProfile())), noRepoContext, new NullProgressMonitor());
 		if (initialSolution instanceof IProvisioningPlan) {
-			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + initialRequest.getProfile().getProfileId() + " version " + initialRequest.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			LogHelper.log(new Status(ERROR, PI_DIRECTOR, "The resolution of the previous state contained in profile " + initialRequest.getProfile().getProfileId() + " version " + initialRequest.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			return (IProvisioningPlan) initialSolution;
 		}
 		Iterator<IInstallableUnit> profileState = initialRequest.getProfile().query(QueryUtil.createIUAnyQuery(), null).iterator();
@@ -638,7 +762,7 @@ public class SimplePlanner implements IPlanner {
 		//Compute the attachment of the previous state
 		Object initialSolution = getSolutionFor(new ProfileChangeRequest(new EverythingOptionalProfile(request.getProfile())), noRepoContext, new NullProgressMonitor());
 		if (initialSolution instanceof IProvisioningPlan) {
-			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + request.getProfile().getProfileId() + " version " + request.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			LogHelper.log(new Status(ERROR, PI_DIRECTOR, "The resolution of the previous state contained in profile " + request.getProfile().getProfileId() + " version " + request.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			return (IProvisioningPlan) initialSolution;
 		}
 		Iterator<IInstallableUnit> profileState = request.getProfile().query(QueryUtil.createIUAnyQuery(), null).iterator();

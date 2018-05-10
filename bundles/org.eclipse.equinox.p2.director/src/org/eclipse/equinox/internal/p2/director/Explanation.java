@@ -11,8 +11,12 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.Arrays;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Explanation implements Comparable<Explanation> {
@@ -331,7 +335,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 		return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, toString());
 	}
 
-	protected String getUserReadableName(IInstallableUnit iu) {
+	protected static String getUserReadableName(IInstallableUnit iu) {
 		if (iu == null)
 			return ""; //$NON-NLS-1$
 		String result = getLocalized(iu);
@@ -340,7 +344,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 		return result + ' ' + iu.getVersion() + " (" + iu.toString() + ')'; //$NON-NLS-1$
 	}
 
-	private String getLocalized(IInstallableUnit iu) {
+	private static String getLocalized(IInstallableUnit iu) {
 		String value = iu.getProperty(IInstallableUnit.PROP_NAME);
 		if (value == null || value.length() <= 1 || value.charAt(0) != '%')
 			return value;

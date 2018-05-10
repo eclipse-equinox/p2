@@ -17,15 +17,45 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
-import java.io.*;
+import static org.eclipse.core.runtime.IStatus.ERROR;
+import static org.eclipse.core.runtime.IStatus.INFO;
+import static org.eclipse.core.runtime.IStatus.OK;
+import static org.eclipse.core.runtime.IStatus.WARNING;
+import static org.eclipse.equinox.internal.p2.director.app.Activator.ID;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -37,21 +67,37 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningLis
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.p2.core.*;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.UIServices;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 public class DirectorApplication implements IApplication, ProvisioningListener {
 	public static class AvoidTrustPromptService extends UIServices {
@@ -298,14 +344,14 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private Properties loadProperties(File file) {
 		if (!file.exists()) {
 			// log a warning and return
-			log.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.File_does_not_exist, file.getAbsolutePath())));
+			log.log(new Status(WARNING, ID, NLS.bind(Messages.File_does_not_exist, file.getAbsolutePath())));
 			return null;
 		}
 		Properties properties = new Properties();
 		try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
 			properties.load(input);
 		} catch (IOException e) {
-			log.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Problem_loading_file, file.getAbsolutePath()), e));
+			log.log(new Status(ERROR, ID, NLS.bind(Messages.Problem_loading_file, file.getAbsolutePath()), e));
 			return null;
 		}
 		return properties;
@@ -345,10 +391,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				// skip over the keyword
 				id = line.substring(0, index);
 			} catch (NumberFormatException e) {
-				log.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
+				log.log(new Status(WARNING, ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
 				continue;
 			} catch (IndexOutOfBoundsException e) {
-				log.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
+				log.log(new Status(WARNING, ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
 				continue;
 			}
 
@@ -370,7 +416,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 			if (key == null || value == null) {
 				String message = NLS.bind(Messages.Unmatched_iu_profile_property_key_value, key + '/' + value);
-				log.log(new Status(IStatus.WARNING, Activator.ID, message));
+				log.log(new Status(WARNING, ID, message));
 				continue;
 			}
 
@@ -382,7 +428,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			IQueryResult<IInstallableUnit> qr = getInstallableUnits(null, query, null);
 			if (qr.isEmpty()) {
 				String msg = NLS.bind(Messages.Cannot_set_iu_profile_property_iu_does_not_exist, id + '/' + version);
-				log.log(new Status(IStatus.WARNING, Activator.ID, msg));
+				log.log(new Status(WARNING, ID, msg));
 				continue;
 			}
 			IInstallableUnit iu = qr.iterator().next();
@@ -429,7 +475,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 			Iterator<IInstallableUnit> itor = roots.iterator();
 			if (!itor.hasNext())
-				throw new CoreException(new Status(IStatus.ERROR, org.eclipse.equinox.internal.p2.director.app.Activator.ID, NLS.bind(Messages.Missing_IU, rootQuery)));
+				throw new CoreException(new Status(ERROR, ID, NLS.bind(Messages.Missing_IU, rootQuery)));
 			do {
 				allRoots.add(itor.next());
 			} while (itor.hasNext());
@@ -725,26 +771,35 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		boolean wasRoaming = Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING));
 		try {
 			updateRoamingProperties(profile);
+
 			ProvisioningContext context = new ProvisioningContext(targetAgent);
-			context.setMetadataRepositories(metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
-			context.setArtifactRepositories(artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
+			context.setMetadataRepositories(metadataRepositoryLocations.stream().toArray(URI[]::new));
+			context.setArtifactRepositories(artifactRepositoryLocations.stream().toArray(URI[]::new));
 			context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, String.valueOf(followReferences));
 			context.setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
+
 			ProfileChangeRequest request = buildProvisioningRequest(profile, installs, uninstalls);
 			printRequest(request);
+
 			planAndExecute(profile, context, request);
 		} finally {
 			// if we were originally were set to be roaming and we changed it, change it back before we return
-			if (wasRoaming && !Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING)))
+			if (wasRoaming && !Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING))) {
 				setRoaming(profile);
+			}
 		}
 	}
 
 	private void planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request) throws CoreException {
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+
 		IStatus operationStatus = result.getStatus();
-		if (!operationStatus.isOK())
+		if (!operationStatus.isOK()) {
 			throw new CoreException(operationStatus);
+		}
+
+		log.log(operationStatus);
+
 		executePlan(context, result);
 	}
 
@@ -760,16 +815,17 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			operationStatus = PlanExecutionHelper.executePlan(result, engine, PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST}), context, new NullProgressMonitor());
 
 		switch (operationStatus.getSeverity()) {
-			case IStatus.OK :
+			case OK :
 				break;
-			case IStatus.INFO :
-			case IStatus.WARNING :
+			case INFO :
+			case WARNING :
 				log.log(operationStatus);
 				break;
-			//. All other status codes correspond to IStatus.isOk() == false
+			// All other status codes correspond to IStatus.isOk() == false
 			default :
-				if (noArtifactRepositorySpecified && hasNoRepositoryFound(operationStatus))
+				if (noArtifactRepositorySpecified && hasNoRepositoryFound(operationStatus)) {
 					throw new ProvisionException(Messages.Application_NoRepositories);
+				}
 				throw new CoreException(operationStatus);
 		}
 
@@ -1062,10 +1118,12 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			}
 			return IApplication.EXIT_OK;
 		} catch (CoreException e) {
-			log.printOut(Messages.Operation_failed);
-			printError(e.getStatus(), 0);
+			IStatus error = e.getStatus();
 
-			log.log(e.getStatus());
+			log.printOut(Messages.Operation_failed);
+			printError(error, 0);
+
+			log.log(error);
 
 			//set empty exit data to suppress error dialog from launcher
 			setSystemProperty("eclipse.exitdata", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1101,7 +1159,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 
 		if (targetProfile == null)
-			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.Missing_profile));
+			throw new CoreException(new Status(ERROR, ID, Messages.Missing_profile));
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
 
 		ProvisioningContext context = new ProvisioningContext(targetAgent);
@@ -1241,7 +1299,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		IStatus status = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 		if (!status.isOK())
-			throw new CoreException(new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
+			throw new CoreException(new MultiStatus(ID, ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
 	}
 
 	@Override

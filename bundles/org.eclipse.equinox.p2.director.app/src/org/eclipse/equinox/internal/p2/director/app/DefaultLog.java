@@ -19,7 +19,7 @@ public class DefaultLog implements ILog, Closeable {
 	public void log(IStatus status) {
 		LogHelper.log(status);
 
-		if (!status.isOK()) {
+		if (status.getSeverity() == IStatus.ERROR) {
 			failed = true;
 		}
 	}
@@ -54,6 +54,6 @@ public class DefaultLog implements ILog, Closeable {
 			return;
 		}
 
-		printErr("Failures loggaed in file: " + fwLog.getFile()); //$NON-NLS-1$
+		printErr("There were errors. See log file: " + fwLog.getFile()); //$NON-NLS-1$
 	}
 }

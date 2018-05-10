@@ -10,11 +10,16 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.director.*;
+import org.eclipse.equinox.internal.p2.director.DirectorActivator;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.director.Explanation.IUInstalled;
 import org.eclipse.equinox.internal.p2.director.Explanation.IUToInstall;
+import org.eclipse.equinox.internal.p2.director.Messages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
@@ -33,10 +38,11 @@ public class RequestStatus extends Status {
 		super(severity, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.RequestStatus_message, iu));
 		this.iu = iu;
 		this.initialRequestType = initialRequesType;
-		this.explanation = explanation;
 		conflictingRootIUs = new HashSet<>();
 		conflictingInstalledIUs = new HashSet<>();
 		if (explanation != null) {
+			this.explanation = explanation;
+
 			Iterator<Explanation> iterator = explanation.iterator();
 			Explanation o = null;
 			while (iterator.hasNext() && ((o = iterator.next()) instanceof Explanation.IUToInstall)) {
@@ -49,6 +55,8 @@ public class RequestStatus extends Status {
 				}
 			}
 			detailedExplanation = o;
+		} else {
+			this.explanation = Collections.emptySet();
 		}
 	}
 
