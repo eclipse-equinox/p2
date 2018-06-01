@@ -13,26 +13,12 @@
       </application> 
    </extension>
 
-	<extension id="jbdiffoptimizer" point="org.eclipse.core.runtime.applications"> 
-      <application> 
-         <run class="org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.Application"/> 
-      </application> 
-   </extension>
-
 	<extension id="Pack200Optimizer" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
 		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.pack200.Pack200OptimizerStep"/>
 	</extension>
 
 	<extension id="JarDeltaOptimizer" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
 		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta.JarDeltaOptimizerStep"/>
-	</extension>
-
-	<extension id="JBDiffStep" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
-		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.JBDiffStep"/>
-	</extension>
-
-	<extension id="JBDiffZipStep" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
-		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.JBDiffZipStep"/>
 	</extension>
 
 </plugin>

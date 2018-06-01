@@ -7,14 +7,12 @@ Bundle-Activator: org.eclipse.equinox.internal.p2.artifact.processors.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.artifact.processors;x-internal:=true,
- org.eclipse.equinox.internal.p2.artifact.processors.jardelta;x-internal:=true,
- org.eclipse.equinox.internal.p2.artifact.processors.jbdiff;x-internal:=true
+ org.eclipse.equinox.internal.p2.artifact.processors.jardelta;x-internal:=true
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
-Import-Package: ie.wombat.jbdiff,
- org.eclipse.equinox.internal.p2.artifact.optimizers,
+Import-Package: org.eclipse.equinox.internal.p2.artifact.optimizers,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.sar,
  org.eclipse.equinox.p2.core;version="[2.0.0,3.0.0)",

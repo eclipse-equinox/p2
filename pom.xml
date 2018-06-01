@@ -111,8 +111,6 @@
   </build>
 
   <modules>
-    <module>bundles/ie.wombat.jbdiff</module>
-    <module>bundles/ie.wombat.jbdiff.test</module>
     <module>bundles/org.eclipse.equinox.frameworkadmin</module>
     <module>bundles/org.eclipse.equinox.frameworkadmin.equinox</module>
     <module>bundles/org.eclipse.equinox.frameworkadmin.test</module>
