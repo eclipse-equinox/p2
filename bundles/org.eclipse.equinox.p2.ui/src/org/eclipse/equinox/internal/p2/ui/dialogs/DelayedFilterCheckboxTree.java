@@ -73,10 +73,10 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 					// cache.
 					if (contentProvider.hasChildren(event.getElement())) {
 						Set<Object> unchecked = new HashSet<>();
-						Object[] children = contentProvider.getChildren(event.getElement());
-						for (Object element1 : children) {
-							unchecked.add(element1);
-						}
+						// See bug 533655, We should uncheck all of the children
+						// of the triggering element, not just the direct descendants.
+						uncheckAllChildren(unchecked, event.getElement());
+
 						Iterator<Object> iter = checkState.iterator();
 						while (iter.hasNext()) {
 							Object current = iter.next();
@@ -101,6 +101,15 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 			}
 		});
 		return checkboxViewer;
+	}
+
+	private void uncheckAllChildren(Set<Object> unchecked, Object element) {
+		for (Object child : contentProvider.getChildren(element)) {
+			unchecked.add(child);
+			if (contentProvider.getChildren(child).length > 0) {
+				uncheckAllChildren(unchecked, child);
+			}
+		}
 	}
 
 	@Override
