@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ public class TimeOut extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static long MINUTES_MS = 1000 * 60; // minutes in ms
 
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 		doDelay();
 	}
@@ -37,6 +38,7 @@ public class TimeOut extends HttpServlet {
 		}
 	}
 
+	@Override
 	protected void doHead(HttpServletRequest request, HttpServletResponse response) {
 		doDelay();
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,9 +32,9 @@ import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-public class Activator implements BundleActivator, ServiceTrackerCustomizer {
+public class Activator implements BundleActivator, ServiceTrackerCustomizer<HttpService, HttpService> {
 	private static BundleContext context;
-	private ServiceTracker httpTracker;
+	private ServiceTracker<HttpService, ?> httpTracker;
 	private SecureContext secureHttpContext;
 	private SecuredArtifactsContext artifactSecuredHttpContext;
 	private static Activator instance;
@@ -46,21 +46,24 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	private static final String SITE2 = "http://www.eclipse.org/equinox/p2/testing/updateSite"; //$NON-NLS-1$
 	private static final String SITE3 = "http://download.eclipse.org/eclipse/updates/3.5-I-builds/"; //$NON-NLS-1$
 
+	@Override
 	public void start(BundleContext aContext) throws Exception {
 		context = aContext;
 
-		httpTracker = new ServiceTracker(context, HttpService.class.getName(), this);
+		httpTracker = new ServiceTracker<>(context, HttpService.class, this);
 		httpTracker.open();
 		instance = this;
 	}
 
+	@Override
 	public void stop(BundleContext aContext) throws Exception {
 		httpTracker.close();
 		context = null;
 	}
 
-	public Object addingService(ServiceReference reference) {
-		httpService = (HttpService) context.getService(reference);
+	@Override
+	public HttpService addingService(ServiceReference<HttpService> reference) {
+		httpService = context.getService(reference);
 		secureHttpContext = new SecureContext(httpService.createDefaultHttpContext());
 		artifactSecuredHttpContext = new SecuredArtifactsContext(httpService.createDefaultHttpContext());
 		alwaysFail = new AlwaysFailContext(httpService.createDefaultHttpContext());
@@ -72,23 +75,33 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 			httpService.registerResources("/private", "/webfiles", secureHttpContext); //$NON-NLS-1$ //$NON-NLS-2$
 			httpService.registerResources("/never", "/webfiles", alwaysFail); //$NON-NLS-1$ //$NON-NLS-2$
 			httpService.registerResources("/flipflop", "/webfiles", flipFlop); //$NON-NLS-1$ //$NON-NLS-2$
-			//			httpService.registerResources("/mirrorrequest", "/webfiles/emptyJarRepo", null); //$NON-NLS-1$ //$NON-NLS-2$
+			// httpService.registerResources("/mirrorrequest", "/webfiles/emptyJarRepo",
+			// null); //$NON-NLS-1$ //$NON-NLS-2$
 
 			httpService.registerServlet("/status", new StatusCodeResponse(), null, null); //$NON-NLS-1$
 			httpService.registerServlet("/timeout", new TimeOut(), null, null); //$NON-NLS-1$
-			httpService.registerServlet("/mirrorrequest", new IntermittentTimeout("/mirrorrequest", URI.create("http://localhost:" + System.getProperty("org.osgi.service.http.port", "8080") + "/public/emptyJarRepo")), null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+			httpService.registerServlet("/mirrorrequest", //$NON-NLS-1$
+					new IntermittentTimeout("/mirrorrequest", URI.create("http://localhost:" //$NON-NLS-1$ //$NON-NLS-2$
+							+ System.getProperty("org.osgi.service.http.port", "8080") + "/public/emptyJarRepo")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					null, null);
 			httpService.registerServlet("/redirect", new Redirector(), null, null); //$NON-NLS-1$
 
-			httpService.registerServlet("/truncated", new Truncator("/truncated", URI.create("/webfiles"), 50), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			httpService.registerServlet("/molested", new FileMolester("/molested", URI.create("/webfiles"), 40), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			httpService.registerServlet("/truncated", new Truncator("/truncated", URI.create("/webfiles"), 50), null, //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					null);
+			httpService.registerServlet("/molested", new FileMolester("/molested", URI.create("/webfiles"), 40), null, //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					null);
 			// 8 bytes at a time, delay from 0 to 100 ms, in steps of 5
-			httpService.registerServlet("/decelerate", new ChopAndDelay("/decelerate", URI.create("/webfiles"), 3, 0, new LinearChange(0, 5, 100, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			httpService.registerServlet("/decelerate", //$NON-NLS-1$
+					new ChopAndDelay("/decelerate", URI.create("/webfiles"), 3, 0, new LinearChange(0, 5, 100, 0)), //$NON-NLS-1$//$NON-NLS-2$
+					null, null);
 
 			addProxyServices(httpService, SITE, "/proxy/"); //$NON-NLS-1$
 			addProxyServices(httpService, SITE2, "/proxy2/"); //$NON-NLS-1$
 
-			httpService.registerServlet("/proxy3/aprivate", new BasicResourceDelivery("/proxy3/aprivate", URI.create(SITE2)), null, artifactSecuredHttpContext); //$NON-NLS-1$//$NON-NLS-2$
-			httpService.registerServlet("/proxy4/aprivate", new BasicResourceDelivery("/proxy4/aprivate", URI.create(SITE3)), null, artifactSecuredHttpContext); //$NON-NLS-1$//$NON-NLS-2$
+			httpService.registerServlet("/proxy3/aprivate", //$NON-NLS-1$
+					new BasicResourceDelivery("/proxy3/aprivate", URI.create(SITE2)), null, artifactSecuredHttpContext); //$NON-NLS-1$
+			httpService.registerServlet("/proxy4/aprivate", //$NON-NLS-1$
+					new BasicResourceDelivery("/proxy4/aprivate", URI.create(SITE3)), null, artifactSecuredHttpContext); //$NON-NLS-1$
 			httpService.registerServlet("/stats", new Stats(), null, null); //$NON-NLS-1$
 
 		} catch (NamespaceException e) {
@@ -103,33 +116,55 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
 	/**
 	 * Adds services to a location
+	 *
 	 * @param site
 	 * @param root the "mount dir" e.g. "/proxy/" "/proxy2/" etc.
-	 * @throws NamespaceException 
-	 * @throws ServletException 
+	 * @throws NamespaceException
+	 * @throws ServletException
 	 */
-	private void addProxyServices(HttpService httpService, String site, String root) throws ServletException, NamespaceException {
-		httpService.registerServlet(root + "truncated", new Truncator(root + "truncated", URI.create(site), 50), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "public", new BasicResourceDelivery(root + "public", URI.create(site)), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "private", new BasicResourceDelivery(root + "private", URI.create(site)), null, secureHttpContext); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "never", new BasicResourceDelivery(root + "private", URI.create(site)), null, alwaysFail); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "flipFlop", new BasicResourceDelivery(root + "private", URI.create(site)), null, flipFlop); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "molested", new FileMolester(root + "molested", URI.create(site), 40), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "decelerate", new ChopAndDelay(root + "decelerate", URI.create(site), 3, 0, new LinearChange(0, 5, 100, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "decelerate2", new ChopAndDelay(root + "decelerate2", URI.create(site), 3, 80, new LinearChange(100, 5, 105, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "readtimeout", new ChopAndDelay(root + "readtimeout", URI.create(site), 3, 10, new LinearChange(10 * 60 * 1000, 5, 5 + 10 * 60 * 1000, 0)), null, null); //$NON-NLS-1$//$NON-NLS-2$
+	private void addProxyServices(HttpService service, String site, String root)
+			throws ServletException, NamespaceException {
+		service.registerServlet(root + "truncated", new Truncator(root + "truncated", URI.create(site), 50), null, //$NON-NLS-1$//$NON-NLS-2$
+				null);
+		service.registerServlet(root + "public", new BasicResourceDelivery(root + "public", URI.create(site)), null, //$NON-NLS-1$//$NON-NLS-2$
+				null);
+		service.registerServlet(root + "private", new BasicResourceDelivery(root + "private", URI.create(site)), //$NON-NLS-1$//$NON-NLS-2$
+				null, secureHttpContext);
+		service.registerServlet(root + "never", new BasicResourceDelivery(root + "private", URI.create(site)), null, //$NON-NLS-1$//$NON-NLS-2$
+				alwaysFail);
+		service.registerServlet(root + "flipFlop", new BasicResourceDelivery(root + "private", URI.create(site)), //$NON-NLS-1$//$NON-NLS-2$
+				null, flipFlop);
+		service.registerServlet(root + "molested", new FileMolester(root + "molested", URI.create(site), 40), null, //$NON-NLS-1$//$NON-NLS-2$
+				null);
+		service.registerServlet(root + "decelerate", //$NON-NLS-1$
+				new ChopAndDelay(root + "decelerate", URI.create(site), 3, 0, new LinearChange(0, 5, 100, 0)), null, //$NON-NLS-1$
+				null);
+		service.registerServlet(root + "decelerate2", //$NON-NLS-1$
+				new ChopAndDelay(root + "decelerate2", URI.create(site), 3, 80, new LinearChange(100, 5, 105, 0)), null, //$NON-NLS-1$
+				null);
+		service.registerServlet(root + "readtimeout", new ChopAndDelay(root + "readtimeout", URI.create(site), 3, //$NON-NLS-1$//$NON-NLS-2$
+				10, new LinearChange(10 * 60 * 1000, 5, 5 + 10 * 60 * 1000, 0)), null, null);
 
 		// lie about modified time
-		httpService.registerServlet(root + "modified/zero", new LastModifiedLier(root + "modified/zero", URI.create(site), LastModifiedLier.TYPE_ZERO), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "modified/old", new LastModifiedLier(root + "modified/old", URI.create(site), LastModifiedLier.TYPE_OLD), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "modified/now", new LastModifiedLier(root + "modified/now", URI.create(site), LastModifiedLier.TYPE_NOW), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "modified/future", new LastModifiedLier(root + "modified/future", URI.create(site), LastModifiedLier.TYPE_FUTURE), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "modified/bad", new LastModifiedLier(root + "modified/bad", URI.create(site), LastModifiedLier.TYPE_BAD), null, null); //$NON-NLS-1$//$NON-NLS-2$
+		service.registerServlet(root + "modified/zero", //$NON-NLS-1$
+				new LastModifiedLier(root + "modified/zero", URI.create(site), LastModifiedLier.TYPE_ZERO), null, null); //$NON-NLS-1$
+		service.registerServlet(root + "modified/old", //$NON-NLS-1$
+				new LastModifiedLier(root + "modified/old", URI.create(site), LastModifiedLier.TYPE_OLD), null, null); //$NON-NLS-1$
+		service.registerServlet(root + "modified/now", //$NON-NLS-1$
+				new LastModifiedLier(root + "modified/now", URI.create(site), LastModifiedLier.TYPE_NOW), null, null); //$NON-NLS-1$
+		service.registerServlet(root + "modified/future", //$NON-NLS-1$
+				new LastModifiedLier(root + "modified/future", URI.create(site), LastModifiedLier.TYPE_FUTURE), null, //$NON-NLS-1$
+				null);
+		service.registerServlet(root + "modified/bad", //$NON-NLS-1$
+				new LastModifiedLier(root + "modified/bad", URI.create(site), LastModifiedLier.TYPE_BAD), null, null); //$NON-NLS-1$
 
 		// lie about length
-		httpService.registerServlet(root + "length/zero", new ContentLengthLier(root + "length/zero", URI.create(site), 0), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "length/less", new ContentLengthLier(root + "length/less", URI.create(site), 90), null, null); //$NON-NLS-1$//$NON-NLS-2$
-		httpService.registerServlet(root + "length/more", new ContentLengthLier(root + "length/more", URI.create(site), 200), null, null); //$NON-NLS-1$//$NON-NLS-2$
+		service.registerServlet(root + "length/zero", //$NON-NLS-1$
+				new ContentLengthLier(root + "length/zero", URI.create(site), 0), null, null); //$NON-NLS-1$
+		service.registerServlet(root + "length/less", //$NON-NLS-1$
+				new ContentLengthLier(root + "length/less", URI.create(site), 90), null, null); //$NON-NLS-1$
+		service.registerServlet(root + "length/more", //$NON-NLS-1$
+				new ContentLengthLier(root + "length/more", URI.create(site), 200), null, null); //$NON-NLS-1$
 
 	}
 
@@ -141,15 +176,16 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		return httpService;
 	}
 
-	public void modifiedService(ServiceReference reference, Object service) {
-		// do nothing 
+	@Override
+	public void modifiedService(ServiceReference<HttpService> reference, HttpService service) {
+		// do nothing
 	}
 
-	public void removedService(ServiceReference reference, Object service) {
-		httpService = (HttpService) service;
-		httpService.unregister("/public"); //$NON-NLS-1$
-		httpService.unregister("/private"); //$NON-NLS-1$
-		httpService.unregister("/stats"); //$NON-NLS-1$
+	@Override
+	public void removedService(ServiceReference<HttpService> reference, HttpService service) {
+		service.unregister("/public"); //$NON-NLS-1$
+		service.unregister("/private"); //$NON-NLS-1$
+		service.unregister("/stats"); //$NON-NLS-1$
 	}
 
 }

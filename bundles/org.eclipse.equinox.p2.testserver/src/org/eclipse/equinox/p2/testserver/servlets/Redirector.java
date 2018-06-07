@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,13 +20,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Redirects n times, before redirecting to final location (a path on same server).
- * 
+ * Redirects n times, before redirecting to final location (a path on same
+ * server).
+ *
  */
 public class Redirector extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setContentType("text/html"); //$NON-NLS-1$
 		PrintWriter writer = response.getWriter();
@@ -38,7 +40,9 @@ public class Redirector extends HttpServlet {
 		String[] result = requestPath.split("/"); //$NON-NLS-1$
 		if (result.length < 3 && !"redirect".equalsIgnoreCase(result[1])) //$NON-NLS-1$
 		{
-			getServletContext().log("Error Servlet requires being configured to get /redirect/count paths. Example /redirect/500, got" + requestPath); //$NON-NLS-1$
+			getServletContext().log(
+					"Error Servlet requires being configured to get /redirect/count paths. Example /redirect/500, got" //$NON-NLS-1$
+							+ requestPath);
 			return;
 		}
 		// get the error code
@@ -85,6 +89,7 @@ public class Redirector extends HttpServlet {
 		}
 	}
 
+	@Override
 	public void doHead(HttpServletRequest request, HttpServletResponse response) {
 		// produce same response as for GET, but no content (writer == null)
 		doStatus(request, response, null);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,16 +17,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.osgi.service.http.HttpContext;
 
 /**
- * The AlwaysFailContext can be used to add basic authentication to a path.
- * This implementation will always fail (easier to test failure logic) this way.
+ * The AlwaysFailContext can be used to add basic authentication to a path. This
+ * implementation will always fail (easier to test failure logic) this way.
  */
 public class AlwaysFailContext implements HttpContext {
-	private HttpContext theDefaultContext;
+	private final HttpContext theDefaultContext;
 
 	public AlwaysFailContext(HttpContext defaultContext) {
 		theDefaultContext = defaultContext;
 	}
 
+	@Override
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) {
 		// always fail
 		response.setHeader("WWW-Authenticate", "BASIC realm=\"p2 Http Testing Server (Aladdin, open sesame)\""); //$NON-NLS-1$//$NON-NLS-2$
@@ -35,10 +36,12 @@ public class AlwaysFailContext implements HttpContext {
 
 	}
 
+	@Override
 	public String getMimeType(String name) {
 		return theDefaultContext.getMimeType(name);
 	}
 
+	@Override
 	public URL getResource(String name) {
 		return theDefaultContext.getResource(name);
 	}

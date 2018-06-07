@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,9 +39,9 @@ import org.osgi.service.http.HttpService;
 public class BasicResourceDelivery extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	// private static final String CHARSET = "utf-8"; //$NON-NLS-1$
-	private SecureAction secureAction;
-	private String alias;
-	private URI path;
+	private final SecureAction secureAction;
+	private final String alias;
+	private final URI path;
 	protected static final String defaultMimeType = "application/octet-stream"; //$NON-NLS-1$
 
 	/**
@@ -53,6 +53,7 @@ public class BasicResourceDelivery extends HttpServlet {
 		path = thePath;
 	}
 
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		URI resource = null;
 		try {
@@ -70,7 +71,7 @@ public class BasicResourceDelivery extends HttpServlet {
 		}
 
 		if (url == null) {
-			fileNotFound(resource, request, response);
+			fileNotFound(resource, response);
 			return;
 		}
 
@@ -89,7 +90,7 @@ public class BasicResourceDelivery extends HttpServlet {
 		try {
 			in = conn.getInputStream();
 		} catch (IOException ex) {
-			fileNotFound(resource, request, response);
+			fileNotFound(resource, response);
 			return;
 		}
 		try {
@@ -101,23 +102,26 @@ public class BasicResourceDelivery extends HttpServlet {
 		}
 	}
 
-	protected void deliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	protected void deliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
 		this.doDeliver(conn, in, filename, request, response);
 	}
 
-	/** 
-	 * Default method delivering content from a file. Subclasses should override this method
-	 * to deliver "broken content" (e.g. truncated, mismatched content length etc.).
-	 * This default method performs the same delivery as the default "register resource" in the
-	 * http service.
-	 * @param conn - The URLConnection to the resource
-	 * @param in - InputStream to read from
+	/**
+	 * Default method delivering content from a file. Subclasses should override
+	 * this method to deliver "broken content" (e.g. truncated, mismatched content
+	 * length etc.). This default method performs the same delivery as the default
+	 * "register resource" in the http service.
+	 *
+	 * @param conn     - The URLConnection to the resource
+	 * @param in       - InputStream to read from
 	 * @param filename - the filename being read
-	 * @param request - the servlet request
+	 * @param request  - the servlet request
 	 * @param response - the servlet response
 	 * @throws IOException - on errors
 	 */
-	protected void doDeliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	protected void doDeliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
 		// set when the resource was modified
 		addDateHeader(response, HttpConstants.LAST_MODIFIED, getLastModified(conn));
 		int statusCode = HttpHeaderToStatus(conn.getHeaderField(0));
@@ -160,11 +164,14 @@ public class BasicResourceDelivery extends HttpServlet {
 		}
 	}
 
-	protected void fileNotFound(URI file, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		response.sendError(HttpServletResponse.SC_NOT_FOUND, (file == null ? "<no file>" : file.toString()) + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
+	protected void fileNotFound(URI file, HttpServletResponse response) throws IOException {
+		response.sendError(HttpServletResponse.SC_NOT_FOUND,
+				(file == null ? "<no file>" : file.toString()) + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	protected void doHead(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		URI resource = null;
 		try {
 			resource = getFilename(request.getRequestURI());
@@ -181,7 +188,7 @@ public class BasicResourceDelivery extends HttpServlet {
 		}
 
 		if (url == null) {
-			fileNotFound(resource, request, response);
+			fileNotFound(resource, response);
 			return;
 		}
 		URLConnection conn = secureAction.openURL(url);
@@ -190,11 +197,13 @@ public class BasicResourceDelivery extends HttpServlet {
 		doDeliverHead(resource.toString(), conn, request, response); // TODO: change API to use URI?
 	}
 
-	protected void deliverHead(String filename, URLConnection conn, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void deliverHead(String filename, URLConnection conn, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		this.doDeliverHead(filename, conn, request, response);
 	}
 
-	protected void doDeliverHead(String filename, URLConnection conn, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doDeliverHead(String filename, URLConnection conn, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		int contentlength = getContentLength(conn);
 		int statusCode = HttpHeaderToStatus(conn.getHeaderField(0));
 		// set status = ok if there was no http header...
@@ -226,6 +235,7 @@ public class BasicResourceDelivery extends HttpServlet {
 
 	/**
 	 * Override to lie about last modified
+	 *
 	 * @param conn
 	 * @return time in ms
 	 */
@@ -235,6 +245,7 @@ public class BasicResourceDelivery extends HttpServlet {
 
 	/**
 	 * Override to lie about content length
+	 *
 	 * @param conn
 	 * @return length in bytes
 	 */
@@ -243,14 +254,16 @@ public class BasicResourceDelivery extends HttpServlet {
 	}
 
 	protected URI getFilename(String filename) throws URISyntaxException {
-		//If the requested URI is equal to the Registeration's alias, send the file
-		//corresponding to the alias.  Otherwise, we have request for a file in an
-		//registered directory (the file was not directly registered itself).
+		// If the requested URI is equal to the Registeration's alias, send the file
+		// corresponding to the alias. Otherwise, we have request for a file in an
+		// registered directory (the file was not directly registered itself).
 		if (filename.equals(alias)) {
 			filename = path.getPath();
 		} else {
-			// The file we re looking for is the registered resource (alias) + the rest of the
-			// filename that is not part of the registered resource.  For example, if we export
+			// The file we re looking for is the registered resource (alias) + the rest of
+			// the
+			// filename that is not part of the registered resource. For example, if we
+			// export
 			// /a to /tmp and we have a request for /a/b/foo.txt, then /tmp is our directory
 			// (file.toString()) and /b/foo.txt is the rest.
 			// The result is that we open the file /tmp/b/foo.txt.
@@ -280,14 +293,15 @@ public class BasicResourceDelivery extends HttpServlet {
 				filename = buf.toString();
 			}
 		}
-		return new URI(path.getScheme(), path.getUserInfo(), path.getHost(), path.getPort(), filename, path.getQuery(), path.getFragment());
+		return new URI(path.getScheme(), path.getUserInfo(), path.getHost(), path.getPort(), filename, path.getQuery(),
+				path.getFragment());
 		// return (filename);
 	}
 
 	/**
 	 * This method returns the correct MIME type of a given URI by first checking
-	 * the HttpContext::getMimeType and, if null, checking the httpservice's MIMETypes table.
-	 * return mimetype with charset=utf-8 for all text/... types
+	 * the HttpContext::getMimeType and, if null, checking the httpservice's
+	 * MIMETypes table. return mimetype with charset=utf-8 for all text/... types
 	 */
 	protected String computeMimeType(String name, URLConnection conn) {
 		String mimeType = computeMimeType2(name, conn);
@@ -318,7 +332,9 @@ public class BasicResourceDelivery extends HttpServlet {
 	public static final DateFormat PATTERN_RFC1123 = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US); //$NON-NLS-1$
 
 	/**
-	 * Support setting date header - in servlet > 2.1 it is possible to call this method directly on the HttpResponse.
+	 * Support setting date header - in servlet > 2.1 it is possible to call this
+	 * method directly on the HttpResponse.
+	 *
 	 * @param response
 	 * @param name
 	 * @param timestamp

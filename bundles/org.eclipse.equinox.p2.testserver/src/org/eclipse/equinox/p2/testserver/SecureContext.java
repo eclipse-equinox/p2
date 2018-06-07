@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,16 +17,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.osgi.service.http.HttpContext;
 
 /**
- * The SecureContext can be used to add basic authentication to a path.
- * This implementation requires the user "Aladdin" to log in with the password "open sesame".
+ * The SecureContext can be used to add basic authentication to a path. This
+ * implementation requires the user "Aladdin" to log in with the password "open
+ * sesame".
  */
 public class SecureContext implements HttpContext {
-	private HttpContext theDefaultContext;
+	private final HttpContext theDefaultContext;
 
 	public SecureContext(HttpContext defaultContext) {
 		theDefaultContext = defaultContext;
 	}
 
+	@Override
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) {
 		String auth = request.getHeader("Authorization"); //$NON-NLS-1$
 		// Response is Aladdin:open sesame in Base64 encoding (from RFC example)
@@ -40,10 +42,12 @@ public class SecureContext implements HttpContext {
 
 	}
 
+	@Override
 	public String getMimeType(String name) {
 		return theDefaultContext.getMimeType(name);
 	}
 
+	@Override
 	public URL getResource(String name) {
 		return theDefaultContext.getResource(name);
 	}

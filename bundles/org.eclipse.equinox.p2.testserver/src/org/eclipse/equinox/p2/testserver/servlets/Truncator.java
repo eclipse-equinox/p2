@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,18 +30,22 @@ public class Truncator extends BasicResourceDelivery {
 	public Truncator(String theAlias, URI thePath, int keepPercent) {
 		super(theAlias, thePath);
 		if (keepPercent < 0 || keepPercent > 100)
-			throw new IllegalArgumentException("keepPercent must be between 0 and 100 - was:" + Integer.valueOf(keepPercent)); //$NON-NLS-1$
+			throw new IllegalArgumentException(
+					"keepPercent must be between 0 and 100 - was:" + Integer.valueOf(keepPercent)); //$NON-NLS-1$
 		keepFactor = keepPercent / 100.0;
 	}
 
 	private static final long serialVersionUID = 1L;
 
-	protected void deliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@Override
+	protected void deliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
 		// truncate all files
-		doTruncate(conn, in, filename, request, response);
+		doTruncate(conn, in, filename, response);
 	}
 
-	protected void doTruncate(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	protected void doTruncate(URLConnection conn, InputStream in, String filename, HttpServletResponse response)
+			throws IOException {
 		int contentlength = conn.getContentLength();
 		if (contentlength >= 0) {
 			response.setContentLength(contentlength);
@@ -86,6 +90,7 @@ public class Truncator extends BasicResourceDelivery {
 	/**
 	 * Returns read if entire amount should be read. Returns a lower number if
 	 * written + read > keepPercent of total
+	 *
 	 * @param total
 	 * @param written
 	 * @param read
@@ -96,7 +101,9 @@ public class Truncator extends BasicResourceDelivery {
 		return (read + written) > cap ? cap - written : read;
 	}
 
-	protected void deliverHead(String filename, URLConnection conn, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	protected void deliverHead(String filename, URLConnection conn, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		// deliver normal head response
 		super.doDeliverHead(filename, conn, request, response);
 

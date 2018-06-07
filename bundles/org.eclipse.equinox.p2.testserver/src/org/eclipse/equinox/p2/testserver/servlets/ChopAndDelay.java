@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,29 +24,31 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.equinox.p2.testserver.LinearChange;
 
 /**
- * The ChopAndDelay deliver the content chopped up in smaller packets and adds delay
- * between packets.
- * 
+ * The ChopAndDelay deliver the content chopped up in smaller packets and adds
+ * delay between packets.
+ *
  */
 public class ChopAndDelay extends BasicResourceDelivery {
 
 	int chopFactor;
 	private LinearChange delayFunction;
 	private long msDelay;
-	private int fastPercent;
+	private final int fastPercent;
 
 	/**
 	 * Create a file molester that turns content into gibberish.
-	 * 
-	 * @param theAlias the path this servlet is registered under
-	 * @param thePath the path to use as root for the alias
-	 * @param chopFactor - a value between 1 and 12 where 1 is one byte, and 12 is 4k bytes at a time.
+	 *
+	 * @param theAlias      the path this servlet is registered under
+	 * @param thePath       the path to use as root for the alias
+	 * @param chopFactor    - a value between 1 and 12 where 1 is one byte, and 12
+	 *                      is 4k bytes at a time.
 	 * @param delayFunction - function returning a series of delay values
 	 */
 	public ChopAndDelay(String theAlias, URI thePath, int chopFactor, int fastPercent, LinearChange delayFunction) {
 		super(theAlias, thePath);
 		if (chopFactor < 1 || chopFactor > 12)
-			throw new IllegalArgumentException("chopFactor must be between 1 and 12 (inclusive) - was:" + Integer.valueOf(chopFactor)); //$NON-NLS-1$
+			throw new IllegalArgumentException(
+					"chopFactor must be between 1 and 12 (inclusive) - was:" + Integer.valueOf(chopFactor)); //$NON-NLS-1$
 		this.chopFactor = chopFactor;
 		if (fastPercent < 0 || fastPercent > 100)
 			throw new IllegalArgumentException("fastPercent must be 0-100 - was:" + Integer.valueOf(fastPercent)); //$NON-NLS-1$
@@ -60,12 +62,15 @@ public class ChopAndDelay extends BasicResourceDelivery {
 
 	private static final long serialVersionUID = 1L;
 
-	protected void deliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@Override
+	protected void deliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
 		// chop up all files
-		doChop(conn, in, filename, request, response);
+		doChop(conn, in, filename, response);
 	}
 
-	protected void doChop(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	protected void doChop(URLConnection conn, InputStream in, String filename, HttpServletResponse response)
+			throws IOException {
 		LinearChange delayer = delayFunction.fork();
 		int contentlength = conn.getContentLength();
 		if (contentlength >= 0) {

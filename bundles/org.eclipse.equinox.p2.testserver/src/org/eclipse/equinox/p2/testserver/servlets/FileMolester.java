@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,11 +23,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * The FileMolester will keep a certain amount of the file from the beginning, and return
- * garbage/gibberish for the rest of the file's content. The garbage is produced by shifting every
- * byte 1 bit to the left.
- * 
- * The idea for keeping some percentage is to support keeping xml headers / doctype etc.
+ * The FileMolester will keep a certain amount of the file from the beginning,
+ * and return garbage/gibberish for the rest of the file's content. The garbage
+ * is produced by shifting every byte 1 bit to the left.
+ *
+ * The idea for keeping some percentage is to support keeping xml headers /
+ * doctype etc.
  */
 public class FileMolester extends BasicResourceDelivery {
 
@@ -35,9 +36,9 @@ public class FileMolester extends BasicResourceDelivery {
 
 	/**
 	 * Create a file molester that turns content into gibberish.
-	 * 
-	 * @param theAlias the path this servlet is registered under
-	 * @param thePath the path to use as root for the alias
+	 *
+	 * @param theAlias   the path this servlet is registered under
+	 * @param thePath    the path to use as root for the alias
 	 * @param keepLength - how many bytes in the beginning that will be unmolested
 	 */
 	public FileMolester(String theAlias, URI thePath, int keepLength) {
@@ -49,12 +50,15 @@ public class FileMolester extends BasicResourceDelivery {
 
 	private static final long serialVersionUID = 1L;
 
-	protected void deliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@Override
+	protected void deliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
 		// molest all files
-		doMolest(conn, in, filename, request, response);
+		doMolest(conn, in, filename, response);
 	}
 
-	protected void doMolest(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	protected void doMolest(URLConnection conn, InputStream in, String filename, HttpServletResponse response)
+			throws IOException {
 		int contentlength = conn.getContentLength();
 		if (contentlength >= 0) {
 			response.setContentLength(contentlength);

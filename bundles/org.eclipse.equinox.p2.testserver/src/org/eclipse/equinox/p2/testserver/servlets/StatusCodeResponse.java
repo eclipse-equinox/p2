@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,18 +18,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Produces a response with a status code specified in the request URI.
- * Requires to be registered for "/status" path. The request is made on the format
- * "/status/code/" where code is the HTTP integer status code. The path after /code/ can be
- * anything - it is always ignored.
- * The response to GET produces HTML text "Requested status: code".
- * The response to HEAD just produces the status header response.
- * 
+ * Produces a response with a status code specified in the request URI. Requires
+ * to be registered for "/status" path. The request is made on the format
+ * "/status/code/" where code is the HTTP integer status code. The path after
+ * /code/ can be anything - it is always ignored. The response to GET produces
+ * HTML text "Requested status: code". The response to HEAD just produces the
+ * status header response.
+ *
  */
 public class StatusCodeResponse extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setContentType("text/html"); //$NON-NLS-1$
 		PrintWriter writer = response.getWriter();
@@ -41,7 +42,9 @@ public class StatusCodeResponse extends HttpServlet {
 		String[] result = requestPath.split("/"); //$NON-NLS-1$
 		if (result.length < 3 && !"status".equalsIgnoreCase(result[1])) //$NON-NLS-1$
 		{
-			getServletContext().log("Error Servlet requires being configured to get /status/statuscode paths. Example /status/500, got" + requestPath); //$NON-NLS-1$
+			getServletContext().log(
+					"Error Servlet requires being configured to get /status/statuscode paths. Example /status/500, got" //$NON-NLS-1$
+							+ requestPath);
 			return;
 		}
 		// get the error code
@@ -60,6 +63,7 @@ public class StatusCodeResponse extends HttpServlet {
 			htmlPage(writer, "Requested Status: " + Integer.valueOf(errorCode), false); //$NON-NLS-1$
 	}
 
+	@Override
 	public void doHead(HttpServletRequest request, HttpServletResponse response) {
 		// produce same reponse as for GET, but no content (writer == null)
 		doStatus(request, response, null);

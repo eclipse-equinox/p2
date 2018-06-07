@@ -15,7 +15,7 @@ import org.eclipse.equinox.p2.testserver.HttpConstants;
 public class IntermittentTimeout extends BasicResourceDelivery {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2216234319571297257L;
 	int count = 1;
@@ -24,7 +24,9 @@ public class IntermittentTimeout extends BasicResourceDelivery {
 		super(theAlias, thePath);
 	}
 
-	protected void doDeliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@Override
+	protected void doDeliver(URLConnection conn, InputStream in, String filename, HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
 		// set when the resource was modified
 		addDateHeader(response, HttpConstants.LAST_MODIFIED, getLastModified(conn));
 		int statusCode = HttpHeaderToStatus(conn.getHeaderField(0));

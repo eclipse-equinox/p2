@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,22 +23,23 @@ public class MimeLookup {
 
 		// treat names with multiple "." in a special way (currently only one)
 		if (name.endsWith(JAR_PACK_GZ))
-			return (String) extMap.get(JAR_PACK_GZ);
+			return extMap.get(JAR_PACK_GZ);
 		int dot = name.lastIndexOf("."); //$NON-NLS-1$
-		// get the suffix, use "a" for empty as this gives the default "application/octet-stream"
+		// get the suffix, use "a" for empty as this gives the default
+		// "application/octet-stream"
 		String tmp = dot == -1 ? "a" : name.substring(dot + 1); //$NON-NLS-1$
-		tmp = (String) extMap.get(tmp);
+		tmp = extMap.get(tmp);
 		return tmp == null ? "application/octet-stream" : tmp; //$NON-NLS-1$
 	}
 
-	private static Map extMap;
-	private static Map mimeMap;
+	private static Map<String, String> extMap;
+	private static Map<String, String> mimeMap;
 
 	public static void initNameToMime() {
-		extMap = new HashMap(data.length);
+		extMap = new HashMap<>(data.length);
 		for (int i = 0; i < data.length; i += 2) {
-			Object key = data[i];
-			Object val = extMap.get(key);
+			String key = data[i];
+			String val = extMap.get(key);
 			if (val == null)
 				extMap.put(key, data[i]);
 		}
@@ -46,10 +47,10 @@ public class MimeLookup {
 	}
 
 	public static void initMimeToExt() {
-		mimeMap = new HashMap(data.length);
+		mimeMap = new HashMap<>(data.length);
 		for (int i = 0; i < data.length; i += 2) {
-			Object key = data[i + 1];
-			Object val = mimeMap.get(key);
+			String key = data[i + 1];
+			String val = mimeMap.get(key);
 			if (val == null)
 				mimeMap.put(key, data[i]);
 		}
@@ -57,7 +58,7 @@ public class MimeLookup {
 	}
 
 	public final static String[] data = { //
-	//--- typical java related mime types - higher priority
+			// --- typical java related mime types - higher priority
 			"bat", "text/plain", //$NON-NLS-1$ //$NON-NLS-2$
 			"batfrag", "text/plain", //$NON-NLS-1$ //$NON-NLS-2$
 			"class", "application/octet-stream", //$NON-NLS-1$ //$NON-NLS-2$
@@ -89,7 +90,7 @@ public class MimeLookup {
 			"xmlfrag", "text/plain", //$NON-NLS-1$ //$NON-NLS-2$
 			"zip", "application/zip", //$NON-NLS-1$ //$NON-NLS-2$
 
-			//--- misc definitions
+			// --- misc definitions
 			"3dm", "x-world/x-3dmf", //$NON-NLS-1$ //$NON-NLS-2$
 			"3dmf", "x-world/x-3dmf", //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -106,7 +107,7 @@ public class MimeLookup {
 			"aifc", "audio/aiff", //$NON-NLS-1$ //$NON-NLS-2$
 			"aifc", "audio/x-aiff", //$NON-NLS-1$ //$NON-NLS-2$
 			"aiff", "audio/aiff", //$NON-NLS-1$ //$NON-NLS-2$
-			"aiff", "audio/x-aiff", //$NON-NLS-1$ //$NON-NLS-2$			
+			"aiff", "audio/x-aiff", //$NON-NLS-1$ //$NON-NLS-2$
 			"aim", "application/x-aim", //$NON-NLS-1$ //$NON-NLS-2$
 			"aip", "text/x-audiosoft-intra", //$NON-NLS-1$ //$NON-NLS-2$
 			"ani", "application/x-navi-animation", //$NON-NLS-1$ //$NON-NLS-2$
