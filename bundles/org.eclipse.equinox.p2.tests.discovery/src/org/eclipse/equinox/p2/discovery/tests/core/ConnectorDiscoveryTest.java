@@ -1,46 +1,50 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2018 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.discovery.tests.core;
 
+import static org.junit.Assert.*;
+
 import java.util.*;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.discovery.Catalog;
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
 import org.eclipse.equinox.p2.discovery.tests.core.mock.CatalogItemMockFactory;
 import org.eclipse.equinox.p2.discovery.tests.core.mock.MockDiscoveryStrategy;
+import org.junit.Before;
+import org.junit.Test;
 import org.osgi.framework.Version;
 
 /**
  * @author David Green
  */
-public class ConnectorDiscoveryTest extends TestCase {
+public class ConnectorDiscoveryTest {
 
 	private Catalog connectorDiscovery;
 
 	private MockDiscoveryStrategy mockDiscoveryStrategy;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		connectorDiscovery = new Catalog();
 		mockDiscoveryStrategy = new MockDiscoveryStrategy();
 		connectorDiscovery.getDiscoveryStrategies().add(mockDiscoveryStrategy);
 	}
 
+	@Test
 	public void testPlatformFilter_None() {
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 		assertEquals(mockDiscoveryStrategy.getConnectorCount(), connectorDiscovery.getItems().size());
 	}
 
+	@Test
 	public void testPlatformFilter_NegativeMatch() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
@@ -59,6 +63,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 		assertTrue(connectorDiscovery.getItems().isEmpty());
 	}
 
+	@Test
 	public void testPlatformFilter_PositiveMatch() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
@@ -79,6 +84,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 		assertEquals(mockDiscoveryStrategy.getConnectorCount(), connectorDiscovery.getItems().size());
 	}
 
+	@Test
 	public void testFeatureFilter_PositiveMatch() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
@@ -87,7 +93,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 				featureFilter("com.foo.bar.feature", "[1.0,2.0)"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
-		Map<String, Version> featureToVersion = new HashMap<String, Version>();
+		Map<String, Version> featureToVersion = new HashMap<>();
 		featureToVersion.put("com.foo.bar.feature", new Version("1.1")); //$NON-NLS-1$ //$NON-NLS-2$
 		connectorDiscovery.setFeatureToVersion(featureToVersion);
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
@@ -96,6 +102,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 		assertEquals(mockDiscoveryStrategy.getConnectorCount(), connectorDiscovery.getItems().size());
 	}
 
+	@Test
 	public void testFeatureFilter_NegativeMatch_VersionMismatch() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
@@ -104,7 +111,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 				featureFilter("com.foo.bar.feature", "[1.2,2.0)"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
-		Map<String, Version> featureToVersion = new HashMap<String, Version>();
+		Map<String, Version> featureToVersion = new HashMap<>();
 		featureToVersion.put("com.foo.bar.feature", new Version("1.1")); //$NON-NLS-1$ //$NON-NLS-2$
 		connectorDiscovery.setFeatureToVersion(featureToVersion);
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
@@ -112,6 +119,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 		assertTrue(connectorDiscovery.getItems().isEmpty());
 	}
 
+	@Test
 	public void testFeatureFilter_NegativeMatch_NotPresent() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
@@ -120,13 +128,14 @@ public class ConnectorDiscoveryTest extends TestCase {
 				featureFilter("com.foo.bar.feature", "[1.2,2.0)"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
-		Map<String, Version> featureToVersion = new HashMap<String, Version>();
+		Map<String, Version> featureToVersion = new HashMap<>();
 		connectorDiscovery.setFeatureToVersion(featureToVersion);
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 
 		assertTrue(connectorDiscovery.getItems().isEmpty());
 	}
 
+	@Test
 	public void testCategorization() {
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 		assertTrue(!connectorDiscovery.getItems().isEmpty());
@@ -139,6 +148,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testMultipleStrategies() {
 		MockDiscoveryStrategy strategy = new MockDiscoveryStrategy();
 		strategy.setConnectorMockFactory(mockDiscoveryStrategy.getConnectorMockFactory());
@@ -147,7 +157,9 @@ public class ConnectorDiscoveryTest extends TestCase {
 
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 
-		assertEquals(mockDiscoveryStrategy.getConnectorMockFactory().getCreatedCount(), connectorDiscovery.getItems().size());
-		assertEquals(mockDiscoveryStrategy.getCategoryMockFactory().getCreatedCount(), connectorDiscovery.getCategories().size());
+		assertEquals(mockDiscoveryStrategy.getConnectorMockFactory().getCreatedCount(),
+				connectorDiscovery.getItems().size());
+		assertEquals(mockDiscoveryStrategy.getCategoryMockFactory().getCreatedCount(),
+				connectorDiscovery.getCategories().size());
 	}
 }

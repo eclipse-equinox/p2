@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2004, 2018 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,19 +11,21 @@
 
 package org.eclipse.equinox.p2.discovery.tests.core.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.equinox.internal.p2.discovery.model.*;
 import org.eclipse.equinox.internal.p2.discovery.util.CatalogItemComparator;
+import org.junit.Before;
+import org.junit.Test;
 
-public class CatalogConnectorComparatorTest extends TestCase {
+public class CatalogConnectorComparatorTest {
 
 	private CatalogCategory category;
 
 	private CatalogItemComparator comparator;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		category = new CatalogCategory();
 		comparator = new CatalogItemComparator();
 	}
@@ -45,6 +47,7 @@ public class CatalogConnectorComparatorTest extends TestCase {
 		return connector;
 	}
 
+	@Test
 	public void testOrderByGroup() {
 		addGroup("1"); //$NON-NLS-1$
 		addGroup("2"); //$NON-NLS-1$

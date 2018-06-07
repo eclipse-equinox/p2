@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2018 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,25 +11,27 @@
 
 package org.eclipse.equinox.p2.discovery.tests.core;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertFalse;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.discovery.Catalog;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.RemoteBundleDiscoveryStrategy;
 import org.eclipse.equinox.p2.discovery.tests.DiscoveryTestConstants;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * A test that uses the real discovery directory and verifies that it works, and that all referenced update sites appear
- * to be available.
- * 
+ * A test that uses the real discovery directory and verifies that it works, and
+ * that all referenced update sites appear to be available.
+ *
  * @author David Green
  */
-public class ConnectorDiscoveryRemoteTest extends TestCase {
+public class ConnectorDiscoveryRemoteTest {
 
 	private Catalog connectorDiscovery;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		connectorDiscovery = new Catalog();
 		connectorDiscovery.setVerifyUpdateSiteAvailability(false);
 
@@ -39,45 +41,12 @@ public class ConnectorDiscoveryRemoteTest extends TestCase {
 		connectorDiscovery.getDiscoveryStrategies().add(remoteStrategy);
 	}
 
+	@Test
 	public void testRemoteDirectory() {
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 
 		assertFalse(connectorDiscovery.getCategories().isEmpty());
 		assertFalse(connectorDiscovery.getItems().isEmpty());
 	}
-
-	//	public void testVerifyAvailability() throws CoreException {
-	//		connectorDiscovery.performDiscovery(new NullProgressMonitor());
-	//		for (CatalogItem connector : connectorDiscovery.getConnectors()) {
-	//			assertNull(connector.getAvailable());
-	//		}
-	//		connectorDiscovery.verifySiteAvailability(new NullProgressMonitor());
-	//
-	//		assertFalse(connectorDiscovery.getConnectors().isEmpty());
-	//
-	//		int unavailableCount = 0;
-	//		for (CatalogItem connector : connectorDiscovery.getConnectors()) {
-	//			assertNotNull(connector.getAvailable());
-	//			if (!connector.getAvailable()) {
-	//				++unavailableCount;
-	//			}
-	//		}
-	//		if (unavailableCount > 0) {
-	//			fail(String.format("%s unavailable: %s", unavailableCount, computeUnavailableConnetorDescriptorNames()));
-	//		}
-	//	}
-
-	//	private String computeUnavailableConnetorDescriptorNames() {
-	//		String message = "";
-	//		for (CatalogItem connector : connectorDiscovery.getItems()) {
-	//			if (!connector.getAvailable()) {
-	//				if (message.length() > 0) {
-	//					message += ", ";
-	//				}
-	//				message += connector.getName();
-	//			}
-	//		}
-	//		return message;
-	//	}
 
 }

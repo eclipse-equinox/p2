@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2018 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,33 +11,35 @@
 
 package org.eclipse.equinox.p2.discovery.tests.core;
 
+import static org.junit.Assert.*;
+
 import java.util.*;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.discovery.Policy;
 import org.eclipse.equinox.internal.p2.discovery.model.*;
 import org.eclipse.equinox.p2.discovery.tests.core.mock.MockBundleDiscoveryStrategy;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author David Green
  * @author Steffen Pingel
  */
-public class BundleDiscoveryStrategyTest extends TestCase {
+public class BundleDiscoveryStrategyTest {
 
 	private MockBundleDiscoveryStrategy discoveryStrategy;
 
-	private final List<CatalogCategory> categories = new ArrayList<CatalogCategory>();
+	private final List<CatalogCategory> categories = new ArrayList<>();
 
-	private final List<CatalogItem> connectors = new ArrayList<CatalogItem>();
+	private final List<CatalogItem> connectors = new ArrayList<>();
 
-	private final List<Certification> certifications = new ArrayList<Certification>();
+	private final List<Certification> certifications = new ArrayList<>();
 
-	private final List<Tag> tags = new ArrayList<Tag>();
+	private final List<Tag> tags = new ArrayList<>();
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		discoveryStrategy = new MockBundleDiscoveryStrategy();
 		discoveryStrategy.setPolicy(new Policy(true));
 		discoveryStrategy.setCategories(categories);
@@ -46,6 +48,7 @@ public class BundleDiscoveryStrategyTest extends TestCase {
 		discoveryStrategy.setTags(tags);
 	}
 
+	@Test
 	public void testDiscovery() throws CoreException {
 		discoveryStrategy.performDiscovery(new NullProgressMonitor());
 
@@ -59,14 +62,16 @@ public class BundleDiscoveryStrategyTest extends TestCase {
 		assertNotNull(certification);
 	}
 
+	@Test
 	public void testCustomTag() throws CoreException {
 		discoveryStrategy.performDiscovery(new NullProgressMonitor());
 
 		CatalogItem connector = findConnectorById("org.eclipse.mylyn.discovery.test.tagged"); //$NON-NLS-1$
-		assertEquals(new HashSet<Tag>(Arrays.asList(new Tag("Custom", "Custom"))), connector.getTags()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(new HashSet<>(Arrays.asList(new Tag("Custom", "Custom"))), connector.getTags()); //$NON-NLS-1$ //$NON-NLS-2$
 		assertEquals(Arrays.asList(new Tag("task", "Tasks"), new Tag("Custom", "Custom")), discoveryStrategy.getTags()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 	}
 
+	@Test
 	public void testDiscoveryNoCategoriesPolicy() throws CoreException {
 		discoveryStrategy.setPolicy(new Policy(false));
 		discoveryStrategy.performDiscovery(new NullProgressMonitor());
