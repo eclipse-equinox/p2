@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExec
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
 /**
- * The Pack200Packer expects an input containing normal ".jar" data.   
+ * The Pack200Packer expects an input containing normal ".jar" data.
  */
 public class Pack200OptimizerStep extends AbstractBufferingStep {
 	private static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
@@ -31,8 +31,8 @@ public class Pack200OptimizerStep extends AbstractBufferingStep {
 
 	static {
 		try {
-			// TODO This is not very elegant. But there is currently no other way to 
-			//      find it out. PackStep.canPack() is not visible due to restrictions.
+			// TODO This is not very elegant. But there is currently no other way to
+			// find it out. PackStep.canPack() is not visible due to restrictions.
 			JarProcessor.getPackProcessor(null);
 			pack200Available = true;
 		} catch (UnsupportedOperationException e) {
@@ -40,17 +40,20 @@ public class Pack200OptimizerStep extends AbstractBufferingStep {
 		}
 	}
 
+	@Override
 	protected OutputStream createIncomingStream() throws IOException {
 		incoming = File.createTempFile(INCOMING_ROOT, JAR_SUFFIX);
 		return new BufferedOutputStream(new FileOutputStream(incoming));
 	}
 
+	@Override
 	protected void cleanupTempFiles() {
 		super.cleanupTempFiles();
 		if (incoming != null)
 			incoming.delete();
 	}
 
+	@Override
 	protected void performProcessing() throws IOException {
 		File resultFile = null;
 		try {
@@ -75,7 +78,8 @@ public class Pack200OptimizerStep extends AbstractBufferingStep {
 		// unpack
 		Options options = new Options();
 		options.pack = true;
-		// TODO use false here assuming that all content is conditioned.  Need to revise this
+		// TODO use false here assuming that all content is conditioned. Need to revise
+		// this
 		options.processAll = false;
 		options.input = incoming;
 		options.outputDir = getWorkDir().getPath();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,8 +24,9 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 /**
  * The <code>AbstractDeltaDiffStep</code> is an abstract processing step that
  * retrieves a local artifact repository containing the serialized/encoded
- * artifact key. It assumes that the artifact key is stored within the data property
- * of the processing step descriptor and that is encoded with the <code>ArtifactKeySerializer</code>.
+ * artifact key. It assumes that the artifact key is stored within the data
+ * property of the processing step descriptor and that is encoded with the
+ * <code>ArtifactKeySerializer</code>.
  */
 public abstract class AbstractDeltaStep extends AbstractBufferingStep {
 
@@ -41,7 +42,9 @@ public abstract class AbstractDeltaStep extends AbstractBufferingStep {
 		this.repository = repository;
 	}
 
-	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	@Override
+	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor,
+			IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
 		readArtifactKey(descriptor);
 	}
@@ -50,7 +53,10 @@ public abstract class AbstractDeltaStep extends AbstractBufferingStep {
 		try {
 			key = ArtifactKey.parse(descriptor.getData());
 		} catch (IllegalArgumentException e) {
-			setStatus(new Status(IStatus.ERROR, Activator.ID, "Predecessor artifact key for delta could not be deserialized. Serialized key is " + descriptor.getData(), e));
+			setStatus(new Status(IStatus.ERROR, Activator.ID,
+					"Predecessor artifact key for delta could not be deserialized. Serialized key is "
+							+ descriptor.getData(),
+					e));
 		}
 	}
 
@@ -58,16 +64,11 @@ public abstract class AbstractDeltaStep extends AbstractBufferingStep {
 		if (repository instanceof IFileArtifactRepository)
 			return ((IFileArtifactRepository) repository).getArtifactFile(descriptor);
 		File result = null;
-		OutputStream resultStream = null;
 		try {
-			try {
-				result = File.createTempFile(PREDECESSOR_ROOT, JAR_SUFFIX);
-				resultStream = new BufferedOutputStream(new FileOutputStream(result));
+			result = File.createTempFile(PREDECESSOR_ROOT, JAR_SUFFIX);
+			try (OutputStream resultStream = new BufferedOutputStream(new FileOutputStream(result));) {
 				setStatus(repository.getArtifact(descriptor, resultStream, getProgressMonitor()));
 				return result;
-			} finally {
-				if (resultStream != null)
-					resultStream.close();
 			}
 		} catch (IOException e) {
 		}

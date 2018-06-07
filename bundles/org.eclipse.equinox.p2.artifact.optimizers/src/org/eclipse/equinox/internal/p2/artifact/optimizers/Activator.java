@@ -1,10 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
+ *
+ * All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  * 	IBM Corporation - initial API and implementation
  ******************************************************************************/
 
@@ -21,11 +23,13 @@ public class Activator implements BundleActivator {
 		return context;
 	}
 
-	public void start(BundleContext context) throws Exception {
-		Activator.context = context;
+	@Override
+	public void start(BundleContext newcontext) throws Exception {
+		Activator.context = newcontext;
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	@Override
+	public void stop(BundleContext newcontext) throws Exception {
 	}
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 /**
- * The JAR delta expects an input containing normal ".jar" data.   
+ * The JAR delta expects an input containing normal ".jar" data.
  */
 public class JarDeltaOptimizerStep extends AbstractDeltaStep {
 
@@ -31,17 +31,20 @@ public class JarDeltaOptimizerStep extends AbstractDeltaStep {
 		super(repository);
 	}
 
+	@Override
 	protected OutputStream createIncomingStream() throws IOException {
 		incoming = File.createTempFile(INCOMING_ROOT, JAR_SUFFIX);
 		return new BufferedOutputStream(new FileOutputStream(incoming));
 	}
 
+	@Override
 	protected void cleanupTempFiles() {
 		super.cleanupTempFiles();
 		if (incoming != null)
 			incoming.delete();
 	}
 
+	@Override
 	protected void performProcessing() throws IOException {
 		File resultFile = null;
 		try {

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2018 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ *
+ * Contributors:
  * 	IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 
 /**
- * The optimizer <code>Application</code> for JBDiff based optimizations. 
+ * The optimizer <code>Application</code> for JBDiff based optimizations.
  */
 public class Application extends OptimizerApplication {
 
@@ -26,6 +26,7 @@ public class Application extends OptimizerApplication {
 	private int width = 1;
 	private int depth = 1;
 
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		Map<?, ?> args = context.getArguments();
 		initializeFromArguments((String[]) args.get("application.args")); //$NON-NLS-1$
@@ -47,11 +48,11 @@ public class Application extends OptimizerApplication {
 			return;
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
-			//			if (args[i].equals("-pack"))
-			//				pack = true;
+			// if (args[i].equals("-pack"))
+			// pack = true;
 
-			// check for args with parameters. If we are at the last argument or 
-			// if the next one has a '-' as the first character, then we can't have 
+			// check for args with parameters. If we are at the last argument or
+			// if the next one has a '-' as the first character, then we can't have
 			// an arg with a param so continue.
 			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
 				continue;

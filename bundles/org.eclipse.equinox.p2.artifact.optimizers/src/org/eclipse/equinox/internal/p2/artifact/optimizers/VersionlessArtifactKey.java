@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,10 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 
 public class VersionlessArtifactKey extends ArtifactKey {
 
@@ -26,12 +25,14 @@ public class VersionlessArtifactKey extends ArtifactKey {
 		super(base.getClassifier(), base.getId(), Version.emptyVersion);
 	}
 
+	@Override
 	public int hashCode() {
 		int hash = getId().hashCode();
 		hash = 17 * hash + getClassifier().hashCode();
 		return hash;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof IArtifactKey))
 			return false;
