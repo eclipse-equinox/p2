@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,10 +38,10 @@ public class SarOutputStream extends OutputStream {
 
 	/**
 	 * Ends the SAR archive and closes the underlying OutputStream.
-	 * 
+	 *
 	 * @see java.io.OutputStream#close()
 	 */
-	// @Override
+	@Override
 	public void close() throws IOException {
 		finish();
 		super.close();
@@ -49,7 +49,7 @@ public class SarOutputStream extends OutputStream {
 
 	/**
 	 * Finish this SAR archive but does not close the underlying output stream.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void finish() throws IOException {
@@ -61,15 +61,14 @@ public class SarOutputStream extends OutputStream {
 	}
 
 	/**
-	 * Put an entry on the output stream. This writes the entry's header record
-	 * and positions the output stream for writing the contents of the entry.
-	 * Once this method is called, the stream is ready for calls to write() to
-	 * write the entry's contents. Once the contents are written, closeEntry()
-	 * <B>MUST </B> be called to ensure that all buffered data is completely
-	 * written to the output stream.
-	 * 
-	 * @param entry
-	 *            the SarEntry to be written to the archive.
+	 * Put an entry on the output stream. This writes the entry's header record and
+	 * positions the output stream for writing the contents of the entry. Once this
+	 * method is called, the stream is ready for calls to write() to write the
+	 * entry's contents. Once the contents are written, closeEntry() <B>MUST </B> be
+	 * called to ensure that all buffered data is completely written to the output
+	 * stream.
+	 *
+	 * @param entry the SarEntry to be written to the archive.
 	 * @throws IOException
 	 */
 	public void putNextEntry(SarEntry entry) throws IOException {
@@ -77,12 +76,12 @@ public class SarOutputStream extends OutputStream {
 	}
 
 	/**
-	 * Close an entry. This method MUST be called for all file entries that
-	 * contain data. The reason is that we must buffer data written to the
-	 * stream in order to satisfy the buffer's record based writes. Thus, there
-	 * may be data fragments still being assembled that must be written to the
-	 * output stream before this entry is closed and the next entry written.
-	 * 
+	 * Close an entry. This method MUST be called for all file entries that contain
+	 * data. The reason is that we must buffer data written to the stream in order
+	 * to satisfy the buffer's record based writes. Thus, there may be data
+	 * fragments still being assembled that must be written to the output stream
+	 * before this entry is closed and the next entry written.
+	 *
 	 * @throws IOException
 	 */
 	public void closeEntry() throws IOException {
@@ -149,13 +148,13 @@ public class SarOutputStream extends OutputStream {
 
 	/**
 	 * Writes a byte to the current org.eclipse.equinox.p2.sar archive entry.
-	 * 
-	 * @param b
-	 *            the byte written.
+	 *
+	 * @param b the byte written.
 	 * @throws IOException
-	 * 
+	 *
 	 * @see java.io.OutputStream#write(int)
 	 */
+	@Override
 	public void write(int b) throws IOException {
 		byte[] bytes = new byte[1];
 		bytes[0] = (byte) b;
@@ -164,38 +163,37 @@ public class SarOutputStream extends OutputStream {
 
 	/**
 	 * Writes bytes to the current org.eclipse.equinox.p2.sar archive entry.
-	 * 
-	 * @param bytes
-	 *            The buffer to write to the archive.
+	 *
+	 * @param bytes The buffer to write to the archive.
 	 * @throws IOException
-	 * 
+	 *
 	 * @see java.io.OutputStream#write(byte[])
 	 */
+	@Override
 	public void write(byte[] bytes) throws IOException {
 		entryContent.write(bytes, 0, bytes.length);
 	}
 
 	/**
 	 * Writes bytes to the current org.eclipse.equinox.p2.sar archive entry.
-	 * 
-	 * @param bytes
-	 *            The buffer to write to the archive.
-	 * @param offset
-	 *            The offset in the buffer from which to get bytes.
-	 * @param numToWrite
-	 *            The number of bytes to write.
-	 * 
+	 *
+	 * @param bytes      The buffer to write to the archive.
+	 * @param offset     The offset in the buffer from which to get bytes.
+	 * @param numToWrite The number of bytes to write.
+	 *
 	 * @throws IOException
-	 * 
+	 *
 	 * @see java.io.OutputStream#write(byte[], int, int)
 	 */
+	@Override
 	public void write(byte[] bytes, int offset, int numToWrite) throws IOException {
 		entryContent.write(bytes, offset, numToWrite);
 	}
 
 	/**
-	 * Write an EOF (end of archive) entry to the org.eclipse.equinox.p2.sar archive.
-	 * 
+	 * Write an EOF (end of archive) entry to the org.eclipse.equinox.p2.sar
+	 * archive.
+	 *
 	 * @throws IOException
 	 */
 	private void writeEOFRecord() throws IOException {

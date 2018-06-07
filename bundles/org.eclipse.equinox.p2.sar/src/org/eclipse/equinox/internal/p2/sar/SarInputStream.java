@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,9 +26,8 @@ public class SarInputStream extends InputStream {
 
 	/**
 	 * Constructor for SarInputStream.
-	 * 
-	 * @param inputStream
-	 *            the input stream to use
+	 *
+	 * @param inputStream the input stream to use
 	 * @throws IOException
 	 */
 	public SarInputStream(InputStream inputStream) throws IOException {
@@ -50,29 +49,30 @@ public class SarInputStream extends InputStream {
 
 	/**
 	 * Closes this stream.
-	 * 
-	 * @throws IOException
-	 *             on error
+	 *
+	 * @throws IOException on error
 	 */
+	@Override
 	public void close() throws IOException {
 		dataInputStream.close();
 	}
 
 	/**
 	 * Since we do not support marking just yet, we return false.
-	 * 
+	 *
 	 * @return False.
 	 */
+	@Override
 	public boolean markSupported() {
 		return false;
 	}
 
 	/**
 	 * Since we do not support marking just yet, we do nothing.
-	 * 
-	 * @param markLimit
-	 *            The limit to mark.
+	 *
+	 * @param markLimit The limit to mark.
 	 */
+	@Override
 	public void mark(int markLimit) {
 		// nothing
 	}
@@ -80,21 +80,21 @@ public class SarInputStream extends InputStream {
 	/**
 	 * Since we do not support marking just yet, we do nothing.
 	 */
+	@Override
 	public void reset() {
 		// nothing
 	}
 
 	/**
 	 * Get the next entry in this org.eclipse.equinox.p2.sar archive. This will skip
-	 * over any remaining data in the current entry, if there is one, and place
-	 * the input stream at the header of the next entry, and read the header and
-	 * instantiate a new SarEntry from the header bytes and return that entry.
-	 * If there are no more entries in the archive, null will be returned to
-	 * indicate that the end of the archive has been reached.
-	 * 
+	 * over any remaining data in the current entry, if there is one, and place the
+	 * input stream at the header of the next entry, and read the header and
+	 * instantiate a new SarEntry from the header bytes and return that entry. If
+	 * there are no more entries in the archive, null will be returned to indicate
+	 * that the end of the archive has been reached.
+	 *
 	 * @return the next SarEntry in the archive, or null.
-	 * @throws IOException
-	 *             on error
+	 * @throws IOException on error
 	 */
 	public SarEntry getNextEntry() throws IOException {
 		SarEntry sarEntry = new SarEntry(this);
@@ -109,7 +109,7 @@ public class SarInputStream extends InputStream {
 
 	/**
 	 * Close the entry.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void closeEntry() throws IOException {
@@ -168,34 +168,30 @@ public class SarInputStream extends InputStream {
 
 	/**
 	 * Reads a byte from the current tar archive entry.
-	 * 
+	 *
 	 * This method simply calls read( byte[], int, int ).
-	 * 
+	 *
 	 * @return The byte read, or -1 at EOF.
-	 * @throws IOException
-	 *             on error
+	 * @throws IOException on error
 	 */
+	@Override
 	public int read() throws IOException {
 		return contentStream.read();
 	}
 
 	/**
 	 * Reads bytes from the current tar archive entry.
-	 * 
-	 * This method is aware of the boundaries of the current entry in the
-	 * archive and will deal with them as if they were this stream's start and
-	 * EOF.
-	 * 
-	 * @param buffer
-	 *            The buffer into which to place bytes read.
-	 * @param offset
-	 *            The offset at which to place bytes read.
-	 * @param numToRead
-	 *            The number of bytes to read.
+	 *
+	 * This method is aware of the boundaries of the current entry in the archive
+	 * and will deal with them as if they were this stream's start and EOF.
+	 *
+	 * @param buffer    The buffer into which to place bytes read.
+	 * @param offset    The offset at which to place bytes read.
+	 * @param numToRead The number of bytes to read.
 	 * @return The number of bytes read, or -1 at EOF.
-	 * @throws IOException
-	 *             on error
+	 * @throws IOException on error
 	 */
+	@Override
 	public int read(byte[] buffer, int offset, int numToRead) throws IOException {
 		return contentStream.read(buffer, offset, numToRead);
 	}

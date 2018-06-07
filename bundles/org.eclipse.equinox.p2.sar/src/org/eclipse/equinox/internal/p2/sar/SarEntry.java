@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,11 +80,12 @@ public class SarEntry extends ZipEntry {
 		int method = sarInputStream.readInt();
 		long size = sarInputStream.readLong();
 		long dosTime = sarInputStream.readLong();
-		boolean isEof = sarInputStream.readBoolean();
-		boolean isZip = sarInputStream.readBoolean();
+		boolean eof = sarInputStream.readBoolean();
+		boolean zip = sarInputStream.readBoolean();
 
 		if (DEBUG) {
-			System.out.println(getName() + "," + comment + "," + compressedSize + "," + crc + "," + extra + "," + method + "," + size + "," + dosTime + "," + isEof + "," + isZip);
+			System.out.println(getName() + ',' + comment + ',' + compressedSize + ',' + crc + ',' + extra + ',' + method
+					+ ',' + size + ',' + dosTime + ',' + eof + ',' + zip);
 		}
 
 		if (method == ZipEntry.STORED) {
@@ -97,8 +98,8 @@ public class SarEntry extends ZipEntry {
 		setExtra(extra);
 		setMethod(method);
 		setTime(dosToJavaTime(dosTime));
-		setEof(isEof);
-		setZip(isZip);
+		setEof(eof);
+		setZip(zip);
 	}
 
 	/**
@@ -114,11 +115,12 @@ public class SarEntry extends ZipEntry {
 		String name = this.getName();
 		long size = this.getSize();
 		long dosTime = javaToDosTime(this.getTime());
-		boolean isZip = this.isZip();
-		boolean isEof = this.isEof();
+		boolean zip = this.isZip();
+		boolean eof = this.isEof();
 
 		if (DEBUG) {
-			System.out.println(name + "," + comment + "," + compressedSize + "," + crc + "," + extra + "," + method + "," + size + "," + dosTime + "," + isEof + "," + isZip);
+			System.out.println(name + ',' + comment + ',' + compressedSize + ',' + crc + ',' + extra + ',' + method
+					+ ',' + size + ',' + dosTime + ',' + eof + ',' + zip);
 		}
 
 		sarOutputStream.writeString(name);
@@ -129,8 +131,8 @@ public class SarEntry extends ZipEntry {
 		sarOutputStream.writeInt(method);
 		sarOutputStream.writeLong(size);
 		sarOutputStream.writeLong(dosTime);
-		sarOutputStream.writeBool(isEof);
-		sarOutputStream.writeBool(isZip);
+		sarOutputStream.writeBool(eof);
+		sarOutputStream.writeBool(zip);
 	}
 
 	/**
@@ -164,7 +166,9 @@ public class SarEntry extends ZipEntry {
 	 * Converts DOS time to Java time (number of milliseconds since epoch).
 	 */
 	public final static long dosToJavaTime(long dtime) {
-		GregorianCalendar cal = new GregorianCalendar((int) (((dtime >> 25) & 0x7f) + 80) + 1900, (int) (((dtime >> 21) & 0x0f) - 1), (int) ((dtime >> 16) & 0x1f), (int) ((dtime >> 11) & 0x1f), (int) ((dtime >> 5) & 0x3f), (int) ((dtime << 1) & 0x3e));
+		GregorianCalendar cal = new GregorianCalendar((int) (((dtime >> 25) & 0x7f) + 80) + 1900,
+				(int) (((dtime >> 21) & 0x0f) - 1), (int) ((dtime >> 16) & 0x1f), (int) ((dtime >> 11) & 0x1f),
+				(int) ((dtime >> 5) & 0x3f), (int) ((dtime << 1) & 0x3e));
 		return cal.getTime().getTime();
 	}
 
