@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,9 +17,9 @@ import java.util.zip.*;
 public class DeltaApplier {
 	private static final String DELETE_SUFFIX = ".delete"; //$NON-NLS-1$
 	private static final String MANIFEST_ENTRY_NAME = "META-INF/MANIFEST.MF"; //$NON-NLS-1$
-	private File delta;
-	private File base;
-	private File destination;
+	private final File delta;
+	private final File base;
+	private final File destination;
 	private ZipFile baseJar;
 	private ZipFile deltaJar;
 	private Set<String> baseEntries;
@@ -43,7 +43,7 @@ public class DeltaApplier {
 	}
 
 	private void applyDelta() {
-		// start out assuming that all the base entries will be moved over.  
+		// start out assuming that all the base entries will be moved over.
 		baseEntries = getEntries(baseJar);
 		// remove from the base all the entries that appear in the delta
 		for (Enumeration<? extends ZipEntry> e = deltaJar.entries(); e.hasMoreElements();) {
@@ -69,8 +69,8 @@ public class DeltaApplier {
 				if (manifestJar != null)
 					writeEntry(result, manifestJar.getEntry(MANIFEST_ENTRY_NAME), manifestJar, true);
 				// write out the things we know are staying from the base JAR
-				for (Iterator<String> i = baseEntries.iterator(); i.hasNext();) {
-					ZipEntry entry = baseJar.getEntry(i.next());
+				for (String string : baseEntries) {
+					ZipEntry entry = baseJar.getEntry(string);
 					writeEntry(result, entry, baseJar, false);
 				}
 				// write out the changes/additions from the delta.
@@ -89,7 +89,8 @@ public class DeltaApplier {
 		}
 	}
 
-	private void writeEntry(ZipOutputStream result, ZipEntry entry, ZipFile sourceJar, boolean manifest) throws IOException {
+	private void writeEntry(ZipOutputStream result, ZipEntry entry, ZipFile sourceJar, boolean manifest)
+			throws IOException {
 		if (!manifest && entry.getName().equalsIgnoreCase(MANIFEST_ENTRY_NAME))
 			return;
 		// add the entry
@@ -110,9 +111,9 @@ public class DeltaApplier {
 	}
 
 	/**
-	 * Transfers all available bytes from the given input stream to the given
-	 * output stream. Does not close either stream.
-	 * 
+	 * Transfers all available bytes from the given input stream to the given output
+	 * stream. Does not close either stream.
+	 *
 	 * @param source
 	 * @param destination
 	 * @throws IOException
@@ -161,7 +162,7 @@ public class DeltaApplier {
 	}
 
 	private Set<String> getEntries(ZipFile jar) {
-		HashSet<String> result = new HashSet<String>(jar.size());
+		HashSet<String> result = new HashSet<>(jar.size());
 		for (Enumeration<? extends ZipEntry> e = jar.entries(); e.hasMoreElements();) {
 			ZipEntry entry = e.nextElement();
 			checkForManifest(entry, jar);
@@ -171,8 +172,9 @@ public class DeltaApplier {
 	}
 
 	/**
-	 * Check to see if the given entry is the manifest.  If so, remember it for use when writing
-	 * the resultant JAR.
+	 * Check to see if the given entry is the manifest. If so, remember it for use
+	 * when writing the resultant JAR.
+	 * 
 	 * @param entry
 	 * @param jar
 	 */

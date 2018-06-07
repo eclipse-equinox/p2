@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,17 +29,20 @@ public class JarDeltaProcessorStep extends AbstractDeltaProcessorStep {
 		super();
 	}
 
+	@Override
 	protected OutputStream createIncomingStream() throws IOException {
 		incoming = File.createTempFile(INCOMING_ROOT, JAR_SUFFIX);
 		return new BufferedOutputStream(new FileOutputStream(incoming));
 	}
 
+	@Override
 	protected void cleanupTempFiles() {
 		super.cleanupTempFiles();
 		if (incoming != null)
 			incoming.delete();
 	}
 
+	@Override
 	protected void performProcessing() throws IOException {
 		File resultFile = null;
 		try {
