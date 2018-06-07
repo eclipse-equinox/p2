@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,20 +11,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.optimizers;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated director tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(JBDiffStepTest.class);
-		suite.addTestSuite(JBDiffZipStepTest.class);
-		suite.addTestSuite(Pack200OptimizerTest.class);
-		suite.addTestSuite(JarDeltaOptimizerTest.class);
-		suite.addTestSuite(Bug209233Test.class);
-		return suite;
-	}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({Pack200OptimizerTest.class, JarDeltaOptimizerTest.class})
+public class AllTests {
+	//test suite
 }

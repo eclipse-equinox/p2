@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,17 +26,11 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.artifact.optimizers.OptimizerTest;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
+import org.junit.Test;
 
 public class JarDeltaProcessorTest extends OptimizerTest {
 
-	public JarDeltaProcessorTest(String name) {
-		super(name);
-	}
-
-	public JarDeltaProcessorTest() {
-		super("");
-	}
-
+	@Test
 	public void testProcessing() throws IOException {
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/testdata_1.0.0.1.jar");
 		ProcessingStep step = new MockableJarDeltaProcessorStep(repoMock);
@@ -44,22 +38,22 @@ public class JarDeltaProcessorTest extends OptimizerTest {
 		IArtifactKey key = new ArtifactKey("cl", "id1", Version.create("1.0.0.2"));
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
 		step.initialize(getAgent(), stepDescriptor, descriptor);
-		ByteArrayOutputStream destination = new ByteArrayOutputStream();
-		step.link(destination, new NullProgressMonitor());
+		try (ByteArrayOutputStream destination = new ByteArrayOutputStream()) {
+			step.link(destination, new NullProgressMonitor());
 
-		InputStream inputStream = TestData.get("optimizers", "testdata_1.0.0.1-2.jar");
-		FileUtils.copyStream(inputStream, true, step, true);
-		destination.close();
+			InputStream inputStream = TestData.get("optimizers", "testdata_1.0.0.1-2.jar");
+			FileUtils.copyStream(inputStream, true, step, true);
+			destination.close();
 
-		inputStream = TestData.get("optimizers", "testdata_1.0.0.2.jar");
-		ByteArrayOutputStream expected = new ByteArrayOutputStream();
-		FileUtils.copyStream(inputStream, true, expected, true);
+			inputStream = TestData.get("optimizers", "testdata_1.0.0.2.jar");
+			ByteArrayOutputStream expected = new ByteArrayOutputStream();
+			FileUtils.copyStream(inputStream, true, expected, true);
 
-		ZipInputStream expectedJar = new ZipInputStream(new ByteArrayInputStream(expected.toByteArray()));
-		ZipInputStream testJar = new ZipInputStream(new ByteArrayInputStream(destination.toByteArray()));
-		TestData.assertEquals(expectedJar, testJar);
-		expectedJar.close();
-		testJar.close();
+			try (ZipInputStream expectedJar = new ZipInputStream(new ByteArrayInputStream(expected.toByteArray()));
+					ZipInputStream testJar = new ZipInputStream(new ByteArrayInputStream(destination.toByteArray()))) {
+				TestData.assertEquals(expectedJar, testJar);
+			}
+		}
 	}
 
 	/**

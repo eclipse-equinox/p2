@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,19 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
-import junit.framework.*;
+import junit.framework.TestCase;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated director tests.
  */
+@RunWith(Suite.class)
+@Suite.SuiteClasses({JarDeltaProcessorTest.class})
 public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(JBPatchStepTest.class);
-		suite.addTestSuite(JBPatchZipStepTest.class);
-		suite.addTestSuite(JarDeltaProcessorTest.class);
-		return suite;
-	}
-
+	//test suite
 }

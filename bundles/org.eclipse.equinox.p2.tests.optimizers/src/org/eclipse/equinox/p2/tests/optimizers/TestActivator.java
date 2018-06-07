@@ -21,16 +21,12 @@ public class TestActivator implements BundleActivator {
 	public static final String PI = "org.eclipse.equinox.p2.tests.optimizers"; //$NON-NLS-1$
 	private static BundleContext bundleContext;
 
-	/* (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		bundleContext = context;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		bundleContext = null;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.sar;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.equinox.internal.p2.sar.SarEntry;
+import org.junit.Test;
 
-public class SarEntryTest extends TestCase {
+public class SarEntryTest {
 
+	@Test
 	public void testJavaToDosTimeAndBack() {
 		final long minute = 1000l * 60l;
 		long now = (System.currentTimeMillis() / minute) * minute;

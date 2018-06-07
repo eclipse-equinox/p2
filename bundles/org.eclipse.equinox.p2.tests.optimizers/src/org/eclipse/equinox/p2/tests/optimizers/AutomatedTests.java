@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,19 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.optimizers;
 
-import junit.framework.*;
+import junit.framework.TestCase;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * @since 1.0
  */
+@RunWith(Suite.class)
+@Suite.SuiteClasses({org.eclipse.equinox.p2.tests.artifact.optimizers.AllTests.class, org.eclipse.equinox.p2.tests.artifact.processors.AllTests.class, org.eclipse.equinox.p2.tests.sar.AllTests.class})
 public class AutomatedTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
-		suite.addTest(org.eclipse.equinox.p2.tests.artifact.optimizers.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.artifact.processors.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.sar.AllTests.suite());
-		return suite;
-	}
-
+	// test suite
 }

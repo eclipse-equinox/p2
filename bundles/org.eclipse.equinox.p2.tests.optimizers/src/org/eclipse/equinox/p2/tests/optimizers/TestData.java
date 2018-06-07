@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -124,12 +124,12 @@ public class TestData {
 	 * @throws IOException
 	 */
 	public static void assertEquals(ZipInputStream input1, ZipInputStream input2) throws IOException {
-		Map jar1 = getEntries(input1);
-		Map jar2 = getEntries(input2);
-		for (Iterator i = jar1.keySet().iterator(); i.hasNext();) {
-			String name = (String) i.next();
-			Object[] file1 = (Object[]) jar1.get(name);
-			Object[] file2 = (Object[]) jar2.remove(name);
+		Map<String, Object[]> jar1 = getEntries(input1);
+		Map<String, Object[]> jar2 = getEntries(input2);
+		for (Iterator<String> i = jar1.keySet().iterator(); i.hasNext();) {
+			String name = i.next();
+			Object[] file1 = jar1.get(name);
+			Object[] file2 = jar2.remove(name);
 			Assert.assertNotNull(file2);
 
 			ZipEntry entry1 = (ZipEntry) file1[0];
@@ -151,8 +151,8 @@ public class TestData {
 		Assert.assertTrue(jar2.size() == 0);
 	}
 
-	private static Map getEntries(ZipInputStream input) throws IOException {
-		Map result = new HashMap();
+	private static Map<String, Object[]> getEntries(ZipInputStream input) throws IOException {
+		Map<String, Object[]> result = new HashMap<>();
 		while (true) {
 			ZipEntry entry = input.getNextEntry();
 			if (entry == null)

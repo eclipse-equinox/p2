@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 compeople AG and others.
+ * Copyright (c) 2007, 2018 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,55 +10,41 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.sar;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.*;
 import java.util.Arrays;
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.sar.SarUtil;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
+import org.junit.Test;
 
 /**
  * Test the sar stuff.
  */
-public class SarTest extends TestCase {
+public class SarTest {
 
-	//	public void testGenerateTestDataNJarAndSarFromJar32() throws IOException {
-	//		InputStream jar32 = TestData.get("sar", "org.eclipse.jdt_3.2.0.v20060605-1400.jar");
-	//		generateNJarAndSar("org.eclipse.jdt_3.2.0.v20060605-1400", jar32);
-	//	}
-	//
-	//	public void testGenerateTestDataNJarAndSarFromJar33() throws IOException {
-	//		InputStream jar32 = TestData.get("sar", "org.eclipse.jdt_3.3.0.v20070607-1300.jar");
-	//		generateNJarAndSar("org.eclipse.jdt_3.3.0.v20070607-1300", jar32);
-	//	}
-	//
-	//	private void generateNJarAndSar(String name, InputStream jar) throws IOException {
-	//		File njar = File.createTempFile(name, ".njar");
-	//		OutputStream njarOut = new BufferedOutputStream(new FileOutputStream(njar));
-	//
-	//		SarUtil.normalize(jar, njarOut);
-	//
-	//		File sar = File.createTempFile(name, ".sar");
-	//		SarUtil.zipToSar(njar, sar);
-	//	}
-
+	@Test
 	public void testJarToSarForJdt320() throws IOException {
 		InputStream jdt320Jar = TestData.get("optimizers", "org.eclipse.jdt_3.2.0.v20060605-1400.njar");
 		InputStream jdt320Sar = TestData.get("sar", "org.eclipse.jdt_3.2.0.v20060605-1400.sar");
 		doJarToSar(jdt320Jar, jdt320Sar);
 	}
 
+	@Test
 	public void testSarToJarForJdt320() throws IOException {
 		InputStream jdt320Sar = TestData.get("sar", "org.eclipse.jdt_3.2.0.v20060605-1400.sar");
 		InputStream jdt320Jar = TestData.get("optimizers", "org.eclipse.jdt_3.2.0.v20060605-1400.njar");
 		doSarToJar(jdt320Sar, jdt320Jar);
 	}
 
+	@Test
 	public void testJarToSarForJdt330() throws IOException {
 		InputStream jdt330Jar = TestData.get("optimizers", "org.eclipse.jdt_3.3.0.v20070607-1300.njar");
 		InputStream jdt330Sar = TestData.get("sar", "org.eclipse.jdt_3.3.0.v20070607-1300.sar");
 		doJarToSar(jdt330Jar, jdt330Sar);
 	}
 
+	@Test
 	public void testSarToJarForJdt330() throws IOException {
 		InputStream jdt330Sar = TestData.get("sar", "org.eclipse.jdt_3.3.0.v20070607-1300.sar");
 		InputStream jdt330Jar = TestData.get("optimizers", "org.eclipse.jdt_3.3.0.v20070607-1300.njar");
@@ -91,9 +77,7 @@ public class SarTest extends TestCase {
 		TestData.assertEquals(jarIn, expectedJar);
 	}
 
-	/**
-	 * @throws IOException
-	 */
+	@Test
 	public void testZipToSarAndBack() throws IOException {
 		File originalZipFile = TestData.getTempFile("sar", "test.zip");
 		File sarFile = TestData.createTempFile("test.sar");
@@ -110,9 +94,7 @@ public class SarTest extends TestCase {
 		TestData.assertEquals(originalZipFile, recreatedZipFile);
 	}
 
-	/**
-	 * @throws IOException
-	 */
+	@Test
 	public void testNormalizeOnFiles() throws IOException {
 		File alienZip = TestData.getTempFile("sar", "alien.zip");
 
@@ -130,19 +112,16 @@ public class SarTest extends TestCase {
 	/**
 	 * @throws IOException
 	 */
+	@Test
 	public void testNormalizeOnStreames() throws IOException {
-		InputStream alienZip = TestData.get("sar", "alien.zip");
-		ByteArrayOutputStream normalizedAlienZip = new ByteArrayOutputStream();
-		ByteArrayOutputStream renormalizedAlienZip = new ByteArrayOutputStream();
-		try {
+		try (InputStream alienZip = TestData.get("sar", "alien.zip")) {
+			ByteArrayOutputStream normalizedAlienZip = new ByteArrayOutputStream();
+			ByteArrayOutputStream renormalizedAlienZip = new ByteArrayOutputStream();
 			SarUtil.normalize(alienZip, normalizedAlienZip);
 
 			SarUtil.normalize(new ByteArrayInputStream(normalizedAlienZip.toByteArray()), renormalizedAlienZip);
 
 			assertTrue(Arrays.equals(normalizedAlienZip.toByteArray(), renormalizedAlienZip.toByteArray()));
-		} finally {
-			if (alienZip != null)
-				alienZip.close();
 		}
 
 	}
