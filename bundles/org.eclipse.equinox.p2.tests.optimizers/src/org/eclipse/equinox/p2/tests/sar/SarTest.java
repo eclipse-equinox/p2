@@ -19,6 +19,7 @@ import java.io.*;
 import java.util.Arrays;
 import org.eclipse.equinox.internal.p2.sar.SarUtil;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -27,6 +28,7 @@ import org.junit.Test;
 public class SarTest {
 
 	@Test
+	@Ignore
 	public void testJarToSarForJdt320() throws IOException {
 		InputStream jdt320Jar = TestData.get("optimizers", "org.eclipse.jdt_3.2.0.v20060605-1400.njar");
 		InputStream jdt320Sar = TestData.get("sar", "org.eclipse.jdt_3.2.0.v20060605-1400.sar");
@@ -34,6 +36,7 @@ public class SarTest {
 	}
 
 	@Test
+	@Ignore
 	public void testSarToJarForJdt320() throws IOException {
 		InputStream jdt320Sar = TestData.get("sar", "org.eclipse.jdt_3.2.0.v20060605-1400.sar");
 		InputStream jdt320Jar = TestData.get("optimizers", "org.eclipse.jdt_3.2.0.v20060605-1400.njar");
@@ -41,6 +44,7 @@ public class SarTest {
 	}
 
 	@Test
+	@Ignore
 	public void testJarToSarForJdt330() throws IOException {
 		InputStream jdt330Jar = TestData.get("optimizers", "org.eclipse.jdt_3.3.0.v20070607-1300.njar");
 		InputStream jdt330Sar = TestData.get("sar", "org.eclipse.jdt_3.3.0.v20070607-1300.sar");
@@ -48,6 +52,7 @@ public class SarTest {
 	}
 
 	@Test
+	@Ignore
 	public void testSarToJarForJdt330() throws IOException {
 		InputStream jdt330Sar = TestData.get("sar", "org.eclipse.jdt_3.3.0.v20070607-1300.sar");
 		InputStream jdt330Jar = TestData.get("optimizers", "org.eclipse.jdt_3.3.0.v20070607-1300.njar");
@@ -81,6 +86,7 @@ public class SarTest {
 	}
 
 	@Test
+	@Ignore
 	public void testZipToSarAndBack() throws IOException {
 		File originalZipFile = TestData.getTempFile("sar", "test.zip");
 		File sarFile = TestData.createTempFile("test.sar");
