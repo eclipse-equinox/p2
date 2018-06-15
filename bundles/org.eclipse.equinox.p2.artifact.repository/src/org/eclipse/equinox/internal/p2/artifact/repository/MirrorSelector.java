@@ -335,7 +335,7 @@ public class MirrorSelector {
 	}
 
 	/**
-	 * Initialize @{link #mirrors} for @{link #repository}, or <code>null</code> if
+	 * Initialize {@link #mirrors} for {@link #repository}, or <code>null</code> if
 	 * they could not be computed.
 	 */
 	private void initMirrors(IProgressMonitor monitor) {
