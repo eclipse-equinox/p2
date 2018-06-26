@@ -11,6 +11,7 @@
 * Contributors:
 * 	compeople AG (Stefan Liebig) - initial API and implementation
 *   IBM Corporation - continuing development
+*   Mykola Nikishov - continuing development
 *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
 
@@ -132,5 +133,17 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 */
 	public IStatus getStatus(boolean deep) {
 		return ProcessingStepHandler.getStatus(this, deep);
+	}
+
+	/**
+	 * If step has dependencies that may come and go during application's
+	 * lifetime (i.e., user may uninstall CLI utility that step depended on),
+	 * this method checks if such dependencies are available.
+	 *
+	 * @return if step's dependencies are satisfied
+	 * @since 1.3
+	 */
+	public boolean isEnabled() {
+		return true;
 	}
 }

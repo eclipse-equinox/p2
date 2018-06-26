@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2017 compeople AG and others.
+* Copyright (c) 2007, 2018 compeople AG and others.
 *
 * This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
 * Contributors:
 * 	compeople AG (Stefan Liebig) - initial API and implementation
 *  IBM - continuing development
+*  Mykola Nikishov - continuing development
 *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository.processing;
 
@@ -27,9 +28,11 @@ import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -40,6 +43,45 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 
 	ProcessingStepHandler handler = new ProcessingStepHandler();
 	IProgressMonitor monitor = new NullProgressMonitor();
+
+	public void testCanProcess_Ok() {
+		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
+		descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
+
+		assertTrue(ProcessingStepHandler.canProcess(descriptor));
+	}
+
+	public void testCanProcess_FailNoSuchStep() {
+		String noSuchStepId = "org.eclipse.equinox.p2.processing.test.Dummy";
+		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
+		descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor(noSuchStepId, null, true), new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)});
+
+		assertFalse(ProcessingStepHandler.canProcess(descriptor));
+	}
+
+	public void testCanProcess_FailAlwaysDisabled() {
+		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
+		String processorId = "org.eclipse.equinox.p2.processing.AlwaysDisabled";
+		descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor(processorId, null, true), new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)});
+
+		assertFalse(ProcessingStepHandler.canProcess(descriptor));
+	}
+
+	public void testCanProcess_OkOptionalAlwaysDisabled() {
+		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
+		String processorId = "org.eclipse.equinox.p2.processing.AlwaysDisabled";
+		descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor(processorId, null, false), new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)});
+
+		assertTrue("Not enabled optional step should not block processing", ProcessingStepHandler.canProcess(descriptor));
+	}
+
+	public void testCanProcess_FailMultipleSteps() {
+		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
+		String processorId = "org.eclipse.equinox.p2.processing.MultipleSteps";
+		descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor(processorId, null, true), new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)});
+
+		assertFalse(String.format("Multiple step attributes in %s are not supported", processorId), ProcessingStepHandler.canProcess(descriptor));
+	}
 
 	public void testExecuteNoPSs() throws IOException {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[0];

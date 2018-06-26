@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2017 compeople AG and others.
+* Copyright (c) 2007, 2018 compeople AG and others.
 *
 * This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
@@ -11,14 +11,21 @@
 * Contributors:
 * 	compeople AG (Stefan Liebig) - initial API and implementation
 *  IBM - continuing development
+*  Mykola Nikishov - continuing development
 *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
 
+import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.ArtifactOutputStream;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -38,19 +45,49 @@ public class ProcessingStepHandler {
 	}
 
 	/**
-	 * Check to see that we have processors for all the steps in the given descriptor
+	 * Check to see that we have processors for all required steps in the given descriptor
 	 * @param descriptor the descriptor to check
 	 * @return whether or not processors for all the descriptor's steps are installed
+	 * @see IProcessingStepDescriptor#isRequired()
 	 */
 	public static boolean canProcess(IArtifactDescriptor descriptor) {
-		IExtensionRegistry registry = RegistryFactory.getRegistry();
-		IExtensionPoint point = registry.getExtensionPoint(PROCESSING_STEPS_EXTENSION_ID);
+		IExtensionPoint point = ofNullable(RegistryFactory.getRegistry())
+			.map(r -> r.getExtensionPoint(PROCESSING_STEPS_EXTENSION_ID))
+			.orElse(null);
 		if (point == null)
 			return false;
-		IProcessingStepDescriptor[] steps = descriptor.getProcessingSteps();
-		for (int i = 0; i < steps.length; i++) {
-			if (point.getExtension(steps[i].getProcessorId()) == null)
-				return false;
+
+		List<String> processorIds = stream(descriptor.getProcessingSteps())
+			// ignore steps that are not required
+			.filter(IProcessingStepDescriptor::isRequired)
+			.map(IProcessingStepDescriptor::getProcessorId)
+			.collect(toList());
+		try {
+			for (String processorId : processorIds) {
+				IExtension requiredExtension = point.getExtension(processorId);
+				if (requiredExtension == null)
+					return false;
+
+				List<IConfigurationElement> stepConfigs = stream(requiredExtension.getConfigurationElements())
+					// skip anything but step elements
+					.filter(config -> "step".equals(config.getName())) //$NON-NLS-1$
+					.collect(toList());
+				if (stepConfigs.size() != 1)
+					// do not tolerate no or multiple step elements
+					return false;
+
+				IConfigurationElement stepConfig = stepConfigs.get(0);
+				ProcessingStep stepToCheck = (ProcessingStep) stepConfig.createExecutableExtension("class"); //$NON-NLS-1$
+				if (!stepToCheck.isEnabled())
+					return false;
+			}
+		} catch (InvalidRegistryObjectException e) {
+			// extension is no longer valid, log and ignore
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "", e)); //$NON-NLS-1$
+			return false;
+		} catch (CoreException e) {
+			// unable to instantiate an extension, already logged, ignore
+			return false;
 		}
 		return true;
 	}

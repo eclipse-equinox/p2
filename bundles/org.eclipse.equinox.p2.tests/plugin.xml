@@ -37,6 +37,18 @@
 			id="org.eclipse.equinox.p2.processing.Multiplier">
 		<step class="org.eclipse.equinox.p2.tests.artifact.repository.processing.Multiplier"/>
 	</extension>
+	<extension
+			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
+			id="org.eclipse.equinox.p2.processing.AlwaysDisabled">
+		<step class="org.eclipse.equinox.p2.tests.artifact.repository.processing.AlwaysDisabled"/>
+	</extension>
+	<extension
+			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
+			id="org.eclipse.equinox.p2.processing.MultipleSteps">
+		<step class="org.eclipse.equinox.p2.tests.artifact.repository.processing.Adder"/>
+		<step class="org.eclipse.equinox.p2.tests.artifact.repository.processing.ByteShifter"/>
+		<step class="org.eclipse.equinox.p2.tests.artifact.repository.processing.Multiplier"/>
+	</extension>
  <extension
        point="org.eclipse.equinox.p2.engine.actions">
     <action
