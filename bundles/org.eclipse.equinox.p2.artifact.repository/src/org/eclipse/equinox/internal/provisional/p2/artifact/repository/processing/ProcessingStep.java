@@ -133,4 +133,8 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	public IStatus getStatus(boolean deep) {
 		return ProcessingStepHandler.getStatus(this, deep);
 	}
+
+	public boolean isEnabled() {
+		return true;
+	}
 }

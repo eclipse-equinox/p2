@@ -47,7 +47,7 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 	@Override
 	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
-		if (!UnpackStep.canUnpack()) {
+		if (!isEnabled()) {
 			IStatus status = null;
 			if (detailedResult) {
 				status = new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, "Unpack facility not configured.", null); //$NON-NLS-1$
@@ -102,5 +102,10 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 		options.verbose = false;
 		new JarProcessorExecutor().runJarProcessor(options);
 		return new File(getWorkDir(), incoming.getName().substring(0, incoming.getName().length() - PACKED_SUFFIX.length()));
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return UnpackStep.canUnpack();
 	}
 }
