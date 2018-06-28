@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.eclipse.equinox.p2</groupId>
+    <artifactId>rt.equinox.p2</artifactId>
+    <version>4.12.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>org.eclipse.equinox.p2.examples</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>org.eclipse.equinox.p2.examples.rcp.cloud</module>
+    <module>org.eclipse.equinox.p2.examples.rcp.discovery</module>
+    <module>org.eclipse.equinox.p2.examples.rcp.prestartupdate</module>
+    <module>org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility</module>
+    <module>org.eclipse.equinox.p2.examples.rcp.sdknoautoupdates</module>
+    <module>org.eclipse.equinox.p2.examples.rcp.sdkui</module>
+  </modules>
+</project>

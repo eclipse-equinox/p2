@@ -3,11 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.eclipse.equinox.p2</groupId>
-    <artifactId>org.eclipse.equinox.p2.examples</artifactId>
+    <artifactId>rt.equinox.p2</artifactId>
     <version>4.12.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
+    <relativePath>../..</relativePath>
   </parent>
-  <artifactId>org.eclipse.equinox.p2.examples.rcp.cloud</artifactId>
+  <groupId>org.eclipse.equinox</groupId>
+  <artifactId>org.eclipse.equinox.p2.examples.rcp.sdknoautoupdates</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>

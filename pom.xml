@@ -165,6 +165,8 @@
     <module>bundles/org.eclipse.equinox.p2.tests.discovery</module>
     <module>bundles/org.eclipse.equinox.p2.tests.ui</module>
     <module>bundles/org.eclipse.equinox.p2.tests.verifier</module>
+
+    <module>examples</module>
   </modules>
 
 </project>

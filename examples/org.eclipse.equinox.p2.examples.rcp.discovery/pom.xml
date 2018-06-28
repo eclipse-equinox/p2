@@ -8,7 +8,7 @@
     <relativePath>../..</relativePath>
   </parent>
   <groupId>org.eclipse.equinox</groupId>
-  <artifactId>org.eclipse.equinox.p2.examples.rcp.cloud</artifactId>
-  <version>2.1.0.qualifier</version>
+  <artifactId>org.eclipse.equinox.p2.examples.rcp.discovery</artifactId>
+  <version>2.1.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>
