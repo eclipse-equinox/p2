@@ -133,7 +133,9 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 
 		Object parent = getParent(this);
 		Object objParent = ((InstalledIUElement) obj).getParent(obj);
-		if (parent != null && objParent != null)
+		if (parent == this)
+			return objParent == obj;
+		else if (parent != null && objParent != null)
 			return parent.equals(objParent);
 		else if (parent == null && objParent == null)
 			return true;
