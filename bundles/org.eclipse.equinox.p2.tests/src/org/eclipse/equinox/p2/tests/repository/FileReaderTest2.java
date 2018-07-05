@@ -10,12 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.repository;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.Date;
 import java.util.EventObject;
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.jobs.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.equinox.internal.p2.repository.DownloadProgressEvent;
 import org.eclipse.equinox.internal.p2.transport.ecf.FileReader;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -188,7 +198,7 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 	}
 
 	private void doFileReaderTest(final PauseJob pauseJob, IProgressMonitor monitor) throws IOException, CoreException {
-		final String testRemoteFileURL = "http://download.eclipse.org/releases/juno/201206270900/content.jar";
+		final String testRemoteFileURL = "http://download.eclipse.org/releases/photon/201806271001/content.jar";
 		File tmpFolder = getTempFolder();
 		File tmpFile = new File(tmpFolder, "testDownloadPauseResume.zip");
 		File tmpFile1 = new File(tmpFolder, "testDownloadWithoutPause.zip");
