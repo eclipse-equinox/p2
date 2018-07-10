@@ -25,7 +25,7 @@ public class FileUtils {
 			for (Enumeration<TarEntry> e = tarFile.entries(); e.hasMoreElements();) {
 				TarEntry entry = e.nextElement();
 				try (InputStream input = tarFile.getInputStream(entry)) {
-					File outFile = new File(outputDir, entry.getName());
+					File outFile = createSubPathFile(outputDir, entry.getName());
 					outFile = outFile.getCanonicalFile(); //bug 266844
 					untarredFiles.add(outFile);
 					if (entry.getFileType() == TarEntry.DIRECTORY) {
@@ -103,7 +103,7 @@ public class FileUtils {
 				throw new IOException(Messages.Util_Invalid_Zip_File_Format);
 			}
 			do {
-				File outFile = new File(outputDir, ze.getName());
+				File outFile = createSubPathFile(outputDir, ze.getName());
 				unzippedFiles.add(outFile);
 				if (ze.isDirectory()) {
 					outFile.mkdirs();
@@ -126,6 +126,16 @@ public class FileUtils {
 		}
 
 		return unzippedFiles.toArray(new File[unzippedFiles.size()]);
+	}
+
+	private static File createSubPathFile(File root, String subPath) throws IOException {
+		File result = new File(root, subPath);
+		String resultCanonical = result.getCanonicalPath();
+		String rootCanonical = root.getCanonicalPath();
+		if (!resultCanonical.startsWith(rootCanonical + File.separator) && !resultCanonical.equals(rootCanonical)) {
+			throw new IOException("Invalid path: " + subPath); //$NON-NLS-1$
+		}
+		return result;
 	}
 
 	// Delete empty directories under dir, including dir itself.

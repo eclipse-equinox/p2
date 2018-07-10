@@ -98,7 +98,7 @@ public class JarProcessor {
 				JarEntry newEntry = null;
 				if (replacements.containsKey(entry.getName())) {
 					String name = replacements.get(entry.getName());
-					replacement = new File(directory, name);
+					replacement = ZipProcessor.createSubPathFile(directory, name);
 					if (name != null) {
 						if (replacement.exists()) {
 							try {
@@ -196,7 +196,7 @@ public class JarProcessor {
 						System.out.println("Processing nested file: " + name); //$NON-NLS-1$
 					}
 					//extract entry to temp directory
-					File extracted = new File(tempDir, name);
+					File extracted = ZipProcessor.createSubPathFile(tempDir, name);
 					File parentDir = extracted.getParentFile();
 					if (!parentDir.exists())
 						parentDir.mkdirs();

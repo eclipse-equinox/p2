@@ -12,15 +12,19 @@
 package org.eclipse.equinox.p2.tests.core;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.TestActivator;
 
 /**
  * @since 3.5
@@ -81,6 +85,29 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 		assertTrue("3.3", !one.exists());
 		assertTrue("3.4", !two.exists());
 
+	}
+
+	public void testUnzipEscapeZipRoot() throws IOException {
+		File badZip = TestActivator.getContext().getDataFile(getName() + ".zip");
+		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(badZip))) {
+			zos.putNextEntry(new ZipEntry("../../escapeRoot.txt"));
+			zos.write("test data".getBytes());
+			zos.closeEntry();
+		}
+		File temp = getTempFolder();
+		try {
+			FileUtils.unzipFile(badZip, temp);
+		} catch (IOException e) {
+			// expected
+			assertTrue("Wrong message: " + e.getMessage(), e.getMessage().indexOf("Invalid path: ") >= 0);
+		}
+
+		try {
+			Util.unzipFile(badZip, temp, null, null, null);
+		} catch (IOException e) {
+			// expected
+			assertTrue("Wrong message: " + e.getMessage(), e.getMessage().indexOf("Invalid path: ") >= 0);
+		}
 	}
 
 	public void testZipRootPathComputer() {

@@ -176,7 +176,7 @@ public class Util {
 									name = name.substring(1);
 							}
 						}
-						File outFile = new File(outputDir, name);
+						File outFile = createSubPathFile(outputDir, name);
 						unzippedFiles.add(outFile);
 						if (ze.isDirectory()) {
 							outFile.mkdirs();
@@ -204,6 +204,16 @@ public class Util {
 			return unzippedFiles.toArray(new File[unzippedFiles.size()]);
 		}
 
+	}
+
+	private static File createSubPathFile(File root, String subPath) throws IOException {
+		File result = new File(root, subPath);
+		String resultCanonical = result.getCanonicalPath();
+		String rootCanonical = root.getCanonicalPath();
+		if (!resultCanonical.startsWith(rootCanonical + File.separator) && !resultCanonical.equals(rootCanonical)) {
+			throw new IOException("Invalid path: " + subPath); //$NON-NLS-1$
+		}
+		return result;
 	}
 
 	/**

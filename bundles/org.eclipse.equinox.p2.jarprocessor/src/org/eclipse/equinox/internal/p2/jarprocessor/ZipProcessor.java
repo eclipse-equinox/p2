@@ -83,7 +83,7 @@ public class ZipProcessor {
 						File extractedFile = null;
 
 						if (entry.getName().endsWith(extension) && (pack || sign || repack || options.unpack)) {
-							extractedFile = new File(tempDir, name);
+							extractedFile = createSubPathFile(tempDir, name);
 							parent = extractedFile.getParentFile();
 							if (!parent.exists())
 								parent.mkdirs();
@@ -190,6 +190,16 @@ public class ZipProcessor {
 			Utils.clear(tempDir);
 		}
 
+	}
+
+	public static File createSubPathFile(File root, String subPath) throws IOException {
+		File result = new File(root, subPath);
+		String resultCanonical = result.getCanonicalPath();
+		String rootCanonical = root.getCanonicalPath();
+		if (!resultCanonical.startsWith(rootCanonical + File.separator) && !resultCanonical.equals(rootCanonical)) {
+			throw new IOException("Invalid path: " + subPath); //$NON-NLS-1$
+		}
+		return result;
 	}
 
 	private void initialize(ZipFile zip) {
