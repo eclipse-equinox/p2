@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.processing.AbstractBufferingStep;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.jarprocessor.UnpackStep;
 import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
@@ -49,7 +50,7 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 		if (!UnpackStep.canUnpack()) {
 			IStatus status = null;
 			if (detailedResult) {
-				status = new Status(IStatus.ERROR, Activator.ID, "Unpack facility not configured."); //$NON-NLS-1$
+				status = new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, "Unpack facility not configured.", null); //$NON-NLS-1$
 				detailedResult = true;
 			} else {
 				String[] locations = Utils.getPack200Commands("unpack200"); //$NON-NLS-1$
@@ -57,7 +58,7 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 				for (int i = 0; i < locations.length; i++) {
 					locationTried.append(locations[i]).append(", "); //$NON-NLS-1$
 				}
-				status = new Status(IStatus.ERROR, Activator.ID, "Unpack facility not configured. The locations searched for unpack200 are: " + locationTried); //$NON-NLS-1$
+				status = new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, "Unpack facility not configured. The locations searched for unpack200 are: " + locationTried, null); //$NON-NLS-1$
 			}
 			setStatus(status);
 		}
@@ -80,8 +81,11 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 				InputStream resultStream = new BufferedInputStream(new FileInputStream(resultFile));
 				FileUtils.copyStream(resultStream, true, getDestination(), false);
 			} else {
-				setStatus(new Status(IStatus.ERROR, Activator.ID, "Unpacking fails because intermediate file is empty: " + resultFile)); //$NON-NLS-1$
+				setStatus(new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, "Unpacking fails because intermediate file is empty: " + resultFile, null)); //$NON-NLS-1$
 			}
+		} catch (IOException e) {
+			setStatus(new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, "Unpacking fails", e)); //$NON-NLS-1$
+			throw e;
 		} finally {
 			if (resultFile != null)
 				resultFile.delete();
