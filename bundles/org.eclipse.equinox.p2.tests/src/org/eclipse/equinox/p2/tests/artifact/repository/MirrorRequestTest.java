@@ -104,6 +104,33 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertEquals("Exact number of downloads", 2, src.downloadCount);
 	}
 
+	/**
+	 * Same as {@link #testFailToCanonical()} but with 3 mirrors:
+	 * <ul>
+	 * <li><code>mirror-one</code>, which is unreachable</li>
+	 * <li><code>mirror-two</code>, which has an invalid optimized artifact and causes processing step to fail</li>
+	 * <li>original repository, which has a valid canonical artifact</li>
+	 * </ul>
+	 *
+	 */
+	public void testFailToCanonicalWithMirrors() {
+		OrderedMirrorSelector selector = new OrderedMirrorSelector(sourceRepository);
+		try {
+			RemoteRepo src = new RemoteRepo((SimpleArtifactRepository) sourceRepository);
+
+			IArtifactKey key = new ArtifactKey("test.txt", "fail_to_canonical", Version.parseVersion("1.0.0"));
+			MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, getTransport());
+			request.perform(src, new NullProgressMonitor());
+
+			assertTrue(request.getResult().toString(), request.getResult().isOK());
+			assertTrue(String.format("Target does not contain artifact %s", key), targetRepository.contains(key));
+			assertEquals("Exact number of downloads", 3, src.downloadCount);
+			assertEquals("All mirrors utilized", selector.mirrors.length, selector.index);
+		} finally {
+			selector.clearSelector();
+		}
+	}
+
 	// Test that SimpleArtifactRepository & MirrorRequest use mirrors in the event of a failure.
 	public void testMirrorFailOver() {
 		OrderedMirrorSelector selector = new OrderedMirrorSelector(sourceRepository);
