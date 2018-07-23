@@ -100,8 +100,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		request.perform(src, new NullProgressMonitor());
 
 		assertTrue(request.getResult().toString(), request.getResult().isOK());
-		assertTrue("Target does not contain artifact.", targetRepository.contains(key));
-		assertTrue("Number of downloads differs from expected attempts.", src.downloadCount == 2);
+		assertTrue(String.format("Target does not contain artifact %s", key), targetRepository.contains(key));
+		assertEquals("Exact number of downloads", 2, src.downloadCount);
 	}
 
 	// Test that SimpleArtifactRepository & MirrorRequest use mirrors in the event of a failure.
