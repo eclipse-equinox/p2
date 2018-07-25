@@ -58,7 +58,8 @@ public class TrustCertificateDialog extends SelectionDialog {
 		inputElement = input;
 		this.contentProvider = contentProvider;
 		this.labelProvider = labelProvider;
-		setMessage(ProvUIMessages.TrustCertificateDialog_Title);
+		setTitle(ProvUIMessages.TrustCertificateDialog_Title);
+		setMessage(ProvUIMessages.TrustCertificateDialog_Message);
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | getDefaultOrientation());
 	}
 
