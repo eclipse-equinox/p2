@@ -87,8 +87,8 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	}
 
 	public void addInstallableUnits(IInstallableUnit... toInstall) {
-		for (int i = 0; i < toInstall.length; i++)
-			add(toInstall[i]);
+		for (IInstallableUnit element : toInstall)
+			add(element);
 	}
 
 	@Override
@@ -99,8 +99,8 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	}
 
 	public void removeInstallableUnits(IInstallableUnit[] toUninstall) {
-		for (int i = 0; i < toUninstall.length; i++)
-			remove(toUninstall[i]);
+		for (IInstallableUnit element : toUninstall)
+			remove(element);
 	}
 
 	@Override
