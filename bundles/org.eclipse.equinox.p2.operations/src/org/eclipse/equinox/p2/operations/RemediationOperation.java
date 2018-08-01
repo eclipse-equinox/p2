@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2017 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2018 Red Hat, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
@@ -121,8 +122,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 	private void determineBestSolutions() {
 		int beingInstalledWeight = 0;
 		int installationWeight = 0;
-		for (Iterator<Remedy> iterator = remedies.iterator(); iterator.hasNext();) {
-			Remedy remedy = iterator.next();
+		for (Remedy remedy : remedies) {
 			if (remedy.getRequest() != null) {
 				if (remedy.getBeingInstalledRelaxedWeight() > beingInstalledWeight && remedy.getInstallationRelaxedWeight() == 0) {
 					bestSolutionChangingTheRequest = remedy;
