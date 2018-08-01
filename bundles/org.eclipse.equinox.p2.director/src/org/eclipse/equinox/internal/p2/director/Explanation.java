@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Daniel Le Berre and others. All rights reserved. This
+ * Copyright (c) 2009, 2018 Daniel Le Berre and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -11,12 +11,8 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.Arrays;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Explanation implements Comparable<Explanation> {
@@ -273,8 +269,8 @@ public abstract class Explanation implements Comparable<Explanation> {
 		@Override
 		public IStatus toStatus() {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, NLS.bind(Messages.Explanation_singleton, ""), null); //$NON-NLS-1$
-			for (int i = 0; i < ius.length; i++)
-				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, getUserReadableName(ius[i])));
+			for (IInstallableUnit iu : ius)
+				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, getUserReadableName(iu)));
 			return result;
 		}
 

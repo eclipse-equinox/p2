@@ -411,9 +411,7 @@ public class Projector {
 					}
 				} else {
 					List<Object> newConstraint = new ArrayList<>(matches.size());
-					IInstallableUnit current;
-					for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-						current = it.next();
+					for (IInstallableUnit current : matches) {
 						newConstraint.add(getNonGreedyVariable(current));
 					}
 					createImplication(new Object[] {iu}, newConstraint, new Explanation.HardRequirement(iu, req)); // FIXME
@@ -421,13 +419,11 @@ public class Projector {
 			}
 		} else {
 			if (!matches.isEmpty()) {
-				IInstallableUnit current;
 				AbstractVariable abs;
 				if (req.isGreedy()) {
 					abs = getAbstractVariable(req);
 					createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
-					for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-						current = it.next();
+					for (IInstallableUnit current : matches) {
 						if (nonGreedyIUs.contains(current)) {
 							addNonGreedyProvider(getNonGreedyVariable(current), abs);
 						}
@@ -436,8 +432,7 @@ public class Projector {
 				} else {
 					abs = getAbstractVariable(req, false);
 					List<Object> newConstraint = new ArrayList<>();
-					for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-						current = it.next();
+					for (IInstallableUnit current : matches) {
 						newConstraint.add(getNonGreedyVariable(current));
 					}
 					createImplication(new Object[] {abs, iu}, newConstraint, Explanation.OPTIONAL_REQUIREMENT);
@@ -556,7 +551,6 @@ public class Projector {
 						if (matches.isEmpty()) {
 							missingRequirement(patch, req);
 						} else {
-							IInstallableUnit current;
 							if (req.isGreedy()) {
 								IInstallableUnit reqIu = matches.get(0);
 								Explanation explanation;
@@ -570,16 +564,14 @@ public class Projector {
 									explanation = new Explanation.PatchedHardRequirement(iu, req, patch);
 								}
 								createImplication(new Object[] {patch, iu}, matches, explanation);
-								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-									current = it.next();
+								for (IInstallableUnit current : matches) {
 									if (nonGreedyIUs.contains(current)) {
 										addNonGreedyProvider(getNonGreedyVariable(current), iu);
 									}
 								}
 							} else {
 								List<Object> newConstraint = new ArrayList<>();
-								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-									current = it.next();
+								for (IInstallableUnit current : matches) {
 									newConstraint.add(getNonGreedyVariable(current));
 								}
 								createImplication(new Object[] {iu}, newConstraint, new Explanation.HardRequirement(iu, req)); // FIXME
@@ -587,13 +579,11 @@ public class Projector {
 						}
 					} else {
 						if (!matches.isEmpty()) {
-							IInstallableUnit current;
 							AbstractVariable abs;
 							if (req.isGreedy()) {
 								abs = getAbstractVariable(req);
 								createImplication(new Object[] {patch, abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
-								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-									current = it.next();
+								for (IInstallableUnit current : matches) {
 									if (nonGreedyIUs.contains(current)) {
 										addNonGreedyProvider(getNonGreedyVariable(current), abs);
 									}
@@ -602,8 +592,7 @@ public class Projector {
 							} else {
 								abs = getAbstractVariable(req, false);
 								List<Object> newConstraint = new ArrayList<>(matches.size());
-								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-									current = it.next();
+								for (IInstallableUnit current : matches) {
 									newConstraint.add(getNonGreedyVariable(current));
 								}
 								createImplication(new Object[] {patch, abs, iu}, newConstraint, Explanation.OPTIONAL_REQUIREMENT);
@@ -634,10 +623,8 @@ public class Projector {
 							pending.matches = matches;
 						} else {
 							// manage non greedy IUs
-							IInstallableUnit current;
 							List<Object> nonGreedys = new ArrayList<>();
-							for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-								current = it.next();
+							for (IInstallableUnit current : matches) {
 								if (nonGreedyIUs.contains(current)) {
 									nonGreedys.add(getNonGreedyVariable(current));
 								}
@@ -659,16 +646,14 @@ public class Projector {
 								// Fix: make sure we collect all patches that will impact this IU-req, not just one
 								pending.explanation = explanation;
 								pending.matches = matches;
-								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-									current = it.next();
+								for (IInstallableUnit current : matches) {
 									if (nonGreedyIUs.contains(current)) {
 										addNonGreedyProvider(getNonGreedyVariable(current), iu);
 									}
 								}
 							} else {
 								List<Object> newConstraint = new ArrayList<>(matches.size());
-								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-									current = it.next();
+								for (IInstallableUnit current : matches) {
 									newConstraint.add(getNonGreedyVariable(current));
 								}
 								pending.explanation = new Explanation.HardRequirement(iu, req);
@@ -679,7 +664,6 @@ public class Projector {
 						}
 					} else {
 						if (!matches.isEmpty()) {
-							IInstallableUnit current;
 							AbstractVariable abs;
 							matches.add(patch);
 							pending = new Pending();
@@ -690,8 +674,7 @@ public class Projector {
 								// Fix: make sure we collect all patches that will impact this IU-req, not just one
 								pending.left = new Object[] {abs, iu};
 								pending.matches = matches;
-								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-									current = it.next();
+								for (IInstallableUnit current : matches) {
 									if (nonGreedyIUs.contains(current)) {
 										addNonGreedyProvider(getNonGreedyVariable(current), abs);
 									}
@@ -699,8 +682,7 @@ public class Projector {
 							} else {
 								abs = getAbstractVariable(req, false);
 								List<Object> newConstraint = new ArrayList<>(matches.size());
-								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-									current = it.next();
+								for (IInstallableUnit current : matches) {
 									newConstraint.add(getNonGreedyVariable(current));
 								}
 								newConstraint.add(patch);
@@ -741,10 +723,8 @@ public class Projector {
 					}
 				} else {
 					// manage non greedy IUs
-					IInstallableUnit current;
 					List<Object> nonGreedys = new ArrayList<>(matches.size());
-					for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-						current = it.next();
+					for (IInstallableUnit current : matches) {
 						if (nonGreedyIUs.contains(current)) {
 							nonGreedys.add(getNonGreedyVariable(current));
 						}
@@ -764,16 +744,14 @@ public class Projector {
 							explanation = new Explanation.HardRequirement(iu, req);
 						}
 						createImplication(iu, matches, explanation);
-						for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-							current = it.next();
+						for (IInstallableUnit current : matches) {
 							if (nonGreedyIUs.contains(current)) {
 								addNonGreedyProvider(getNonGreedyVariable(current), iu);
 							}
 						}
 					} else {
 						List<Object> newConstraint = new ArrayList<>(matches.size());
-						for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-							current = it.next();
+						for (IInstallableUnit current : matches) {
 							newConstraint.add(getNonGreedyVariable(current));
 						}
 						createImplication(new Object[] {iu}, newConstraint, new Explanation.HardRequirement(iu, req)); // FIXME
@@ -781,15 +759,13 @@ public class Projector {
 				}
 			} else {
 				if (!matches.isEmpty()) {
-					IInstallableUnit current;
 					if (!requiredPatches.isEmpty())
 						matches.addAll(requiredPatches);
 					AbstractVariable abs;
 					if (req.isGreedy()) {
 						abs = getAbstractVariable(req);
 						createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
-						for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-							current = it.next();
+						for (IInstallableUnit current : matches) {
 							if (nonGreedyIUs.contains(current)) {
 								addNonGreedyProvider(getNonGreedyVariable(current), iu);
 							}
@@ -797,8 +773,7 @@ public class Projector {
 					} else {
 						abs = getAbstractVariable(req, false);
 						List<Object> newConstraint = new ArrayList<>(matches.size());
-						for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-							current = it.next();
+						for (IInstallableUnit current : matches) {
 							newConstraint.add(getNonGreedyVariable(current));
 						}
 						createImplication(new Object[] {abs, iu}, newConstraint, new Explanation.HardRequirement(iu, req)); // FIXME
@@ -831,8 +806,7 @@ public class Projector {
 	private List<IInstallableUnit> getApplicableMatches(IRequirement req) {
 		List<IInstallableUnit> target = new ArrayList<>();
 		IQueryResult<IInstallableUnit> matches = picker.query(QueryUtil.createMatchQuery(req.getMatches()), null);
-		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = iterator.next();
+		for (IInstallableUnit match : matches) {
 			if (isApplicable(match)) {
 				target.add(match);
 			}
@@ -868,9 +842,9 @@ public class Projector {
 				rrr.add(new IRequirement[] {null, change.newValue()});
 		}
 		//Add all the unmodified requirements to the result
-		for (int i = 0; i < originalRequirements.length; i++) {
-			if (originalRequirements[i] != null)
-				rrr.add(new IRequirement[] {originalRequirements[i], originalRequirements[i]});
+		for (IRequirement originalRequirement : originalRequirements) {
+			if (originalRequirement != null)
+				rrr.add(new IRequirement[] {originalRequirement, originalRequirement});
 		}
 		return rrr.toArray(new IRequirement[rrr.size()][]);
 	}
@@ -953,8 +927,8 @@ public class Projector {
 	private void createAtMostOne(IInstallableUnit[] ius) throws ContradictionException {
 		if (DEBUG) {
 			StringBuffer b = new StringBuffer();
-			for (int i = 0; i < ius.length; i++) {
-				b.append(ius[i].toString());
+			for (IInstallableUnit iu : ius) {
+				b.append(iu.toString());
 			}
 			Tracing.debug("At most 1 of " + b); //$NON-NLS-1$
 		}

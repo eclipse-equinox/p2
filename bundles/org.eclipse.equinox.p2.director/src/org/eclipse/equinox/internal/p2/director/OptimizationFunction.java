@@ -111,8 +111,7 @@ public class OptimizationFunction {
 			if (req.getMin() > 0 || !req.isGreedy())
 				continue;
 			IQueryResult<IInstallableUnit> matches = picker.query(QueryUtil.createMatchQuery(req.getMatches()), null);
-			for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
-				IInstallableUnit match = iterator.next();
+			for (IInstallableUnit match : matches) {
 				if (match instanceof IInstallableUnitPatch) {
 					requestedPatches.add(match);
 					countOptional = countOptional + 1;
