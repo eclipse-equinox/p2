@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,9 +41,9 @@ public class ElementUtils {
 			int visibilityFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
 			URI[] currentlyEnabled = metaManager.getKnownRepositories(visibilityFlags);
 			URI[] currentlyDisabled = metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | visibilityFlags);
-			for (int i = 0; i < elements.length; i++) {
-				URI location = elements[i].getLocation();
-				if (elements[i].isEnabled()) {
+			for (MetadataRepositoryElement element : elements) {
+				URI location = element.getLocation();
+				if (element.isEnabled()) {
 					if (containsURI(currentlyDisabled, location))
 						// It should be enabled and is not currently
 						setColocatedRepositoryEnablement(ui, location, true);
@@ -63,7 +63,7 @@ public class ElementUtils {
 						setColocatedRepositoryEnablement(ui, location, false);
 					}
 				}
-				String name = elements[i].getName();
+				String name = element.getName();
 				if (name != null && name.length() > 0) {
 					metaManager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 					artManager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
@@ -72,18 +72,18 @@ public class ElementUtils {
 			// Are there any elements that need to be deleted?  Go over the original state
 			// and remove any elements that weren't in the elements we were given
 			Set<String> nowKnown = new HashSet<>();
-			for (int i = 0; i < elements.length; i++)
-				nowKnown.add(URIUtil.toUnencodedString(elements[i].getLocation()));
-			for (int i = 0; i < currentlyEnabled.length; i++) {
-				if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyEnabled[i]))) {
-					metaManager.removeRepository(currentlyEnabled[i]);
-					artManager.removeRepository(currentlyEnabled[i]);
+			for (MetadataRepositoryElement element : elements)
+				nowKnown.add(URIUtil.toUnencodedString(element.getLocation()));
+			for (URI element : currentlyEnabled) {
+				if (!nowKnown.contains(URIUtil.toUnencodedString(element))) {
+					metaManager.removeRepository(element);
+					artManager.removeRepository(element);
 				}
 			}
-			for (int i = 0; i < currentlyDisabled.length; i++) {
-				if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyDisabled[i]))) {
-					metaManager.removeRepository(currentlyDisabled[i]);
-					artManager.removeRepository(currentlyDisabled[i]);
+			for (URI element : currentlyDisabled) {
+				if (!nowKnown.contains(URIUtil.toUnencodedString(element))) {
+					metaManager.removeRepository(element);
+					artManager.removeRepository(element);
 				}
 			}
 		} finally {
@@ -106,8 +106,8 @@ public class ElementUtils {
 
 	public static List<IInstallableUnit> elementsToIUs(Object[] elements) {
 		ArrayList<IInstallableUnit> theIUs = new ArrayList<>(elements.length);
-		for (int i = 0; i < elements.length; i++) {
-			IInstallableUnit iu = ProvUI.getAdapter(elements[i], IInstallableUnit.class);
+		for (Object element : elements) {
+			IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 			if (iu != null)
 				theIUs.add(iu);
 		}
@@ -119,8 +119,8 @@ public class ElementUtils {
 	}
 
 	static boolean containsURI(URI[] locations, URI url) {
-		for (int i = 0; i < locations.length; i++)
-			if (locations[i].equals(url))
+		for (URI location : locations)
+			if (location.equals(url))
 				return true;
 		return false;
 	}
@@ -131,8 +131,7 @@ public class ElementUtils {
 		ArrayList<AvailableIUElement> temp = new ArrayList<>();
 		ProvisioningUI ui = ProvisioningUI.getDefaultUI();
 		IUElementListRoot root = new IUElementListRoot(ui);
-		for (Iterator<RemedyIUDetail> iterator = remedy.getIusDetails().iterator(); iterator.hasNext();) {
-			RemedyIUDetail iuDetail = iterator.next();
+		for (RemedyIUDetail iuDetail : remedy.getIusDetails()) {
 			if (iuDetail.getStatus() == RemedyIUDetail.STATUS_NOT_ADDED)
 				continue;
 			AvailableIUElement element = new AvailableIUElement(root, iuDetail.getIu(), ui.getProfileId(), true);
@@ -151,8 +150,7 @@ public class ElementUtils {
 		RemedyElementCategory cateogyRemoved = new RemedyElementCategory(ProvUIMessages.RemedyCategoryRemoved);
 		RemedyElementCategory categoryNotAdded = new RemedyElementCategory(ProvUIMessages.RemedyCategoryNotAdded);
 		RemedyElementCategory categoryChanged = new RemedyElementCategory(ProvUIMessages.RemedyCategoryChanged);
-		for (Iterator<RemedyIUDetail> iterator = remedy.getIusDetails().iterator(); iterator.hasNext();) {
-			RemedyIUDetail remedyIUVersions = iterator.next();
+		for (RemedyIUDetail remedyIUVersions : remedy.getIusDetails()) {
 			if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_ADDED)
 				categoryAdded.add(remedyIUVersions);
 			else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_CHANGED)
