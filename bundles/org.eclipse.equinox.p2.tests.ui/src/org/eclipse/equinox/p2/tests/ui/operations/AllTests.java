@@ -10,20 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all UI operation tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(ColocatedRepositoryTrackerTest.class);
-		suite.addTestSuite(SizingTest.class);
-		suite.addTestSuite(InstallOperationTests.class);
-		suite.addTestSuite(UpdateOperationTests.class);
-		suite.addTestSuite(UninstallOperationTests.class);
-		return suite;
-	}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ ColocatedRepositoryTrackerTest.class, SizingTest.class, InstallOperationTests.class,
+		UpdateOperationTests.class, UninstallOperationTests.class })
+public class AllTests {
+// test suite
 }

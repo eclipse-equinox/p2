@@ -10,22 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
- * This is the master test suite for all automated provisioning UI tests. It runs every test
- * that is suitable for running in an automated fashion as part of a build. 
+ * This is the master test suite for all automated provisioning UI tests. It
+ * runs every test that is suitable for running in an automated fashion as part
+ * of a build.
  */
-public class AutomatedTests extends TestCase {
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
-		suite.addTest(org.eclipse.equinox.p2.tests.ui.operations.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.ui.query.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.ui.actions.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.ui.dialogs.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.ui.misc.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.ui.repohandling.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.importexport.AllTests.suite());
-		return suite;
-	}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ org.eclipse.equinox.p2.tests.ui.operations.AllTests.class,
+		org.eclipse.equinox.p2.tests.ui.query.AllTests.class, org.eclipse.equinox.p2.tests.ui.actions.AllTests.class,
+		org.eclipse.equinox.p2.tests.ui.dialogs.AllTests.class, org.eclipse.equinox.p2.tests.ui.misc.AllTests.class,
+		org.eclipse.equinox.p2.tests.ui.repohandling.AllTests.class,
+		org.eclipse.equinox.p2.tests.importexport.AllTests.class })
+public class AutomatedTests {
+	// test suite
 }

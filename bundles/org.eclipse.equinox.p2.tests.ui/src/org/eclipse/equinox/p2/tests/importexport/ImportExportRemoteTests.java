@@ -25,8 +25,10 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.metadata.repository.ServerBasedTestCase;
+import org.junit.Ignore;
 import org.osgi.util.tracker.ServiceTracker;
 
+@Ignore
 public class ImportExportRemoteTests extends ServerBasedTestCase {
 
 	private P2ImportExport importexportService;
