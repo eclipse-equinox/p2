@@ -42,7 +42,7 @@ public interface IArtifactDescriptor {
 	public static final String ARTIFACT_SIZE = "artifact.size"; //$NON-NLS-1$
 
 	/**
-	 * A prefix of an artifact descriptor properties (value "download.checksums") storing checksum
+	 * A prefix of an artifact descriptor properties storing checksum
 	 * of the artifact bytes that are transferred.
 	 * @since 2.4
 	 */
@@ -67,7 +67,7 @@ public interface IArtifactDescriptor {
 	public static final String TYPE_ZIP = "application/zip"; //$NON-NLS-1$
 
 	/**
-	 * An artifact descriptor property (value "artifact.checksums") storing list of
+	 * A prefix of an artifact descriptor property storing list of
 	 * checksums of the artifact bytes in its native format (after processing steps have
 	 * been applied).
 	 * @since 2.4
