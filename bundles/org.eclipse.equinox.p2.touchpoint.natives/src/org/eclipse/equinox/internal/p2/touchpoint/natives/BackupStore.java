@@ -113,12 +113,12 @@ public class BackupStore implements IBackupStore {
 	/**
 	 * The name of the backup directory (no path - relative to the backup root).
 	 */
-	private String backupName;
+	private final String backupName;
 
 	/**
 	 * The name of a dummy file used to backup empty directories
 	 */
-	private String dummyName;
+	private final String dummyName;
 
 	/**
 	 * A server socket that is used to obtain a port (a shared resource on this machine)
@@ -143,7 +143,7 @@ public class BackupStore implements IBackupStore {
 	 */
 	private boolean closed;
 
-	private Map<String, String> renamedInPlace = new HashMap<>();
+	private final Map<String, String> renamedInPlace = new HashMap<>();
 
 	/**
 	 * Generates a BackupStore with a default prefix of ".p2bu" for backup directory and
@@ -284,7 +284,9 @@ public class BackupStore implements IBackupStore {
 			Util.copyStream(new FileInputStream(file), true, new FileOutputStream(buFile), true);
 			backupCounter++;
 		}
-		if (file.exists() && !file.delete())
+		
+		// File.exists() is not reliable so always attempt to delete first and check why it may have failed second.
+		if (!file.delete() && file.exists())
 			throw new IOException(NLS.bind(Messages.BackupStore_can_not_delete_after_copy_0, file));
 	}
 
