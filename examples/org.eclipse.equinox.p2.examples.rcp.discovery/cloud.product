@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="RCP Mail Example (p2 Discovery)" id="org.eclipse.equinox.p2.examples.rcp.cloud.product" application="org.eclipse.equinox.p2.examples.rcp.cloud.application" version="2.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="RCP Mail Example (p2 Discovery)" id="org.eclipse.equinox.p2.examples.rcp.cloud.product" application="org.eclipse.equinox.p2.examples.rcp.cloud.application" version="2.1.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <aboutInfo>
       <image path="product_lg.gif"/>
@@ -14,7 +14,8 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="icons/sample2.gif"/>
@@ -22,12 +23,10 @@
    <splash
       location="org.eclipse.equinox.p2.examples.rcp.cloud" />
    <launcher name="cloud">
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>

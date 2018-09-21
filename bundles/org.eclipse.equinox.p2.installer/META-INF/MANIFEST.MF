@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.installer;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.1.100.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.installer.InstallerActivator
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.osgi;bundle-version="[3.7.0,4.0.0)",

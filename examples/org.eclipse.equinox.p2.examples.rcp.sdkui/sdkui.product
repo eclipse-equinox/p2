@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="RCP Mail Example (with p2 SDK UI)" id="org.eclipse.equinox.p2.examples.rcp.sdkui.product" application="org.eclipse.equinox.p2.examples.rcp.sdkui.application" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="RCP Mail Example (with p2 SDK UI)" id="org.eclipse.equinox.p2.examples.rcp.sdkui.product" application="org.eclipse.equinox.p2.examples.rcp.sdkui.application" version="1.1.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <aboutInfo>
       <image path="product_lg.gif"/>
@@ -14,7 +14,8 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="icons/sample2.gif"/>
@@ -22,7 +23,6 @@
    <splash
       location="org.eclipse.equinox.p2.examples.rcp.sdkui" />
    <launcher name="sdkui">
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
@@ -70,7 +70,7 @@
       <plugin id="org.eclipse.equinox.p2.directorywatcher"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
       <plugin id="org.eclipse.equinox.p2.examples.rcp.sdkui"/>
-      <plugin id="org.eclipse.equinox.p2.exemplarysetup" fragment=""/>
+      <plugin id="org.eclipse.equinox.p2.exemplarysetup"/>
       <plugin id="org.eclipse.equinox.p2.extensionlocation"/>
       <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
       <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
