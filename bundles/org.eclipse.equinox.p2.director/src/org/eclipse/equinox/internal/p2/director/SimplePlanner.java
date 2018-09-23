@@ -174,7 +174,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	/**
-	 * Converts a list of {@link Projector#getExplanation() resolver explanations} to a human-readable status object
+	 * Converts a list of {@link Projector#getExplanation(IProgressMonitor) resolver explanations} to a human-readable status object
 	 * 
 	 * @param explanations List of resolver explanations ordered by logical causality. 
 	 *     I.e. read from start to end should forms logical chain of statements as to why resolution failed. 
