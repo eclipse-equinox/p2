@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.tests;singleton:=true
-Bundle-Version: 1.7.300.qualifier
+Bundle-Version: 1.7.400.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.equinox.p2.tests.TestActivator
 Bundle-Vendor: %providerName
@@ -42,7 +42,6 @@ Require-Bundle: org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.p2.garbagecollector;bundle-version="1.0.100",
  org.sat4j.core;bundle-version="2.2.0",
  org.sat4j.pb;bundle-version="2.2.0",
- org.eclipse.equinox.ds;bundle-version="1.2.0",
  org.eclipse.ecf;bundle-version="3.1.0",
  org.eclipse.ecf.filetransfer;bundle-version="4.0.0",
  org.eclipse.ecf.identity;bundle-version="3.1.0",

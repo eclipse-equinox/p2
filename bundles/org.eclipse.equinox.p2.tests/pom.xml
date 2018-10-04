@@ -16,7 +16,7 @@
 
 	<groupId>org.eclipse.equinox</groupId>
 	<artifactId>org.eclipse.equinox.p2.tests</artifactId>
-	<version>1.7.300-SNAPSHOT</version>
+	<version>1.7.400-SNAPSHOT</version>
 	<packaging>eclipse-test-plugin</packaging>
 
 	<properties>
@@ -35,13 +35,6 @@
 				<configuration>
 					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${project.build.directory}/../../org.eclipse.equinox.p2.tests.reconciler.product/target/products/${dropinsProduct} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
 					<appArgLine>-consoleLog -debug</appArgLine>
-					<bundleStartLevel>
-						<bundle>
-							<id>org.eclipse.equinox.ds</id>
-							<level>1</level>
-							<autoStart>true</autoStart>
-						</bundle>
-					</bundleStartLevel>
 					<explodedBundles>
 						<explodedBundle>org.apache.ant</explodedBundle>
 					</explodedBundles>
