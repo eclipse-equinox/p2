@@ -67,7 +67,7 @@ public class ChecksumUtilities {
 			}
 		}
 
-		Optional<MD5Verifier> legacyMd5Verifier = getLegacyMd5Verifier(descriptor, property);
+		Optional<MD5Verifier> legacyMd5Verifier = getLegacyMd5Verifier(checksums.get(ChecksumHelper.MD5));
 		legacyMd5Verifier.ifPresent(verifier -> steps.add(verifier));
 
 		return steps;
@@ -138,19 +138,7 @@ public class ChecksumUtilities {
 		return properties;
 	}
 
-	private static Optional<MD5Verifier> getLegacyMd5Verifier(IArtifactDescriptor descriptor, String propertyNamespace) {
-		String md5 = null;
-		switch (propertyNamespace) {
-			case IArtifactDescriptor.ARTIFACT_CHECKSUM :
-				md5 = descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5);
-				break;
-			case IArtifactDescriptor.DOWNLOAD_CHECKSUM :
-				md5 = descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5);
-				break;
-			default :
-				throw new IllegalArgumentException(propertyNamespace);
-		}
-
+	private static Optional<MD5Verifier> getLegacyMd5Verifier(String md5) {
 		if (md5 != null) {
 			@SuppressWarnings("resource") //It's used later so shouldn't be closed
 			MD5Verifier checksumVerifier = new MD5Verifier(md5);
