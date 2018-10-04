@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public class ChecksumHelper {
 
-	private static final String MD5 = "md5"; //$NON-NLS-1$
+	public static final String MD5 = "md5"; //$NON-NLS-1$
 
 	/**
 	 * @param property either {@link IArtifactDescriptor#ARTIFACT_CHECKSUM} or {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}

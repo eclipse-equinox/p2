@@ -31,7 +31,6 @@ import org.eclipse.osgi.util.NLS;
 public class ChecksumUtilities {
 
 	private static final String ARTIFACT_CHECKSUMS_POINT = "org.eclipse.equinox.p2.artifact.repository.artifactChecksums"; //$NON-NLS-1$
-	public static final String MD5_ID = "md5"; //$NON-NLS-1$
 	private static final String MD5_MESSAGE_DIGEST = "MD5"; //$NON-NLS-1$
 
 	/**
@@ -99,10 +98,10 @@ public class ChecksumUtilities {
 			checksum.ifPresent(c -> checksums.put(id, c));
 		}
 
-		boolean doNotSkipMd5 = !checksumsToSkip.contains(MD5_ID);
+		boolean doNotSkipMd5 = !checksumsToSkip.contains(ChecksumHelper.MD5);
 		if (doNotSkipMd5) {
-			Optional<String> md5 = calculateChecksum(pathOnDisk, status, MD5_ID, MD5_MESSAGE_DIGEST);
-			md5.ifPresent(c -> checksums.put(MD5_ID, c));
+			Optional<String> md5 = calculateChecksum(pathOnDisk, status, ChecksumHelper.MD5, MD5_MESSAGE_DIGEST);
+			md5.ifPresent(c -> checksums.put(ChecksumHelper.MD5, c));
 		}
 
 		return status;
@@ -163,7 +162,7 @@ public class ChecksumUtilities {
 	}
 
 	private static void putLegacyMd5Property(String propertyNamespace, Map<String, String> checksums, HashMap<String, String> result) {
-		String md5 = checksums.get(ChecksumUtilities.MD5_ID);
+		String md5 = checksums.get(ChecksumHelper.MD5);
 		if (md5 != null) {
 			if (IArtifactDescriptor.ARTIFACT_CHECKSUM.equals(propertyNamespace))
 				result.put(IArtifactDescriptor.ARTIFACT_MD5, md5);
