@@ -33,6 +33,7 @@ import org.osgi.util.tracker.ServiceTracker;
 public class ImportExportTests extends AbstractProvisioningTest {
 
 	private P2ImportExport importexportService;
+	private ServiceTracker<P2ImportExport, P2ImportExport> tracker;
 
 	private List<IStatus> getChildren(IStatus s) {
 		List<IStatus> rt = new ArrayList<>();
@@ -48,17 +49,17 @@ public class ImportExportTests extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<>(TestActivator.getContext(), P2ImportExport.class, null);
+		tracker = new ServiceTracker<>(TestActivator.getContext(), P2ImportExport.class, null);
 		tracker.open();
 		importexportService = tracker.getService();
 		assertNotNull("Fail to get ImportExport service", importexportService);
-		tracker.close();
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
+		tracker.close();
 		importexportService = null;
+		super.tearDown();
 	}
 
 	public void testLoadP2f() throws IOException {
