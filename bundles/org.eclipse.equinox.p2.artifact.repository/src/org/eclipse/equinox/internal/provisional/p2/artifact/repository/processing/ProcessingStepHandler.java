@@ -48,19 +48,9 @@ public class ProcessingStepHandler {
 		if (point == null)
 			return false;
 		IProcessingStepDescriptor[] steps = descriptor.getProcessingSteps();
-		for (IProcessingStepDescriptor stepDescriptor : steps) {
-			String processorId = stepDescriptor.getProcessorId();
-			IExtension extension = point.getExtension(processorId);
-			if (extension == null)
+		for (int i = 0; i < steps.length; i++) {
+			if (point.getExtension(steps[i].getProcessorId()) == null)
 				return false;
-
-			IConfigurationElement[] config = extension.getConfigurationElements();
-			try {
-				Object object = config[0].createExecutableExtension("class"); //$NON-NLS-1$
-				return ((ProcessingStep) object).isEnabled();
-			} catch (CoreException e) {
-				// noop
-			}
 		}
 		return true;
 	}
