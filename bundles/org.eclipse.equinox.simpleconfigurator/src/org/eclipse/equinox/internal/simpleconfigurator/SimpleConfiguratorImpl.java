@@ -170,7 +170,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 	public static long[] getCurrentBundlesInfoBaseTimestamp(File sharedBundlesInfo) {
 		if (!sharedBundlesInfo.exists())
 			return new long[] {NO_TIMESTAMP, NO_TIMESTAMP};
-		long lastModified = sharedBundlesInfo.lastModified();
+		long lastModified = SimpleConfiguratorUtils.getFileLastModified(sharedBundlesInfo);
 		long extLastModified = SimpleConfiguratorUtils.getExtendedTimeStamp();
 		return new long[] {lastModified, extLastModified};
 	}

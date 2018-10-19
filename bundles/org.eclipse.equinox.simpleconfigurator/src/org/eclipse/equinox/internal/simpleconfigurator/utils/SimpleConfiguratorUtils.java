@@ -18,6 +18,7 @@ package org.eclipse.equinox.internal.simpleconfigurator.utils;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.*;
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.osgi.framework.Version;
@@ -387,7 +388,7 @@ public class SimpleConfiguratorUtils {
 			try {
 				ArrayList<File> infoFiles = SimpleConfiguratorUtils.getInfoFiles();
 				for (File f : infoFiles) {
-					long infoFileLastModified = f.lastModified();
+					long infoFileLastModified = getFileLastModified(f);
 					// pick latest modified always
 					if (infoFileLastModified > regularTimestamp) {
 						regularTimestamp = infoFileLastModified;
@@ -403,5 +404,20 @@ public class SimpleConfiguratorUtils {
 			}
 		}
 		return regularTimestamp;
+	}
+
+	public static long getFileLastModified(File file) {
+		long lastModified = file.lastModified();
+		if (lastModified == 0) {
+			try {
+				// Note that "ctime" is different to a file's creation time (on posix
+				// platforms creation time is a synonym for last modified time)
+				FileTime ctime = (FileTime) Files.getAttribute(file.toPath(), "unix:ctime");
+				lastModified = ctime.toMillis();
+			} catch (IllegalArgumentException | IOException e) {
+				// We expect this attribute to not exist on non-posix platforms like Windows
+			}
+		}
+		return lastModified;
 	}
 }

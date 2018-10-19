@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012,2017 Red Hat, Inc. and others.
+ * Copyright (c) 2012,2018 Red Hat, Inc. and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -16,9 +16,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.Properties;
 import org.eclipse.equinox.internal.simpleconfigurator.SimpleConfiguratorImpl;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -118,4 +122,36 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 		assertIsPropertySet(true);
 	}
 
+	/**
+	 * Sets the mtime of the given file to zero, optionally record zero to the timestamp file instead of the last modified time.
+	 */
+	protected void clearLastModified(File file, boolean storeZero) throws IOException {
+		long ctime = file.lastModified();
+		file.setLastModified(0);
+		try {
+			FileTime ft = (FileTime) Files.getAttribute(file.toPath(), "unix:ctime");
+			ctime = ft.toMillis();
+		} catch (IllegalArgumentException | IOException e) {
+			// Not applicable on non-posix platforms
+		}
+		if (storeZero) {
+			storeTimestamp(0);
+		} else {
+			storeTimestamp(ctime);
+		}
+	}
+
+	// master modified, but the mtime of the master config is set to zero --> choose master
+	public void testSharedConfigurationMasterModifiedNoMtime() throws IOException {
+		clearLastModified(masterConfguration, true);
+		assertEquals(sharedConfiguration[1], configurator.chooseConfigurationURL(relativeURL, sharedConfiguration));
+		assertIsPropertySet(true);
+	}
+
+	// master not modified, but the mtime of the master config is set to zero --> choose user
+	public void testSharedConfigurationMasterUnmodifiedNoMtime() throws IOException {
+		clearLastModified(masterConfguration, false);
+		assertEquals(sharedConfiguration[0], configurator.chooseConfigurationURL(relativeURL, sharedConfiguration));
+		assertIsPropertySet(false);
+	}
 }
