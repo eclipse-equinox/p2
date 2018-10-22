@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,8 +15,11 @@ package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
+import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -162,7 +165,13 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		URI baseURI = baseFile.toURI();
 		try {
 			List<BundleInfo> infos = SimpleConfiguratorUtils.readConfiguration(data.toURL(), baseURI);
-			assertEquals("1.1", 2, infos.size());
+			if (Activator.EXTENSIONS == null) {
+				// base bundles only
+				assertEquals("1.1", 2, infos.size());
+			} else {
+				// including bundles from configured extensions
+				assertEquals("1.1", 6, infos.size());
+			}
 
 			BundleInfo a = new BundleInfo("a", "1.0.0", new URI("plugins/a_1.0.0.jar"), 4, false);
 			a.setBaseLocation(baseURI);
@@ -198,7 +207,13 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		File bundleInfoFile = new File(getTempFolder(), "bundle.info");
 		assertFalse(bundleInfoFile.exists());
 		try {
-			assertEquals(0, SimpleConfiguratorUtils.readConfiguration(bundleInfoFile.toURL(), null).size());
+			if (Activator.EXTENSIONS == null) {
+				// base bundles only
+				assertEquals(0, SimpleConfiguratorUtils.readConfiguration(bundleInfoFile.toURL(), null).size());
+			} else {
+				// including bundles from configured extensions
+				assertEquals(4, SimpleConfiguratorUtils.readConfiguration(bundleInfoFile.toURL(), null).size());
+			}
 		} catch (IOException e) {
 			fail();
 		}
