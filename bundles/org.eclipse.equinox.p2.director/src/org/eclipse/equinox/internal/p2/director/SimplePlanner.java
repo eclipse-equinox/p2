@@ -73,8 +73,8 @@ public class SimplePlanner implements IPlanner {
 		if (DEBUG) {
 			Object[] operands = new Object[0];
 			try {
-				Method getOperands = plan.getClass().getMethod("getOperands", new Class[0]); //$NON-NLS-1$
-				operands = (Object[]) getOperands.invoke(plan, new Object[0]);
+				Method getOperands = plan.getClass().getMethod("getOperands"); //$NON-NLS-1$
+				operands = (Object[]) getOperands.invoke(plan);
 			} catch (Throwable e) {
 				// ignore
 			}

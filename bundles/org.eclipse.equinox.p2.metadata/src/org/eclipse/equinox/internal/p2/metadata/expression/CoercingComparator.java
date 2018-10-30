@@ -103,7 +103,7 @@ public abstract class CoercingComparator<T> {
 		T coerce(Object v) {
 			if (v instanceof String) {
 				try {
-					return constructor.newInstance(new Object[] {((String) v).trim()});
+					return constructor.newInstance(((String) v).trim());
 				} catch (Exception e) {
 					//
 				}

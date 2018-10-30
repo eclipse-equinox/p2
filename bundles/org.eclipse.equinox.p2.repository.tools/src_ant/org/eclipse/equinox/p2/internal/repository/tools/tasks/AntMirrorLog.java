@@ -29,7 +29,7 @@ public class AntMirrorLog implements IArtifactMirrorLog {
 	public AntMirrorLog(Object task) throws NoSuchMethodException {
 		this.task = task;
 		try {
-			log = task.getClass().getMethod("log", new Class[] {String.class, int.class}); //$NON-NLS-1$
+			log = task.getClass().getMethod("log", String.class, int.class); //$NON-NLS-1$
 		} catch (SecurityException e) {
 			exceptionOccurred(null, e);
 		}
@@ -67,7 +67,7 @@ public class AntMirrorLog implements IArtifactMirrorLog {
 	 */
 	private void log(String message, int statusSeverity) {
 		try {
-			log.invoke(task, new Object[] {message, Integer.valueOf(mapLogLevels(statusSeverity))});
+			log.invoke(task, message, Integer.valueOf(mapLogLevels(statusSeverity)));
 		} catch (IllegalArgumentException e) {
 			exceptionOccurred(message, e);
 		} catch (IllegalAccessException e) {
@@ -96,16 +96,16 @@ public class AntMirrorLog implements IArtifactMirrorLog {
 	 */
 	private int mapLogLevels(int iStatusLevel) {
 		switch (iStatusLevel) {
-			case IStatus.ERROR :
-				return 0;
-			case IStatus.OK :
-				return 2;
-			case IStatus.INFO :
-				return 2;
-			case IStatus.WARNING :
-				return 1;
-			default :
-				return 1;
+		case IStatus.ERROR:
+			return 0;
+		case IStatus.OK:
+			return 2;
+		case IStatus.INFO:
+			return 2;
+		case IStatus.WARNING:
+			return 1;
+		default:
+			return 1;
 		}
 	}
 }

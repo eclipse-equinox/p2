@@ -13,10 +13,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -41,18 +47,18 @@ public class Bug252308 extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		extractRootCause = MirrorRequest.class.getDeclaredMethod("extractRootCause", new Class[] {IStatus.class});
+		extractRootCause = MirrorRequest.class.getDeclaredMethod("extractRootCause", IStatus.class);
 		extractRootCause.setAccessible(true);
-		transferSingle = MirrorRequest.class.getDeclaredMethod("transferSingle", new Class[] {IArtifactDescriptor.class, IArtifactDescriptor.class, IProgressMonitor.class});
+		transferSingle = MirrorRequest.class.getDeclaredMethod("transferSingle", IArtifactDescriptor.class, IArtifactDescriptor.class, IProgressMonitor.class);
 		transferSingle.setAccessible(true);
 	}
 
 	private IStatus extractRootCause(IStatus status) throws Exception {
-		return (IStatus) extractRootCause.invoke(null, new Object[] {status});
+		return (IStatus) extractRootCause.invoke(null, status);
 	}
 
 	private IStatus transferSingle(MirrorRequest request, IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) throws Exception {
-		return (IStatus) transferSingle.invoke(request, new Object[] {destinationDescriptor, sourceDescriptor, monitor});
+		return (IStatus) transferSingle.invoke(request, destinationDescriptor, sourceDescriptor, monitor);
 	}
 
 	public void testExtractRootCauseNullStatus() throws Exception {

@@ -13,12 +13,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.Profile;
+import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -305,11 +312,11 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 				simpleRgy.lockProfile(simpleProfile);
 				simpleRgy.unlockProfile(simpleProfile);
 				// Create a lock file to confirm locking
-
+		
 				File lockDirectory = new File(getResourceAsBundleRelFile("testData/engineTest/SimpleRegistry/"), SIMPLE_PROFILE + ".profile");
 				File lockFile = new File(lockDirectory, ".lock");
 				assertTrue("Lock file does not exist", lockFile.exists());
-
+		
 				ProfileLock profileLock = new ProfileLock(lockDirectory);
 				boolean locked = profileLock.lock();
 				try {
@@ -547,9 +554,9 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		profile.addInstallableUnit(engineIU);
 		Method saveMethod;
 		try {
-			saveMethod = registry.getClass().getDeclaredMethod("saveProfile", new Class[] {Profile.class});
+			saveMethod = registry.getClass().getDeclaredMethod("saveProfile", Profile.class);
 			saveMethod.setAccessible(true);
-			saveMethod.invoke(profileRegistry, new Object[] {profile});
+			saveMethod.invoke(profileRegistry, profile);
 		} catch (SecurityException e) {
 			fail();
 		} catch (NoSuchMethodException e) {
@@ -589,9 +596,9 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 				profile.addInstallableUnit(engineIU);
 				Method saveMethod;
 				try {
-					saveMethod = registry.getClass().getDeclaredMethod("saveProfile", new Class[] {Profile.class});
+					saveMethod = registry.getClass().getDeclaredMethod("saveProfile", Profile.class);
 					saveMethod.setAccessible(true);
-					saveMethod.invoke(profileRegistry, new Object[] {profile});
+					saveMethod.invoke(profileRegistry, profile);
 				} catch (SecurityException e) {
 					fail("1.0", e);
 				} catch (NoSuchMethodException e) {
@@ -627,9 +634,9 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		profile.addInstallableUnit(engineIU);
 		Method saveMethod;
 		try {
-			saveMethod = registry.getClass().getDeclaredMethod("saveProfile", new Class[] {Profile.class});
+			saveMethod = registry.getClass().getDeclaredMethod("saveProfile", Profile.class);
 			saveMethod.setAccessible(true);
-			saveMethod.invoke(profileRegistry, new Object[] {profile});
+			saveMethod.invoke(profileRegistry, profile);
 		} catch (SecurityException e) {
 			fail();
 		} catch (NoSuchMethodException e) {

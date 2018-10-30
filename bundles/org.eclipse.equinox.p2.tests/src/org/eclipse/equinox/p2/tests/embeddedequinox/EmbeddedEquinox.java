@@ -47,10 +47,10 @@ public class EmbeddedEquinox {
 			eclipseStarterClazz = frameworkLoader.loadClass("org.eclipse.core.runtime.adaptor.EclipseStarter");
 
 			Method setInitialProperties = eclipseStarterClazz.getMethod("setInitialProperties", Map.class); //$NON-NLS-1$
-			setInitialProperties.invoke(null, new Object[] {frameworkProperties});
+			setInitialProperties.invoke(null, frameworkProperties);
 
 			Method runMethod = eclipseStarterClazz.getMethod("startup", String[].class, Runnable.class); //$NON-NLS-1$
-			context = (BundleContext) runMethod.invoke(null, new Object[] {frameworkArgs, null});
+			context = (BundleContext) runMethod.invoke(null, frameworkArgs, null);
 		} catch (Throwable t) {
 			if (t instanceof RuntimeException)
 				throw (RuntimeException) t;
@@ -61,8 +61,8 @@ public class EmbeddedEquinox {
 
 	public void shutdown() {
 		try {
-			Method shutdownMethod = eclipseStarterClazz.getMethod("shutdown", (Class[]) null); //$NON-NLS-1$
-			shutdownMethod.invoke((Object[]) null, (Object[]) null);
+			Method shutdownMethod = eclipseStarterClazz.getMethod("shutdown"); //$NON-NLS-1$
+			shutdownMethod.invoke((Object[]) null);
 
 		} catch (Throwable t) {
 			if (t instanceof RuntimeException)

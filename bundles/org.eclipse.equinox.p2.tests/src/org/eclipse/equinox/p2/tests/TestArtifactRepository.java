@@ -13,19 +13,30 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
@@ -100,9 +111,9 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 
 	public boolean addToRepositoryManager() {
 		try {
-			Method method = AbstractRepositoryManager.class.getDeclaredMethod("addRepository", new Class[] {IRepository.class, boolean.class, String.class});
+			Method method = AbstractRepositoryManager.class.getDeclaredMethod("addRepository", IRepository.class, boolean.class, String.class);
 			method.setAccessible(true);
-			method.invoke(AbstractProvisioningTest.getArtifactRepositoryManager(), new Object[] {this, false, ""});
+			method.invoke(AbstractProvisioningTest.getArtifactRepositoryManager(), this, false, "");
 			return true;
 		} catch (Exception e) {
 			return false;

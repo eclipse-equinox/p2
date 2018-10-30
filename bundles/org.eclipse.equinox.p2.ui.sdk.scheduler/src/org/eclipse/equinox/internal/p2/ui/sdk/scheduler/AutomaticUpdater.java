@@ -211,9 +211,9 @@ public class AutomaticUpdater implements IUpdateListener {
 		// IWorkbenchWindow does not define getStatusLineManager(), yet
 		// WorkbenchWindow does
 		try {
-			Method method = activeWindow.getClass().getDeclaredMethod("getStatusLineManager", new Class[0]); //$NON-NLS-1$
+			Method method = activeWindow.getClass().getDeclaredMethod("getStatusLineManager"); //$NON-NLS-1$
 			try {
-				Object statusLine = method.invoke(activeWindow, new Object[0]);
+				Object statusLine = method.invoke(activeWindow);
 				if (statusLine instanceof IStatusLineManager) {
 					statusLineManager = (IStatusLineManager) statusLine;
 					return statusLineManager;
