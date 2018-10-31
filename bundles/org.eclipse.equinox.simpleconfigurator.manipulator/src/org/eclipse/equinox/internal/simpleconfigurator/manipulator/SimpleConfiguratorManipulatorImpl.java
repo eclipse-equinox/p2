@@ -1,10 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
- * All rights reserved.
+ * Copyright (c) 2007, 2018 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which accompanies this distribution,
- * and is available at
- * https://www.eclipse.org/legal/epl-2.0/
+ * and is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  * 
@@ -432,7 +430,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			return;
 
 		Properties timestampToPersist = new Properties();
-		timestampToPersist.put(SimpleConfiguratorImpl.KEY_BUNDLESINFO_TIMESTAMP, Long.toString(sharedBundlesInfo.lastModified()));
+		timestampToPersist.put(SimpleConfiguratorImpl.KEY_BUNDLESINFO_TIMESTAMP, Long.toString(SimpleConfiguratorUtils.getFileLastModified(sharedBundlesInfo)));
 		timestampToPersist.put(SimpleConfiguratorImpl.KEY_EXT_TIMESTAMP, Long.toString(SimpleConfiguratorUtils.getExtendedTimeStamp()));
 		OutputStream os = null;
 		try {
@@ -615,7 +613,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		File sharedBundlesInfo = new File(URIUtil.append(installArea, SHARED_BUNDLES_INFO));
 		if (!sharedBundlesInfo.exists())
 			return true;
-		return !(String.valueOf(sharedBundlesInfo.lastModified()).equals(rememberedTimestamp) && String.valueOf(SimpleConfiguratorUtils.getExtendedTimeStamp()).equals(extensionTimestsamp));
+		return !(String.valueOf(SimpleConfiguratorUtils.getFileLastModified(sharedBundlesInfo)).equals(rememberedTimestamp) && String.valueOf(SimpleConfiguratorUtils.getExtendedTimeStamp()).equals(extensionTimestsamp));
 	}
 
 	private boolean isSharedInstallSetup(File installArea, File outputFile) {
