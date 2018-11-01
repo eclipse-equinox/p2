@@ -131,7 +131,7 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 		try {
 			FileTime ft = (FileTime) Files.getAttribute(file.toPath(), "unix:ctime");
 			ctime = ft.toMillis();
-		} catch (IllegalArgumentException | IOException e) {
+		} catch (UnsupportedOperationException | IllegalArgumentException | IOException e) {
 			// Not applicable on non-posix platforms
 		}
 		if (storeZero) {

@@ -414,7 +414,7 @@ public class SimpleConfiguratorUtils {
 				// platforms creation time is a synonym for last modified time)
 				FileTime ctime = (FileTime) Files.getAttribute(file.toPath(), "unix:ctime");
 				lastModified = ctime.toMillis();
-			} catch (IllegalArgumentException | IOException e) {
+			} catch (UnsupportedOperationException | IllegalArgumentException | IOException e) {
 				// We expect this attribute to not exist on non-posix platforms like Windows
 			}
 		}
