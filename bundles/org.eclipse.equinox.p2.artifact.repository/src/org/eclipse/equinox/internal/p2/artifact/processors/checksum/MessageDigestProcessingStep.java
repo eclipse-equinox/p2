@@ -29,8 +29,7 @@ public abstract class MessageDigestProcessingStep extends ProcessingStep {
 	private ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
 	@Override
-	// TODO template method, should be final but MD5Verifier prevents this
-	public void write(int b) throws IOException {
+	final public void write(int b) throws IOException {
 		getDestination().write(b);
 
 		boolean isBufferFull = buffer.remaining() == 0;
@@ -52,8 +51,7 @@ public abstract class MessageDigestProcessingStep extends ProcessingStep {
 	}
 
 	@Override
-	// TODO should be final but MD5Verifier prevents this
-	public void close() throws IOException {
+	final public void close() throws IOException {
 		processBufferredBytes();
 		String digestString = digest();
 		onClose(digestString);
