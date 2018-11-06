@@ -714,7 +714,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private IStatus downloadArtifact(IArtifactDescriptor descriptor, URI mirrorLocation, OutputStream destination, IProgressMonitor monitor) {
 		//Bug 340352: transport has performance overhead of 100ms and more, bypass it for local copies
 		IStatus result = Status.OK_STATUS;
-		if (mirrorLocation.getScheme().equals(SimpleArtifactRepositoryFactory.PROTOCOL_FILE))
+		if (SimpleArtifactRepositoryFactory.PROTOCOL_FILE.equals(mirrorLocation.getScheme()))
 			result = copyFileToStream(new File(mirrorLocation), destination, monitor);
 		else
 			result = getTransport().download(mirrorLocation, destination, monitor);
