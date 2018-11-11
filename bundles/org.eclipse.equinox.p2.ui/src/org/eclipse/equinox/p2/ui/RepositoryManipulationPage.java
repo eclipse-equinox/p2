@@ -312,6 +312,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			setDetails();
 		});
 
+		repositoryViewer.addDoubleClickListener(event -> {
+			if (policy.getRepositoriesVisible())
+				changeRepositoryProperties();
+		});
+
 		repositoryViewer.setCheckStateProvider(new ICheckStateProvider() {
 			@Override
 			public boolean isChecked(Object element) {
