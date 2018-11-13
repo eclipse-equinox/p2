@@ -171,11 +171,11 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	private static String[][] instructions = new String[][] {new String[] {"manifest", "Manifest-Version: 1.0\\Bundle-Vendor: Eclipse.org\\Bundle-ContactAddress: www.eclipse.org\\...a whole bunch of other manifest content..."}, new String[] {"zipped", "true"}, //
 			new String[] {"configure", "addProgramArg(programArg:-startup);addProgramArg(programArg:@artifact);"}}; //
 
-	private static String IU_TEST_ELEMENT = "test";
+	private final static String IU_TEST_ELEMENT = "test";
 
-	private static String IU_TEST_TARGET = "installableUnitTest";
+	private final static String IU_TEST_TARGET = "installableUnitTest";
 
-	private static Version IU_TEST_VERSION = Version.create("0.0.1");
+	private final static Version IU_TEST_VERSION = Version.create("0.0.1");
 
 	// Randomly chose org.eclipse.osgi.services as the IU for testing persistence
 	// but 'enhanced' it for better coverage.

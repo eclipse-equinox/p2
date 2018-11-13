@@ -168,10 +168,10 @@ public class ProfileTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
 
-	private static String PROFILE_TEST_TARGET = "profileTest";
-	private static Version PROFILE_TEST_VERSION = Version.create("0.0.1");
+	private final static String PROFILE_TEST_TARGET = "profileTest";
+	private final static Version PROFILE_TEST_VERSION = Version.create("0.0.1");
 
-	private static String PROFILE_TEST_ELEMENT = "test";
+	private final static String PROFILE_TEST_ELEMENT = "test";
 	public static final String PROFILES_ELEMENT = "profiles"; //$NON-NLS-1$
 
 	class ProfileStringWriter extends ProfileWriter {

@@ -140,10 +140,10 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		return MetadataFactory.createTouchpointData(map);
 	}
 
-	private static String IU_TEST_TARGET = "installableUnitTest";
-	private static Version IU_TEST_VERSION = Version.create("0.0.1");
+	private final static String IU_TEST_TARGET = "installableUnitTest";
+	private final static Version IU_TEST_VERSION = Version.create("0.0.1");
 
-	private static String IU_TEST_ELEMENT = "test";
+	private final static String IU_TEST_ELEMENT = "test";
 
 	class IUStringWriter extends MetadataWriter {
 
