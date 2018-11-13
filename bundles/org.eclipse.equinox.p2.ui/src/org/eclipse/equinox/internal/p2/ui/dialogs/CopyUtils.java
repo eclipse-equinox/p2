@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 IBM Corporation and others.
+ * Copyright (c) 2009, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,8 +19,6 @@ import org.eclipse.core.expressions.*;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.p2.ui.ICopyable;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.ISources;
 import org.eclipse.ui.PlatformUI;
@@ -50,7 +48,7 @@ public class CopyUtils {
 	/**
 	 * Install a copy popup menu on the specified control and activate the copy handler for the control when
 	 * the control has focus.  The handler will be deactivated when the control is disposed.
-	 * 
+	 *
 	 * @param copyable the copyable that will perform the copy
 	 * @param control  the control on which to install the menu and handler
 	 */
@@ -72,12 +70,7 @@ public class CopyUtils {
 				}
 
 			});
-			control.addDisposeListener(new DisposeListener() {
-				@Override
-				public void widgetDisposed(DisposeEvent e) {
-					hs.deactivateHandler(handlerActivation);
-				}
-			});
+			control.addDisposeListener(e -> hs.deactivateHandler(handlerActivation));
 		}
 	}
 
