@@ -118,7 +118,7 @@ public class Activator implements BundleActivator {
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         Contributes a checksum algorithm with id &lt;code&gt;sha-256&lt;code&gt; and maps it to &lt;code&gt;SHA-256&lt;/code&gt; MessageDigest implementation.
+         Contributes a checksum algorithm with id &lt;code&gt;sha-256&lt;/code&gt; and maps it to &lt;code&gt;SHA-256&lt;/code&gt; MessageDigest implementation.
       </documentation>
    </annotation>
 
