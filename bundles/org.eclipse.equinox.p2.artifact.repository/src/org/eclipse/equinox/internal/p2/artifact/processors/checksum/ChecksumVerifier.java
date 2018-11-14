@@ -13,9 +13,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors.checksum;
 
+import static java.util.Optional.ofNullable;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Optional;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
@@ -29,20 +30,25 @@ import org.eclipse.osgi.util.NLS;
 final public class ChecksumVerifier extends MessageDigestProcessingStep {
 
 	private String expectedChecksum;
-	private String algorithmName;
-	private String algorithmId;
+	final private String algorithmName;
+	final private String algorithmId;
 
 	// public to access from tests
-	public ChecksumVerifier(String digestAlgorithm, String algorithmId, String expectedChecksum) {
+	public ChecksumVerifier(String digestAlgorithm, String algorithmId) {
 		this.algorithmName = digestAlgorithm;
 		this.algorithmId = algorithmId;
-		this.expectedChecksum = expectedChecksum;
 		basicInitialize(null);
 	}
 
 	@Override
 	public final void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
+
+		basicInitialize(descriptor);
+		if (!getStatus().isOK()) {
+			return;
+		}
+
 		String data = descriptor.getData();
 		if (IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".").concat(algorithmId).equals(data)) //$NON-NLS-1$
 			expectedChecksum = ChecksumHelper.getChecksums(context, IArtifactDescriptor.DOWNLOAD_CHECKSUM).get(algorithmId);
@@ -51,18 +57,25 @@ final public class ChecksumVerifier extends MessageDigestProcessingStep {
 		else
 			expectedChecksum = data;
 
-		basicInitialize(descriptor);
+		if (ofNullable(expectedChecksum).orElse("").isEmpty()) { //$NON-NLS-1$
+			int code = buildErrorCode(descriptor);
+			setStatus(new Status(code, Activator.ID, NLS.bind(Messages.Error_invalid_checksum, algorithmName, expectedChecksum)));
+		}
+
 	}
 
 	private void basicInitialize(IProcessingStepDescriptor descriptor) {
-		int code = (descriptor == null) ? IStatus.ERROR : descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
-		if (Optional.ofNullable(expectedChecksum).orElse("").isEmpty()) //$NON-NLS-1$
-			setStatus(new Status(code, Activator.ID, NLS.bind(Messages.Error_invalid_checksum, algorithmName, expectedChecksum)));
 		try {
 			messageDigest = MessageDigest.getInstance(algorithmName);
+			setStatus(Status.OK_STATUS);
 		} catch (NoSuchAlgorithmException e) {
+			int code = buildErrorCode(descriptor);
 			setStatus(new Status(code, Activator.ID, NLS.bind(Messages.Error_checksum_unavailable, algorithmName), e));
 		}
+	}
+
+	private int buildErrorCode(IProcessingStepDescriptor descriptor) {
+		return (descriptor == null) ? IStatus.ERROR : descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
 	}
 
 	@Override

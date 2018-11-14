@@ -54,10 +54,9 @@ public class ChecksumVerifierTest {
 	public void testInitialize() throws IOException, IllegalArgumentException, SecurityException {
 		IProcessingStepDescriptor processingStepDescriptor = createMock(IProcessingStepDescriptor.class);
 		expect(processingStepDescriptor.getData()).andReturn(checksum);
-		expect(processingStepDescriptor.isRequired()).andReturn(true);
 		replay(processingStepDescriptor);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, algorithmId, checksum);
+		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, algorithmId);
 
 		verifier.initialize(null, processingStepDescriptor, null);
 
@@ -71,7 +70,6 @@ public class ChecksumVerifierTest {
 	public void testInitialize_DownloadChecksum() throws IOException, IllegalArgumentException, SecurityException {
 		IProcessingStepDescriptor processingStepDescriptor = createMock(IProcessingStepDescriptor.class);
 		expect(processingStepDescriptor.getData()).andReturn(downloadProperty);
-		expect(processingStepDescriptor.isRequired()).andReturn(true);
 		IArtifactDescriptor artifactDescriptor = createMock(IArtifactDescriptor.class);
 		replay(processingStepDescriptor);
 		expect(artifactDescriptor.getProperty(eq(downloadProperty))).andReturn(checksum);
@@ -81,7 +79,7 @@ public class ChecksumVerifierTest {
 		expect(artifactDescriptor.getProperties()).andReturn(properties);
 		replay(artifactDescriptor);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, algorithmId, checksum);
+		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, algorithmId);
 
 		verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
 
@@ -95,7 +93,6 @@ public class ChecksumVerifierTest {
 	public void testInitialize_ArtifactChecksum() throws IOException, IllegalArgumentException, SecurityException {
 		IProcessingStepDescriptor processingStepDescriptor = createMock(IProcessingStepDescriptor.class);
 		expect(processingStepDescriptor.getData()).andReturn(artifactProperty);
-		expect(processingStepDescriptor.isRequired()).andReturn(true);
 		IArtifactDescriptor artifactDescriptor = createMock(IArtifactDescriptor.class);
 		replay(processingStepDescriptor);
 		expect(artifactDescriptor.getProperty(eq(artifactProperty))).andReturn(checksum);
@@ -105,7 +102,7 @@ public class ChecksumVerifierTest {
 		expect(artifactDescriptor.getProperty(not(eq(artifactProperty)))).andReturn(null).times(1, 2);
 		replay(artifactDescriptor);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, algorithmId, checksum);
+		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, algorithmId);
 
 		verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
 

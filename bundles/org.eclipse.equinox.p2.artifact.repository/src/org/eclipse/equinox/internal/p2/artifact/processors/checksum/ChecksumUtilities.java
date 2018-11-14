@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class ChecksumUtilities {
@@ -56,7 +57,8 @@ public class ChecksumUtilities {
 				String checksumId = checksumVerifierConfiguration.getAttribute("id"); //$NON-NLS-1$
 				if (checksumEntry.getKey().equals(checksumId)) {
 					String checksumAlgorithm = checksumVerifierConfiguration.getAttribute("algorithm"); //$NON-NLS-1$
-					ChecksumVerifier checksumVerifier = new ChecksumVerifier(checksumAlgorithm, checksumId, checksumEntry.getValue());
+					ChecksumVerifier checksumVerifier = new ChecksumVerifier(checksumAlgorithm, checksumId);
+					checksumVerifier.initialize(null, new ProcessingStepDescriptor(null, checksumEntry.getValue(), true), descriptor);
 					if (checksumVerifier.getStatus().isOK())
 						steps.add(checksumVerifier);
 					else
