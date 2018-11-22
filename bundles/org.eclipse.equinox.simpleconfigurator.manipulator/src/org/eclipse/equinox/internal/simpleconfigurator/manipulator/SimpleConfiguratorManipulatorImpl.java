@@ -30,7 +30,6 @@ import org.eclipse.equinox.internal.simpleconfigurator.SimpleConfiguratorImpl;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.EquinoxUtils;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
 import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
@@ -204,8 +203,6 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 		if (!state.isResolved())
 			state.resolve(false);
-		//		if (DEBUG)
-		//			System.out.println(state.toString());
 
 		if (!state.isResolved(bInfo)) {
 			printoutUnsatisfiedConstraints(bInfo, state);
@@ -301,12 +298,41 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		}
 	}
 
+	/**
+	 * Like {@link SimpleConfiguratorImpl#chooseConfigurationURL(URL, URL[])} but it doesn't check
+	 * file timestamps because if the {@link SimpleConfiguratorImpl#PROP_IGNORE_USER_CONFIGURATION}
+	 * property is set then we already know that timestamps have been checked and we need to ignore
+	 * the user config.
+	 */
+	private URL chooseConfigurationURL(String relativePath, URL[] configURL) throws MalformedURLException {
+		if (configURL != null) {
+			File userConfig = new File(configURL[0].getFile(), relativePath);
+			if (configURL.length == 1) {
+				return userConfig.exists() ? userConfig.toURI().toURL() : null;
+			}
+
+			File sharedConfig = new File(configURL[1].getFile(), relativePath);
+			if (!userConfig.exists()) {
+				return sharedConfig.exists() ? sharedConfig.toURI().toURL() : null;
+			}
+
+			if (!sharedConfig.exists()) {
+				return userConfig.toURI().toURL();
+			}
+
+			if (Boolean.getBoolean(SimpleConfiguratorImpl.PROP_IGNORE_USER_CONFIGURATION)) {
+				return sharedConfig.toURI().toURL();
+			}
+			return userConfig.toURI().toURL();
+		}
+		return null;
+	}
+
 	@Override
 	public BundleInfo[] loadConfiguration(BundleContext context, String infoPath) throws IOException {
 		URI installArea = EquinoxUtils.getInstallLocationURI(context);
 
 		URL configURL = null;
-		InputStream stream = null;
 
 		if (infoPath == null) {
 			SimpleConfiguratorImpl simpleImpl = new SimpleConfiguratorImpl(context, null);
@@ -317,35 +343,23 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			if (defaultSource)
 				infoPath = SOURCE_INFO_PATH;
 
-			Location configLocation = EquinoxUtils.getConfigLocation(context);
-			configURL = configLocation.getDataArea(infoPath);
-			try {
-				stream = configURL.openStream();
-			} catch (FileNotFoundException e) {
-				if (defaultSource && configLocation.getParentLocation() != null) {
-					configURL = configLocation.getParentLocation().getDataArea(infoPath);
-				} else {
-					return new BundleInfo[0];
-				}
-			}
+			URL[] configURLs = EquinoxUtils.getConfigAreaURL(context);
+			configURL = chooseConfigurationURL(infoPath, configURLs);
 		}
-		if (configURL == null)
-			return new BundleInfo[0];
-		else if (stream == null) {
-			try {
-				stream = configURL.openStream();
-			} catch (FileNotFoundException e) {
-				return new BundleInfo[0];
-			}
+
+		// At this point the file specified by configURL should definitely exist or be null
+		if (configURL == null) {
+			return NULL_BUNDLEINFOS;
 		}
 
 		List<BundleInfo> result = new ArrayList<>();
-		//stream will be closed
-		result.addAll(Arrays.asList(loadConfiguration(stream, installArea)));
+		// Stream will be closed by loadConfiguration
+		result.addAll(Arrays.asList(loadConfiguration(configURL.openStream(), installArea)));
 
 		try {
 			List<File> infoFiles = SimpleConfiguratorUtils.getInfoFiles();
 			for (File infoFile : infoFiles) {
+				// Stream will be closed by loadConfiguration
 				BundleInfo[] info = loadConfiguration(infoFile.toURL().openStream(), infoFile.getParentFile().toURI());
 				result.addAll(Arrays.asList(info));
 			}
@@ -353,7 +367,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			// ignore the extended configurations
 		}
 
-		return result.toArray(new BundleInfo[0]);
+		return result.toArray(new BundleInfo[result.size()]);
 	}
 
 	/*

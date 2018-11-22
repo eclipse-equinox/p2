@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2018 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -13,7 +13,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
@@ -21,10 +22,12 @@ import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfigu
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 //This class deals with source bundles and how their addition to the source.info
 public class SourceManipulator {
-	private List<BundleInfo> sourceBundles;
+	private Set<BundleInfo> sourceBundles;
 	private IProfile profile;
 	boolean changed = false;
 	private SimpleConfiguratorManipulatorImpl manipulator;
@@ -67,11 +70,8 @@ public class SourceManipulator {
 	}
 
 	private void load() throws MalformedURLException, IOException {
-		if (getFileLocation().exists())
-			//input stream is bufferd and closed for us
-			sourceBundles = new ArrayList<BundleInfo>(Arrays.asList(manipulator.loadConfiguration(new FileInputStream(getFileLocation()), getLauncherLocation().toURI())));
-		else
-			sourceBundles = new ArrayList<BundleInfo>();
+		BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+		sourceBundles = new LinkedHashSet<>(Arrays.asList(manipulator.loadConfiguration(context, SimpleConfiguratorManipulator.SOURCE_INFO)));
 	}
 
 	private File getFileLocation() {
