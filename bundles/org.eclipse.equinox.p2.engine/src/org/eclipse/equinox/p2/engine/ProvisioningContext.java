@@ -386,10 +386,6 @@ public class ProvisioningContext {
 		properties.put(key, value);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
