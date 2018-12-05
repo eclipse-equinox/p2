@@ -75,6 +75,14 @@ public interface IProvisioningAgent {
 	public Object getService(String serviceName);
 
 	/**
+	 * Returns the service with the given service name, or <code>null</code>
+	 * if no such service is available in this agent.
+	 * @exception IllegalStateException if this agent has been stopped
+	 * @exception ClassCastException if the agent cannot be cast to the provided class
+	 */
+	public <T> T getService(Class<T> key);
+
+	/**
 	 * Registers a service with this provisioning agent.
 	 * 
 	 * @param serviceName The name of the service to register
