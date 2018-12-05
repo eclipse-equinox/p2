@@ -103,7 +103,7 @@ public class CertificateChecker {
 
 				// log the unsigned artifacts if requested
 				if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNSIGNED && !unsigned.isEmpty()) {
-					StringBuffer message = new StringBuffer("The following artifacts are unsigned:\n"); //$NON-NLS-1$
+					StringBuilder message = new StringBuilder("The following artifacts are unsigned:\n"); //$NON-NLS-1$
 					for (File file : unsigned) {
 						message.append(NLS.bind("  {0}\n", file.getPath())); //$NON-NLS-1$
 					}
@@ -112,7 +112,7 @@ public class CertificateChecker {
 
 				// log the untrusted certificates if requested
 				if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED && !untrusted.isEmpty()) {
-					StringBuffer message = new StringBuffer("The following certificates are untrusted:\n"); //$NON-NLS-1$
+					StringBuilder message = new StringBuilder("The following certificates are untrusted:\n"); //$NON-NLS-1$
 					for (Certificate cert : untrustedArtifacts.keySet()) {
 						message.append(cert.toString() + "\n"); //$NON-NLS-1$
 						message.append("  used by the following artifacts:\n"); //$NON-NLS-1$

@@ -27,7 +27,7 @@ final public class SlashEncode {
 		if (size == 0)
 			return str;
 
-		StringBuffer processed = new StringBuffer(size);
+		StringBuilder processed = new StringBuilder(size);
 		int processedPos = 0;
 
 		for (int i = 0; i < size; i++) {
@@ -64,7 +64,7 @@ final public class SlashEncode {
 		if (size == 0)
 			return str;
 
-		StringBuffer processed = new StringBuffer(size);
+		StringBuilder processed = new StringBuilder(size);
 		int processedPos = 0;
 
 		for (int i = 0; i < size; i++) {

@@ -392,7 +392,7 @@ public class ProvisioningContext {
 	 */
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("{artifactRepos=" + DebugHelper.formatArray(null != artifactRepositories ? Arrays.asList(artifactRepositories) : null, true, false)); //$NON-NLS-1$
 		buffer.append(", metadataRepos=" + DebugHelper.formatArray(null != metadataRepositories ? Arrays.asList(metadataRepositories) : null, true, false)); //$NON-NLS-1$
 		buffer.append(", properties=" + getProperties() + "}"); //$NON-NLS-1$ //$NON-NLS-2$

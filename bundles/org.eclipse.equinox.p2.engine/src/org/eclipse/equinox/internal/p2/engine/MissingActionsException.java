@@ -34,7 +34,7 @@ public class MissingActionsException extends ProvisionException {
 		if (missingActions.length == 0)
 			throw new IllegalArgumentException("Bad exception: No missing actions"); //$NON-NLS-1$
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < missingActions.length; i++) {
 			MissingAction missingAction = missingActions[i];
 			buffer.append(missingAction.getActionId());

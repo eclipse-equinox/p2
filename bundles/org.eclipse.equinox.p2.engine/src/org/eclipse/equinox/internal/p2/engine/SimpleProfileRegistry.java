@@ -660,7 +660,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * Converts a profile id into a string that can be used as a file name in any file system.
 	 */
 	public static String escape(String toEscape) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		int length = toEscape.length();
 		for (int i = 0; i < length; ++i) {
 			char ch = toEscape.charAt(i);
@@ -688,7 +688,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (text.indexOf('%') == -1)
 			return text;
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		int length = text.length();
 		for (int i = 0; i < length; ++i) {
 			char ch = text.charAt(i);

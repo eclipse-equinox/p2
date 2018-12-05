@@ -174,7 +174,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	 * Any reserved filter characters are escaped.
 	 */
 	private String encodeForFilter(String string) {
-		StringBuffer result = new StringBuffer(string.length());
+		StringBuilder result = new StringBuilder(string.length());
 		char[] input = string.toCharArray();
 		for (int i = 0; i < input.length; i++) {
 			switch (input[i]) {

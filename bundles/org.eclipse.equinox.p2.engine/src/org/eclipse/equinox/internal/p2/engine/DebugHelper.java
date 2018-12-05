@@ -52,7 +52,7 @@ public class DebugHelper {
 	}
 
 	public static void debug(String name, String message) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("["); //$NON-NLS-1$
 		buffer.append(EngineActivator.ID + "-" + name); //$NON-NLS-1$
 		buffer.append("] "); //$NON-NLS-1$
@@ -68,7 +68,7 @@ public class DebugHelper {
 		if (array == null || array.size() == 0)
 			return "[]"; //$NON-NLS-1$
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append('[');
 		boolean first = true;
 		for (Object elem : array) {
@@ -91,7 +91,7 @@ public class DebugHelper {
 	}
 
 	public static String formatOperation(PhaseSet phaseSet, Operand[] operands, ProvisioningContext context) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("phaseSet=" + formatPhaseSet(phaseSet)); //$NON-NLS-1$
 		buffer.append(","); //$NON-NLS-1$
 		buffer.append(DebugHelper.LINE_SEPARATOR);
@@ -116,7 +116,7 @@ public class DebugHelper {
 	}
 
 	public static String formatInstallableUnitOperand(InstallableUnitOperand iuOperand) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(iuOperand.first());
 		if (iuOperand.first() != null && iuOperand.first().getFragments() != null)
 			buffer.append(DebugHelper.formatArray(iuOperand.first().getFragments(), true, false));
@@ -128,7 +128,7 @@ public class DebugHelper {
 	}
 
 	public static String formatPhaseSet(PhaseSet phaseSet) {
-		StringBuffer buffer = new StringBuffer(phaseSet.getClass().getName());
+		StringBuilder buffer = new StringBuilder(phaseSet.getClass().getName());
 		buffer.append(DebugHelper.formatArray(Arrays.asList(phaseSet.getPhases()), false, false));
 		return buffer.toString();
 	}
@@ -138,7 +138,7 @@ public class DebugHelper {
 	}
 
 	public static String formatAction(ProvisioningAction action, Map<String, Object> parameters) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(action.getClass().getName());
 		if (action instanceof ParameterizedProvisioningAction) {
 			ParameterizedProvisioningAction parameterizedAction = (ParameterizedProvisioningAction) action;
@@ -155,7 +155,7 @@ public class DebugHelper {
 		if (!it.hasNext())
 			return "{}"; //$NON-NLS-1$
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append('{');
 		for (;;) {
 			Entry<String, ? extends Object> e = it.next();

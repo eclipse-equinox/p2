@@ -81,7 +81,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 
 		@Override
 		public String toString() {
-			StringBuffer result = new StringBuffer(element.toString());
+			StringBuilder result = new StringBuilder(element.toString());
 			if (createdExtension) {
 				String touchpointString = touchpoint != null ? touchpoint.toString() : "not created"; //$NON-NLS-1$
 				result.append(" => " + touchpointString); //$NON-NLS-1$

@@ -42,7 +42,7 @@ public class ProfileEvent extends EventObject implements IProfileEvent {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("ProfileEvent["); //$NON-NLS-1$
 		buffer.append(getProfileId());
 		buffer.append("-->"); //$NON-NLS-1$
