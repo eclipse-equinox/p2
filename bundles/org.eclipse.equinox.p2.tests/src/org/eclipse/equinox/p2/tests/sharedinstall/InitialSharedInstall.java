@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2017 Ericsson AB and others.
+ * Copyright (c) 2013, 2018 Ericsson AB and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -64,13 +64,17 @@ public class InitialSharedInstall extends AbstractSharedInstallTest {
 	private void cleanupDotEclipseFolder() {
 		File userHome = new File(System.getProperty("user.home"));
 		File dotEclipse = new File(userHome, ".eclipse");
+		if (!dotEclipse.exists())
+			// nothing to clean up
+			return;
+
 		File[] toDelete = dotEclipse.listFiles((FilenameFilter) (dir, name) -> {
 			if (name.startsWith("p2.automated.test"))
 				return true;
 			return false;
 		});
-		for (int i = 0; i < toDelete.length; i++) {
-			delete(toDelete[i]);
+		for (File file : toDelete) {
+			delete(file);
 		}
 	}
 }
