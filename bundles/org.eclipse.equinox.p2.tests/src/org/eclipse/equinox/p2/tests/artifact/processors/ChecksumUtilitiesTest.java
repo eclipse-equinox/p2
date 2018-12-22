@@ -14,7 +14,9 @@
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
@@ -76,4 +78,10 @@ public class ChecksumUtilitiesTest {
 		assertEquals(Status.OK_STATUS, verifier.getStatus());
 	}
 
+	@Test
+	public void testChecksumsToSkip() {
+		Collection<ProcessingStep> checksumVerifiers = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor, propertyType, singleton(algorithmId));
+
+		assertEquals(emptyList(), checksumVerifiers);
+	}
 }
