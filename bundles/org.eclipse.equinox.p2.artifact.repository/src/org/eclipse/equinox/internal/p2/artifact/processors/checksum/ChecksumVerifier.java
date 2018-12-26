@@ -20,7 +20,6 @@ import java.security.NoSuchAlgorithmException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
-import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -43,25 +42,16 @@ final public class ChecksumVerifier extends MessageDigestProcessingStep {
 	@Override
 	public final void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
-
 		basicInitialize(descriptor);
 		if (!getStatus().isOK()) {
 			return;
 		}
 
-		String data = descriptor.getData();
-		if (IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".").concat(algorithmId).equals(data)) //$NON-NLS-1$
-			expectedChecksum = ChecksumHelper.getChecksums(context, IArtifactDescriptor.DOWNLOAD_CHECKSUM).get(algorithmId);
-		else if (IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".").concat(algorithmId).equals(data)) //$NON-NLS-1$
-			expectedChecksum = ChecksumHelper.getChecksums(context, IArtifactDescriptor.ARTIFACT_CHECKSUM).get(algorithmId);
-		else
-			expectedChecksum = data;
-
+		expectedChecksum = descriptor.getData();
 		if (ofNullable(expectedChecksum).orElse("").isEmpty()) { //$NON-NLS-1$
 			int code = buildErrorCode(descriptor);
 			setStatus(new Status(code, Activator.ID, NLS.bind(Messages.Error_invalid_checksum, algorithmName, expectedChecksum)));
 		}
-
 	}
 
 	private void basicInitialize(IProcessingStepDescriptor descriptor) {
