@@ -79,6 +79,7 @@ public interface IProvisioningAgent {
 	 * if no such service is available in this agent.
 	 * @exception IllegalStateException if this agent has been stopped
 	 * @exception ClassCastException if the agent cannot be cast to the provided class
+	 * @since 2.6
 	 */
 	public <T> T getService(Class<T> key);
 
