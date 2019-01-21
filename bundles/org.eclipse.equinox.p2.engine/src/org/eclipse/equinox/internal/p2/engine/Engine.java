@@ -32,7 +32,7 @@ public class Engine implements IEngine {
 		agent.registerService(ActionManager.SERVICE_NAME, new ActionManager());
 	}
 
-	private void checkArguments(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+	private void checkArguments(IProfile iprofile, PhaseSet phaseSet, Operand[] operands) {
 		if (iprofile == null)
 			throw new IllegalArgumentException(Messages.null_profile);
 
@@ -55,7 +55,7 @@ public class Engine implements IEngine {
 
 	public IStatus perform(IProfile iprofile, IPhaseSet phases, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		PhaseSet phaseSet = (PhaseSet) phases;
-		checkArguments(iprofile, phaseSet, operands, context, monitor);
+		checkArguments(iprofile, phaseSet, operands);
 		if (operands.length == 0)
 			return Status.OK_STATUS;
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
@@ -110,7 +110,7 @@ public class Engine implements IEngine {
 	}
 
 	protected IStatus validate(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
-		checkArguments(iprofile, phaseSet, operands, context, monitor);
+		checkArguments(iprofile, phaseSet, operands);
 
 		if (context == null)
 			context = new ProvisioningContext(agent);
