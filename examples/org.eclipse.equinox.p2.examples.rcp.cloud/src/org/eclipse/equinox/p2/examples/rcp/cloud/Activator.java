@@ -2,7 +2,6 @@ package org.eclipse.equinox.p2.examples.rcp.cloud;
 
 import org.eclipse.equinox.p2.examples.rcp.cloud.p2.CloudPolicy;
 import org.eclipse.equinox.p2.ui.Policy;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -21,7 +20,7 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 	
-	ServiceRegistration policyRegistration;
+	ServiceRegistration<Policy> policyRegistration;
 	CloudPolicy policy;
 	IPropertyChangeListener preferenceListener;
 	
@@ -32,10 +31,6 @@ public class Activator extends AbstractUIPlugin {
 	public Activator() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
@@ -55,10 +50,6 @@ public class Activator extends AbstractUIPlugin {
 		return preferenceListener;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
-	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		// XXX unregister the UI policy
@@ -93,6 +84,6 @@ public class Activator extends AbstractUIPlugin {
 	private void registerP2Policy(BundleContext context) {
 		policy = new CloudPolicy();
 		policy.updateForPreferences();
-		policyRegistration = context.registerService(Policy.class.getName(), policy, null);
+		policyRegistration = context.registerService(Policy.class, policy, null);
 	}
 }
