@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -31,29 +31,34 @@ public class Utils {
 	private static final String PATH_SEP = "/"; //$NON-NLS-1$
 
 	/**
-	 * Overwrite all properties of from to the properties of to. Return the result of to.
+	 * Overwrite all properties of from to the properties of to. Return the result
+	 * of to.
 	 * 
-	 * @param to Properties whose keys and values of other Properties will be appended to.
-	 * @param from Properties whose keys and values will be set to the other properties.
-	 * @return Properties as a result of this method. 
+	 * @param to
+	 *            Properties whose keys and values of other Properties will be
+	 *            appended to.
+	 * @param from
+	 *            Properties whose keys and values will be set to the other
+	 *            properties.
+	 * @return Properties as a result of this method.
 	 */
 	public static Properties appendProperties(Properties to, Properties from) {
 		if (from != null) {
 			if (to == null)
 				to = new Properties();
-			//			printoutProperties(System.out, "to", to);
-			//			printoutProperties(System.out, "from", from);
+			// printoutProperties(System.out, "to", to);
+			// printoutProperties(System.out, "from", from);
 
-			for (Enumeration<Object> enumeration = from.keys(); enumeration.hasMoreElements();) {
-				String key = (String) enumeration.nextElement();
+			for (String key : from.stringPropertyNames()) {
 				to.setProperty(key, from.getProperty(key));
 			}
 		}
-		//		printoutProperties(System.out, "to", to);
+		// printoutProperties(System.out, "to", to);
 		return to;
 	}
 
-	//Return a dictionary representing a manifest. The data may result from plugin.xml conversion  
+	// Return a dictionary representing a manifest. The data may result from
+	// plugin.xml conversion
 	private static Dictionary<String, String> basicLoadManifest(File bundleLocation) {
 		InputStream manifestStream = null;
 		ZipFile jarFile = null;
@@ -70,12 +75,14 @@ public class Utils {
 					// we have a directory-based bundle
 					File bundleManifestFile = new File(bundleLocation, JarFile.MANIFEST_NAME);
 					if (bundleManifestFile.exists())
-						manifestStream = new BufferedInputStream(new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
+						manifestStream = new BufferedInputStream(
+								new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
 				}
 			} catch (IOException e) {
-				//ignore
+				// ignore
 			}
-			// we were unable to get an OSGi manifest file so try and convert an old-style manifest
+			// we were unable to get an OSGi manifest file so try and convert an old-style
+			// manifest
 			if (manifestStream == null)
 				return null;
 
@@ -85,9 +92,7 @@ public class Utils {
 				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null)
 					return null;
 				return manifestToProperties(manifest);
-			} catch (IOException ioe) {
-				return null;
-			} catch (BundleException e) {
+			} catch (IOException | BundleException ioe) {
 				return null;
 			}
 		} finally {
@@ -95,13 +100,13 @@ public class Utils {
 				if (manifestStream != null)
 					manifestStream.close();
 			} catch (IOException e1) {
-				//Ignore
+				// Ignore
 			}
 			try {
 				if (jarFile != null)
 					jarFile.close();
 			} catch (IOException e2) {
-				//Ignore
+				// Ignore
 			}
 		}
 	}
@@ -115,7 +120,7 @@ public class Utils {
 			throw new IllegalArgumentException(dirName + " is not directory. file=" + file.getAbsolutePath()); //$NON-NLS-1$
 	}
 
-	public static void checkAbsoluteFile(File file, String dirName) {//throws ManipulatorException {
+	public static void checkAbsoluteFile(File file, String dirName) {// throws ManipulatorException {
 		if (file == null)
 			throw new IllegalArgumentException(dirName + " is null"); //$NON-NLS-1$
 		if (!file.isAbsolute())
@@ -124,7 +129,9 @@ public class Utils {
 			throw new IllegalArgumentException(dirName + " is not file but directory"); //$NON-NLS-1$
 	}
 
-	public static URL checkFullUrl(URL url, String urlName) throws IllegalArgumentException {//throws ManipulatorException {
+	public static URL checkFullUrl(URL url, String urlName) throws IllegalArgumentException {// throws
+																								// ManipulatorException
+																								// {
 		if (url == null)
 			throw new IllegalArgumentException(urlName + " is null"); //$NON-NLS-1$
 		if (!url.getProtocol().endsWith("file")) //$NON-NLS-1$
@@ -137,7 +144,8 @@ public class Utils {
 		try {
 			return getUrl("file", null, PATH_SEP + file.getAbsolutePath()); //$NON-NLS-1$
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(urlName + "(" + "file:" + PATH_SEP + file.getAbsolutePath() + ") is not fully quallified"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			throw new IllegalArgumentException(
+					urlName + "(" + "file:" + PATH_SEP + file.getAbsolutePath() + ") is not fully quallified"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
 
@@ -190,9 +198,8 @@ public class Utils {
 		try {
 			URL url = new URL("jar:" + location.toString() + "!/"); //$NON-NLS-1$//$NON-NLS-2$
 			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-			ZipFile jar = jarConnection.getJarFile();
 
-			try {
+			try (ZipFile jar = jarConnection.getJarFile()) {
 				ZipEntry entry = jar.getEntry(JarFile.MANIFEST_NAME);
 				if (entry == null)
 					return null;
@@ -206,8 +213,6 @@ public class Utils {
 				return manifestToProperties(manifest);
 			} catch (BundleException e) {
 				return null;
-			} finally {
-				jar.close();
 			}
 		} catch (IOException e) {
 			if (System.getProperty("osgi.debug") != null) { //$NON-NLS-1$
@@ -240,7 +245,7 @@ public class Utils {
 			else
 				break;
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = index + 1; i < fromTokens.length; i++)
 			sb.append(".." + PATH_SEP); //$NON-NLS-1$
 
@@ -255,9 +260,10 @@ public class Utils {
 	/**
 	 * This method will be called for create a backup file.
 	 * 
-	 * @param file target file
-	 * @return File backup file whose filename consists of "hogehoge.yyyyMMddHHmmss.ext" or 
-	 * 	"hogehoge.yyyyMMddHHmmss".
+	 * @param file
+	 *            target file
+	 * @return File backup file whose filename consists of
+	 *         "hogehoge.yyyyMMddHHmmss.ext" or "hogehoge.yyyyMMddHHmmss".
 	 */
 	public static File getSimpleDataFormattedFile(File file) {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss"); //$NON-NLS-1$
@@ -287,17 +293,18 @@ public class Utils {
 		return tokens;
 	}
 
-	public static URL getUrl(String protocol, String host, String file) throws MalformedURLException {// throws ManipulatorException {
+	public static URL getUrl(String protocol, String host, String file) throws MalformedURLException {// throws
+																										// ManipulatorException
 		file = Utils.replaceAll(file, File.separator, "/"); //$NON-NLS-1$
 		return new URL(protocol, host, file);
 	}
 
-	public static URL getUrlInFull(String path, URL from) throws MalformedURLException {//throws ManipulatorException {
+	public static URL getUrlInFull(String path, URL from) throws MalformedURLException {// throws ManipulatorException
 		Utils.checkFullUrl(from, "from"); //$NON-NLS-1$
 		path = Utils.replaceAll(path, File.separator, "/"); //$NON-NLS-1$
-		//System.out.println("from.toExternalForm()=" + from.toExternalForm());
+		// System.out.println("from.toExternalForm()=" + from.toExternalForm());
 		String fromSt = Utils.removeLastCh(from.toExternalForm(), '/');
-		//System.out.println("fromSt=" + fromSt);
+		// System.out.println("fromSt=" + fromSt);
 		if (path.startsWith("/")) { //$NON-NLS-1$
 			String fileSt = from.getFile();
 			return new URL(fromSt.substring(0, fromSt.lastIndexOf(fileSt) - 1) + path);
@@ -306,10 +313,8 @@ public class Utils {
 	}
 
 	private static Dictionary<String, String> manifestToProperties(Map<String, String> d) {
-		Iterator<String> iter = d.keySet().iterator();
 		Dictionary<String, String> result = new Hashtable<>();
-		while (iter.hasNext()) {
-			String key = iter.next();
+		for (String key : d.keySet()) {
 			result.put(key, d.get(key));
 		}
 		return result;
@@ -318,9 +323,12 @@ public class Utils {
 	/**
 	 * Just used for debug.
 	 * 
-	 * @param ps printstream
-	 * @param name name of properties 
-	 * @param props properties whose keys and values will be printed out.
+	 * @param ps
+	 *            printstream
+	 * @param name
+	 *            name of properties
+	 * @param props
+	 *            properties whose keys and values will be printed out.
 	 */
 	public static void printoutProperties(PrintStream ps, String name, Properties props) {
 		if (props == null || props.size() == 0) {
@@ -328,8 +336,7 @@ public class Utils {
 			return;
 		}
 		ps.println("Props(" + name + ")="); //$NON-NLS-1$ //$NON-NLS-2$
-		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
-			String key = (String) enumeration.nextElement();
+		for (String key : props.stringPropertyNames()) {
 			ps.print("\tkey=" + key); //$NON-NLS-1$
 			ps.println("\tvalue=" + props.getProperty(key)); //$NON-NLS-1$
 		}
@@ -355,14 +362,16 @@ public class Utils {
 	/**
 	 * Sort by increasing order of startlevels.
 	 * 
-	 * @param bInfos array of BundleInfos to be sorted.
-	 * @param initialBSL initial bundle start level to be used.
+	 * @param bInfos
+	 *            array of BundleInfos to be sorted.
+	 * @param initialBSL
+	 *            initial bundle start level to be used.
 	 * @return sorted array of BundleInfos
 	 */
 	public static BundleInfo[] sortBundleInfos(BundleInfo[] bInfos, int initialBSL) {
 		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<>();
-		for (int i = 0; i < bInfos.length; i++) {
-			Integer sL = Integer.valueOf(bInfos[i].getStartLevel());
+		for (BundleInfo bInfo : bInfos) {
+			Integer sL = Integer.valueOf(bInfo.getStartLevel());
 			if (sL.intValue() == BundleInfo.NO_LEVEL)
 				sL = Integer.valueOf(initialBSL);
 			List<BundleInfo> list = bslToList.get(sL);
@@ -370,16 +379,14 @@ public class Utils {
 				list = new LinkedList<>();
 				bslToList.put(sL, list);
 			}
-			list.add(bInfos[i]);
+			list.add(bInfo);
 		}
 
 		// bslToList is sorted by the key (StartLevel).
 		List<BundleInfo> bundleInfoList = new LinkedList<>();
-		for (Iterator<Integer> ite = bslToList.keySet().iterator(); ite.hasNext();) {
-			Integer sL = ite.next();
+		for (Integer sL : bslToList.keySet()) {
 			List<BundleInfo> list = bslToList.get(sL);
-			for (Iterator<BundleInfo> ite2 = list.iterator(); ite2.hasNext();) {
-				BundleInfo bInfo = ite2.next();
+			for (BundleInfo bInfo : list) {
 				bundleInfoList.add(bInfo);
 			}
 		}
@@ -389,17 +396,18 @@ public class Utils {
 	/**
 	 * get String representing the given properties.
 	 * 
-	 * @param name name of properties 
-	 * @param props properties whose keys and values will be printed out.
+	 * @param name
+	 *            name of properties
+	 * @param props
+	 *            properties whose keys and values will be printed out.
 	 */
 	public static String toStringProperties(String name, Properties props) {
 		if (props == null || props.size() == 0) {
 			return "Props(" + name + ") is empty\n"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("Props(" + name + ") is \n"); //$NON-NLS-1$ //$NON-NLS-2$
-		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
-			String key = (String) enumeration.nextElement();
+		for (String key : props.stringPropertyNames()) {
 			sb.append("\tkey=" + key + "\tvalue=" + props.getProperty(key) + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return sb.toString();
