@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 IBM Corporation and others.
+ *  Copyright (c) 2010, 2019 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -25,11 +25,8 @@ import org.osgi.service.prefs.Preferences;
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
-	 */
 	public void initializeDefaultPreferences() {
-		Preferences node = new DefaultScope().getNode(Activator.PLUGIN_ID); //$NON-NLS-1$
+		Preferences node = DefaultScope.INSTANCE.getNode(Activator.PLUGIN_ID); //$NON-NLS-1$
 		// default values
 		node.putBoolean(PreferenceConstants.REPOSITORIES_VISIBLE, false);
 		node.putBoolean(PreferenceConstants.SHOW_LATEST_VERSION_ONLY, true);

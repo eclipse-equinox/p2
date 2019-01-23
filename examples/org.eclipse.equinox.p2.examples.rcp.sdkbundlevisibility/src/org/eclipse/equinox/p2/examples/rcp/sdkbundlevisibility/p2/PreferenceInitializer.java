@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,11 +23,9 @@ import org.osgi.service.prefs.Preferences;
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
-	 */
+	@Override
 	public void initializeDefaultPreferences() {
-		Preferences node = new DefaultScope().getNode("org.eclipse.equinox.p2.ui.sdk"); //$NON-NLS-1$
+		Preferences node = DefaultScope.INSTANCE.getNode("org.eclipse.equinox.p2.ui.sdk"); //$NON-NLS-1$
 		node.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true);
 		node.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.PROMPT);
 	}

@@ -18,7 +18,7 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 	
-	ServiceRegistration policyRegistration;
+	ServiceRegistration<Policy> policyRegistration;
 	
 	/**
 	 * The constructor
@@ -26,10 +26,6 @@ public class Activator extends AbstractUIPlugin {
 	public Activator() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
@@ -37,10 +33,6 @@ public class Activator extends AbstractUIPlugin {
 		registerP2Policy(context);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
-	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		// XXX unregister the UI policy
@@ -71,6 +63,6 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	private void registerP2Policy(BundleContext context) {
-		policyRegistration = context.registerService(Policy.class.getName(), new CloudPolicy(), null);
+		policyRegistration = context.registerService(Policy.class, new CloudPolicy(), null);
 	}
 }
