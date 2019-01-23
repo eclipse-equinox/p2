@@ -15,10 +15,14 @@ package org.eclipse.equinox.p2.tests;
 
 import java.io.File;
 import java.io.IOException;
-import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Provides {@link IProvisioningAgent} instances for tests. Use as JUnit 4 {@link Rule}.
@@ -72,7 +76,7 @@ public final class TestAgentProvider extends ExternalResource {
 
 	/**
 	 * Returns a service from the current agent.
-	 * 
+	 *
 	 * @see #getAgent()
 	 */
 	public <T> T getService(Class<T> type) throws ProvisionException {

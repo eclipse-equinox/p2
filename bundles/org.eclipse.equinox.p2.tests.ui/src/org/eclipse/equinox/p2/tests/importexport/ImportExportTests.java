@@ -73,7 +73,8 @@ public class ImportExportTests extends AbstractProvisioningTest {
 				if ("org.polarion.eclipse.team.svn.connector.feature.group".equals(iu.getIU().getId())) {
 					counter++;
 					assertTrue("Should have two referred repository.", iu.getReferencedRepositories().size() == 2);
-				} else if ("org.polarion.eclipse.team.svn.connector.svnkit16.feature.group".equals(iu.getIU().getId())) {
+				} else if ("org.polarion.eclipse.team.svn.connector.svnkit16.feature.group"
+						.equals(iu.getIU().getId())) {
 					counter++;
 					assertTrue("Should have one referred repository", iu.getReferencedRepositories().size() == 1);
 				}
@@ -102,39 +103,42 @@ public class ImportExportTests extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testExportFeaturesInstalledFromLocal() throws ProvisionException, OperationCanceledException, IOException {
+	public void testExportFeaturesInstalledFromLocal()
+			throws ProvisionException, OperationCanceledException, IOException {
 		File testFile = File.createTempFile("test", "p2f");
 		try {
-			IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+			IMetadataRepositoryManager metaManager = getAgent().getService(IMetadataRepositoryManager.class);
 			File localRepoFile = getTestData("Error load data", "testData/importexport/repo1");
 			IMetadataRepository repo = metaManager.loadRepository(localRepoFile.toURI(), null);
 			assertNotNull("Fail to load local repo", repo);
 			IInstallableUnit iu = createIU("A", Version.create("1.0.0"));
 			try (OutputStream output = new FileOutputStream(testFile)) {
-				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
+				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] { iu }, false, null);
 				assertFalse("Not expected return result.", status.isOK());
 				assertTrue("Should be a multiple status", status.isMultiStatus());
 				boolean hasFeaturesIgnored = false;
 				for (IStatus s : getChildren(status))
 					if (s.getCode() == ImportExportImpl.IGNORE_LOCAL_REPOSITORY)
 						hasFeaturesIgnored = true;
-				assertTrue("Should have features ignored due to they're installed from local repository.", hasFeaturesIgnored);
+				assertTrue("Should have features ignored due to they're installed from local repository.",
+						hasFeaturesIgnored);
 			}
 		} finally {
 			testFile.delete();
 		}
 	}
 
-	public void testAllowExportFeaturesInstalledFromLocal() throws ProvisionException, OperationCanceledException, IOException {
+	public void testAllowExportFeaturesInstalledFromLocal()
+			throws ProvisionException, OperationCanceledException, IOException {
 		File testFile = File.createTempFile("test", "p2f");
 		try {
-			IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+			IMetadataRepositoryManager metaManager = getAgent().getService(IMetadataRepositoryManager.class);
 			File localRepoFile = getTestData("Error load data", "testData/importexport/repo1");
 			IMetadataRepository repo = metaManager.loadRepository(localRepoFile.toURI(), null);
 			assertNotNull("Fail to load local repo", repo);
 			IInstallableUnit iu = createIU("A", Version.create("1.0.0"));
 			try (OutputStream output = new FileOutputStream(testFile)) {
-				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, true, null);
+				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] { iu }, true, null);
 				assertTrue(status.isOK());
 			}
 		} finally {

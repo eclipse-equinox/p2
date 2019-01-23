@@ -14,7 +14,10 @@
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.File;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -75,7 +78,7 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 			Thread.sleep(100);
 		}
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
 		boolean expected = false;
 		try {
 			artifactManager.loadRepository(targetLocation.toURI(), progressMonitor);
@@ -102,7 +105,7 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 		while (!canContinue) {
 			Thread.sleep(100);
 		}
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
 		SimpleArtifactRepository artifactRepository = (SimpleArtifactRepository) artifactManager.loadRepository(targetLocation.toURI(), new NullProgressMonitor());
 		assertEquals(1, artifactRepository.getDescriptors().size());
 

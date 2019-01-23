@@ -29,7 +29,7 @@ public class AuthTest extends ServerBasedTestCase {
 		super.setUp();
 		PRIVATE_REPO = super.getBaseURL() + "/private/mdr/composite/one";
 		NEVER_REPO = super.getBaseURL() + "/proxy/never";
-		mgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		mgr = getAgent().getService(IMetadataRepositoryManager.class);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}

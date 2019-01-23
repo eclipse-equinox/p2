@@ -16,8 +16,13 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.core.*;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -42,7 +47,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 
 		IProvisioningAgentProvider provider = getAgentProvider();
 		agent = provider.createAgent(tempFolder.toURI());
-		profileRegistry = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME));
+		profileRegistry = agent.getService(IProfileRegistry.class);
 		assertNotNull(profileRegistry.getProfile(profileLoadedId));
 	}
 
@@ -107,11 +112,11 @@ public class Bug300104 extends AbstractProvisioningTest {
 	}
 
 	private IEngine getEngineService() {
-		return ((IEngine) agent.getService(IEngine.SERVICE_NAME));
+		return agent.getService(IEngine.class);
 	}
 
 	private IPlanner getPlannerService() {
-		return ((IPlanner) agent.getService(IPlanner.SERVICE_NAME));
+		return agent.getService(IPlanner.class);
 	}
 
 	private String createInclusionRule(IInstallableUnit unit, boolean optional) {

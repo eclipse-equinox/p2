@@ -15,7 +15,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -42,7 +45,7 @@ public class JarURLArtifactRepositoryTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		IProvisioningAgent agent = ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.class);
-		manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		manager = agent.getService(IArtifactRepositoryManager.class);
 	}
 
 	@Override

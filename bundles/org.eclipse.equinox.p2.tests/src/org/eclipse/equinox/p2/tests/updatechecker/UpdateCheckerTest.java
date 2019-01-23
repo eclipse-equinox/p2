@@ -20,7 +20,10 @@ import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -33,7 +36,7 @@ public class UpdateCheckerTest extends AbstractProvisioningTest {
 	IInstallableUnit toInstallIU, update;
 
 	protected IUpdateChecker getChecker() {
-		IUpdateChecker checker = (IUpdateChecker) getAgent().getService(IUpdateChecker.SERVICE_NAME);
+		IUpdateChecker checker = getAgent().getService(IUpdateChecker.class);
 		assertNotNull(checker);
 		return checker;
 	}

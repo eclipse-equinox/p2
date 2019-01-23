@@ -15,10 +15,20 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.core.*;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
@@ -31,10 +41,10 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 	public void testInstallEppJavaPackage() throws ProvisionException {
 		IProvisioningAgentProvider provider = getAgentProvider();
 		IProvisioningAgent agent = provider.createAgent(getTempFolder().toURI());
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoMgr = agent.getService(IMetadataRepositoryManager.class);
 		repoMgr.addRepository(getTestData("Helios SR0", "testData/helios-sr0/").toURI());
 
-		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		IPlanner planner = agent.getService(IPlanner.class);
 		Map<String, String> profileArgs = new HashMap<>();
 		profileArgs.put("osgi.os", "linux");
 		profileArgs.put("osgi.ws", "gtk");
@@ -42,7 +52,7 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 
 		Set<IInstallableUnit> iusFromFirstResolution = new HashSet<>();
 		{
-			IProfile eppProfile1 = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).addProfile("epp.install.1", profileArgs);
+			IProfile eppProfile1 = agent.getService(IProfileRegistry.class).addProfile("epp.install.1", profileArgs);
 			IProfileChangeRequest request = planner.createChangeRequest(eppProfile1);
 			request.add(repoMgr.query(QueryUtil.createIUQuery("epp.package.java"), null).iterator().next());
 
@@ -60,7 +70,7 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 		}
 
 		{
-			IProfile eppProfile2 = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).addProfile("epp.install.2", profileArgs);
+			IProfile eppProfile2 = agent.getService(IProfileRegistry.class).addProfile("epp.install.2", profileArgs);
 			IProfileChangeRequest request = planner.createChangeRequest(eppProfile2);
 			request.add(repoMgr.query(QueryUtil.createIUQuery("epp.package.java"), null).iterator().next());
 

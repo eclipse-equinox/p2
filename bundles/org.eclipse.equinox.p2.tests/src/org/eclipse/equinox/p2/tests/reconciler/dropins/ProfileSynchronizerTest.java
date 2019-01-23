@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *  	Sonatype Inc. - Initial API and implementation
  *     IBM Corporation - Ongoing development
@@ -20,7 +20,10 @@ import java.util.ArrayList;
 import java.util.Set;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.ProfileSynchronizer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -41,8 +44,8 @@ public class ProfileSynchronizerTest extends AbstractProvisioningTest {
 
 		copy("copying initialProfile", getTestData("p2 folder for synchronizer test", "testData/profileSynchronizerTest/"), tmpFolder);
 		agent = getAgentProvider().createAgent(new File(tmpFolder, "p2").toURI());
-		registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		registry = agent.getService(IProfileRegistry.class);
+		IEngine engine = agent.getService(IEngine.class);
 		sdkProfile = registry.getProfile("SDKProfile");
 
 		//Reset some properties to not break local install

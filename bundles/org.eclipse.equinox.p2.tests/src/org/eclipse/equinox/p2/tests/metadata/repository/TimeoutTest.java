@@ -10,7 +10,11 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.net.URI;
 import java.security.cert.Certificate;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -26,7 +30,7 @@ public class TimeoutTest extends ServerBasedTestCase {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		mgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		mgr = getAgent().getService(IMetadataRepositoryManager.class);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}

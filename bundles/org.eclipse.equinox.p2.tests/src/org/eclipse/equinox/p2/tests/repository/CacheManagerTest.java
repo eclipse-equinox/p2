@@ -14,10 +14,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import junit.framework.TestCase;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
-import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -36,7 +42,7 @@ public class CacheManagerTest extends TestCase {
 		ServiceReference<IProvisioningAgentProvider> serviceReference = bundle.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider agentServiceFactory = bundle.getService(serviceReference);
 		IProvisioningAgent agent = agentServiceFactory.createAgent(repositoryLocation);
-		Transport transport = (Transport) agent.getService(Transport.SERVICE_NAME);
+		Transport transport = agent.getService(Transport.class);
 		cacheManager = new CacheManager(new AgentLocationMock(), transport);
 	}
 

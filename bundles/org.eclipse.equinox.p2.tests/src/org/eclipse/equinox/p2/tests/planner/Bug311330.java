@@ -36,8 +36,8 @@ public class Bug311330 extends AbstractProvisioningTest {
 	public void testValidateProfile() throws ProvisionException {
 		IProvisioningAgentProvider provider = getAgentProvider();
 		IProvisioningAgent agent = provider.createAgent(getTestData("bug311330 data", "testData/bug311330/p2").toURI());
-		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
-		IProfile sdkProfile = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).getProfile("SDKProfile");
+		IPlanner planner = agent.getService(IPlanner.class);
+		IProfile sdkProfile = agent.getService(IProfileRegistry.class).getProfile("SDKProfile");
 		IProfileChangeRequest request = planner.createChangeRequest(sdkProfile);
 		assertFalse("rap.jface not found", sdkProfile.available(QueryUtil.createIUQuery("org.eclipse.rap.jface"), null).isEmpty());
 

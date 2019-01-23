@@ -16,26 +16,46 @@ package org.eclipse.equinox.p2.tests.full;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
-import org.eclipse.equinox.p2.core.*;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
-import org.osgi.framework.*;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -54,13 +74,13 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 		ServiceReference<IProvisioningAgentProvider> sr = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider agentFactory = TestActivator.context.getService(sr);
 		end2endAgent = agentFactory.createAgent(getTempFolder().toURI());
-		metadataRepoManager = (IMetadataRepositoryManager) end2endAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		artifactRepoManager = (IArtifactRepositoryManager) end2endAgent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-		director = (IDirector) end2endAgent.getService(IDirector.SERVICE_NAME);
+		metadataRepoManager = end2endAgent.getService(IMetadataRepositoryManager.class);
+		artifactRepoManager = end2endAgent.getService(IArtifactRepositoryManager.class);
+		director = end2endAgent.getService(IDirector.class);
 	}
 
 	protected IProfile createProfile(String profileId, String installFolder) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) end2endAgent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = end2endAgent.getService(IProfileRegistry.class);
 		if (profileRegistry == null) {
 			throw new RuntimeException("Profile registry service not available");
 		}

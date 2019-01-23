@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -16,7 +16,9 @@ package org.eclipse.equinox.p2.tests.core;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -41,19 +43,19 @@ public class ProvisioningAgentTest extends AbstractProvisioningTest {
 		IProvisioningAgentProvider provider = TestActivator.context.getService(providerRef);
 
 		IProvisioningAgent firstAgent = provider.createAgent(p2location);
-		IProfileRegistry firstProfileRegistry = (IProfileRegistry) firstAgent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry firstProfileRegistry = firstAgent.getService(IProfileRegistry.class);
 		firstProfileRegistry.removeProfile(PROFILE_ID);
 		firstProfileRegistry.addProfile(PROFILE_ID);
-		IMetadataRepositoryManager firstMdrMgr = (IMetadataRepositoryManager) firstAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager firstMdrMgr = firstAgent.getService(IMetadataRepositoryManager.class);
 		firstMdrMgr.addRepository(repoLocation);
 		firstMdrMgr.setEnabled(repoLocation, false);
 		firstAgent.stop();
 
 		IProvisioningAgent secondAgent = provider.createAgent(p2location);
-		IProfileRegistry secondProfileRegistry = (IProfileRegistry) secondAgent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry secondProfileRegistry = secondAgent.getService(IProfileRegistry.class);
 		secondProfileRegistry.removeProfile(PROFILE_ID);
 		secondProfileRegistry.addProfile(PROFILE_ID);
-		IMetadataRepositoryManager secondMdrMgr = (IMetadataRepositoryManager) secondAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager secondMdrMgr = secondAgent.getService(IMetadataRepositoryManager.class);
 		secondMdrMgr.removeRepository(repoLocation);
 		secondAgent.stop();
 

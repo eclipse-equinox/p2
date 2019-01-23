@@ -13,16 +13,26 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
 import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -32,18 +42,31 @@ import org.eclipse.equinox.internal.p2.updatesite.SiteFeature;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.artifact.UpdateSiteArtifactRepository;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.StringBufferStream;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * @since 1.0
@@ -594,7 +617,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	}
 
 	public void testRepoWithFeatureWithNullUpdateURL() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/missingUpdateURLFeature/");
 		IMetadataRepository metadataRepo = null;
@@ -618,7 +641,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	 * Tests that a feature requiring a bundle with no range is converted correctly.
 	 */
 	public void testBug243422() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/UpdateSite243422/");
 		IMetadataRepository metadataRepo = null;
@@ -641,7 +664,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	}
 
 	public void testShortenVersionNumberInFeature() {
-		IArtifactRepositoryManager repoMan = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager repoMan = getAgent().getService(IArtifactRepositoryManager.class);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/240121/UpdateSite240121/");
 		IArtifactRepository artifactRepo = null;
@@ -663,7 +686,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	 * unzipping the feature on install.
 	 */
 	public void testFeatureJarUnzipInstruction() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI location = null;
 		location = site.toURI();
@@ -693,7 +716,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		URI testUpdateSite = new URI("http://download.eclipse.org/test/updatesite/");
 		URI testDiscoverySite = new URI("http://download.eclipse.org/test/discoverysite");
 
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(manager);
 		manager.removeRepository(testUpdateSite);
 		manager.removeRepository(testDiscoverySite);
@@ -715,7 +738,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
-		IMetadataRepositoryManager metadataRepoMan = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager metadataRepoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(metadataRepoMan);
 
 		URI[] knownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
@@ -741,7 +764,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
-		IArtifactRepositoryManager artifactRepoMan = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactRepoMan = getAgent().getService(IArtifactRepositoryManager.class);
 		assertNotNull(artifactRepoMan);
 
 		URI[] knownRepos = artifactRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);

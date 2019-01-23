@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *     IBM Corporation - ongoing development
@@ -20,7 +20,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -35,14 +38,14 @@ public class Bug306279b extends AbstractProvisioningTest {
 	public void testGreedy() throws ProvisionException, OperationCanceledException {
 		IProvisioningAgent agent = getAgentProvider().createAgent(getTestData("test data bug306279", "testData/bug306279/p2").toURI());
 
-		IMetadataRepository repo1 = ((IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME)).loadRepository(getTestData("helios", "testData/bug306279/repo/helios").toURI(), null);
+		IMetadataRepository repo1 = agent.getService(IMetadataRepositoryManager.class).loadRepository(getTestData("helios", "testData/bug306279/repo/helios").toURI(), null);
 		assertFalse(repo1.query(QueryUtil.createIUQuery("org.eclipse.rap.jface.databinding"), new NullProgressMonitor()).isEmpty());
 
 		URI rienaRepo = getTestData("repo for bug306279", "testData/bug306279/repo/riena").toURI();
-		IMetadataRepository repo2 = ((IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME)).loadRepository(rienaRepo, null);
+		IMetadataRepository repo2 = agent.getService(IMetadataRepositoryManager.class).loadRepository(rienaRepo, null);
 
 		IPlanner planner = getPlanner(agent);
-		IProfile profile = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).getProfile("SDKProfile");
+		IProfile profile = agent.getService(IProfileRegistry.class).getProfile("SDKProfile");
 		IProfileChangeRequest request = planner.createChangeRequest(profile);
 		Set<IInstallableUnit> ius = repo2.query(QueryUtil.createIUQuery("org.eclipse.riena.toolbox.feature.feature.group", Version.create("2.0.0.201003181312")), new NullProgressMonitor()).toUnmodifiableSet();
 		request.addAll(ius);

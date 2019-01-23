@@ -15,8 +15,12 @@ package org.eclipse.equinox.p2.tests.ql;
 
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -69,7 +73,7 @@ public class TestIndexes extends AbstractProvisioningTest {
 	private IMetadataRepository getMDR(String uri) throws Exception {
 		URI metadataRepo = getTestData("1.1", uri).toURI();
 
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager metadataManager = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(metadataManager);
 
 		return metadataManager.loadRepository(metadataRepo, new NullProgressMonitor());

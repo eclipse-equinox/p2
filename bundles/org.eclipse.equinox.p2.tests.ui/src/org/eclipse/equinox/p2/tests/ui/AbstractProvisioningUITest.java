@@ -87,14 +87,16 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		install((nested = createIU(NESTEDIU)), false, false);
 		install((locked = createIU(LOCKEDIU)), true, true);
 		uninstalled = createIU(UNINSTALLEDIU);
-		IUpdateDescriptor update = MetadataFactory.createUpdateDescriptor(TOPLEVELIU, new VersionRange("[1.0.0, 1.0.0]"), 0, "update description");
-		upgrade = createIU(TOPLEVELIU, Version.createOSGi(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, false, update, NO_REQUIRES);
+		IUpdateDescriptor update = MetadataFactory.createUpdateDescriptor(TOPLEVELIU,
+				new VersionRange("[1.0.0, 1.0.0]"), 0, "update description");
+		upgrade = createIU(TOPLEVELIU, Version.createOSGi(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null,
+				NO_TP_DATA, false, update, NO_REQUIRES);
 
 		category = createNamedIU(CATEGORYIU, CATEGORYIU, Version.create("1.0.0"), true);
-		createTestMetdataRepository(new IInstallableUnit[] {top1, top2, uninstalled, upgrade});
+		createTestMetdataRepository(new IInstallableUnit[] { top1, top2, uninstalled, upgrade });
 
-		metaManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
-		artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		metaManager = getAgent().getService(IMetadataRepositoryManager.class);
+		artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
 		File site = new File(TestActivator.getTestDataFolder().toString(), TEST_REPO_PATH);
 		testRepoLocation = site.toURI();
 		metaManager.addRepository(testRepoLocation);
@@ -137,15 +139,18 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		}
 		if (lock) {
-			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, Integer.valueOf(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE).toString());
+			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU,
+					Integer.valueOf(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE).toString());
 		}
 		// Use an empty provisioning context to prevent repo access
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		context.setMetadataRepositories(new URI[] {});
-		IProvisioningPlan plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(req, context, getMonitor());
+		IProvisioningPlan plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(req, context,
+				getMonitor());
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
-		return getSession().performProvisioningPlan(plan, PhaseSetFactory.createDefaultPhaseSet(), new ProvisioningContext(getAgent()), getMonitor());
+		return getSession().performProvisioningPlan(plan, PhaseSetFactory.createDefaultPhaseSet(),
+				new ProvisioningContext(getAgent()), getMonitor());
 	}
 
 	protected IInstallableUnit createNamedIU(String id, String name, Version version, boolean isCategory) {

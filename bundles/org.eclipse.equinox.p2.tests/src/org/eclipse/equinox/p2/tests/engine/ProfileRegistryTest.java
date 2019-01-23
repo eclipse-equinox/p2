@@ -52,7 +52,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	protected void getServices() {
-		registry = (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
+		registry = getAgent().getService(IProfileRegistry.class);
 	}
 
 	private void ungetServices() {
@@ -312,11 +312,11 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 				simpleRgy.lockProfile(simpleProfile);
 				simpleRgy.unlockProfile(simpleProfile);
 				// Create a lock file to confirm locking
-		
+
 				File lockDirectory = new File(getResourceAsBundleRelFile("testData/engineTest/SimpleRegistry/"), SIMPLE_PROFILE + ".profile");
 				File lockFile = new File(lockDirectory, ".lock");
 				assertTrue("Lock file does not exist", lockFile.exists());
-		
+
 				ProfileLock profileLock = new ProfileLock(lockDirectory);
 				boolean locked = profileLock.lock();
 				try {

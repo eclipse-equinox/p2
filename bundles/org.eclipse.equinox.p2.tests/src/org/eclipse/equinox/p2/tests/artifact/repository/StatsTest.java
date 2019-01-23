@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2017 WindRiver Corporation and others.
+ * Copyright (c) 2012, 2019 WindRiver Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,9 +13,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
@@ -25,9 +33,19 @@ import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.repository.Transport;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -54,7 +72,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		IArtifactRepositoryManager artifactRepositoryManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactRepositoryManager = getAgent().getService(IArtifactRepositoryManager.class);
 		String tempDir = System.getProperty("java.io.tmpdir");
 		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
 		AbstractProvisioningTest.delete(repositoryFile);
@@ -74,7 +92,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 		((ArtifactDescriptor) descriptors[1]).setProperty("download.stats", "testKeyId2");
 		sourceRepo.addDescriptors(descriptors, null);
 
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
 		properties = new HashMap<>();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		metaRepo = manager.createRepository(repositoryURI, "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
@@ -108,8 +126,8 @@ public class StatsTest extends AbstractTestServerClientCase {
 		super.tearDown();
 		//repository location is not used by all tests
 		if (repositoryURI != null) {
-			((IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME)).removeRepository(repositoryURI);
-			((IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME)).removeRepository(repositoryURI);
+			getAgent().getService(IArtifactRepositoryManager.class).removeRepository(repositoryURI);
+			getAgent().getService(IMetadataRepositoryManager.class).removeRepository(repositoryURI);
 			repositoryURI = null;
 		}
 		if (repositoryFile != null) {
@@ -117,7 +135,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 			repositoryFile = null;
 		}
 		if (targetLocation != null) {
-			((IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME)).removeRepository(targetLocation.toURI());
+			getAgent().getService(IArtifactRepositoryManager.class).removeRepository(targetLocation.toURI());
 			AbstractProvisioningTest.delete(targetLocation);
 			targetLocation = null;
 		}
@@ -129,7 +147,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 
 	public void testCustomizedDownloadStats() throws CoreException, IOException {
 		IArtifactKey key = new ArtifactKey(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER, "testKeyId", Version.parseVersion("1.2.3"));
-		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, (Transport) getAgent().getService(Transport.SERVICE_NAME), "package=test");
+		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, getAgent().getService(Transport.class), "package=test");
 		request.perform(sourceRepo, new NullProgressMonitor());
 		assertTrue("Failed on mirroring artifact.", request.getResult().isOK());
 
@@ -137,7 +155,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 	}
 
 	protected void checkStatsResult(final String checkpoint) throws FileNotFoundException, CoreException, AuthenticationFailedException, IOException {
-		final Transport transport = (Transport) getAgent().getService(Transport.SERVICE_NAME);
+		final Transport transport = getAgent().getService(Transport.class);
 
 		try (BufferedReader statsResult = new BufferedReader(new InputStreamReader(transport.stream(statsURL, null)))) {
 			String line = statsResult.readLine();
@@ -151,7 +169,7 @@ public class StatsTest extends AbstractTestServerClientCase {
 	}
 
 	public void testDownloadStatsWhileInstall() throws AuthenticationFailedException, FileNotFoundException, CoreException, IOException {
-		IProfileRegistry registry = (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = getAgent().getService(IProfileRegistry.class);
 		final String profileName = "downloadStats";
 		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_STATS_PARAMETERS, "os=linux&ws=gtk&package=jee");
@@ -162,12 +180,12 @@ public class StatsTest extends AbstractTestServerClientCase {
 		Profile profile = (Profile) registry.addProfile(profileName, properties);
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(metaRepo.query(QueryUtil.ALL_UNITS, null).toArray(IInstallableUnit.class));
-		IPlanner planner = (IPlanner) getAgent().getService(IPlanner.SERVICE_NAME);
+		IPlanner planner = getAgent().getService(IPlanner.class);
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		context.setArtifactRepositories(new URI[] {repositoryURI});
 		context.setMetadataRepositories(new URI[] {repositoryURI});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, context, null);
-		IEngine engine = (IEngine) getAgent().getService(IEngine.SERVICE_NAME);
+		IEngine engine = getAgent().getService(IEngine.class);
 		assertTrue("Failed on install test iu.", engine.perform(plan, null).isOK());
 		profile = (Profile) registry.getProfile(profileName);
 		assertEquals("Didn't install iu.", 1, profile.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());

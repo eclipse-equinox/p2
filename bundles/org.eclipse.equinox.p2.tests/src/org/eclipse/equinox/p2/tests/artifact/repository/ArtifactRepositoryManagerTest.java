@@ -14,7 +14,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import junit.framework.Test;
@@ -29,7 +31,10 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestRepositoryListener;
 import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.osgi.framework.BundleException;
 import org.osgi.service.prefs.BackingStoreException;
@@ -121,7 +126,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		//bash the repository preference file (don't try this at home, kids)
 		final String REPO_BUNDLE = "org.eclipse.equinox.p2.artifact.repository";
 		IPreferencesService prefService = ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class);
-		IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+		IAgentLocation agentLocation = getAgent().getService(IAgentLocation.class);
 		String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
 		Preferences prefs = prefService.getRootNode().node("/profile/" + locationString + "/_SELF_/" + REPO_BUNDLE + "/repositories"); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
@@ -141,7 +146,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		}
 
 		//everybody's happy again
-		manager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		manager = getAgent().getService(IArtifactRepositoryManager.class);
 		assertTrue("1.0", manager.contains(location));
 	}
 

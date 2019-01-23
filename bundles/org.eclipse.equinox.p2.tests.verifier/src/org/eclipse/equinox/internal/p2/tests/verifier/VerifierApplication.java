@@ -283,7 +283,7 @@ public class VerifierApplication implements IApplication {
 	 * Ensure we have a profile registry and can access the SELF profile.
 	 */
 	private IStatus checkProfileRegistry() {
-		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = agent.getService(IProfileRegistry.class);
 		if (registry == null)
 			return createError("Profile registry service not available."); //$NON-NLS-1$
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
@@ -344,7 +344,7 @@ public class VerifierApplication implements IApplication {
 		if (properties.getProperty("checkMigration.cancelAnswer") == null)
 			return;
 		new Display();
-		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry reg = agent.getService(IProfileRegistry.class);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
 
 		MigrationWizard wizardPage = new MigrationWizard(profile, Collections.emptyList(), new URI[0], false);
@@ -440,7 +440,7 @@ public class VerifierApplication implements IApplication {
 		if (properties.getProperty("checkProfileResetFlag") == null || "false".equals(properties.getProperty("checkProfileResetFlag")))
 			return Status.OK_STATUS;
 		//Make sure that the profile is already loaded
-		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry reg = agent.getService(IProfileRegistry.class);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
 		String profileId = profile.getProfileId();
 
@@ -465,7 +465,7 @@ public class VerifierApplication implements IApplication {
 		if (properties.getProperty("checkMigrationWizard") == null)
 			return Status.OK_STATUS;
 
-		IProfileRegistry reg = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry reg = agent.getService(IProfileRegistry.class);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
 
 		//Fake the opening of the wizard

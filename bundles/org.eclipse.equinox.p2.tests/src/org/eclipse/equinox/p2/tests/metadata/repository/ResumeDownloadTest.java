@@ -30,7 +30,7 @@ public class ResumeDownloadTest extends AbstractProvisioningTest {
 		repoLoc = new URI(UPDATE_SITE);
 		originalResumeProp = System.getProperty("org.eclipse.equinox.p2.metadata.repository.resumable", "true");
 
-		mgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		mgr = getAgent().getService(IMetadataRepositoryManager.class);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}

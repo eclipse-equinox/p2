@@ -17,7 +17,9 @@ import java.io.File;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -45,7 +47,7 @@ public class Bug302582d extends AbstractProvisioningTest {
 
 		IProvisioningAgentProvider provider = getAgentProvider();
 		agent = provider.createAgent(tempFolder.toURI());
-		profileRegistry = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME));
+		profileRegistry = agent.getService(IProfileRegistry.class);
 		assertNotNull(profileRegistry.getProfile(profileLoadedId));
 	}
 
@@ -56,7 +58,7 @@ public class Bug302582d extends AbstractProvisioningTest {
 	}
 
 	public void testInstall() {
-		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager mgr = agent.getService(IMetadataRepositoryManager.class);
 		try {
 			repo = mgr.loadRepository(getTestData("test data bug bug302582d repo", "testData/bug302582d/repo").toURI(), null);
 		} catch (ProvisionException e) {

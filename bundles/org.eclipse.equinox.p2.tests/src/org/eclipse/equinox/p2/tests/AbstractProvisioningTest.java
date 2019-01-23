@@ -336,7 +336,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IDirector createDirector() {
-		return (IDirector) getAgent().getService(IDirector.SERVICE_NAME);
+		return getAgent().getService(IDirector.class);
 	}
 
 	/**
@@ -368,7 +368,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IEngine createEngine() {
-		return (IEngine) getAgent().getService(IEngine.SERVICE_NAME);
+		return getAgent().getService(IEngine.class);
 	}
 
 	/**
@@ -613,7 +613,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IPlanner createPlanner() {
-		return (IPlanner) getAgent().getService(IPlanner.SERVICE_NAME);
+		return getAgent().getService(IPlanner.class);
 	}
 
 	/**
@@ -912,19 +912,19 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected static IAgentLocation getAgentLocation() {
 		//get the location of the currently running system
-		return (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+		return getAgent().getService(IAgentLocation.class);
 	}
 
 	protected static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		return getAgent().getService(IArtifactRepositoryManager.class);
 	}
 
 	protected IProfileRegistry getProfileRegistry() {
-		return (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
+		return getAgent().getService(IProfileRegistry.class);
 	}
 
 	protected Transport getTransport() {
-		return (Transport) getAgent().getService(Transport.SERVICE_NAME);
+		return getAgent().getService(Transport.class);
 	}
 
 	protected IMetadataRepository createMetadataRepository(URI location, Map<String, String> properties) throws ProvisionException {
@@ -959,7 +959,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		return getAgent().getService(IMetadataRepositoryManager.class);
 	}
 
 	public static String getUniqueString() {
@@ -1167,7 +1167,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected IProvisioningEventBus getEventBus() {
-		IProvisioningEventBus bus = (IProvisioningEventBus) getAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = getAgent().getService(IProvisioningEventBus.class);
 		assertNotNull(bus);
 		return bus;
 	}
@@ -1627,11 +1627,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public IEngine getEngine() {
-		return (IEngine) getAgent().getService(IEngine.SERVICE_NAME);
+		return getAgent().getService(IEngine.class);
 	}
 
 	public IPlanner getPlanner(IProvisioningAgent agent) {
-		return (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		return agent.getService(IPlanner.class);
 	}
 
 	public void assertNoContents(File file, String[] lines) {

@@ -48,7 +48,7 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 	public void testInvalidProfile() {
 		try {
 			//reading and storing for a non-existent profile shouldn't cause any errors
-			IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+			IAgentLocation agentLocation = getAgent().getService(IAgentLocation.class);
 			String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
 			Preferences node = prefServ.getRootNode().node("/profile/" + locationString + "/NonExistantProfile/testing");
 			node.sync();
@@ -67,7 +67,7 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 		ProvisioningAgent agent = new ProvisioningAgent();
 		agent.setLocation(location);
 		agent.setBundleContext(TestActivator.getContext());
-		IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+		IAgentLocation agentLocation = agent.getService(IAgentLocation.class);
 		Hashtable<String, String> props = new Hashtable<>();
 		props.put("locationURI", location.toString());
 		ServiceRegistration<IProvisioningAgent> reg = TestActivator.getContext().registerService(IProvisioningAgent.class, agent, props);
@@ -85,7 +85,7 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 		String key = "Test";
 		String value = "Value";
 
-		IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+		IAgentLocation agentLocation = getAgent().getService(IAgentLocation.class);
 		String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
 		try {
 			pref = prefServ.getRootNode().node("/profile/" + locationString + "/_SELF_/testing");

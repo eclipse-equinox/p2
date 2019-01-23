@@ -14,14 +14,22 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import java.net.URI;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -64,8 +72,8 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	private IMetadataRepository getRollbackRepository() throws ProvisionException {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
-		URI location = ((IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME)).getDataArea(DirectorActivator.PI_DIRECTOR);
+		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
+		URI location = getAgent().getService(IAgentLocation.class).getDataArea(DirectorActivator.PI_DIRECTOR);
 		return repoMan.loadRepository(URIUtil.append(location, "rollback"), null);
 	}
 

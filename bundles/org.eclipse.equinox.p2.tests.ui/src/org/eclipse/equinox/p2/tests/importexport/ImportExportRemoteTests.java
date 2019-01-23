@@ -43,7 +43,8 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<>(TestActivator.getContext(), P2ImportExport.class, null);
+		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<>(TestActivator.getContext(),
+				P2ImportExport.class, null);
 		tracker.open();
 		importexportService = tracker.getService();
 		assertNotNull("Fail to get ImportExport service", importexportService);
@@ -54,31 +55,34 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 	public void tearDown() throws Exception {
 		super.tearDown();
 		importexportService = null;
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		URI[] urls = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < urls.length; i++) {
 			repoMan.removeRepository(urls[i]);
 		}
 	}
 
-	public void testExportFeaturesFromRemoteRepository() throws URISyntaxException, IOException, ProvisionException, OperationCanceledException {
+	public void testExportFeaturesFromRemoteRepository()
+			throws URISyntaxException, IOException, ProvisionException, OperationCanceledException {
 		File testFile = File.createTempFile("test", "p2f");
 		URI uri = getTestRepository();
 		try {
-			IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+			IMetadataRepositoryManager metaManager = getAgent().getService(IMetadataRepositoryManager.class);
 			IMetadataRepository repo = metaManager.loadRepository(uri, null);
 			assertNotNull("Fail to load remote repo", repo);
 			IInstallableUnit iu = AbstractProvisioningTest.createIU("A", Version.create("1.0.0"));
 			try (OutputStream output = new FileOutputStream(testFile)) {
-				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
+				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] { iu }, false, null);
 				assertTrue("Not expected return result.", status.isOK());
 			}
 			try (InputStream input = new FileInputStream(testFile)) {
 				List<IUDetail> ius = importexportService.importP2F(input);
 				assertEquals("Exported the number of features is not expected.", 1, ius.size());
 				assertTrue("Exported feature is not expected.", iu.equals(ius.get(0).getIU()));
-				assertEquals("Exported the number of referred repositories is not expected.", 1, ius.get(0).getReferencedRepositories().size());
-				assertEquals("Exported referred repository is not expected.", uri, ius.get(0).getReferencedRepositories().get(0));
+				assertEquals("Exported the number of referred repositories is not expected.", 1,
+						ius.get(0).getReferencedRepositories().size());
+				assertEquals("Exported referred repository is not expected.", uri,
+						ius.get(0).getReferencedRepositories().get(0));
 			}
 		} finally {
 			testFile.delete();
@@ -95,7 +99,8 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 			String osPath = new Path(FileLocator.toFileURL(base).getPath()).toOSString();
 			File result = new File(osPath);
 			if (!result.getCanonicalPath().equals(result.getPath()))
-				fail(message + " result path: " + result.getPath() + " does not match canonical path: " + result.getCanonicalFile().getPath());
+				fail(message + " result path: " + result.getPath() + " does not match canonical path: "
+						+ result.getCanonicalFile().getPath());
 			return result;
 		} catch (IOException e) {
 			fail(message);
@@ -104,11 +109,12 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 		return null;
 	}
 
-	public void testExportFeaturesFromBothRemoteRepositoryAndLocalRepository() throws URISyntaxException, IOException, ProvisionException, OperationCanceledException {
+	public void testExportFeaturesFromBothRemoteRepositoryAndLocalRepository()
+			throws URISyntaxException, IOException, ProvisionException, OperationCanceledException {
 		File testFile = File.createTempFile("test", "p2f");
 		URI uri = getTestRepository();
 		try {
-			IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+			IMetadataRepositoryManager metaManager = getAgent().getService(IMetadataRepositoryManager.class);
 			File localRepoFile = getTestData("Error load data", "testData/importexport/repo1");
 			IMetadataRepository localRepo = metaManager.loadRepository(localRepoFile.toURI(), null);
 			assertNotNull("Fail to load local repo", localRepo);
@@ -116,15 +122,17 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 			assertNotNull("Fail to load remote repo", repo);
 			IInstallableUnit iu = AbstractProvisioningTest.createIU("A", Version.create("1.0.0"));
 			try (OutputStream output = new FileOutputStream(testFile)) {
-				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] {iu}, false, null);
+				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] { iu }, false, null);
 				assertTrue("Not expected return result.", status.isOK());
 			}
 			try (InputStream input = new FileInputStream(testFile)) {
 				List<IUDetail> ius = importexportService.importP2F(input);
 				assertEquals("Exported the number of features is not expected.", 1, ius.size());
 				assertTrue("Exported feature is not expected.", iu.equals(ius.get(0).getIU()));
-				assertEquals("Exported the number of referred repositories is not expected.", 1, ius.get(0).getReferencedRepositories().size());
-				assertEquals("Exported referred repository is not expected.", uri, ius.get(0).getReferencedRepositories().get(0));
+				assertEquals("Exported the number of referred repositories is not expected.", 1,
+						ius.get(0).getReferencedRepositories().size());
+				assertEquals("Exported referred repository is not expected.", uri,
+						ius.get(0).getReferencedRepositories().get(0));
 			}
 		} finally {
 			testFile.delete();

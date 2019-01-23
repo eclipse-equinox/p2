@@ -17,7 +17,9 @@ import java.net.URI;
 import java.util.EventObject;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
 import org.eclipse.equinox.internal.p2.engine.CommitOperationEvent;
 import org.eclipse.equinox.internal.p2.engine.RollbackOperationEvent;
@@ -26,7 +28,11 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -42,7 +48,7 @@ public class ProvisioningEventTest2 extends AbstractTestServerClientCase {
 	public void testDownloadEventFromMultipleAgents() throws ProvisionException, OperationCanceledException, InterruptedException {
 		ProvisioningAgent newAgent = new ProvisioningAgent();
 		newAgent.setBundleContext(TestActivator.getContext());
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) newAgent.getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus eventBus = newAgent.getService(IProvisioningEventBus.class);
 		class DownloadProvisiongEventListener implements ProvisioningListener {
 			boolean notifiedDownloadProgressEvent = false;
 			CountDownLatch latch = new CountDownLatch(1);
@@ -59,12 +65,12 @@ public class ProvisioningEventTest2 extends AbstractTestServerClientCase {
 		DownloadProvisiongEventListener provListener1 = new DownloadProvisiongEventListener();
 		eventBus.addListener(provListener);
 
-		IProvisioningEventBus eventBus2 = (IProvisioningEventBus) getAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus eventBus2 = getAgent().getService(IProvisioningEventBus.class);
 		try {
 			URI repoLoc = URI.create(getBaseURL() + "/public/emptyJarRepo");
 			//remove any existing profile with the same name
 			final String name = "testProfile";
-			IProfileRegistry profileRegistry = (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
+			IProfileRegistry profileRegistry = getAgent().getService(IProfileRegistry.class);
 			profileRegistry.removeProfile(name);
 			IProfile profile = profileRegistry.addProfile(name, null);
 			// clean possible cached artifacts
@@ -73,9 +79,9 @@ public class ProvisioningEventTest2 extends AbstractTestServerClientCase {
 			ProvisioningContext context = new ProvisioningContext(getAgent());
 			context.setArtifactRepositories(new URI[] {repoLoc});
 			context.setMetadataRepositories(new URI[] {repoLoc});
-			IEngine engine = (IEngine) getAgent().getService(IEngine.SERVICE_NAME);
+			IEngine engine = getAgent().getService(IEngine.class);
 			IProvisioningPlan plan = engine.createPlan(profile, context);
-			IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+			IMetadataRepositoryManager metaManager = getAgent().getService(IMetadataRepositoryManager.class);
 			IQueryResult<IInstallableUnit> allIUs = metaManager.loadRepository(repoLoc, null).query(QueryUtil.ALL_UNITS, null);
 			for (IInstallableUnit iu : allIUs.toSet()) {
 				plan.addInstallableUnit(iu);

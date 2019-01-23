@@ -49,7 +49,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 			throw new RuntimeException("Director could not be loaded");
 		}
 
-		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager mgr = getAgent().getService(IMetadataRepositoryManager.class);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}

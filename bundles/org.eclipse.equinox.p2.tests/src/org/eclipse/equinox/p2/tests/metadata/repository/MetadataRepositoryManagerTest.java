@@ -70,7 +70,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		manager = getAgent().getService(IMetadataRepositoryManager.class);
 		//only enable the failing repository factory for this test to avoid noise in other tests.
 		FailingMetadataRepositoryFactory.FAIL = true;
 	}

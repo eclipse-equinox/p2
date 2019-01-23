@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Cloudsmith Inc - tests for new DirectorApplication
@@ -21,13 +21,19 @@ import java.io.File;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.security.*;
-import java.security.cert.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PublicKey;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
-import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -602,7 +608,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		delete(destinationRepo);
 	}
 
-	/** 
+	/**
 	 * Test that the application only considers repositories that are pass in and not those that are previously known
 	 * by the managers
 	 */
@@ -610,8 +616,8 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		File artifactRepo1 = getTestData("12.0", "/testData/mirror/mirrorSourceRepo3");
 		File metadataRepo1 = getTestData("12.1", "/testData/mirror/mirrorSourceRepo3");
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
+		IMetadataRepositoryManager metadataManager = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(artifactManager);
 		assertNotNull(metadataManager);
 
@@ -651,8 +657,8 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		File artifactRepo1 = getTestData("13.0", "/testData/mirror/mirrorSourceRepo4");
 		File metadataRepo1 = getTestData("13.1", "/testData/mirror/mirrorSourceRepo4");
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
+		IMetadataRepositoryManager metadataManager = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(artifactManager);
 		assertNotNull(metadataManager);
 
@@ -752,8 +758,8 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	public void testUninstallIgnoresPassedInRepos() throws Exception {
 		File srcRepo = getTestData("14.0", "/testData/mirror/mirrorSourceRepo4");
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
+		IMetadataRepositoryManager metadataManager = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(artifactManager);
 		assertNotNull(metadataManager);
 
@@ -819,7 +825,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	public void testAvoidTrustPromptServiceTrustsManyCertificates() {
 		final Certificate certificate1 = new DummyCertificate(""); //$NON-NLS-1$
 		final Certificate certificate2 = new DummyCertificate(""); //$NON-NLS-1$
-		final TrustInfo trustInfo = getTrustInfoFor(new Certificate[][] { {certificate1}, {certificate2}});
+		final TrustInfo trustInfo = getTrustInfoFor(new Certificate[][] {{certificate1}, {certificate2}});
 		assertNotNull(trustInfo);
 		final Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
 		assertEquals(2, trustedCertificates.length);

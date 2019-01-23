@@ -88,7 +88,7 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 	}
 
 	public void testCountRepoInSharedInstallThroughRepoManagerAPI() {
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoMgr = getAgent().getService(IMetadataRepositoryManager.class);
 		URI[] repos = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		assertEquals(3, repos.length);
 	}

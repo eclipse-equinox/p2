@@ -16,7 +16,9 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -44,7 +46,7 @@ public class MetadataRepositoryManagerExceptionsTest extends AbstractProvisionin
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		manager = getAgent().getService(IMetadataRepositoryManager.class);
 	}
 
 	@Override

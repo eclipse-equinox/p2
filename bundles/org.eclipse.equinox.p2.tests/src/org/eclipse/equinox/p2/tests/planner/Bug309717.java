@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *     IBM Corporation - ongoing development
@@ -32,21 +32,21 @@ public class Bug309717 extends AbstractProvisioningTest {
 	public void testUpdate() throws ProvisionException, OperationCanceledException, URISyntaxException {
 		IProvisioningAgent agent = getAgentProvider().createAgent(getTestData("test data bug309717", "testData/bug309717/p2").toURI());
 
-		IMetadataRepository repo1 = ((IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME)).loadRepository(new URI("http://download.eclipse.org/releases/helios"), null);
+		IMetadataRepository repo1 = agent.getService(IMetadataRepositoryManager.class).loadRepository(new URI("http://download.eclipse.org/releases/helios"), null);
 		// assertFalse(repo1.query(QueryUtil.createIUQuery("org.eclipse.rap.jface.databinding"), new NullProgressMonitor()).isEmpty());
 		assertNotNull(repo1);
 
 		URI jazz = getTestData("repo for bug309717", "testData/bug309717/repo/jazz").toURI();
-		IMetadataRepository repo2 = ((IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME)).loadRepository(jazz, null);
+		IMetadataRepository repo2 = agent.getService(IMetadataRepositoryManager.class).loadRepository(jazz, null);
 		assertNotNull(repo2);
 		URI jdojo = getTestData("repo for bug309717", "testData/bug309717/repo/jdojo").toURI();
-		IMetadataRepository repo3 = ((IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME)).loadRepository(jdojo, null);
+		IMetadataRepository repo3 = agent.getService(IMetadataRepositoryManager.class).loadRepository(jdojo, null);
 		assertNotNull(repo3);
-		IMetadataRepository repo4 = ((IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME)).loadRepository(new URI("http://download.eclipse.org/eclipse/updates/3.6"), null);
+		IMetadataRepository repo4 = agent.getService(IMetadataRepositoryManager.class).loadRepository(new URI("http://download.eclipse.org/eclipse/updates/3.6"), null);
 		// assertFalse(repo1.query(QueryUtil.createIUQuery("org.eclipse.rap.jface.databinding"), new NullProgressMonitor()).isEmpty());
 		assertNotNull(repo4);
 		IPlanner planner = getPlanner(agent);
-		IProfile profile = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).getProfile("PlatformProfile");
+		IProfile profile = agent.getService(IProfileRegistry.class).getProfile("PlatformProfile");
 		IProfileChangeRequest request = planner.createChangeRequest(profile);
 		assertNotNull(request);
 		//		Set<IInstallableUnit> ius = repo2.query(QueryUtil.createIUQuery("org.eclipse.riena.toolbox.feature.feature.group", Version.create("2.0.0.201003181312")), new NullProgressMonitor()).toUnmodifiableSet();

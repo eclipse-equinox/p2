@@ -49,7 +49,7 @@ public class UtilTest extends AbstractProvisioningTest {
 
 	public void testDefaultBundlePool() {
 		IProfile profile = createProfile("test");
-		IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+		IAgentLocation agentLocation = getAgent().getService(IAgentLocation.class);
 		assertEquals(agentLocation.getDataArea("org.eclipse.equinox.p2.touchpoint.eclipse"), Util.getBundlePoolLocation(getAgent(), profile));
 	}
 

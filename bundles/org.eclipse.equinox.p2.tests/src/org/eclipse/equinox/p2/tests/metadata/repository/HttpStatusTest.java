@@ -31,7 +31,7 @@ public class HttpStatusTest extends ServerBasedTestCase {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		mgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		mgr = getAgent().getService(IMetadataRepositoryManager.class);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}

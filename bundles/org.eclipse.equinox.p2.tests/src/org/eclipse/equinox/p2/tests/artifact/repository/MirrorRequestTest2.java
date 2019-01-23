@@ -19,7 +19,9 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -29,9 +31,13 @@ import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCase;
@@ -52,13 +58,13 @@ public class MirrorRequestTest2 extends AbstractTestServerClientCase {
 
 		URI location = URI.create(getBaseURL() + "/mirrorrequest");
 
-		IArtifactRepositoryManager mgr = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager mgr = getAgent().getService(IArtifactRepositoryManager.class);
 		sourceRepository = (SimpleArtifactRepository) mgr.loadRepository(location, null);
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		IArtifactRepositoryManager mgr = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager mgr = getAgent().getService(IArtifactRepositoryManager.class);
 		mgr.removeRepository(targetLocation.toURI());
 		AbstractProvisioningTest.delete(targetLocation);
 		super.tearDown();
@@ -67,11 +73,11 @@ public class MirrorRequestTest2 extends AbstractTestServerClientCase {
 	public void testRetryMirrorAfterTimeout() throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 		// call test
 		IArtifactKey key = new ArtifactKey("test.txt", "HelloWorldText", Version.parseVersion("1.0.0"));
-		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, (Transport) getAgent().getService(Transport.SERVICE_NAME));
+		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, getAgent().getService(Transport.class));
 		MirrorRepo mirrorRepo = new MirrorRepo(sourceRepository);
 		Field field = sourceRepository.getClass().getDeclaredField("mirrors");
 		field.setAccessible(true);
-		field.set(sourceRepository, new MirrorSelector(mirrorRepo, (Transport) getAgent().getService(Transport.SERVICE_NAME)) {
+		field.set(sourceRepository, new MirrorSelector(mirrorRepo, getAgent().getService(Transport.class)) {
 			private int count = 0;
 
 			@Override
@@ -99,7 +105,7 @@ public class MirrorRequestTest2 extends AbstractTestServerClientCase {
 			System.setProperty(RepositoryTransport.TIMEOUT_RETRY, "4");
 			// call test
 			IArtifactKey key = new ArtifactKey("test.txt", "HelloWorldText", Version.parseVersion("1.0.0"));
-			MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, (Transport) getAgent().getService(Transport.SERVICE_NAME));
+			MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, getAgent().getService(Transport.class));
 			request.perform(sourceRepository, new NullProgressMonitor());
 
 			// The download succeeded

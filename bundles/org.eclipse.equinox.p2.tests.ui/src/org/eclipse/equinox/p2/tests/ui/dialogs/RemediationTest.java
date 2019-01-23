@@ -39,8 +39,9 @@ import org.osgi.framework.Constants;
  */
 public class RemediationTest extends WizardTest {
 
-	//	private static final String AVAILABLE_SOFTWARE_PAGE = "AvailableSoftwarePage";
-	//	private static final String MAIN_IU = "MainIU";
+	// private static final String AVAILABLE_SOFTWARE_PAGE =
+	// "AvailableSoftwarePage";
+	// private static final String MAIN_IU = "MainIU";
 	public static final int INSTALLATION_SUCCEEDED = 1;
 	public static final int INSTALLATION_REMEDIATED = 2;
 	public static final int INSTALLATION_FAILED = 3;
@@ -63,7 +64,7 @@ public class RemediationTest extends WizardTest {
 	IInstallableUnit toInstall;
 
 	public void visibleSetup(int type) throws Exception {
-		//Clearout repositories
+		// Clearout repositories
 		name = "PROFILE_" + type;
 		URI[] repos = getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (URI uri : repos) {
@@ -86,41 +87,43 @@ public class RemediationTest extends WizardTest {
 		regLicenseManager = TestActivator.getContext().registerService(LicenseManager.class, manager, properties);
 		profileElement = new ProfileElement(null, name);
 		IULoader.loadIUs(this);
-		ILicense[] licenses = new ILicense[] {MetadataFactory.createLicense(URI.create("http://eclipse.org"), "license text"), MetadataFactory.createLicense(URI.create("http://apache.org"), "license text2")};
+		ILicense[] licenses = new ILicense[] {
+				MetadataFactory.createLicense(URI.create("http://eclipse.org"), "license text"),
+				MetadataFactory.createLicense(URI.create("http://apache.org"), "license text2") };
 		((InstallableUnit) jboss60).setLicenses(licenses);
 		switch (type) {
-			case INSTALLATION_SUCCEEDED :
-				createTestMetdataRepository(new IInstallableUnit[] {jboss60, m2e11, m2e12});
-				install(m2e12, true, false);
-				toInstall = jboss60;
-				break;
-			case INSTALLATION_REMEDIATED :
-				createTestMetdataRepository(new IInstallableUnit[] {jboss60, m2e11, m2e12});
-				install(m2e11, true, false);
-				toInstall = jboss60;
-				break;
-			case INSTALLATION_FAILED :
-				createTestMetdataRepository(new IInstallableUnit[] {jboss60, m2e11});
-				install(m2e11, true, false);
-				toInstall = jboss60;
-				break;
-			case CHECK_FOR_UPDATES :
-				createTestMetdataRepository(new IInstallableUnit[] {jboss60, m2e11, m2e12});
-				install(m2e11, true, false);
-				break;
-			case UPDATE_ONE_IU :
-				createTestMetdataRepository(new IInstallableUnit[] {jboss55, jboss60, m2e11, m2e12});
-				install(jboss55, true, false);
-				install(m2e11, true, false);
-				break;
-			default :
-				createTestMetdataRepository(new IInstallableUnit[] {jboss60, m2e11});
-				install(m2e11, true, false);
+		case INSTALLATION_SUCCEEDED:
+			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11, m2e12 });
+			install(m2e12, true, false);
+			toInstall = jboss60;
+			break;
+		case INSTALLATION_REMEDIATED:
+			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11, m2e12 });
+			install(m2e11, true, false);
+			toInstall = jboss60;
+			break;
+		case INSTALLATION_FAILED:
+			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11 });
+			install(m2e11, true, false);
+			toInstall = jboss60;
+			break;
+		case CHECK_FOR_UPDATES:
+			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11, m2e12 });
+			install(m2e11, true, false);
+			break;
+		case UPDATE_ONE_IU:
+			createTestMetdataRepository(new IInstallableUnit[] { jboss55, jboss60, m2e11, m2e12 });
+			install(jboss55, true, false);
+			install(m2e11, true, false);
+			break;
+		default:
+			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11 });
+			install(m2e11, true, false);
 
 		}
 
-		metaManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
-		artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		metaManager = getAgent().getService(IMetadataRepositoryManager.class);
+		artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
 		File site = new File(TestActivator.getTestDataFolder().toString(), TEST_REPO_PATH);
 		testRepoLocation = site.toURI();
 		metaManager.addRepository(testRepoLocation);
