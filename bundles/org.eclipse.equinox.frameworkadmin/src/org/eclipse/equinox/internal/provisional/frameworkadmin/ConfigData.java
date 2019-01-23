@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2019 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,15 +14,15 @@
 
 package org.eclipse.equinox.internal.provisional.frameworkadmin;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Properties;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 
 /**
- * This object is instantiated by {@link Manipulator#getConfigData()};
- * The class that keeps some parameters of the {@link Manipulator}
- * created this object. The manipulating of the parameters will affect
- * the  {@link Manipulator}.
- *   
+ * This object is instantiated by {@link Manipulator#getConfigData()}; The class
+ * that keeps some parameters of the {@link Manipulator} created this object.
+ * The manipulating of the parameters will affect the {@link Manipulator}.
+ * 
  * @see Manipulator
  */
 public class ConfigData {
@@ -112,8 +112,8 @@ public class ConfigData {
 	public void setBundles(BundleInfo[] bundleInfos) {
 		bundlesList.clear();
 		if (bundleInfos != null)
-			for (int i = 0; i < bundleInfos.length; i++)
-				bundlesList.add(bundleInfos[i]);
+			for (BundleInfo bundleInfo : bundleInfos)
+				bundlesList.add(bundleInfo);
 	}
 
 	public void setProperty(String key, String value) {
@@ -138,7 +138,7 @@ public class ConfigData {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("Class:" + getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append("============Independent===============\n"); //$NON-NLS-1$
 		sb.append("fwName=" + fwName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -152,8 +152,8 @@ public class ConfigData {
 		else {
 			sb.append("bundlesList=\n"); //$NON-NLS-1$
 			int i = 0;
-			for (Iterator<BundleInfo> iter = bundlesList.iterator(); iter.hasNext();) {
-				sb.append("\tbundlesList[" + i + "]=" + iter.next().toString() + "\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			for (BundleInfo bundleInfo : bundlesList) {
+				sb.append("\tbundlesList[" + i + "]=" + bundleInfo.toString() + "\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 				i++;
 			}
 		}
@@ -164,11 +164,10 @@ public class ConfigData {
 		return sb.toString();
 	}
 
-	private static void setPropsStrings(StringBuffer sb, Properties props) {
+	private static void setPropsStrings(StringBuilder sb, Properties props) {
 		if (props.size() > 0) {
 			sb.append("\n"); //$NON-NLS-1$
-			for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
-				String key = (String) enumeration.nextElement();
+			for (String key : props.stringPropertyNames()) {
 				String value = props.getProperty(key);
 				if (value == null || value.equals("")) //$NON-NLS-1$
 					continue;

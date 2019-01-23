@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2019 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -17,11 +17,11 @@ import java.io.File;
 import java.util.*;
 
 /**
- * This object is instantiated by {@link Manipulator#getLauncherData()};
- * The class that keeps some parameters of the {@link Manipulator}
- *  created this object. The manipulating of the parameters will affect
- *  the  {@link Manipulator}.
- *  
+ * This object is instantiated by {@link Manipulator#getLauncherData()}; The
+ * class that keeps some parameters of the {@link Manipulator} created this
+ * object. The manipulating of the parameters will affect the
+ * {@link Manipulator}.
+ * 
  * 
  * @see Manipulator
  */
@@ -141,10 +141,10 @@ public class LauncherData {
 	}
 
 	public void removeProgramArg(String arg) {
-		// We want to handle program args as key/value pairs subsequently 
-		// a key MUST start with a "-", all other args are ignored. For 
-		// backwards compatibility we remove all program args until the 
-		// next program arg key 
+		// We want to handle program args as key/value pairs subsequently
+		// a key MUST start with a "-", all other args are ignored. For
+		// backwards compatibility we remove all program args until the
+		// next program arg key
 		// (see bug 253862)
 		if (!arg.startsWith("-")) //$NON-NLS-1$
 			return;
@@ -190,8 +190,8 @@ public class LauncherData {
 			jvmArgs.clear();
 			return;
 		}
-		for (int i = 0; i < args.length; i++)
-			this.addJvmArg(args[i]);
+		for (String arg : args)
+			this.addJvmArg(arg);
 	}
 
 	public void setLauncher(File launcherFile) {
@@ -215,8 +215,8 @@ public class LauncherData {
 			programArgs.clear();
 			return;
 		}
-		for (int i = 0; i < args.length; i++)
-			this.addProgramArg(args[i]);
+		for (String arg : args)
+			this.addProgramArg(arg);
 	}
 
 	@Override
