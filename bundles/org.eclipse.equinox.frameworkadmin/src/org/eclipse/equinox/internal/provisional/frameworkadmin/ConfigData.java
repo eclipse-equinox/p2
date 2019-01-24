@@ -14,8 +14,7 @@
 
 package org.eclipse.equinox.internal.provisional.frameworkadmin;
 
-import java.util.LinkedHashSet;
-import java.util.Properties;
+import java.util.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 
 /**
@@ -167,7 +166,8 @@ public class ConfigData {
 	private static void setPropsStrings(StringBuilder sb, Properties props) {
 		if (props.size() > 0) {
 			sb.append("\n"); //$NON-NLS-1$
-			for (String key : props.stringPropertyNames()) {
+			for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
+				String key = (String) enumeration.nextElement();
 				String value = props.getProperty(key);
 				if (value == null || value.equals("")) //$NON-NLS-1$
 					continue;

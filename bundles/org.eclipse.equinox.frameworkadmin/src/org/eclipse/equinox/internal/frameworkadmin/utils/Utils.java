@@ -49,7 +49,8 @@ public class Utils {
 			// printoutProperties(System.out, "to", to);
 			// printoutProperties(System.out, "from", from);
 
-			for (String key : from.stringPropertyNames()) {
+			for (Enumeration<Object> enumeration = from.keys(); enumeration.hasMoreElements();) {
+				String key = (String) enumeration.nextElement();
 				to.setProperty(key, from.getProperty(key));
 			}
 		}
@@ -336,7 +337,8 @@ public class Utils {
 			return;
 		}
 		ps.println("Props(" + name + ")="); //$NON-NLS-1$ //$NON-NLS-2$
-		for (String key : props.stringPropertyNames()) {
+		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
+			String key = (String) enumeration.nextElement();
 			ps.print("\tkey=" + key); //$NON-NLS-1$
 			ps.println("\tvalue=" + props.getProperty(key)); //$NON-NLS-1$
 		}
@@ -407,7 +409,8 @@ public class Utils {
 		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("Props(" + name + ") is \n"); //$NON-NLS-1$ //$NON-NLS-2$
-		for (String key : props.stringPropertyNames()) {
+		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
+			String key = (String) enumeration.nextElement();
 			sb.append("\tkey=" + key + "\tvalue=" + props.getProperty(key) + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return sb.toString();
