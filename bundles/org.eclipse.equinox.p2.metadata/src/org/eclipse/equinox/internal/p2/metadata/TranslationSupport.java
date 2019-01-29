@@ -54,6 +54,9 @@ import org.eclipse.osgi.service.localization.LocaleProvider;
 public class TranslationSupport {
 	// TODO: these constants should come from API, eg. IInstallableUnit or ???
 	static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
+
+	public static final String PI_METADATA = "org.eclipse.equinox.p2.metadata"; //$NON-NLS-1$
+
 	private static TranslationSupport instance;
 
 	static final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
@@ -251,7 +254,7 @@ public class TranslationSupport {
 		if (fragmentSource == null) {
 			if (!loggedMissingSource) {
 				loggedMissingSource = true;
-				LogHelper.log(new Status(IStatus.INFO, MetadataActivator.PI_METADATA, "No translation source unavailable. Default language will be used.")); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.INFO, PI_METADATA, "No translation source unavailable. Default language will be used.")); //$NON-NLS-1$
 			}
 			return Collector.emptyCollector();
 		}

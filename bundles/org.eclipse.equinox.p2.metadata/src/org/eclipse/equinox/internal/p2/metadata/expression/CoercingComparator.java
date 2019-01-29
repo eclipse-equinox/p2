@@ -18,8 +18,8 @@ import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Comparator;
-import org.eclipse.equinox.internal.p2.metadata.MetadataActivator;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * A comparator that performs coercion if needed before comparison.
@@ -69,7 +69,7 @@ public abstract class CoercingComparator<T> {
 				return (Class<?>) v;
 			if (v instanceof String) {
 				try {
-					return MetadataActivator.getContext().getBundle().loadClass(((String) v).trim());
+					return FrameworkUtil.getBundle(CoercingComparator.class).loadClass(((String) v).trim());
 				} catch (Exception e) {
 					//
 				}
