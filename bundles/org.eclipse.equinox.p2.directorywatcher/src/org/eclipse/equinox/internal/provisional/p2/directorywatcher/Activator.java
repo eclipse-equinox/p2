@@ -46,11 +46,11 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(context, IProvisioningAgent.class).getService(IArtifactRepositoryManager.SERVICE_NAME);
+		return ServiceHelper.getService(context, IProvisioningAgent.class).getService(IArtifactRepositoryManager.class);
 	}
 
 	public static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(context, IProvisioningAgent.class).getService(IMetadataRepositoryManager.SERVICE_NAME);
+		return ServiceHelper.getService(context, IProvisioningAgent.class).getService(IMetadataRepositoryManager.class);
 	}
 
 	public static URI getDefaultRepositoryLocation(Object object, String repositoryName) {
