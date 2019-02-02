@@ -19,9 +19,9 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.update.Site;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.*;
 
 public class RepositoryListener extends DirectoryChangeListener {
 	public static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
@@ -58,7 +59,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @param properties the map of repository properties or <code>null</code>
 	 */
 	public RepositoryListener(String repositoryName, Map<String, String> properties) {
-		URI location = Activator.getDefaultRepositoryLocation(this, repositoryName);
+		URI location = getDefaultRepositoryLocation(this, repositoryName);
 		metadataRepository = initializeMetadataRepository(repositoryName, location, properties);
 		artifactRepository = initializeArtifactRepository(repositoryName, location, properties);
 		initializePublisher();
@@ -79,7 +80,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	protected CachingArtifactRepository initializeArtifactRepository(String name, URI repositoryLocation, Map<String, String> properties) {
-		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
 
@@ -99,7 +100,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	protected IMetadataRepository initializeMetadataRepository(String name, URI repositoryLocation, Map<String, String> properties) {
-		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
 
@@ -244,7 +245,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				if (filename == null) {
 					if (Tracing.DEBUG) {
 						String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+						LogHelper.log(new Status(IStatus.ERROR, Constants.BUNDLE_ID, message, null));
 					}
 				} else {
 					File artifactFile = new File(filename);
@@ -270,7 +271,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				if (filename == null) {
 					if (Tracing.DEBUG) {
 						String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+						LogHelper.log(new Status(IStatus.ERROR, Constants.BUNDLE_ID, message, null));
 					}
 				} else {
 					File iuFile = new File(filename);
@@ -304,4 +305,24 @@ public class RepositoryListener extends DirectoryChangeListener {
 	public IArtifactRepository getArtifactRepository() {
 		return artifactRepository;
 	}
+
+	private static IMetadataRepositoryManager getMetadataRepositoryManager() {
+		BundleContext bundleContext = FrameworkUtil.getBundle(RepositoryListener.class).getBundleContext();
+		return ServiceHelper.getService(bundleContext, IProvisioningAgent.class).getService(IMetadataRepositoryManager.class);
+	}
+
+	private static IArtifactRepositoryManager getArtifactRepositoryManager() {
+		BundleContext bundleContext = FrameworkUtil.getBundle(RepositoryListener.class).getBundleContext();
+		return ServiceHelper.getService(bundleContext, IProvisioningAgent.class).getService(IArtifactRepositoryManager.class);
+	}
+
+	private static URI getDefaultRepositoryLocation(Object object, String repositoryName) {
+		Bundle bundle = FrameworkUtil.getBundle(object.getClass());
+		BundleContext context = bundle.getBundleContext();
+		File base = context.getDataFile(""); //$NON-NLS-1$
+		File result = new File(base, "listener_" + repositoryName.hashCode()); //$NON-NLS-1$
+		result.mkdirs();
+		return result.toURI();
+	}
+
 }

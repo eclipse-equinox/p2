@@ -412,9 +412,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 		try {
 			runnable.run(monitor);
 		} catch (OperationCanceledException oce) {
-			return new Status(IStatus.CANCEL, Activator.ID, oce.getMessage(), oce);
+			return new Status(IStatus.CANCEL, Constants.BUNDLE_ID, oce.getMessage(), oce);
 		} catch (Exception e) {
-			return new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+			return new Status(IStatus.ERROR, Constants.BUNDLE_ID, e.getMessage(), e);
 		}
 		return Status.OK_STATUS;
 	}
