@@ -21,7 +21,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.operations.Activator;
+import org.eclipse.equinox.internal.p2.operations.Constants;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -33,6 +33,8 @@ import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * ProvisioningSession provides the context for a provisioning session, including
@@ -167,12 +169,13 @@ public class ProvisioningSession {
 			}
 			ticksUsed += 100;
 			// Apply the configuration
-			Configurator configChanger = ServiceHelper.getService(Activator.getContext(), Configurator.class);
+			BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+			Configurator configChanger = ServiceHelper.getService(bundleContext, Configurator.class);
 			try {
 				configChanger.applyConfiguration();
 			} catch (IOException e) {
 				mon.done();
-				return new Status(IStatus.ERROR, Activator.ID, Messages.ProvisioningSession_InstallPlanConfigurationError, e);
+				return new Status(IStatus.ERROR, Constants.BUNDLE_ID, Messages.ProvisioningSession_InstallPlanConfigurationError, e);
 			}
 		}
 		return getEngine().perform(plan, set, mon.newChild(500 - ticksUsed));

@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.operations.Activator;
+import org.eclipse.equinox.internal.p2.operations.Constants;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
@@ -132,7 +132,7 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 			IQuery<IInstallableUnit> installableUnits = QueryUtil.createIUQuery(versionedId.getId(), versionedId.getVersion());
 			IQueryResult<IInstallableUnit> matches = searchContext.query(installableUnits, monitor);
 			if (matches.isEmpty())
-				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.OperationFactory_noIUFound, versionedId)));
+				throw new ProvisionException(new Status(IStatus.ERROR, Constants.BUNDLE_ID, NLS.bind(Messages.OperationFactory_noIUFound, versionedId)));
 
 			//Add the first IU
 			Iterator<IInstallableUnit> iuIt = matches.iterator();

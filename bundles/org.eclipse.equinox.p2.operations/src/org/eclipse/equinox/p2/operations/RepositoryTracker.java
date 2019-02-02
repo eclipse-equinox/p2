@@ -60,7 +60,7 @@ public abstract class RepositoryTracker {
 	 * @return a status that describes an invalid location
 	 */
 	public IStatus getInvalidLocationStatus(String locationText) {
-		return new Status(IStatus.ERROR, Activator.ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, NLS.bind(Messages.RepositoryTracker_InvalidLocation, locationText), null);
+		return new Status(IStatus.ERROR, Constants.BUNDLE_ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, NLS.bind(Messages.RepositoryTracker_InvalidLocation, locationText), null);
 	}
 
 	/**

@@ -42,7 +42,7 @@ public class ResolutionResult {
 
 	public void addSummaryStatus(IStatus status) {
 		if (summaryStatus == null) {
-			summaryStatus = new MultiStatus(Activator.ID, 0, Messages.ResolutionResult_SummaryStatus, null);
+			summaryStatus = new MultiStatus(Constants.BUNDLE_ID, 0, Messages.ResolutionResult_SummaryStatus, null);
 		}
 		summaryStatus.add(status);
 	}
@@ -54,7 +54,7 @@ public class ResolutionResult {
 	public void addStatus(IInstallableUnit iu, IStatus status) {
 		MultiStatus iuSummaryStatus = iuToStatusMap.get(iu);
 		if (iuSummaryStatus == null) {
-			iuSummaryStatus = new MultiStatus(Activator.ID, IStatusCodes.IU_REQUEST_ALTERED, new IStatus[] {status}, getIUString(iu), null);
+			iuSummaryStatus = new MultiStatus(Constants.BUNDLE_ID, IStatusCodes.IU_REQUEST_ALTERED, new IStatus[] {status}, getIUString(iu), null);
 		} else
 			iuSummaryStatus.add(status);
 	}

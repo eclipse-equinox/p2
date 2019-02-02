@@ -17,7 +17,7 @@ package org.eclipse.equinox.p2.operations;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.operations.Activator;
+import org.eclipse.equinox.internal.p2.operations.Constants;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -27,8 +27,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 
 /**
  * OperationFactory provides a set of helpers to simplify dealing with the running installation.
@@ -40,15 +39,16 @@ public class OperationFactory {
 
 	private IProvisioningAgent getAgent() {
 		Collection<ServiceReference<IProvisioningAgent>> ref = null;
+		BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		try {
-			ref = Activator.getContext().getServiceReferences(IProvisioningAgent.class, '(' + IProvisioningAgent.SERVICE_CURRENT + '=' + Boolean.TRUE.toString() + ')');
+			ref = bundleContext.getServiceReferences(IProvisioningAgent.class, '(' + IProvisioningAgent.SERVICE_CURRENT + '=' + Boolean.TRUE.toString() + ')');
 		} catch (InvalidSyntaxException e) {
 			//ignore can't happen since we write the filter ourselves
 		}
 		if (ref == null || ref.size() == 0)
 			throw new IllegalStateException(Messages.OperationFactory_noAgent);
-		IProvisioningAgent agent = Activator.getContext().getService(ref.iterator().next());
-		Activator.getContext().ungetService(ref.iterator().next());
+		IProvisioningAgent agent = bundleContext.getService(ref.iterator().next());
+		bundleContext.ungetService(ref.iterator().next());
 		return agent;
 	}
 
@@ -65,7 +65,7 @@ public class OperationFactory {
 			IQuery<IInstallableUnit> installableUnits = QueryUtil.createIUQuery(versionedId.getId(), versionedId.getVersion());
 			IQueryResult<IInstallableUnit> matches = searchContext.query(installableUnits, monitor);
 			if (matches.isEmpty())
-				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.OperationFactory_noIUFound, versionedId)));
+				throw new ProvisionException(new Status(IStatus.ERROR, Constants.BUNDLE_ID, NLS.bind(Messages.OperationFactory_noIUFound, versionedId)));
 
 			//Add the first IU
 			Iterator<IInstallableUnit> iuIt = matches.iterator();

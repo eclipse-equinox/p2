@@ -13,27 +13,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.operations;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-
 /**
- * Activator class that registers the update checker service.
+ * Constant interface which holds the ID of the bundle.
  */
-public class Activator implements BundleActivator {
-	public static final String ID = "org.eclipse.equinox.p2.operations"; //$NON-NLS-1$
-	private static BundleContext context;
-
-	public static BundleContext getContext() {
-		return context;
-	}
-
-	@Override
-	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
-	}
-
-	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
-	}
+public interface Constants {
+	public static final String BUNDLE_ID = "org.eclipse.equinox.p2.operations"; //$NON-NLS-1$
 }

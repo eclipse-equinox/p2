@@ -35,27 +35,27 @@ public class PlanAnalyzer {
 	public static IStatus getStatus(int statusCode, IInstallableUnit affectedIU) {
 		switch (statusCode) {
 			case IStatusCodes.NOTHING_TO_UPDATE :
-				return new Status(IStatus.INFO, Activator.ID, statusCode, Messages.PlanAnalyzer_NoUpdates, null);
+				return new Status(IStatus.INFO, Constants.BUNDLE_ID, statusCode, Messages.PlanAnalyzer_NoUpdates, null);
 			case IStatusCodes.PROFILE_CHANGE_ALTERED :
-				return new MultiStatus(Activator.ID, statusCode, Messages.PlanAnalyzer_RequestAltered, null);
+				return new MultiStatus(Constants.BUNDLE_ID, statusCode, Messages.PlanAnalyzer_RequestAltered, null);
 			case IStatusCodes.ALTERED_IMPLIED_UPDATE :
-				return new Status(IStatus.INFO, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_ImpliedUpdate, getIUString(affectedIU)), null);
+				return new Status(IStatus.INFO, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_ImpliedUpdate, getIUString(affectedIU)), null);
 			case IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE :
-				return new Status(IStatus.WARNING, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_LockedImpliedUpdate0, getIUString(affectedIU)), null);
+				return new Status(IStatus.WARNING, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_LockedImpliedUpdate0, getIUString(affectedIU)), null);
 			case IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE :
-				return new Status(IStatus.WARNING, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_IgnoringImpliedDowngrade, getIUString(affectedIU)), null);
+				return new Status(IStatus.WARNING, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_IgnoringImpliedDowngrade, getIUString(affectedIU)), null);
 			case IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED :
-				return new Status(IStatus.WARNING, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_AlreadyInstalled, getIUString(affectedIU)), null);
+				return new Status(IStatus.WARNING, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_AlreadyInstalled, getIUString(affectedIU)), null);
 			case IStatusCodes.ALTERED_PARTIAL_INSTALL :
-				return new Status(IStatus.INFO, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_PartialInstall, getIUString(affectedIU)), null);
+				return new Status(IStatus.INFO, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_PartialInstall, getIUString(affectedIU)), null);
 			case IStatusCodes.ALTERED_PARTIAL_UNINSTALL :
-				return new Status(IStatus.INFO, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_PartialUninstall, getIUString(affectedIU)), null);
+				return new Status(IStatus.INFO, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_PartialUninstall, getIUString(affectedIU)), null);
 			case IStatusCodes.UNEXPECTED_NOTHING_TO_DO :
-				return new Status(IStatus.ERROR, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_NothingToDo, getIUString(affectedIU)), null);
+				return new Status(IStatus.ERROR, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_NothingToDo, getIUString(affectedIU)), null);
 			case IStatusCodes.OPERATION_ALREADY_IN_PROGRESS :
-				return new Status(IStatus.ERROR, Activator.ID, statusCode, Messages.PlanAnalyzer_AnotherOperationInProgress, null);
+				return new Status(IStatus.ERROR, Constants.BUNDLE_ID, statusCode, Messages.PlanAnalyzer_AnotherOperationInProgress, null);
 			default :
-				return new Status(IStatus.ERROR, Activator.ID, statusCode, NLS.bind(Messages.PlanAnalyzer_UnexpectedError, Integer.valueOf(statusCode), getIUString(affectedIU)), null);
+				return new Status(IStatus.ERROR, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_UnexpectedError, Integer.valueOf(statusCode), getIUString(affectedIU)), null);
 		}
 	}
 
@@ -113,7 +113,7 @@ public class PlanAnalyzer {
 				RequestStatus rs = plannerStatus.getRequestChanges().get(added);
 				if (rs.getSeverity() == IStatus.ERROR) {
 					// This is a serious error so it must also appear in the overall status
-					IStatus fail = new Status(IStatus.ERROR, Activator.ID, IStatusCodes.ALTERED_IGNORED_INSTALL_REQUEST, NLS.bind(Messages.PlanAnalyzer_IgnoringInstall, getIUString(added)), null);
+					IStatus fail = new Status(IStatus.ERROR, Constants.BUNDLE_ID, IStatusCodes.ALTERED_IGNORED_INSTALL_REQUEST, NLS.bind(Messages.PlanAnalyzer_IgnoringInstall, getIUString(added)), null);
 					report.addStatus(added, fail);
 					report.addSummaryStatus(fail);
 				}
@@ -127,7 +127,7 @@ public class PlanAnalyzer {
 					// Assume it could not be uninstalled because of some other dependency, yet the planner did not view
 					// this as an error.  So we inform the user that we can only uninstall parts of it.  The root property will be
 					// removed per the original change request.
-					IStatus fail = new Status(IStatus.INFO, Activator.ID, IStatusCodes.ALTERED_PARTIAL_UNINSTALL, NLS.bind(Messages.PlanAnalyzer_PartialUninstall, getIUString(removed)), null);
+					IStatus fail = new Status(IStatus.INFO, Constants.BUNDLE_ID, IStatusCodes.ALTERED_PARTIAL_UNINSTALL, NLS.bind(Messages.PlanAnalyzer_PartialUninstall, getIUString(removed)), null);
 					report.addStatus(removed, fail);
 					report.addSummaryStatus(fail);
 				}
@@ -135,7 +135,7 @@ public class PlanAnalyzer {
 		} else {
 			if (plannerStatus.getCode() == IStatusCodes.MISSING_REQUIREMENTS) {
 				IStatus existingSummaryStatus = report.getSummaryStatus();
-				MultiStatus newSummaryStatus = new MultiStatus(Activator.ID, IStatusCodes.MISSING_REQUIREMENTS, Messages.ResolutionResult_SummaryStatus, null);
+				MultiStatus newSummaryStatus = new MultiStatus(Constants.BUNDLE_ID, IStatusCodes.MISSING_REQUIREMENTS, Messages.ResolutionResult_SummaryStatus, null);
 				if (!existingSummaryStatus.isOK()) {
 					newSummaryStatus.addAll(existingSummaryStatus);
 					report.setSummaryStatus(newSummaryStatus);
@@ -149,9 +149,9 @@ public class PlanAnalyzer {
 				IInstallableUnit iu = entry.getKey();
 				RequestStatus rs = entry.getValue();
 				if (rs.getInitialRequestType() == RequestStatus.ADDED) {
-					report.addStatus(iu, new Status(rs.getSeverity(), Activator.ID, IStatusCodes.ALTERED_SIDE_EFFECT_INSTALL, NLS.bind(Messages.PlanAnalyzer_SideEffectInstall, getIUString(iu)), null));
+					report.addStatus(iu, new Status(rs.getSeverity(), Constants.BUNDLE_ID, IStatusCodes.ALTERED_SIDE_EFFECT_INSTALL, NLS.bind(Messages.PlanAnalyzer_SideEffectInstall, getIUString(iu)), null));
 				} else {
-					report.addStatus(iu, new Status(rs.getSeverity(), Activator.ID, IStatusCodes.ALTERED_SIDE_EFFECT_REMOVE, NLS.bind(Messages.PlanAnalyzer_SideEffectUninstall, getIUString(iu)), null));
+					report.addStatus(iu, new Status(rs.getSeverity(), Constants.BUNDLE_ID, IStatusCodes.ALTERED_SIDE_EFFECT_REMOVE, NLS.bind(Messages.PlanAnalyzer_SideEffectUninstall, getIUString(iu)), null));
 				}
 			}
 		}

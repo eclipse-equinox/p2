@@ -170,7 +170,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		if (request == null) {
 			if (noChangeRequest.getChildren().length == 0)
 				// No explanation for failure was provided.  It shouldn't happen, but...
-				noChangeRequest = new MultiStatus(Activator.ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, new IStatus[] {PlanAnalyzer.getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null)}, Messages.ProfileChangeOperation_NoProfileChangeRequest, null);
+				noChangeRequest = new MultiStatus(Constants.BUNDLE_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, new IStatus[] {PlanAnalyzer.getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null)}, Messages.ProfileChangeOperation_NoProfileChangeRequest, null);
 			return;
 		}
 		createPlannerResolutionJob();

@@ -230,7 +230,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 	public IStatus getResolutionResult() {
 		if (currentRemedy != null)
 			return super.getResolutionResult();
-		return remedies.size() > 0 ? Status.OK_STATUS : new Status(IStatus.ERROR, Activator.ID, Messages.RemediationOperation_NoRemedyFound);
+		return remedies.size() > 0 ? Status.OK_STATUS : new Status(IStatus.ERROR, Constants.BUNDLE_ID, Messages.RemediationOperation_NoRemedyFound);
 	}
 
 	private void computeRemedyDetails(Remedy remedy) {

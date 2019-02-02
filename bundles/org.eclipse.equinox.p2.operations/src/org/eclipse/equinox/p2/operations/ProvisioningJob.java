@@ -15,7 +15,7 @@ package org.eclipse.equinox.p2.operations;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.operations.Activator;
+import org.eclipse.equinox.internal.p2.operations.Constants;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
@@ -234,7 +234,7 @@ public abstract class ProvisioningJob extends Job {
 				message = NLS.bind(Messages.ProvisioningJob_GenericErrorStatusMessage, getName());
 			else
 				message = e.getLocalizedMessage();
-		return new Status(IStatus.ERROR, Activator.ID, message, e);
+		return new Status(IStatus.ERROR, Constants.BUNDLE_ID, message, e);
 	}
 
 }
