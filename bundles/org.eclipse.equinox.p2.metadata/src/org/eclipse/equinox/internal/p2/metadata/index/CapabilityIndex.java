@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
@@ -46,14 +47,20 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 @SuppressWarnings("unchecked")
 public class CapabilityIndex extends Index<IInstallableUnit> {
 
+	private static final String NAMESPACE_EXECUTION_ENVIRONMENT = "osgi.ee";
 	private final Map<String, Object> capabilityMap;
+	private final Set<IInstallableUnit> eeProvidersSet;
 
 	public CapabilityIndex(Iterator<IInstallableUnit> itor) {
 		HashMap<String, Object> index = new HashMap<>(300);
+		Set<IInstallableUnit> eeProviders = new HashSet<>(10);
 		while (itor.hasNext()) {
 			IInstallableUnit iu = itor.next();
 			Collection<IProvidedCapability> pcs = iu.getProvidedCapabilities();
 			for (IProvidedCapability pc : pcs) {
+				if (NAMESPACE_EXECUTION_ENVIRONMENT.equals(pc.getNamespace())) {
+					eeProviders.add(iu);
+				}
 				String name = pc.getName();
 				Object prev = index.put(name, iu);
 				if (prev == null || prev == iu)
@@ -70,6 +77,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 			}
 		}
 		this.capabilityMap = index;
+		this.eeProvidersSet = Collections.unmodifiableSet(eeProviders);
 	}
 
 	private Object getRequirementIDs(IEvaluationContext ctx, IExpression requirement, Object queriedKeys) {
@@ -162,6 +170,15 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 					//
 					LambdaExpression lambda = cf.lambda;
 					queriedKeys = getQueriedIDs(ctx, lambda.getItemVariable(), ProvidedCapability.MEMBER_NAME, lambda.getOperand(), queriedKeys);
+					if (queriedKeys == null) {
+						// Special handling to support
+						//     osgi.ee; (&(osgi.ee=JavaSE)(version=1.8))
+						//     providedCapabilities.exists(cap | cap.namespace == $0 && cap.properties ~= $1)
+						// in a performant way
+						if (NAMESPACE_EXECUTION_ENVIRONMENT.equals(getQueriedIDs(ctx, lambda.getItemVariable(), ProvidedCapability.MEMBER_NAMESPACE, lambda.getOperand(), queriedKeys))) {
+							return this.eeProvidersSet.iterator();
+						}
+					}
 				} else {
 					// Might be the requirements array.
 					//

@@ -15,8 +15,10 @@ package org.eclipse.equinox.p2.tests.ql;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
@@ -32,6 +34,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionParser;
+import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -249,6 +252,44 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		}
 		System.out.println("CapabilityQuery took: " + tradQueryMS + " milliseconds");
 		System.out.println("PredicateQuery took: " + exprQueryMS + " milliseconds");
+		System.out.println();
+	}
+
+	public void testCapabilityQueryPerformanceEE() throws Exception {
+
+		IMetadataRepository repo = getMDR("/testData/galileoM7");
+
+		Version jreVersion = Version.parseVersion("1.8");
+		Map<String, Object> capAttrs = new HashMap<>();
+		capAttrs.put(JREAction.NAMESPACE_OSGI_EE, "JavaSE");
+		capAttrs.put(JREAction.VERSION_OSGI_EE, jreVersion);
+		IProvidedCapability jreCap = MetadataFactory.createProvidedCapability(JREAction.NAMESPACE_OSGI_EE, capAttrs);
+		IInstallableUnit jre8IU = createIU("a.jre.javase", jreVersion, new IProvidedCapability[] {jreCap});
+		repo.addInstallableUnits(Collections.singletonList(jre8IU));
+
+		jreVersion = Version.parseVersion("1.9");
+		capAttrs = new HashMap<>();
+		capAttrs.put(JREAction.NAMESPACE_OSGI_EE, "JavaSE");
+		capAttrs.put(JREAction.VERSION_OSGI_EE, jreVersion);
+		jreCap = MetadataFactory.createProvidedCapability(JREAction.NAMESPACE_OSGI_EE, capAttrs);
+		IInstallableUnit jre9IU = createIU("b.jre.anotherjavase", jreVersion, new IProvidedCapability[] {jreCap});
+		repo.addInstallableUnits(Collections.singletonList(jre9IU));
+
+		IRequirement capability = MetadataFactory.createRequirement(JREAction.NAMESPACE_OSGI_EE, "(&(osgi.ee=JavaSE)(version=1.8))", null, 0, 0, false);
+		IQuery<IInstallableUnit> capabilityQuery = QueryUtil.createMatchQuery(capability.getMatches());
+		IQueryResult<IInstallableUnit> result;
+		long tradQueryMS = 0;
+
+		for (int i = 0; i < 5; ++i) {
+			long start = System.currentTimeMillis();
+			for (int idx = 0; idx < 80; ++idx) {
+				result = repo.query(capabilityQuery, new NullProgressMonitor());
+				assertEquals(1, queryResultSize(result));
+				assertEquals(jre8IU, result.toUnmodifiableSet().iterator().next());
+			}
+			tradQueryMS += (System.currentTimeMillis() - start);
+		}
+		System.out.println("CapabilityQuery took: " + tradQueryMS + " milliseconds");
 		System.out.println();
 	}
 
