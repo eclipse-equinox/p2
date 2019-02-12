@@ -10,7 +10,7 @@
 
 &lt;p&gt;p2 detects errors which may have been introduced during artifact transmission/storage by calculating artifact checksum using MD5 hash function. As a &lt;a href=&quot;https://en.wikipedia.org/wiki/Collision_attack&quot;&gt;collision attack&lt;/a&gt; and a &lt;a href=&quot;https://en.wikipedia.org/wiki/Chosen-prefix_collision_attack&quot;&gt;chosen-prefix collision attack&lt;/a&gt; against MD5 have been demonstrated in public, it can be used but only to detect unintentional corruption. Current implementation is not extensible and doesn&apos;t allow to use other, more collision-resistant, hash functions.&lt;/p&gt;
 
-&lt;p&gt;With this extension point, any &lt;code&gt;java.security.MessageDigest&lt;/code&gt; from Java Security API can be used to check integrity of artifacts. For more information on these APIs, see &lt;a href=&quot;https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html&quot;&gt;Java Cryptography Architecture (JCA) Reference Guide&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;With this extension point, any &lt;code&gt;java.security.MessageDigest&lt;/code&gt; from Java Security API can be used to check integrity of artifacts. For more information on these APIs, see &lt;a href=&quot;https://docs.oracle.com/en/java/javase/11/security/java-cryptography-architecture-jca-reference-guide.html&quot;&gt;Java Cryptography Architecture (JCA) Reference Guide&lt;/a&gt;.&lt;/p&gt;
       </documentation>
    </annotation>
 
@@ -112,6 +112,7 @@ public class Activator implements BundleActivator {
 &lt;/pre&gt;
       </documentation>
    </annotation>
+
 
    <annotation>
       <appInfo>
