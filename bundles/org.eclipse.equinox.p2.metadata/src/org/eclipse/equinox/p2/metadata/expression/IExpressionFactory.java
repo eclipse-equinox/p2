@@ -374,8 +374,8 @@ public interface IExpressionFactory {
 	IExpression select(IExpression collection, IExpression lambda);
 
 	/**
-	 * Returns the variable that represents <code>this</this> in an expression
-	 * @return The <code>this</this> variable.
+	 * Returns the variable that represents <code>this</code> in an expression
+	 * @return The <code>this</code> variable.
 	 */
 	IExpression thisVariable();
 

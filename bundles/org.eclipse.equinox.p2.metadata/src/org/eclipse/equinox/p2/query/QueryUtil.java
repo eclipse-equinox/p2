@@ -489,7 +489,7 @@ public class QueryUtil {
 	/**
 	 * Test if the {@link IInstallableUnit} is a category. 
 	 * @param iu the element being tested.
-	 * @return <tt>true</tt> if the parameter is a category.
+	 * @return <code>true</code> if the parameter is a category.
 	 */
 	public static boolean isCategory(IInstallableUnit iu) {
 		String value = iu.getProperty(PROP_TYPE_CATEGORY);
@@ -501,7 +501,7 @@ public class QueryUtil {
 	/**
 	 * Test if the {@link IInstallableUnit} is a fragment. 
 	 * @param iu the element being tested.
-	 * @return <tt>true</tt> if the parameter is a fragment.
+	 * @return <code>true</code> if the parameter is a fragment.
 	 */
 	public static boolean isFragment(IInstallableUnit iu) {
 		return iu instanceof IInstallableUnitFragment;
@@ -510,7 +510,7 @@ public class QueryUtil {
 	/**
 	 * Test if the {@link IInstallableUnit} is a group. 
 	 * @param iu the element being tested.
-	 * @return <tt>true</tt> if the parameter is a group.
+	 * @return <code>true</code> if the parameter is a group.
 	 */
 	public static boolean isGroup(IInstallableUnit iu) {
 		String value = iu.getProperty(PROP_TYPE_GROUP);
@@ -522,7 +522,7 @@ public class QueryUtil {
 	/**
 	 * Test if the {@link IInstallableUnit} is a product. 
 	 * @param iu the element being tested.
-	 * @return <tt>true</tt> if the parameter is a group.
+	 * @return <code>true</code> if the parameter is a group.
 	 * @since 2.2
 	 */
 	public static boolean isProduct(IInstallableUnit iu) {
@@ -535,7 +535,7 @@ public class QueryUtil {
 	/**
 	 * Test if the {@link IInstallableUnit} is a patch. 
 	 * @param iu the element being tested.
-	 * @return <tt>true</tt> if the parameter is a patch.
+	 * @return <code>true</code> if the parameter is a patch.
 	 */
 	public static boolean isPatch(IInstallableUnit iu) {
 		String value = iu.getProperty(PROP_TYPE_PATCH);

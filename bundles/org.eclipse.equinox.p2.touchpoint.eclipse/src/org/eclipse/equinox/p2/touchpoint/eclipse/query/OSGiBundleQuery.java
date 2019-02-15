@@ -34,7 +34,7 @@ public final class OSGiBundleQuery extends ExpressionMatchQuery<IInstallableUnit
 	/**
 	 * Test if the {@link IInstallableUnit} describes an OSGi bundle. 
 	 * @param iu the element being tested.
-	 * @return <tt>true</tt> if the parameter describes an OSGi bundle.
+	 * @return <code>true</code> if the parameter describes an OSGi bundle.
 	 */
 	public static boolean isOSGiBundle(IInstallableUnit iu) {
 		return bundleTest.isMatch(iu);

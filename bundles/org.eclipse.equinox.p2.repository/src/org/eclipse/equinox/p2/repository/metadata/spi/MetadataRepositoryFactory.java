@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 /**
  * A metadata repository factory is responsible for creating and loading instances
  * of a particular type of metadata repository. Factories are provided via the 
- * <tt>org.eclipse.equinox.p2.metadata.repository.metadataRepositories</tt> extension point.
+ * <code>org.eclipse.equinox.p2.metadata.repository.metadataRepositories</code> extension point.
  * @since 2.0
  */
 public abstract class MetadataRepositoryFactory {

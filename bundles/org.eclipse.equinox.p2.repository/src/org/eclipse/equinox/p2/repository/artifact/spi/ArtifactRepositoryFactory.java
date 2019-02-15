@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 /**
  * An artifact repository factory is responsible for creating and loading instances
  * of a particular type of artifact repository. Factories are provided via the 
- * <tt>org.eclipse.equinox.p2.artifact.repository.artifactRepositories</tt> extension point.
+ * <code>org.eclipse.equinox.p2.artifact.repository.artifactRepositories</code> extension point.
  * @since 2.0
  */
 public abstract class ArtifactRepositoryFactory {

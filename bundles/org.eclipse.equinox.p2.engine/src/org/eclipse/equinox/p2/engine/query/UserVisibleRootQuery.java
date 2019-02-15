@@ -34,7 +34,7 @@ public class UserVisibleRootQuery extends IUProfilePropertyQuery {
 	 * Test if the {@link IInstallableUnit}, in the context of a {@link IProfile} is visible to the user 
 	 * @param iu the element being tested.
 	 * @param profile the context in which the iu is tested
-	 * @return <tt>true</tt> if the element is visible to the user.
+	 * @return <code>true</code> if the element is visible to the user.
 	 */
 	public static boolean isUserVisible(IInstallableUnit iu, IProfile profile) {
 		String value = profile.getInstallableUnitProperty(iu, IProfile.PROP_PROFILE_ROOT_IU);
