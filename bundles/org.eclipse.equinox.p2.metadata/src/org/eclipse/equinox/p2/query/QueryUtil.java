@@ -464,7 +464,7 @@ public class QueryUtil {
 	}
 
 	/**
-	 * Creates a query that will limit the result to instances of the <code>matchinClass</code>. The
+	 * Creates a query that will limit the result to instances of the <code>matchingClass</code>. The
 	 * <code>expression</code> is expected to use all candidates as input.
 	 * @param matchingClass The class used as discriminator for the result
 	 * @param expression The query expression
@@ -477,7 +477,7 @@ public class QueryUtil {
 
 	/**
 	 * Parses the <code>expression</code> and creates a query that will limit the result
-	 * to instances of the <code>matchinClass</code>. The <code>expression</code> is expected
+	 * to instances of the <code>matchingClass</code>. The <code>expression</code> is expected
 	 * to use all candidates as input.
 	 * @param matchingClass The class used as discriminator for the result
 	 * @param expression The query expression
