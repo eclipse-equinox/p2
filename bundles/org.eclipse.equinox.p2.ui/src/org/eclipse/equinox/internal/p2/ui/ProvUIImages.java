@@ -57,6 +57,7 @@ public class ProvUIImages {
 	public final static String IMG_PROFILE = "obj/profile_obj.png"; //$NON-NLS-1$
 	public final static String IMG_CATEGORY = "obj/category_obj.png"; //$NON-NLS-1$
 	public final static String IMG_INFO = "obj/iu_info.png"; //$NON-NLS-1$
+	public final static String IMG_COPY = "obj/copy_edit.png"; //$NON-NLS-1$
 
 	// wizard graphics
 	public final static String WIZARD_BANNER_INSTALL = "wizban/install_wiz.png"; //$NON-NLS-1$

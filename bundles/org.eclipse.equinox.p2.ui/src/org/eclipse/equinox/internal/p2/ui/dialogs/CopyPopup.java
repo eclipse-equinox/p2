@@ -14,6 +14,7 @@
 
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.ICopyable;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -31,18 +32,13 @@ public class CopyPopup {
 		this.control = control;
 		Menu copyMenu = new Menu(control);
 		MenuItem copyItem = new MenuItem(copyMenu, SWT.NONE);
+		copyItem.setImage(ProvUIImages.getImage(ProvUIImages.IMG_COPY));
 		copyItem.addSelectionListener(new SelectionListener() {
-			/*
-			 * @see SelectionListener.widgetSelected (SelectionEvent)
-			 */
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				copySource.copyToClipboard(control);
 			}
 
-			/*
-			 * @see SelectionListener.widgetDefaultSelected(SelectionEvent)
-			 */
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				copySource.copyToClipboard(control);
