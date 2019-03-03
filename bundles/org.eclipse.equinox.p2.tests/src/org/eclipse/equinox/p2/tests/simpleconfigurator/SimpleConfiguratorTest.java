@@ -26,6 +26,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.Properties;
 import org.eclipse.equinox.internal.simpleconfigurator.SimpleConfiguratorImpl;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 
@@ -143,6 +144,10 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 
 	// master modified, but the mtime of the master config is set to zero --> choose master
 	public void testSharedConfigurationMasterModifiedNoMtime() throws IOException {
+		if (AbstractSharedInstallTest.WINDOWS) {
+			// See bug 540069 and bug 540310. Test below is for posix OS only
+			return;
+		}
 		clearLastModified(masterConfguration, true);
 		assertEquals(sharedConfiguration[1], configurator.chooseConfigurationURL(relativeURL, sharedConfiguration));
 		assertIsPropertySet(true);
@@ -150,6 +155,10 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 
 	// master not modified, but the mtime of the master config is set to zero --> choose user
 	public void testSharedConfigurationMasterUnmodifiedNoMtime() throws IOException {
+		if (AbstractSharedInstallTest.WINDOWS) {
+			// See bug 540069 and bug 540310. Test below is for posix OS only
+			return;
+		}
 		clearLastModified(masterConfguration, false);
 		assertEquals(sharedConfiguration[0], configurator.chooseConfigurationURL(relativeURL, sharedConfiguration));
 		assertIsPropertySet(false);
