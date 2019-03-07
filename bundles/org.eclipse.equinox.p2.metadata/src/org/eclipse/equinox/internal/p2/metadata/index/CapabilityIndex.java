@@ -47,37 +47,32 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 @SuppressWarnings("unchecked")
 public class CapabilityIndex extends Index<IInstallableUnit> {
 
-	private static final String NAMESPACE_EXECUTION_ENVIRONMENT = "osgi.ee";
-	private final Map<String, Object> capabilityMap;
-	private final Set<IInstallableUnit> eeProvidersSet;
+	private final Map<String, Set<IInstallableUnit>> namespaceMap;
+	private final Map<String, Object> nameMap;
 
 	public CapabilityIndex(Iterator<IInstallableUnit> itor) {
-		HashMap<String, Object> index = new HashMap<>(300);
-		Set<IInstallableUnit> eeProviders = new HashSet<>(10);
+		nameMap = new HashMap<>(300);
+		namespaceMap = new HashMap<>(10);
 		while (itor.hasNext()) {
 			IInstallableUnit iu = itor.next();
 			Collection<IProvidedCapability> pcs = iu.getProvidedCapabilities();
 			for (IProvidedCapability pc : pcs) {
-				if (NAMESPACE_EXECUTION_ENVIRONMENT.equals(pc.getNamespace())) {
-					eeProviders.add(iu);
-				}
-				String name = pc.getName();
-				Object prev = index.put(name, iu);
-				if (prev == null || prev == iu)
-					continue;
-
-				ArrayList<IInstallableUnit> list;
-				if (prev instanceof IInstallableUnit) {
-					list = new ArrayList<>();
-					list.add((IInstallableUnit) prev);
-				} else
-					list = (ArrayList<IInstallableUnit>) prev;
-				list.add(iu);
-				index.put(name, list);
+				namespaceMap.computeIfAbsent(pc.getNamespace(), namespace -> new HashSet<>()).add(iu);
+				nameMap.compute(pc.getName(), (name, prev) -> {
+					if (prev == null || prev == iu) {
+						return iu;
+					} else if (prev instanceof IInstallableUnit) {
+						Collection<IInstallableUnit> ius = new HashSet<>();
+						ius.add((IInstallableUnit) prev);
+						ius.add(iu);
+						return ius;
+					} else {
+						((Collection<IInstallableUnit>) prev).add(iu);
+						return prev;
+					}
+				});
 			}
 		}
-		this.capabilityMap = index;
-		this.eeProvidersSet = Collections.unmodifiableSet(eeProviders);
 	}
 
 	private Object getRequirementIDs(IEvaluationContext ctx, IExpression requirement, Object queriedKeys) {
@@ -148,6 +143,7 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 	@Override
 	public Iterator<IInstallableUnit> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
 		Object queriedKeys = null;
+		Map<String, ?> indexMapToUse = nameMap;
 
 		// booleanExpression must be a collection filter on providedCapabilities
 		// or an IInstallableUnit used in a match expression.
@@ -171,12 +167,17 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 					LambdaExpression lambda = cf.lambda;
 					queriedKeys = getQueriedIDs(ctx, lambda.getItemVariable(), ProvidedCapability.MEMBER_NAME, lambda.getOperand(), queriedKeys);
 					if (queriedKeys == null) {
-						// Special handling to support
+						// Special handling to support expressions for arbitrary namespaces without "name" property such as
 						//     osgi.ee; (&(osgi.ee=JavaSE)(version=1.8))
 						//     providedCapabilities.exists(cap | cap.namespace == $0 && cap.properties ~= $1)
-						// in a performant way
-						if (NAMESPACE_EXECUTION_ENVIRONMENT.equals(getQueriedIDs(ctx, lambda.getItemVariable(), ProvidedCapability.MEMBER_NAMESPACE, lambda.getOperand(), queriedKeys))) {
-							return this.eeProvidersSet.iterator();
+						// or
+						//     osgi.service; (objectClass=org.osgi.service.event.EventAdmin)
+						//     providedCapabilities.exists(cap | cap.namespace == $0 && cap.properties ~= $1)
+						// in a performant way as this reduces the result set significantly
+						queriedKeys = getQueriedIDs(ctx, lambda.getItemVariable(), ProvidedCapability.MEMBER_NAMESPACE, lambda.getOperand(), queriedKeys);
+						if (queriedKeys != null) {
+							indexMapToUse = namespaceMap;
+							break;
 						}
 					}
 				} else {
@@ -245,9 +246,9 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 		} else if (queriedKeys instanceof Collection<?>) {
 			matchingIUs = new HashSet<>();
 			for (Object key : (Collection<Object>) queriedKeys)
-				collectMatchingIUs((String) key, matchingIUs);
+				collectMatchingIUs(indexMapToUse, (String) key, matchingIUs);
 		} else {
-			Object v = capabilityMap.get(queriedKeys);
+			Object v = indexMapToUse.get(queriedKeys);
 			if (v == null)
 				matchingIUs = Collections.emptySet();
 			else if (v instanceof IInstallableUnit)
@@ -258,8 +259,8 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 		return matchingIUs.iterator();
 	}
 
-	private void collectMatchingIUs(String name, Collection<IInstallableUnit> collector) {
-		Object v = capabilityMap.get(name);
+	private static void collectMatchingIUs(Map<String, ?> indexToUse, String name, Collection<IInstallableUnit> collector) {
+		Object v = indexToUse.get(name);
 		if (v == null)
 			return;
 		if (v instanceof IInstallableUnit)

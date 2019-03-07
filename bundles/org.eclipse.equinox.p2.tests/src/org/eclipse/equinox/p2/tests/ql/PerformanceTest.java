@@ -293,6 +293,24 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		System.out.println();
 	}
 
+	public void testCapabilityQueryPerformanceOsgiService() throws Exception {
+
+		IMetadataRepository repo = getMDR("/testData/2018-12");
+
+		IRequirement capability = MetadataFactory.createRequirement("osgi.service", "(objectClass=org.osgi.service.event.EventAdmin)", null, 0, 0, false);
+		IQuery<IInstallableUnit> capabilityQuery = QueryUtil.createMatchQuery(capability.getMatches());
+		IQueryResult<IInstallableUnit> result;
+
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < 1000; ++i) {
+			result = repo.query(capabilityQuery, new NullProgressMonitor());
+			assertEquals(1, queryResultSize(result));
+			assertEquals("org.eclipse.equinox.event", result.iterator().next().getId());
+		}
+		System.out.println("1000 * CapabilityQuery for osgi.service took: " + (System.currentTimeMillis() - start) + " milliseconds");
+		System.out.println();
+	}
+
 	public void testIUPropertyQueryPerformance() throws Exception {
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
