@@ -31,7 +31,6 @@ import org.eclipse.osgi.util.NLS;
 public class ChecksumUtilities {
 
 	private static final String ARTIFACT_CHECKSUMS_POINT = "org.eclipse.equinox.p2.artifact.repository.artifactChecksums"; //$NON-NLS-1$
-	private static final String MD5_MESSAGE_DIGEST = "MD5"; //$NON-NLS-1$
 
 	/**
 	 * Instances of checksum verifiers applicable for the artifact descriptor
@@ -94,12 +93,6 @@ public class ChecksumUtilities {
 			String algorithm = checksumVerifierConfiguration.getAttribute("algorithm"); //$NON-NLS-1$
 			Optional<String> checksum = calculateChecksum(pathOnDisk, status, id, algorithm);
 			checksum.ifPresent(c -> checksums.put(id, c));
-		}
-
-		boolean doNotSkipMd5 = !checksumsToSkip.contains(ChecksumHelper.MD5);
-		if (doNotSkipMd5) {
-			Optional<String> md5 = calculateChecksum(pathOnDisk, status, ChecksumHelper.MD5, MD5_MESSAGE_DIGEST);
-			md5.ifPresent(c -> checksums.put(ChecksumHelper.MD5, c));
 		}
 
 		return status;
