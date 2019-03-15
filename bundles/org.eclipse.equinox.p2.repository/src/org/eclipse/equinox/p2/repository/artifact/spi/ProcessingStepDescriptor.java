@@ -38,30 +38,22 @@ public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 		this.required = required;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getProcessorId() {
 		return processorId;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getData() {
 		return data;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean isRequired() {
 		return required;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -71,9 +63,7 @@ public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 		return result;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -101,6 +91,7 @@ public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 	 * Returns a string representation of this descriptor for debugging purposes only.
 	 * @return a string representation ofthe processing step descriptor
 	 */
+	@Override
 	public String toString() {
 		return "Processor: " + processorId + (required ? "(req)" : "(notReq)") + " ,data: " + data; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	}

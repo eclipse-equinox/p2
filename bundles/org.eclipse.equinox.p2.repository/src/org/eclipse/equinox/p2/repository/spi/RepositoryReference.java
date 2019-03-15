@@ -57,9 +57,7 @@ public class RepositoryReference implements IRepositoryReference {
 		this.nickname = nickname;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -76,37 +74,27 @@ public class RepositoryReference implements IRepositoryReference {
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public URI getLocation() {
 		return location;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public int getType() {
 		return type;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public int getOptions() {
 		return options;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getNickname() {
 		return nickname;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

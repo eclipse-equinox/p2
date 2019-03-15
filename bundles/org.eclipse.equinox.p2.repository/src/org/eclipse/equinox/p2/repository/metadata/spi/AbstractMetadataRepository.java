@@ -112,38 +112,28 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 		super(agent, name, type, version, location, description, provider, properties);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		assertModifiable();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void addReferences(Collection<? extends IRepositoryReference> references) {
 		assertModifiable();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void removeAll() {
 		assertModifiable();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		assertModifiable();
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
 			runnable.run(monitor);
@@ -155,12 +145,10 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 		return Status.OK_STATUS;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#compress(IPool<IInstallableUnit> iuPool)
-	 */
 	/**
 	 * @since 2.1
 	 */
+	@Override
 	public void compress(IPool<IInstallableUnit> iuPool) {
 		// Default no-op.  Subclasses should override as appropriate
 	}

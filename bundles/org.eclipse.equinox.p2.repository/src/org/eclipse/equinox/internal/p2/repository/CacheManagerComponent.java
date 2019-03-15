@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
 public class CacheManagerComponent implements IAgentServiceFactory {
 
+	@Override
 	public Object createService(IProvisioningAgent agent) {
 		final IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 		CacheManager cache = new CacheManager((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME), (Transport) agent.getService(Transport.SERVICE_NAME));

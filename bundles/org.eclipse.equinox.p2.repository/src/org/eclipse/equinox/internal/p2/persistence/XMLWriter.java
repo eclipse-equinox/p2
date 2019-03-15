@@ -43,6 +43,7 @@ public class XMLWriter implements XMLConstants {
 			return new ProcessingInstruction(target, new String[] {PI_VERSION_ATTRIBUTE}, new String[] {version.toString()});
 		}
 
+		@Override
 		public String toString() {
 			StringBuffer sb = new StringBuffer("<?"); //$NON-NLS-1$
 			sb.append(this.target).append(' ');

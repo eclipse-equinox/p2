@@ -50,6 +50,7 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 			return children.toArray(new URI[children.size()]);
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(CHILD_ELEMENT)) {
 				new ChildHandler(this, attributes, children);
@@ -78,10 +79,12 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			checkCancel();
 		}
 
+		@Override
 		protected void finished() {
 			if (currentRepo != null)
 				repos.add(currentRepo);
@@ -94,6 +97,7 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 			super(rootName, rootHandler);
 		}
 
+		@Override
 		public void processingInstruction(String target, String data) throws SAXException {
 			if (repositoryType.equals(target)) {
 				Version repositoryVersion = extractPIVersion(target, data);
@@ -124,11 +128,13 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 			return state;
 		}
 
+		@Override
 		protected void handleRootAttributes(Attributes attributes) {
 			attrValues = parseAttributes(attributes, required, optional);
 			attrValues[2] = checkVersion(REPOSITORY_ELEMENT, VERSION_ATTRIBUTE, attrValues[2]).toString();
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (PROPERTIES_ELEMENT.equals(name)) {
 				if (propertiesHandler == null) {
@@ -150,6 +156,7 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 		/*
 		 * If we parsed valid XML then fill in our repository state object with the parsed data.
 		 */
+		@Override
 		protected void finished() {
 			if (isValidXML()) {
 				state = new CompositeRepositoryState();
@@ -208,10 +215,12 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 	}
 
 	//TODO what?
+	@Override
 	protected Object getRootObject() {
 		return null;
 	}
 
+	@Override
 	protected String getErrorMessage() {
 		return Messages.io_parseError;
 	}

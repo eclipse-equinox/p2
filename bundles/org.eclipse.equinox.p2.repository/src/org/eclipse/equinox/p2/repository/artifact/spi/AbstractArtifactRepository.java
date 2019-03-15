@@ -42,21 +42,28 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 		super(agent, name, type, version, location, description, provider, properties);
 	}
 
+	@Override
 	public abstract boolean contains(IArtifactDescriptor descriptor);
 
+	@Override
 	public abstract boolean contains(IArtifactKey key);
 
+	@Override
 	public abstract IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor);
 
+	@Override
 	public abstract IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key);
 
+	@Override
 	public abstract IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor);
 
+	@Override
 	public abstract OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException;
 
 	/**
 	 * @since 2.1
 	 */
+	@Override
 	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		assertModifiable();
 	}
@@ -64,6 +71,8 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	/**
 	 * @deprecated Use {@link #addDescriptor(IArtifactDescriptor, IProgressMonitor)} instead.
 	 */
+	@Override
+	@Deprecated
 	public void addDescriptor(IArtifactDescriptor descriptor) {
 		this.addDescriptor(descriptor, new NullProgressMonitor());
 	}
@@ -72,6 +81,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	 * {@inheritDoc}
 	 * @since 2.1
 	 */
+	@Override
 	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		assertModifiable();
 	}
@@ -79,6 +89,8 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	/**
 	 * @deprecated Use {@link #addDescriptors(IArtifactDescriptor[], IProgressMonitor)} instead.
 	 */
+	@Override
+	@Deprecated
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		this.addDescriptors(descriptors, new NullProgressMonitor());
 	}
@@ -87,6 +99,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	 * {@inheritDoc}
 	 * @since 2.1
 	 */
+	@Override
 	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		assertModifiable();
 	}
@@ -94,6 +107,8 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	/**
 	 * @deprecated Use {@link #removeDescriptor(IArtifactDescriptor, IProgressMonitor)} instead.
 	 */
+	@Override
+	@Deprecated
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
 		this.removeDescriptor(descriptor, new NullProgressMonitor());
 	}
@@ -102,6 +117,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	 * {@inheritDoc}
 	 * @since 2.1
 	 */
+	@Override
 	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		assertModifiable();
 	}
@@ -111,6 +127,8 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	 * @since 2.1
 	 * @deprecated Use {@link #removeDescriptors(IArtifactDescriptor[], IProgressMonitor)} instead.
 	 */
+	@Override
+	@Deprecated
 	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
 		this.removeDescriptors(descriptors, new NullProgressMonitor());
 	}
@@ -119,6 +137,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	 * {@inheritDoc}
 	 * @since 2.1
 	 */
+	@Override
 	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		assertModifiable();
 	}
@@ -126,6 +145,8 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	/**
 	 * @deprecated Use {@link #removeDescriptor(IArtifactKey, IProgressMonitor)} instead.
 	 */
+	@Override
+	@Deprecated
 	public void removeDescriptor(IArtifactKey key) {
 		this.removeDescriptor(key, new NullProgressMonitor());
 	}
@@ -134,6 +155,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	 * {@inheritDoc}
 	 * @since 2.1
 	 */
+	@Override
 	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		assertModifiable();
 	}
@@ -143,6 +165,8 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	 * @since 2.1
 	 * @deprecated Use {@link #removeDescriptors(IArtifactKey[], IProgressMonitor)} instead.
 	 */
+	@Override
+	@Deprecated
 	public void removeDescriptors(IArtifactKey[] keys) {
 		this.removeDescriptors(keys, new NullProgressMonitor());
 	}
@@ -150,6 +174,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	/**
 	 * @since 2.1
 	 */
+	@Override
 	public void removeAll(IProgressMonitor monitor) {
 		assertModifiable();
 	}
@@ -157,10 +182,13 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	/**
 	 * @deprecated Use {@link #removeAll(IProgressMonitor)} instead.
 	 */
+	@Override
+	@Deprecated
 	public void removeAll() {
 		this.removeAll(new NullProgressMonitor());
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -173,18 +201,22 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 		return false;
 	}
 
+	@Override
 	public int hashCode() {
 		return (this.getLocation().toString().hashCode()) * 87;
 	}
 
+	@Override
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return new ArtifactDescriptor(key);
 	}
 
+	@Override
 	public IArtifactKey createArtifactKey(String classifier, String id, Version version) {
 		return new ArtifactKey(classifier, id, version);
 	}
 
+	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
 			runnable.run(monitor);

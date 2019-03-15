@@ -78,6 +78,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 * Returns a brief description of the repository.
 	 * @return the description of the repository.
 	 */
+	@Override
 	public synchronized String getDescription() {
 		return description;
 	}
@@ -86,6 +87,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 * Returns the location of this repository.
 	 * @return the URI of the repository.
 	 */
+	@Override
 	public synchronized URI getLocation() {
 		return location;
 	}
@@ -94,6 +96,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 * Returns the name of the repository.
 	 * @return the name of the repository.
 	 */
+	@Override
 	public synchronized String getName() {
 		return name;
 	}
@@ -102,13 +105,12 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 * Returns a read-only collection of the properties of the repository.
 	 * @return the properties of this repository.
 	 */
+	@Override
 	public synchronized Map<String, String> getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getProperty(String key) {
 		return properties.get(key);
 	}
@@ -117,6 +119,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 * Returns the name of the provider of the repository.
 	 * @return the provider of this repository.
 	 */
+	@Override
 	public synchronized String getProvider() {
 		return provider;
 	}
@@ -126,6 +129,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 * 
 	 * @return the provisioning agent
 	 */
+	@Override
 	public IProvisioningAgent getProvisioningAgent() {
 		return agent;
 	}
@@ -134,6 +138,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 * Returns a string representing the type of the repository.
 	 * @return the type of the repository.
 	 */
+	@Override
 	public synchronized String getType() {
 		return type;
 	}
@@ -142,13 +147,12 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 * Returns a string representing the version for the repository type.
 	 * @return the version of the type of the repository.
 	 */
+	@Override
 	public synchronized String getVersion() {
 		return version;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean isModifiable() {
 		return false;
 	}
@@ -172,9 +176,9 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	}
 
 	/**
-	 * {@inheritDoc}
 	 * @since 2.1
 	 */
+	@Override
 	public synchronized String setProperty(String key, String value, IProgressMonitor monitor) {
 		assertModifiable();
 		if (key.equals(IRepository.PROP_NAME)) {
@@ -185,9 +189,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 		return (value == null ? properties.remove(key) : properties.put(key, value));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public synchronized String setProperty(String key, String value) {
 		return this.setProperty(key, value, new NullProgressMonitor());
 	}

@@ -74,6 +74,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * @param descriptor the descriptor to add.
 	 * @deprecated See {{@link #addDescriptor(IArtifactDescriptor, IProgressMonitor)}
 	 */
+	@Deprecated
 	public void addDescriptor(IArtifactDescriptor descriptor);
 
 	/**
@@ -93,6 +94,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * @param descriptors the artifact descriptors to add
 	 * @deprecated See {{@link #addDescriptors(IArtifactDescriptor[], IProgressMonitor)}
 	 */
+	@Deprecated
 	public void addDescriptors(IArtifactDescriptor[] descriptors);
 
 	/**
@@ -186,6 +188,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * Remove the all keys, descriptors, and contents from this repository.
 	 * @deprecated See {@link #removeAll(IProgressMonitor)}
 	 */
+	@Deprecated
 	public void removeAll();
 
 	/**
@@ -201,6 +204,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * @param descriptor the descriptor to remove.
 	 * @deprecated See {@link #removeDescriptor(IArtifactDescriptor, IProgressMonitor)}
 	 */
+	@Deprecated
 	public void removeDescriptor(IArtifactDescriptor descriptor);
 
 	/**
@@ -217,6 +221,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * @param key the key to remove.
 	 * @deprecated See {@link #removeDescriptor(IArtifactKey, IProgressMonitor)}
 	 */
+	@Deprecated
 	public void removeDescriptor(IArtifactKey key);
 
 	/**
@@ -235,6 +240,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * @since 2.1
 	 * @deprecated See {@link #removeDescriptors(IArtifactDescriptor[], IProgressMonitor)}
 	 */
+	@Deprecated
 	public void removeDescriptors(IArtifactDescriptor[] descriptors);
 
 	/**
@@ -254,6 +260,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * @since 2.1
 	 * @deprecated See {@link #removeDescriptors(IArtifactKey[], IProgressMonitor)}
 	 */
+	@Deprecated
 	public void removeDescriptors(IArtifactKey[] keys);
 
 	/**

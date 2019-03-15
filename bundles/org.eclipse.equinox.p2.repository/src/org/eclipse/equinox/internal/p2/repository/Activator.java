@@ -30,6 +30,7 @@ public class Activator implements BundleActivator {
 
 	private static BundleContext context;
 
+	@Override
 	public void start(BundleContext aContext) throws Exception {
 		Activator.context = aContext;
 
@@ -37,6 +38,7 @@ public class Activator implements BundleActivator {
 		Class.forName("org.eclipse.core.runtime.IExtensionRegistry"); //$NON-NLS-1$
 	}
 
+	@Override
 	public void stop(BundleContext aContext) throws Exception {
 		Activator.context = aContext;
 	}

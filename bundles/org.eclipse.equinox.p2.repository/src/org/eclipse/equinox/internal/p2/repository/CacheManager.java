@@ -17,7 +17,6 @@ package org.eclipse.equinox.internal.p2.repository;
 
 import java.io.*;
 import java.net.*;
-import java.util.EventObject;
 import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -59,11 +58,13 @@ public class CacheManager {
 			super(stream);
 		}
 
+		@Override
 		public IStatus getStatus() {
 
 			return status;
 		}
 
+		@Override
 		public void setStatus(IStatus aStatus) {
 			status = aStatus;
 		}
@@ -339,13 +340,11 @@ public class CacheManager {
 	 */
 	private void registerRepoEventListener(IProvisioningEventBus eventBus) {
 		if (busListener == null) {
-			busListener = new SynchronousProvisioningListener() {
-				public void notify(EventObject o) {
-					if (o instanceof RepositoryEvent) {
-						RepositoryEvent event = (RepositoryEvent) o;
-						if (RepositoryEvent.REMOVED == event.getKind() && IRepository.TYPE_METADATA == event.getRepositoryType()) {
-							deleteCache(event.getRepositoryLocation());
-						}
+			busListener = o -> {
+				if (o instanceof RepositoryEvent) {
+					RepositoryEvent event = (RepositoryEvent) o;
+					if (RepositoryEvent.REMOVED == event.getKind() && IRepository.TYPE_METADATA == event.getRepositoryType()) {
+						deleteCache(event.getRepositoryLocation());
 					}
 				}
 			};

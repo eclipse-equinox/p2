@@ -19,7 +19,7 @@
   </parent>
   <groupId>org.eclipse.equinox</groupId>
   <artifactId>org.eclipse.equinox.p2.extras.feature</artifactId>
-  <version>1.4.300-SNAPSHOT</version>
+  <version>1.4.400-SNAPSHOT</version>
   <packaging>eclipse-feature</packaging>
 
   <build>

@@ -174,6 +174,7 @@ public class ProgressStatistics {
 		return false;
 	}
 
+	@Override
 	public String toString() {
 		return createReportString();
 	}

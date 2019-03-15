@@ -124,6 +124,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	 * 
 	 * @see org.xml.sax.ContentHandler#setDocumentLocator
 	 */
+	@Override
 	public void setDocumentLocator(Locator docLocator) {
 		locator = docLocator;
 	}
@@ -165,10 +166,12 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		 * 
 		 * @see org.xml.sax.ContentHandler#setDocumentLocator
 		 */
+		@Override
 		public void setDocumentLocator(Locator docLocator) {
 			locator = docLocator;
 		}
 
+		@Override
 		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 			finishCharacters();
 			String name = makeSimpleName(localName, qName);
@@ -183,6 +186,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			new IgnoringHandler(this);
 		}
 
+		@Override
 		public void endElement(String namespaceURI, String localName, String qName) {
 			// TODO: throw a bad state error if makeSimpleName(localName, qName) != elementHandled
 			finishCharacters();
@@ -205,6 +209,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		 * 
 		 * @see org.xml.sax.ContentHandler#characters
 		 */
+		@Override
 		public void characters(char[] chars, int start, int length) {
 			if (this.characters == null) {
 				this.characters = new StringBuffer();
@@ -366,6 +371,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			this.rootHandler = rootHandler;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(elementHandled)) {
 				rootHandler.initialize(this, name, attributes);
@@ -413,6 +419,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			return properties;
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(PROPERTY_ELEMENT)) {
 				new PropertyHandler(this, attributes, properties);
@@ -436,6 +443,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			}
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			invalidElement(name, attributes);
 		}
@@ -476,10 +484,12 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			return (text != null ? text : ""); //$NON-NLS-1$
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			invalidElement(name, attributes);
 		}
 
+		@Override
 		protected void processCharacters(String data) {
 			this.text = data == null ? null : data.intern();
 		}
@@ -496,6 +506,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			this.elementHandled = "IgnoringAll"; //$NON-NLS-1$
 		}
 
+		@Override
 		public void startElement(String name, Attributes attributes) {
 			noSubElements(name, attributes);
 		}
@@ -522,10 +533,12 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return (valueIndex >= 0 ? tokens[valueIndex] : ""); //$NON-NLS-1$
 	}
 
+	@Override
 	public void error(SAXParseException ex) {
 		addError(IStatus.WARNING, ex.getMessage(), ex);
 	}
 
+	@Override
 	public void fatalError(SAXParseException ex) {
 		addError(IStatus.ERROR, ex.getMessage(), ex);
 	}

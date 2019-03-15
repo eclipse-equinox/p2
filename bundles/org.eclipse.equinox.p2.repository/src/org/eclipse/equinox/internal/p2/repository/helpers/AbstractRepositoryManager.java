@@ -140,9 +140,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			broadcastChangeEvent(repository.getLocation(), getRepositoryType(), RepositoryEvent.ADDED, true);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#addRepository(java.net.URI)
-	 */
+	@Override
 	public void addRepository(URI location) {
 		checkValidLocation(location);
 		//add the repository, or enable it if already known
@@ -249,9 +247,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#contains(java.net.URI)
-	 */
+	@Override
 	public boolean contains(URI location) {
 		checkValidLocation(location);
 		synchronized (repositoryLock) {
@@ -470,13 +466,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		return key;
 	}
 
+	@Override
 	public IProvisioningAgent getAgent() {
 		return agent;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getKnownRepositories(int)
-	 */
+	@Override
 	public URI[] getKnownRepositories(int flags) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
@@ -557,9 +552,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		return null;
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getRepositoryProperty(java.net.URI, java.lang.String)
-	 */
+	@Override
 	public String getRepositoryProperty(URI location, String key) {
 		checkValidLocation(location);
 		synchronized (repositoryLock) {
@@ -581,9 +574,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#getRepositoryProperty(java.net.URI, java.lang.String)
-	 */
+	@Override
 	public void setRepositoryProperty(URI location, String key, String value) {
 		checkValidLocation(location);
 		synchronized (repositoryLock) {
@@ -626,9 +617,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	protected abstract String[] getPreferredRepositorySearchOrder(LocationProperties properties);
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#isEnabled(java.net.URI)
-	 */
+	@Override
 	public boolean isEnabled(URI location) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
@@ -812,9 +801,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		return true;
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener#notify(java.util.EventObject)
-	 */
+	@Override
 	public void notify(EventObject o) {
 		if (o instanceof RepositoryEvent) {
 			RepositoryEvent event = (RepositoryEvent) o;
@@ -918,6 +905,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		unavailableRepositories = new SoftReference<List<URI>>(badRepos);
 	}
 
+	@Override
 	public boolean removeRepository(URI toRemove) {
 		return removeRepository(checkValidLocation(toRemove), true);
 	}
@@ -1040,9 +1028,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#setEnabled(java.net.URI, boolean)
-	 */
+	@Override
 	public void setEnabled(URI location, boolean enablement) {
 		checkValidLocation(location);
 		synchronized (repositoryLock) {
@@ -1057,16 +1043,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ENABLEMENT, enablement);
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#start()
-	 */
+	@Override
 	public void start() {
 		//nothing to do
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#stop()
-	 */
+	@Override
 	public void stop() {
 		eventBus.removeListener(this);
 		//ensure all repository state in memory is written to disk
@@ -1158,6 +1140,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 *    reporting is not desired
 	 * @return A collector containing the results of the query
 	 */
+	@Override
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
 		List<IRepository<T>> queryables = new ArrayList<IRepository<T>>(locations.length); // use a list since we don't know exactly how many will load
