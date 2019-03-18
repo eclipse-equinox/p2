@@ -35,7 +35,7 @@ public interface ICompositeRepository<T> extends IRepository<T> {
 	/**
 	 * Adds a specified URI to list of child repositories.
 	 * Does nothing if URI is a duplicate of an existing child repository.
-	 * @param child
+	 * @param child The child to add.
 	 */
 	public void addChild(URI child);
 

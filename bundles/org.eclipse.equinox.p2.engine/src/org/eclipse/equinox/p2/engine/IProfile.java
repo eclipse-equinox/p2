@@ -173,7 +173,7 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	public static final String STATE_SHARED_INSTALL_VALUE_NEW = "new"; //$NON-NLS-1$
 
 	/**
-	 * Profile property constant for additional parameters of the downloading stats(e.g., package=jee&os=linux).
+	 * Profile property constant for additional parameters of the downloading stats(e.g., package=jee&amp;os=linux).
 	 * @since 2.2 
 	 */
 	public static final String PROP_STATS_PARAMETERS = "org.eclipse.equinox.p2.stats.parameters"; //$NON-NLS-1$
@@ -230,7 +230,7 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 * Returns the installable units in this profile that match the given query. In a shared
 	 * install, this will include both the installable units in the shared base location, and in
 	 * the current user's private install area.
-	 * @param query
+	 * @param query The query to use for matching.
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The installable units that match the given query

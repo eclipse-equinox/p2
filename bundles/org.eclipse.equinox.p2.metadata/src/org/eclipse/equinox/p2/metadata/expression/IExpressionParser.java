@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.expression;
 
-
 /**
  * A parser that produces an expression tree based on a string representation. An
  * implementation will use the {@link IExpressionFactory} to create the actual expressions
@@ -25,7 +24,7 @@ public interface IExpressionParser {
 	 * variable 'this' and to the context parameters.
 	 * @param exprString The string representing the boolean expression.
 	 * @return The resulting expression tree.
-	 * @throws ExpressionParseException
+	 * @throws ExpressionParseException If an error occurred during parsing.
 	 */
 	IExpression parse(String exprString);
 
@@ -34,7 +33,7 @@ public interface IExpressionParser {
 	 * variable 'everything' and to the context parameters.
 	 * @param exprString The string representing the boolean expression.
 	 * @return The resulting expression tree.
-	 * @throws ExpressionParseException
+	 * @throws ExpressionParseException If an error occurred during parsing.
 	 */
 	IExpression parseQuery(String exprString);
 }

@@ -370,7 +370,7 @@ public class QueryUtil {
 
 	/**
 	 * Creates an query that will iterate over all candidates and discriminate all
-	 * candidates that are not instances of <code>matchinClass></code> or for which
+	 * candidates that are not instances of <code>matchingClass</code> or for which
 	 * the boolean <code>matchExpression</code> returns false.
 	 * @param matchingClass The class that matching candidates must be an instance of
 	 * @param matchExpression The boolean expression used for filtering one candidate
@@ -384,8 +384,10 @@ public class QueryUtil {
 	/**
 	 * Parses the <code>matchExpression</code> and creates an query that will iterate over
 	 * all candidates and discriminate all candidates that are not instances of
-	 * <code>matchinClass></code> or for which the boolean <code>matchExpression</code>
+	 * <code>matchingClass</code> or for which the boolean <code>matchExpression</code>
 	 * returns false.
+	 * 
+	 * @param <T> The type of input object that the created query accepts
 	 * @param matchingClass The class that matching candidates must be an instance of
 	 * @param matchExpression The boolean expression used for filtering one candidate
 	 * @param parameters Values for parameter substitution

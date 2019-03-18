@@ -192,9 +192,10 @@ public class BundleInfo {
 	}
 
 	/**
-	 * Set the bundle id
+	 * Set the bundle id.
 	 * 
 	 * @param bundleId
+	 *            The bundle id.
 	 */
 	public void setBundleId(long bundleId) {
 		this.bundleId = bundleId;
@@ -215,6 +216,7 @@ public class BundleInfo {
 	 * Set the location for this bundle.
 	 * 
 	 * @param location
+	 *            The location of the bundle.
 	 */
 	public void setLocation(URI location) {
 		this.location = location;
@@ -224,6 +226,7 @@ public class BundleInfo {
 	 * Set the manifest for this bundle
 	 * 
 	 * @param manifest
+	 *            The manifest.
 	 */
 	public void setManifest(String manifest) {
 		this.manifest = manifest;
@@ -233,6 +236,7 @@ public class BundleInfo {
 	 * Set whether or not this bundle should be started
 	 * 
 	 * @param markedAsStarted
+	 *            Whether the bundle should be started.
 	 */
 	public void setMarkedAsStarted(boolean markedAsStarted) {
 		this.markedAsStarted = markedAsStarted;
@@ -242,6 +246,7 @@ public class BundleInfo {
 	 * Set whether or not the bundle is resolved
 	 * 
 	 * @param resolved
+	 *            If the bundle is resolved or not.
 	 */
 	public void setResolved(boolean resolved) {
 		this.resolved = resolved;
@@ -251,7 +256,7 @@ public class BundleInfo {
 	 * Set the start level.
 	 * 
 	 * @param level
-	 *            if a value < 0 is passed, the start level will be set to
+	 *            if a value &lt; 0 is passed, the start level will be set to
 	 *            {@link #NO_LEVEL}
 	 */
 	public void setStartLevel(int level) {
@@ -262,6 +267,7 @@ public class BundleInfo {
 	 * Set the Bundle-SymbolicName
 	 * 
 	 * @param symbolicName
+	 *            The Bundle-SymbolicName.
 	 */
 	public void setSymbolicName(String symbolicName) {
 		this.symbolicName = symbolicName;
@@ -271,6 +277,7 @@ public class BundleInfo {
 	 * Set the version, should be a valid {@link Version} string
 	 * 
 	 * @param value
+	 *            The version. A valid {@link Version} string.
 	 */
 	public void setVersion(String value) {
 		if (value == null)
@@ -283,6 +290,7 @@ public class BundleInfo {
 	 * Set the host if this bundle is a fragment
 	 * 
 	 * @param fragmentHost
+	 *            The host for this fragment.
 	 */
 	public void setFragmentHost(String fragmentHost) {
 		this.fragmentHost = fragmentHost;

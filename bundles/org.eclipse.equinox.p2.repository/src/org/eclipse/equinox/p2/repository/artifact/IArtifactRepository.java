@@ -59,9 +59,9 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 
 	/**
 	 * Create an instance of {@link IArtifactKey}
-	 * @param classifier
-	 * @param id
-	 * @param version
+	 * @param classifier The classifier for this artifact key.
+	 * @param id The id for this artifact key.
+	 * @param version The version for this artifact key. 
 	 * @return a new IArtifactKey
 	 */
 	public IArtifactKey createArtifactKey(String classifier, String id, Version version);
@@ -156,7 +156,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	/**
 	 * Executes the given artifact requests on this byte server.
 	 * @param requests The artifact requests
-	 * @param monitor
+	 * @param monitor A progress monitor use to track progress and cancel the operation.
 	 * @return a status object that is <code>OK</code> if requests were
 	 * processed successfully. Otherwise, a status indicating information,
 	 * warnings, or errors that occurred while executing the artifact requests
@@ -256,7 +256,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	/**
 	 * Remove the given list of keys and all related content and descriptors from this
 	 * repository.
-	 * @param keys
+	 * @param keys The keys to remove.
 	 * @since 2.1
 	 * @deprecated See {@link #removeDescriptors(IArtifactKey[], IProgressMonitor)}
 	 */
@@ -266,7 +266,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	/**
 	 * Remove the given list of keys and all related content and descriptors from this
 	 * repository.
-	 * @param keys
+	 * @param keys The keys to remove.
 	 * @param monitor A progress monitor use to track progress and cancel the operation.  This may
 	 * be a long running operation if another process holds the lock on this location
 	 * @since 2.1

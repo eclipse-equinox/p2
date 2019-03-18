@@ -381,7 +381,7 @@ public interface IExpressionFactory {
 
 	/**
 	 * Wrap an {@link IQuery} as an expression.
-	 * @param query
+	 * @param query The query to wrap.
 	 * @return An expression that wraps the query
 	 */
 	IExpression toExpression(IQuery<?> query);

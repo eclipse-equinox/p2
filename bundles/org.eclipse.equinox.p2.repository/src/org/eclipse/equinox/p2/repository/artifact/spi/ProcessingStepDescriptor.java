@@ -27,9 +27,11 @@ public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 	/**
 	 * Create a processing step description.
 	 * 
-	 * @param processorId
-	 * @param data
-	 * @param required
+	 * @param processorId The fully qualified processing step extension id.
+	 * @param data The processing step data. The structure
+	 * and content of the data is specific to the particular processing step being used.
+	 * @param required Whether the successful execution of this processing step is
+	 * required for the transfer to be successful.
 	 */
 	public ProcessingStepDescriptor(String processorId, String data, boolean required) {
 		super();

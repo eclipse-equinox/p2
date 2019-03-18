@@ -548,12 +548,12 @@ public final class MetadataFactory {
 
 	/**
 	 * 
-	 * @param namespace
+	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
 	 * @param propsFilter filter applied on {@link IProvidedCapability#getProperties()} of every {@link IInstallableUnit#getProvidedCapabilities()}
 	 * @param envFilter matcher over {@link IInstallableUnit#getProperties()}
-	 * @param minCard
-	 * @param maxCard
-	 * @param greedy
+	 * @param minCard minimum cardinality
+	 * @param maxCard maximum cardinality
+	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
 	 * @return the requirement
 	 * @since 2.4
 	 */
@@ -564,13 +564,13 @@ public final class MetadataFactory {
 
 	/**
 	 * 
-	 * @param namespace
-	 * @param propsFilter
-	 * @param envFilter
-	 * @param minCard
-	 * @param maxCard
-	 * @param greedy
-	 * @param description
+	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
+	 * @param propsFilter filter applied on {@link IProvidedCapability#getProperties()} of every {@link IInstallableUnit#getProvidedCapabilities()}
+	 * @param envFilter matcher over {@link IInstallableUnit#getProperties()}
+	 * @param minCard minimum cardinality
+	 * @param maxCard maximum cardinality
+	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @param description a <code>String</code> description of the requirement, or <code>null</code>
 	 * @return the requirement
 	 * @since 2.4
 	 */
@@ -757,10 +757,11 @@ public final class MetadataFactory {
 
 	/**
 	 * 
-	 * @param descriptors
-	 * @param severity
-	 * @param description
-	 * @param location
+	 * @param descriptors The IUs that the descriptor provides updates for.
+	 * @param severity The update severity (either {@link IUpdateDescriptor#NORMAL} 
+	 * or {@link IUpdateDescriptor#HIGH})
+	 * @param description A description of the update
+	 * @param location  a {@link URI} specifying the location or <code>null</code> 
 	 * @return A new update descriptor
 	 */
 	public static IUpdateDescriptor createUpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description, URI location) {
