@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.Arrays;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.*;
@@ -32,8 +33,20 @@ public class InstallableUnitPatch extends InstallableUnit implements IInstallabl
 		IRequirement[] result = new IRequirement[currSize + toAdd.length];
 		for (int i = 0; i < currSize; ++i)
 			result[i] = current.get(i);
-		System.arraycopy(toAdd, 0, result, current.size(), toAdd.length);
-		setRequiredCapabilities(result);
+		System.arraycopy(toAdd, 0, result, currSize, toAdd.length);
+		super.setRequiredCapabilities(result);
+	}
+
+	@Override
+	public void setRequiredCapabilities(IRequirement[] capabilities) {
+		IRequirement[] result = capabilities;
+		if(lifeCycle != null && !Arrays.asList(capabilities).contains(lifeCycle)) {
+			int currSize = capabilities.length;
+			result = new IRequirement[currSize + 1];
+			System.arraycopy(capabilities, 0, result, 0, capabilities.length);
+			result[currSize]=lifeCycle;
+		}
+		super.setRequiredCapabilities(result);
 	}
 
 	@Override
