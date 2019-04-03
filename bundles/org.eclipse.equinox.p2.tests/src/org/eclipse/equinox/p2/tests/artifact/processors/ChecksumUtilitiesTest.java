@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -69,9 +70,9 @@ public class ChecksumUtilitiesTest {
 	@Test
 	public void testChecksumProperty() {
 		Collection<ProcessingStep> checksumVerifiers = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor, propertyType, emptySet());
-		ChecksumVerifier verifier = (ChecksumVerifier) checksumVerifiers.iterator().next();
 
-		assertEquals(1, checksumVerifiers.size());
+		assertEquals(format("Verifier for property=%s", property), 1, checksumVerifiers.size());
+		ChecksumVerifier verifier = (ChecksumVerifier) checksumVerifiers.iterator().next();
 		assertEquals(digestAlgorithm, verifier.getAlgorithmName());
 		assertEquals(algorithmId, verifier.getAlgorithmId());
 		assertEquals(value, verifier.getExpectedChecksum());
