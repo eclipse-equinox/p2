@@ -11,6 +11,7 @@ public class Perspective implements IPerspectiveFactory {
 	 */
 	public static final String ID = "org.eclipse.equinox.p2.examples.rcp.sdkui.perspective";
 
+	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);

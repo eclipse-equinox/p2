@@ -24,6 +24,7 @@ public class OpenViewAction extends Action {
 		setImageDescriptor(org.eclipse.equinox.p2.examples.rcp.sdkui.Activator.getImageDescriptor("/icons/sample2.gif"));
 	}
 	
+	@Override
 	public void run() {
 		if(window != null) {	
 			try {

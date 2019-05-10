@@ -18,6 +18,7 @@ public class View extends ViewPart {
 
 	public static final String ID = "org.eclipse.equinox.p2.examples.rcp.sdkui.view";
 	
+	@Override
 	public void createPartControl(Composite parent) {
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
@@ -49,6 +50,7 @@ public class View extends ViewPart {
 		final Link link = new Link(banner, SWT.NONE);
 		link.setText("<a>nicole@mail.org</a>");
 		link.addSelectionListener(new SelectionAdapter() {    
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				MessageDialog.openInformation(getSite().getShell(), "Not Implemented", "Imagine the address book or a new message being created now.");
 			}    
@@ -72,6 +74,7 @@ public class View extends ViewPart {
 		text.setLayoutData(new GridData(GridData.FILL_BOTH));
 	}
 
+	@Override
 	public void setFocus() {
 	}
 }

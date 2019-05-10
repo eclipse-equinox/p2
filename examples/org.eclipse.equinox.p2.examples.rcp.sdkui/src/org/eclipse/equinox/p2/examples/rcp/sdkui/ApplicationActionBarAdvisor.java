@@ -40,6 +40,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         super(configurer);
     }
     
+    @Override
     protected void makeActions(final IWorkbenchWindow window) {
         // Creates the actions and registers them.
         // Registering is needed to ensure that key bindings work.
@@ -67,6 +68,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         register(messagePopupAction);
     }
     
+    @Override
     protected void fillMenuBar(IMenuManager menuBar) {
         MenuManager fileMenu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE);
         // XXX Window menu
@@ -99,6 +101,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
     }
     
+    @Override
     protected void fillCoolBar(ICoolBarManager coolBar) {
         IToolBarManager toolbar = new ToolBarManager(SWT.FLAT | SWT.RIGHT);
         coolBar.add(new ToolBarContributionItem(toolbar, "main"));   
