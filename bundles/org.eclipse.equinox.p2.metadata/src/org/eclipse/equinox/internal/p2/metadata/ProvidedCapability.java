@@ -61,21 +61,23 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 		// Verify the version
 		Object version = resolvedProps.get(PROPERTY_VERSION);
 		if (version != null) {
-			Assert.isTrue(props.get(PROPERTY_VERSION) instanceof Version);
+			Assert.isTrue(version instanceof Version);
 		} else {
 			resolvedProps.put(PROPERTY_VERSION, Version.emptyVersion);
 		}
 
-		this.properties = Collections.unmodifiableMap(props);
+		this.properties = Collections.unmodifiableMap(resolvedProps);
 	}
 
 	public ProvidedCapability(String namespace, String name, Version version) {
 		Assert.isNotNull(namespace, NLS.bind(Messages.provided_capability_namespace_not_defined, null));
 		Assert.isNotNull(name, NLS.bind(Messages.provided_capability_name_not_defined, namespace));
 		this.namespace = namespace;
-		this.properties = new HashMap<>();
-		properties.put(namespace, name);
-		properties.put(PROPERTY_VERSION, version == null ? Version.emptyVersion : version);
+
+		Map<String, Object> props = new HashMap<>();
+		props.put(namespace, name);
+		props.put(PROPERTY_VERSION, version == null ? Version.emptyVersion : version);
+		this.properties = Collections.unmodifiableMap(props);
 	}
 
 	@Override

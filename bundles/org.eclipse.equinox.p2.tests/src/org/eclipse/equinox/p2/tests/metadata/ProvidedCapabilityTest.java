@@ -13,7 +13,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.p2.metadata.*;
+import java.util.HashMap;
+import java.util.Map;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -27,5 +31,64 @@ public class ProvidedCapabilityTest extends AbstractProvisioningTest {
 		assertEquals("1.0", cap, equal);
 		assertFalse("1.1", cap.equals(notEqual));
 		assertFalse("1.1", notEqual.equals(cap));
+	}
+
+	public void testProperties_Unmodifiable() {
+		String namespace = "aNamespace";
+		String name = "name";
+		Version version = Version.createOSGi(2, 0, 0);
+
+		Map properties = new HashMap<>();
+		properties.put(namespace, name);
+		properties.put(IProvidedCapability.PROPERTY_VERSION, version);
+
+		IProvidedCapability capability1 = MetadataFactory.createProvidedCapability(namespace, properties);
+		IProvidedCapability capability2 = MetadataFactory.createProvidedCapability(namespace, name, version);
+		assertEquals(capability1, capability2);
+
+		try {
+			capability1.getProperties().put("key", "value");
+			fail("properties must be unmodifiable");
+		} catch (UnsupportedOperationException e) {
+			// ok
+		}
+
+		try {
+			capability2.getProperties().put("key", "value");
+			fail("properties must be unmodifiable");
+		} catch (UnsupportedOperationException e) {
+			// ok
+		}
+	}
+
+	public void testProperties_Immutable() {
+		String namespace = "aNamespace";
+		String name = "name";
+		Version version = Version.createOSGi(2, 0, 0);
+
+		Map properties = new HashMap<>();
+		properties.put(namespace, name);
+		properties.put(IProvidedCapability.PROPERTY_VERSION, version);
+
+		IProvidedCapability capability1 = MetadataFactory.createProvidedCapability(namespace, properties);
+		IProvidedCapability capability2 = MetadataFactory.createProvidedCapability(namespace, name, version);
+
+		// mutate original value
+		properties.put(IProvidedCapability.PROPERTY_VERSION, Version.createOSGi(9, 9, 9));
+
+		assertEquals(capability1, capability2);
+	}
+
+	public void testProperties_NoVersion() {
+		String namespace = "aNamespace";
+		String name = "name";
+
+		Map properties = new HashMap<>();
+		properties.put(namespace, name);
+		// no version this time
+
+		IProvidedCapability capability1 = MetadataFactory.createProvidedCapability(namespace, properties);
+		IProvidedCapability capability2 = MetadataFactory.createProvidedCapability(namespace, name, null);
+		assertEquals(capability1, capability2);
 	}
 }
