@@ -45,6 +45,7 @@ public class AddRepositoryAction extends RepositoryAction {
 		}
 	}
 
+	@Override
 	protected String getId() {
 		return ID;
 	}

@@ -135,6 +135,7 @@ public class Site {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
+	@Override
 	public int hashCode() {
 		return getUrl().hashCode();
 	}
@@ -142,6 +143,7 @@ public class Site {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Site))
 			return false;

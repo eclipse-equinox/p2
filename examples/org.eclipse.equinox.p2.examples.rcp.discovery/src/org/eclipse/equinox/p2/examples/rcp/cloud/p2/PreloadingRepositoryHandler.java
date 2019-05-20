@@ -58,6 +58,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 						if (PlatformUI.isWorkbenchRunning())
 							if (event.getResult().isOK()) {
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+									@Override
 									public void run() {
 										doExecute(loadJob);
 									}

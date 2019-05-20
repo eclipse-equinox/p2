@@ -108,6 +108,7 @@ public class Feature {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Feature))
 			return false;
@@ -131,6 +132,7 @@ public class Feature {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
+	@Override
 	public int hashCode() {
 		return id.hashCode() + version.hashCode();
 	}

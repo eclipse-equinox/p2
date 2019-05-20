@@ -128,6 +128,7 @@ public class AgentFromInstall {
 	private String findProfile(File profileDirectory) {
 		final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
 		File[] profileDirectories = profileDirectory.listFiles(new FileFilter() {
+			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isDirectory();
 			}

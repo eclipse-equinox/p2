@@ -27,6 +27,7 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 
 	boolean hasNoRepos = false;
 
+	@Override
 	protected void doExecute(LoadMetadataRepositoryJob job) {
 		if (hasNoRepos) {
 			if (getProvisioningUI().getPolicy().getRepositoriesVisible()) {
@@ -45,6 +46,7 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 		}
 	}
 
+	@Override
 	protected boolean preloadRepositories() {
 		hasNoRepos = false;
 		RepositoryTracker repoMan = getProvisioningUI().getRepositoryTracker();

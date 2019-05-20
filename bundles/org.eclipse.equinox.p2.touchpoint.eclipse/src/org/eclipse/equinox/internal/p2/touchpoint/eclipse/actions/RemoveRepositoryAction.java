@@ -63,6 +63,7 @@ public class RemoveRepositoryAction extends RepositoryAction {
 		}
 	}
 
+	@Override
 	protected String getId() {
 		return ID;
 	}
