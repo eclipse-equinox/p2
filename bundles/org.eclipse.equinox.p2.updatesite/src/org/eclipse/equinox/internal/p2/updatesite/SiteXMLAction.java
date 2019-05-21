@@ -533,7 +533,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			for (String parentCategoryName : category.getCategoryNames()) {
 				SiteCategory parentCategory = nameToCategory.get(parentCategoryName);
 				if (categoryToNestedCategories.get(parentCategory) == null) {
-					categoryToNestedCategories.put(parentCategory, new HashSet<SiteCategory>());
+					categoryToNestedCategories.put(parentCategory, new HashSet<>());
 				}
 				categoryToNestedCategories.get(parentCategory).add(category);
 			}

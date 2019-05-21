@@ -94,7 +94,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	/**
 	 * Set used to manage exclusive load locks on repository locations.
 	 */
-	private final Map<URI, Thread> loadLocks = new HashMap<URI, Thread>();
+	private final Map<URI, Thread> loadLocks = new HashMap<>();
 	private final IAgentLocation agentLocation;
 	protected final IProvisioningEventBus eventBus;
 	protected final IProvisioningAgent agent;
@@ -121,11 +121,11 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			String key = getKey(repository.getLocation());
 			RepositoryInfo<T> info = repositories.get(key);
 			if (info == null) {
-				info = new RepositoryInfo<T>();
+				info = new RepositoryInfo<>();
 				added = true;
 				repositories.put(key, info);
 			}
-			info.repository = new SoftReference<IRepository<T>>(repository);
+			info.repository = new SoftReference<>(repository);
 			info.name = repository.getName();
 			info.description = repository.getDescription();
 			info.location = repository.getLocation();
@@ -157,7 +157,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 * <code>false</code> otherwise.
 	 */
 	private boolean addRepository(URI location, boolean isEnabled, boolean signalAdd) {
-		RepositoryInfo<T> info = new RepositoryInfo<T>();
+		RepositoryInfo<T> info = new RepositoryInfo<>();
 		info.location = location;
 		info.isEnabled = isEnabled;
 		boolean added = true;
@@ -429,7 +429,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			return new String[0];
 		}
 		IConfigurationElement[] elements = registry.getConfigurationElementsFor(getRepositoryProviderExtensionPointId());
-		ArrayList<String> result = new ArrayList<String>(elements.length);
+		ArrayList<String> result = new ArrayList<>(elements.length);
 		result.add(getDefaultSuffix());
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i].getName().equals(EL_FILTER)) {
@@ -476,7 +476,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			ArrayList<URI> result = new ArrayList<URI>();
+			ArrayList<URI> result = new ArrayList<>();
 			for (RepositoryInfo<T> info : repositories.values()) {
 				if (matchesFlags(info, flags))
 					result.add(info.location);
@@ -900,9 +900,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				return;
 			}
 		}
-		badRepos = new ArrayList<URI>();
+		badRepos = new ArrayList<>();
 		badRepos.add(location);
-		unavailableRepositories = new SoftReference<List<URI>>(badRepos);
+		unavailableRepositories = new SoftReference<>(badRepos);
 	}
 
 	@Override
@@ -966,7 +966,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 					log("Error removing invalid repository", e); //$NON-NLS-1$
 				}
 			}
-			RepositoryInfo<T> info = new RepositoryInfo<T>();
+			RepositoryInfo<T> info = new RepositoryInfo<>();
 			info.location = location;
 			info.name = child.get(KEY_NAME, null);
 			info.nickname = child.get(KEY_NICKNAME, null);
@@ -1000,7 +1000,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	private void restoreRepositories() {
 		synchronized (repositoryLock) {
-			repositories = new HashMap<String, RepositoryInfo<T>>();
+			repositories = new HashMap<>();
 			restoreSpecialRepositories();
 			restoreFromSystemProperty();
 			basicRestoreFromPreferences(getSharedPreferences(), false);
@@ -1143,7 +1143,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	@Override
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
-		List<IRepository<T>> queryables = new ArrayList<IRepository<T>>(locations.length); // use a list since we don't know exactly how many will load
+		List<IRepository<T>> queryables = new ArrayList<>(locations.length); // use a list since we don't know exactly how many will load
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
 		for (int i = 0; i < locations.length; i++) {
 			try {

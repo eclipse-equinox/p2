@@ -64,7 +64,7 @@ public class CollectAction extends ProvisioningAction {
 	public static Map<String, String> createArtifactDescriptorProperties(IInstallableUnit installableUnit) {
 		Map<String, String> descriptorProperties = null;
 		if (CollectAction.isZipped(installableUnit.getTouchpointData())) {
-			descriptorProperties = new HashMap<String, String>();
+			descriptorProperties = new HashMap<>();
 			descriptorProperties.put(CollectAction.ARTIFACT_FOLDER, Boolean.TRUE.toString());
 		}
 		return descriptorProperties;

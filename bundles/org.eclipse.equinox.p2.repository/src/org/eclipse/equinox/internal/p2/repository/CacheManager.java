@@ -81,7 +81,7 @@ public class CacheManager {
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
-	private final HashSet<String> knownPrefixes = new HashSet<String>(5);
+	private final HashSet<String> knownPrefixes = new HashSet<>(5);
 
 	/**
 	 * Returns a hash of the repository location.

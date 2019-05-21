@@ -80,7 +80,7 @@ public class QueryUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> IQueryable<T> compoundQueryable(IQueryable<T> query1, IQueryable<T> query2) {
-		return new CompoundQueryable<T>(new IQueryable[] {query1, query2});
+		return new CompoundQueryable<>(new IQueryable[] {query1, query2});
 	}
 
 	/**

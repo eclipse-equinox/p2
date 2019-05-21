@@ -44,7 +44,7 @@ public class NavigationView extends ViewPart {
 		private ArrayList<TreeObject> children;
 		public TreeParent(String name) {
 			super(name);
-			children = new ArrayList<TreeObject>();
+			children = new ArrayList<>();
 		}
 		public void addChild(TreeObject child) {
 			children.add(child);

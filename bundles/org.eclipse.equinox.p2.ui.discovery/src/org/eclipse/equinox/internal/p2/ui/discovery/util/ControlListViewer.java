@@ -425,7 +425,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 			//see bug 423628. This should be suppressed as:
 			//1. it will cause warning at build time.
 			//2. should be possible to fix once swt/jface enables generics for good.
-			HashSet<Object> elements = new HashSet<Object>(list);
+			HashSet<Object> elements = new HashSet<>(list);
 			Control[] children = control.getChildren();
 			for (Control c : children) {
 				ControlListItem child = (ControlListItem) c;

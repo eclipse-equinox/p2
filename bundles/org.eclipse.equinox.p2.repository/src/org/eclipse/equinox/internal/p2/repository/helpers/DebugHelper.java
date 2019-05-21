@@ -54,7 +54,7 @@ public class DebugHelper {
 		if (keyValueArray == null || keyValueArray.length == 0)
 			debug(name, message);
 		else {
-			Map<Object, Object> params = new LinkedHashMap<Object, Object>(keyValueArray.length / 2);
+			Map<Object, Object> params = new LinkedHashMap<>(keyValueArray.length / 2);
 			for (int i = 0; i < keyValueArray.length; i += 2)
 				params.put(keyValueArray[i], keyValueArray[i + 1]);
 			StringBuffer buffer = new StringBuffer();

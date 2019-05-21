@@ -61,7 +61,7 @@ public class ChmodAction extends ProvisioningAction {
 
 		String options[] = null;
 		if (optionsString != null) {
-			ArrayList<String> collect = new ArrayList<String>();
+			ArrayList<String> collect = new ArrayList<>();
 			String r = optionsString.trim();
 			while (r.length() > 0) {
 				int spaceIdx = r.indexOf(' ');

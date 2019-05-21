@@ -93,7 +93,7 @@ public class Util {
 		}
 		try {
 			String repositoryName = Messages.BundlePool;
-			Map<String, String> properties = new HashMap<String, String>(1);
+			Map<String, String> properties = new HashMap<>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return (IFileArtifactRepository) manager.createRepository(location, repositoryName, REPOSITORY_TYPE, properties);
 		} catch (ProvisionException e) {
@@ -174,7 +174,7 @@ public class Util {
 	}
 
 	private static List<String> getListProfileProperty(IProfile profile, String key) {
-		List<String> listProperty = new ArrayList<String>();
+		List<String> listProperty = new ArrayList<>();
 		String dropinRepositories = profile.getProperty(key);
 		if (dropinRepositories != null) {
 			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, PIPE);

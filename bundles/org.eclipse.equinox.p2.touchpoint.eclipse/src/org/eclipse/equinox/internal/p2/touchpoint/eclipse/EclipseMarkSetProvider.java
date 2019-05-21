@@ -69,7 +69,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		if (cfg == null)
 			return Collections.emptyList();
 		List<Site> sites = cfg.getSites();
-		ArrayList<Feature> result = new ArrayList<Feature>();
+		ArrayList<Feature> result = new ArrayList<>();
 		for (Site object : sites) {
 			Feature[] features = object.getFeatures();
 			for (int i = 0; i < features.length; i++) {

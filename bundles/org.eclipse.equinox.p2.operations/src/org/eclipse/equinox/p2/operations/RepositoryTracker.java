@@ -44,7 +44,7 @@ public abstract class RepositoryTracker {
 	/**
 	 * List<URI> of repositories that have already been reported to the user as not found.
 	 */
-	private final List<URI> reposNotFound = Collections.synchronizedList(new ArrayList<URI>());
+	private final List<URI> reposNotFound = Collections.synchronizedList(new ArrayList<>());
 
 	/**
 	 * Return an array of repository locations known for the specified provisioning session.

@@ -28,7 +28,7 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 	// treat the given string as a comma-separated list and parse and 
 	// convert it to a real list
 	protected static List<String> convertToList(String value) {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for (StringTokenizer tokenizer = new StringTokenizer(value, ","); tokenizer.hasMoreTokens();) //$NON-NLS-1$
 			result.add(tokenizer.nextToken());
 		return result;

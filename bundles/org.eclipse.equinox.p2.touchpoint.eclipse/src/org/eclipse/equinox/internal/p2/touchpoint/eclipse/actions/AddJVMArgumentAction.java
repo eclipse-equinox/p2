@@ -220,7 +220,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		if (argString == null || argString.length() == 0)
 			return new String[0];
 
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		int i = 0;
 		String arg = ""; //$NON-NLS-1$
 

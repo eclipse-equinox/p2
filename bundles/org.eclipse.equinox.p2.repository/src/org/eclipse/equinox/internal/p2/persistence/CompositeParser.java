@@ -43,7 +43,7 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 		public ChildrenHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, CHILDREN_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			children = (size != null ? new ArrayList<URI>(Integer.parseInt(size)) : new ArrayList<URI>(4));
+			children = (size != null ? new ArrayList<>(Integer.parseInt(size)) : new ArrayList<>(4));
 		}
 
 		public URI[] getChildren() {

@@ -31,7 +31,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
  */
 public class Configuration {
 
-	private List<Site> sites = new ArrayList<Site>();
+	private List<Site> sites = new ArrayList<>();
 	String date;
 	boolean transientProperty;
 	String version;
@@ -67,7 +67,7 @@ public class Configuration {
 		String shared = getSharedUR();
 		if (shared == null)
 			return sites;
-		List<Site> result = new ArrayList<Site>(sites);
+		List<Site> result = new ArrayList<>(sites);
 		try {
 			URL url = new URL(shared);
 			File location = URLUtil.toFile(url);

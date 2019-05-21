@@ -39,7 +39,7 @@ public final class ArtifactDescriptorQuery extends ExpressionMatchQuery<IArtifac
 			if (properties == null || properties.isEmpty())
 				properties = Collections.singletonMap(IArtifactDescriptor.FORMAT, format);
 			else {
-				properties = new HashMap<String, String>(properties);
+				properties = new HashMap<>(properties);
 				properties.put(IArtifactDescriptor.FORMAT, format);
 			}
 		} else if (properties == null)

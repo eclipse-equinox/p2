@@ -36,7 +36,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 		try {
 			OutputStream output = new BufferedOutputStream(new FileOutputStream(location));
 			writer = new XMLWriter(output);
-			Map<String, String> args = new HashMap<String, String>();
+			Map<String, String> args = new HashMap<>();
 
 			// always write out an up-to-date timestamp
 			args.put(ATTRIBUTE_DATE, Long.toString(new Date().getTime()));
@@ -74,7 +74,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	 * Write out the given site.
 	 */
 	private static void write(XMLWriter writer, Site site, URL osgiInstallArea) {
-		Map<String, String> args = new HashMap<String, String>();
+		Map<String, String> args = new HashMap<>();
 
 		String value = site.getLinkFile();
 		if (value != null)
@@ -149,7 +149,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			return;
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
-			Map<String, String> args = new HashMap<String, String>();
+			Map<String, String> args = new HashMap<>();
 			String value = feature.getId();
 			if (value != null)
 				args.put(ATTRIBUTE_ID, value);

@@ -28,7 +28,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  */
 public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCustomizer<IAgentServiceFactory, Object> {
 
-	private final Map<String, Object> agentServices = Collections.synchronizedMap(new HashMap<String, Object>());
+	private final Map<String, Object> agentServices = Collections.synchronizedMap(new HashMap<>());
 	private BundleContext context;
 	private volatile boolean stopped = false;
 	private ServiceRegistration<IProvisioningAgent> reg;

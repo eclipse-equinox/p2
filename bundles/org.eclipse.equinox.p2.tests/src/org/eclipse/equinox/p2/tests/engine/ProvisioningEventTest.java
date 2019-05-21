@@ -160,8 +160,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			listener.latch.await(10, TimeUnit.SECONDS);
 			assertNull("Published phase event with unwanted phase id.", listener.publishUnWantedPhaseEvent);
 			assertEquals("Published unwanted type of phase event.", 0, listener.publishUnWantedPhaseType);
-			assertEquals("Expected Phase start event is not published.", new ArrayList<String>(0), listener.phaseStartEventToBePublised);
-			assertEquals("Expected Phase end event is not published.", new ArrayList<String>(0), listener.phaseEndEventToBePublised);
+			assertEquals("Expected Phase start event is not published.", new ArrayList<>(0), listener.phaseStartEventToBePublised);
+			assertEquals("Expected Phase end event is not published.", new ArrayList<>(0), listener.phaseEndEventToBePublised);
 		} finally {
 			getEventBus().removeListener(listener);
 		}

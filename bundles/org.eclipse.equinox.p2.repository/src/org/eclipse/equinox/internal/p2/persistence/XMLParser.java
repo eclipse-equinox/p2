@@ -48,7 +48,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	private IProgressMonitor monitor;
 
 	// Store a cache of previously seen URIs to avoid GC presure
-	final Map<String, URI> uris = new HashMap<String, URI>();
+	final Map<String, URI> uris = new HashMap<>();
 
 	private static ServiceTracker<SAXParserFactory, SAXParserFactory> xmlTracker = null;
 

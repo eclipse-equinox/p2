@@ -196,7 +196,7 @@ public class LocationProperties {
 	private String[] getRepositoryFactoryOrder(String repositoryFactoryOrder) {
 		repositoryFactoryOrder = repositoryFactoryOrder == null ? "" : repositoryFactoryOrder; //$NON-NLS-1$
 		StringTokenizer tokenizer = new StringTokenizer(repositoryFactoryOrder, ","); //$NON-NLS-1$
-		List<String> searchOrder = new ArrayList<String>();
+		List<String> searchOrder = new ArrayList<>();
 		while (tokenizer.hasMoreTokens()) {
 			searchOrder.add(tokenizer.nextToken().trim());
 		}

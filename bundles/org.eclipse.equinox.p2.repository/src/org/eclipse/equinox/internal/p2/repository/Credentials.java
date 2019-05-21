@@ -446,7 +446,7 @@ public class Credentials {
 
 	private static synchronized Map<String, HostEntry> getRemembered() {
 		if (remembered == null)
-			remembered = Collections.synchronizedMap(new HashMap<String, HostEntry>());
+			remembered = Collections.synchronizedMap(new HashMap<>());
 		return remembered;
 	}
 

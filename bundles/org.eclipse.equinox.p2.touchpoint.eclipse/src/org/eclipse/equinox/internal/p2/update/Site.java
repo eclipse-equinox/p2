@@ -30,8 +30,8 @@ public class Site {
 	private boolean updateable = true;
 	private String url;
 	private String linkFile;
-	private Collection<Feature> features = new HashSet<Feature>();
-	private List<String> list = new ArrayList<String>();
+	private Collection<Feature> features = new HashSet<>();
+	private List<String> list = new ArrayList<>();
 
 	public void addFeature(Feature feature) {
 		this.features.add(feature);
@@ -47,7 +47,7 @@ public class Site {
 
 	public void setPluginList(List<String> plugins) {
 		if (plugins == null)
-			this.list = new ArrayList<String>();
+			this.list = new ArrayList<>();
 		else
 			this.list = plugins;
 	}

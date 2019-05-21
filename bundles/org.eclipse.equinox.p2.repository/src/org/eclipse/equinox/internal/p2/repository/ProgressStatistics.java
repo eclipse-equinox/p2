@@ -86,7 +86,7 @@ public class ProgressStatistics {
 		m_current = 0;
 		m_lastReportTime = 0;
 		m_reportInterval = DEFAULT_REPORT_INTERVAL;
-		m_recentSpeedMap = new TreeMap<Long, Long>();
+		m_recentSpeedMap = new TreeMap<>();
 		m_recentSpeedMapKey = 0L;
 		m_uri = uri;
 		m_agent = agent;
