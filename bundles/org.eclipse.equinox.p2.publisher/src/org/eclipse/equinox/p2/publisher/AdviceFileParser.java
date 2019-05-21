@@ -157,12 +157,16 @@ public class AdviceFileParser {
 		String propertyValue = null;
 		while (current != null && current.startsWith(prefix)) {
 			String token = current.substring(prefix.length());
-			if (token.equals(NAME)) {
-				propertyName = currentValue();
-			} else if (token.equals(VALUE)) {
-				propertyValue = currentValue();
-			} else {
-				// we ignore elements we do not understand
+			switch (token) {
+				case NAME:
+					propertyName = currentValue();
+					break;
+				case VALUE:
+					propertyValue = currentValue();
+					break;
+					// we ignore elements we do not understand
+				default:
+					break;
 			}
 			next();
 		}
@@ -179,18 +183,25 @@ public class AdviceFileParser {
 
 		while (current != null && current.startsWith(prefix)) {
 			String token = current;
-			if (token.equals(UPDATE_MATCH_EXP)) {
-				match = currentValue();
-			} else if (token.equals(UPDATE_ID)) {
-				name = currentValue();
-			} else if (token.equals(UPDATE_DESCRIPTION)) {
-				description = currentValue();
-			} else if (token.equals(UPDATE_RANGE)) {
-				range = currentValue();
-			} else if (token.equals(UPDATE_SEVERITY)) {
-				severity = currentValue();
-			} else {
-				// ignore
+			switch (token) {
+				case UPDATE_MATCH_EXP:
+					match = currentValue();
+					break;
+				case UPDATE_ID:
+					name = currentValue();
+					break;
+				case UPDATE_DESCRIPTION:
+					description = currentValue();
+					break;
+				case UPDATE_RANGE:
+					range = currentValue();
+					break;
+				case UPDATE_SEVERITY:
+					severity = currentValue();
+					break;
+					// ignore
+				default:
+					break;
 			}
 			next();
 		}
@@ -224,14 +235,19 @@ public class AdviceFileParser {
 		Version capabilityVersion = null;
 		while (current != null && current.startsWith(prefix)) {
 			String token = current.substring(prefix.length());
-			if (token.equals(NAME)) {
-				name = currentValue();
-			} else if (token.equals(NAMESPACE)) {
-				namespace = currentValue();
-			} else if (token.equals(VERSION)) {
-				capabilityVersion = Version.parseVersion(substituteVersionAndQualifier(currentValue()));
-			} else {
-				// we ignore elements we do not understand
+			switch (token) {
+				case NAME:
+					name = currentValue();
+					break;
+				case NAMESPACE:
+					namespace = currentValue();
+					break;
+				case VERSION:
+					capabilityVersion = Version.parseVersion(substituteVersionAndQualifier(currentValue()));
+					break;
+					// we ignore elements we do not understand
+				default:
+					break;
 			}
 			next();
 		}
@@ -266,28 +282,40 @@ public class AdviceFileParser {
 
 		while (current != null && current.startsWith(prefix)) {
 			String token = current.substring(prefix.length());
-			if (token.equals(GREEDY)) {
-				greedy = Boolean.parseBoolean(currentValue());
-			} else if (token.equals(OPTIONAL)) {
-				optional = Boolean.parseBoolean(currentValue());
-			} else if (token.equals(MULTIPLE)) {
-				multiple = Boolean.parseBoolean(currentValue());
-			} else if (token.equals(FILTER)) {
-				filter = currentValue();
-			} else if (token.equals(NAME)) {
-				name = currentValue();
-			} else if (token.equals(NAMESPACE)) {
-				namespace = currentValue();
-			} else if (token.equals(RANGE)) {
-				range = VersionRange.create(substituteVersionAndQualifier(currentValue()));
-			} else if (token.equals(MIN)) {
-				min = Integer.valueOf(currentValue()).intValue();
-			} else if (token.equals(MAX)) {
-				max = Integer.valueOf(currentValue()).intValue();
-			} else if (token.equals(MATCH_EXP)) {
-				matchExp = currentValue();
-			} else {
-				// we ignore elements we do not understand
+			switch (token) {
+				case GREEDY:
+					greedy = Boolean.parseBoolean(currentValue());
+					break;
+				case OPTIONAL:
+					optional = Boolean.parseBoolean(currentValue());
+					break;
+				case MULTIPLE:
+					multiple = Boolean.parseBoolean(currentValue());
+					break;
+				case FILTER:
+					filter = currentValue();
+					break;
+				case NAME:
+					name = currentValue();
+					break;
+				case NAMESPACE:
+					namespace = currentValue();
+					break;
+				case RANGE:
+					range = VersionRange.create(substituteVersionAndQualifier(currentValue()));
+					break;
+				case MIN:
+					min = Integer.valueOf(currentValue()).intValue();
+					break;
+				case MAX:
+					max = Integer.valueOf(currentValue()).intValue();
+					break;
+				case MATCH_EXP:
+					matchExp = currentValue();
+					break;
+					// we ignore elements we do not understand
+				default:
+					break;
 			}
 			next();
 		}
@@ -550,14 +578,19 @@ public class AdviceFileParser {
 		Version artifactVersion = null;
 		while (current != null && current.startsWith(prefix)) {
 			String token = current.substring(prefix.length());
-			if (token.equals(CLASSIFIER)) {
-				artifactClassifier = currentValue();
-			} else if (token.equals(ID)) {
-				artifactId = currentValue();
-			} else if (token.equals(VERSION)) {
-				artifactVersion = Version.parseVersion(substituteVersionAndQualifier(currentValue()));
-			} else {
-				// we ignore elements we do not understand
+			switch (token) {
+				case CLASSIFIER:
+					artifactClassifier = currentValue();
+					break;
+				case ID:
+					artifactId = currentValue();
+					break;
+				case VERSION:
+					artifactVersion = Version.parseVersion(substituteVersionAndQualifier(currentValue()));
+					break;
+					// we ignore elements we do not understand
+				default:
+					break;
 			}
 
 			next();

@@ -561,14 +561,19 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			RepositoryInfo<T> info = repositories.get(getKey(location));
 			if (info == null)
 				return null;// Repository not found
-			if (IRepository.PROP_DESCRIPTION.equals(key))
-				return info.description;
-			else if (IRepository.PROP_NAME.equals(key))
-				return info.name;
-			else if (IRepository.PROP_SYSTEM.equals(key))
-				return Boolean.toString(info.isSystem);
-			else if (IRepository.PROP_NICKNAME.equals(key))
-				return info.nickname;
+			if (null != key)
+				switch (key) {
+					case IRepository.PROP_DESCRIPTION:
+						return info.description;
+					case IRepository.PROP_NAME:
+						return info.name;
+					case IRepository.PROP_SYSTEM:
+						return Boolean.toString(info.isSystem);
+					case IRepository.PROP_NICKNAME:
+						return info.nickname;
+					default:
+						break;
+				}
 			// Key not known, return null
 			return null;
 		}
@@ -583,15 +588,24 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			RepositoryInfo<T> info = repositories.get(getKey(location));
 			if (info == null)
 				return;// Repository not found
-			if (IRepository.PROP_DESCRIPTION.equals(key))
-				info.description = value;
-			else if (IRepository.PROP_NAME.equals(key))
-				info.name = value;
-			else if (IRepository.PROP_NICKNAME.equals(key))
-				info.nickname = value;
-			else if (IRepository.PROP_SYSTEM.equals(key))
-				//only true if value.equals("true") which is OK because a repository is only system if it's explicitly set to system.
+			if (null != key)
+				switch (key) {
+		    	case IRepository.PROP_DESCRIPTION:
+			    info.description = value;
+			    break;
+		    	case IRepository.PROP_NAME:
+			    info.name = value;
+			    break;
+		    	case IRepository.PROP_NICKNAME:
+			    info.nickname = value;
+			    break;
+		    	case IRepository.PROP_SYSTEM:
+			    //only true if value.equals("true") which is OK because a repository is only system if it's explicitly set to system.
 				info.isSystem = Boolean.parseBoolean(value);
+			    break;
+		    	default:
+			    break;
+		    }
 			remember(info, true);
 		}
 	}

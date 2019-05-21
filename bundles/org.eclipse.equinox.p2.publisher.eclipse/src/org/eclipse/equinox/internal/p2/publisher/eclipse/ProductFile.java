@@ -574,32 +574,49 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	public String getVMArguments(String os, String arch) {
 		os = os == null ? "" : os; //$NON-NLS-1$
 		String key = null;
-		if (os.equals(OS_WIN32)) {
-			key = VM_ARGS_WIN;
-		} else if (os.equals(OS_LINUX)) {
-			key = VM_ARGS_LINUX;
-		} else if (os.equals(OS_MACOSX)) {
-			key = VM_ARGS_MAC;
-		} else if (os.equals(OS_SOLARIS)) {
-			key = VM_ARGS_SOLARIS;
+		switch (os) {
+			case OS_WIN32:
+				key = VM_ARGS_WIN;
+				break;
+			case OS_LINUX:
+				key = VM_ARGS_LINUX;
+				break;
+			case OS_MACOSX:
+				key = VM_ARGS_MAC;
+				break;
+			case OS_SOLARIS:
+				key = VM_ARGS_SOLARIS;
+				break;
+			default:
+				break;
 		}
 
 		arch = arch == null ? "" : arch; //$NON-NLS-1$
 		String archKey = null;
-		if (arch.equals(ARCH_X86)) {
-			archKey = EL_ARCH_X86;
-		} else if (arch.equals(ARCH_X86_64)) {
-			archKey = EL_ARCH_X86_64;
-		} else if (arch.equals(ARCH_PPC)) {
-			archKey = EL_ARCH_PPC;
-		} else if (arch.equals(ARCH_IA_64)) {
-			archKey = EL_ARCH_IA_64;
-		} else if (arch.equals(ARCH_IA_64_32)) {
-			archKey = EL_ARCH_IA_64_32;
-		} else if (arch.equals(ARCH_PA_RISC)) {
-			archKey = EL_ARCH_PA_RISC;
-		} else if (arch.equals(ARCH_SPARC)) {
-			archKey = EL_ARCH_SPARC;
+		switch (arch) {
+			case ARCH_X86:
+				archKey = EL_ARCH_X86;
+				break;
+			case ARCH_X86_64:
+				archKey = EL_ARCH_X86_64;
+				break;
+			case ARCH_PPC:
+				archKey = EL_ARCH_PPC;
+				break;
+			case ARCH_IA_64:
+				archKey = EL_ARCH_IA_64;
+				break;
+			case ARCH_IA_64_32:
+				archKey = EL_ARCH_IA_64_32;
+				break;
+			case ARCH_PA_RISC:
+				archKey = EL_ARCH_PA_RISC;
+				break;
+			case ARCH_SPARC:
+				archKey = EL_ARCH_SPARC;
+				break;
+			default:
+				break;
 		}
 
 		String platformArchKey = null;
@@ -655,32 +672,49 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	public String getProgramArguments(String os, String arch) {
 		os = os == null ? "" : os; //$NON-NLS-1$
 		String key = null;
-		if (os.equals(OS_WIN32)) {
-			key = PROGRAM_ARGS_WIN;
-		} else if (os.equals(OS_LINUX)) {
-			key = PROGRAM_ARGS_LINUX;
-		} else if (os.equals(OS_MACOSX)) {
-			key = PROGRAM_ARGS_MAC;
-		} else if (os.equals(OS_SOLARIS)) {
-			key = PROGRAM_ARGS_SOLARIS;
+		switch (os) {
+			case OS_WIN32:
+				key = PROGRAM_ARGS_WIN;
+				break;
+			case OS_LINUX:
+				key = PROGRAM_ARGS_LINUX;
+				break;
+			case OS_MACOSX:
+				key = PROGRAM_ARGS_MAC;
+				break;
+			case OS_SOLARIS:
+				key = PROGRAM_ARGS_SOLARIS;
+				break;
+			default:
+				break;
 		}
 
 		arch = arch == null ? "" : arch; //$NON-NLS-1$
 		String archKey = null;
-		if (arch.equals(ARCH_X86)) {
-			archKey = EL_ARCH_X86;
-		} else if (arch.equals(ARCH_X86_64)) {
-			archKey = EL_ARCH_X86_64;
-		} else if (arch.equals(ARCH_PPC)) {
-			archKey = EL_ARCH_PPC;
-		} else if (arch.equals(ARCH_IA_64)) {
-			archKey = EL_ARCH_IA_64;
-		} else if (arch.equals(ARCH_IA_64_32)) {
-			archKey = EL_ARCH_IA_64_32;
-		} else if (arch.equals(ARCH_PA_RISC)) {
-			archKey = EL_ARCH_PA_RISC;
-		} else if (arch.equals(ARCH_SPARC)) {
-			archKey = EL_ARCH_SPARC;
+		switch (arch) {
+			case ARCH_X86:
+				archKey = EL_ARCH_X86;
+				break;
+			case ARCH_X86_64:
+				archKey = EL_ARCH_X86_64;
+				break;
+			case ARCH_PPC:
+				archKey = EL_ARCH_PPC;
+				break;
+			case ARCH_IA_64:
+				archKey = EL_ARCH_IA_64;
+				break;
+			case ARCH_IA_64_32:
+				archKey = EL_ARCH_IA_64_32;
+				break;
+			case ARCH_PA_RISC:
+				archKey = EL_ARCH_PA_RISC;
+				break;
+			case ARCH_SPARC:
+				archKey = EL_ARCH_SPARC;
+				break;
+			default:
+				break;
 		}
 
 		String platformArchKey = null;
@@ -743,44 +777,65 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_PRODUCT :
-				if (EL_CONFIG_INI.equals(localName)) {
-					processConfigIni(attributes);
-					state = STATE_CONFIG_INI;
-				} else if (EL_LAUNCHER.equals(localName)) {
-					processLauncher(attributes);
-					state = STATE_LAUNCHER;
-				} else if (EL_PLUGINS.equals(localName)) {
-					state = STATE_PLUGINS;
-				} else if (EL_FEATURES.equals(localName)) {
-					state = STATE_FEATURES;
-				} else if (EL_LAUNCHER_ARGS.equals(localName)) {
-					state = STATE_LAUNCHER_ARGS;
-				} else if (EL_SPLASH.equals(localName)) {
-					splashLocation = attributes.getValue(ATTRIBUTE_LOCATION);
-				} else if (EL_CONFIGURATIONS.equals(localName)) {
-					state = STATE_CONFIGURATIONS;
-				} else if (EL_LICENSE.equals(localName)) {
-					state = STATE_LICENSE;
-				} else if (EL_REPOSITORIES.equals(localName)) {
-					state = STATE_REPOSITORIES;
-				} else if (VM.equals(localName)) {
-					state = STATE_VM;
+				if (null != localName) switch (localName) {
+					case EL_CONFIG_INI:
+						processConfigIni(attributes);
+						state = STATE_CONFIG_INI;
+						break;
+					case EL_LAUNCHER:
+						processLauncher(attributes);
+						state = STATE_LAUNCHER;
+						break;
+					case EL_PLUGINS:
+						state = STATE_PLUGINS;
+						break;
+					case EL_FEATURES:
+						state = STATE_FEATURES;
+						break;
+					case EL_LAUNCHER_ARGS:
+						state = STATE_LAUNCHER_ARGS;
+						break;
+					case EL_SPLASH:
+						splashLocation = attributes.getValue(ATTRIBUTE_LOCATION);
+						break;
+					case EL_CONFIGURATIONS:
+						state = STATE_CONFIGURATIONS;
+						break;
+					case EL_LICENSE:
+						state = STATE_LICENSE;
+						break;
+					case EL_REPOSITORIES:
+						state = STATE_REPOSITORIES;
+						break;
+					case VM:
+						state = STATE_VM;
+						break;
+					default:
+						break;
 				}
 				break;
+
 
 			case STATE_CONFIG_INI :
 				processConfigIniPlatform(localName, true);
 				break;
 
 			case STATE_LAUNCHER :
-				if (OS_SOLARIS.equals(localName)) {
-					processSolaris(attributes);
-				} else if ("win".equals(localName)) { //$NON-NLS-1$
-					processWin(attributes);
-				} else if (OS_LINUX.equals(localName)) {
-					processLinux(attributes);
-				} else if (OS_MACOSX.equals(localName)) {
-					processMac(attributes);
+				if (null != localName) switch (localName) {
+					case OS_SOLARIS:
+						processSolaris(attributes);
+						break;
+					case "win": //$NON-NLS-1$
+						processWin(attributes);
+						break;
+					case OS_LINUX:
+						processLinux(attributes);
+						break;
+					case OS_MACOSX:
+						processMac(attributes);
+						break;
+					default:
+						break;
 				}
 				if ("ico".equals(localName)) { //$NON-NLS-1$
 					processIco(attributes);
@@ -789,29 +844,44 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				}
 				break;
 
+
 			case STATE_LAUNCHER_ARGS :
-				if (PROGRAM_ARGS.equals(localName)) {
-					state = STATE_PROGRAM_ARGS;
-				} else if (PROGRAM_ARGS_LINUX.equals(localName)) {
-					state = STATE_PROGRAM_ARGS_LINUX;
-				} else if (PROGRAM_ARGS_MAC.equals(localName)) {
-					state = STATE_PROGRAM_ARGS_MAC;
-				} else if (PROGRAM_ARGS_SOLARIS.equals(localName)) {
-					state = STATE_PROGRAM_ARGS_SOLARIS;
-				} else if (PROGRAM_ARGS_WIN.equals(localName)) {
-					state = STATE_PROGRAM_ARGS_WIN;
-				} else if (VM_ARGS.equals(localName)) {
-					state = STATE_VM_ARGS;
-				} else if (VM_ARGS_LINUX.equals(localName)) {
-					state = STATE_VM_ARGS_LINUX;
-				} else if (VM_ARGS_MAC.equals(localName)) {
-					state = STATE_VM_ARGS_MAC;
-				} else if (VM_ARGS_SOLARIS.equals(localName)) {
-					state = STATE_VM_ARGS_SOLARIS;
-				} else if (VM_ARGS_WIN.equals(localName)) {
-					state = STATE_VM_ARGS_WIN;
+				if (null != localName) switch (localName) {
+					case PROGRAM_ARGS:
+						state = STATE_PROGRAM_ARGS;
+						break;
+					case PROGRAM_ARGS_LINUX:
+						state = STATE_PROGRAM_ARGS_LINUX;
+						break;
+					case PROGRAM_ARGS_MAC:
+						state = STATE_PROGRAM_ARGS_MAC;
+						break;
+					case PROGRAM_ARGS_SOLARIS:
+						state = STATE_PROGRAM_ARGS_SOLARIS;
+						break;
+					case PROGRAM_ARGS_WIN:
+						state = STATE_PROGRAM_ARGS_WIN;
+						break;
+					case VM_ARGS:
+						state = STATE_VM_ARGS;
+						break;
+					case VM_ARGS_LINUX:
+						state = STATE_VM_ARGS_LINUX;
+						break;
+					case VM_ARGS_MAC:
+						state = STATE_VM_ARGS_MAC;
+						break;
+					case VM_ARGS_SOLARIS:
+						state = STATE_VM_ARGS_SOLARIS;
+						break;
+					case VM_ARGS_WIN:
+						state = STATE_VM_ARGS_WIN;
+						break;
+					default:
+						break;
 				}
 				break;
+
 
 			// For all argument states.  Set a platform key prefix representing 
 			// the outer state (platform) of the launcher arguments and then 
@@ -901,33 +971,50 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_VM :
-				if (OS_LINUX.equals(localName)) {
-					state = STATE_VM_LINUX;
-				} else if (OS_WINDOWS.equals(localName)) {
-					state = STATE_VM_WINDOWS;
-				} else if (OS_MACOS.equals(localName)) {
-					state = STATE_VM_MACOS;
+				if (null != localName) switch (localName) {
+					case OS_LINUX:
+						state = STATE_VM_LINUX;
+						break;
+					case OS_WINDOWS:
+						state = STATE_VM_WINDOWS;
+						break;
+					case OS_MACOS:
+						state = STATE_VM_MACOS;
+						break;
+					default:
+						break;
 				}
 				break;
+
 		}
 	}
 
 	private void setArchState(String archName) {
 		outerState = state;
-		if (EL_ARCH_X86.equals(archName)) {
-			state = STATE_ARCH_X86;
-		} else if (EL_ARCH_X86_64.equals(archName)) {
-			state = STATE_ARCH_X86_64;
-		} else if (EL_ARCH_PPC.equals(archName)) {
-			state = STATE_ARCH_PPC;
-		} else if (EL_ARCH_IA_64.equals(archName)) {
-			state = STATE_ARCH_IA_64;
-		} else if (EL_ARCH_IA_64_32.equals(archName)) {
-			state = STATE_ARCH_IA_64_32;
-		} else if (EL_ARCH_PA_RISC.equals(archName)) {
-			state = STATE_ARCH_PA_RISC;
-		} else if (EL_ARCH_SPARC.equals(archName)) {
-			state = STATE_ARCH_SPARC;
+		if (null != archName) switch (archName) {
+			case EL_ARCH_X86:
+				state = STATE_ARCH_X86;
+				break;
+			case EL_ARCH_X86_64:
+				state = STATE_ARCH_X86_64;
+				break;
+			case EL_ARCH_PPC:
+				state = STATE_ARCH_PPC;
+				break;
+			case EL_ARCH_IA_64:
+				state = STATE_ARCH_IA_64;
+				break;
+			case EL_ARCH_IA_64_32:
+				state = STATE_ARCH_IA_64_32;
+				break;
+			case EL_ARCH_PA_RISC:
+				state = STATE_ARCH_PA_RISC;
+				break;
+			case EL_ARCH_SPARC:
+				state = STATE_ARCH_SPARC;
+				break;
+			default:
+				break;
 		}
 	}
 

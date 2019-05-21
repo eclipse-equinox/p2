@@ -425,14 +425,19 @@ public class CategoryParser extends DefaultHandler {
 	}
 
 	private void handleCategoryDefState(String elementName, Attributes attributes) {
-		if (elementName.equals(DESCRIPTION)) {
-			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_CATEGORY_DEF));
-			processInfo(attributes);
-		} else if (elementName.equals(CATEGORY)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY));
-			processCategory(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+		switch (elementName) {
+			case DESCRIPTION:
+				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_CATEGORY_DEF));
+				processInfo(attributes);
+				break;
+			case CATEGORY:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY));
+				processCategory(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+				break;
+		}
 	}
 
 	private void handleCategoryState(String elementName, Attributes attributes) {
@@ -468,65 +473,91 @@ public class CategoryParser extends DefaultHandler {
 	}
 
 	private void handleSiteState(String elementName, Attributes attributes) {
-		if (elementName.equals(DESCRIPTION)) {
-			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
-			processInfo(attributes);
-		} else if (elementName.equals(FEATURE)) {
-			stateStack.push(Integer.valueOf(STATE_FEATURE));
-			processFeature(attributes);
-		} else if (elementName.equals(BUNDLE)) {
-			stateStack.push(Integer.valueOf(STATE_BUNDLE));
-			processBundle(attributes);
-		} else if (elementName.equals(IU)) {
-			stateStack.push(Integer.valueOf(STATE_IU));
-			processIU(attributes);
-		} else if (elementName.equals(ARCHIVE)) {
-			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-			processArchive(attributes);
-		} else if (elementName.equals(CATEGORY_DEF)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-			processCategoryDef(attributes);
-		} else if (elementName.equals(REPOSITORY_REF)) {
-			stateStack.push(Integer.valueOf(STATE_REPOSITORY_REF));
-			processRepositoryReference(attributes);
-		} else if (elementName.equals(STATS_URI)) {
-			stateStack.push(Integer.valueOf(STATE_STATS));
-			processStatsInfo(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+		switch (elementName) {
+			case DESCRIPTION:
+				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
+				processInfo(attributes);
+				break;
+			case FEATURE:
+				stateStack.push(Integer.valueOf(STATE_FEATURE));
+				processFeature(attributes);
+				break;
+			case BUNDLE:
+				stateStack.push(Integer.valueOf(STATE_BUNDLE));
+				processBundle(attributes);
+				break;
+			case IU:
+				stateStack.push(Integer.valueOf(STATE_IU));
+				processIU(attributes);
+				break;
+			case ARCHIVE:
+				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+				processArchive(attributes);
+				break;
+			case CATEGORY_DEF:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+				processCategoryDef(attributes);
+				break;
+			case REPOSITORY_REF:
+				stateStack.push(Integer.valueOf(STATE_REPOSITORY_REF));
+				processRepositoryReference(attributes);
+				break;
+			case STATS_URI:
+				stateStack.push(Integer.valueOf(STATE_STATS));
+				processStatsInfo(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+				break;
+		}
 	}
 
 	private void handleStatsState(String elementName, Attributes attributes) {
-		if (elementName.equals(FEATURE)) {
-			stateStack.push(STATE_FEATURE);
-			processStatsFeature(attributes);
-		} else if (elementName.equals(BUNDLE)) {
-			stateStack.push(STATE_BUNDLE);
-			processStatsBundle(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+		switch (elementName) {
+			case FEATURE:
+				stateStack.push(STATE_FEATURE);
+				processStatsFeature(attributes);
+				break;
+			case BUNDLE:
+				stateStack.push(STATE_BUNDLE);
+				processStatsBundle(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+				break;
+		}
 	}
 
 	private void handleIUState(String elementName, Attributes attributes) {
-		if (elementName.equals(QUERY)) {
-			stateStack.push(Integer.valueOf(STATE_QUERY));
-			processQuery(attributes);
-		} else if (elementName.equals(CATEGORY)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY));
-			processCategory(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+		switch (elementName) {
+			case QUERY:
+				stateStack.push(Integer.valueOf(STATE_QUERY));
+				processQuery(attributes);
+				break;
+			case CATEGORY:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY));
+				processCategory(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+				break;
+		}
 	}
 
 	private void handleQueryState(String elementName, Attributes attributes) {
-		if (elementName.equals(EXPRESSION)) {
-			stateStack.push(Integer.valueOf(STATE_EXPRESSION));
-			processExpression(attributes);
-		} else if (elementName.equals(PARAM)) {
-			stateStack.push(Integer.valueOf(STATE_PARAM));
-			processParam(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+		switch (elementName) {
+			case EXPRESSION:
+				stateStack.push(Integer.valueOf(STATE_EXPRESSION));
+				processExpression(attributes);
+				break;
+			case PARAM:
+				stateStack.push(Integer.valueOf(STATE_PARAM));
+				processParam(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+				break;
+		}
 	}
 
 	private void handleExpression(String elementName, Attributes attributes) {

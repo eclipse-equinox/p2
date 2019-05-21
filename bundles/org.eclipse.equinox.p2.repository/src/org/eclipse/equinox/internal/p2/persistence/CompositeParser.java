@@ -136,20 +136,26 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 
 		@Override
 		public void startElement(String name, Attributes attributes) {
-			if (PROPERTIES_ELEMENT.equals(name)) {
-				if (propertiesHandler == null) {
-					propertiesHandler = new PropertiesHandler(this, attributes);
-				} else {
-					duplicateElement(this, name, attributes);
-				}
-			} else if (CHILDREN_ELEMENT.equals(name)) {
-				if (childrenHandler == null) {
-					childrenHandler = new ChildrenHandler(this, attributes);
-				} else {
-					duplicateElement(this, name, attributes);
-				}
-			} else {
+			if (name==null) {
 				invalidElement(name, attributes);
+			} else switch (name) {
+				case PROPERTIES_ELEMENT:
+					if (propertiesHandler == null) {
+						propertiesHandler = new PropertiesHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+					break;
+				case CHILDREN_ELEMENT:
+					if (childrenHandler == null) {
+						childrenHandler = new ChildrenHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+					break;
+				default:
+					invalidElement(name, attributes);
+					break;
 			}
 		}
 

@@ -56,15 +56,24 @@ public class IUListFormatter {
 		String s = formatString;
 		for (String property : properties) {
 			Pattern pattern = Pattern.compile(String.format("\\$\\{%s\\}", property)); //$NON-NLS-1$
-			if ("id".equals(property)) { //$NON-NLS-1$
-				s = insert(iu.getId(), pattern, s);
-			} else if ("version".equals(property)) { //$NON-NLS-1$
-				s = insert(iu.getVersion().toString(), pattern, s);
-			} else {
+			if (null == property) {
 				String value = iu.getProperty(property, "df_LT"); //$NON-NLS-1$
 				if (value == null)
 					value = ""; //$NON-NLS-1$ unknown property
 				s = insert(value, pattern, s);
+			} else switch (property) {
+				case "id": //$NON-NLS-1$
+					s = insert(iu.getId(), pattern, s);
+					break;
+				case "version": //$NON-NLS-1$
+					s = insert(iu.getVersion().toString(), pattern, s);
+					break;
+				default:
+					String value = iu.getProperty(property, "df_LT"); //$NON-NLS-1$
+					if (value == null)
+						value = ""; //$NON-NLS-1$ unknown property
+					s = insert(value, pattern, s);
+					break;
 			}
 		}
 

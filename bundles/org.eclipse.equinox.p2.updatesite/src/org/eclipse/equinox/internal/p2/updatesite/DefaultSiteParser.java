@@ -380,83 +380,115 @@ public class DefaultSiteParser extends DefaultHandler {
 	}
 
 	private void handleCategoryDefState(String elementName, Attributes attributes) {
-		if (elementName.equals(FEATURE)) {
-			stateStack.push(Integer.valueOf(STATE_FEATURE));
-			processFeature(attributes);
-		} else if (elementName.equals(BUNDLE)) {
-			stateStack.push(Integer.valueOf(STATE_BUNDLE));
-			processBundle(attributes);
-		} else if (elementName.equals(ARCHIVE)) {
-			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-			processArchive(attributes);
-		} else if (elementName.equals(CATEGORY_DEF)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-			processCategoryDef(attributes);
-		} else if (elementName.equals(DESCRIPTION)) {
-			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_CATEGORY_DEF));
-			processInfo(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+		switch (elementName) {
+			case FEATURE:
+				stateStack.push(Integer.valueOf(STATE_FEATURE));
+				processFeature(attributes);
+				break;
+			case BUNDLE:
+				stateStack.push(Integer.valueOf(STATE_BUNDLE));
+				processBundle(attributes);
+				break;
+			case ARCHIVE:
+				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+				processArchive(attributes);
+				break;
+			case CATEGORY_DEF:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+				processCategoryDef(attributes);
+				break;
+			case DESCRIPTION:
+				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_CATEGORY_DEF));
+				processInfo(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+				break;
+		}
 	}
 
 	private void handleCategoryState(String elementName, Attributes attributes) {
-		if (elementName.equals(DESCRIPTION)) {
-			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
-			processInfo(attributes);
-		} else if (elementName.equals(FEATURE)) {
-			stateStack.push(Integer.valueOf(STATE_FEATURE));
-			processFeature(attributes);
-		} else if (elementName.equals(BUNDLE)) {
-			stateStack.push(Integer.valueOf(STATE_BUNDLE));
-			processBundle(attributes);
-		} else if (elementName.equals(ARCHIVE)) {
-			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-			processArchive(attributes);
-		} else if (elementName.equals(CATEGORY_DEF)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-			processCategoryDef(attributes);
-		} else if (elementName.equals(CATEGORY)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY));
-			processCategory(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+		switch (elementName) {
+			case DESCRIPTION:
+				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
+				processInfo(attributes);
+				break;
+			case FEATURE:
+				stateStack.push(Integer.valueOf(STATE_FEATURE));
+				processFeature(attributes);
+				break;
+			case BUNDLE:
+				stateStack.push(Integer.valueOf(STATE_BUNDLE));
+				processBundle(attributes);
+				break;
+			case ARCHIVE:
+				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+				processArchive(attributes);
+				break;
+			case CATEGORY_DEF:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+				processCategoryDef(attributes);
+				break;
+			case CATEGORY:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY));
+				processCategory(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+				break;
+		}
 	}
 
 	private void handleFeatureState(String elementName, Attributes attributes) {
-		if (elementName.equals(DESCRIPTION)) {
-			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
-			processInfo(attributes);
-		} else if (elementName.equals(FEATURE)) {
-			stateStack.push(Integer.valueOf(STATE_FEATURE));
-			processFeature(attributes);
-		} else if (elementName.equals(ARCHIVE)) {
-			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-			processArchive(attributes);
-		} else if (elementName.equals(CATEGORY_DEF)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-			processCategoryDef(attributes);
-		} else if (elementName.equals(CATEGORY)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY));
-			processCategory(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+		switch (elementName) {
+			case DESCRIPTION:
+				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
+				processInfo(attributes);
+				break;
+			case FEATURE:
+				stateStack.push(Integer.valueOf(STATE_FEATURE));
+				processFeature(attributes);
+				break;
+			case ARCHIVE:
+				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+				processArchive(attributes);
+				break;
+			case CATEGORY_DEF:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+				processCategoryDef(attributes);
+				break;
+			case CATEGORY:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY));
+				processCategory(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+				break;
+		}
 	}
 
 	private void handleBundleState(String elementName, Attributes attributes) {
-		if (elementName.equals(DESCRIPTION)) {
-			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
-			processInfo(attributes);
-		} else if (elementName.equals(ARCHIVE)) {
-			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-			processArchive(attributes);
-		} else if (elementName.equals(CATEGORY_DEF)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-			processCategoryDef(attributes);
-		} else if (elementName.equals(CATEGORY)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY));
-			processCategory(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+		switch (elementName) {
+			case DESCRIPTION:
+				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
+				processInfo(attributes);
+				break;
+			case ARCHIVE:
+				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+				processArchive(attributes);
+				break;
+			case CATEGORY_DEF:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+				processCategoryDef(attributes);
+				break;
+			case CATEGORY:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY));
+				processCategory(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+				break;
+		}
 	}
 
 	private void handleInitialState(String elementName, Attributes attributes) throws SAXException {
@@ -472,23 +504,31 @@ public class DefaultSiteParser extends DefaultHandler {
 	}
 
 	private void handleSiteState(String elementName, Attributes attributes) {
-		if (elementName.equals(DESCRIPTION)) {
-			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
-			processInfo(attributes);
-		} else if (elementName.equals(FEATURE)) {
-			stateStack.push(Integer.valueOf(STATE_FEATURE));
-			processFeature(attributes);
-		} else if (elementName.equals(BUNDLE)) {
-			stateStack.push(Integer.valueOf(STATE_BUNDLE));
-			processBundle(attributes);
-		} else if (elementName.equals(ARCHIVE)) {
-			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-			processArchive(attributes);
-		} else if (elementName.equals(CATEGORY_DEF)) {
-			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-			processCategoryDef(attributes);
-		} else
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+		switch (elementName) {
+			case DESCRIPTION:
+				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
+				processInfo(attributes);
+				break;
+			case FEATURE:
+				stateStack.push(Integer.valueOf(STATE_FEATURE));
+				processFeature(attributes);
+				break;
+			case BUNDLE:
+				stateStack.push(Integer.valueOf(STATE_BUNDLE));
+				processBundle(attributes);
+				break;
+			case ARCHIVE:
+				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+				processArchive(attributes);
+				break;
+			case CATEGORY_DEF:
+				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+				processCategoryDef(attributes);
+				break;
+			default:
+				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+				break;
+		}
 	}
 
 	/*

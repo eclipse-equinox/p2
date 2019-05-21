@@ -100,16 +100,20 @@ public class Utils {
 		String[] locations = null;
 		String prop = System.getProperty(PACK200_PROPERTY);
 		String javaHome = System.getProperty("java.home"); //$NON-NLS-1$
-		if (NONE.equals(prop)) {
-			return null;
-		} else if (JRE.equals(prop)) {
-			locations = new String[] {javaHome + "/bin/" + cmd}; //$NON-NLS-1$
-		} else if (PATH.equals(prop)) {
-			locations = new String[] {cmd};
-		} else if (prop == null) {
+		if (null == prop) {
 			locations = new String[] {javaHome + "/bin/" + cmd, cmd}; //$NON-NLS-1$ 
-		} else {
-			locations = new String[] {prop + "/" + cmd}; //$NON-NLS-1$
+		} else switch (prop) {
+			case NONE:
+				return null;
+			case JRE:
+				locations = new String[] {javaHome + "/bin/" + cmd}; //$NON-NLS-1$
+				break;
+			case PATH:
+				locations = new String[] {cmd};
+				break;
+			default:
+				locations = new String[] {prop + "/" + cmd}; //$NON-NLS-1$
+				break;
 		}
 		return locations;
 	}

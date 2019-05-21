@@ -103,20 +103,31 @@ public class BrandingIron {
 		}
 		descriptor.setLocation(root);
 
-		if ("win32".equals(os)) //$NON-NLS-1$
-			brandWindows(descriptor);
-		else if ("linux".equals(os)) //$NON-NLS-1$
-			brandLinux(descriptor);
-		else if ("solaris".equals(os)) //$NON-NLS-1$
-			brandSolaris(descriptor);
-		else if ("macosx".equals(os)) //$NON-NLS-1$
-			brandMac(descriptor);
-		else if ("aix".equals(os)) //$NON-NLS-1$
-			brandAIX(descriptor);
-		else if ("hpux".equals(os)) //$NON-NLS-1$
-			brandHPUX(descriptor);
-		else
+		if (os==null)
 			renameLauncher(descriptor);
+		else switch (os) {
+			case "win32": //$NON-NLS-1$
+				brandWindows(descriptor);
+				break;
+			case "linux": //$NON-NLS-1$
+				brandLinux(descriptor);
+				break;
+			case "solaris": //$NON-NLS-1$
+				brandSolaris(descriptor);
+				break;
+			case "macosx": //$NON-NLS-1$
+				brandMac(descriptor);
+				break;
+			case "aix": //$NON-NLS-1$
+				brandAIX(descriptor);
+				break;
+			case "hpux": //$NON-NLS-1$
+				brandHPUX(descriptor);
+				break;
+			default:
+				renameLauncher(descriptor);
+				break;
+		}
 		descriptor.setExecutableName(name, true);
 	}
 

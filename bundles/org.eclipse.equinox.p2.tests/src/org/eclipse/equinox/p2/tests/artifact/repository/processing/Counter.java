@@ -62,12 +62,17 @@ public class Counter extends ProcessingStep {
 		if (data == null)
 			return;
 		try {
-			if (data.equals("download"))
-				size = Long.parseLong(context.getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
-			else if (data.equals("artifact"))
-				size = Long.parseLong(context.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-			else
-				size = Long.parseLong(data);
+			switch (data) {
+				case "download":
+					size = Long.parseLong(context.getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
+					break;
+				case "artifact":
+					size = Long.parseLong(context.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
+					break;
+				default:
+					size = Long.parseLong(data);
+					break;
+			}
 		} catch (NumberFormatException e) {
 			int code = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
 			setStatus(new Status(code, Activator.ID, "Counter size specification invalid", e));

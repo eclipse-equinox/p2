@@ -769,12 +769,16 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		@Override
 		public void startElement(String elem, Attributes attributes) {
-			if (elem.equals(REQUIREMENT_FILTER_ELEMENT)) {
-				filterHandler = new TextHandler(this, REQUIREMENT_FILTER_ELEMENT, attributes);
-			} else if (elem.equals(REQUIREMENT_DESCRIPTION_ELEMENT)) {
-				descriptionHandler = new TextHandler(this, REQUIREMENT_DESCRIPTION_ELEMENT, attributes);
-			} else {
-				invalidElement(elem, attributes);
+			switch (elem) {
+				case REQUIREMENT_FILTER_ELEMENT:
+					filterHandler = new TextHandler(this, REQUIREMENT_FILTER_ELEMENT, attributes);
+					break;
+				case REQUIREMENT_DESCRIPTION_ELEMENT:
+					descriptionHandler = new TextHandler(this, REQUIREMENT_DESCRIPTION_ELEMENT, attributes);
+					break;
+				default:
+					invalidElement(elem, attributes);
+					break;
 			}
 		}
 

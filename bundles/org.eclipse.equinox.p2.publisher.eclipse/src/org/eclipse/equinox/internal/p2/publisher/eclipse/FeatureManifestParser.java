@@ -83,12 +83,18 @@ public class FeatureManifestParser extends DefaultHandler {
 		}
 		if (characters == null)
 			return;
-		if ("description".equals(localName)) { //$NON-NLS-1$
-			result.setDescription(localize(characters.toString().trim()));
-		} else if ("license".equals(localName)) { //$NON-NLS-1$
-			result.setLicense(localize(characters.toString().trim()));
-		} else if ("copyright".equals(localName)) { //$NON-NLS-1$
-			result.setCopyright(localize(characters.toString().trim()));
+		if (null != localName) switch (localName) {
+			case "description": //$NON-NLS-1$
+				result.setDescription(localize(characters.toString().trim()));
+				break;
+			case "license": //$NON-NLS-1$
+				result.setLicense(localize(characters.toString().trim()));
+				break;
+			case "copyright": //$NON-NLS-1$
+				result.setCopyright(localize(characters.toString().trim()));
+				break;
+			default:
+				break;
 		}
 		characters = null;
 	}
@@ -270,28 +276,41 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
-		//		Utils.debug("Start Element: uri:" + uri + " local Name:" + localName + " qName:" + qName); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		if ("plugin".equals(localName)) { //$NON-NLS-1$
-			processPlugin(attributes);
-		} else if ("description".equals(localName)) { //$NON-NLS-1$
-			processDescription(attributes);
-		} else if ("license".equals(localName)) { //$NON-NLS-1$
-			processLicense(attributes);
-		} else if ("copyright".equals(localName)) { //$NON-NLS-1$
-			processCopyright(attributes);
-		} else if ("feature".equals(localName)) { //$NON-NLS-1$
-			processFeature(attributes);
-		} else if ("import".equals(localName)) { //$NON-NLS-1$
-			processImport(attributes);
-		} else if ("includes".equals(localName)) { //$NON-NLS-1$
-			processIncludes(attributes);
-		} else if ("install-handler".equals(localName)) { //$NON-NLS-1$
-			processInstallHandler(attributes);
-		} else if ("update".equals(localName)) { //$NON-NLS-1$
-			processUpdateSite(attributes);
-		} else if ("discovery".equals(localName)) { //$NON-NLS-1$
-			processDiscoverySite(attributes);
-		}
+		if (null != localName) //		Utils.debug("Start Element: uri:" + uri + " local Name:" + localName + " qName:" + qName); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			switch (localName) {
+				case "plugin": //$NON-NLS-1$
+					processPlugin(attributes);
+					break;
+				case "description": //$NON-NLS-1$
+					processDescription(attributes);
+					break;
+				case "license": //$NON-NLS-1$
+					processLicense(attributes);
+					break;
+				case "copyright": //$NON-NLS-1$
+					processCopyright(attributes);
+					break;
+				case "feature": //$NON-NLS-1$
+					processFeature(attributes);
+					break;
+				case "import": //$NON-NLS-1$
+					processImport(attributes);
+					break;
+				case "includes": //$NON-NLS-1$
+					processIncludes(attributes);
+					break;
+				case "install-handler": //$NON-NLS-1$
+					processInstallHandler(attributes);
+					break;
+				case "update": //$NON-NLS-1$
+					processUpdateSite(attributes);
+					break;
+				case "discovery": //$NON-NLS-1$
+					processDiscoverySite(attributes);
+					break;
+				default:
+					break;
+			}
 	}
 
 }
