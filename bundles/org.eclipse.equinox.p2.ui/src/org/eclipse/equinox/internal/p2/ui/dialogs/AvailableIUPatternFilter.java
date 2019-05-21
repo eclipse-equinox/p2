@@ -39,14 +39,22 @@ public class AvailableIUPatternFilter extends PatternFilter {
 		super();
 		for (int i = 0; i < columnConfig.length; i++) {
 			int field = columnConfig[i].getColumnType();
-			if (field == IUColumnConfig.COLUMN_ID)
-				checkId = true;
-			else if (field == IUColumnConfig.COLUMN_NAME)
-				checkName = true;
-			else if (field == IUColumnConfig.COLUMN_DESCRIPTION)
-				checkDescription = true;
-			else if (field == IUColumnConfig.COLUMN_VERSION)
-				checkVersion = true;
+			switch (field) {
+				case IUColumnConfig.COLUMN_ID:
+					checkId = true;
+					break;
+				case IUColumnConfig.COLUMN_NAME:
+					checkName = true;
+					break;
+				case IUColumnConfig.COLUMN_DESCRIPTION:
+					checkDescription = true;
+					break;
+				case IUColumnConfig.COLUMN_VERSION:
+					checkVersion = true;
+					break;
+				default:
+					break;
+			}
 		}
 
 	}

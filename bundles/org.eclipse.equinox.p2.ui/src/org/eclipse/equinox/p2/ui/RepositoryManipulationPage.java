@@ -410,13 +410,17 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			TableColumn tc = new TableColumn(table, SWT.NONE, i);
 			tc.setResizable(true);
 			tc.setText(columnHeaders[i]);
-			if (i == RepositoryDetailsLabelProvider.COL_ENABLEMENT) {
-				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
-				tc.setAlignment(SWT.CENTER);
-			} else if (i == RepositoryDetailsLabelProvider.COL_NAME) {
-				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
-			} else {
-				tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH));
+			switch (i) {
+				case RepositoryDetailsLabelProvider.COL_ENABLEMENT:
+					tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH));
+					tc.setAlignment(SWT.CENTER);
+					break;
+				case RepositoryDetailsLabelProvider.COL_NAME:
+					tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_COLUMN_WIDTH));
+					break;
+				default:
+					tc.setWidth(convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH));
+					break;
 			}
 			tc.addSelectionListener(new SelectionListener() {
 				@Override

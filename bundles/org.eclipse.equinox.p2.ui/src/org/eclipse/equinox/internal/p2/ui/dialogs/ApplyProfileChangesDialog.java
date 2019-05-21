@@ -69,12 +69,18 @@ public class ApplyProfileChangesDialog extends MessageDialog {
 	 */
 	@Override
 	protected void buttonPressed(int id) {
-		if (id == 0) { // YES
-			returnCode = PROFILE_RESTART;
-		} else if (id == 1) { // NO
-			returnCode = PROFILE_IGNORE;
-		} else {
-			returnCode = PROFILE_APPLYCHANGES;
+		switch (id) {
+			case 0:
+				// YES
+				returnCode = PROFILE_RESTART;
+				break;
+			case 1:
+				// NO
+				returnCode = PROFILE_IGNORE;
+				break;
+			default:
+				returnCode = PROFILE_APPLYCHANGES;
+				break;
 		}
 
 		super.buttonPressed(id);

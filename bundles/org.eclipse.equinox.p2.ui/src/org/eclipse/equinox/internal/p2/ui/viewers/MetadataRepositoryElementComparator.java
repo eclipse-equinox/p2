@@ -55,16 +55,21 @@ public class MetadataRepositoryElementComparator extends ViewerComparator {
 
 	int compare(MetadataRepositoryElement repo1, MetadataRepositoryElement repo2, int sortKey, int direction) {
 		String key1, key2;
-		if (sortKey == RepositoryDetailsLabelProvider.COL_NAME) {
-			// Compare the repo names
-			key1 = repo1.getName();
-			key2 = repo2.getName();
-		} else if (sortKey == RepositoryDetailsLabelProvider.COL_LOCATION) {
-			key1 = URIUtil.toUnencodedString(repo1.getLocation());
-			key2 = URIUtil.toUnencodedString(repo2.getLocation());
-		} else { // COL_ENABLEMENT
-			key1 = repo1.isEnabled() ? ENABLED : BLANK;
-			key2 = repo2.isEnabled() ? ENABLED : BLANK;
+		switch (sortKey) {
+			case RepositoryDetailsLabelProvider.COL_NAME:
+				// Compare the repo names
+				key1 = repo1.getName();
+				key2 = repo2.getName();
+				break;
+			case RepositoryDetailsLabelProvider.COL_LOCATION:
+				key1 = URIUtil.toUnencodedString(repo1.getLocation());
+				key2 = URIUtil.toUnencodedString(repo2.getLocation());
+				break;
+			default:
+				// COL_ENABLEMENT
+				key1 = repo1.isEnabled() ? ENABLED : BLANK;
+				key2 = repo2.isEnabled() ? ENABLED : BLANK;
+				break;
 		}
 		// If the key is blank (no location, or disabled)..it should appear last
 		if (key1.length() == 0 && key2.length() > 0)

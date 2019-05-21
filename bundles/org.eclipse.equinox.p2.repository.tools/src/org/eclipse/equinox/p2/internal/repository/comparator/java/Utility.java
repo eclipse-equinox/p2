@@ -377,15 +377,21 @@ public class Utility {
 				throw new IllegalArgumentException();
 			}
 			c = string[p];
-			if (c == Signature.C_SEMICOLON) {
+			switch (c) {
+			case Signature.C_SEMICOLON:
 				// all done
 				return p;
-			} else if (c == Signature.C_GENERIC_START) {
+			case Signature.C_GENERIC_START:
 				int e = scanTypeArgumentSignatures(string, p);
 				p = e;
-			} else if (c == Signature.C_DOT || c == '/') {
+				break;
+			case Signature.C_DOT:
+			case '/':
 				int id = scanIdentifier(string, p + 1);
 				p = id;
+				break;
+			default:
+				break;
 			}
 			p++;
 		}

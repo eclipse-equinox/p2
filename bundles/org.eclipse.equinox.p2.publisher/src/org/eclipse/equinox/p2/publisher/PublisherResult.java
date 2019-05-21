@@ -101,15 +101,21 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 
 	@Override
 	public void merge(IPublisherResult result, int mode) {
-		if (mode == MERGE_MATCHING) {
-			addIUs(result.getIUs(null, ROOT), ROOT);
-			addIUs(result.getIUs(null, NON_ROOT), NON_ROOT);
-		} else if (mode == MERGE_ALL_ROOT) {
-			addIUs(result.getIUs(null, ROOT), ROOT);
-			addIUs(result.getIUs(null, NON_ROOT), ROOT);
-		} else if (mode == MERGE_ALL_NON_ROOT) {
-			addIUs(result.getIUs(null, ROOT), NON_ROOT);
-			addIUs(result.getIUs(null, NON_ROOT), NON_ROOT);
+		switch (mode) {
+			case MERGE_MATCHING:
+				addIUs(result.getIUs(null, ROOT), ROOT);
+				addIUs(result.getIUs(null, NON_ROOT), NON_ROOT);
+				break;
+			case MERGE_ALL_ROOT:
+				addIUs(result.getIUs(null, ROOT), ROOT);
+				addIUs(result.getIUs(null, NON_ROOT), ROOT);
+				break;
+			case MERGE_ALL_NON_ROOT:
+				addIUs(result.getIUs(null, ROOT), NON_ROOT);
+				addIUs(result.getIUs(null, NON_ROOT), NON_ROOT);
+				break;
+			default:
+				break;
 		}
 	}
 
