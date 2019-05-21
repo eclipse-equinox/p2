@@ -115,9 +115,9 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 	public void testExecuteOneMD5VerifierPSOk() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new MD5Verifier("0cbc6611f5540bd0809a388dc95a615b")};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.link(steps, result, monitor);
-		testStream.write("Test".getBytes());
-		testStream.close();
+		try (OutputStream testStream = handler.link(steps, result, monitor)) {
+			testStream.write("Test".getBytes());
+		}
 		assertEquals("Test", result.toString());
 	}
 
@@ -139,9 +139,9 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		// Order of PSs is important!!
 		ProcessingStep[] steps = new ProcessingStep[] {new ByteShifter(1), new MD5Verifier("ceeee507e8db83294600218b4e198897")};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.link(steps, result, monitor);
-		testStream.write(new byte[] {1, 2, 3, 4, 5});
-		testStream.close();
+		try (OutputStream testStream = handler.link(steps, result, monitor)) {
+			testStream.write(new byte[] {1, 2, 3, 4, 5});
+		}
 		assertTrue(Arrays.equals(new byte[] {2, 4, 6, 8, 10}, result.toByteArray()));
 	}
 

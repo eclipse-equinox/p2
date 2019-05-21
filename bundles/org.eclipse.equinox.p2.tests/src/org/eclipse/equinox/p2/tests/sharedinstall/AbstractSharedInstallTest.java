@@ -253,14 +253,8 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 
 	public static Properties loadProperties(File inputFile) throws FileNotFoundException, IOException {
 		Properties props = new Properties();
-		InputStream is = null;
-		try {
-			is = new FileInputStream(inputFile);
+		try (InputStream is = new FileInputStream(inputFile)) {
 			props.load(is);
-		} finally {
-			if (is != null)
-				is.close();
-			is = null;
 		}
 		return props;
 	}

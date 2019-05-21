@@ -101,11 +101,8 @@ public class DeltaApplier {
 		try {
 			// if there is a sourceJar copy over the content for the entry into the result
 			if (sourceJar != null) {
-				InputStream contents = sourceJar.getInputStream(entry);
-				try {
+				try (InputStream contents = sourceJar.getInputStream(entry)) {
 					transferStreams(contents, result);
-				} finally {
-					contents.close();
 				}
 			}
 		} finally {

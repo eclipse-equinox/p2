@@ -125,13 +125,15 @@ public class IconExe {
 	 * @param program the Windows executable e.g c:/eclipse/eclipse.exe
 	 */
 	static ImageData[] loadIcons(String program) throws FileNotFoundException, IOException {
-		RandomAccessFile raf = new RandomAccessFile(program, "r"); //$NON-NLS-1$
-		IconExe iconExe = new IconExe();
-		IconResInfo[] iconInfo = iconExe.getIcons(raf);
-		ImageData[] data = new ImageData[iconInfo.length];
-		for (int i = 0; i < data.length; i++)
-			data[i] = iconInfo[i].data;
-		raf.close();
+		ImageData[] data;
+		try (RandomAccessFile raf = new RandomAccessFile(program, "r") //$NON-NLS-1$
+				) {
+			IconExe iconExe = new IconExe();
+			IconResInfo[] iconInfo = iconExe.getIcons(raf);
+			data = new ImageData[iconInfo.length];
+			for (int i = 0; i < data.length; i++)
+				data[i] = iconInfo[i].data;
+		}
 		return data;
 	}
 
@@ -176,31 +178,33 @@ public class IconExe {
 	 * @return the list of icons from the original program that were not successfully replaced (empty if success)
 	 */
 	static List<IconResInfo> unloadIcons(String program, ImageData[] icons) throws FileNotFoundException, IOException {
-		RandomAccessFile raf = new RandomAccessFile(program, "rw"); //$NON-NLS-1$
-		IconExe iconExe = new IconExe();
-		List<IconResInfo> iconInfo = new ArrayList<>(Arrays.asList(iconExe.getIcons(raf)));
-		// Display an error if  no icons found in target executable.
-		if (iconInfo.isEmpty()) {
-			System.err.println("Warning - no icons detected in \"" + program + "\"."); //$NON-NLS-1$ //$NON-NLS-2$
-			raf.close();
-			return Collections.emptyList();
-		}
-		Iterator<IconResInfo> originalIconsIterator = iconInfo.iterator();
-		while (originalIconsIterator.hasNext()) {
-			IconResInfo iconToReplace = originalIconsIterator.next();
-			for (ImageData iconToWrite : Arrays.asList(icons)) {
-				if (iconToWrite == null)
-					continue;
+		List<IconResInfo> iconInfo;
+		try (RandomAccessFile raf = new RandomAccessFile(program, "rw") //$NON-NLS-1$
+				) {
+			IconExe iconExe = new IconExe();
+			iconInfo = new ArrayList<>(Arrays.asList(iconExe.getIcons(raf)));
+			// Display an error if  no icons found in target executable.
+			if (iconInfo.isEmpty()) {
+				System.err.println("Warning - no icons detected in \"" + program + "\"."); //$NON-NLS-1$ //$NON-NLS-2$
+				raf.close();
+				return Collections.emptyList();
+			}
+			Iterator<IconResInfo> originalIconsIterator = iconInfo.iterator();
+			while (originalIconsIterator.hasNext()) {
+				IconResInfo iconToReplace = originalIconsIterator.next();
+				for (ImageData iconToWrite : Arrays.asList(icons)) {
+					if (iconToWrite == null)
+						continue;
 
-				if (iconToReplace.data.width == iconToWrite.width && iconToReplace.data.height == iconToWrite.height && iconToReplace.data.depth == iconToWrite.depth) {
-					raf.seek(iconToReplace.offset);
-					unloadIcon(raf, iconToWrite);
-					originalIconsIterator.remove();
-					break;
+					if (iconToReplace.data.width == iconToWrite.width && iconToReplace.data.height == iconToWrite.height && iconToReplace.data.depth == iconToWrite.depth) {
+						raf.seek(iconToReplace.offset);
+						unloadIcon(raf, iconToWrite);
+						originalIconsIterator.remove();
+						break;
+					}
 				}
 			}
 		}
-		raf.close();
 		return iconInfo;
 	}
 
@@ -516,13 +520,12 @@ public class IconExe {
 	static void copyFile(String src, String dst) throws FileNotFoundException, IOException {
 		File srcFile = new File(src);
 		File dstFile = new File(dst);
-		InputStream in = new BufferedInputStream(new FileInputStream(srcFile));
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(dstFile));
-		int c;
-		while ((c = in.read()) != -1)
-			out.write(c);
-		in.close();
-		out.close();
+		try (InputStream in = new BufferedInputStream(new FileInputStream(srcFile));
+			OutputStream out = new BufferedOutputStream(new FileOutputStream(dstFile))) {
+			int c;
+			while ((c = in.read()) != -1)
+				out.write(c);
+		}
 	}
 
 	/* IO utilities to parse Windows executable */
