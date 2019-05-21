@@ -78,9 +78,9 @@ public class ArtifactKey implements IArtifactKey, IMemberProvider {
 		Assert.isNotNull(classifier);
 		Assert.isNotNull(id);
 		Assert.isNotNull(version);
-		if (classifier.indexOf(SEPARATOR) != -1)
+		if (classifier.contains(SEPARATOR))
 			throw new IllegalArgumentException("comma not allowed in classifier"); //$NON-NLS-1$
-		if (id.indexOf(SEPARATOR) != -1)
+		if (id.contains(SEPARATOR))
 			throw new IllegalArgumentException("comma not allowed in id"); //$NON-NLS-1$
 		this.classifier = classifier;
 		this.id = id;

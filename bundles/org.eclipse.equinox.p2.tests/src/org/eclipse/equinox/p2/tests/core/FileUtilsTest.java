@@ -102,14 +102,14 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 			FileUtils.unzipFile(badZip, temp);
 		} catch (IOException e) {
 			// expected
-			assertTrue("Wrong message: " + e.getMessage(), e.getMessage().indexOf("Invalid path: ") >= 0);
+			assertTrue("Wrong message: " + e.getMessage(), e.getMessage().contains("Invalid path: "));
 		}
 
 		try {
 			Util.unzipFile(badZip, temp, null, null, null);
 		} catch (IOException e) {
 			// expected
-			assertTrue("Wrong message: " + e.getMessage(), e.getMessage().indexOf("Invalid path: ") >= 0);
+			assertTrue("Wrong message: " + e.getMessage(), e.getMessage().contains("Invalid path: "));
 		}
 	}
 

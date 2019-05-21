@@ -47,7 +47,7 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 				FileFilter filter = pathname -> {
 					String name = pathname.getName();
 					if (pathname.isFile() && name.endsWith(".jar"))
-						if ((name.indexOf("source") == -1) && name.startsWith("org.eclipse.equinox.p2"))
+						if ((!name.contains("source")) && name.startsWith("org.eclipse.equinox.p2"))
 							return true;
 					return false;
 				};
@@ -91,7 +91,7 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 		File plugins = new File(install, "plugins");
 		File[] files = plugins.listFiles((FileFilter) pathname -> {
 			String name = pathname.getName();
-			if (pathname.isFile() && name.endsWith(".jar") && name.indexOf(".source") == -1) {
+			if (pathname.isFile() && name.endsWith(".jar") && !name.contains(".source")) {
 				if (name.startsWith("org.eclipse.core.c") || name.startsWith("org.eclipse.core.r"))
 					return true;
 			}

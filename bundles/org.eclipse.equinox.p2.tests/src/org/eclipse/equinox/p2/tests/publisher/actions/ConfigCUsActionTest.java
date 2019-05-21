@@ -123,9 +123,9 @@ public class ConfigCUsActionTest extends ActionTest {
 		ITouchpointData data = touchpointData.iterator().next();
 		ITouchpointInstruction instruction = data.getInstruction("configure");
 		String body = instruction.getBody();
-		assertTrue("arg -foo bar", body.indexOf("addProgramArg(programArg:-foo bar);") > -1);
-		assertTrue("vmarg -agentlib", body.indexOf("addJvmArg(jvmArg:-agentlib${#58}jdwp=transport=dt_socket${#44}server=y${#44}suspend=n${#44}address=8272);") > -1);
-		assertTrue("arg -product com,ma", body.indexOf("addProgramArg(programArg:-product);addProgramArg(programArg:com${#44}ma);") > -1);
+		assertTrue("arg -foo bar", body.contains("addProgramArg(programArg:-foo bar);"));
+		assertTrue("vmarg -agentlib", body.contains("addJvmArg(jvmArg:-agentlib${#58}jdwp=transport=dt_socket${#44}server=y${#44}suspend=n${#44}address=8272);"));
+		assertTrue("arg -product com,ma", body.contains("addProgramArg(programArg:-product);addProgramArg(programArg:com${#44}ma);"));
 	}
 
 	private void verifyConfigProperties(IInstallableUnit iu) {
@@ -134,9 +134,9 @@ public class ConfigCUsActionTest extends ActionTest {
 		ITouchpointData data = touchpointData.iterator().next();
 		ITouchpointInstruction instruction = data.getInstruction("configure");
 		String body = instruction.getBody();
-		assertTrue("eclipse.product", body.indexOf("setProgramProperty(propName:eclipse.product,propValue:org.eclipse.platform.ide);") > -1);
-		assertTrue("eclipse.buildId", body.indexOf("setProgramProperty(propName:eclipse.buildId,propValue:TEST-ID);") > -1);
-		assertTrue("my.property", body.indexOf("setProgramProperty(propName:my.property,propValue:${#123}a${#44}b${#58}c${#59}${#36}d${#125});") > -1);
+		assertTrue("eclipse.product", body.contains("setProgramProperty(propName:eclipse.product,propValue:org.eclipse.platform.ide);"));
+		assertTrue("eclipse.buildId", body.contains("setProgramProperty(propName:eclipse.buildId,propValue:TEST-ID);"));
+		assertTrue("my.property", body.contains("setProgramProperty(propName:my.property,propValue:${#123}a${#44}b${#58}c${#59}${#36}d${#125});"));
 	}
 
 	@Override

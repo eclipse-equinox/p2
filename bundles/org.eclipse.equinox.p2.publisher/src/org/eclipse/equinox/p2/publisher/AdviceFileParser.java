@@ -567,11 +567,11 @@ public class AdviceFileParser {
 	}
 
 	private String substituteVersionAndQualifier(String version) {
-		if (version.indexOf(VERSION_SUBSTITUTION) != -1) {
+		if (version.contains(VERSION_SUBSTITUTION)) {
 			version = replace(version, VERSION_SUBSTITUTION, hostVersion.toString());
 		}
 
-		if (version.indexOf(QUALIFIER_SUBSTITUTION) != -1) {
+		if (version.contains(QUALIFIER_SUBSTITUTION)) {
 			try {
 				String qualifier = PublisherHelper.toOSGiVersion(hostVersion).getQualifier();
 				if (qualifier == null)

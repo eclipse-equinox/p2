@@ -1013,7 +1013,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		URI[] urls = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < urls.length; i++) {
 			try {
-				if (urls[i].toString().indexOf("cache") != -1 || urls[i].toString().indexOf("rollback") != -1)
+				if (urls[i].toString().contains("cache") || urls[i].toString().contains("rollback"))
 					repoMan.loadRepository(urls[i], null).removeAll();
 			} catch (ProvisionException e) {
 				//if the repository didn't load, then it doesn't exist and we don't need to clear it up
@@ -1504,7 +1504,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		try (BufferedReader reader = new BufferedReader(new FileReader(log))) {
 			while (reader.ready()) {
 				String line = reader.readLine();
-				if (line.indexOf(lines[idx]) >= 0) {
+				if (line.contains(lines[idx])) {
 					if (++idx >= lines.length) {
 						return;
 					}
@@ -1535,7 +1535,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		try (BufferedReader reader = new BufferedReader(new FileReader(log))) {
 			while (reader.ready()) {
 				String line = reader.readLine();
-				if (line.indexOf(lines[idx]) >= 0) {
+				if (line.contains(lines[idx])) {
 					if (++idx >= lines.length) {
 						fail(String.format("Log file %s contains lines %s", log.getCanonicalPath(), Arrays.toString(lines)));
 					}
@@ -1662,7 +1662,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			try (BufferedReader reader = new BufferedReader(new FileReader(file));) {
 				while (reader.ready()) {
 					String line = reader.readLine();
-					if (line.indexOf(lines[idx]) >= 0) {
+					if (line.contains(lines[idx])) {
 						if (++idx >= lines.length)
 							return;
 					}

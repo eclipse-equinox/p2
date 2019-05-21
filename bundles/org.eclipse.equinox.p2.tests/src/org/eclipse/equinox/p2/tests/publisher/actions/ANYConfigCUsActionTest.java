@@ -177,9 +177,9 @@ public class ANYConfigCUsActionTest extends ActionTest {
 		ITouchpointData data = touchpointData.iterator().next();
 		ITouchpointInstruction instruction = data.getInstruction("configure"); //$NON-NLS-1$
 		String body = instruction.getBody();
-		assertTrue("arg -foo bar", body.indexOf("addProgramArg(programArg:-foo bar);") > -1); //$NON-NLS-1$ //$NON-NLS-2$
-		assertTrue("vmarg -agentlib", body.indexOf("addJvmArg(jvmArg:-agentlib${#58}jdwp=transport=dt_socket${#44}server=y${#44}suspend=n${#44}address=8272);") > -1); //$NON-NLS-1$ //$NON-NLS-2$
-		assertTrue("arg -product com,ma", body.indexOf("addProgramArg(programArg:-product);addProgramArg(programArg:com${#44}ma);") > -1); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("arg -foo bar", body.contains("addProgramArg(programArg:-foo bar);")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("vmarg -agentlib", body.contains("addJvmArg(jvmArg:-agentlib${#58}jdwp=transport=dt_socket${#44}server=y${#44}suspend=n${#44}address=8272);")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("arg -product com,ma", body.contains("addProgramArg(programArg:-product);addProgramArg(programArg:com${#44}ma);")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void verifyConfigProperties(IInstallableUnit iu) {
@@ -188,9 +188,9 @@ public class ANYConfigCUsActionTest extends ActionTest {
 		ITouchpointData data = touchpointData.iterator().next();
 		ITouchpointInstruction instruction = data.getInstruction("configure"); //$NON-NLS-1$
 		String body = instruction.getBody();
-		assertTrue("eclipse.product", body.indexOf("setProgramProperty(propName:eclipse.product,propValue:org.eclipse.platform.ide);") > -1); //$NON-NLS-1$ //$NON-NLS-2$
-		assertTrue("eclipse.buildId", body.indexOf("setProgramProperty(propName:eclipse.buildId,propValue:TEST-ID);") > -1); //$NON-NLS-1$ //$NON-NLS-2$
-		assertTrue("my.property", body.indexOf("setProgramProperty(propName:my.property,propValue:${#123}a${#44}b${#58}c${#59}${#36}d${#125});") > -1); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("eclipse.product", body.contains("setProgramProperty(propName:eclipse.product,propValue:org.eclipse.platform.ide);")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("eclipse.buildId", body.contains("setProgramProperty(propName:eclipse.buildId,propValue:TEST-ID);")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue("my.property", body.contains("setProgramProperty(propName:my.property,propValue:${#123}a${#44}b${#58}c${#59}${#36}d${#125});")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override

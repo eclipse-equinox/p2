@@ -77,7 +77,7 @@ public class UpdateSite {
 	 * Be lenient about accepting any location with *site*.xml at the end.
 	 */
 	private static boolean constainsUpdateSiteFileName(String segment) {
-		return segment != null && segment.endsWith(DOT_XML) && segment.indexOf(SITE) != -1;
+		return segment != null && segment.endsWith(DOT_XML) && segment.contains(SITE);
 	}
 
 	/**

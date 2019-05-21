@@ -111,7 +111,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 		if (fileNames == null)
 			return false;
 		for (int i = 0; i < fileNames.length; i++) {
-			if (fileNames[i].endsWith(DOT_XML) && fileNames[i].indexOf(SITE) != -1)
+			if (fileNames[i].endsWith(DOT_XML) && fileNames[i].contains(SITE))
 				return true;
 		}
 		return false;

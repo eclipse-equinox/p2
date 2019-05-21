@@ -35,9 +35,11 @@ public class SecuredArtifactsContext extends SecureContext {
 		if (path == null)
 			return true;
 
-		if (path.indexOf("features/") != -1 //$NON-NLS-1$
-				|| path.indexOf("plugins/") != -1 //$NON-NLS-1$
-				|| path.indexOf("binaries/") != -1) //$NON-NLS-1$
+		if (path.contains("features/") //$NON-NLS-1$
+		
+				|| path.contains("plugins/") //$NON-NLS-1$
+		
+				|| path.contains("binaries/")) //$NON-NLS-1$
 			return super.handleSecurity(request, response);
 
 		return true;

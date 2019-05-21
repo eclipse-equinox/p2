@@ -156,7 +156,7 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 					value = bundleJar.getManifest().getMainAttributes().getValue(entry);
 				}
 			}
-			if (value.indexOf(";") > -1) {
+			if (value.contains(";")) {
 				String[] valueElements = value.split(";");
 				return valueElements[0];
 			}
