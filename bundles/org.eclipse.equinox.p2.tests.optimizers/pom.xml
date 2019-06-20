@@ -15,5 +15,6 @@
   <properties>
     <testSuite>${project.artifactId}</testSuite>
     <testClass>org.eclipse.equinox.p2.tests.optimizers.AutomatedTests</testClass>
+    <skipAPIAnalysis>true</skipAPIAnalysis>
   </properties>
 </project>
