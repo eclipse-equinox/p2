@@ -29,3 +29,7 @@ provides.6.version=1.3.200.$qualifier$
 provides.7.namespace=org.eclipse.equinox.p2.iu
 provides.7.name=org.eclipse.equinox.p2.touchpoint.natives
 provides.7.version=1.3.300.$qualifier$
+
+provides.8.namespace=org.eclipse.equinox.p2.iu
+provides.8.name=org.eclipse.equinox.p2.touchpoint.natives
+provides.8.version=1.3.400.$qualifier$

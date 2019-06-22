@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
+ *     SAP SE - bug 465602
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
@@ -37,6 +38,10 @@ public class Util {
 
 	public static IStatus createError(String message) {
 		return new Status(IStatus.ERROR, Activator.ID, message);
+	}
+
+	public static IStatus createError(String message, Throwable exception) {
+		return new Status(IStatus.ERROR, Activator.ID, message, exception);
 	}
 
 	public static String getInstallFolder(IProfile profile) {
@@ -210,6 +215,8 @@ public class Util {
 							} catch (FileNotFoundException e) {
 								// TEMP: ignore this for now in case we're trying to replace
 								// a running eclipse.exe
+								// TODO: This is very questionable as it will shadow any other
+								// issue with extraction!!
 							}
 							outFile.setLastModified(ze.getTime());
 						}
@@ -223,8 +230,8 @@ public class Util {
 	}
 
 	private static File createSubPathFile(File root, String subPath) throws IOException {
-		File result = new File(root, subPath);
-		String resultCanonical = result.getCanonicalPath();
+		File result = new File(root, subPath).getCanonicalFile();
+		String resultCanonical = result.getPath();
 		String rootCanonical = root.getCanonicalPath();
 		if (!resultCanonical.startsWith(rootCanonical + File.separator) && !resultCanonical.equals(rootCanonical)) {
 			throw new IOException("Invalid path: " + subPath); //$NON-NLS-1$
