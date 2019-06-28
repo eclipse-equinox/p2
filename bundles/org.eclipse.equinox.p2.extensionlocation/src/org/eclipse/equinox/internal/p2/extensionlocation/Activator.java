@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2017 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -62,7 +62,7 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IProfile getCurrentProfile() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) getCurrentAgent().getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = getCurrentAgent().getService(IProfileRegistry.class);
 		return profileRegistry.getProfile(IProfileRegistry.SELF);
 	}
 

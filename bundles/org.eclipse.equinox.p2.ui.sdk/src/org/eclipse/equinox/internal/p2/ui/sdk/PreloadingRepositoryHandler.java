@@ -31,7 +31,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 /**
  * PreloadingRepositoryHandler provides background loading of
  * repositories before executing the provisioning handler.
- * 
+ *
  * @since 3.5
  */
 abstract class PreloadingRepositoryHandler extends AbstractHandler {
@@ -56,7 +56,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 		IProvisioningAgent agent = getProvisioningUI().getSession().getProvisioningAgent();
 		IProfile profile = null;
 		if (agent != null) {
-			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			IProfileRegistry registry = agent.getService(IProfileRegistry.class);
 			if (registry != null) {
 				profile = registry.getProfile(profileId);
 			}
@@ -90,7 +90,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 						return Status.CANCEL_STATUS;
 					}
 					if (shouldAccumulateFailures()) {
-						// If we are accumulating failures, don't return a combined status here. By returning OK, 
+						// If we are accumulating failures, don't return a combined status here. By returning OK,
 						// we are indicating that the operation should continue with the repositories that
 						// did load.
 						return Status.OK_STATUS;

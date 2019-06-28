@@ -60,7 +60,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	public static CompositeArtifactRepository createMemoryComposite(IProvisioningAgent agent) {
 		if (agent == null)
 			return null;
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
 		if (manager == null)
 			return null;
 		try {
@@ -128,7 +128,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	/*
 	 * Add the given object to the specified list if it doesn't already exist
-	 * in it. Return a boolean value indicating whether or not the object was 
+	 * in it. Return a boolean value indicating whether or not the object was
 	 * actually added.
 	 */
 	private static <T> boolean add(List<T> list, T obj) {
@@ -343,8 +343,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		for (ChildInfo current : loadedRepos) {
 			if (current.isGood()) {
 				IArtifactDescriptor[] tempResult = current.repo.getArtifactDescriptors(key);
-				for (int i = 0; i < tempResult.length; i++)
-					add(result, tempResult[i]);
+				for (IArtifactDescriptor element : tempResult)
+					add(result, element);
 			}
 		}
 		return result.toArray(new IArtifactDescriptor[result.size()]);
@@ -424,9 +424,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	private IArtifactRequest[] filterUnfetched(IArtifactRequest[] requests) {
 		ArrayList<IArtifactRequest> filteredRequests = new ArrayList<>();
-		for (int i = 0; i < requests.length; i++) {
-			if (requests[i].getResult() == null || !requests[i].getResult().isOK()) {
-				filteredRequests.add(requests[i]);
+		for (IArtifactRequest request : requests) {
+			if (request.getResult() == null || !request.getResult().isOK()) {
+				filteredRequests.add(request);
 			}
 		}
 
@@ -437,16 +437,16 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository, IArtifactRequest[] requests) {
 		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
-		for (int i = 0; i < requests.length; i++) {
-			if (repository.contains(requests[i].getArtifactKey()))
-				applicable.add(requests[i]);
+		for (IArtifactRequest request : requests) {
+			if (repository.contains(request.getArtifactKey()))
+				applicable.add(request);
 		}
 		return applicable.toArray(new IArtifactRequest[applicable.size()]);
 	}
 
 	/**
 	 * This method is only protected for testing purposes
-	 * 
+	 *
 	 * @nooverride This method is not intended to be re-implemented or extended by clients.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
@@ -508,7 +508,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	//	 * comparing content using the artifactComparator specified by the comparatorID
 	//	 * @param toCheckRepo the repository to check
 	//	 * @param comparatorID
-	//	 * @return <code>true</code> if toCheckRepo is consistent, <code>false</code> if toCheckRepo 
+	//	 * @return <code>true</code> if toCheckRepo is consistent, <code>false</code> if toCheckRepo
 	//	 * contains an equal descriptor to that of a child and they refer to different artifacts on disk.
 	//	 */
 	//	private boolean isSane(IArtifactRepository toCheckRepo, String comparatorID) {

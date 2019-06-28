@@ -25,10 +25,10 @@ import org.eclipse.equinox.p2.ui.LicenseManager;
 import org.osgi.service.prefs.Preferences;
 
 /**
- * SimpleLicenseManager is a license manager that keeps track of 
+ * SimpleLicenseManager is a license manager that keeps track of
  * IInstallableUnit licenses using their UUID.  The licenses ids
  * are stored in the profile's preferences.
- * 
+ *
  * @since 3.6
  */
 public class SimpleLicenseManager extends LicenseManager {
@@ -70,7 +70,8 @@ public class SimpleLicenseManager extends LicenseManager {
 	}
 
 	private Preferences getPreferences() {
-		IAgentLocation location = (IAgentLocation) ProvSDKUIActivator.getDefault().getProvisioningAgent().getService(IAgentLocation.SERVICE_NAME);
+		IAgentLocation location = ProvSDKUIActivator.getDefault().getProvisioningAgent()
+				.getService(IAgentLocation.class);
 		return new ProfileScope(location, profileId).getNode(ProvSDKUIActivator.PLUGIN_ID);
 	}
 

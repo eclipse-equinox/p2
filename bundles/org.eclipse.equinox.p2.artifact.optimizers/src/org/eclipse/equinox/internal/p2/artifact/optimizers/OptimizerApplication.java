@@ -26,7 +26,7 @@ public abstract class OptimizerApplication implements IApplication {
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		return getAgent().getService(IArtifactRepositoryManager.class);
 	}
 
 	@Override

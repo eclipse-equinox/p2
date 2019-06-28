@@ -31,10 +31,11 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 /**
  * Default implementation of {@link IArtifactRepositoryManager}.
  * 
- * TODO the current assumption that the "location" is the dir/root limits us to 
- * having just one repository in a given URL..  
+ * TODO the current assumption that the "location" is the dir/root limits us to
+ * having just one repository in a given URL..
  */
-public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifactKey> implements IArtifactRepositoryManager {
+public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifactKey>
+		implements IArtifactRepositoryManager {
 
 	public ArtifactRepositoryManager(IProvisioningAgent agent) {
 		super(agent);
@@ -45,17 +46,23 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	}
 
 	@Override
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties) {
-		return createMirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties, null);
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination,
+			Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties) {
+		return createMirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties,
+				null);
 	}
 
 	@Override
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties, String downloadStatsParameters) {
-		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties, getTransport(), downloadStatsParameters);
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination,
+			Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties,
+			String downloadStatsParameters) {
+		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties,
+				getTransport(), downloadStatsParameters);
 	}
 
 	@Override
-	public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
+	public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties)
+			throws ProvisionException {
 		return (IArtifactRepository) doCreateRepository(location, name, type, properties);
 	}
 
@@ -64,8 +71,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	}
 
 	@Override
-	protected IRepository<IArtifactKey> factoryCreate(URI location, String name, String type, Map<String, String> properties, IExtension extension) throws ProvisionException {
-		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+	protected IRepository<IArtifactKey> factoryCreate(URI location, String name, String type,
+			Map<String, String> properties, IExtension extension) throws ProvisionException {
+		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension,
+				EL_FACTORY);
 		if (factory == null)
 			return null;
 		factory.setAgent(agent);
@@ -73,8 +82,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	}
 
 	@Override
-	protected IRepository<IArtifactKey> factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
-		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+	protected IRepository<IArtifactKey> factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor)
+			throws ProvisionException {
+		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension,
+				EL_FACTORY);
 		if (factory == null)
 			return null;
 		factory.setAgent(agent);
@@ -115,7 +126,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	}
 
 	@Override
-	public IArtifactRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
+			throws ProvisionException {
 		return (IArtifactRepository) loadRepository(location, monitor, null, flags);
 	}
 
@@ -134,8 +146,9 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	 */
 	@Override
 	protected void restoreSpecialRepositories() {
-		// TODO while recreating, we may want to have proxies on repo instead of the real repo object to limit what is activated.
-		IAgentLocation location = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+		// TODO while recreating, we may want to have proxies on repo instead of the
+		// real repo object to limit what is activated.
+		IAgentLocation location = getAgent().getService(IAgentLocation.class);
 		if (location == null)
 			// TODO should do something here since we are failing to restore.
 			return;
@@ -147,7 +160,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 		} catch (ProvisionException e) {
 			// log but still continue and try to create a new one
 			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading download cache.", e)); //$NON-NLS-1$
+				LogHelper.log(
+						new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading download cache.", e)); //$NON-NLS-1$
 		}
 		try {
 			Map<String, String> properties = new HashMap<>(1);

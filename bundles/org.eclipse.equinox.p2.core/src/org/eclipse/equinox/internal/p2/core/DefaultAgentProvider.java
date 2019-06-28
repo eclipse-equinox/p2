@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -34,16 +34,17 @@ public class DefaultAgentProvider implements IProvisioningAgentProvider {
 		ProvisioningAgent result = new ProvisioningAgent();
 		result.setBundleContext(context);
 		result.setLocation(location);
-		IAgentLocation agentLocation = (IAgentLocation) result.getService(IAgentLocation.SERVICE_NAME);
+		IAgentLocation agentLocation = result.getService(IAgentLocation.class);
 		Dictionary<String, Object> properties = new Hashtable<>(5);
 		if (agentLocation != null)
 			properties.put("locationURI", String.valueOf(agentLocation.getRootLocation())); //$NON-NLS-1$
-		//make the currently running system have a higher service ranking
+		// make the currently running system have a higher service ranking
 		if (location == null) {
 			properties.put(Constants.SERVICE_RANKING, Integer.valueOf(100));
 			properties.put(IProvisioningAgent.SERVICE_CURRENT, Boolean.TRUE.toString());
 		}
-		ServiceRegistration<IProvisioningAgent> reg = context.registerService(IProvisioningAgent.class, result, properties);
+		ServiceRegistration<IProvisioningAgent> reg = context.registerService(IProvisioningAgent.class, result,
+				properties);
 		result.setServiceRegistration(reg);
 		return result;
 	}

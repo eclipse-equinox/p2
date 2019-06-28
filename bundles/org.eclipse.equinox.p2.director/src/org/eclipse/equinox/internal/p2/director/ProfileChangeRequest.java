@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 /**
  * @noreference This class was unintentionally left in the provisional API package and
- * 	is intended to be made internal in Eclipse 3.7. Clients should create and manipulate 
+ * 	is intended to be made internal in Eclipse 3.7. Clients should create and manipulate
  * 	profile change requests via the API {@link IPlanner#createChangeRequest(IProfile)}
  * 	and methods on {@link IProfileChangeRequest}.
  */
@@ -41,7 +41,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	private ArrayList<IRequirement> additionalRequirements;
 
 	public static ProfileChangeRequest createByProfileId(IProvisioningAgent agent, String profileId) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
 		if (profileRegistry == null)
 			throw new IllegalStateException(Messages.Planner_no_profile_registry);
 		IProfile profile = profileRegistry.getProfile(profileId);
@@ -181,7 +181,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 		return propertiesToAdd;
 	}
 
-	// map of iu->list of property keys to be removed for an iu	
+	// map of iu->list of property keys to be removed for an iu
 	public Map<IInstallableUnit, List<String>> getInstallableUnitProfilePropertiesToRemove() {
 		if (iuPropertiesToRemove == null)
 			return Collections.emptyMap();

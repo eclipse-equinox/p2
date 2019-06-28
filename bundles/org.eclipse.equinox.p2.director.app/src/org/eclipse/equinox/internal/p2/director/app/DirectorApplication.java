@@ -20,45 +20,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
-import static org.eclipse.core.runtime.IStatus.ERROR;
-import static org.eclipse.core.runtime.IStatus.INFO;
-import static org.eclipse.core.runtime.IStatus.OK;
-import static org.eclipse.core.runtime.IStatus.WARNING;
+import static org.eclipse.core.runtime.IStatus.*;
 import static org.eclipse.equinox.internal.p2.director.app.Activator.ID;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EventObject;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -70,37 +43,21 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningLis
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.UIServices;
-import org.eclipse.equinox.p2.engine.IEngine;
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-import org.eclipse.equinox.p2.engine.PhaseSetFactory;
-import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
-import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 
 public class DirectorApplication implements IApplication, ProvisioningListener {
 	public static class AvoidTrustPromptService extends UIServices {
@@ -181,7 +138,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private static final CommandLineOption OPTION_HELP = new CommandLineOption(new String[] {"-help", "-h", "-?"}, null, Messages.Help_Prints_this_command_line_help); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final CommandLineOption OPTION_LIST = new CommandLineOption(new String[] {"-list", "-l"}, Messages.Help_lb_lt_comma_separated_list_gt_rb, Messages.Help_List_all_IUs_found_in_repos); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final CommandLineOption OPTION_LIST_FORMAT = new CommandLineOption(new String[] {"-listFormat", "-lf"}, Messages.Help_lt_list_format_gt, Messages.Help_formats_the_IU_list); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final CommandLineOption OPTION_LIST_INSTALLED = new CommandLineOption(new String[] {"-listInstalledRoots", "-lir"}, null, Messages.Help_List_installed_roots); //$NON-NLS-1$ //$NON-NLS-2$	
+	private static final CommandLineOption OPTION_LIST_INSTALLED = new CommandLineOption(new String[] {"-listInstalledRoots", "-lir"}, null, Messages.Help_List_installed_roots); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final CommandLineOption OPTION_INSTALL_IU = new CommandLineOption(new String[] {"-installIU", "-installIUs", "-i"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Installs_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final CommandLineOption OPTION_UNINSTALL_IU = new CommandLineOption(new String[] {"-uninstallIU", "-uninstallIUs", "-u"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Uninstalls_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final CommandLineOption OPTION_REVERT = new CommandLineOption(new String[] {"-revert"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Revert_to_previous_state); //$NON-NLS-1$
@@ -214,7 +171,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	static private final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
 
 	private static final String FOLLOW_ARTIFACT_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followArtifactRepositoryReferences"; //$NON-NLS-1$
-	private static final String LIST_GROUPS_SHORTCUT = "Q:GROUP"; //$NON-NLS-1$ 
+	private static final String LIST_GROUPS_SHORTCUT = "Q:GROUP"; //$NON-NLS-1$
 	private static final String QUERY_SEPARATOR = "Q:"; //$NON-NLS-1$
 	private static final String QUERY_SEPARATOR_SMALL = "q:"; //$NON-NLS-1$
 
@@ -224,14 +181,14 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (spec == null)
 			return;
 		String[] urlSpecs = StringHelper.getArrayFromString(spec, ',');
-		for (int i = 0; i < urlSpecs.length; i++) {
+		for (String urlSpec : urlSpecs) {
 			try {
-				uris.add(new URI(urlSpecs[i]));
+				uris.add(new URI(urlSpec));
 			} catch (URISyntaxException e1) {
 				try {
-					uris.add(URIUtil.fromString(urlSpecs[i]));
+					uris.add(URIUtil.fromString(urlSpec));
 				} catch (URISyntaxException e) {
-					throw new ProvisionException(NLS.bind(Messages.unable_to_parse_0_to_uri_1, urlSpecs[i], e.getMessage()), e);
+					throw new ProvisionException(NLS.bind(Messages.unable_to_parse_0_to_uri_1, urlSpec, e.getMessage()), e);
 				}
 			}
 
@@ -260,19 +217,19 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private static void parseIUsArgument(List<IQuery<IInstallableUnit>> vnames, String arg) {
 		String[] roots = StringHelper.getArrayFromString(arg, ',');
-		for (int i = 0; i < roots.length; ++i) {
-			if (roots[i].equalsIgnoreCase(LIST_GROUPS_SHORTCUT)) {
+		for (String root : roots) {
+			if (root.equalsIgnoreCase(LIST_GROUPS_SHORTCUT)) {
 				vnames.add(new PrettyQuery<>(QueryUtil.createIUGroupQuery(), "All groups")); //$NON-NLS-1$
 				continue;
 			}
-			if (roots[i].startsWith(QUERY_SEPARATOR) || roots[i].startsWith(QUERY_SEPARATOR_SMALL)) {
-				String queryString = roots[i].substring(2);
+			if (root.startsWith(QUERY_SEPARATOR) || root.startsWith(QUERY_SEPARATOR_SMALL)) {
+				String queryString = root.substring(2);
 				vnames.add(new PrettyQuery<>(QueryUtil.createQuery(queryString, new Object[0]), queryString));
 				continue;
 			}
-			IVersionedId vId = VersionedId.parse(roots[i]);
+			IVersionedId vId = VersionedId.parse(root);
 			Version v = vId.getVersion();
-			IQuery<IInstallableUnit> query = new PrettyQuery<>(QueryUtil.createIUQuery(vId.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true)), roots[i]);
+			IQuery<IInstallableUnit> query = new PrettyQuery<>(QueryUtil.createIUQuery(vId.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true)), root);
 			vnames.add(query);
 		}
 	}
@@ -378,8 +335,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		// keyword is either "key" or "value"
 		// uniqueNumber is used to group keys and values together
 		Set<String> alreadyProcessed = new HashSet<>();
-		for (Iterator<Object> iter = properties.keySet().iterator(); iter.hasNext();) {
-			String line = (String) iter.next();
+		for (Object object : properties.keySet()) {
+			String line = (String) object;
 			int index = line.lastIndexOf('.');
 			if (index == -1)
 				continue;
@@ -425,7 +382,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 			// lookup the IU - a null version matches all versions
 			IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, version);
-			// if we don't have a version the choose the latest. 
+			// if we don't have a version the choose the latest.
 			if (version == null)
 				query = QueryUtil.createLatestQuery(query);
 			IQueryResult<IInstallableUnit> qr = getInstallableUnits(null, query, null);
@@ -500,7 +457,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private IProfile getProfile() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = targetAgent.getService(IProfileRegistry.class);
 		if (profileId == null) {
 			profileId = IProfileRegistry.SELF;
 			noProfileId = true;
@@ -530,7 +487,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				props.put(IProfile.PROP_ENVIRONMENTS, env);
 			if (profileProperties != null)
 				putProperties(profileProperties, props);
-			profile = ((IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME)).addProfile(profileId, props);
+			profile = targetAgent.getService(IProfileRegistry.class).addProfile(profileId, props);
 		}
 		return profile;
 	}
@@ -542,7 +499,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (artifactRepositoryLocations == null)
 			missingArgument("-artifactRepository"); //$NON-NLS-1$
 
-		artifactManager = (IArtifactRepositoryManager) targetAgent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		artifactManager = targetAgent.getService(IArtifactRepositoryManager.class);
 		if (artifactManager == null)
 			throw new ProvisionException(Messages.Application_NoManager);
 
@@ -568,7 +525,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (metadataRepositoryLocations == null)
 			missingArgument("metadataRepository"); //$NON-NLS-1$
 
-		metadataManager = (IMetadataRepositoryManager) targetAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		metadataManager = targetAgent.getService(IMetadataRepositoryManager.class);
 		if (metadataManager == null)
 			throw new ProvisionException(Messages.Application_NoManager);
 
@@ -671,21 +628,21 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		else
 			targetAgent.unregisterService(PROP_P2_PROFILE, null);
 
-		IDirector director = (IDirector) targetAgent.getService(IDirector.SERVICE_NAME);
+		IDirector director = targetAgent.getService(IDirector.class);
 		if (director == null)
 			throw new ProvisionException(Messages.Missing_director);
 
-		planner = (IPlanner) targetAgent.getService(IPlanner.SERVICE_NAME);
+		planner = targetAgent.getService(IPlanner.class);
 		if (planner == null)
 			throw new ProvisionException(Messages.Missing_planner);
 
-		engine = (IEngine) targetAgent.getService(IEngine.SERVICE_NAME);
+		engine = targetAgent.getService(IEngine.class);
 		if (engine == null)
 			throw new ProvisionException(Messages.Missing_Engine);
 
 		targetAgent.registerService(UIServices.SERVICE_NAME, new AvoidTrustPromptService());
 
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) targetAgent.getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus eventBus = targetAgent.getService(IProvisioningEventBus.class);
 		if (eventBus == null)
 			return;
 		eventBus.addListener(this);
@@ -694,9 +651,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener#notify(java.util.EventObject)
-	 * 
+	 *
 	 * See bug: https://bugs.eclipse.org/340971
-	 * Using the event bus to detect whether or not a repository was added in a touchpoint action. 
+	 * Using the event bus to detect whether or not a repository was added in a touchpoint action.
 	 * If it was, then (if it exists) remove it from our list of repos to remove after we complete our install.
 	 */
 	@Override
@@ -837,7 +794,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 
 		long newState = result.getProfile().getTimestamp();
-		IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = targetAgent.getService(IProfileRegistry.class);
 		registry.setProfileStateProperty(result.getProfile().getProfileId(), newState, IProfile.STATE_PROP_TAG, tag);
 	}
 
@@ -1065,8 +1022,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	 */
 	private void putProperties(String pairs, Map<String, String> properties) {
 		String[] propPairs = StringHelper.getArrayFromString(pairs, ',');
-		for (int i = 0; i < propPairs.length; ++i) {
-			String propPair = propPairs[i];
+		for (String propPair : propPairs) {
 			int eqIdx = propPair.indexOf('=');
 			if (eqIdx < 0)
 				continue;
@@ -1141,7 +1097,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private void purgeRegistry() throws ProvisionException {
 		if (getProfile() == null)
 			return;
-		IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = targetAgent.getService(IProfileRegistry.class);
 		long[] allProfiles = registry.listProfileTimestamps(profileId);
 		for (int i = 0; i < allProfiles.length - 1; i++) {
 			registry.removeProfile(profileId, allProfiles[i]);
@@ -1150,7 +1106,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private void revertToPreviousState() throws CoreException {
 		IProfile profile = initializeProfile();
-		IProfileRegistry profileRegistry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = targetAgent.getService(IProfileRegistry.class);
 		IProfile targetProfile = null;
 		if (revertToPreviousState == REVERT_TO_PREVIOUS) {
 			long[] profiles = profileRegistry.listProfileTimestamps(profile.getProfileId());
@@ -1226,8 +1182,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private void performHelpInfo() {
 		CommandLineOption[] allOptions = new CommandLineOption[] {OPTION_HELP, OPTION_LIST, OPTION_LIST_INSTALLED, OPTION_LIST_FORMAT, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_REVERT, OPTION_DESTINATION, OPTION_DOWNLOAD_ONLY, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES, OPTION_VERIFY_ONLY, OPTION_TAG, OPTION_LIST_TAGS, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED, OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_IU_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS, OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES};
-		for (int i = 0; i < allOptions.length; ++i) {
-			allOptions[i].appendHelp(System.out);
+		for (CommandLineOption allOption : allOptions) {
+			allOption.appendHelp(System.out);
 		}
 	}
 
@@ -1291,7 +1247,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (request.getProfileProperties().size() == 0)
 			return;
 
-		// otherwise we have to make a change so set the profile to be non-roaming so the 
+		// otherwise we have to make a change so set the profile to be non-roaming so the
 		// values don't get recalculated to the wrong thing if we are flushed from memory - we
 		// will set it back later (see bug 269468)
 		request.setProfileProperty(IProfile.PROP_ROAMING, "false"); //$NON-NLS-1$
@@ -1307,7 +1263,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	@Override
 	public void stop() {
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) targetAgent.getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) targetAgent.getService(IProvisioningEventBus.class);
 		if (eventBus != null) {
 			eventBus.removeListener(this);
 		}
@@ -1331,7 +1287,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private void performPrintTags() throws CoreException {
 		IProfile profile = initializeProfile();
-		IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = targetAgent.getService(IProfileRegistry.class);
 		Map<String, String> tags = registry.getProfileStateProperties(profile.getProfileId(), IProfile.STATE_PROP_TAG);
 		//Sort the tags from the most recent to the oldest
 		List<String> timeStamps = new ArrayList<>(tags.keySet());
@@ -1362,7 +1318,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		Throwable cause = status.getException();
 		if (cause != null) {
 			// TODO This is very unreliable. It assumes that if the IStatus message is the same as the IStatus cause
-			// message the cause exception has no more data to offer. Better to just print it. 
+			// message the cause exception has no more data to offer. Better to just print it.
 			boolean isCauseMsg = msg.equals(cause.getMessage()) || msg.equals(cause.toString());
 			if (!isCauseMsg) {
 				log.printErr(prefix + "Caused by: "); //$NON-NLS-1$
@@ -1396,7 +1352,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private boolean canInstallInDestination() {
-		//When we are provisioning what we are running. We can always install.  
+		//When we are provisioning what we are running. We can always install.
 		if (targetAgentIsSelfAndUp)
 			return true;
 		return canWrite(destination);

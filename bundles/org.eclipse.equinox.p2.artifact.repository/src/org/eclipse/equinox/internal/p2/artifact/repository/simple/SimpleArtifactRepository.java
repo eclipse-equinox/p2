@@ -54,7 +54,7 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IFileArtifactRepository, IIndexProvider<IArtifactKey> {
-	/** 
+	/**
 	 * A boolean property controlling whether mirroring is enabled.
 	 */
 	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
@@ -85,7 +85,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public static final String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
 
-	/** 
+	/**
 	 * The key for a integer property controls the maximum number
 	 * of threads that should be used when optimizing downloads from a remote
 	 * artifact repository.
@@ -152,7 +152,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					delete(file);
 				if (getStatus().isOK())
 					throw e;
-				// if the stream has already been e.g. canceled, we can return - the status is already set correctly 
+				// if the stream has already been e.g. canceled, we can return - the status is already set correctly
 				return;
 			}
 			// if the steps ran ok and there was actual content, write the artifact descriptor
@@ -296,8 +296,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (toDelete.isDirectory()) {
 			File[] children = toDelete.listFiles();
 			if (children != null) {
-				for (int i = 0; i < children.length; i++) {
-					delete(children[i]);
+				for (File element : children) {
+					delete(element);
 				}
 			}
 		}
@@ -458,10 +458,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					return;
 			}
 
-			for (int i = 0; i < descriptors.length; i++) {
-				if (artifactDescriptors.contains(descriptors[i]))
+			for (IArtifactDescriptor descriptor : descriptors) {
+				if (artifactDescriptors.contains(descriptor))
 					continue;
-				SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(descriptors[i]);
+				SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(descriptor);
 				artifactDescriptors.add(internalDescriptor);
 				mapDescriptor(internalDescriptor);
 			}
@@ -520,12 +520,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private String bytesToHexString(byte[] bytes) {
 		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < bytes.length; i++) {
+		for (byte b : bytes) {
 			String hexString;
-			if (bytes[i] < 0)
-				hexString = Integer.toHexString(256 + bytes[i]);
+			if (b < 0)
+				hexString = Integer.toHexString(256 + b);
 			else
-				hexString = Integer.toHexString(bytes[i]);
+				hexString = Integer.toHexString(b);
 			if (hexString.length() == 1)
 				buffer.append("0"); //$NON-NLS-1$
 			buffer.append(hexString);
@@ -567,7 +567,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			}
 		}
 
-		// Otherwise generate a location by creating a UUID, remembering it in the properties 
+		// Otherwise generate a location by creating a UUID, remembering it in the properties
 		// and computing the location
 		byte[] bytes = new UniversalUniqueIdentifier().toBytes();
 		descriptor.setProperty(ARTIFACT_UUID, bytesToHexString(bytes));
@@ -678,7 +678,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * Copy a file to an output stream.
 	 * Optionally close the streams when done.
 	 * Notify the monitor about progress we make
-	 * 
+	 *
 	 * @return the number of bytes written.
 	 */
 	private IStatus copyFileToStream(File in, OutputStream out, IProgressMonitor monitor) {
@@ -830,10 +830,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (numberOfJobs <= 1 || (!isForceThreading() && isLocal())) {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 			try {
-				for (int i = 0; i < requests.length; i++) {
+				for (IArtifactRequest request : requests) {
 					if (monitor.isCanceled())
 						return Status.CANCEL_STATUS;
-					IStatus result = getArtifact(requests[i], subMonitor.newChild(1));
+					IStatus result = getArtifact(request, subMonitor.newChild(1));
 					if (!result.isOK())
 						overallStatus.add(result);
 				}
@@ -948,7 +948,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		} catch (URISyntaxException e) {
 			return null;
 		}
-		// in the end there is not enough information so return null 
+		// in the end there is not enough information so return null
 		return null;
 	}
 
@@ -999,7 +999,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.no_location, newDescriptor)));
 		String file = URIUtil.toFile(newLocation).getAbsolutePath();
 
-		// TODO at this point we have to assume that the repository is file-based.  Eventually 
+		// TODO at this point we have to assume that the repository is file-based.  Eventually
 		// we should end up with writeable URLs...
 		// Make sure that the file does not exist and that the parents do
 		File outputFile = new File(file);
@@ -1024,7 +1024,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				target = new FileOutputStream(file);
 			}
 
-			// finally create and return an output stream suitably wrapped so that when it is 
+			// finally create and return an output stream suitably wrapped so that when it is
 			// closed the repository is updated with the descriptor
 			return new ArtifactOutputStream(new BufferedOutputStream(target), newDescriptor, outputFile);
 		} catch (IOException e) {
@@ -1060,7 +1060,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private Transport getTransport() {
-		return (Transport) getProvisioningAgent().getService(Transport.SERVICE_NAME);
+		return getProvisioningAgent().getService(Transport.class);
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
@@ -1096,7 +1096,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private boolean isFolderBased(IArtifactDescriptor descriptor) {
 		// This is called from createInternalDescriptor, so if we aren't a
-		// SimpleArtifactDescriptor then just check the descriptor properties instead 
+		// SimpleArtifactDescriptor then just check the descriptor properties instead
 		// of creating the internal descriptor.
 		SimpleArtifactDescriptor internalDescriptor = null;
 		if (descriptor instanceof SimpleArtifactDescriptor)
@@ -1141,8 +1141,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 			IArtifactDescriptor[] toRemove = artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
 			boolean changed = false;
-			for (int i = 0; i < toRemove.length; i++)
-				changed |= doRemoveArtifact(toRemove[i]);
+			for (IArtifactDescriptor element : toRemove)
+				changed |= doRemoveArtifact(element);
 			if (changed)
 				save();
 		} finally {
@@ -1226,8 +1226,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 			IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
 			boolean changed = false;
-			for (int i = 0; i < toRemove.length; i++)
-				changed |= doRemoveArtifact(toRemove[i]);
+			for (IArtifactDescriptor element : toRemove)
+				changed |= doRemoveArtifact(element);
 			if (changed)
 				save();
 		} finally {
@@ -1263,7 +1263,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		if (!status.isOK()) {
 			// Transport pushes its status onto the output stream if the stream implements IStateful, to prevent
-			// duplication determine if the Status is present in the ProcessingStep status. 
+			// duplication determine if the Status is present in the ProcessingStep status.
 			boolean found = false;
 			IStatus[] stepStatusChildren = stepStatus.getChildren();
 			for (int i = 0; i < stepStatusChildren.length && !found; i++)
@@ -1456,7 +1456,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	/**
 	 * Locks the location and optionally loads the repository.
-	 * 
+	 *
 	 * @param ignoreLoad If ignoreLoad is set to true, then the location is locked
 	 *                   but the repository is not loaded.  It is expected
 	 *                   that the caller will load the repository manually
@@ -1542,7 +1542,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	/**
-	 * Returns true if this instance of SimpleArtifactRepository holds the lock or 
+	 * Returns true if this instance of SimpleArtifactRepository holds the lock or
 	 * this repository can't be locked at all due to permission, false otherwise.
 	 */
 	private boolean holdsLock() {
@@ -1568,7 +1568,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * Loads the repository from disk. This method will do nothing
 	 * if this instance of SimpleArtifactRepository holds the lock
 	 * because it will have loaded the repo when it acquired the lock.
-	 * 
+	 *
 	 * @param monitor
 	 */
 	private void load(IProgressMonitor monitor) {
@@ -1596,7 +1596,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * Loads the repository from disk. If the last modified timestamp on the file <=
 	 * to our cache, then this method does nothing.  Otherwise the artifact repository
 	 * on disk is loaded, and reconciled with this instance of the artifact repository.
-	 * 
+	 *
 	 * @param monitor
 	 */
 	private void doLoad(IProgressMonitor monitor) {

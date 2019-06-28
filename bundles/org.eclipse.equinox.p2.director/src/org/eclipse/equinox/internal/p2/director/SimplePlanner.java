@@ -78,8 +78,8 @@ public class SimplePlanner implements IPlanner {
 			} catch (Throwable e) {
 				// ignore
 			}
-			for (int i = 0; i < operands.length; i++) {
-				Tracing.debug(operands[i].toString());
+			for (Object operand : operands) {
+				Tracing.debug(operand.toString());
 			}
 		}
 
@@ -147,7 +147,7 @@ public class SimplePlanner implements IPlanner {
 	/**
 	 * Converts a list of {@link Projector#getExplanation(IProgressMonitor) resolver
 	 * explanations} to a human-readable status object
-	 * 
+	 *
 	 * @param explanations List of resolver explanations ordered by logical
 	 *                     causality. I.e. read from start to end should forms
 	 *                     logical chain of statements as to why resolution failed.
@@ -205,7 +205,7 @@ public class SimplePlanner implements IPlanner {
 	/**
 	 * TODO Find a way to emit INFO status. The issue is that all
 	 * {@link IStatus#isOK()} calls will fail.
-	 * 
+	 *
 	 * @param requestChanges
 	 * @param requestSideEffects
 	 * @return the {@link IStatus}
@@ -260,8 +260,8 @@ public class SimplePlanner implements IPlanner {
 
 		// First deal with profile properties to remove.
 		String[] toRemove = profileChangeRequest.getPropertiesToRemove();
-		for (int i = 0; i < toRemove.length; i++) {
-			plan.setProfileProperty(toRemove[i], null);
+		for (String element : toRemove) {
+			plan.setProfileProperty(element, null);
 		}
 		// Now deal with profile property changes/additions
 		Map<String, String> propertyChanges = profileChangeRequest.getPropertiesToAdd();
@@ -340,9 +340,9 @@ public class SimplePlanner implements IPlanner {
 			ProvisioningContext context, IProgressMonitor monitor) {
 		Map<String, IInstallableUnit> resultsMap = new HashMap<>();
 		if (additionalSource != null) {
-			for (int i = 0; i < additionalSource.length; i++) {
-				String key = additionalSource[i].getId() + "_" + additionalSource[i].getVersion().toString(); //$NON-NLS-1$
-				resultsMap.put(key, additionalSource[i]);
+			for (IInstallableUnit element : additionalSource) {
+				String key = element.getId() + "_" + element.getVersion().toString(); //$NON-NLS-1$
+				resultsMap.put(key, element);
 			}
 		}
 		if (context == null) {
@@ -357,8 +357,7 @@ public class SimplePlanner implements IPlanner {
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(sub.newChild(500));
 		IQueryResult<IInstallableUnit> matches = queryable.query(QueryUtil.createIUQuery(null, VersionRange.emptyRange),
 				sub.newChild(500));
-		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-			IInstallableUnit iu = it.next();
+		for (IInstallableUnit iu : matches) {
 			String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
 			IInstallableUnit currentIU = resultsMap.get(key);
 			if (currentIU == null || hasHigherFidelity(iu, currentIU))
@@ -379,8 +378,8 @@ public class SimplePlanner implements IPlanner {
 	public SimplePlanner(IProvisioningAgent agent) {
 		Assert.isNotNull(agent);
 		this.agent = agent;
-		this.engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
-		this.profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		this.engine = agent.getService(IEngine.class);
+		this.profileRegistry = agent.getService(IProfileRegistry.class);
 		Assert.isNotNull(engine);
 		Assert.isNotNull(profileRegistry);
 	}
@@ -400,11 +399,11 @@ public class SimplePlanner implements IPlanner {
 
 	/**
 	 * Performs a provisioning request resolution
-	 * 
+	 *
 	 * @param profileChangeRequest The requested change.
 	 * @param context              The context for the resolution pass
 	 * @param monitor
-	 * 
+	 *
 	 * @return Return a {@link Projector} that captures the complete future state of
 	 *         the profile that satisfies the request. If the request can't be
 	 *         satisfied return an {@link IProvisioningPlan} where the error is
@@ -606,8 +605,7 @@ public class SimplePlanner implements IPlanner {
 			allMetaRequirements.addAll(iu.getMetaRequirements());
 		}
 		IQueryResult<IInstallableUnit> queryResult = plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null);
-		for (Iterator<IInstallableUnit> iterator = queryResult.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : queryResult) {
 			allMetaRequirements.addAll(iu.getMetaRequirements());
 		}
 		return allMetaRequirements;
@@ -631,8 +629,8 @@ public class SimplePlanner implements IPlanner {
 				return initialPlan;
 			}
 
-			IProfile installerProfile = ((IProfileRegistry) ((IProvisioningAgent) agent
-					.getService(IProvisioningAgent.INSTALLER_AGENT)).getService(IProfileRegistry.SERVICE_NAME))
+			IProfile installerProfile = ((IProvisioningAgent) agent
+					.getService(IProvisioningAgent.INSTALLER_AGENT)).getService(IProfileRegistry.class)
 							.getProfile((String) agent.getService(IProvisioningAgent.INSTALLER_PROFILEID));
 			if (installerProfile == null)
 				return initialPlan;
@@ -671,8 +669,8 @@ public class SimplePlanner implements IPlanner {
 			return false;
 		if (agent1 == agent2)
 			return true;
-		IAgentLocation thisLocation = (IAgentLocation) agent1.getService(IAgentLocation.SERVICE_NAME);
-		IAgentLocation otherLocation = (IAgentLocation) agent2.getService(IAgentLocation.SERVICE_NAME);
+		IAgentLocation thisLocation = agent1.getService(IAgentLocation.class);
+		IAgentLocation otherLocation = agent2.getService(IAgentLocation.class);
 		if (thisLocation == null || otherLocation == null || (thisLocation == null && otherLocation == null))
 			return false;
 		return thisLocation.getRootLocation().equals(otherLocation.getRootLocation());
@@ -754,8 +752,8 @@ public class SimplePlanner implements IPlanner {
 			agentRequest.setProfileProperty(entry.getKey(), entry.getValue());
 		}
 		String[] removedProperties = initialRequest.getPropertiesToRemove();
-		for (int i = 0; i < removedProperties.length; i++) {
-			agentRequest.removeProfileProperty(removedProperties[i]);
+		for (String removedPropertie : removedProperties) {
+			agentRequest.removeProfileProperty(removedPropertie);
 		}
 		Map<IInstallableUnit, List<String>> removedIUProperties = initialRequest
 				.getInstallableUnitProfilePropertiesToRemove();
@@ -948,8 +946,7 @@ public class SimplePlanner implements IPlanner {
 		}
 
 		// Process the IUs that were already there
-		for (Iterator<IInstallableUnit> iterator = alreadyInstalled.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : alreadyInstalled) {
 			Map<String, String> propertiesForIU = iuPropertiesToAdd.get(iu);
 			IRequirement profileRequirement = null;
 			// Test if the value has changed
@@ -1002,8 +999,7 @@ public class SimplePlanner implements IPlanner {
 		SubMonitor sub = SubMonitor.convert(monitor, 1000);
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(sub.newChild(500));
 		IQueryResult<IInstallableUnit> matches = queryable.query(new UpdateQuery(toUpdate), sub.newChild(500));
-		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-			IInstallableUnit iu = it.next();
+		for (IInstallableUnit iu : matches) {
 			String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
 			IInstallableUnit currentIU = resultsMap.get(key);
 			if (currentIU == null || hasHigherFidelity(iu, currentIU))

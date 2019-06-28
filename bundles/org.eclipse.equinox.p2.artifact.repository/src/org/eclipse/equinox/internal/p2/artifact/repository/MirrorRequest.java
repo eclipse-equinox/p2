@@ -66,7 +66,7 @@ public class MirrorRequest extends ArtifactRequest {
 	 */
 	private static final String PROP_DOWNLOAD_STATS = "download.stats"; //$NON-NLS-1$
 	/**
-	 * The additional parameters for downloading statistics 
+	 * The additional parameters for downloading statistics
 	 */
 	private String downloadStatsParamters;
 
@@ -128,11 +128,11 @@ public class MirrorRequest extends ArtifactRequest {
 		if (descriptor == null) {
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(getArtifactKey());
 			if (descriptors.length > 0) {
-				for (int i = 0; i < descriptors.length; i++) {
-					if (descriptors[i].getProperty(IArtifactDescriptor.FORMAT) == null)
-						canonical = descriptors[i];
-					else if (ProcessingStepHandler.canProcess(descriptors[i]))
-						optimized = descriptors[i];
+				for (IArtifactDescriptor descriptor2 : descriptors) {
+					if (descriptor2.getProperty(IArtifactDescriptor.FORMAT) == null)
+						canonical = descriptor2;
+					else if (ProcessingStepHandler.canProcess(descriptor2))
+						optimized = descriptor2;
 				}
 				boolean chooseCanonical = source.getLocation().getScheme().equals("file"); //$NON-NLS-1$
 				// If the source repo is local then look for a canonical descriptor so we don't waste processing time.
@@ -153,7 +153,7 @@ public class MirrorRequest extends ArtifactRequest {
 
 		IArtifactDescriptor destinationDescriptor = getDestinationDescriptor(descriptor);
 		IStatus status = transfer(destinationDescriptor, descriptor, monitor);
-		// if ok, cancelled or transfer has already been done with the canonical form return with status set 
+		// if ok, cancelled or transfer has already been done with the canonical form return with status set
 		if (status.getSeverity() == IStatus.CANCEL) {
 			setResult(status);
 			return;
@@ -177,8 +177,8 @@ public class MirrorRequest extends ArtifactRequest {
 		}
 
 		IStatus canonicalStatus = transfer(getDestinationDescriptor(canonical), canonical, monitor);
-		// To prevent the optimized transfer status severity from dominating the canonical, only merge 
-		// if the canonical severity is equal to or higher than the optimized transfer severity.   
+		// To prevent the optimized transfer status severity from dominating the canonical, only merge
+		// if the canonical severity is equal to or higher than the optimized transfer severity.
 		if (canonicalStatus.getSeverity() < status.getSeverity())
 			setResult(canonicalStatus);
 		else
@@ -215,7 +215,7 @@ public class MirrorRequest extends ArtifactRequest {
 		MultiStatus allResults = new MultiStatus(Activator.ID, 0, NLS.bind(Messages.MirrorRequest_transferFailed, sourceDescriptor), null);
 		IStatus lastResult = Status.OK_STATUS;
 		// go until we get one (OK), there are no more mirrors to consider or the operation is cancelled.
-		// Put a hard limit of MAX_RETRY_REQUEST so we don't end up in an infinite loop.  
+		// Put a hard limit of MAX_RETRY_REQUEST so we don't end up in an infinite loop.
 		// Really, if you've tried MAX_RETRY_REQUEST times without success, it's time to give up
 		// TODO Should we log that we gave up because of the retry count?
 		// TODO this needs to be redone with a much better mirror management scheme.
@@ -229,7 +229,7 @@ public class MirrorRequest extends ArtifactRequest {
 				throw (Error) lastResult.getException();
 			}
 		} while (lastResult.getSeverity() == IStatus.ERROR && lastResult.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);
-		IProvisioningEventBus bus = (IProvisioningEventBus) source.getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = source.getProvisioningAgent().getService(IProvisioningEventBus.class);
 		if (bus != null)
 			bus.publishEvent(new MirrorEvent(source, sourceDescriptor, lastResult.isOK() ? lastResult : (allResults.getChildren().length <= 1 ? lastResult : allResults)));
 		if (lastResult.isOK()) {
@@ -258,7 +258,7 @@ public class MirrorRequest extends ArtifactRequest {
 				try {
 					statsURI = new URI(statsURI.getScheme(), statsURI.getUserInfo(), statsURI.getHost(), statsURI.getPort(), statsURI.getPath(), statsURI.getQuery() == null ? downloadStatsParamters : downloadStatsParamters + "&" + statsURI.getQuery(), statsURI.getFragment()); //$NON-NLS-1$
 				} catch (URISyntaxException e) {
-					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unable to create download statistics due to invalid URL query: " + statsRoot + " suffix: " + statsProperty + " query: " + downloadStatsParamters)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$		
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unable to create download statistics due to invalid URL query: " + statsRoot + " suffix: " + statsProperty + " query: " + downloadStatsParamters)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
 			}
 		} catch (URISyntaxException e) {
@@ -320,7 +320,7 @@ public class MirrorRequest extends ArtifactRequest {
 	}
 
 	/**
-	 * Extract the root cause. The root cause is the first severe non-MultiStatus status 
+	 * Extract the root cause. The root cause is the first severe non-MultiStatus status
 	 * containing an exception when searching depth first otherwise null.
 	 * @param status
 	 * @return root cause
@@ -335,8 +335,8 @@ public class MirrorRequest extends ArtifactRequest {
 		if (children == null)
 			return constraintStatus(status);
 
-		for (int i = 0; i < children.length; i++) {
-			IStatus deeper = extractRootCause(children[i]);
+		for (IStatus element : children) {
+			IStatus deeper = extractRootCause(element);
 			if (deeper != null)
 				return deeper;
 		}

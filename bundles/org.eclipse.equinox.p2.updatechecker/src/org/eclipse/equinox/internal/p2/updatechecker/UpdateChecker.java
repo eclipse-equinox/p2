@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -144,13 +144,13 @@ public class UpdateChecker implements IUpdateChecker {
 	 * Returns the list of metadata repositories that are currently available.
 	 */
 	private URI[] getAvailableRepositories() {
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoMgr = agent.getService(IMetadataRepositoryManager.class);
 		URI[] repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		ArrayList<URI> available = new ArrayList<>();
-		for (int i = 0; i < repositories.length; i++) {
+		for (URI repositorie : repositories) {
 			try {
-				repoMgr.loadRepository(repositories[i], null);
-				available.add(repositories[i]);
+				repoMgr.loadRepository(repositorie, null);
+				available.add(repositorie);
 			} catch (ProvisionException e) {
 				LogHelper.log(e.getStatus());
 			}
@@ -171,7 +171,7 @@ public class UpdateChecker implements IUpdateChecker {
 
 	IPlanner getPlanner() {
 		if (planner == null) {
-			planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+			planner = agent.getService(IPlanner.class);
 			if (planner == null) {
 				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
 			}
@@ -181,7 +181,7 @@ public class UpdateChecker implements IUpdateChecker {
 
 	IProfileRegistry getProfileRegistry() {
 		if (profileRegistry == null) {
-			profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			profileRegistry = agent.getService(IProfileRegistry.class);
 			if (profileRegistry == null) {
 				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
 			}

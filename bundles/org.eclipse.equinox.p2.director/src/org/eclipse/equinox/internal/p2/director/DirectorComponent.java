@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -23,8 +23,8 @@ public class DirectorComponent implements IAgentServiceFactory {
 
 	@Override
 	public Object createService(IProvisioningAgent agent) {
-		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
-		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		IEngine engine = agent.getService(IEngine.class);
+		IPlanner planner = agent.getService(IPlanner.class);
 		return new SimpleDirector(engine, planner);
 	}
 

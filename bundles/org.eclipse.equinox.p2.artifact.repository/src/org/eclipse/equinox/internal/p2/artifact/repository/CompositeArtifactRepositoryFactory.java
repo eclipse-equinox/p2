@@ -39,7 +39,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 
 	private IArtifactRepositoryManager getManager() {
 		if (getAgent() != null)
-			return (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+			return getAgent().getService(IArtifactRepositoryManager.class);
 		return null;
 	}
 
@@ -65,7 +65,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		//file is not local, create a cache of the repository metadata
-		CacheManager cache = (CacheManager) getAgent().getService(CacheManager.SERVICE_NAME);
+		CacheManager cache = getAgent().getService(CacheManager.class);
 		if (cache == null)
 			throw new IllegalArgumentException("Cache manager service not available"); //$NON-NLS-1$
 		localFile = cache.createCache(location, CompositeArtifactRepository.CONTENT_FILENAME, monitor);
@@ -120,7 +120,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 				CompositeArtifactRepository result = new CompositeArtifactRepository(getManager(), resultState, sub.newChild(200));
 				if (Tracing.DEBUG_METADATA_PARSING) {
 					time += System.currentTimeMillis();
-					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 
+					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$
 				}
 				return result;
 			} finally {
