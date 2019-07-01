@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Wind River - ongoing development
@@ -37,7 +37,8 @@ public class Unconfigure extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, iu, InstallableUnitEvent.UNCONFIGURE, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, true, profile,
+					iu, InstallableUnitEvent.UNCONFIGURE, getTouchpoint()));
 			return null;
 		}
 
@@ -47,7 +48,8 @@ public class Unconfigure extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, iu, InstallableUnitEvent.CONFIGURE, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, false, profile,
+					iu, InstallableUnitEvent.CONFIGURE, getTouchpoint()));
 			return null;
 		}
 	}
@@ -60,7 +62,8 @@ public class Unconfigure extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, iu, InstallableUnitEvent.UNCONFIGURE, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, false, profile,
+					iu, InstallableUnitEvent.UNCONFIGURE, getTouchpoint()));
 			return null;
 		}
 
@@ -70,7 +73,8 @@ public class Unconfigure extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, iu, InstallableUnitEvent.CONFIGURE, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, true, profile,
+					iu, InstallableUnitEvent.CONFIGURE, getTouchpoint()));
 			return null;
 		}
 	}

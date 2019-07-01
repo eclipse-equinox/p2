@@ -66,27 +66,23 @@ public class ProvisioningContext {
 	/**
 	 * This Comparator sorts the repositories such that local repositories are first
 	 */
-	private static final Comparator<URI> LOCAL_FIRST_COMPARATOR = new Comparator<URI>() {
+	private static final Comparator<URI> LOCAL_FIRST_COMPARATOR = (arg0, arg1) -> {
+		String protocol0 = arg0.getScheme();
+		String protocol1 = arg1.getScheme();
 
-		@Override
-		public int compare(URI arg0, URI arg1) {
-			String protocol0 = arg0.getScheme();
-			String protocol1 = arg1.getScheme();
-
-			if (FILE_PROTOCOL.equals(protocol0) && !FILE_PROTOCOL.equals(protocol1))
-				return -1;
-			if (!FILE_PROTOCOL.equals(protocol0) && FILE_PROTOCOL.equals(protocol1))
-				return 1;
-			return 0;
-		}
+		if (FILE_PROTOCOL.equals(protocol0) && !FILE_PROTOCOL.equals(protocol1))
+			return -1;
+		if (!FILE_PROTOCOL.equals(protocol0) && FILE_PROTOCOL.equals(protocol1))
+			return 1;
+		return 0;
 	};
 
 	/**
-	 * Instructs the provisioning context to follow metadata repository references when 
+	 * Instructs the provisioning context to follow metadata repository references when
 	 * providing queryables for obtaining metadata and artifacts.  When this property is set to
-	 * "true", then metadata repository references that are encountered while loading the 
+	 * "true", then metadata repository references that are encountered while loading the
 	 * specified metadata repositories will be included in the provisioning
-	 * context.  
+	 * context.
 	 *
 	 * @see #getMetadata(IProgressMonitor)
 	 * @see #setMetadataRepositories(URI[])
@@ -157,14 +153,13 @@ public class ProvisioningContext {
 	 * Return an array of loaded artifact repositories.
 	 */
 	private List<IArtifactRepository> getLoadedArtifactRepositories(IProgressMonitor monitor) {
-		IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager repoManager = agent.getService(IArtifactRepositoryManager.class);
 		URI[] repositories = artifactRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : artifactRepositories;
 		Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
 
 		List<IArtifactRepository> repos = new ArrayList<>();
 		SubMonitor sub = SubMonitor.convert(monitor, (repositories.length + 1) * 100);
-		for (int i = 0; i < repositories.length; i++) {
-			URI location = repositories[i];
+		for (URI location : repositories) {
 			getLoadedRepository(location, repoManager, repos, sub);
 			// Remove this URI from the list of extra references if it is there.
 			if (referencedArtifactRepositories != null && location != null) {
@@ -202,7 +197,7 @@ public class ProvisioningContext {
 	}
 
 	private Set<IMetadataRepository> getLoadedMetadataRepositories(IProgressMonitor monitor) {
-		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoManager = agent.getService(IMetadataRepositoryManager.class);
 		URI[] repositories = metadataRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : metadataRepositories;
 
 		HashMap<String, IMetadataRepository> repos = new HashMap<>();
@@ -210,10 +205,10 @@ public class ProvisioningContext {
 
 		// Clear out the list of remembered artifact repositories
 		referencedArtifactRepositories = new HashMap<>();
-		for (int i = 0; i < repositories.length; i++) {
+		for (URI repositorie : repositories) {
 			if (sub.isCanceled())
 				throw new OperationCanceledException();
-			loadMetadataRepository(repoManager, repositories[i], repos, shouldFollowReferences(), sub.newChild(100));
+			loadMetadataRepository(repoManager, repositorie, repos, shouldFollowReferences(), sub.newChild(100));
 		}
 		Set<IMetadataRepository> set = new HashSet<>();
 		set.addAll(repos.values());
@@ -247,7 +242,7 @@ public class ProvisioningContext {
 		// We always load artifact repositories referenced by this repository.  We might load
 		// metadata repositories
 		if (references.size() > 0) {
-			IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			IArtifactRepositoryManager artifactManager = agent.getService(IArtifactRepositoryManager.class);
 			SubMonitor repoSubMon = SubMonitor.convert(sub.newChild(500), 100 * references.size());
 			for (IRepositoryReference ref : references) {
 				try {
@@ -287,7 +282,7 @@ public class ProvisioningContext {
 	/**
 	 * Returns a queryable that can be used to obtain any metadata (installable units)
 	 * that are needed for the provisioning operation.
-	 * 
+	 *
 	 * The provisioning context has a distinct lifecycle, whereby the metadata
 	 * and artifact repositories to be used are determined when the client retrieves
 	 * retrieves the metadata queryable.  Clients should not reset the list of
@@ -340,7 +335,7 @@ public class ProvisioningContext {
 	 * Sets the artifact repositories to consult when performing an operation.
 	 * <p>
 	 * The provisioning context has a distinct lifecycle, whereby the metadata
-	 * and artifact repositories to be used are determined when the client 
+	 * and artifact repositories to be used are determined when the client
 	 * retrieves the metadata queryable.  Clients should not reset the list of
 	 * artifact repository locations once the metadata queryable has been retrieved.
 	 *
@@ -354,7 +349,7 @@ public class ProvisioningContext {
 	 * Sets the metadata repositories to consult when performing an operation.
 	 * <p>
 	 * The provisioning context has a distinct lifecycle, whereby the metadata
-	 * and artifact repositories to be used are determined when the client 
+	 * and artifact repositories to be used are determined when the client
 	 * retrieves the metadata queryable.  Clients should not reset the list of
 	 * metadata repository locations once the metadata queryable has been retrieved.
 	 * @param metadataRepositories the metadata repository locations

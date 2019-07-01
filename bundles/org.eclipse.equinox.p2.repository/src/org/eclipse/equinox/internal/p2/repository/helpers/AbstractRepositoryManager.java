@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Wind River - fix for bug 299227
@@ -102,8 +102,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	protected AbstractRepositoryManager(IProvisioningAgent agent) {
 		super();
 		this.agent = agent;
-		agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
-		eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		agentLocation = agent.getService(IAgentLocation.class);
+		eventBus = agent.getService(IProvisioningEventBus.class);
 		eventBus.addListener(this);
 	}
 
@@ -149,11 +149,11 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	/**
-	 * Adds the repository to the list of known repositories. 
+	 * Adds the repository to the list of known repositories.
 	 * @param location The repository location
 	 * @param isEnabled Whether the repository should be enabled
 	 * @param signalAdd Whether a repository add event should be broadcast
-	 * @return <code>true</code> if the repository was actually added, and 
+	 * @return <code>true</code> if the repository was actually added, and
 	 * <code>false</code> otherwise.
 	 */
 	private boolean addRepository(URI location, boolean isEnabled, boolean signalAdd) {
@@ -303,10 +303,10 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	protected Object createExecutableExtension(IExtension extension, String element) {
 		IConfigurationElement[] elements = extension.getConfigurationElements();
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i].getName().equals(element)) {
+		for (IConfigurationElement element2 : elements) {
+			if (element2.getName().equals(element)) {
 				try {
-					return elements[i].createExecutableExtension("class"); //$NON-NLS-1$
+					return element2.createExecutableExtension("class"); //$NON-NLS-1$
 				} catch (CoreException e) {
 					log("Error loading repository extension: " + extension.getUniqueIdentifier(), e); //$NON-NLS-1$
 					return null;
@@ -321,10 +321,10 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 * Obtains an exclusive right to load a repository at the given location. Blocks
 	 * if another thread is currently loading at that location. Invocation of this
 	 * method must be followed by a subsequent call to {@link #exitLoad(URI)}.
-	 * 
+	 *
 	 * To avoid deadlock between the loadLock and repositoryLock, this method
 	 * must not be called when repositoryLock is held.
-	 * 
+	 *
 	 * @param location The location to lock
 	 */
 	private void enterLoad(URI location, IProgressMonitor monitor) {
@@ -415,9 +415,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			}
 		}
 		IExtension[] results = new IExtension[count];
-		for (int i = 0; i < elt.length; i++) {
-			if (elt[i] != null)
-				results[--count] = elt[i].getDeclaringExtension();
+		for (IConfigurationElement element : elt) {
+			if (element != null)
+				results[--count] = element.getDeclaringExtension();
 		}
 		return results;
 	}
@@ -431,9 +431,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		IConfigurationElement[] elements = registry.getConfigurationElementsFor(getRepositoryProviderExtensionPointId());
 		ArrayList<String> result = new ArrayList<>(elements.length);
 		result.add(getDefaultSuffix());
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i].getName().equals(EL_FILTER)) {
-				String suffix = elements[i].getAttribute(ATTR_SUFFIX);
+		for (IConfigurationElement element : elements) {
+			if (element.getName().equals(EL_FILTER)) {
+				String suffix = element.getAttribute(ATTR_SUFFIX);
 				if (!result.contains(suffix))
 					result.add(suffix);
 			}
@@ -667,17 +667,17 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			sub = SubMonitor.convert(sub, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
 			ProvisionException failure = null;
 			try {
-				for (int i = 0; i < suffixes.length; i++) {
+				for (String suffixe : suffixes) {
 					if (sub.isCanceled())
 						throw new OperationCanceledException();
 					try {
-						result = loadRepository(location, suffixes[i], type, flags, sub.newChild(100));
+						result = loadRepository(location, suffixe, type, flags, sub.newChild(100));
 					} catch (ProvisionException e) {
 						failure = e;
 						break;
 					}
 					if (result != null) {
-						addRepository(result, false, suffixes[i]);
+						addRepository(result, false, suffixe);
 						break;
 					}
 				}
@@ -768,9 +768,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask(null, providers.length * 10);
-		for (int i = 0; i < providers.length; i++)
+		for (IExtension provider : providers)
 			try {
-				IRepository<T> repo = factoryLoad(location, providers[i], flags, monitor);
+				IRepository<T> repo = factoryLoad(location, provider, flags, monitor);
 				if (repo != null)
 					return repo;
 			} catch (ProvisionException e) {
@@ -781,10 +781,10 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				throw e;
 			} catch (Exception e) {
 				//catch and log unexpected errors and move onto the next factory
-				log("Unexpected error loading extension: " + providers[i].getUniqueIdentifier(), e); //$NON-NLS-1$
+				log("Unexpected error loading extension: " + provider.getUniqueIdentifier(), e); //$NON-NLS-1$
 			} catch (LinkageError e) {
 				//catch and log unexpected errors and move onto the next factory
-				log("Unexpected error loading extension: " + providers[i].getUniqueIdentifier(), e); //$NON-NLS-1$
+				log("Unexpected error loading extension: " + provider.getUniqueIdentifier(), e); //$NON-NLS-1$
 			}
 		return null;
 	}
@@ -872,7 +872,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 
 	/**
 	 * Writes the state of the repository information into the appropriate preference node.
-	 * 
+	 *
 	 * @param info The info to write to the preference node
 	 * @param flush <code>true</code> if the preference node should be flushed to
 	 * disk, and <code>false</code> otherwise
@@ -969,8 +969,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			log("Error restoring repositories from preferences", e); //$NON-NLS-1$
 			return;
 		}
-		for (int i = 0; i < children.length; i++) {
-			Preferences child = node.node(children[i]);
+		for (String element : children) {
+			Preferences child = node.node(element);
 			URI location = getRepositoryLocation(child);
 			if (location == null) {
 				try {
@@ -1084,7 +1084,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	/**
-	 * Optimize the order in which repository suffixes are searched by trying 
+	 * Optimize the order in which repository suffixes are searched by trying
 	 * the last successfully loaded suffix first.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients.
 	 * @noreference This method is not intended to be referenced by clients.
@@ -1111,8 +1111,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			// Now make sure that anything in the "preferredOrder" is at the top
 			if (preferredOrder != null) {
 				int priority = 0;
-				for (int i = 0; i < preferredOrder.length; i++) {
-					String currentSuffix = preferredOrder[i];
+				for (String currentSuffix : preferredOrder) {
 					if (LocationProperties.END.equals(currentSuffix.trim())) {
 						// All suffixes from here on should be ignored
 						String[] tmp = new String[priority];
@@ -1136,8 +1135,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	/**
-	 * Performs a query against the contents of each known 
-	 * repository, accumulating any objects that satisfy the query in the 
+	 * Performs a query against the contents of each known
+	 * repository, accumulating any objects that satisfy the query in the
 	 * provided collector.
 	 * <p>
 	 * Note that using this method can be quite expensive, as every known
@@ -1147,8 +1146,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 * loaded and then query each of the returned repositories.
 	 * <p>
 	 * This method is long-running; progress and cancellation are provided
-	 * by the given progress monitor. 
-	 * 
+	 * by the given progress monitor.
+	 *
 	 * @param query The query to perform against each element in each known repository
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
@@ -1159,11 +1158,11 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
 		List<IRepository<T>> queryables = new ArrayList<>(locations.length); // use a list since we don't know exactly how many will load
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
-		for (int i = 0; i < locations.length; i++) {
+		for (URI location : locations) {
 			try {
 				if (sub.isCanceled())
 					throw new OperationCanceledException();
-				queryables.add(loadRepository(locations[i], sub.newChild(9), null, 0));
+				queryables.add(loadRepository(location, sub.newChild(9), null, 0));
 			} catch (ProvisionException e) {
 				//ignore this repository for this query
 			}
@@ -1185,15 +1184,14 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	protected Transport getTransport() {
-		return (Transport) agent.getService(Transport.SERVICE_NAME);
+		return agent.getService(Transport.class);
 	}
 
 	public void flushCache() {
 		synchronized (repositoryLock) {
 			if (repositories != null) {
 				Collection<RepositoryInfo<T>> repos = repositories.values();
-				for (Iterator<RepositoryInfo<T>> iterator = repos.iterator(); iterator.hasNext();) {
-					RepositoryInfo<T> repositoryInfo = iterator.next();
+				for (RepositoryInfo<T> repositoryInfo : repos) {
 					repositoryInfo.repository = null;
 				}
 			}

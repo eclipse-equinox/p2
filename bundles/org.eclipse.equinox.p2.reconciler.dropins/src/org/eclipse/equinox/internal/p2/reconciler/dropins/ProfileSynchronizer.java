@@ -7,8 +7,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  * IBM Corporation - initial implementation and ideas
  *     Sonatype, Inc. - ongoing development
  *     RedHat, Inc. - Bug 397216, Bug 460967
@@ -152,7 +152,7 @@ public class ProfileSynchronizer {
 		// Mark the state update as hidden so it does not appear in the Installation History UI list
 		// TODO We need to determine if it is ok to use this copy of the profile.
 		// See https://bugs.eclipse.org/334670
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
 		if (profileRegistry != null) {
 			IStatus result = profileRegistry.setProfileStateProperty(profile.getProfileId(), profile.getTimestamp(), IProfile.STATE_PROP_HIDDEN, Boolean.TRUE.toString());
 			if (!result.isOK()) {
@@ -180,7 +180,7 @@ public class ProfileSynchronizer {
 	 * removal so we have to uninstall the UI-installed IU.
 	 */
 	private IStatus performAddRemove(ReconcilerProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
-		// if we have moves then we have previously removed them. 
+		// if we have moves then we have previously removed them.
 		// now we need to add them back (at the new location)
 		for (IInstallableUnit iu : request.getMoves()) {
 			request.add(iu);
@@ -195,7 +195,7 @@ public class ProfileSynchronizer {
 		if (additions.isEmpty() && removals.isEmpty())
 			return Status.OK_STATUS;
 
-		// TODO See bug 270195. Eventually we will attempt to remove strictly installed IUs if their 
+		// TODO See bug 270195. Eventually we will attempt to remove strictly installed IUs if their
 		// dependent bundles have been deleted.
 		boolean removeStrictRoots = false;
 		if (removeStrictRoots)
@@ -209,7 +209,7 @@ public class ProfileSynchronizer {
 	private IStatus performStrictRootRemoval(ReconcilerProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
 		Collection<IInstallableUnit> removals = request.getRemovals();
 		// if we don't have any removals then we don't have to worry about potentially
-		// invalidating things we already have installed, removal of roots, etc so just 
+		// invalidating things we already have installed, removal of roots, etc so just
 		// create a regular plan.
 		if (removals.isEmpty()) {
 			IProvisioningPlan plan = createProvisioningPlan(request, context, monitor);
@@ -244,7 +244,7 @@ public class ProfileSynchronizer {
 			// if the root wasn't uninstalled, then continue
 			if (plan.getRemovals().query(QueryUtil.createIUQuery(initialRoot), null).isEmpty())
 				continue;
-			// otherwise add its removal to the change request, along with a negation and 
+			// otherwise add its removal to the change request, along with a negation and
 			// change of strict to optional for their inclusion rule.
 			finalRequest.remove(initialRoot);
 			finalRequest.setInstallableUnitProfileProperty(initialRoot, INCLUSION_RULES, INCLUSION_OPTIONAL);
@@ -273,14 +273,14 @@ public class ProfileSynchronizer {
 	}
 
 	/*
-	 * If the request contains IUs to be moved then create and execute a plan which 
+	 * If the request contains IUs to be moved then create and execute a plan which
 	 * removes them. Otherwise just return.
 	 */
 	private IStatus performRemoveForMovedIUs(ReconcilerProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
 		Collection<IInstallableUnit> moves = request.getMoves();
 		if (moves.isEmpty())
 			return Status.OK_STATUS;
-		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		IEngine engine = agent.getService(IEngine.class);
 		IProvisioningPlan plan = engine.createPlan(profile, context);
 		for (IInstallableUnit unit : moves)
 			plan.removeInstallableUnit(unit);
@@ -288,7 +288,7 @@ public class ProfileSynchronizer {
 	}
 
 	/*
-	 * Write out the timestamps of various repositories and folders/file to help 
+	 * Write out the timestamps of various repositories and folders/file to help
 	 * us cache and detect cases where we don't have to perform a reconciliation.
 	 */
 	private void writeTimestamps() {
@@ -312,8 +312,7 @@ public class ProfileSynchronizer {
 			try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
 				CollectionUtils.storeProperties(timestamps, os, "Timestamps for " + profile.getProfileId()); //$NON-NLS-1$
 				if (Tracing.DEBUG_RECONCILER) {
-					for (Iterator<String> iter = timestamps.keySet().iterator(); iter.hasNext();) {
-						String key = iter.next();
+					for (String key : timestamps.keySet()) {
 						Object value = timestamps.get(key);
 						Activator.trace(key + '=' + value);
 					}
@@ -365,7 +364,7 @@ public class ProfileSynchronizer {
 
 			String key = entry.getKey();
 			String lastKnownTimestamp = timestamps.remove(key);
-			//A repo has been added 
+			//A repo has been added
 			if (lastKnownTimestamp == null) {
 				Activator.trace("No cached timestamp found for: " + key); //$NON-NLS-1$
 				Activator.trace("Performing reconciliation."); //$NON-NLS-1$
@@ -386,8 +385,8 @@ public class ProfileSynchronizer {
 		//A repo has been removed
 		if (Tracing.DEBUG_RECONCILER) {
 			Activator.trace("Extra values in timestamp file:"); //$NON-NLS-1$
-			for (Iterator<String> iter = timestamps.keySet().iterator(); iter.hasNext();)
-				Activator.trace(iter.next());
+			for (String string : timestamps.keySet())
+				Activator.trace(string);
 			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 		}
 		return false;
@@ -423,9 +422,9 @@ public class ProfileSynchronizer {
 
 	private ProvisioningContext getContext() {
 		ArrayList<URI> repoURLs = new ArrayList<>();
-		for (Iterator<String> iterator = repositoryMap.keySet().iterator(); iterator.hasNext();) {
+		for (String string : repositoryMap.keySet()) {
 			try {
-				repoURLs.add(new URI(iterator.next()));
+				repoURLs.add(new URI(string));
 			} catch (URISyntaxException e) {
 				//ignore
 			}
@@ -445,7 +444,7 @@ public class ProfileSynchronizer {
 		final String OSGiInstallArea;
 		try {
 			// The OSGi install area is an unencoded URL and repository locations are encoded URIs
-			// so make them the same so we can compare them. 
+			// so make them the same so we can compare them.
 			// See https://bugs.eclipse.org/346565.
 			OSGiInstallArea = URIUtil.toURI(installArea).toString() + Constants.EXTENSION_LOCATION;
 			// Sort the repositories so the extension location at the OSGi install folder is first.
@@ -516,8 +515,7 @@ public class ProfileSynchronizer {
 	private Map<IInstallableUnit, IInstallableUnit> getProfileIUs() {
 		IQueryResult<IInstallableUnit> profileQueryResult = profile.query(QueryUtil.createIUAnyQuery(), null);
 		Map<IInstallableUnit, IInstallableUnit> result = new HashMap<>();
-		for (Iterator<IInstallableUnit> it = profileQueryResult.iterator(); it.hasNext();) {
-			IInstallableUnit iu = it.next();
+		for (IInstallableUnit iu : profileQueryResult) {
 			result.put(iu, iu);
 		}
 		return result;
@@ -530,8 +528,7 @@ public class ProfileSynchronizer {
 	private Map<IInstallableUnit, IInstallableUnit> getAvailableProfileIUs() {
 		IQueryResult<IInstallableUnit> profileQueryResult = profile.available(QueryUtil.createIUAnyQuery(), null);
 		Map<IInstallableUnit, IInstallableUnit> result = new HashMap<>();
-		for (Iterator<IInstallableUnit> it = profileQueryResult.iterator(); it.hasNext();) {
-			IInstallableUnit iu = it.next();
+		for (IInstallableUnit iu : profileQueryResult) {
 			result.put(iu, iu);
 		}
 		return result;
@@ -561,7 +558,7 @@ public class ProfileSynchronizer {
 		// we use IProfile.available(...) here so that we also gather any shared IUs
 		Map<IInstallableUnit, IInstallableUnit> availableProfileIUs = getAvailableProfileIUs();
 
-		// get all IUs from all our repos 
+		// get all IUs from all our repos
 		IQueryResult<IInstallableUnit> allIUs = getAllIUsFromRepos();
 		for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();) {
 			final IInstallableUnit iu = iter.next();
@@ -594,7 +591,7 @@ public class ProfileSynchronizer {
 			request.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 			request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, Integer.toString(IProfile.LOCK_UNINSTALL));
 
-			// as soon as we find something locally that needs to be installed, then 
+			// as soon as we find something locally that needs to be installed, then
 			// everything from the parent's dropins must be installed locally as well.
 			if (!foundIUsToAdd && availableProfileIUs.get(iu) == null) {
 				foundIUsToAdd = true;
@@ -604,8 +601,7 @@ public class ProfileSynchronizer {
 		// get all IUs from profile with marked property (existing)
 		IQueryResult<IInstallableUnit> dropinIUs = profile.query(new IUProfilePropertyQuery(PROP_FROM_DROPINS, Boolean.TRUE.toString()), null);
 		Set<IInstallableUnit> all = allIUs.toUnmodifiableSet();
-		for (Iterator<IInstallableUnit> iter = dropinIUs.iterator(); iter.hasNext();) {
-			IInstallableUnit iu = iter.next();
+		for (IInstallableUnit iu : dropinIUs) {
 			// the STRICT policy is set when we install things via the UI, we use it to differentiate between IUs installed
 			// via the dropins and the UI. (dropins are considered optional) If an IU has both properties set it means that
 			// it was initially installed via the dropins but then upgraded via the UI. (properties are copied from the old IU
@@ -646,7 +642,7 @@ public class ProfileSynchronizer {
 	}
 
 	/*
-	 * If in debug mode, print out information which tells us whether or not the given 
+	 * If in debug mode, print out information which tells us whether or not the given
 	 * provisioning plan matches the request.
 	 */
 	private void debug(ReconcilerProfileChangeRequest request, IProvisioningPlan plan) {
@@ -659,14 +655,12 @@ public class ProfileSynchronizer {
 		List<IInstallableUnit> toMove = new ArrayList<>(request.getMoves());
 
 		// remove from the request everything that is in the plan
-		for (Iterator<IInstallableUnit> iterator = plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null).iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null)) {
 			if (!toRemove.remove(iu)) {
 				Tracing.debug(PREFIX + iu + " will be removed"); //$NON-NLS-1$
 			}
 		}
-		for (Iterator<IInstallableUnit> iterator = plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null)) {
 			if (!toAdd.remove(iu)) {
 				Tracing.debug(PREFIX + iu + " will be added"); //$NON-NLS-1$
 			}
@@ -766,7 +760,7 @@ public class ProfileSynchronizer {
 	 * Create and return a provisioning plan for the given change request.
 	 */
 	private IProvisioningPlan createProvisioningPlan(ProfileChangeRequest request, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
-		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		IPlanner planner = agent.getService(IPlanner.class);
 		return planner.getProvisioningPlan(request, provisioningContext, monitor);
 	}
 
@@ -774,7 +768,7 @@ public class ProfileSynchronizer {
 	 * Call the engine to set the given property on the profile.
 	 */
 	private IStatus setProperty(String key, String value, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
-		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		IEngine engine = agent.getService(IEngine.class);
 		IProvisioningPlan plan = engine.createPlan(profile, provisioningContext);
 		plan.setProfileProperty(key, value);
 		IPhaseSet phaseSet = PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_PROPERTY});
@@ -785,7 +779,7 @@ public class ProfileSynchronizer {
 	 * Execute the given plan.
 	 */
 	private IStatus executePlan(IProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
-		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		IEngine engine = agent.getService(IEngine.class);
 		IPhaseSet phaseSet = PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST});
 
 		if (plan.getInstallerPlan() != null) {
@@ -824,8 +818,8 @@ public class ProfileSynchronizer {
 		String[] args = info.getCommandLineArgs();
 		if (args == null)
 			return false;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i] != null && RECONCILER_APPLICATION_ID.equals(args[i].trim()))
+		for (String arg : args) {
+			if (arg != null && RECONCILER_APPLICATION_ID.equals(arg.trim()))
 				return true;
 		}
 		return false;

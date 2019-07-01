@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -31,13 +31,13 @@ import org.osgi.service.prefs.Preferences;
 /**
  * The main control point for the p2 garbage collector.  Takes a Profile and runs the CoreGarbageCollector with the
  * appropriate MarkSets for the repositories used by that Profile.
- * 
+ *
  * Takes the profile passed in and creates a set (markSet) that maps the artifact repositories it uses to the
  * artifact keys its IUs hold.  This is done by getting MarkSets from all registered IMarkSetProviders.
- * 
+ *
  * Then, the MarkSets are obtained for every other registered Profile in a similar fashion.  Each MarkSet is
- * checked to see if its artifact repository is already a key in markSet.  If so, that MarkSet's artifact keys 
- * are added to the list that is mapped to by the artifact repository. 
+ * checked to see if its artifact repository is already a key in markSet.  If so, that MarkSet's artifact keys
+ * are added to the list that is mapped to by the artifact repository.
  */
 public class GarbageCollector implements SynchronousProvisioningListener, IAgentService {
 	/**
@@ -80,7 +80,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	private static final String PT_MARKSET = GCActivator.ID + ".marksetproviders"; //$NON-NLS-1$
 	final IProvisioningAgent agent;
 
-	//The GC is triggered when an uninstall event occurred during a "transaction" and the transaction is committed.   
+	//The GC is triggered when an uninstall event occurred during a "transaction" and the transaction is committed.
 	String uninstallEventProfileId = null;
 
 	/**
@@ -93,8 +93,8 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	}
 
 	private void addKeys(Collection<IArtifactKey> keyList, IArtifactKey[] keyArray) {
-		for (int i = 0; i < keyArray.length; i++)
-			keyList.add(keyArray[i]);
+		for (IArtifactKey element : keyArray)
+			keyList.add(element);
 	}
 
 	private void contributeMarkSets(IConfigurationElement runAttribute, IProfile profile, boolean addRepositories) {
@@ -104,19 +104,19 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		if (aProfileMarkSets == null || aProfileMarkSets.length == 0 || aProfileMarkSets[0] == null)
 			return;
 
-		for (int i = 0; i < aProfileMarkSets.length; i++) {
-			if (aProfileMarkSets[i] == null) {
+		for (MarkSet aProfileMarkSet : aProfileMarkSets) {
+			if (aProfileMarkSet == null) {
 				continue;
 			}
-			Collection<IArtifactKey> keys = markSet.get(aProfileMarkSets[i].getRepo());
+			Collection<IArtifactKey> keys = markSet.get(aProfileMarkSet.getRepo());
 			if (keys == null) {
 				if (addRepositories) {
 					keys = new HashSet<>();
-					markSet.put(aProfileMarkSets[i].getRepo(), keys);
-					addKeys(keys, aProfileMarkSets[i].getKeys());
+					markSet.put(aProfileMarkSet.getRepo(), keys);
+					addKeys(keys, aProfileMarkSet.getKeys());
 				}
 			} else {
-				addKeys(keys, aProfileMarkSets[i].getKeys());
+				addKeys(keys, aProfileMarkSet.getKeys());
 			}
 		}
 	}
@@ -174,7 +174,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 
 	@Override
 	public void start() {
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus eventBus = agent.getService(IProvisioningEventBus.class);
 		if (eventBus == null)
 			return;
 		eventBus.addListener(this);
@@ -182,7 +182,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 
 	@Override
 	public void stop() {
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus eventBus = agent.getService(IProvisioningEventBus.class);
 		if (eventBus != null)
 			eventBus.removeListener(this);
 	}
@@ -218,13 +218,13 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 				continue;
 			}
 
-			IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
 			if (profileRegistry == null)
 				return;
 			IProfile[] registeredProfiles = profileRegistry.getProfiles();
 
-			for (int j = 0; j < registeredProfiles.length; j++) {
-				contributeMarkSets(runAttribute, registeredProfiles[j], false);
+			for (IProfile registeredProfile : registeredProfiles) {
+				contributeMarkSets(runAttribute, registeredProfile, false);
 			}
 		}
 	}

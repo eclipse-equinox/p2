@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -45,7 +45,7 @@ public class PhaseSet implements IPhaseSet {
 					return status;
 				}
 				Phase phase = phases[i];
-				phase.actionManager = (ActionManager) session.getAgent().getService(ActionManager.SERVICE_NAME);
+				phase.actionManager = session.getAgent().getService(ActionManager.class);
 				try {
 					phase.perform(status, session, operands, pm.newChild(weights[i]));
 				} catch (OperationCanceledException e) {
@@ -103,12 +103,11 @@ public class PhaseSet implements IPhaseSet {
 
 	public final IStatus validate(ActionManager actionManager, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		Set<MissingAction> missingActions = new HashSet<>();
-		for (int i = 0; i < phases.length; i++) {
-			Phase phase = phases[i];
+		for (Phase phase2 : phases) {
+			Phase phase = phase2;
 			phase.actionManager = actionManager;
 			try {
-				for (int j = 0; j < operands.length; j++) {
-					Operand operand = operands[j];
+				for (Operand operand : operands) {
 					try {
 						if (!phase.isApplicable(operand))
 							continue;
@@ -148,8 +147,8 @@ public class PhaseSet implements IPhaseSet {
 
 	private int getTotalWork(int[] weights) {
 		int sum = 0;
-		for (int i = 0; i < weights.length; i++)
-			sum += weights[i];
+		for (int weight : weights)
+			sum += weight;
 		return sum;
 	}
 
@@ -167,8 +166,8 @@ public class PhaseSet implements IPhaseSet {
 
 	private int countApplicable(Phase phase, Operand[] operands) {
 		int count = 0;
-		for (int i = 0; i < operands.length; i++) {
-			if (phase.isApplicable(operands[i]))
+		for (Operand operand : operands) {
+			if (phase.isApplicable(operand))
 				count++;
 		}
 		return count;

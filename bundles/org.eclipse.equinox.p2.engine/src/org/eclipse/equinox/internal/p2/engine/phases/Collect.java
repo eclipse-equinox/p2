@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
@@ -100,12 +100,12 @@ public class Collect extends InstallableUnitPhase {
 		List<IArtifactRequest> totalArtifactRequests = new ArrayList<>(artifactRequests.size());
 		DownloadManager dm = new DownloadManager(context, agent);
 		for (IArtifactRequest[] requests : artifactRequests) {
-			for (int i = 0; i < requests.length; i++) {
-				dm.add(requests[i]);
-				totalArtifactRequests.add(requests[i]);
+			for (IArtifactRequest request : requests) {
+				dm.add(request);
+				totalArtifactRequests.add(request);
 			}
 		}
-		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = agent.getService(IProvisioningEventBus.class);
 		if (bus != null)
 			bus.publishEvent(new CollectEvent(CollectEvent.TYPE_OVERALL_START, null, context, totalArtifactRequests.toArray(new IArtifactRequest[totalArtifactRequests.size()])));
 		IStatus downloadStatus = dm.start(monitor);
@@ -135,7 +135,7 @@ public class Collect extends InstallableUnitPhase {
 	private void firePauseEventToDownloadJobs() {
 		synchronized (this) {
 			if (agent != null) {
-				IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+				IProvisioningEventBus bus = agent.getService(IProvisioningEventBus.class);
 				if (bus != null)
 					bus.publishEvent(new DownloadPauseResumeEvent(isPaused ? DownloadPauseResumeEvent.TYPE_PAUSE : DownloadPauseResumeEvent.TYPE_RESUME));
 			}

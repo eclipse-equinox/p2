@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -58,7 +58,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	private void publishArtifactRepos() {
 		List<URI> artifactRepos = findArtifactRepos();
 
-		IProvisioningEventBus bus = (IProvisioningEventBus) getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = getProvisioningAgent().getService(IProvisioningEventBus.class);
 		if (bus == null)
 			return;
 		for (URI repo : artifactRepos) {

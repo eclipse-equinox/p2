@@ -56,13 +56,13 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	/**
-	 * Determine what top level installable units should be installed by the director
+	 * Determine what top level installable units should be installed by the
+	 * director
 	 */
 	private Collection<IInstallableUnit> computeUnitsToInstall() throws CoreException {
 		ArrayList<IInstallableUnit> units = new ArrayList<>();
 		IVersionedId roots[] = installDescription.getRoots();
-		for (int i = 0; i < roots.length; i++) {
-			IVersionedId root = roots[i];
+		for (IVersionedId root : roots) {
 			IInstallableUnit iu = findUnit(root);
 			if (iu != null)
 				units.add(iu);
@@ -71,7 +71,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	/**
-	 * This profile is being updated; return the units to uninstall from the profile.
+	 * This profile is being updated; return the units to uninstall from the
+	 * profile.
 	 */
 	private IQueryResult<IInstallableUnit> computeUnitsToUninstall(IProfile p) {
 		return p.query(QueryUtil.createIUAnyQuery(), null);
@@ -85,7 +86,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		if (profile == null) {
 			Map<String, String> properties = new HashMap<>();
 			properties.put(IProfile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
-			EnvironmentInfo info = ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class);
+			EnvironmentInfo info = ServiceHelper.getService(InstallerActivator.getDefault().getContext(),
+					EnvironmentInfo.class);
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			properties.put(IProfile.PROP_ENVIRONMENTS, env);
 			properties.put(IProfile.PROP_NAME, installDescription.getProductName());
@@ -99,7 +101,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	IPlanner getPlanner() {
-		return (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		return agent.getService(IPlanner.class);
 	}
 
 	/**
@@ -177,7 +179,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	/**
-	 * Returns the id of the profile to use for install/update based on this operation's install description.
+	 * Returns the id of the profile to use for install/update based on this
+	 * operation's install description.
 	 */
 	private String getProfileId() {
 		IPath location = installDescription.getInstallLocation();
@@ -187,8 +190,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	/**
-	 * Returns the result of the install operation, or <code>null</code> if
-	 * no install operation has been run.
+	 * Returns the result of the install operation, or <code>null</code> if no
+	 * install operation has been run.
 	 */
 	public IStatus getResult() {
 		return result;
@@ -209,7 +212,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 				preInstall();
 				isInstall = getProfile() == null;
 				doInstall(monitor);
-				result = new Status(IStatus.OK, InstallerActivator.PI_INSTALLER, isInstall ? Messages.Op_InstallComplete : Messages.Op_UpdateComplete, null);
+				result = new Status(IStatus.OK, InstallerActivator.PI_INSTALLER,
+						isInstall ? Messages.Op_InstallComplete : Messages.Op_UpdateComplete, null);
 				monitor.setTaskName(Messages.Op_Cleanup);
 			} finally {
 				postInstall();
@@ -223,19 +227,19 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	/**
-	 * Returns whether this operation represents the product being installed
-	 * for the first time, in a new profile.
+	 * Returns whether this operation represents the product being installed for the
+	 * first time, in a new profile.
 	 */
 	public boolean isFirstInstall() {
 		return isInstall;
 	}
 
 	private void postInstall() {
-		//nothing to do
+		// nothing to do
 	}
 
 	private void preInstall() throws CoreException {
-		//obtain required services
+		// obtain required services
 		director = (IDirector) getService(IDirector.SERVICE_NAME);
 		metadataRepoMan = (IMetadataRepositoryManager) getService(IMetadataRepositoryManager.SERVICE_NAME);
 		artifactRepoMan = (IArtifactRepositoryManager) getService(IArtifactRepositoryManager.SERVICE_NAME);
@@ -248,10 +252,11 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			return;
 
 		// Repositories must be registered before they are loaded
-		// This is to avoid them being possibly overridden with the configuration as a referenced repository
-		for (int i = 0; i < repos.length; i++) {
-			artifactRepoMan.addRepository(repos[i]);
-			artifactRepoMan.loadRepository(repos[i], null);
+		// This is to avoid them being possibly overridden with the configuration as a
+		// referenced repository
+		for (URI repo : repos) {
+			artifactRepoMan.addRepository(repo);
+			artifactRepoMan.loadRepository(repo, null);
 		}
 	}
 
@@ -261,10 +266,11 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			return;
 
 		// Repositories must be registered before they are loaded
-		// This is to avoid them being possibly overridden with the configuration as a referenced repository
-		for (int i = 0; i < repos.length; i++) {
-			metadataRepoMan.addRepository(repos[i]);
-			metadataRepoMan.loadRepository(repos[i], null);
+		// This is to avoid them being possibly overridden with the configuration as a
+		// referenced repository
+		for (URI repo : repos) {
+			metadataRepoMan.addRepository(repo);
+			metadataRepoMan.loadRepository(repo, null);
 		}
 	}
 }

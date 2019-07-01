@@ -1263,7 +1263,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	@Override
 	public void stop() {
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) targetAgent.getService(IProvisioningEventBus.class);
+		IProvisioningEventBus eventBus = targetAgent.getService(IProvisioningEventBus.class);
 		if (eventBus != null) {
 			eventBus.removeListener(this);
 		}

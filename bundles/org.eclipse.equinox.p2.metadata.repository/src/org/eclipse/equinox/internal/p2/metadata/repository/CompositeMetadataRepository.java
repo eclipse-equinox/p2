@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
@@ -62,11 +62,11 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	public static CompositeMetadataRepository createMemoryComposite(IProvisioningAgent agent) {
 		if (agent == null)
 			return null;
-		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoManager = agent.getService(IMetadataRepositoryManager.class);
 		if (repoManager == null)
 			return null;
 		try {
-			//create a unique opaque URI 
+			//create a unique opaque URI
 			long time = System.currentTimeMillis();
 			URI repositoryURI = new URI("memory:" + String.valueOf(time)); //$NON-NLS-1$
 			while (repoManager.contains(repositoryURI))

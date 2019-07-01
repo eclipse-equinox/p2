@@ -32,7 +32,7 @@ public class AddChildTask extends AbstractMDRTask {
 	@Override
 	public void execute() {
 		validate();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
 		if (manager == null)
 			throw new BuildException("Unable to aquire metadata repository manager service.");
 

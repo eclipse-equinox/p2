@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -227,7 +227,7 @@ public class EngineSession {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		SubMonitor sub = SubMonitor.convert(monitor, 10 + 10 + 10 * actionRecords.size());
 		try {
-			phase.actionManager = (ActionManager) agent.getService(ActionManager.SERVICE_NAME);
+			phase.actionManager = agent.getService(ActionManager.class);
 
 			if (!currentPhaseActive)
 				phase.prePerform(result, this, sub.newChild(10));

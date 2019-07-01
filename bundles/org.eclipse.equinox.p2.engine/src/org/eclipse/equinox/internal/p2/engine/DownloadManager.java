@@ -32,7 +32,7 @@ public class DownloadManager {
 
 	/**
 	 * This Comparator sorts the repositories such that local repositories are first.
-	 * TODO: This is copied from the ProvisioningContext class. Can we combine them? 
+	 * TODO: This is copied from the ProvisioningContext class. Can we combine them?
 	 * See https://bugs.eclipse.org/335153.
 	 */
 	private static final Comparator<IArtifactRepository> LOCAL_FIRST_COMPARATOR = new Comparator<IArtifactRepository>() {
@@ -66,8 +66,8 @@ public class DownloadManager {
 
 	public void add(IArtifactRequest[] toAdd) {
 		Assert.isNotNull(toAdd);
-		for (int i = 0; i < toAdd.length; i++) {
-			add(toAdd[i]);
+		for (IArtifactRequest element : toAdd) {
+			add(element);
 		}
 	}
 
@@ -134,7 +134,7 @@ public class DownloadManager {
 	}
 
 	private void publishDownloadEvent(CollectEvent event) {
-		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = agent.getService(IProvisioningEventBus.class);
 		if (bus != null)
 			bus.publishEvent(event);
 	}

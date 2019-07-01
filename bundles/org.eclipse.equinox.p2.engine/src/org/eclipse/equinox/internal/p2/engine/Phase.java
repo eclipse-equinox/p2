@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Landmark Graphics Corporation - bug 397183
@@ -76,7 +76,7 @@ public abstract class Phase {
 	}
 
 	private void broadcastPhaseEvent(EngineSession session, Operand[] operands, int type) {
-		IProvisioningEventBus bus = (IProvisioningEventBus) session.getAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = session.getAgent().getService(IProvisioningEventBus.class);
 		if (bus != null) {
 			bus.publishEvent(getPhaseEvent(operands, type));
 		}
@@ -270,8 +270,7 @@ public abstract class Phase {
 			}
 			operandParameters = Collections.unmodifiableMap(operandParameters);
 		}
-		for (int j = 0; j < actions.length; j++) {
-			ProvisioningAction action = actions[j];
+		for (ProvisioningAction action : actions) {
 			Map<String, Object> parameters = operandParameters;
 			Touchpoint touchpoint = action.getTouchpoint();
 			if (touchpoint != null) {

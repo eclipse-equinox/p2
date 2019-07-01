@@ -40,7 +40,7 @@ import org.osgi.framework.FrameworkUtil;
  * ProvisioningSession provides the context for a provisioning session, including
  * the provisioning services that should be used.  It also provides utility
  * methods for commonly performed provisioning tasks.
- * 
+ *
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
  */
@@ -71,7 +71,7 @@ public class ProvisioningSession {
 	 * @return the agent location
 	 */
 	IAgentLocation getAgentLocation() {
-		return (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+		return agent.getService(IAgentLocation.class);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class ProvisioningSession {
 	 * @return the repository manager
 	 */
 	IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		return agent.getService(IArtifactRepositoryManager.class);
 	}
 
 	/**
@@ -87,11 +87,11 @@ public class ProvisioningSession {
 	 * @return the repository manager
 	 */
 	IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		return agent.getService(IMetadataRepositoryManager.class);
 	}
 
 	IProfileRegistry getProfileRegistry() {
-		return (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		return agent.getService(IProfileRegistry.class);
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class ProvisioningSession {
 	 * @return the provisioning engine
 	 */
 	IEngine getEngine() {
-		return (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		return agent.getService(IEngine.class);
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class ProvisioningSession {
 	 * @return the event bus
 	 */
 	IProvisioningEventBus getProvisioningEventBus() {
-		return (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		return agent.getService(IProvisioningEventBus.class);
 	}
 
 	/**
@@ -115,12 +115,12 @@ public class ProvisioningSession {
 	 * @return the planner
 	 */
 	IPlanner getPlanner() {
-		return (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		return agent.getService(IPlanner.class);
 	}
 
 	/**
 	 * Perform the specified provisioning plan.
-	 * 
+	 *
 	 * @param plan the provisioning plan to be performed
 	 * @param phaseSet the phase set to be used for the plan
 	 * @param context the provisioning context to be used during provisioning
@@ -140,7 +140,7 @@ public class ProvisioningSession {
 
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=272355
 		// The exact profile instance used in the profile change request and passed to the engine must be used for all
-		// of these operations, otherwise we can get profile out of synch errors.	
+		// of these operations, otherwise we can get profile out of synch errors.
 		IProfile profile = plan.getProfile();
 
 		if (plan.getInstallerPlan() != null) {
@@ -183,8 +183,8 @@ public class ProvisioningSession {
 
 	private boolean doesPhaseSetIncludeDownload(IPhaseSet set) {
 		String[] phaseIds = set.getPhaseIds();
-		for (int i = 0; i < phaseIds.length; i++)
-			if (phaseIds[i].equals(PhaseSetFactory.PHASE_COLLECT))
+		for (String phaseId : phaseIds)
+			if (phaseId.equals(PhaseSetFactory.PHASE_COLLECT))
 				return true;
 		return false;
 	}
@@ -192,7 +192,7 @@ public class ProvisioningSession {
 	/**
 	 * Return a boolean indicating whether any other provisioning operations are
 	 * scheduled for the specified profile.
-	 * 
+	 *
 	 * @param profileId the id of the profile in question
 	 * @return <code>true</code> if there are pending provisioning operations for
 	 * this profile, <code>false</code> if there are not.
@@ -200,9 +200,9 @@ public class ProvisioningSession {
 	 */
 	public boolean hasScheduledOperationsFor(String profileId) {
 		Job[] jobs = getScheduledJobs();
-		for (int i = 0; i < jobs.length; i++) {
-			if (jobs[i] instanceof IProfileChangeJob) {
-				String id = ((IProfileChangeJob) jobs[i]).getProfileId();
+		for (Job job : jobs) {
+			if (job instanceof IProfileChangeJob) {
+				String id = ((IProfileChangeJob) job).getProfileId();
 				if (profileId.equals(id))
 					return true;
 			}
@@ -220,7 +220,7 @@ public class ProvisioningSession {
 	 * Remember the specified job.  Remembered jobs are
 	 * checked when callers want to know what work is scheduled for
 	 * a particular profile.
-	 * 
+	 *
 	 * @param job the job to be remembered
 	 * @see #hasScheduledOperationsFor(String)
 	 */

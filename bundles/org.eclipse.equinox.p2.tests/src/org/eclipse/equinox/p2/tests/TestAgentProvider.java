@@ -25,7 +25,8 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
 /**
- * Provides {@link IProvisioningAgent} instances for tests. Use as JUnit 4 {@link Rule}.
+ * Provides {@link IProvisioningAgent} instances for tests. Use as JUnit 4
+ * {@link Rule}.
  */
 public final class TestAgentProvider extends ExternalResource {
 	private final TemporaryFolder tempManager;
@@ -49,8 +50,9 @@ public final class TestAgentProvider extends ExternalResource {
 	}
 
 	/**
-	 * Returns an instance of an {@link IProvisioningAgent}. If this class is used as a JUnit method
-	 * {@link Rule}, a separate instance is returned per test method.
+	 * Returns an instance of an {@link IProvisioningAgent}. If this class is used
+	 * as a JUnit method {@link Rule}, a separate instance is returned per test
+	 * method.
 	 */
 	public IProvisioningAgent getAgent() throws ProvisionException {
 		if (agent == null) {
@@ -65,7 +67,8 @@ public final class TestAgentProvider extends ExternalResource {
 
 	private IProvisioningAgent createProvisioningAgent(File location) throws ProvisionException {
 		BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-		ServiceReference<IProvisioningAgentProvider> serviceReference = bundleContext.getServiceReference(IProvisioningAgentProvider.class);
+		ServiceReference<IProvisioningAgentProvider> serviceReference = bundleContext
+				.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider agentFactory = bundleContext.getService(serviceReference);
 		try {
 			return agentFactory.createAgent(location.toURI());
@@ -80,7 +83,7 @@ public final class TestAgentProvider extends ExternalResource {
 	 * @see #getAgent()
 	 */
 	public <T> T getService(Class<T> type) throws ProvisionException {
-		return type.cast(getAgent().getService(type.getName()));
+		return getAgent().getService(type);
 	}
 
 }

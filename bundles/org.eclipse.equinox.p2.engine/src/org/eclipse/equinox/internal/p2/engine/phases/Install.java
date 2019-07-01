@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -37,7 +37,8 @@ public class Install extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, iu, InstallableUnitEvent.INSTALL, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, true, profile,
+					iu, InstallableUnitEvent.INSTALL, getTouchpoint()));
 			return null;
 		}
 
@@ -48,7 +49,8 @@ public class Install extends InstallableUnitPhase {
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			profile.removeInstallableUnit(iu);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, iu, InstallableUnitEvent.UNINSTALL, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, false, profile,
+					iu, InstallableUnitEvent.UNINSTALL, getTouchpoint()));
 			return null;
 		}
 	}
@@ -62,7 +64,8 @@ public class Install extends InstallableUnitPhase {
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			profile.addInstallableUnit(iu);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, iu, InstallableUnitEvent.INSTALL, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, false, profile,
+					iu, InstallableUnitEvent.INSTALL, getTouchpoint()));
 			return null;
 		}
 
@@ -72,7 +75,8 @@ public class Install extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, iu, InstallableUnitEvent.UNINSTALL, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, true, profile,
+					iu, InstallableUnitEvent.UNINSTALL, getTouchpoint()));
 			return null;
 		}
 	}

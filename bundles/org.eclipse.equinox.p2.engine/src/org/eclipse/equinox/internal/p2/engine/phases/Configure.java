@@ -38,7 +38,8 @@ public class Configure extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, iu, InstallableUnitEvent.CONFIGURE, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, true, profile,
+					iu, InstallableUnitEvent.CONFIGURE, getTouchpoint()));
 			return null;
 		}
 
@@ -48,7 +49,8 @@ public class Configure extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, iu, InstallableUnitEvent.UNCONFIGURE, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, false, profile,
+					iu, InstallableUnitEvent.UNCONFIGURE, getTouchpoint()));
 			return null;
 		}
 	}
@@ -61,7 +63,8 @@ public class Configure extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, iu, InstallableUnitEvent.CONFIGURE, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, false, profile,
+					iu, InstallableUnitEvent.CONFIGURE, getTouchpoint()));
 			return null;
 		}
 
@@ -71,7 +74,8 @@ public class Configure extends InstallableUnitPhase {
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, true, profile, iu, InstallableUnitEvent.UNCONFIGURE, getTouchpoint()));
+			agent.getService(IProvisioningEventBus.class).publishEvent(new InstallableUnitEvent(phaseId, true, profile,
+					iu, InstallableUnitEvent.UNCONFIGURE, getTouchpoint()));
 			return null;
 		}
 	}

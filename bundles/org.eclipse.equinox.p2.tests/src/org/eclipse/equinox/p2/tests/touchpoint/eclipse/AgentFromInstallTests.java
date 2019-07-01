@@ -13,9 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.AgentFromInstall;
-
 import java.io.File;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.AgentFromInstall;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -27,7 +26,7 @@ public class AgentFromInstallTests extends AbstractProvisioningTest {
 		File installFolder = getTestData("normalEclipse", "testData/configAreaToAgent/normalEclipse");
 		IProvisioningAgent agent = AgentFromInstall.createAgentFrom(getAgentProvider(), installFolder, null, null);
 		assertNotNull(agent);
-		IProfile profile = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).getProfile(IProfileRegistry.SELF);
+		IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
 		assertNotNull(profile);
 		assertEquals("SDKProfile", profile.getProfileId());
 	}
@@ -36,7 +35,7 @@ public class AgentFromInstallTests extends AbstractProvisioningTest {
 		File configurationFolder = getTestData("normalEclipse", "testData/configAreaToAgent/normalEclipse/configuration");
 		IProvisioningAgent agent = AgentFromInstall.createAgentFrom(getAgentProvider(), null, configurationFolder, null);
 		assertNotNull(agent);
-		IProfile profile = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).getProfile(IProfileRegistry.SELF);
+		IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
 		assertNotNull(profile);
 		assertEquals("SDKProfile", profile.getProfileId());
 	}
@@ -45,7 +44,7 @@ public class AgentFromInstallTests extends AbstractProvisioningTest {
 		File configurationFolder = getTestData("sharedWithoutBaseAvailable", "testData/configAreaToAgent/sharedWithoutBaseAvailable");
 		IProvisioningAgent agent = AgentFromInstall.createAgentFrom(getAgentProvider(), null, configurationFolder, null);
 		assertNotNull(agent);
-		IProfile profile = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).getProfile(IProfileRegistry.SELF);
+		IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
 		assertNotNull(profile);
 		assertEquals("SDKProfile", profile.getProfileId());
 	}

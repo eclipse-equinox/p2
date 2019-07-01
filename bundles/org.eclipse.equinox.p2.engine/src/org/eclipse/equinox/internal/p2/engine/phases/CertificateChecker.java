@@ -62,7 +62,7 @@ public class CertificateChecker {
 	}
 
 	private IStatus checkCertificates(SignedContentFactory verifierFactory) {
-		UIServices serviceUI = (UIServices) agent.getService(UIServices.SERVICE_NAME);
+		UIServices serviceUI = agent.getService(UIServices.class);
 		SignedContent content = null;
 		SignerInfo[] signerInfo = null;
 		ArrayList<Certificate> untrusted = new ArrayList<>();
@@ -85,9 +85,9 @@ public class CertificateChecker {
 			} catch (IOException e) {
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.CertificateChecker_SignedContentIOError, e);
 			}
-			for (int i = 0; i < signerInfo.length; i++) {
-				if (!signerInfo[i].isTrusted()) {
-					Certificate[] certificateChain = signerInfo[i].getCertificateChain();
+			for (SignerInfo element : signerInfo) {
+				if (!element.isTrusted()) {
+					Certificate[] certificateChain = element.getCertificateChain();
 					if (!untrusted.contains(certificateChain[0])) {
 						untrusted.add(certificateChain[0]);
 						untrustedChain.add(certificateChain);
@@ -166,8 +166,8 @@ public class CertificateChecker {
 		}
 		// Anything that was trusted should be removed from the untrusted list
 		if (trustedCertificates != null) {
-			for (int i = 0; i < trustedCertificates.length; i++) {
-				untrusted.remove(trustedCertificates[i]);
+			for (Certificate trustedCertificate : trustedCertificates) {
+				untrusted.remove(trustedCertificate);
 			}
 		}
 
@@ -230,9 +230,9 @@ public class CertificateChecker {
 	}
 
 	public void add(Object[] toAdd) {
-		for (int i = 0; i < toAdd.length; i++) {
-			if (toAdd[i] instanceof File)
-				add((File) toAdd[i]);
+		for (Object element : toAdd) {
+			if (element instanceof File)
+				add((File) element);
 		}
 	}
 }

@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2017 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,7 +32,7 @@ public class Application implements IApplication {
 	 * Return the profile with the given id, or null if not found.
 	 */
 	private IProfile getProfile(String id) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
 		return profileRegistry == null ? null : profileRegistry.getProfile(id);
 	}
 
@@ -49,7 +49,7 @@ public class Application implements IApplication {
 		IProfile profile = getProfile(profileId);
 		if (profile == null)
 			throw new IllegalArgumentException("\"" + profileId + "\" is not a valid profile identifier."); //$NON-NLS-1$//$NON-NLS-2$
-		GarbageCollector gc = (GarbageCollector) agent.getService(GarbageCollector.SERVICE_NAME);
+		GarbageCollector gc = agent.getService(GarbageCollector.class);
 		gc.runGC(profile);
 		agent.stop();
 		return null;
@@ -73,7 +73,7 @@ public class Application implements IApplication {
 			return;
 		for (int i = 0; i < args.length; i++) {
 			String opt = args[i];
-			// check for args with parameters. If we are at the last argument or if the next 
+			// check for args with parameters. If we are at the last argument or if the next
 			// one has a '-' as the first character, then we can't have an arg with a parm so continue.
 			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
 				continue;

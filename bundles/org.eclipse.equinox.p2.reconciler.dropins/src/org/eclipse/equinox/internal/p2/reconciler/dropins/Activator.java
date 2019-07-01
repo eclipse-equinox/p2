@@ -7,9 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
- * IBM Corporation - initial implementation and ideas 
+ *
+ * Contributors:
+ * IBM Corporation - initial implementation and ideas
  * Red Hat Inc. - Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
@@ -60,17 +60,17 @@ public class Activator implements BundleActivator {
 	private Collection<File> filesToCheck = null;
 
 	/**
-	 * Helper method to create an extension location metadata repository at the given URI. 
+	 * Helper method to create an extension location metadata repository at the given URI.
 	 * If one already exists at that location then an exception will be thrown.
-	 * 
+	 *
 	 * This method never returns <code>null</code>.
-	 * 
+	 *
 	 * @throws IllegalStateException
-	 * @throws ProvisionException 
+	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
 		IProvisioningAgent agent = getAgent();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
@@ -93,12 +93,12 @@ public class Activator implements BundleActivator {
 
 	/**
 	 * Helper method to load an extension location metadata repository from the given URL.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		IMetadataRepository repository = manager.loadRepository(location, monitor);
@@ -107,17 +107,17 @@ public class Activator implements BundleActivator {
 	}
 
 	/**
-	 * Helper method to create an extension location artifact repository at the given URL. 
+	 * Helper method to create an extension location artifact repository at the given URL.
 	 * If one already exists at that location then an exception will be thrown.
-	 * 
+	 *
 	 * This method never returns <code>null</code>.
-	 * 
+	 *
 	 * @throws IllegalStateException
-	 * @throws ProvisionException 
+	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
 		IProvisioningAgent agent = getAgent();
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
@@ -136,12 +136,12 @@ public class Activator implements BundleActivator {
 
 	/**
 	 * Helper method to load an extension location metadata repository from the given URL.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = getAgent().getService(IArtifactRepositoryManager.class);
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		IArtifactRepository repository = manager.loadRepository(location, monitor);
@@ -242,8 +242,7 @@ public class Activator implements BundleActivator {
 
 		// gather the list of files/folders that we need to check
 		Collection<File> files = getFilesToCheck();
-		for (Iterator<File> iter = files.iterator(); iter.hasNext();) {
-			File file = iter.next();
+		for (File file : files) {
 			String key = file.getAbsolutePath();
 			String timestamp = timestamps.getProperty(key);
 			if (timestamp == null) {
@@ -269,8 +268,8 @@ public class Activator implements BundleActivator {
 		} else {
 			if (Tracing.DEBUG_RECONCILER) {
 				trace("Found extra values in cached timestamp file: "); //$NON-NLS-1$
-				for (Iterator<Object> iter = timestamps.keySet().iterator(); iter.hasNext();)
-					trace(iter.next());
+				for (Object object : timestamps.keySet())
+					trace(object);
 				trace("Performing reconciliation. "); //$NON-NLS-1$
 			}
 		}
@@ -292,8 +291,7 @@ public class Activator implements BundleActivator {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while reading cached timestamps for reconciliation.", e)); //$NON-NLS-1$
 		}
 		if (Tracing.DEBUG_RECONCILER) {
-			for (Iterator<Object> iter = result.keySet().iterator(); iter.hasNext();) {
-				Object key = iter.next();
+			for (Object key : result.keySet()) {
 				Object value = result.get(key);
 				trace(key.toString() + '=' + value);
 			}
@@ -350,16 +348,16 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
-	 * Iterate over the given collection of files (could be dropins or links folders) and 
+	 * Iterate over the given collection of files (could be dropins or links folders) and
 	 * return a collection of files that might be interesting to check the timestamps of.
 	 */
 	private Collection<File> getDropinsToCheck(File[] files) {
 		Collection<File> result = new HashSet<>();
-		for (int outer = 0; outer < files.length; outer++) {
+		for (File file : files) {
 			// add top-level file/folder
-			result.add(files[outer]);
+			result.add(file);
 
-			File[] children = files[outer].listFiles();
+			File[] children = file.listFiles();
 			for (int inner = 0; children != null && inner < children.length; inner++) {
 				File child = children[inner];
 				if (child.isFile() && child.getName().toLowerCase().endsWith(EXT_LINK)) {
@@ -384,7 +382,7 @@ public class Activator implements BundleActivator {
 				} else if (child.isDirectory()) {
 					// look for "dropins/foo/plugins" (and "features") and
 					// "dropins/foo/eclipse/plugins" (and "features")
-					// Note: we could have a directory-based bundle here but we 
+					// Note: we could have a directory-based bundle here but we
 					// will still add it since it won't hurt anything (one extra timestamp check)
 					result.add(child);
 					File parent;
@@ -413,8 +411,7 @@ public class Activator implements BundleActivator {
 	private void writeTimestamps() {
 		Properties timestamps = new Properties();
 		Collection<File> files = getFilesToCheck();
-		for (Iterator<File> iter = files.iterator(); iter.hasNext();) {
-			File file = iter.next();
+		for (File file : files) {
 			timestamps.put(file.getAbsolutePath(), Long.toString(file.lastModified()));
 		}
 
@@ -425,8 +422,7 @@ public class Activator implements BundleActivator {
 		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(file))) {
 			timestamps.store(output, null);
 			if (Tracing.DEBUG_RECONCILER) {
-				for (Iterator<Object> iter = timestamps.keySet().iterator(); iter.hasNext();) {
-					Object key = iter.next();
+				for (Object key : timestamps.keySet()) {
 					Object value = timestamps.get(key);
 					trace(key.toString() + '=' + value);
 				}
@@ -500,7 +496,7 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
-	 * Create a new directory watcher with a repository listener on the drop-ins folder. 
+	 * Create a new directory watcher with a repository listener on the drop-ins folder.
 	 */
 	private void watchDropins() {
 		List<File> directories = new ArrayList<>();
@@ -678,7 +674,7 @@ public class Activator implements BundleActivator {
 	 */
 	public static IProfile getCurrentProfile(BundleContext context) {
 		IProvisioningAgent agent = getAgent();
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
 		if (profileRegistry == null)
 			return null;
 		return profileRegistry.getProfile(IProfileRegistry.SELF);

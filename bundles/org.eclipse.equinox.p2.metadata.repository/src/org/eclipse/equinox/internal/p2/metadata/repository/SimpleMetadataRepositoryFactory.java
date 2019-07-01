@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype Inc - ongoing development
@@ -63,7 +63,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		// file is not local, create a cache of the repository metadata
-		CacheManager cache = (CacheManager) getAgent().getService(CacheManager.SERVICE_NAME);
+		CacheManager cache = getAgent().getService(CacheManager.class);
 		if (cache == null)
 			throw new IllegalArgumentException("Cache manager service not available"); //$NON-NLS-1$
 		localFile = cache.createCache(location, URLMetadataRepository.CONTENT_FILENAME, monitor);
@@ -114,7 +114,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 					((URLMetadataRepository) result).initializeAfterLoad(location);
 				if (Tracing.DEBUG_METADATA_PARSING) {
 					time += System.currentTimeMillis();
-					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 
+					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$
 				}
 				return result;
 			} finally {

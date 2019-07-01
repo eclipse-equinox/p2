@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,9 +26,9 @@ public class ProfileRegistryComponent implements IAgentServiceFactory {
 
 	@Override
 	public Object createService(IProvisioningAgent agent) {
-		IAgentLocation location = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+		IAgentLocation location = agent.getService(IAgentLocation.class);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(agent, SimpleProfileRegistry.getDefaultRegistryDirectory(location));
-		registry.setEventBus((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME));
+		registry.setEventBus(agent.getService(IProvisioningEventBus.class));
 		return registry;
 	}
 }

@@ -28,7 +28,7 @@ import org.eclipse.equinox.security.storage.*;
 /**
  * Credentials handles AuthenticationInfo that can be used to established an
  * ECF connection context. An AuthenticationInfo is obtained for a URI buy looking
- * in a store, if none is provided the user is optionally prompted for the information. 
+ * in a store, if none is provided the user is optionally prompted for the information.
  */
 public class Credentials {
 	public static class LoginCanceledException extends Exception {
@@ -36,7 +36,7 @@ public class Credentials {
 
 	}
 
-	/** 
+	/**
 	 * Cache of auth information that is not persisted, and modified auth info.
 	 */
 	private static final Map<String, UIServices.AuthenticationInfo> savedAuthInfo = Collections.synchronizedMap(new HashMap<String, UIServices.AuthenticationInfo>());
@@ -47,16 +47,16 @@ public class Credentials {
 	 */
 	private static Map<String, HostEntry> remembered;
 
-	/** 
-	 * Serializes pop up of login/password prompt 
+	/**
+	 * Serializes pop up of login/password prompt
 	 */
 	private static final Object promptLock = new Object();
 
 	/**
 	 * Returns the AuthenticationInfo for the given URI. This may prompt the
 	 * user for user name and password as required.
-	 * 
-	 * If the URI is opaque, the entire URI is used as the key. For non opaque URIs, 
+	 *
+	 * If the URI is opaque, the entire URI is used as the key. For non opaque URIs,
 	 * the key is based on the host name, using a host name of "localhost" if host name is
 	 * missing.
 	 *
@@ -75,14 +75,14 @@ public class Credentials {
 	/**
 	 * Returns the AuthenticationInfo for the given URI. This may prompt the
 	 * user for user name and password as required.
-	 * 
-	 * If the URI is opaque, the entire URI is used as the key. For non opaque URIs, 
+	 *
+	 * If the URI is opaque, the entire URI is used as the key. For non opaque URIs,
 	 * the key is based on the host name, using a host name of "localhost" if host name is
 	 * missing.
-	 * 
+	 *
 	 * This method allows passing a previously used AuthenticationInfo. If set, the user interface
 	 * may present the information "on file" to the user for editing.
-	 * 
+	 *
 	 * @param location - the location for which to obtain authentication information
 	 * @param prompt - if true, user will be prompted for information
 	 * @param lastUsed - optional information used in an previous attempt to login
@@ -98,7 +98,7 @@ public class Credentials {
 		} catch (UnsupportedEncodingException e2) {
 			// fall back to default platform encoding
 			try {
-				// Uses getProperty "file.encoding" instead of using deprecated URLEncoder.encode(String location) 
+				// Uses getProperty "file.encoding" instead of using deprecated URLEncoder.encode(String location)
 				// which does the same, but throws NPE on missing property.
 				String enc = System.getProperty("file.encoding");//$NON-NLS-1$
 				if (enc == null)
@@ -207,7 +207,7 @@ public class Credentials {
 					if (getPromptCount(host) >= RepositoryPreferences.getLoginRetryCount()) {
 						if (lastUsed == null && latest == null)
 							DebugHelper.debug("Credentials", "forLocation:NO INFO - SYNTHETIC CANCEL", // //$NON-NLS-1$ //$NON-NLS-2$
-									new Object[] {"host", location}); //$NON-NLS-1$ 
+									new Object[] {"host", location}); //$NON-NLS-1$
 						return latest == null ? lastUsed : latest; // keep client failing on the latest known
 					}
 					DebugHelper.debug("Credentials", "forLocation:LATER INFO AVAILABLE - RETURNING IT", // //$NON-NLS-1$ //$NON-NLS-2$
@@ -220,14 +220,14 @@ public class Credentials {
 					return latest == null ? lastUsed : latest; // keep client failing on the latest known
 				}
 				IProvisioningAgent agent = ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.class);
-				UIServices adminUIService = (UIServices) agent.getService(UIServices.SERVICE_NAME);
+				UIServices adminUIService = agent.getService(UIServices.class);
 
 				if (adminUIService != null)
 					synchronized (promptLock) {
 						try {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 								DebugHelper.debug("Credentials", "forLocation:PROMPTLOCK OBTAINED", // //$NON-NLS-1$ //$NON-NLS-2$
-										new Object[] {"host", location}); //$NON-NLS-1$ 					
+										new Object[] {"host", location}); //$NON-NLS-1$
 							}
 
 							// serialize the popping of the dialog itself
@@ -236,7 +236,7 @@ public class Credentials {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 								if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED)
 									DebugHelper.debug("Credentials", "forLocation:PROMPTED - USER CANCELED (PROMPT LOCK RELEASED)", // //$NON-NLS-1$ //$NON-NLS-2$
-											new Object[] {"host", location}); //$NON-NLS-1$					
+											new Object[] {"host", location}); //$NON-NLS-1$
 							}
 							if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED) {
 								rememberCancel(host);
@@ -248,7 +248,7 @@ public class Credentials {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 								if (loginDetails.saveResult())
 									DebugHelper.debug("Credentials", "forLocation:SAVING RESULT", // //$NON-NLS-1$ //$NON-NLS-2$
-											new Object[] {"host", location}); //$NON-NLS-1$					
+											new Object[] {"host", location}); //$NON-NLS-1$
 							}
 
 							if (loginDetails.saveResult()) {
@@ -268,7 +268,7 @@ public class Credentials {
 								if (securePreferences.nodeExists(nodeName)) {
 									if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 										DebugHelper.debug("Credentials", "forLocation:REMOVING PREVIOUSLY SAVED INFO", // //$NON-NLS-1$ //$NON-NLS-2$
-												new Object[] {"host", location}); //$NON-NLS-1$					
+												new Object[] {"host", location}); //$NON-NLS-1$
 									}
 
 									prefNode = securePreferences.node(nodeName);
@@ -284,7 +284,7 @@ public class Credentials {
 						} finally {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 								DebugHelper.debug("Credentials", "forLocation:PROMPTLOCK RELEASED", // //$NON-NLS-1$ //$NON-NLS-2$
-										new Object[] {"host", location}); //$NON-NLS-1$					
+										new Object[] {"host", location}); //$NON-NLS-1$
 							}
 						}
 					}
@@ -292,7 +292,7 @@ public class Credentials {
 			} finally {
 				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 					DebugHelper.debug("Credentials", "forLocation:HOSTLOCK RELEASED", // //$NON-NLS-1$ //$NON-NLS-2$
-							new Object[] {"host", location}); //$NON-NLS-1$					
+							new Object[] {"host", location}); //$NON-NLS-1$
 				}
 			}
 
@@ -359,7 +359,7 @@ public class Credentials {
 				if (((HostEntry) x).isCanceled()) {
 					if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 						DebugHelper.debug("Credentials", "checkRememberCancel:PREVIOUSLY CANCELED", // //$NON-NLS-1$ //$NON-NLS-2$
-								new Object[] {"host", host}); //$NON-NLS-1$ 
+								new Object[] {"host", host}); //$NON-NLS-1$
 					}
 
 					throw new LoginCanceledException();
@@ -430,7 +430,7 @@ public class Credentials {
 
 	/**
 	 * Clears the cached information for host about prompts for login/password and
-	 * canceled logins. 
+	 * canceled logins.
 	 * @param host a host as returned from uriToHost for a location
 	 */
 	public static synchronized void clearPromptCache(String host) {

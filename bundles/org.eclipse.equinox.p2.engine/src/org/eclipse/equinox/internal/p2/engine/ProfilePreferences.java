@@ -58,7 +58,7 @@ public class ProfilePreferences extends EclipsePreferences {
 					e.printStackTrace();
 				}
 				//ignore - this means the provisioning agent has already been stopped, and since
-				//this job is joined during agent stop, it means this job has been scheduled after the 
+				//this job is joined during agent stop, it means this job has been scheduled after the
 				//agent stopped and therefore can't have any interesting changes to save
 			} catch (BackingStoreException e) {
 				LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
@@ -122,7 +122,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	protected void doSave(IProvisioningAgent agent) throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
 			String profileId = getProfileIdSegment();
-			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			IProfileRegistry registry = agent.getService(IProfileRegistry.class);
 			//can't save anything without a profile registry
 			if (registry == null)
 				return;
@@ -176,8 +176,8 @@ public class ProfilePreferences extends EclipsePreferences {
 	private String encodeForFilter(String string) {
 		StringBuilder result = new StringBuilder(string.length());
 		char[] input = string.toCharArray();
-		for (int i = 0; i < input.length; i++) {
-			switch (input[i]) {
+		for (char element : input) {
+			switch (element) {
 				case '(' :
 				case ')' :
 				case '*' :
@@ -185,7 +185,7 @@ public class ProfilePreferences extends EclipsePreferences {
 					result.append('\\');
 					//fall through
 				default :
-					result.append(input[i]);
+					result.append(element);
 			}
 		}
 		return result.toString();
@@ -196,7 +196,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	 */
 	private IPath getDefaultLocation(IProvisioningAgent agent) {
 		//use engine agent location for preferences if there is no self profile
-		IAgentLocation location = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+		IAgentLocation location = agent.getService(IAgentLocation.class);
 		if (location == null) {
 			LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Agent location service not available", new RuntimeException())); //$NON-NLS-1$
 			return null;
@@ -257,7 +257,7 @@ public class ProfilePreferences extends EclipsePreferences {
 			IProvisioningAgent agent = getAgent(getAgentLocationSegment());
 			if (agent == null)
 				return;
-			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			IProfileRegistry registry = agent.getService(IProfileRegistry.class);
 			String profileId = getProfileIdSegment();
 			if (!containsProfile(registry, profileId)) {
 				//use the default location for the self profile, otherwise just do nothing and return
@@ -288,7 +288,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	}
 
 	/**
-	 * Schedules the save job. This method is synchronized to protect lazily initialization 
+	 * Schedules the save job. This method is synchronized to protect lazily initialization
 	 * of the save job instance.
 	 */
 	@Override

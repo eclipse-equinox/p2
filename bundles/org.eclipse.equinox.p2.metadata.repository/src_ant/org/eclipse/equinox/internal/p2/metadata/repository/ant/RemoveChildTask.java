@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2017 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 /**
- * Ant task to remove a specific child repository (or all the children repositories) 
+ * Ant task to remove a specific child repository (or all the children repositories)
  * from a composite metadata repository.
  */
 public class RemoveChildTask extends AbstractMDRTask {
@@ -33,7 +33,7 @@ public class RemoveChildTask extends AbstractMDRTask {
 
 	@Override
 	public void execute() {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
 		if (manager == null)
 			throw new BuildException("Unable to aquire metadata repository manager service.");
 

@@ -58,8 +58,8 @@ public class Engine implements IEngine {
 		checkArguments(iprofile, phaseSet, operands);
 		if (operands.length == 0)
 			return Status.OK_STATUS;
-		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.class);
+		IProvisioningEventBus eventBus = agent.getService(IProvisioningEventBus.class);
 
 		if (context == null)
 			context = new ProvisioningContext(agent);

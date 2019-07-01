@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2017 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
@@ -106,7 +106,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	public boolean changed(File file) {
 		if (super.changed(file)) {
 			if (Tracing.DEBUG_RECONCILER)
-				Tracing.debug(PREFIX + "Interesting feature or bundle changed: " + file); //$NON-NLS-1$			
+				Tracing.debug(PREFIX + "Interesting feature or bundle changed: " + file); //$NON-NLS-1$
 			return true;
 		}
 		addRepository(file);
@@ -248,8 +248,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		Tracing.debug(PREFIX + "Repository created " + repository.getLocation()); //$NON-NLS-1$
 		// Print out a list of all the IUs in the repository
 		IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
-		for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();)
-			Tracing.debug(PREFIX + "\t" + iter.next()); //$NON-NLS-1$
+		for (IInstallableUnit iInstallableUnit : result)
+			Tracing.debug(PREFIX + "\t" + iInstallableUnit); //$NON-NLS-1$
 	}
 
 	public void getArtifactRepository(URI repoURL, Map<String, String> properties) {
@@ -277,13 +277,11 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	private void synchronizeDropinMetadataRepositories() {
 		List<String> currentRepositories = new ArrayList<>();
-		for (Iterator<IMetadataRepository> it = metadataRepositories.iterator(); it.hasNext();) {
-			IMetadataRepository repository = it.next();
+		for (IMetadataRepository repository : metadataRepositories) {
 			currentRepositories.add(repository.getLocation().toString());
 		}
 		List<String> previousRepositories = getListRepositoryProperty(getMetadataRepository(), DROPIN_METADATA_REPOSITORIES);
-		for (Iterator<String> iterator = previousRepositories.iterator(); iterator.hasNext();) {
-			String repository = iterator.next();
+		for (String repository : previousRepositories) {
 			if (!currentRepositories.contains(repository))
 				removeMetadataRepository(repository);
 		}
@@ -291,7 +289,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void removeMetadataRepository(String urlString) {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
 		if (manager == null)
 			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
 		try {
@@ -303,13 +301,11 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	private void synchronizeDropinArtifactRepositories() {
 		List<String> currentRepositories = new ArrayList<>();
-		for (Iterator<IArtifactRepository> it = artifactRepositories.iterator(); it.hasNext();) {
-			IArtifactRepository repository = it.next();
+		for (IArtifactRepository repository : artifactRepositories) {
 			currentRepositories.add(repository.getLocation().toString());
 		}
 		List<String> previousRepositories = getListRepositoryProperty(getArtifactRepository(), DROPIN_ARTIFACT_REPOSITORIES);
-		for (Iterator<String> iterator = previousRepositories.iterator(); iterator.hasNext();) {
-			String repository = iterator.next();
+		for (String repository : previousRepositories) {
 			if (!currentRepositories.contains(repository))
 				removeArtifactRepository(repository);
 		}
@@ -317,7 +313,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public void removeArtifactRepository(String urlString) {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
 		if (manager == null)
 			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
 		try {

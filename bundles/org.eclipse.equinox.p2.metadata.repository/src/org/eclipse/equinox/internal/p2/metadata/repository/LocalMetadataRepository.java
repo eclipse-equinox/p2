@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Prashant Deva - Bug 194674 [prov] Provide write access to metadata repository
@@ -177,7 +177,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 * Broadcast discovery events for all repositories referenced by this repository.
 	 */
 	public void publishRepositoryReferences() {
-		IProvisioningEventBus bus = (IProvisioningEventBus) getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = getProvisioningAgent().getService(IProvisioningEventBus.class);
 		if (bus == null)
 			return;
 
@@ -300,7 +300,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 				save();
 			}
 			//force repository manager to reload this repository because it caches properties
-			MetadataRepositoryManager manager = (MetadataRepositoryManager) getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+			MetadataRepositoryManager manager = (MetadataRepositoryManager) getProvisioningAgent()
+					.getService(IMetadataRepositoryManager.class);
 			if (manager.removeRepository(getLocation()))
 				manager.addRepository(this);
 			return oldValue;
