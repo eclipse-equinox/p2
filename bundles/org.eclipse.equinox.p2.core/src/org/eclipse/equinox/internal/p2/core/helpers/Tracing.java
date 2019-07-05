@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -68,11 +68,11 @@ public class Tracing {
 	}
 
 	/**
-	 * Prints a debug message on stdout. Callers should first ensure their specific 
+	 * Prints a debug message on stdout. Callers should first ensure their specific
 	 * debug option is enabled.
 	 */
 	public static void debug(String message) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("[p2] "); //$NON-NLS-1$
 		buffer.append(new Date(System.currentTimeMillis()));
 		buffer.append(" - ["); //$NON-NLS-1$

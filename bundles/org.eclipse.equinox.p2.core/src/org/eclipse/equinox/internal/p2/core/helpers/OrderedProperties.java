@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -20,13 +20,13 @@ import java.util.*;
  * <p>
  * This class is used to store properties similar to {@link java.util.Properties}.
  * In particular both keys and values are strings and must be not null.
- * However this class is somewhat simplified and does not implement Cloneable, 
+ * However this class is somewhat simplified and does not implement Cloneable,
  * Serializable and Hashtable.
  * <p>
- * In contrast to java.util.Properties this class maintains the order by which 
+ * In contrast to java.util.Properties this class maintains the order by which
  * properties are added. This is implemented using a {@link LinkedHashMap}.
  * <p>
- * The class does not support default properties as they can be expressed by 
+ * The class does not support default properties as they can be expressed by
  * creating java.util.Properties hierarchies.
  */
 public class OrderedProperties extends Dictionary<String, String> implements Map<String, String> {
@@ -58,7 +58,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 	 * If a property with the key already exists, the previous
 	 * value is replaced. Otherwise a new property is added at
 	 * the end collection.
-	 * 
+	 *
 	 * @param key   must not be null
 	 * @param value must not be null
 	 * @return previous value associated with specified key, or <tt>null</tt>
@@ -173,7 +173,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(propertyMap);
 		return sb.toString();
 	}

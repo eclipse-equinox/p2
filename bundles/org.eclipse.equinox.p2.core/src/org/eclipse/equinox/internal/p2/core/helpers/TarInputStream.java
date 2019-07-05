@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2017 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -28,7 +28,7 @@ public class TarInputStream extends FilterInputStream {
 
 	/**
 	 * Creates a new tar input stream on the given input stream.
-	 * 
+	 *
 	 * @param in input stream
 	 * @throws TarException
 	 * @throws IOException
@@ -44,7 +44,7 @@ public class TarInputStream extends FilterInputStream {
 	/**
 	 * Create a new tar input stream, skipping ahead to the given entry
 	 * in the file.
-	 * 
+	 *
 	 * @param in input stream
 	 * @param entry skips to this entry in the file
 	 * @throws TarException
@@ -58,7 +58,7 @@ public class TarInputStream extends FilterInputStream {
 	/**
 	 *  The checksum of a tar file header is simply the sum of the bytes in
 	 *  the header.
-	 * 
+	 *
 	 * @param header
 	 * @return checksum
 	 */
@@ -72,7 +72,7 @@ public class TarInputStream extends FilterInputStream {
 
 	/**
 	 * Skips ahead to the position of the given entry in the file.
-	 * 
+	 *
 	 * @param entry
 	 * @returns false if the entry has already been passed
 	 * @throws TarException
@@ -101,7 +101,7 @@ public class TarInputStream extends FilterInputStream {
 
 	/**
 	 * Returns true if the header checksum is correct.
-	 * 
+	 *
 	 * @param header
 	 * @return true if this header has a valid checksum
 	 */
@@ -110,7 +110,7 @@ public class TarInputStream extends FilterInputStream {
 		int pos, i;
 
 		pos = 148;
-		StringBuffer checksumString = new StringBuffer();
+		StringBuilder checksumString = new StringBuilder();
 		for (i = 0; i < 8; i++) {
 			if (header[pos + i] == ' ') {
 				continue;
@@ -145,7 +145,7 @@ public class TarInputStream extends FilterInputStream {
 	/**
 	 * Returns the next entry in the tar file.  Does not handle
 	 * GNU @LongLink extensions.
-	 * 
+	 *
 	 * @return the next entry in the tar file
 	 * @throws TarException
 	 * @throws IOException
@@ -222,7 +222,7 @@ public class TarInputStream extends FilterInputStream {
 		}
 
 		pos = 100;
-		StringBuffer mode = new StringBuffer();
+		StringBuilder mode = new StringBuilder();
 		for (i = 0; i < 8; i++) {
 			if (header[pos + i] == 0) {
 				break;
@@ -243,7 +243,7 @@ public class TarInputStream extends FilterInputStream {
 		}
 
 		pos = 100 + 24;
-		StringBuffer size = new StringBuffer();
+		StringBuilder size = new StringBuilder();
 		for (i = 0; i < 12; i++) {
 			if (header[pos + i] == 0) {
 				break;
@@ -277,7 +277,7 @@ public class TarInputStream extends FilterInputStream {
 	/**
 	 * Moves ahead to the next file in the tar archive and returns
 	 * a TarEntry object describing it.
-	 * 
+	 *
 	 * @return the next entry in the tar file
 	 * @throws TarException
 	 * @throws IOException

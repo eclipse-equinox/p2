@@ -60,7 +60,7 @@ public class URLUtil {
 	 */
 	private static String ensureUNCPath(String path) {
 		int len = path.length();
-		StringBuffer result = new StringBuffer(len);
+		StringBuilder result = new StringBuilder(len);
 		for (int i = 0; i < 4; i++) {
 			//	if we have hit the first non-slash character, add another leading slash
 			if (i >= len || result.length() > 0 || path.charAt(i) != '/')
