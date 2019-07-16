@@ -40,13 +40,11 @@ public class QueryableArtifactRepositoryManager extends QueryableRepositoryManag
 	}
 
 	@Override
-	protected IArtifactRepository doLoadRepository(IRepositoryManager<IArtifactKey> manager, URI location, IProgressMonitor monitor) throws ProvisionException {
+	protected IArtifactRepository doLoadRepository(IRepositoryManager<IArtifactKey> manager, URI location,
+			IProgressMonitor monitor) throws ProvisionException {
 		return ui.loadArtifactRepository(location, false, monitor);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.QueryableRepositoryManager#getRepositoryFlags(org.eclipse.equinox.p2.ui.RepositoryManipulator)
-	 */
 	@Override
 	protected int getRepositoryFlags(RepositoryTracker repositoryManipulator) {
 		return repositoryManipulator.getArtifactRepositoryFlags();

@@ -898,9 +898,6 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry#containsProfile(java.lang.String)
-	 */
 	@Override
 	public synchronized boolean containsProfile(String id) {
 		if (SELF.equals(id))
@@ -953,17 +950,11 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return profileDataArea;
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#start()
-	 */
 	@Override
 	public void start() {
 		//nothing to do
 	}
 
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#stop()
-	 */
 	@Override
 	public void stop() {
 		try {
@@ -1106,9 +1097,6 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return new Status(IStatus.ERROR, EngineActivator.ID, (NLS.bind(Messages.SimpleProfileRegistry_state_not_found, timestamp, id)));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#setProfileStateProperties(java.lang.String, long, java.util.Map)
-	 */
 	@Override
 	public IStatus setProfileStateProperties(String id, long timestamp, Map<String, String> propertiesToAdd) {
 		if (id == null || propertiesToAdd == null)
@@ -1143,9 +1131,6 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return Status.OK_STATUS;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#setProfileStateProperty(java.lang.String, long, java.lang.String, java.lang.String)
-	 */
 	@Override
 	public IStatus setProfileStateProperty(String id, long timestamp, String key, String value) {
 		if (id == null)
@@ -1200,9 +1185,6 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#getProfileStateProperties(java.lang.String, java.lang.String)
-	 */
 	@Override
 	public Map<String, String> getProfileStateProperties(String id, String userKey) {
 		if (id == null || userKey == null)
@@ -1240,9 +1222,6 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#removeProfileStateProperties(java.lang.String, long, java.util.Collection)
-	 */
 	@Override
 	public IStatus removeProfileStateProperties(String id, long timestamp, Collection<String> keys) {
 		if (id == null)

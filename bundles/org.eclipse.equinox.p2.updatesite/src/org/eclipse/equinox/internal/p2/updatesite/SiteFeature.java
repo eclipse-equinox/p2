@@ -64,14 +64,15 @@ public class SiteFeature {
 			File file2 = new File(url2.getFile());
 			return file1.equals(file2);
 		}
-		// URL1 xor URL2 is a file, return false. (They either both need to be files, or neither)
+		// URL1 xor URL2 is a file, return false. (They either both need to be files, or
+		// neither)
 		if (isFile1 ^ isFile2)
 			return false;
 		return getExternalForm(url1).equals(getExternalForm(url2));
 	}
 
 	/**
-	 * Gets the external form of this URL. In particular, it trims any white space, 
+	 * Gets the external form of this URL. In particular, it trims any white space,
 	 * removes a trailing slash and creates a lower case string.
 	 */
 	private static String getExternalForm(URL url) {
@@ -95,8 +96,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Adds the name of a category this feature belongs to.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Adds the name of a category this feature belongs to. Throws a runtime
+	 * exception if this object is marked read-only.
 	 * 
 	 * @param categoryName category name
 	 */
@@ -117,16 +118,16 @@ public class SiteFeature {
 		try {
 			url = new URL(base, urlString);
 		} catch (MalformedURLException e) {
-			//			UpdateCore.warn("", e); //$NON-NLS-1$
+			// UpdateCore.warn("", e); //$NON-NLS-1$
 		}
 	}
 
 	/**
 	 * Compares 2 feature reference models for equality
-	 *  
+	 * 
 	 * @param object feature reference model to compare with
-	 * @return <code>true</code> if the two models are equal, 
-	 * <code>false</code> otherwise
+	 * @return <code>true</code> if the two models are equal, <code>false</code>
+	 *         otherwise
 	 */
 	@Override
 	public boolean equals(Object object) {
@@ -153,9 +154,6 @@ public class SiteFeature {
 		return sameURL(this.getURL(), that.getURL());
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -165,7 +163,7 @@ public class SiteFeature {
 		if (this.getURL() == null)
 			return result;
 
-		if ("file".equalsIgnoreCase(getURL().getProtocol())) {//$NON-NLS-1$ 
+		if ("file".equalsIgnoreCase(getURL().getProtocol())) {//$NON-NLS-1$
 			// If the URL is a file, then create the HashCode from the file
 			File f = new File(getURL().getFile());
 			if (f != null)
@@ -200,15 +198,15 @@ public class SiteFeature {
 	/**
 	 * Returns the feature version as a string
 	 * 
-	 * @return feature version 
+	 * @return feature version
 	 */
 	public String getFeatureVersion() {
 		return featureVersion;
 	}
 
 	/**
-	 * Retrieve the displayable label for the feature reference. If the model
-	 * object has been resolved, the label is localized.
+	 * Retrieve the displayable label for the feature reference. If the model object
+	 * has been resolved, the label is localized.
 	 *
 	 * @return displayable label, or <code>null</code>.
 	 */
@@ -272,8 +270,8 @@ public class SiteFeature {
 	/**
 	 * Returns the referenced feature type.
 	 * 
-	 * @return feature type, or <code>null</code> representing the default
-	 * feature type for the site
+	 * @return feature type, or <code>null</code> representing the default feature
+	 *         type for the site
 	 */
 	public String getType() {
 		return type;
@@ -308,14 +306,13 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Resolve the model object.
-	 * Any URL strings in the model are resolved relative to the 
-	 * base URL argument. Any translatable strings in the model that are
-	 * specified as translation keys are localized using the supplied 
-	 * resource bundle.
+	 * Resolve the model object. Any URL strings in the model are resolved relative
+	 * to the base URL argument. Any translatable strings in the model that are
+	 * specified as translation keys are localized using the supplied resource
+	 * bundle.
 	 * 
 	 * @param resolveBase URL
-	 * @param bundleURL resource bundle URL
+	 * @param bundleURL   resource bundle URL
 	 * @exception MalformedURLException
 	 */
 	public void resolve(URL resolveBase, URL bundleURL) throws MalformedURLException {
@@ -323,8 +320,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the system architecture specification.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the system architecture specification. Throws a runtime exception if
+	 * this object is marked read-only.
 	 *
 	 * @param arch system architecture specification as a comma-separated list
 	 */
@@ -333,8 +330,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the names of categories this feature belongs to.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the names of categories this feature belongs to. Throws a runtime
+	 * exception if this object is marked read-only.
 	 * 
 	 * @param categoryNames an array of category names
 	 */
@@ -346,8 +343,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the feature identifier.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the feature identifier. Throws a runtime exception if this object is
+	 * marked read-only.
 	 * 
 	 * @param featureId feature identifier
 	 */
@@ -356,8 +353,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the feature version.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the feature version. Throws a runtime exception if this object is marked
+	 * read-only.
 	 * 
 	 * @param featureVersion feature version
 	 */
@@ -367,6 +364,7 @@ public class SiteFeature {
 
 	/**
 	 * Sets the label.
+	 * 
 	 * @param label The label to set
 	 */
 	public void setLabel(String label) {
@@ -374,8 +372,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the locale specification.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the locale specification. Throws a runtime exception if this object is
+	 * marked read-only.
 	 *
 	 * @param nl locale specification as a comma-separated list
 	 */
@@ -384,8 +382,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the operating system specification.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the operating system specification. Throws a runtime exception if this
+	 * object is marked read-only.
 	 *
 	 * @param os operating system specification as a comma-separated list
 	 */
@@ -401,8 +399,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the site for the referenced.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the site for the referenced. Throws a runtime exception if this object
+	 * is marked read-only.
 	 * 
 	 * @param site site for the reference
 	 */
@@ -411,8 +409,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the referenced feature type.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the referenced feature type. Throws a runtime exception if this object
+	 * is marked read-only.
 	 * 
 	 * @param type referenced feature type
 	 */
@@ -421,8 +419,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the unresolved URL for the feature reference.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the unresolved URL for the feature reference. Throws a runtime exception
+	 * if this object is marked read-only.
 	 * 
 	 * @param urlString unresolved URL string
 	 */
@@ -432,8 +430,8 @@ public class SiteFeature {
 	}
 
 	/**
-	 * Sets the windowing system specification.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the windowing system specification. Throws a runtime exception if this
+	 * object is marked read-only.
 	 *
 	 * @param ws windowing system specification as a comma-separated list
 	 */

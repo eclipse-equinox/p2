@@ -36,14 +36,18 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.WorkbenchJob;
 
 /**
- * AutomaticUpdatesPopup is an async popup dialog for notifying
- * the user of updates.
+ * AutomaticUpdatesPopup is an async popup dialog for notifying the user of
+ * updates.
  * 
  * @since 3.4
  */
 public class AutomaticUpdatesPopup extends PopupDialog {
-	public static final String[] ELAPSED_VALUES = {PreferenceConstants.PREF_REMIND_30Minutes, PreferenceConstants.PREF_REMIND_60Minutes, PreferenceConstants.PREF_REMIND_240Minutes};
-	public static final String[] ELAPSED_LOCALIZED_STRINGS = {AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes, AutomaticUpdateMessages.AutomaticUpdateScheduler_60Minutes, AutomaticUpdateMessages.AutomaticUpdateScheduler_240Minutes};
+	public static final String[] ELAPSED_VALUES = { PreferenceConstants.PREF_REMIND_30Minutes,
+			PreferenceConstants.PREF_REMIND_60Minutes, PreferenceConstants.PREF_REMIND_240Minutes };
+	public static final String[] ELAPSED_LOCALIZED_STRINGS = {
+			AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes,
+			AutomaticUpdateMessages.AutomaticUpdateScheduler_60Minutes,
+			AutomaticUpdateMessages.AutomaticUpdateScheduler_240Minutes };
 	private static final long MINUTE = 60 * 1000L;
 	private static final String PREFS_HREF = "PREFS"; //$NON-NLS-1$
 	private static final String DIALOG_SETTINGS_SECTION = "AutomaticUpdatesPopup"; //$NON-NLS-1$
@@ -59,11 +63,13 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	MouseListener clickListener;
 
 	public AutomaticUpdatesPopup(Shell parentShell, boolean alreadyDownloaded, IPreferenceStore prefs) {
-		super(parentShell, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, true, false, false, AutomaticUpdateMessages.AutomaticUpdatesPopup_UpdatesAvailableTitle, null);
+		super(parentShell, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, true, false, false,
+				AutomaticUpdateMessages.AutomaticUpdatesPopup_UpdatesAvailableTitle, null);
 		downloaded = alreadyDownloaded;
 		this.prefs = prefs;
 		remindDelay = computeRemindDelay();
-		clickListener = MouseListener.mouseDownAdapter(e -> AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().launchUpdate());
+		clickListener = MouseListener
+				.mouseDownAdapter(e -> AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().launchUpdate());
 	}
 
 	@Override
@@ -94,7 +100,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		remindLink = new Link(parent, SWT.MULTI | SWT.WRAP | SWT.RIGHT);
 		updateRemindText();
 		remindLink.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
-			PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getShell(), PreferenceConstants.PREF_PAGE_AUTO_UPDATES, null, null);
+			PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getShell(),
+					PreferenceConstants.PREF_PAGE_AUTO_UPDATES, null, null);
 			dialog.open();
 
 		}));
@@ -103,7 +110,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 
 	private void updateRemindText() {
 		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE))
-			remindLink.setText(NLS.bind(AutomaticUpdateMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {getElapsedTimeString(prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED)), PREFS_HREF}));
+			remindLink.setText(NLS.bind(AutomaticUpdateMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {
+					getElapsedTimeString(prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED)), PREFS_HREF }));
 		else
 			remindLink.setText(AutomaticUpdateMessages.AutomaticUpdatesPopup_PrefLinkOnly);
 		remindLink.getParent().layout(true);
@@ -166,8 +174,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	}
 
 	/*
-	 * Computes the number of milliseconds for the delay
-	 * in reminding the user of updates
+	 * Computes the number of milliseconds for the delay in reminding the user of
+	 * updates
 	 */
 	long computeRemindDelay() {
 		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
@@ -175,15 +183,15 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			for (int d = 0; d < ELAPSED_VALUES.length; d++)
 				if (ELAPSED_VALUES[d].equals(elapsed))
 					switch (d) {
-						case 0 :
-							// 30 minutes
-							return 30 * MINUTE;
-						case 1 :
-							// 60 minutes
-							return 60 * MINUTE;
-						case 2 :
-							// 240 minutes
-							return 240 * MINUTE;
+					case 0:
+						// 30 minutes
+						return 30 * MINUTE;
+					case 1:
+						// 60 minutes
+						return 60 * MINUTE;
+					case 2:
+						// 240 minutes
+						return 240 * MINUTE;
 					}
 		}
 		return -1L;
@@ -217,7 +225,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		}
 		// We have to take parent location into account because SWT considers all
 		// shell locations to be in display coordinates, even if the shell is parented.
-		return new Point(parentSize.x - initialSize.x + parentLocation.x - POPUP_OFFSET, parentSize.y - initialSize.y + parentLocation.y - POPUP_OFFSET);
+		return new Point(parentSize.x - initialSize.x + parentLocation.x - POPUP_OFFSET,
+				parentSize.y - initialSize.y + parentLocation.y - POPUP_OFFSET);
 	}
 
 	void handlePreferenceChange(PropertyChangeEvent event) {
@@ -247,8 +256,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	}
 
 	/*
-	 * Overridden so that clicking in the title menu area closes the dialog.
-	 * Also creates a close box menu in the title area.
+	 * Overridden so that clicking in the title menu area closes the dialog. Also
+	 * creates a close box menu in the title area.
 	 */
 	@Override
 	protected Control createTitleMenuArea(Composite parent) {
@@ -259,8 +268,10 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		ToolItem closeButton = new ToolItem(toolBar, SWT.PUSH, 0);
 
 		GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(toolBar);
-		closeButton.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_CLOSE)));
-		closeButton.setHotImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_CLOSE_HOT)));
+		closeButton.setImage(
+				AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_CLOSE)));
+		closeButton.setHotImage(
+				AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_CLOSE_HOT)));
 		closeButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> close()));
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=177183
 		toolBar.addMouseListener(MouseListener.mouseDownAdapter(e -> close()));
@@ -268,10 +279,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	}
 
 	/*
-	 * Overridden to adjust the span of the title label.
-	 * Reachy, reachy....
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.PopupDialog#createTitleControl(org.eclipse.swt.widgets.Composite)
+	 * Overridden to adjust the span of the title label. Reachy, reachy....
 	 */
 	@Override
 	protected Control createTitleControl(Composite parent) {

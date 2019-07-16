@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -48,13 +48,11 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 	}
 
 	@Override
-	protected IMetadataRepository doLoadRepository(IRepositoryManager<IInstallableUnit> manager, URI location, IProgressMonitor monitor) throws ProvisionException {
+	protected IMetadataRepository doLoadRepository(IRepositoryManager<IInstallableUnit> manager, URI location,
+			IProgressMonitor monitor) throws ProvisionException {
 		return ui.loadMetadataRepository(location, false, monitor);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.QueryableRepositoryManager#getRepositoryFlags(org.eclipse.equinox.p2.ui.RepositoryManipulator)
-	 */
 	@Override
 	protected int getRepositoryFlags(RepositoryTracker repositoryManipulator) {
 		return repositoryManipulator.getMetadataRepositoryFlags();

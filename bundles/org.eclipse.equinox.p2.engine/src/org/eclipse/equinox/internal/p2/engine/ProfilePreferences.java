@@ -116,7 +116,6 @@ public class ProfilePreferences extends EclipsePreferences {
 	}
 
 	/*
-	 * (non-Javadoc)
 	 * Create an Engine phase to save profile preferences
 	 */
 	protected void doSave(IProvisioningAgent agent) throws BackingStoreException {
@@ -248,7 +247,6 @@ public class ProfilePreferences extends EclipsePreferences {
 	}
 
 	/*
-	 * (non-Javadoc)
 	 * Create an Engine phase to load profile preferences
 	 */
 	@Override

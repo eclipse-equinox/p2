@@ -72,8 +72,10 @@ public class XZedSimpleArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		return localFile;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	/*
+	 * @see
+	 * org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#load
+	 * (java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor, boolean acquireLock) throws ProvisionException {
 		long time = 0;

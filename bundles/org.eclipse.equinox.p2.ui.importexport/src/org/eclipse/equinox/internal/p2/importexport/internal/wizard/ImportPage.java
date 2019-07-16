@@ -149,9 +149,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 		/*
 		 * Overridden to remember the pattern string for an optimization in
-		 * isParentMatch (non-Javadoc)
-		 * 
-		 * @see org.eclipse.ui.dialogs.PatternFilter#setPattern(java.lang.String)
+		 * isParentMatch
 		 */
 		@Override
 		public void setPattern(String patternString) {
@@ -161,11 +159,6 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 		/*
 		 * Overridden to avoid getting children unless there is actually a filter.
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.eclipse.ui.dialogs.PatternFilter#isParentMatch(org.eclipse.jface.viewers.
-		 * Viewer, java.lang.Object)
 		 */
 		@Override
 		protected boolean isParentMatch(Viewer viewer1, Object element) {

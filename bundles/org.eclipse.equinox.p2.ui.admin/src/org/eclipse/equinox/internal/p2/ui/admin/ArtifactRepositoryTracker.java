@@ -47,7 +47,8 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 			if (nickname != null)
 				getArtifactRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
 		} finally {
-			ui.signalRepositoryOperationComplete(new RepositoryEvent(repoLocation, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED, true), true);
+			ui.signalRepositoryOperationComplete(
+					new RepositoryEvent(repoLocation, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED, true), true);
 		}
 	}
 
@@ -63,10 +64,6 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#refreshRepositories(java.net.URI[], org.eclipse.equinox.p2.operations.ProvisioningSession, org.eclipse.core.runtime.IProgressMonitor)
-	 */
 	@Override
 	public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
 		ui.signalRepositoryOperationStart();
@@ -75,11 +72,12 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 			try {
 				getArtifactRepositoryManager().refreshRepository(locations[i], mon.newChild(100));
 			} catch (ProvisionException e) {
-				//ignore problematic repositories when refreshing
+				// ignore problematic repositories when refreshing
 			}
 		}
-		// We have no idea how many repos may have been added/removed as a result of 
-		// refreshing these, this one, so we do not use a specific repository event to represent it.
+		// We have no idea how many repos may have been added/removed as a result of
+		// refreshing these, this one, so we do not use a specific repository event to
+		// represent it.
 		ui.signalRepositoryOperationComplete(null, true);
 	}
 

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
@@ -18,10 +18,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 
 /**
- * IUViewQueryContext defines the different ways 
- * IUs can be viewed.  Clients can use this context to 
- * control how the various IU views are represented and traversed.
- * 
+ * IUViewQueryContext defines the different ways IUs can be viewed. Clients can
+ * use this context to control how the various IU views are represented and
+ * traversed.
+ *
  * @since 2.0
  */
 public class IUViewQueryContext {
@@ -33,13 +33,14 @@ public class IUViewQueryContext {
 	// Default available view to repo as this provides the fastest information
 	private int view = AVAILABLE_VIEW_BY_REPO;
 	// Whether to show latest versions only, defaults to
-	// true.  Clients typically use a pref setting or dialog
+	// true. Clients typically use a pref setting or dialog
 	// setting to initialize
 	private boolean showLatestVersionsOnly = true;
 	// Whether to hide things that are already installed
 	// Defaults to false since we wouldn't know what profile to use
 	private boolean hideAlreadyInstalled = false;
-	// Whether to group items in repos by category.  Note this only makes sense when the
+	// Whether to group items in repos by category. Note this only makes sense when
+	// the
 	// view type is AVAILABLE_VIEW_BY_REPO
 	private boolean useCategories = true;
 	// Whether to drill down into installed items
@@ -48,7 +49,8 @@ public class IUViewQueryContext {
 	private boolean showAvailableChildren = false;
 	// Whether to drill down into items in a provisioning plan
 	private boolean showProvisioningPlanChildren = true;
-	// Whether to filter out IUs based on the environment settings of the target profile
+	// Whether to filter out IUs based on the environment settings of the target
+	// profile
 	private boolean filterOnEnv = false;
 
 	private String profileId = null;
@@ -60,8 +62,9 @@ public class IUViewQueryContext {
 		this.view = viewType;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueryContext#getQueryType()
+	/*
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueryContext#
+	 * getQueryType()
 	 */
 	public int getQueryType() {
 		if (view == AVAILABLE_VIEW_BY_REPO)
@@ -110,11 +113,11 @@ public class IUViewQueryContext {
 	}
 
 	/**
-	 * Set a boolean that indicates whether categories should be used when
-	 * viewing by repository.
-	 * 
-	 * useCategories <code>true</code> if a site in a sites view should expand into categories,
-	 * <code>false</code> if it should expand into IU's.
+	 * Set a boolean that indicates whether categories should be used when viewing
+	 * by repository.
+	 *
+	 * useCategories <code>true</code> if a site in a sites view should expand into
+	 * categories, <code>false</code> if it should expand into IU's.
 	 */
 
 	public void setUseCategories(boolean useCategories) {
@@ -124,9 +127,9 @@ public class IUViewQueryContext {
 	/**
 	 * Return a boolean that indicates whether categories should be used when
 	 * viewing by repository.
-	 * 
-	 * @return <code>true</code> if a site in a sites view should expand into categories,
-	 * <code>false</code> if it should expand into IU's.
+	 *
+	 * @return <code>true</code> if a site in a sites view should expand into
+	 *         categories, <code>false</code> if it should expand into IU's.
 	 */
 	public boolean getUseCategories() {
 		return useCategories;

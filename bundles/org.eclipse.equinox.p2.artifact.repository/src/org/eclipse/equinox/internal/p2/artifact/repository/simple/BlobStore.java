@@ -57,7 +57,7 @@ public class BlobStore {
 		return new FileOutputStream(URIUtil.toFile(fileFor(uuid)));
 	}
 
-	/* (non-Javadoc)
+	/*
 	 * @see UniversalUniqueIdentifier#appendByteString(StringBuffer, byte)
 	 */
 	private void appendByteString(StringBuffer buffer, byte value) {
@@ -71,15 +71,15 @@ public class BlobStore {
 		buffer.append(hexString);
 	}
 
-	/* (non-Javadoc)
+	/*
 	 * Converts an array of bytes into a String.
 	 *
 	 * @see UniversalUniqueIdentifier#toString()
 	 */
 	private String bytesToHexString(byte[] b) {
 		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < b.length; i++)
-			appendByteString(buffer, b[i]);
+		for (byte element : b)
+			appendByteString(buffer, element);
 		return buffer.toString();
 	}
 
@@ -123,8 +123,8 @@ public class BlobStore {
 	 */
 	protected byte hashUUIDbytes(byte[] uuid) {
 		byte hash = 0;
-		for (int i = 0; i < uuid.length; i++)
-			hash ^= randomArray[uuid[i] + 128]; // +128 makes sure the index is >0
+		for (byte element : uuid)
+			hash ^= randomArray[element + 128]; // +128 makes sure the index is >0
 		return hash;
 	}
 }

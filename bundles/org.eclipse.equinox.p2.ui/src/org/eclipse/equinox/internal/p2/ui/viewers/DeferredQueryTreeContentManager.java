@@ -22,9 +22,9 @@ import org.eclipse.ui.progress.*;
 /**
  * DeferredQueryTreeContentManager is an extension of DeferredTreeContentManager
  * that associates pending placeholders with their parent elements, so that
- * clients know when a particular parent element is finished fetching
- * its contents.
- * 
+ * clients know when a particular parent element is finished fetching its
+ * contents.
+ *
  * @since 3.4
  *
  */
@@ -53,10 +53,8 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	}
 
 	/*
-	 * Overridden to keep track of the current request long enough
-	 * to put it in the pending update adapter.
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.progress.DeferredTreeContentManager#getChildren(java.lang.Object)
+	 * Overridden to keep track of the current request long enough to put it in the
+	 * pending update adapter.
 	 */
 	@Override
 	public Object[] getChildren(final Object parent) {
@@ -66,11 +64,10 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 
 	/*
 	 * Overridden to signal the start of a fetch
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.progress.DeferredTreeContentManager#startFetchingDeferredChildren(java.lang.Object, org.eclipse.ui.progress.IDeferredWorkbenchAdapter, org.eclipse.ui.progress.PendingUpdateAdapter)
 	 */
 	@Override
-	protected void startFetchingDeferredChildren(final Object parent, final IDeferredWorkbenchAdapter adapter, final PendingUpdateAdapter placeholder) {
+	protected void startFetchingDeferredChildren(final Object parent, final IDeferredWorkbenchAdapter adapter,
+			final PendingUpdateAdapter placeholder) {
 		if (placeholder instanceof ElementPendingUpdateAdapter)
 			notifyListener(true, (ElementPendingUpdateAdapter) placeholder);
 		super.startFetchingDeferredChildren(parent, adapter, placeholder);

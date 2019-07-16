@@ -649,12 +649,11 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener#notify(java.util.EventObject)
-	 *
-	 * See bug: https://bugs.eclipse.org/340971
-	 * Using the event bus to detect whether or not a repository was added in a touchpoint action.
-	 * If it was, then (if it exists) remove it from our list of repos to remove after we complete our install.
+	/*
+	 * See bug: https://bugs.eclipse.org/340971 Using the event bus to detect
+	 * whether or not a repository was added in a touchpoint action. If it was, then
+	 * (if it exists) remove it from our list of repos to remove after we complete
+	 * our install.
 	 */
 	@Override
 	public void notify(EventObject o) {

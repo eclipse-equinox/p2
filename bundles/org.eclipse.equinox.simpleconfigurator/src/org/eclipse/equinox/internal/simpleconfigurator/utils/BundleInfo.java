@@ -65,9 +65,6 @@ public class BundleInfo {
 		this.baseLocation = baseLocation;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
@@ -127,9 +124,10 @@ public class BundleInfo {
 		if (location == null || other.location == null)
 			return true;
 
-		//compare absolute location URIs
+		// compare absolute location URIs
 		URI absoluteLocation = baseLocation == null ? location : URIUtil.append(baseLocation, location.toString());
-		URI otherAbsoluteLocation = other.baseLocation == null ? other.location : URIUtil.append(other.baseLocation, other.location.toString());
+		URI otherAbsoluteLocation = other.baseLocation == null ? other.location
+				: URIUtil.append(other.baseLocation, other.location.toString());
 		return URIUtil.sameURI(absoluteLocation, otherAbsoluteLocation);
 	}
 }
