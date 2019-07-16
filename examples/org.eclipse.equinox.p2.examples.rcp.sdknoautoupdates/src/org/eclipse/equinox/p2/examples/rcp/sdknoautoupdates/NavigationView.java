@@ -2,7 +2,6 @@ package org.eclipse.equinox.p2.examples.rcp.sdknoautoupdates;
 
 import java.util.ArrayList;
 
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -71,7 +70,7 @@ public class NavigationView extends ViewPart {
 		}
 	}
 
-	class ViewContentProvider implements IStructuredContentProvider, ITreeContentProvider {
+	class ViewContentProvider implements ITreeContentProvider {
 
 		@Override
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
