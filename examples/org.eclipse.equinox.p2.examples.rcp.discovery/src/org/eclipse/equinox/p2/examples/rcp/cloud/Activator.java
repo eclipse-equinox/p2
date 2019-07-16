@@ -17,15 +17,16 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
-	
+
 	ServiceRegistration<Policy> policyRegistration;
-	
+
 	/**
 	 * The constructor
 	 */
 	public Activator() {
 	}
 
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
@@ -33,13 +34,14 @@ public class Activator extends AbstractUIPlugin {
 		registerP2Policy(context);
 	}
 
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		// XXX unregister the UI policy
 		policyRegistration.unregister();
 		policyRegistration = null;
 		super.stop(context);
-		
+
 	}
 
 	/**
@@ -52,8 +54,8 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path
+	 * Returns an image descriptor for the image file at the given plug-in relative
+	 * path
 	 *
 	 * @param path the path
 	 * @return the image descriptor
@@ -61,7 +63,7 @@ public class Activator extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
-	
+
 	private void registerP2Policy(BundleContext context) {
 		policyRegistration = context.registerService(Policy.class, new CloudPolicy(), null);
 	}

@@ -24,9 +24,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * PreloadingRepositoryHandler provides background loading of
- * repositories before executing the provisioning handler.
- * 
+ * PreloadingRepositoryHandler provides background loading of repositories
+ * before executing the provisioning handler.
+ *
  * @since 3.5
  */
 abstract class PreloadingRepositoryHandler extends AbstractHandler {
@@ -41,6 +41,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	/**
 	 * Execute the command.
 	 */
+	@Override
 	public Object execute(ExecutionEvent event) {
 		doExecuteAndLoad();
 		return null;
@@ -48,21 +49,17 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 
 	void doExecuteAndLoad() {
 		if (preloadRepositories()) {
-			//cancel any load that is already running
+			// cancel any load that is already running
 			Job.getJobManager().cancel(LoadMetadataRepositoryJob.LOAD_FAMILY);
 			final LoadMetadataRepositoryJob loadJob = new LoadMetadataRepositoryJob(getProvisioningUI());
 			setLoadJobProperties(loadJob);
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
+					@Override
 					public void done(IJobChangeEvent event) {
 						if (PlatformUI.isWorkbenchRunning())
 							if (event.getResult().isOK()) {
-								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-									@Override
-									public void run() {
-										doExecute(loadJob);
-									}
-								});
+								PlatformUI.getWorkbench().getDisplay().asyncExec(() -> doExecute(loadJob));
 							}
 					}
 				});
@@ -100,6 +97,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 
 	/**
 	 * Return a shell appropriate for parenting dialogs of this handler.
+	 * 
 	 * @return a Shell
 	 */
 	protected Shell getShell() {
