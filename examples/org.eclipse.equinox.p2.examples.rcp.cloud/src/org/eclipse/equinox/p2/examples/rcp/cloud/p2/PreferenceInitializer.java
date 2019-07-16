@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -25,8 +25,9 @@ import org.osgi.service.prefs.Preferences;
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
+	@Override
 	public void initializeDefaultPreferences() {
-		Preferences node = DefaultScope.INSTANCE.getNode(Activator.PLUGIN_ID); //$NON-NLS-1$
+		Preferences node = DefaultScope.INSTANCE.getNode(Activator.PLUGIN_ID);
 		// default values
 		node.putBoolean(PreferenceConstants.REPOSITORIES_VISIBLE, false);
 		node.putBoolean(PreferenceConstants.SHOW_LATEST_VERSION_ONLY, true);

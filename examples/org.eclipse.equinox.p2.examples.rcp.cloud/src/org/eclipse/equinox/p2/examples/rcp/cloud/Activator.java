@@ -4,7 +4,6 @@ import org.eclipse.equinox.p2.examples.rcp.cloud.p2.CloudPolicy;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -19,18 +18,18 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
-	
+
 	ServiceRegistration<Policy> policyRegistration;
 	CloudPolicy policy;
 	IPropertyChangeListener preferenceListener;
-	
-	
+
 	/**
 	 * The constructor
 	 */
 	public Activator() {
 	}
 
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
@@ -41,15 +40,12 @@ public class Activator extends AbstractUIPlugin {
 
 	private IPropertyChangeListener getPreferenceListener() {
 		if (preferenceListener == null) {
-			preferenceListener = new IPropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent event) {
-					policy.updateForPreferences();
-				}
-			};
+			preferenceListener = event -> policy.updateForPreferences();
 		}
 		return preferenceListener;
 	}
 
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		// XXX unregister the UI policy
@@ -58,7 +54,7 @@ public class Activator extends AbstractUIPlugin {
 		getPreferenceStore().removePropertyChangeListener(preferenceListener);
 		preferenceListener = null;
 		super.stop(context);
-		
+
 	}
 
 	/**
@@ -71,8 +67,8 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path
+	 * Returns an image descriptor for the image file at the given plug-in relative
+	 * path
 	 *
 	 * @param path the path
 	 * @return the image descriptor
@@ -80,7 +76,7 @@ public class Activator extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
-	
+
 	private void registerP2Policy(BundleContext context) {
 		policy = new CloudPolicy();
 		policy.updateForPreferences();
