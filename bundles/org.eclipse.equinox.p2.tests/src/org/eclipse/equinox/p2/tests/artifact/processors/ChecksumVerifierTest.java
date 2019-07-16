@@ -40,13 +40,15 @@ public class ChecksumVerifierTest {
 	@Parameters
 	public static Collection<Object[]> generateData() {
 		return Arrays.asList(new Object[][] {
-			// legacy MD5 checksum location
-			{"MD5", null, "md5", IArtifactDescriptor.DOWNLOAD_MD5, IArtifactDescriptor.ARTIFACT_MD5, "123456789_123456789_123456789_12"},
-			// new checksum location
-			{"MD5", null, "md5", IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".md5"), IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".md5"), "123456789_123456789_123456789_12"},
-			{"SHA-256", null, "sha-256", IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".sha-256"), IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".sha-256"), "123456789_123456789_123456789_123456789_123456789_123456789_1234"},
-			{"Whirlpool", "BC", "whirlpool", IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".whirlpool"), IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".whirlpool"), "f3073bf4b0867c7456850fbe317b322c03b00198e15fe40b9a455abde6e1c77e31d6ed6963a6755564a1adec0ed9bb8aac71d4a457256a85e9fc55a964ede598"},
-			{"DSTU7564-512", "BC", "dstu7564-512", IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".dstu7564-512"), IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".dstu7564-512"), "b776aaeae5c45826515365fe017138eb6ac1e1ad866f7b7bcfba2ca752268afc493e3c19a9217e1ae07733676efb81123e5677dcadaf5c0ca1b530ab9f718b2c"}});
+				// legacy MD5 checksum location
+				{ "MD5", null, "md5", IArtifactDescriptor.DOWNLOAD_MD5, IArtifactDescriptor.ARTIFACT_MD5,
+						"123456789_123456789_123456789_12" },
+				// new checksum location
+				{ "MD5", null, "md5", IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".md5"),
+						IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".md5"), "123456789_123456789_123456789_12" },
+				{ "SHA-256", null, "sha-256", IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".sha-256"),
+						IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".sha-256"),
+						"123456789_123456789_123456789_123456789_123456789_123456789_1234" } });
 	}
 
 	@Parameter(0)

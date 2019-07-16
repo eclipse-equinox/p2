@@ -40,9 +40,7 @@ public class ChecksumGenerationTest extends AbstractProvisioningTest {
 		return Arrays.asList(new Object[][] {{IArtifactDescriptor.DOWNLOAD_MD5, "50d4ea58b02706ab373a908338877e02"},
 			{IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".md5"), "50d4ea58b02706ab373a908338877e02"},
 			{IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".sha-256"), "11da2dd636ab76f460513cbcbfe8c56a6e5ad47aa9b38b36c6d04f8ee7722252"},
-			// TODO values are from the BC itself, check by external means
-			{IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".dstu7564-512"), "b776aaeae5c45826515365fe017138eb6ac1e1ad866f7b7bcfba2ca752268afc493e3c19a9217e1ae07733676efb81123e5677dcadaf5c0ca1b530ab9f718b2c"},
-			{IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".whirlpool"), "b951e497a53600173a0c464d451672086175530deaffb9f376962153e573e99de53131910ea9c3c8243afb73444dadfade5989dc6f8c6e4a96141eaf956daa22"}});
+		});
 	}
 
 	@Test
