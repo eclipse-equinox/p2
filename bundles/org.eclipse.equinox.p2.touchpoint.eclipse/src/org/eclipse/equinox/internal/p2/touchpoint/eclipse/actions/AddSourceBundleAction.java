@@ -30,10 +30,12 @@ import org.eclipse.osgi.util.NLS;
 public class AddSourceBundleAction extends ProvisioningAction {
 	public static final String ID = "addSourceBundle"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		return AddSourceBundleAction.addSourceBundle(parameters);
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		return RemoveSourceBundleAction.removeSourceBundle(parameters);
 	}

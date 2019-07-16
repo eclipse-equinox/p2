@@ -28,10 +28,12 @@ import org.eclipse.osgi.util.NLS;
 public class UninstallBundleAction extends ProvisioningAction {
 	public static final String ID = "uninstallBundle"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		return UninstallBundleAction.uninstallBundle(parameters);
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		return InstallBundleAction.installBundle(parameters);
 	}
@@ -44,13 +46,14 @@ public class UninstallBundleAction extends ProvisioningAction {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_BUNDLE, ID));
 		}
 
-		//TODO: eventually remove this. What is a fragment doing here??
+		// TODO: eventually remove this. What is a fragment doing here??
 		if (QueryUtil.isFragment(iu)) {
 			System.out.println("What is a fragment doing here!!! -- " + iu); //$NON-NLS-1$
 			return Status.OK_STATUS;
 		}
 
-		// Changes to this object will be reflected in the backing runtime configuration store
+		// Changes to this object will be reflected in the backing runtime configuration
+		// store
 		BundleInfo bundleInfo = Util.findBundleInfo(manipulator.getConfigData(), iu);
 		if (bundleInfo == null) {
 			return Util.createWarning(NLS.bind(Messages.failed_find_bundleinfo, iu));

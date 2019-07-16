@@ -20,10 +20,12 @@ public class Activator implements BundleActivator {
 	public static final String ID = "org.eclipse.equinox.p2.touchpoint.eclipse"; //$NON-NLS-1$
 	private static BundleContext context = null;
 
+	@Override
 	public void start(BundleContext ctx) throws Exception {
 		Activator.context = ctx;
 	}
 
+	@Override
 	public void stop(BundleContext ctx) throws Exception {
 		Activator.context = null;
 	}

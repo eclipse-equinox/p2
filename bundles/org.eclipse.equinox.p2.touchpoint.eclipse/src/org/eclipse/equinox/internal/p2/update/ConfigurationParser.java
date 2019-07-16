@@ -26,7 +26,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 /**
- * Parser for platform.xml files. 
+ * Parser for platform.xml files.
  * 
  * @since 1.0
  */
@@ -35,8 +35,8 @@ public class ConfigurationParser implements ConfigurationConstants {
 	private URL osgiInstallArea;
 
 	/*
-	 * Parse the given file handle which points to a platform.xml file and a configuration object.
-	 * Returns null if the file doesn't exist.
+	 * Parse the given file handle which points to a platform.xml file and a
+	 * configuration object. Returns null if the file doesn't exist.
 	 */
 	static Configuration parse(File file, URL osgiInstallArea) throws ProvisionException {
 		return new ConfigurationParser(osgiInstallArea).internalParse(file);
@@ -47,10 +47,9 @@ public class ConfigurationParser implements ConfigurationConstants {
 	}
 
 	/*
-	 * Create a feature object based on the given DOM node. 
-	 * Return the new feature.
+	 * Create a feature object based on the given DOM node. Return the new feature.
 	 */
-	private Feature createFeature(Node node, Site site) {
+	private static Feature createFeature(Node node, Site site) {
 		Feature result = new Feature(site);
 		String id = getAttribute(node, ATTRIBUTE_ID);
 		if (id != null)
@@ -102,7 +101,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 	/*
 	 * Create the features from the given DOM node.
 	 */
-	private void createFeatures(Node node, Site site) {
+	private static void createFeatures(Node node, Site site) {
 		NodeList children = node.getChildNodes();
 		int size = children.getLength();
 		for (int i = 0; i < size; i++) {
@@ -154,11 +153,10 @@ public class ConfigurationParser implements ConfigurationConstants {
 	}
 
 	/*
-	 * Convert the given url string to an absolute url. If the string is 
-	 * platform:/base/ then return a string which represents the osgi
-	 * install area.
+	 * Convert the given url string to an absolute url. If the string is
+	 * platform:/base/ then return a string which represents the osgi install area.
 	 */
-	private URI getLocation(URI location, URI osgiArea) {
+	private static URI getLocation(URI location, URI osgiArea) {
 		if (osgiArea == null)
 			return location;
 		if (PLATFORM_BASE.equals(location.toString()))
@@ -167,10 +165,9 @@ public class ConfigurationParser implements ConfigurationConstants {
 	}
 
 	/*
-	 * Return the attribute with the given name, or null if it does
-	 * not exist.
+	 * Return the attribute with the given name, or null if it does not exist.
 	 */
-	private String getAttribute(Node node, String name) {
+	private static String getAttribute(Node node, String name) {
 		NamedNodeMap attributes = node.getAttributes();
 		Node temp = attributes.getNamedItem(name);
 		return temp == null ? null : temp.getNodeValue();
@@ -179,7 +176,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 	/*
 	 * Load the given file into a DOM document.
 	 */
-	private Document load(InputStream input) throws ParserConfigurationException, IOException, SAXException {
+	private static Document load(InputStream input) throws ParserConfigurationException, IOException, SAXException {
 		// load the feature xml
 		DocumentBuilderFactory factory = SecureXMLUtil.newSecureDocumentBuilderFactory();
 		DocumentBuilder builder = factory.newDocumentBuilder();
@@ -197,8 +194,8 @@ public class ConfigurationParser implements ConfigurationConstants {
 	}
 
 	/*
-	 * Parse the given file handle which points to a platform.xml file and a configuration object.
-	 * Returns null if the file doesn't exist.
+	 * Parse the given file handle which points to a platform.xml file and a
+	 * configuration object. Returns null if the file doesn't exist.
 	 */
 	private Configuration internalParse(File file) throws ProvisionException {
 		if (!file.exists()) {
@@ -227,8 +224,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 	}
 
 	/*
-	 * Process the given DOM document and create the appropriate
-	 * site objects.
+	 * Process the given DOM document and create the appropriate site objects.
 	 */
 	private Configuration process(Document document) {
 		Node node = getConfigElement(document);
@@ -250,7 +246,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 		return configuration;
 	}
 
-	private Configuration createConfiguration(Node node) {
+	private static Configuration createConfiguration(Node node) {
 		Configuration result = new Configuration();
 		String value = getAttribute(node, ATTRIBUTE_DATE);
 		if (value != null)
@@ -267,7 +263,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 		return result;
 	}
 
-	private Node getConfigElement(Document doc) {
+	private static Node getConfigElement(Document doc) {
 		NodeList children = doc.getChildNodes();
 		int size = children.getLength();
 		for (int i = 0; i < size; i++) {

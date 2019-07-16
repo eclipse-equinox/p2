@@ -260,7 +260,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 	/*
 	 * Copied from AbstractRepositoryManager
 	 */
-	private String getKey(URI location) {
+	private static String getKey(URI location) {
 		String key = location.toString().replace('/', '_');
 		// remove trailing slash
 		if (key.endsWith("_")) //$NON-NLS-1$

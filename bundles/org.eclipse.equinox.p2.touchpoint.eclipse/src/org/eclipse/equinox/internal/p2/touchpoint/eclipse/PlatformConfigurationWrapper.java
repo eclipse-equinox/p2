@@ -26,10 +26,10 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.util.NLS;
 
-/**	
- * 	This class provides a wrapper for reading and writing platform.xml.
+/**
+ * This class provides a wrapper for reading and writing platform.xml.
  * 
- * 	Only a minimal set of operations is exposed.
+ * Only a minimal set of operations is exposed.
  */
 public class PlatformConfigurationWrapper {
 
@@ -46,10 +46,9 @@ public class PlatformConfigurationWrapper {
 	 * just use the Location service here because we may not be installing into
 	 * ourselves. (see https://bugs.eclipse.org/354552)
 	 * 
-	 * First try and calculate the location based relative to the data provided
-	 * in the manipulator's launcher data. If that doesn't work then calculate
-	 * it based on the location of known JARs. If that still doesn't work then
-	 * return null.
+	 * First try and calculate the location based relative to the data provided in
+	 * the manipulator's launcher data. If that doesn't work then calculate it based
+	 * on the location of known JARs. If that still doesn't work then return null.
 	 */
 	private static URL getOSGiInstallArea(Manipulator manipulator) {
 
@@ -64,7 +63,8 @@ public class PlatformConfigurationWrapper {
 			}
 		}
 
-		// next try and calculate the value based on the location of the framework (OSGi) jar.
+		// next try and calculate the value based on the location of the framework
+		// (OSGi) jar.
 		File fwkJar = launcherData.getFwJar();
 		if (fwkJar != null) {
 			try {
@@ -74,15 +74,17 @@ public class PlatformConfigurationWrapper {
 			}
 		}
 
-		// finally calculate the value based on the location of the launcher executable itself
+		// finally calculate the value based on the location of the launcher executable
+		// itself
 		File launcherFile = launcherData.getLauncher();
 		if (launcherFile != null) {
 			if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
-				//the equinox launcher will look 3 levels up on the mac when going from executable to launcher.jar
-				//see org.eclipse.equinox.executable/library/eclipse.c : findStartupJar();
+				// the equinox launcher will look 3 levels up on the mac when going from
+				// executable to launcher.jar
+				// see org.eclipse.equinox.executable/library/eclipse.c : findStartupJar();
 				IPath launcherPath = new Path(launcherFile.getAbsolutePath());
 				if (launcherPath.segmentCount() > 2) {
-					//removing "Eclipse.app/Contents/MacOS/eclipse"
+					// removing "Eclipse.app/Contents/MacOS/eclipse"
 					launcherPath = launcherPath.removeLastSegments(2);
 					try {
 						return launcherPath.toFile().toURI().toURL();
@@ -110,7 +112,7 @@ public class PlatformConfigurationWrapper {
 						if (bis[i].getLocation().getScheme().equals("file")) //$NON-NLS-1$
 							return fromOSGiJarToOSGiInstallArea(bis[i].getLocation().getPath()).toURI().toURL();
 					} catch (MalformedURLException e) {
-						//do nothing
+						// do nothing
 					}
 				}
 				if (searchFor.equals(OSGI))
@@ -161,9 +163,9 @@ public class PlatformConfigurationWrapper {
 	}
 
 	/*
-	 * Return the default policy to use when creating a new site. If there are
-	 * any sites with the MANAGED-ONLY policy, then that is the default.
-	 * Otherwise the default is USER-EXCLUDE.
+	 * Return the default policy to use when creating a new site. If there are any
+	 * sites with the MANAGED-ONLY policy, then that is the default. Otherwise the
+	 * default is USER-EXCLUDE.
 	 */
 	private String getDefaultPolicy() {
 		for (Site site : configuration.getSites()) {
@@ -176,7 +178,7 @@ public class PlatformConfigurationWrapper {
 	/*
 	 * Create and return a site object based on the given location.
 	 */
-	private Site createSite(URI location, String policy) {
+	private static Site createSite(URI location, String policy) {
 		Site result = new Site();
 		result.setUrl(location.toString());
 		result.setPolicy(policy);
@@ -199,15 +201,15 @@ public class PlatformConfigurationWrapper {
 				if (nextFile.equals(file))
 					return nextSite;
 			} catch (URISyntaxException e) {
-				//ignore incorrectly formed site
+				// ignore incorrectly formed site
 			}
 		}
 		return null;
 	}
 
 	/*
-	 * Look in the configuration and return the site which contains the feature
-	 * with the given identifier and version. Return null if there is none.
+	 * Look in the configuration and return the site which contains the feature with
+	 * the given identifier and version. Return null if there is none.
 	 */
 	private Site getSite(String id, String version) {
 		List<Site> sites = configuration.getSites();
@@ -221,7 +223,8 @@ public class PlatformConfigurationWrapper {
 		return null;
 	}
 
-	public IStatus addFeatureEntry(File file, String id, String version, String pluginIdentifier, String pluginVersion, boolean primary, String application, URL[] root, String linkFile) {
+	public IStatus addFeatureEntry(File file, String id, String version, String pluginIdentifier, String pluginVersion,
+			boolean primary, String application, URL[] root, String linkFile) {
 		loadDelegate();
 		if (configuration == null)
 			return new Status(IStatus.WARNING, Activator.ID, Messages.platform_config_unavailable, null);
@@ -229,10 +232,12 @@ public class PlatformConfigurationWrapper {
 		URI fileURL = null;
 		File featureDir = file.getParentFile();
 		if (featureDir == null || !featureDir.getName().equals("features")) //$NON-NLS-1$
-			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.parent_dir_features, file.getAbsolutePath()), null);
+			return new Status(IStatus.ERROR, Activator.ID,
+					NLS.bind(Messages.parent_dir_features, file.getAbsolutePath()), null);
 		File locationDir = featureDir.getParentFile();
 		if (locationDir == null)
-			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cannot_calculate_extension_location, file.getAbsolutePath()), null);
+			return new Status(IStatus.ERROR, Activator.ID,
+					NLS.bind(Messages.cannot_calculate_extension_location, file.getAbsolutePath()), null);
 
 		fileURL = locationDir.toURI();
 		Site site = getSite(fileURL);
@@ -293,7 +298,7 @@ public class PlatformConfigurationWrapper {
 	}
 
 	private static String makeFeatureURL(String id, String version) {
-		return FEATURES + id + "_" + version + "/"; //$NON-NLS-1$ //$NON-NLS-2$;
+		return FEATURES + id + "_" + version + "/"; //$NON-NLS-1$ //$NON-NLS-2$ ;
 	}
 
 }

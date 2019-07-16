@@ -38,8 +38,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 
 	private Collection<IArtifactKey> artifactKeyList = null;
 
+	@Override
 	public MarkSet[] getMarkSets(IProvisioningAgent agent, IProfile inProfile) {
-		artifactKeyList = new HashSet<IArtifactKey>();
+		artifactKeyList = new HashSet<>();
 		IArtifactRepository repositoryToGC = Util.getBundlePoolRepository(agent, inProfile);
 		if (repositoryToGC == null)
 			return new MarkSet[0];
@@ -68,7 +69,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		}
 	}
 
-	private List<Feature> getAllFeatures(Configuration cfg) {
+	private static List<Feature> getAllFeatures(Configuration cfg) {
 		if (cfg == null)
 			return Collections.emptyList();
 		List<Site> sites = cfg.getSites();
@@ -82,7 +83,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		return result;
 	}
 
-	private IProfile getCurrentProfile(IProvisioningAgent agent) {
+	private static IProfile getCurrentProfile(IProvisioningAgent agent) {
 		IProfileRegistry pr = agent.getService(IProfileRegistry.class);
 		if (pr == null)
 			return null;
@@ -99,6 +100,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		}
 	}
 
+	@Override
 	public IArtifactRepository getRepository(IProvisioningAgent agent, IProfile aProfile) {
 		return Util.getBundlePoolRepository(agent, aProfile);
 	}
@@ -107,7 +109,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		artifactKeyList.addAll(findCorrespondinArtifacts(new WhatIsRunning().getBundlesBeingRun(), repo));
 	}
 
-	private IArtifactKey searchArtifact(String searchedId, Version searchedVersion, String classifier,
+	private static IArtifactKey searchArtifact(String searchedId, Version searchedVersion, String classifier,
 			IArtifactRepository repo) {
 		// This is somewhat cheating since normally we should get the artifact key from
 		// the IUs that were representing the running system (e.g. we could get that
@@ -123,8 +125,8 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	}
 
 	// Find for each bundle info a corresponding artifact in repo
-	private List<IArtifactKey> findCorrespondinArtifacts(BundleInfo[] bis, IArtifactRepository repo) {
-		ArrayList<IArtifactKey> toRetain = new ArrayList<IArtifactKey>();
+	private static List<IArtifactKey> findCorrespondinArtifacts(BundleInfo[] bis, IArtifactRepository repo) {
+		ArrayList<IArtifactKey> toRetain = new ArrayList<>();
 		for (int i = 0; i < bis.length; i++) {
 			// if version is "0.0.0", we will use null to find all versions, see bug 305710
 			Version version = BundleInfo.EMPTY_VERSION.equals(bis[i].getVersion()) ? null

@@ -29,10 +29,12 @@ public class ChmodAction extends ProvisioningAction {
 	private static final String ACTION_CHMOD = "chmod"; //$NON-NLS-1$
 	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
 		if (targetDir == null)
-			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_TARGET_DIR, ACTION_CHMOD));
+			return Util
+					.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_TARGET_DIR, ACTION_CHMOD));
 		if (targetDir.equals(ActionConstants.PARM_AT_ARTIFACT)) {
 			try {
 				targetDir = Util.resolveArtifactParam(parameters);
@@ -48,16 +50,19 @@ public class ChmodAction extends ProvisioningAction {
 
 		String targetFile = (String) parameters.get(ActionConstants.PARM_TARGET_FILE);
 		if (targetFile == null)
-			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_TARGET_FILE, ACTION_CHMOD));
+			return Util
+					.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_TARGET_FILE, ACTION_CHMOD));
 		String permissions = (String) parameters.get(ActionConstants.PARM_PERMISSIONS);
 		if (permissions == null)
-			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PERMISSIONS, ACTION_CHMOD));
+			return Util
+					.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PERMISSIONS, ACTION_CHMOD));
 		String optionsString = (String) parameters.get(ActionConstants.PARM_OPTIONS);
 
 		// Check that file exist
 		File probe = new File(targetDir + IPath.SEPARATOR + targetFile);
 		if (!probe.exists())
-			return Util.createError(NLS.bind(Messages.action_0_failed_file_1_doesNotExist, ACTION_CHMOD, probe.toString()));
+			return Util.createError(
+					NLS.bind(Messages.action_0_failed_file_1_doesNotExist, ACTION_CHMOD, probe.toString()));
 
 		String options[] = null;
 		if (optionsString != null) {
@@ -83,8 +88,9 @@ public class ChmodAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
-		//TODO: implement undo ??
+		// TODO: implement undo ??
 		return Status.OK_STATUS;
 	}
 
@@ -117,7 +123,7 @@ public class ChmodAction extends ProvisioningAction {
 		}
 	}
 
-	private void readOffStream(InputStream inputStream) {
+	private static void readOffStream(InputStream inputStream) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		try {
 			while (reader.readLine() != null) {

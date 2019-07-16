@@ -122,7 +122,7 @@ public class Feature {
 		return true;
 	}
 
-	private boolean equals(Object one, Object two) {
+	private static boolean equals(Object one, Object two) {
 		return one == null ? two == null : one.equals(two);
 	}
 

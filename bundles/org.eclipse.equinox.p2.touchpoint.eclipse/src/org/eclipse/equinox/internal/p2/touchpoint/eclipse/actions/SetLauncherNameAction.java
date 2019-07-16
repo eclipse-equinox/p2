@@ -27,15 +27,18 @@ import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 public class SetLauncherNameAction extends ProvisioningAction {
 	public static final String ID = "setLauncherName"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
-		getMemento().put(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME));
+		getMemento().put(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME,
+				profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME));
 		String launcherName = (String) parameters.get(ActionConstants.PARM_LAUNCHERNAME);
 		setLauncher(manipulator, profile, launcherName);
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
@@ -45,7 +48,8 @@ public class SetLauncherNameAction extends ProvisioningAction {
 	}
 
 	private static void setLauncher(Manipulator manipulator, IProfile profile, String launcherName) {
-		//Get the launcherData before changing the name so we don't lose anything from the old launcher.ini
+		// Get the launcherData before changing the name so we don't lose anything from
+		// the old launcher.ini
 		LauncherData launcherData = manipulator.getLauncherData();
 		if (launcherName != null)
 			((Profile) profile).setProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, launcherName);

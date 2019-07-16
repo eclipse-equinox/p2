@@ -41,13 +41,13 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final Object PARM_AGENT = "agent"; //$NON-NLS-1$
 
 	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
-	private static List<String> NATIVE_ACTIONS = Arrays.asList(new String[] {"mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$
+	private static List<String> NATIVE_ACTIONS = Arrays.asList(new String[] { "mkdir", "rmdir" }); //$NON-NLS-1$//$NON-NLS-2$
 	private static final String VALIDATE_PROFILE = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.validateProfile"; //$NON-NLS-1$
 
-	private static Map<IProfile, LazyManipulator> manipulators = new WeakHashMap<IProfile, LazyManipulator>();
-	private static Map<IProfile, PlatformConfigurationWrapper> wrappers = new WeakHashMap<IProfile, PlatformConfigurationWrapper>();
-	private static Map<IProfile, SourceManipulator> sourceManipulators = new WeakHashMap<IProfile, SourceManipulator>();
-	private static Map<IProfile, Map<IInstallableUnit, IInstallableUnit>> preparedIUs = new WeakHashMap<IProfile, Map<IInstallableUnit, IInstallableUnit>>();
+	private static Map<IProfile, LazyManipulator> manipulators = new WeakHashMap<>();
+	private static Map<IProfile, PlatformConfigurationWrapper> wrappers = new WeakHashMap<>();
+	private static Map<IProfile, SourceManipulator> sourceManipulators = new WeakHashMap<>();
+	private static Map<IProfile, Map<IInstallableUnit, IInstallableUnit>> preparedIUs = new WeakHashMap<>();
 
 	private static synchronized LazyManipulator getManipulator(IProvisioningAgent agent, IProfile profile) {
 		LazyManipulator manipulator = manipulators.get(profile);
@@ -58,13 +58,15 @@ public class EclipseTouchpoint extends Touchpoint {
 		return manipulator;
 	}
 
-	private static synchronized void saveManipulator(IProfile profile) throws FrameworkAdminRuntimeException, IOException {
+	private static synchronized void saveManipulator(IProfile profile)
+			throws FrameworkAdminRuntimeException, IOException {
 		LazyManipulator manipulator = manipulators.remove(profile);
 		if (manipulator != null)
 			manipulator.save(false);
 	}
 
-	private static synchronized PlatformConfigurationWrapper getPlatformConfigurationWrapper(IProvisioningAgent agent, IProfile profile, LazyManipulator manipulator) {
+	private static synchronized PlatformConfigurationWrapper getPlatformConfigurationWrapper(IProvisioningAgent agent,
+			IProfile profile, LazyManipulator manipulator) {
 		PlatformConfigurationWrapper wrapper = wrappers.get(profile);
 		if (wrapper == null) {
 			File configLocation = Util.getConfigurationFolder(profile);
@@ -107,7 +109,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static synchronized void savePreparedIU(IProfile profile, IInstallableUnit iu) {
 		Map<IInstallableUnit, IInstallableUnit> preparedProfileIUs = preparedIUs.get(profile);
 		if (preparedProfileIUs == null) {
-			preparedProfileIUs = new HashMap<IInstallableUnit, IInstallableUnit>();
+			preparedProfileIUs = new HashMap<>();
 			preparedIUs.put(profile, preparedProfileIUs);
 		}
 		preparedProfileIUs.put(iu, iu);
@@ -124,6 +126,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		preparedIUs.remove(profile);
 	}
 
+	@Override
 	public IStatus prepare(IProfile profile) {
 		try {
 			if (hasPreparedIUs(profile))
@@ -134,6 +137,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus commit(IProfile profile) {
 		MultiStatus status = new MultiStatus(Activator.ID, IStatus.OK, null, null);
 		try {
@@ -161,25 +165,31 @@ public class EclipseTouchpoint extends Touchpoint {
 		return status;
 	}
 
+	@Override
 	public IStatus rollback(IProfile profile) {
 		clearProfileState(profile);
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public String qualifyAction(String actionId) {
 		String touchpointQualifier = NATIVE_ACTIONS.contains(actionId) ? NATIVE_TOUCHPOINT_ID : Activator.ID;
 		return touchpointQualifier + "." + actionId; //$NON-NLS-1$
 	}
 
-	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> touchpointParameters) {
+	@Override
+	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId,
+			Map<String, Object> touchpointParameters) {
 		IProvisioningAgent agent = (IProvisioningAgent) touchpointParameters.get(PARM_AGENT);
 		LazyManipulator manipulator = getManipulator(agent, profile);
 		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
 		touchpointParameters.put(PARM_SOURCE_BUNDLES, getSourceManipulator(profile));
-		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, getPlatformConfigurationWrapper(agent, profile, manipulator));
+		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION,
+				getPlatformConfigurationWrapper(agent, profile, manipulator));
 		return null;
 	}
 
+	@Override
 	public IStatus initializeOperand(IProfile profile, Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
@@ -200,7 +210,8 @@ public class EclipseTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	public IInstallableUnit prepareIU(IProvisioningAgent agent, IProfile profile, IInstallableUnit iu, IArtifactKey artifactKey) {
+	public IInstallableUnit prepareIU(IProvisioningAgent agent, IProfile profile, IInstallableUnit iu,
+			IArtifactKey artifactKey) {
 		IInstallableUnit preparedIU = getPreparedIU(profile, iu);
 		if (preparedIU != null)
 			return preparedIU;
@@ -237,7 +248,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		throw new IllegalStateException(Messages.unexpected_prepareiu_error);
 	}
 
-	private IStatus validateProfile(IProfile profile) {
+	private static IStatus validateProfile(IProfile profile) {
 		// by default we validate
 		if (Boolean.FALSE.toString().equals(profile.getProperty(VALIDATE_PROFILE)))
 			return Status.OK_STATUS;
@@ -246,7 +257,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			c = Class.forName("org.eclipse.equinox.p2.planner.IPlanner"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {
-			//ignore and proceed without validation
+			// ignore and proceed without validation
 			return null;
 		}
 

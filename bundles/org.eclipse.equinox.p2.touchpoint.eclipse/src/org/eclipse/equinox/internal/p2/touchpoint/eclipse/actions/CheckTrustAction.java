@@ -36,6 +36,7 @@ public class CheckTrustAction extends ProvisioningAction {
 
 	public static final String ID = "checkTrust"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 		if (iu == null)
@@ -58,6 +59,7 @@ public class CheckTrustAction extends ProvisioningAction {
 		return null;
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		return Status.OK_STATUS;
 	}

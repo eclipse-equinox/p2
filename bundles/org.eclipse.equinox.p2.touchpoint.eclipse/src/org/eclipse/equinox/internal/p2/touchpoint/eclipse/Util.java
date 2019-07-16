@@ -113,7 +113,7 @@ public class Util {
 
 	public static IFileArtifactRepository getAggregatedBundleRepository(IProvisioningAgent agent, IProfile profile,
 			int repoFilter) {
-		List<IFileArtifactRepository> bundleRepositories = new ArrayList<IFileArtifactRepository>();
+		List<IFileArtifactRepository> bundleRepositories = new ArrayList<>();
 
 		// we check for a shared bundle pool first as it should be preferred over the
 		// user bundle pool in a shared install
@@ -332,7 +332,7 @@ public class Util {
 		}
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
-			return "../MacOS/" + name;
+			return "../MacOS/" + name; //$NON-NLS-1$
 		}
 		return name;
 	}

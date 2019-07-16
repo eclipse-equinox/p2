@@ -33,6 +33,7 @@ import org.eclipse.osgi.util.NLS;
 public class SetJvmAction extends ProvisioningAction {
 	public static final String ID = "setJvm"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM);
 		if (jvmArg == null)
@@ -47,6 +48,7 @@ public class SetJvmAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM);
 		if (jvmArg == null)

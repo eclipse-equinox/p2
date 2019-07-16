@@ -27,6 +27,7 @@ import org.eclipse.osgi.util.NLS;
 public class SetStartLevelAction extends ProvisioningAction {
 	public static final String ID = "setStartLevel"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
@@ -35,7 +36,8 @@ public class SetStartLevelAction extends ProvisioningAction {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_START_LEVEL, ID));
 		}
 
-		// Changes to this object will be reflected in the backing runtime configuration store
+		// Changes to this object will be reflected in the backing runtime configuration
+		// store
 		BundleInfo bundleInfo = Util.findBundleInfo(manipulator.getConfigData(), iu);
 		if (bundleInfo == null) {
 			return Util.createWarning(NLS.bind(Messages.failed_find_bundleinfo, iu));
@@ -51,10 +53,12 @@ public class SetStartLevelAction extends ProvisioningAction {
 			bundleInfo.setStartLevel(Integer.parseInt(startLevel));
 			return Status.OK_STATUS;
 		} catch (NumberFormatException e) {
-			return Util.createError(NLS.bind(Messages.error_parsing_startlevel, startLevel, bundleInfo.getSymbolicName()), e);
+			return Util.createError(
+					NLS.bind(Messages.error_parsing_startlevel, startLevel, bundleInfo.getSymbolicName()), e);
 		}
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		Integer previousStartLevel = (Integer) getMemento().get(ActionConstants.PARM_PREVIOUS_START_LEVEL);
 		if (previousStartLevel == null) {
@@ -63,7 +67,8 @@ public class SetStartLevelAction extends ProvisioningAction {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 
-		// Changes to this object will be reflected in the backing runtime configuration store
+		// Changes to this object will be reflected in the backing runtime configuration
+		// store
 		BundleInfo bundleInfo = Util.findBundleInfo(manipulator.getConfigData(), iu);
 		if (bundleInfo == null) {
 			return Util.createWarning(NLS.bind(Messages.failed_find_bundleinfo, iu));

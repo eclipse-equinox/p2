@@ -25,17 +25,20 @@ import org.eclipse.osgi.util.NLS;
 public class UninstallFeatureAction extends ProvisioningAction {
 	public static final String ID = "uninstallFeature"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		return UninstallFeatureAction.uninstallFeature(parameters);
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		return InstallFeatureAction.installFeature(parameters);
 	}
 
 	public static IStatus uninstallFeature(Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
-		PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) parameters.get(EclipseTouchpoint.PARM_PLATFORM_CONFIGURATION);
+		PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) parameters
+				.get(EclipseTouchpoint.PARM_PLATFORM_CONFIGURATION);
 		String feature = (String) parameters.get(ActionConstants.PARM_FEATURE);
 		String featureId = (String) parameters.get(ActionConstants.PARM_FEATURE_ID);
 		String featureVersion = (String) parameters.get(ActionConstants.PARM_FEATURE_VERSION);

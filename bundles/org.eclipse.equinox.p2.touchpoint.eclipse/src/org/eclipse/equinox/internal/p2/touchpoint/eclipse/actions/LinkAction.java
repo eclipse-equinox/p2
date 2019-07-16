@@ -26,6 +26,7 @@ public class LinkAction extends ProvisioningAction {
 	public static final String ID = "ln"; //$NON-NLS-1$
 	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
 		if (targetDir == null)
@@ -57,26 +58,29 @@ public class LinkAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		return null;
 	}
 
 	/**
-	 * Creates a link to the source file linkTarget - the created link is targetDir/linkName. 
-	 * TODO: Only runs on systems with a "ln -s" command supported.
-	 * TODO: Does not report errors if the "ln -s" fails
-	 * @param targetDir the directory where the link is created
+	 * Creates a link to the source file linkTarget - the created link is
+	 * targetDir/linkName. TODO: Only runs on systems with a "ln -s" command
+	 * supported. TODO: Does not report errors if the "ln -s" fails
+	 * 
+	 * @param targetDir  the directory where the link is created
 	 * @param linkTarget the source
-	 * @param linkName the name of the created link
-	 * @param force if overwrite of existing file should be performed.
+	 * @param linkName   the name of the created link
+	 * @param force      if overwrite of existing file should be performed.
 	 */
-	private void ln(String targetDir, String linkTarget, String linkName, boolean force) {
+	private static void ln(String targetDir, String linkTarget, String linkName, boolean force) {
 		if (WINDOWS)
 			return;
 
 		Runtime r = Runtime.getRuntime();
 		try {
-			Process process = r.exec(new String[] {"ln", "-s" + (force ? "f" : ""), linkTarget, targetDir + IPath.SEPARATOR + linkName}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Process process = r.exec(new String[] { "ln", "-s" + (force ? "f" : ""), linkTarget, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					targetDir + IPath.SEPARATOR + linkName });
 			readOffStream(process.getErrorStream());
 			readOffStream(process.getInputStream());
 			try {
@@ -90,7 +94,7 @@ public class LinkAction extends ProvisioningAction {
 		}
 	}
 
-	private void readOffStream(InputStream inputStream) {
+	private static void readOffStream(InputStream inputStream) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		try {
 			while (reader.readLine() != null) {

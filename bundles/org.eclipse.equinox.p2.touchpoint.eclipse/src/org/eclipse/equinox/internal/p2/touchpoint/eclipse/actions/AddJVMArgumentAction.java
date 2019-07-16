@@ -25,13 +25,15 @@ import org.eclipse.osgi.util.NLS;
 
 public class AddJVMArgumentAction extends ProvisioningAction {
 	public static final String ID = "addJvmArg"; //$NON-NLS-1$
-	protected static final String STORAGE = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions" + File.separator + "jvmargs"; //$NON-NLS-1$//$NON-NLS-2$
+	protected static final String STORAGE = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions" //$NON-NLS-1$
+			+ File.separator + "jvmargs"; //$NON-NLS-1$
 
 	protected static final String XMX = "-Xmx"; //$NON-NLS-1$
 	protected static final String XMS = "-Xms"; //$NON-NLS-1$
 	protected static final String XX_MAX_PERM_SIZE = "-XX:MaxPermSize="; //$NON-NLS-1$
 	protected static final String PREFIX_USER_VALUE = "eclipse.userDefined:"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
 		if (jvmArg == null)
@@ -39,6 +41,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		return addArg(jvmArg, parameters);
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
 		if (jvmArg == null)
@@ -51,7 +54,8 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 	}
 
 	protected static IStatus addArg(String arg, Map<String, Object> parameters) {
-		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR)).getLauncherData();
+		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR))
+				.getLauncherData();
 		File storageArea = (File) parameters.get(ActionConstants.PARM_PROFILE_DATA_DIRECTORY);
 		try {
 			if (arg.startsWith(XMS))
@@ -71,7 +75,8 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	protected static void addByteArg(String arg, String flag, LauncherData launcherData, File storageArea) throws IOException {
+	protected static void addByteArg(String arg, String flag, LauncherData launcherData, File storageArea)
+			throws IOException {
 		Properties storedValues = load(storageArea);
 		String currentArg = getCurrentArg(flag, launcherData.getJvmArgs());
 
@@ -87,7 +92,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		save(storedValues, storageArea);
 	}
 
-	// Throws exception if the argument is not a valid byte argument 
+	// Throws exception if the argument is not a valid byte argument
 	protected static void validateValue(String arg) {
 		getByteValue(arg, getBytePower(arg));
 	}
@@ -100,7 +105,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 			// User has removed value from file
 			setUserArg(storedValues, flag, null);
 		else if (maxValue == null || !maxValue.equals(currentValue.substring(flag.length())))
-			// User has set an initial value, or modified the file 
+			// User has set an initial value, or modified the file
 			setUserArg(storedValues, flag, currentValue.substring(flag.length()));
 	}
 
@@ -132,7 +137,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		}
 	}
 
-	// Returns:  1 when a>b, 0 when a=b, -1 when a<b
+	// Returns: 1 when a>b, 0 when a=b, -1 when a<b
 	protected static int compareSize(String a, String b) {
 		double aVal, bVal;
 		int aPower = getBytePower(a);
@@ -140,7 +145,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 
 		aVal = getByteValue(a, aPower);
 		bVal = getByteValue(b, bPower);
-		// Ensure a value is expressed with the highest power (e.g. 2G not 2048M) 
+		// Ensure a value is expressed with the highest power (e.g. 2G not 2048M)
 		while (aVal > 1024) {
 			aVal /= 1024;
 			aPower += 10;
@@ -154,7 +159,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 			return 1;
 		else if (aPower < bPower && bVal != 0)
 			return -1;
-		// Both have same power, so direct comparison 
+		// Both have same power, so direct comparison
 		else if (aVal > bVal)
 			return 1;
 		else if (aVal < bVal)
@@ -175,24 +180,24 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 	}
 
 	private static int getBytePower(String arg) {
-		// If last digit determines if the value is in bytes, 
-		// kilobytes, megabytes, or gigabytes 
+		// If last digit determines if the value is in bytes,
+		// kilobytes, megabytes, or gigabytes
 		switch (arg.charAt(arg.length() - 1)) {
-			case 'k' :
-			case 'K' :
-				return 10;
-			case 'm' :
-			case 'M' :
-				return 20;
-			case 'g' :
-			case 'G' :
-				return 30;
-			default :
-				return 0;
+		case 'k':
+		case 'K':
+			return 10;
+		case 'm':
+		case 'M':
+			return 20;
+		case 'g':
+		case 'G':
+			return 30;
+		default:
+			return 0;
 		}
 	}
 
-	// Get the current used argument if there is one 
+	// Get the current used argument if there is one
 	protected static String getCurrentArg(String flag, String[] jvmArgs) {
 		for (int i = 0; i < jvmArgs.length; i++)
 			if (jvmArgs[i] != null && jvmArgs[i].startsWith(flag))
@@ -271,7 +276,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		FileOutputStream out = null;
 		File file = new File(storageArea, STORAGE);
 		if (!file.exists())
-			// Ensure parent directory exists 
+			// Ensure parent directory exists
 			file.getParentFile().mkdirs();
 
 		try {

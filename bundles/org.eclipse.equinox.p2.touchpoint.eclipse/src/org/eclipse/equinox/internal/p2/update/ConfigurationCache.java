@@ -23,7 +23,7 @@ import java.util.Map;
  *
  */
 public class ConfigurationCache {
-	private static Map<String, CacheEntry> cache = new HashMap<String, CacheEntry>();
+	private static Map<String, CacheEntry> cache = new HashMap<>();
 
 	// class used to represent cache values
 	static class CacheEntry {
@@ -43,9 +43,9 @@ public class ConfigurationCache {
 	}
 
 	/*
-	 * Return the configuration object in the cache which is represented
-	 * by the given file. Do a check on disk to see if the cache is up-to-date.
-	 * If not, then treat it as a cache miss.
+	 * Return the configuration object in the cache which is represented by the
+	 * given file. Do a check on disk to see if the cache is up-to-date. If not,
+	 * then treat it as a cache miss.
 	 */
 	public static Configuration get(File file) {
 		String key = toKey(file);

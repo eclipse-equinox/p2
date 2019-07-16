@@ -32,17 +32,20 @@ public class InstallFeatureAction extends ProvisioningAction {
 	private static final String UPDATE_FEATURE_PLUGIN_PROP = "org.eclipse.update.feature.plugin"; //$NON-NLS-1$
 	private static final String UPDATE_FEATURE_PRIMARY_PROP = "org.eclipse.update.feature.primary"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		return InstallFeatureAction.installFeature(parameters);
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		return UninstallFeatureAction.uninstallFeature(parameters);
 	}
 
 	public static IStatus installFeature(Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
-		PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) parameters.get(EclipseTouchpoint.PARM_PLATFORM_CONFIGURATION);
+		PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) parameters
+				.get(EclipseTouchpoint.PARM_PLATFORM_CONFIGURATION);
 		String feature = (String) parameters.get(ActionConstants.PARM_FEATURE);
 		String featureId = (String) parameters.get(ActionConstants.PARM_FEATURE_ID);
 		String featureVersion = (String) parameters.get(ActionConstants.PARM_FEATURE_VERSION);
@@ -80,8 +83,10 @@ public class InstallFeatureAction extends ProvisioningAction {
 		String pluginId = iu.getProperty(UPDATE_FEATURE_PLUGIN_PROP);
 		boolean isPrimary = Boolean.parseBoolean(iu.getProperty(UPDATE_FEATURE_PRIMARY_PROP));
 		String application = iu.getProperty(UPDATE_FEATURE_APPLICATION_PROP);
-		// TODO this isn't right... but we will leave it for now because we don't actually use the value in the install
+		// TODO this isn't right... but we will leave it for now because we don't
+		// actually use the value in the install
 		String pluginVersion = artifactKey.getVersion().toString();
-		return configuration.addFeatureEntry(file, featureId, featureVersion, pluginId, pluginVersion, isPrimary, application, /*root*/null, iu.getProperty(Site.PROP_LINK_FILE));
+		return configuration.addFeatureEntry(file, featureId, featureVersion, pluginId, pluginVersion, isPrimary,
+				application, /* root */null, iu.getProperty(Site.PROP_LINK_FILE));
 	}
 }

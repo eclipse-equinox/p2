@@ -25,10 +25,12 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class LazyManipulator implements Manipulator {
 
-	private final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + '=' + FrameworkAdmin.class.getName() + ')'; //$NON-NLS-1$
+	private final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + '=' + FrameworkAdmin.class.getName() //$NON-NLS-1$
+			+ ')';
 	private final static String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)"; //$NON-NLS-1$ //$NON-NLS-2$
-	private final static String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)"; //$NON-NLS-1$ //$NON-NLS-2$
-	private final static String filterFwAdmin = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ')'; //$NON-NLS-1$;
+	private final static String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME //$NON-NLS-1$
+			+ "=Eclipse.exe)"; //$NON-NLS-1$
+	private final static String filterFwAdmin = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ')'; //$NON-NLS-1$ ;
 
 	private Manipulator manipulator;
 	private final IProfile profile;
@@ -57,7 +59,7 @@ public class LazyManipulator implements Manipulator {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//if fwJar is not included, this exception will be thrown. But ignore it.
+			// if fwJar is not included, this exception will be thrown. But ignore it.
 			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
 			throw new IllegalStateException(Messages.error_loading_manipulator);
 		} catch (FrameworkAdminRuntimeException e) {
@@ -66,21 +68,22 @@ public class LazyManipulator implements Manipulator {
 			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
 			throw new IllegalStateException(Messages.error_loading_manipulator);
 		}
-		//TODO These values should be inserted by a configuration unit (bug 204124)
+		// TODO These values should be inserted by a configuration unit (bug 204124)
 		manipulator.getConfigData().setProperty("eclipse.p2.profile", profile.getProfileId()); //$NON-NLS-1$
-		manipulator.getConfigData().setProperty("eclipse.p2.data.area", Util.getAgentLocation(agent).getRootLocation().toString()); //$NON-NLS-1$
+		manipulator.getConfigData().setProperty("eclipse.p2.data.area", //$NON-NLS-1$
+				Util.getAgentLocation(agent).getRootLocation().toString());
 	}
 
 	public static FrameworkAdmin getFrameworkAdmin() {
 		ServiceTracker<FrameworkAdmin, FrameworkAdmin> fwAdminTracker = null;
 		try {
 			Filter filter = Activator.getContext().createFilter(filterFwAdmin);
-			fwAdminTracker = new ServiceTracker<FrameworkAdmin, FrameworkAdmin>(Activator.getContext(), filter, null);
+			fwAdminTracker = new ServiceTracker<>(Activator.getContext(), filter, null);
 			fwAdminTracker.open();
 			FrameworkAdmin fwAdmin = fwAdminTracker.getService();
 			return fwAdmin;
 		} catch (InvalidSyntaxException e) {
-			//Can't happen we are writing the filter ourselves
+			// Can't happen we are writing the filter ourselves
 			return null;
 		} finally {
 			if (fwAdminTracker != null)
@@ -88,13 +91,14 @@ public class LazyManipulator implements Manipulator {
 		}
 	}
 
-	private Manipulator getFrameworkManipulator() {
+	private static Manipulator getFrameworkManipulator() {
 		FrameworkAdmin fwAdmin = getFrameworkAdmin();
 		if (fwAdmin != null)
 			return fwAdmin.getManipulator();
 		return null;
 	}
 
+	@Override
 	public void save(boolean backup) throws IOException, FrameworkAdminRuntimeException {
 		if (manipulator != null)
 			manipulator.save(backup);
@@ -102,45 +106,54 @@ public class LazyManipulator implements Manipulator {
 
 	// DELEGATE METHODS
 
+	@Override
 	public BundlesState getBundlesState() throws FrameworkAdminRuntimeException {
 		loadDelegate();
 		return manipulator.getBundlesState();
 	}
 
+	@Override
 	public ConfigData getConfigData() throws FrameworkAdminRuntimeException {
 		loadDelegate();
 		return manipulator.getConfigData();
 	}
 
+	@Override
 	public BundleInfo[] getExpectedState() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
 		loadDelegate();
 		return manipulator.getExpectedState();
 	}
 
+	@Override
 	public LauncherData getLauncherData() throws FrameworkAdminRuntimeException {
 		loadDelegate();
 		return manipulator.getLauncherData();
 	}
 
+	@Override
 	public long getTimeStamp() {
 		loadDelegate();
 		return manipulator.getTimeStamp();
 	}
 
+	@Override
 	public void initialize() {
 		loadDelegate();
 		manipulator.initialize();
 	}
 
+	@Override
 	public void load() throws IllegalStateException, FrameworkAdminRuntimeException {
 		loadDelegate();
 	}
 
+	@Override
 	public void setConfigData(ConfigData configData) {
 		loadDelegate();
 		manipulator.setConfigData(configData);
 	}
 
+	@Override
 	public void setLauncherData(LauncherData launcherData) {
 		loadDelegate();
 		manipulator.setLauncherData(launcherData);

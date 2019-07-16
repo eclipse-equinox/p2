@@ -22,7 +22,7 @@ public class WhatIsRunning {
 		return getFrameworkManipulator().getConfigData().getBundles();
 	}
 
-	private Manipulator getFrameworkManipulator() {
+	private static Manipulator getFrameworkManipulator() {
 		FrameworkAdmin fwAdmin = LazyManipulator.getFrameworkAdmin();
 		if (fwAdmin != null)
 			return fwAdmin.getRunningManipulator();

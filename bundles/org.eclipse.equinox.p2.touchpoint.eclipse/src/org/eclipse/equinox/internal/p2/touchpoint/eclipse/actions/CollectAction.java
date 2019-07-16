@@ -29,6 +29,7 @@ public class CollectAction extends ProvisioningAction {
 	public static final String ID = "collect"; //$NON-NLS-1$
 	public static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
@@ -41,11 +42,13 @@ public class CollectAction extends ProvisioningAction {
 		}
 
 		@SuppressWarnings("unchecked")
-		Collection<IArtifactRequest[]> artifactRequests = (Collection<IArtifactRequest[]>) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
+		Collection<IArtifactRequest[]> artifactRequests = (Collection<IArtifactRequest[]>) parameters
+				.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
 		artifactRequests.add(requests);
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		// nothing to do for now
 		return Status.OK_STATUS;
@@ -71,7 +74,8 @@ public class CollectAction extends ProvisioningAction {
 	}
 
 	// TODO: Here we may want to consult multiple caches
-	static IArtifactRequest[] collect(IProvisioningAgent agent, IProfile profile, IInstallableUnit installableUnit) throws ProvisionException {
+	static IArtifactRequest[] collect(IProvisioningAgent agent, IProfile profile, IInstallableUnit installableUnit)
+			throws ProvisionException {
 		Collection<IArtifactKey> toDownload = installableUnit.getArtifacts();
 		if (toDownload == null || toDownload.size() == 0)
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
@@ -81,11 +85,13 @@ public class CollectAction extends ProvisioningAction {
 		if (bundlePool == null)
 			throw new ProvisionException(Util.createError(NLS.bind(Messages.no_bundle_pool, profile.getProfileId())));
 
-		List<IArtifactRequest> requests = new ArrayList<IArtifactRequest>();
+		List<IArtifactRequest> requests = new ArrayList<>();
 		for (IArtifactKey key : toDownload) {
 			if (!aggregatedRepositoryView.contains(key)) {
-				Map<String, String> repositoryProperties = CollectAction.createArtifactDescriptorProperties(installableUnit);
-				requests.add(Util.getArtifactRepositoryManager(agent).createMirrorRequest(key, bundlePool, null, repositoryProperties, profile.getProperty(IProfile.PROP_STATS_PARAMETERS)));
+				Map<String, String> repositoryProperties = CollectAction
+						.createArtifactDescriptorProperties(installableUnit);
+				requests.add(Util.getArtifactRepositoryManager(agent).createMirrorRequest(key, bundlePool, null,
+						repositoryProperties, profile.getProperty(IProfile.PROP_STATS_PARAMETERS)));
 			}
 		}
 

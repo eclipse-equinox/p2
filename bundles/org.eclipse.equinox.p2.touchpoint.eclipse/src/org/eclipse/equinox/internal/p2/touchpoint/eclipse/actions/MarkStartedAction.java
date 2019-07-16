@@ -27,6 +27,7 @@ import org.eclipse.osgi.util.NLS;
 public class MarkStartedAction extends ProvisioningAction {
 	public static final String ID = "markStarted"; //$NON-NLS-1$
 
+	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
@@ -35,7 +36,8 @@ public class MarkStartedAction extends ProvisioningAction {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_STARTED, ID));
 		}
 
-		// Changes to this object will be reflected in the backing runtime configuration store
+		// Changes to this object will be reflected in the backing runtime configuration
+		// store
 		BundleInfo bundleInfo = Util.findBundleInfo(manipulator.getConfigData(), iu);
 		if (bundleInfo == null) {
 			return Util.createWarning(NLS.bind(Messages.failed_find_bundleinfo, iu));
@@ -51,6 +53,7 @@ public class MarkStartedAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
+	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		Boolean previousStarted = (Boolean) getMemento().get(ActionConstants.PARM_PREVIOUS_STARTED);
 		if (previousStarted == null) {
@@ -60,7 +63,8 @@ public class MarkStartedAction extends ProvisioningAction {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 
-		// Changes to this object will be reflected in the backing runtime configuration store
+		// Changes to this object will be reflected in the backing runtime configuration
+		// store
 		BundleInfo bundleInfo = Util.findBundleInfo(manipulator.getConfigData(), iu);
 		if (bundleInfo == null) {
 			return Util.createWarning(NLS.bind(Messages.failed_find_bundleinfo, iu));
