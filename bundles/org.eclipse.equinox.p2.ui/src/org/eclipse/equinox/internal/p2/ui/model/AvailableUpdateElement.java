@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -24,10 +24,10 @@ import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 /**
- * Element wrapper class for IU's that are available for installation.
- * Used instead of the plain IU when additional information such as sizing
- * info is necessary.
- * 
+ * Element wrapper class for IU's that are available for installation. Used
+ * instead of the plain IU when additional information such as sizing info is
+ * necessary.
+ *
  * @since 3.4
  */
 public class AvailableUpdateElement extends AvailableIUElement {
@@ -35,7 +35,8 @@ public class AvailableUpdateElement extends AvailableIUElement {
 	IInstallableUnit iuToBeUpdated;
 	boolean isLockedForUpdate = false;
 
-	public AvailableUpdateElement(Object parent, IInstallableUnit iu, IInstallableUnit iuToBeUpdated, String profileID, boolean shouldShowChildren) {
+	public AvailableUpdateElement(Object parent, IInstallableUnit iu, IInstallableUnit iuToBeUpdated, String profileID,
+			boolean shouldShowChildren) {
 		super(parent, iu, profileID, shouldShowChildren);
 		setIsInstalled(false);
 		this.iuToBeUpdated = iuToBeUpdated;
@@ -44,7 +45,8 @@ public class AvailableUpdateElement extends AvailableIUElement {
 	}
 
 	private void init() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) getProvisioningUI().getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = getProvisioningUI().getSession().getProvisioningAgent()
+				.getService(IProfileRegistry.class);
 		IProfile profile = profileRegistry.getProfile(profileID);
 		String property = profile.getInstallableUnitProperty(iuToBeUpdated, IProfile.PROP_PROFILE_LOCKED_IU);
 		try {
@@ -65,11 +67,13 @@ public class AvailableUpdateElement extends AvailableIUElement {
 	@Override
 	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
 		IPlanner planner = getPlanner();
-		IProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
+		IProfileChangeRequest request = ProfileChangeRequest
+				.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
 		if (iuToBeUpdated.getId().equals(getIU().getId()))
 			request.remove(iuToBeUpdated);
 		request.add(getIU());
-		return planner.getProvisioningPlan(request, new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent()), monitor);
+		return planner.getProvisioningPlan(request,
+				new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent()), monitor);
 	}
 
 	@Override

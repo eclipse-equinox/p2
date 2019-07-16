@@ -58,11 +58,10 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given plug-in
-	 * relative path
+	 * Returns an image descriptor for the image file at the given plug-in relative
+	 * path
 	 * 
-	 * @param path
-	 *            the path
+	 * @param path the path
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
@@ -117,7 +116,8 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 			tracker.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 		}
 		// store in ui prefs
-		policy.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS));
+		policy.setShowLatestVersionsOnly(
+				getPreferenceStore().getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS));
 		policy.setGroupByCategory(getPreferenceStore().getBoolean(PreferenceConstants.PREF_USE_CATEGORIES));
 	}
 
@@ -137,7 +137,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 
 	public IProfileRegistry getProfileRegistry() {
 		IProvisioningAgent agent = ServiceHelper.getService(context, IProvisioningAgent.class);
-		return (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		return agent.getService(IProfileRegistry.class);
 	}
 
 	public ProvisioningUI getProvisioningUI(String profileId) {

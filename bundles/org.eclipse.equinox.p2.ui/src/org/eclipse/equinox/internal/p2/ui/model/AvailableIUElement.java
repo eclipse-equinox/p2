@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -30,10 +30,10 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
- * Element wrapper class for IU's that are available for installation.
- * Used instead of the plain IU when additional information such as sizing
- * info is necessary.
- * 
+ * Element wrapper class for IU's that are available for installation. Used
+ * instead of the plain IU when additional information such as sizing info is
+ * necessary.
+ *
  * @since 3.4
  */
 public class AvailableIUElement extends QueriedElement implements IIUElement {
@@ -69,8 +69,10 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
+	 *
+	 * @see
+	 * org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(
+	 * java.lang.Object)
 	 */
 	@Override
 	protected String getImageId(Object obj) {
@@ -133,7 +135,8 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
 		IPlanner planner = getPlanner();
-		IProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
+		IProfileChangeRequest request = ProfileChangeRequest
+				.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
 		request.add(getIU());
 		return planner.getProvisioningPlan(request, getProvisioningContext(), monitor);
 	}
@@ -143,7 +146,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	}
 
 	IPlanner getPlanner() {
-		return (IPlanner) getProvisioningUI().getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
+		return getProvisioningUI().getSession().getProvisioningAgent().getService(IPlanner.class);
 	}
 
 	IProfileRegistry getProfileRegistry() {
@@ -165,15 +168,20 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
 	 */
 	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.AVAILABLE_IUS;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
 	 */
 	@Override
@@ -181,7 +189,9 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return iu.getRequirements();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
 	 */
 	@Override
@@ -252,7 +262,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	private ProvisioningContext getProvisioningContext() {
 		ProvisioningContext context = new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
 		if (hasQueryable() && getQueryable() instanceof IRepository<?>) {
-			context.setMetadataRepositories(new URI[] {((IRepository<?>) getQueryable()).getLocation()});
+			context.setMetadataRepositories(new URI[] { ((IRepository<?>) getQueryable()).getLocation() });
 		}
 		return context;
 	}

@@ -197,8 +197,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		return result;
 	}
 
-	private Object getService(String name) throws CoreException {
-		Object service = agent.getService(name);
+	private <T> T getService(Class<T> name) throws CoreException {
+		T service = agent.getService(name);
 		if (service == null)
 			throw fail(Messages.Op_NoServiceImpl + name);
 		return service;
@@ -240,10 +240,10 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 
 	private void preInstall() throws CoreException {
 		// obtain required services
-		director = (IDirector) getService(IDirector.SERVICE_NAME);
-		metadataRepoMan = (IMetadataRepositoryManager) getService(IMetadataRepositoryManager.SERVICE_NAME);
-		artifactRepoMan = (IArtifactRepositoryManager) getService(IArtifactRepositoryManager.SERVICE_NAME);
-		profileRegistry = (IProfileRegistry) getService(IProfileRegistry.SERVICE_NAME);
+		director = getService(IDirector.class);
+		metadataRepoMan = getService(IMetadataRepositoryManager.class);
+		artifactRepoMan = getService(IArtifactRepositoryManager.class);
+		profileRegistry = getService(IProfileRegistry.class);
 	}
 
 	private void prepareArtifactRepositories() throws ProvisionException {

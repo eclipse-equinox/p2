@@ -37,9 +37,10 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 
 /**
- * A job that configures a p2 install action for installing one or more {@link CatalogItem
- * connectors}. The bulk of the installation work is done by p2; this class just sets up the p2 repository meta-data and
- * selects the appropriate features to install. After running the job the install action
+ * A job that configures a p2 install action for installing one or more
+ * {@link CatalogItem connectors}. The bulk of the installation work is done by
+ * p2; this class just sets up the p2 repository meta-data and selects the
+ * appropriate features to install. After running the job the install action
  * must be run to perform the installation.
  * 
  * @author David Green
@@ -64,23 +65,28 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 	@Override
 	public void run(IProgressMonitor progressMonitor) throws InvocationTargetException, InterruptedException {
 		try {
-			SubMonitor monitor = SubMonitor.convert(progressMonitor, Messages.InstallConnectorsJob_task_configuring, 150);
+			SubMonitor monitor = SubMonitor.convert(progressMonitor, Messages.InstallConnectorsJob_task_configuring,
+					150);
 			try {
 				final IInstallableUnit[] ius = computeInstallableUnits(monitor.newChild(50));
 
 				checkCancelled(monitor);
 
-				final InstallOperation installOperation = resolve(monitor.newChild(50), ius, repositoryLocations.toArray(new URI[0]));
+				final InstallOperation installOperation = resolve(monitor.newChild(50), ius,
+						repositoryLocations.toArray(new URI[0]));
 
 				checkCancelled(monitor);
 
 				if (installOperation.getResolutionResult().getSeverity() > IStatus.WARNING) {
 					monitor.setTaskName(ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation);
-					final RemediationOperation remediationOperation = new RemediationOperation(provisioningUI.getSession(), installOperation.getProfileChangeRequest());
+					final RemediationOperation remediationOperation = new RemediationOperation(
+							provisioningUI.getSession(), installOperation.getProfileChangeRequest());
 					remediationOperation.resolveModal(monitor.newChild(50));
-					Display.getDefault().asyncExec(() -> provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, remediationOperation, null));
+					Display.getDefault().asyncExec(() -> provisioningUI.openInstallWizard(Arrays.asList(ius),
+							installOperation, remediationOperation, null));
 				} else {
-					Display.getDefault().asyncExec(() -> provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, null));
+					Display.getDefault().asyncExec(
+							() -> provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, null));
 				}
 			} finally {
 				monitor.done();
@@ -114,43 +120,51 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			checkForUnavailable(installableUnits);
 			return installableUnits.toArray(new IInstallableUnit[installableUnits.size()]);
 
-			//			MultiStatus status = new MultiStatus(DiscoveryUi.ID_PLUGIN, 0, Messages.PrepareInstallProfileJob_ok, null);
-			//			ius = installableUnits.toArray(new IInstallableUnit[installableUnits.size()]);
-			//			ProfileChangeRequest profileChangeRequest = InstallAction.computeProfileChangeRequest(ius, profileId,
-			//					status, new SubProgressMonitor(monitor, installableConnectors.size()));
-			//			if (status.getSeverity() > IStatus.WARNING) {
-			//				throw new CoreException(status);
-			//			}
-			//			if (profileChangeRequest == null) {
-			//				// failed but no indication as to why
-			//				throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
-			//						Messages.PrepareInstallProfileJob_computeProfileChangeRequestFailed, null));
-			//			}
-			//			PlannerResolutionOperation operation = new PlannerResolutionOperation(
-			//					Messages.PrepareInstallProfileJob_calculatingRequirements, profileId, profileChangeRequest, null,
-			//					status, true);
-			//			IStatus operationStatus = operation.execute(new SubProgressMonitor(monitor, installableConnectors.size()));
-			//			if (operationStatus.getSeverity() > IStatus.WARNING) {
-			//				throw new CoreException(operationStatus);
-			//			}
+			// MultiStatus status = new MultiStatus(DiscoveryUi.ID_PLUGIN, 0,
+			// Messages.PrepareInstallProfileJob_ok, null);
+			// ius = installableUnits.toArray(new
+			// IInstallableUnit[installableUnits.size()]);
+			// ProfileChangeRequest profileChangeRequest =
+			// InstallAction.computeProfileChangeRequest(ius, profileId,
+			// status, new SubProgressMonitor(monitor, installableConnectors.size()));
+			// if (status.getSeverity() > IStatus.WARNING) {
+			// throw new CoreException(status);
+			// }
+			// if (profileChangeRequest == null) {
+			// // failed but no indication as to why
+			// throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
+			// Messages.PrepareInstallProfileJob_computeProfileChangeRequestFailed, null));
+			// }
+			// PlannerResolutionOperation operation = new PlannerResolutionOperation(
+			// Messages.PrepareInstallProfileJob_calculatingRequirements, profileId,
+			// profileChangeRequest, null,
+			// status, true);
+			// IStatus operationStatus = operation.execute(new SubProgressMonitor(monitor,
+			// installableConnectors.size()));
+			// if (operationStatus.getSeverity() > IStatus.WARNING) {
+			// throw new CoreException(operationStatus);
+			// }
 			//
-			//			plannerResolutionOperation = operation;
+			// plannerResolutionOperation = operation;
 
 		} catch (URISyntaxException e) {
 			// should never happen, since we already validated URLs.
-			throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, Messages.InstallConnectorsJob_unexpectedError_url, e));
+			throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
+					Messages.InstallConnectorsJob_unexpectedError_url, e));
 		} catch (MalformedURLException e) {
 			// should never happen, since we already validated URLs.
-			throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, Messages.InstallConnectorsJob_unexpectedError_url, e));
+			throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
+					Messages.InstallConnectorsJob_unexpectedError_url, e));
 		} finally {
 			monitor.done();
 		}
 	}
 
 	/**
-	 * Verifies that we found what we were looking for: it's possible that we have connector descriptors that are no
-	 * longer available on their respective sites. In that case we must inform the user. Unfortunately this is the
-	 * earliest point at which we can know.
+	 * Verifies that we found what we were looking for: it's possible that we have
+	 * connector descriptors that are no longer available on their respective sites.
+	 * In that case we must inform the user. Unfortunately this is the earliest
+	 * point at which we can know.
 	 */
 	private void checkForUnavailable(final List<IInstallableUnit> installableUnits) throws CoreException {
 		// at least one selected connector could not be found in a repository
@@ -182,7 +196,8 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 				if (detailedMessage.length() > 0) {
 					detailedMessage += Messages.InstallConnectorsJob_commaSeparator;
 				}
-				detailedMessage += NLS.bind(Messages.PrepareInstallProfileJob_notFoundDescriptorDetail, new Object[] {descriptor.getName(), unavailableIds.toString(), descriptor.getSiteUrl()});
+				detailedMessage += NLS.bind(Messages.PrepareInstallProfileJob_notFoundDescriptorDetail,
+						new Object[] { descriptor.getName(), unavailableIds.toString(), descriptor.getSiteUrl() });
 			}
 		}
 
@@ -190,16 +205,20 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			// instead of aborting here we ask the user if they wish to proceed anyways
 			final boolean[] okayToProceed = new boolean[1];
 			final String finalMessage = message;
-			Display.getDefault().syncExec(() -> okayToProceed[0] = MessageDialog.openQuestion(WorkbenchUtil.getShell(), Messages.InstallConnectorsJob_questionProceed, NLS.bind(Messages.InstallConnectorsJob_questionProceed_long, new Object[] {finalMessage})));
+			Display.getDefault().syncExec(() -> okayToProceed[0] = MessageDialog.openQuestion(WorkbenchUtil.getShell(),
+					Messages.InstallConnectorsJob_questionProceed,
+					NLS.bind(Messages.InstallConnectorsJob_questionProceed_long, new Object[] { finalMessage })));
 			if (!okayToProceed[0]) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(Messages.InstallConnectorsJob_connectorsNotAvailable, detailedMessage), null));
+				throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
+						NLS.bind(Messages.InstallConnectorsJob_connectorsNotAvailable, detailedMessage), null));
 			}
 		}
 	}
 
 	/**
-	 * Filters those installable units that have a duplicate in the list with a higher version number. it's possible
-	 * that some repositories will host multiple versions of a particular feature. we assume that the user wants the
+	 * Filters those installable units that have a duplicate in the list with a
+	 * higher version number. it's possible that some repositories will host
+	 * multiple versions of a particular feature. we assume that the user wants the
 	 * highest version.
 	 */
 	private void removeOldVersions(final List<IInstallableUnit> installableUnits) {
@@ -221,12 +240,15 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 	}
 
 	/**
-	 * Perform a query to get the installable units. This causes p2 to determine what features are available in each
-	 * repository. We select installable units by matching both the feature id and the repository; it is possible though
-	 * unlikely that the same feature id is available from more than one of the selected repositories, and we must
-	 * ensure that the user gets the one that they asked for.
+	 * Perform a query to get the installable units. This causes p2 to determine
+	 * what features are available in each repository. We select installable units
+	 * by matching both the feature id and the repository; it is possible though
+	 * unlikely that the same feature id is available from more than one of the
+	 * selected repositories, and we must ensure that the user gets the one that
+	 * they asked for.
 	 */
-	private List<IInstallableUnit> queryInstallableUnits(SubMonitor monitor, List<IMetadataRepository> repositories) throws URISyntaxException {
+	private List<IInstallableUnit> queryInstallableUnits(SubMonitor monitor, List<IMetadataRepository> repositories)
+			throws URISyntaxException {
 		final List<IInstallableUnit> installableUnits = new ArrayList<>();
 
 		monitor.setWorkRemaining(repositories.size());
@@ -248,7 +270,8 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		return QueryUtil.createIUGroupQuery();
 	}
 
-	private List<IMetadataRepository> addRepositories(SubMonitor monitor) throws MalformedURLException, URISyntaxException, ProvisionException {
+	private List<IMetadataRepository> addRepositories(SubMonitor monitor)
+			throws MalformedURLException, URISyntaxException, ProvisionException {
 		// tell p2 that it's okay to use these repositories
 		ProvisioningSession session = ProvisioningUI.getDefaultUI().getSession();
 		RepositoryTracker repositoryTracker = ProvisioningUI.getDefaultUI().getRepositoryTracker();
@@ -259,9 +282,9 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			if (repositoryLocations.add(uri)) {
 				checkCancelled(monitor);
 				repositoryTracker.addRepository(uri, null, session);
-				//					ProvisioningUtil.addMetaDataRepository(url.toURI(), true);
-				//					ProvisioningUtil.addArtifactRepository(url.toURI(), true);
-				//					ProvisioningUtil.setColocatedRepositoryEnablement(url.toURI(), true);
+				// ProvisioningUtil.addMetaDataRepository(url.toURI(), true);
+				// ProvisioningUtil.addArtifactRepository(url.toURI(), true);
+				// ProvisioningUtil.setColocatedRepositoryEnablement(url.toURI(), true);
 			}
 			monitor.worked(1);
 		}
@@ -269,7 +292,8 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		// fetch meta-data for these repositories
 		ArrayList<IMetadataRepository> repositories = new ArrayList<>();
 		monitor.setWorkRemaining(repositories.size());
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) session.getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = session.getProvisioningAgent()
+				.getService(IMetadataRepositoryManager.class);
 		for (URI uri : repositoryLocations) {
 			checkCancelled(monitor);
 			IMetadataRepository repository = manager.loadRepository(uri, monitor.newChild(1));

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
@@ -44,13 +44,15 @@ public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 			monitor = new NullProgressMonitor();
 		int totalWork = 2000;
 		monitor.beginTask(ProvUIMessages.QueryableUpdates_UpdateListProgress, totalWork);
-		IPlanner planner = (IPlanner) ui.getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
+		IPlanner planner = ui.getSession().getProvisioningAgent().getService(IPlanner.class);
 		try {
 			Set<IInstallableUnit> allUpdates = new HashSet<>();
 			for (IInstallableUnit unit : iusToUpdate) {
 				if (monitor.isCanceled())
 					return Collector.emptyCollector();
-				IQueryResult<IInstallableUnit> updates = planner.updatesFor(unit, new ProvisioningContext(ui.getSession().getProvisioningAgent()), SubMonitor.convert(monitor, totalWork / 2 / iusToUpdate.length));
+				IQueryResult<IInstallableUnit> updates = planner.updatesFor(unit,
+						new ProvisioningContext(ui.getSession().getProvisioningAgent()),
+						SubMonitor.convert(monitor, totalWork / 2 / iusToUpdate.length));
 				allUpdates.addAll(updates.toUnmodifiableSet());
 			}
 			return query.perform(allUpdates.iterator());

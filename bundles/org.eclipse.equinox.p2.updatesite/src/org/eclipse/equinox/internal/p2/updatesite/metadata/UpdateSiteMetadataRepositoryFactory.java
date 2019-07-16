@@ -48,7 +48,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 
 	@Override
 	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
-		//return null if the caller wanted a modifiable repo
+		// return null if the caller wanted a modifiable repo
 		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
 			return null;
 		}
@@ -65,7 +65,8 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 				throw (ProvisionException) e;
 			if (e instanceof OperationCanceledException)
 				throw (OperationCanceledException) e;
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Unexpected_exception, location.toString()), e));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
+					NLS.bind(Messages.Unexpected_exception, location.toString()), e));
 		}
 		return new UpdateSiteMetadataRepository(location, repository);
 	}
@@ -91,21 +92,22 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 		try {
 			return factory.load(localRepositoryURL, 0, monitor);
 		} catch (ProvisionException e) {
-			//fall through and create a new repository
+			// fall through and create a new repository
 		}
 		String repositoryName = "update site: " + location; //$NON-NLS-1$
 		return factory.create(localRepositoryURL, repositoryName, null, null);
 	}
 
-	public void initializeRepository(IMetadataRepository repository, URI location, IProgressMonitor monitor) throws ProvisionException {
-		UpdateSite updateSite = UpdateSite.load(location, (Transport) getAgent().getService(Transport.SERVICE_NAME), monitor);
+	public void initializeRepository(IMetadataRepository repository, URI location, IProgressMonitor monitor)
+			throws ProvisionException {
+		UpdateSite updateSite = UpdateSite.load(location, getAgent().getService(Transport.class), monitor);
 		String savedChecksum = repository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		repository.removeAll();
 		IStatus status = generateMetadata(updateSite, repository, monitor);
-		//site references should be published on load
+		// site references should be published on load
 		if (repository instanceof LocalMetadataRepository)
 			((LocalMetadataRepository) repository).publishRepositoryReferences();
 		if (monitor.isCanceled())
@@ -117,7 +119,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 	private IStatus generateMetadata(UpdateSite updateSite, IMetadataRepository repository, IProgressMonitor monitor) {
 		PublisherInfo info = new PublisherInfo();
 		info.setMetadataRepository(repository);
-		IPublisherAction[] actions = new IPublisherAction[] {new RemoteUpdateSiteAction(updateSite, null)};
+		IPublisherAction[] actions = new IPublisherAction[] { new RemoteUpdateSiteAction(updateSite, null) };
 		Publisher publisher = new Publisher(info);
 		return publisher.publish(actions, monitor);
 	}

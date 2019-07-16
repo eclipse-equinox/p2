@@ -40,9 +40,9 @@ public class UpdateWizard extends WizardWithLicenses {
 
 	public static Collection<IInstallableUnit> getIUsToReplace(Object[] elements) {
 		Set<IInstallableUnit> iusToReplace = new HashSet<>();
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] instanceof AvailableUpdateElement) {
-				iusToReplace.add(((AvailableUpdateElement) elements[i]).getIUToBeUpdated());
+		for (Object element : elements) {
+			if (element instanceof AvailableUpdateElement) {
+				iusToReplace.add(((AvailableUpdateElement) element).getIUToBeUpdated());
 			}
 		}
 		return iusToReplace;
@@ -50,9 +50,9 @@ public class UpdateWizard extends WizardWithLicenses {
 
 	public static IInstallableUnit[] getReplacementIUs(Object[] elements) {
 		Set<IInstallableUnit> replacements = new HashSet<>();
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] instanceof AvailableUpdateElement) {
-				replacements.add(((AvailableUpdateElement) elements[i]).getIU());
+		for (Object element : elements) {
+			if (element instanceof AvailableUpdateElement) {
+				replacements.add(((AvailableUpdateElement) element).getIU());
 			}
 		}
 		return replacements.toArray(new IInstallableUnit[replacements.size()]);
@@ -60,24 +60,26 @@ public class UpdateWizard extends WizardWithLicenses {
 
 	public static Update[] makeUpdatesFromElements(Object[] elements) {
 		Set<Update> updates = new HashSet<>();
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] instanceof AvailableUpdateElement) {
-				updates.add(((AvailableUpdateElement) elements[i]).getUpdate());
+		for (Object element : elements) {
+			if (element instanceof AvailableUpdateElement) {
+				updates.add(((AvailableUpdateElement) element).getUpdate());
 			}
 		}
 		return updates.toArray(new Update[updates.size()]);
 	}
 
 	/**
-	 * Open an update wizard.  For update wizards, the operation must have been resolved in advanced.
-	 * This prevents searching for updates in the UI thread.
-	 * 
-	 * @param ui the provisioning UI
-	 * @param operation the update operation.  Must already be resolved!
+	 * Open an update wizard. For update wizards, the operation must have been
+	 * resolved in advanced. This prevents searching for updates in the UI thread.
+	 *
+	 * @param ui                the provisioning UI
+	 * @param operation         the update operation. Must already be resolved!
 	 * @param initialSelections initial selections for the wizard (can be null)
-	 * @param preloadJob a job that has been used to preload metadata repositories (can be null)
+	 * @param preloadJob        a job that has been used to preload metadata
+	 *                          repositories (can be null)
 	 */
-	public UpdateWizard(ProvisioningUI ui, UpdateOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob preloadJob) {
+	public UpdateWizard(ProvisioningUI ui, UpdateOperation operation, Object[] initialSelections,
+			LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
 		this.initialSelections = (Update[]) initialSelections;
 		Assert.isLegal(operation.hasResolved(), "Cannot create an update wizard on an unresolved operation"); //$NON-NLS-1$
@@ -90,13 +92,13 @@ public class UpdateWizard extends WizardWithLicenses {
 	}
 
 	public void deselectLockedIUs() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ui.getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = ui.getSession().getProvisioningAgent().getService(IProfileRegistry.class);
 		IProfile profile = profileRegistry.getProfile(ui.getProfileId());
 
 		ArrayList<Update> newSelection = new ArrayList<>(initialSelections.length);
-		for (int i = 0; i < initialSelections.length; i++) {
-			if (!isLocked(profile, initialSelections[i].toUpdate)) {
-				newSelection.add(initialSelections[i]);
+		for (Update initialSelection : initialSelections) {
+			if (!isLocked(profile, initialSelection.toUpdate)) {
+				newSelection.add(initialSelection);
 			}
 		}
 
@@ -124,21 +126,24 @@ public class UpdateWizard extends WizardWithLicenses {
 			return;
 		root = new IUElementListRoot(ui);
 		if (operation instanceof RemediationOperation) {
-			AvailableIUElement[] elements = ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy(), false);
+			AvailableIUElement[] elements = ElementUtils
+					.requestToElement(((RemediationOperation) operation).getCurrentRemedy(), false);
 			root.setChildren(elements);
-			//planSelections = elements;
+			// planSelections = elements;
 		} else {
 			ArrayList<AvailableUpdateElement> list = new ArrayList<>(selectedElements.length);
 			ArrayList<AvailableUpdateElement> selected = new ArrayList<>(selectedElements.length);
-			for (int i = 0; i < selectedElements.length; i++) {
-				if (selectedElements[i] instanceof AvailableUpdateElement) {
-					AvailableUpdateElement element = (AvailableUpdateElement) selectedElements[i];
-					AvailableUpdateElement newElement = new AvailableUpdateElement(root, element.getIU(), element.getIUToBeUpdated(), getProfileId(), shouldShowProvisioningPlanChildren());
+			for (Object selectedElement : selectedElements) {
+				if (selectedElement instanceof AvailableUpdateElement) {
+					AvailableUpdateElement element = (AvailableUpdateElement) selectedElement;
+					AvailableUpdateElement newElement = new AvailableUpdateElement(root, element.getIU(),
+							element.getIUToBeUpdated(), getProfileId(), shouldShowProvisioningPlanChildren());
 					list.add(newElement);
 					selected.add(newElement);
-				} else if (selectedElements[i] instanceof Update) {
-					Update update = (Update) selectedElements[i];
-					AvailableUpdateElement newElement = new AvailableUpdateElement(root, update.replacement, update.toUpdate, getProfileId(), shouldShowProvisioningPlanChildren());
+				} else if (selectedElement instanceof Update) {
+					Update update = (Update) selectedElement;
+					AvailableUpdateElement newElement = new AvailableUpdateElement(root, update.replacement,
+							update.toUpdate, getProfileId(), shouldShowProvisioningPlanChildren());
 					list.add(newElement);
 					selected.add(newElement);
 				}
@@ -168,15 +173,18 @@ public class UpdateWizard extends WizardWithLicenses {
 		return mainPage;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getProfileChangeOperation(java.lang.Object[])
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#
+	 * getProfileChangeOperation(java.lang.Object[])
 	 */
 	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		if (operation == null) {
 			operation = new UpdateOperation(ui.getSession(), getIUsToReplace(elements));
 			operation.setProfileId(getProfileId());
-			//			operation.setRootMarkerKey(getRootMarkerKey());
+			// operation.setRootMarkerKey(getRootMarkerKey());
 		} else {
 			((UpdateOperation) operation).setSelectedUpdates(makeUpdatesFromElements(elements));
 		}
@@ -194,8 +202,9 @@ public class UpdateWizard extends WizardWithLicenses {
 					updates = ((UpdateOperation) operation).getPossibleUpdates();
 				}
 				ArrayList<AvailableUpdateElement> allPossible = new ArrayList<>(updates.length);
-				for (int i = 0; i < updates.length; i++) {
-					AvailableUpdateElement newElement = new AvailableUpdateElement(firstPageRoot, updates[i].replacement, updates[i].toUpdate, getProfileId(), shouldShowProvisioningPlanChildren());
+				for (Update update : updates) {
+					AvailableUpdateElement newElement = new AvailableUpdateElement(firstPageRoot, update.replacement,
+							update.toUpdate, getProfileId(), shouldShowProvisioningPlanChildren());
 					allPossible.add(newElement);
 				}
 				firstPageRoot.setChildren(allPossible.toArray());

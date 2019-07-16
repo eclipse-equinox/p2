@@ -118,7 +118,7 @@ public class Engine implements IEngine {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 
-		ActionManager actionManager = (ActionManager) agent.getService(ActionManager.SERVICE_NAME);
+		ActionManager actionManager = agent.getService(ActionManager.class);
 		return phaseSet.validate(actionManager, iprofile, operands, context, monitor);
 	}
 

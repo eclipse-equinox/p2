@@ -93,7 +93,8 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	@Override
 	public void checkingForUpdates() {
-		new LastAutoCheckForUpdateMemo(AutomaticUpdatePlugin.getDefault().getAgentLocation()).store(Calendar.getInstance().getTime());
+		new LastAutoCheckForUpdateMemo(AutomaticUpdatePlugin.getDefault().getAgentLocation())
+				.store(Calendar.getInstance().getTime());
 	}
 
 	void updatesAvailable(final UpdateEvent event, final boolean notifyWithPopup) {
@@ -120,8 +121,11 @@ public class AutomaticUpdater implements IUpdateListener {
 		// preference dictates.
 
 		if (download) {
-			ProfileModificationJob job = new ProfileModificationJob(AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, getSession(), event.getProfileId(), operation.getProvisioningPlan(), new ProvisioningContext(getSession().getProvisioningAgent()));
-			job.setPhaseSet(PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT}));
+			ProfileModificationJob job = new ProfileModificationJob(
+					AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, getSession(),
+					event.getProfileId(), operation.getProvisioningPlan(),
+					new ProvisioningContext(getSession().getProvisioningAgent()));
+			job.setPhaseSet(PhaseSetFactory.createPhaseSetIncluding(new String[] { PhaseSetFactory.PHASE_COLLECT }));
 			job.setUser(false);
 			job.setSystem(true);
 			job.addJobChangeListener(new JobChangeAdapter() {
@@ -130,7 +134,9 @@ public class AutomaticUpdater implements IUpdateListener {
 					IStatus jobStatus = jobEvent.getResult();
 					if (jobStatus.isOK()) {
 						alreadyDownloaded = true;
-						PlatformUI.getWorkbench().getDisplay().asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup, showUpdateWizard));
+						PlatformUI.getWorkbench().getDisplay()
+								.asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(),
+										notifyWithPopup, showUpdateWizard));
 					} else if (jobStatus.getSeverity() != IStatus.CANCEL) {
 						StatusManager.getManager().handle(jobStatus, StatusManager.LOG);
 					}
@@ -138,7 +144,9 @@ public class AutomaticUpdater implements IUpdateListener {
 			});
 			job.schedule();
 		} else {
-			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup, showUpdateWizard));
+			PlatformUI.getWorkbench().getDisplay()
+					.asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup,
+							showUpdateWizard));
 		}
 
 	}
@@ -148,16 +156,17 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	/*
-	 * Use with caution, as this still start the whole UI bundle.  Shouldn't be used
-	 * in any of the update checking code, only the code that presents updates when notified.
+	 * Use with caution, as this still start the whole UI bundle. Shouldn't be used
+	 * in any of the update checking code, only the code that presents updates when
+	 * notified.
 	 */
 	ProvisioningUI getProvisioningUI() {
 		return ProvisioningUI.getDefaultUI();
 	}
 
 	/*
-	 * Filter out the ius that aren't visible to the user or are
-	 * locked for updating.
+	 * Filter out the ius that aren't visible to the user or are locked for
+	 * updating.
 	 */
 
 	void validateIusToUpdate() {
@@ -269,10 +278,12 @@ public class AutomaticUpdater implements IUpdateListener {
 					openUpdatePopup();
 			}
 			updateAffordance.setTooltip(AutomaticUpdateMessages.AutomaticUpdater_ClickToReviewUpdates);
-			updateAffordance.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE)));
+			updateAffordance.setImage(
+					AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE)));
 		} else {
 			updateAffordance.setTooltip(AutomaticUpdateMessages.AutomaticUpdater_ClickToReviewUpdatesWithProblems);
-			updateAffordance.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE_PROBLEMS)));
+			updateAffordance.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry()
+					.get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE_PROBLEMS)));
 		}
 		IStatusLineManager manager = getStatusLineManager();
 		if (manager != null) {
@@ -323,9 +334,8 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	/*
-	 * The profile has changed. Make sure our toUpdate list is still valid and
-	 * if there is nothing to update, get rid of the update popup and
-	 * affordance.
+	 * The profile has changed. Make sure our toUpdate list is still valid and if
+	 * there is nothing to update, get rid of the update popup and affordance.
 	 */
 	void triggerNewUpdateNotification() {
 		Job notifyJob = new Job("Update validate job") { //$NON-NLS-1$
@@ -333,7 +343,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			public IStatus run(IProgressMonitor monitor) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
-				// notify that updates are available for all roots.  We don't know for sure that
+				// notify that updates are available for all roots. We don't know for sure that
 				// there are any, but this will cause everything to be rechecked. Don't trigger
 				// a popup, just update the affordance and internal state.
 				updatesAvailable(new UpdateEvent(profileId, getInstalledIUs()));
@@ -350,9 +360,10 @@ public class AutomaticUpdater implements IUpdateListener {
 	 * Get the IInstallable units for the specified profile
 	 * 
 	 * @param profileId the profile in question
+	 * 
 	 * @param all <code>true</code> if all IInstallableUnits in the profile should
-	 * be returned, <code>false</code> only those IInstallableUnits marked as (user visible) roots
-	 * should be returned.
+	 * be returned, <code>false</code> only those IInstallableUnits marked as (user
+	 * visible) roots should be returned.
 	 * 
 	 * @return an array of IInstallableUnits installed in the profile.
 	 */
@@ -374,11 +385,11 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	IProfileRegistry getProfileRegistry() {
-		return (IProfileRegistry) getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+		return getSession().getProvisioningAgent().getService(IProfileRegistry.class);
 	}
 
 	IProvisioningEventBus getProvisioningEventBus() {
-		return (IProvisioningEventBus) getSession().getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+		return getSession().getProvisioningAgent().getService(IProvisioningEventBus.class);
 	}
 
 	IPreferenceStore getPreferenceStore() {

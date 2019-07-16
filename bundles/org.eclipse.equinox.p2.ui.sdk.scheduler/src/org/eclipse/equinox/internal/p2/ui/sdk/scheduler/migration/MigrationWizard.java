@@ -57,7 +57,8 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 	}
 
-	public MigrationWizard(IProfile toImportFrom, Collection<IInstallableUnit> unitsToMigrate, URI[] reposToMigrate, boolean firstTime) {
+	public MigrationWizard(IProfile toImportFrom, Collection<IInstallableUnit> unitsToMigrate, URI[] reposToMigrate,
+			boolean firstTime) {
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 		this.toImportFrom = toImportFrom;
 		this.unitsToMigrate = unitsToMigrate;
@@ -66,14 +67,17 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 		addRepos();
 	}
 
-	public MigrationWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
+	public MigrationWizard(ProvisioningUI ui, InstallOperation operation,
+			Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
 	}
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		setWindowTitle(firstTime ? ProvUIMessages.MigrationWizard_WINDOWTITLE_FIRSTRUN : ProvUIMessages.MigrationWizard_WINDOWTITLE);
-		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(ProvUIActivator.PLUGIN_ID).getEntry("icons/install_wiz.png"))); //$NON-NLS-1$
+		setWindowTitle(firstTime ? ProvUIMessages.MigrationWizard_WINDOWTITLE_FIRSTRUN
+				: ProvUIMessages.MigrationWizard_WINDOWTITLE);
+		setDefaultPageImageDescriptor(ImageDescriptor
+				.createFromURL(Platform.getBundle(ProvUIActivator.PLUGIN_ID).getEntry("icons/install_wiz.png"))); //$NON-NLS-1$
 		setNeedsProgressMonitor(true);
 	}
 
@@ -100,10 +104,12 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 	}
 
 	private void addRepos() {
-		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
-		IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-		List<URI> currentMetaRepos = Arrays.asList(metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL));
+		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(),
+				IProvisioningAgent.class);
+		IMetadataRepositoryManager metaManager = agent.getService(IMetadataRepositoryManager.class);
+		IArtifactRepositoryManager artifactManager = agent.getService(IArtifactRepositoryManager.class);
+		List<URI> currentMetaRepos = Arrays
+				.asList(metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL));
 
 		if (reposToMigrate != null && metaManager != null && artifactManager != null) {
 			for (int i = 0; i < reposToMigrate.length; i++) {
@@ -117,9 +123,10 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 	}
 
 	private void removeRepos() {
-		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
-		IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(),
+				IProvisioningAgent.class);
+		IMetadataRepositoryManager metaManager = agent.getService(IMetadataRepositoryManager.class);
+		IArtifactRepositoryManager artifactManager = agent.getService(IArtifactRepositoryManager.class);
 
 		if (metaManager != null && artifactManager != null) {
 			for (int i = 0; i < addedRepos.size(); i++) {
@@ -129,52 +136,55 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 		}
 	}
 
-	//Remember that we completed the migration
+	// Remember that we completed the migration
 	private void rememberMigrationCompleted() {
 		new MigrationSupport().rememberMigrationCompleted();
 	}
 
-	//Purge the profile registry from all the entries that are no longer relevant
-	//We keep the base we import from on purpose to help with debugging
+	// Purge the profile registry from all the entries that are no longer relevant
+	// We keep the base we import from on purpose to help with debugging
 	private void cleanupProfileRegistry() {
-		IProfileRegistry registry = (IProfileRegistry) ProvisioningUI.getDefaultUI().getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = ProvisioningUI.getDefaultUI().getSession().getProvisioningAgent()
+				.getService(IProfileRegistry.class);
 		long[] history = registry.listProfileTimestamps(toImportFrom.getProfileId());
 		for (int i = 0; i < history.length; i++) {
 			if (history[i] < toImportFrom.getTimestamp())
 				try {
 					registry.removeProfile(toImportFrom.getProfileId(), history[i]);
 				} catch (ProvisionException e) {
-					//Can't happen
+					// Can't happen
 				}
 		}
 	}
 
 	@Override
 	public boolean performCancel() {
-		String[] buttons = new String[] {IDialogConstants.YES_LABEL, ProvUIMessages.MigrationPage_LATER_BUTTON, IDialogConstants.NO_LABEL};
-		MessageDialog dialog = new MessageDialog(getShell(), ProvUIMessages.MigrationPage_CONFIRMATION_TITLE, null, ProvUIMessages.MigrationPage_CONFIRMATION_DIALOG, MessageDialog.QUESTION, buttons, 2);
+		String[] buttons = new String[] { IDialogConstants.YES_LABEL, ProvUIMessages.MigrationPage_LATER_BUTTON,
+				IDialogConstants.NO_LABEL };
+		MessageDialog dialog = new MessageDialog(getShell(), ProvUIMessages.MigrationPage_CONFIRMATION_TITLE, null,
+				ProvUIMessages.MigrationPage_CONFIRMATION_DIALOG, MessageDialog.QUESTION, buttons, 2);
 
 		return rememberCancellationDecision(dialog.open());
 	}
 
-	//Method public for test
+	// Method public for test
 	public boolean rememberCancellationDecision(int answer) {
 		boolean result = false;
 		switch (answer) {
-			case -1 : // if the user closes the dialog without clicking any button.
-				break;
-			case 0 :
-				result = true;
-				removeRepos();
-				rememberMigrationCompleted();
-				break;
-			case 1 :
-				result = true;
-				removeRepos();
-				break;
-			case 2 :
-				result = false;
-				break;
+		case -1: // if the user closes the dialog without clicking any button.
+			break;
+		case 0:
+			result = true;
+			removeRepos();
+			rememberMigrationCompleted();
+			break;
+		case 1:
+			result = true;
+			removeRepos();
+			break;
+		case 2:
+			result = false;
+			break;
 		}
 		return result;
 	}

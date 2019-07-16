@@ -72,10 +72,11 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	protected static final int COMBO_HISTORY_LENGTH = 5;
 
 	/**
-	 * {@link DelayedFilterCheckboxTree} has a timing bug to prevent restoring the check state,
-	 * the methods {@link DeferredTreeContentManager}'s runClearPlaceholderJob and 
-	 * DelayedFilterCheckboxTree.doCreateRefreshJob().new JobChangeAdapter() {...}.done(IJobChangeEvent) has timing issue,
-	 * I can't find a way to guarantee the first job is executed firstly
+	 * {@link DelayedFilterCheckboxTree} has a timing bug to prevent restoring the
+	 * check state, the methods {@link DeferredTreeContentManager}'s
+	 * runClearPlaceholderJob and DelayedFilterCheckboxTree.doCreateRefreshJob().new
+	 * JobChangeAdapter() {...}.done(IJobChangeEvent) has timing issue, I can't find
+	 * a way to guarantee the first job is executed firstly
 	 *
 	 */
 	final class ImportExportFilteredTree extends FilteredTree {
@@ -183,8 +184,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		}
 
 		/**
-		 * @param sortColumn
-		 *            The sortColumn to set.
+		 * @param sortColumn The sortColumn to set.
 		 */
 		public void setSortColumn(int sortColumn) {
 			if (this.sortColumn != sortColumn) {
@@ -202,8 +202,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		}
 
 		/**
-		 * @param ascending
-		 *            The ascending to set.
+		 * @param ascending The ascending to set.
 		 */
 		public void setAscending(boolean ascending) {
 			this.ascending = ascending;
@@ -212,12 +211,13 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	static {
 		BundleContext context = Platform.getBundle(Constants.Bundle_ID).getBundleContext();
-		ServiceTracker<IProvisioningAgent, IProvisioningAgent> tracker = new ServiceTracker<>(context, IProvisioningAgent.class, null);
+		ServiceTracker<IProvisioningAgent, IProvisioningAgent> tracker = new ServiceTracker<>(context,
+				IProvisioningAgent.class, null);
 		tracker.open();
 		agent = tracker.getService();
 		tracker.close();
 		if (agent != null)
-			profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			profileRegistry = agent.getService(IProfileRegistry.class);
 	}
 
 	public AbstractPage(String pageName) {
@@ -239,7 +239,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	private void createColumns(TreeViewer treeViewer) {
-		String[] titles = {Messages.Column_Name, Messages.Column_Version, Messages.Column_Id};
+		String[] titles = { Messages.Column_Name, Messages.Column_Version, Messages.Column_Id };
 		for (int i = 0; i < titles.length; i++) {
 			TreeViewerColumn column = new TreeViewerColumn(treeViewer, SWT.NONE);
 			column.getColumn().setText(titles[i]);
@@ -248,7 +248,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			if (Messages.Column_Name.equals(titles[i]))
 				updateTableSorting(i);
 			final int columnIndex = i;
-			column.getColumn().addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> updateTableSorting(columnIndex)));
+			column.getColumn().addSelectionListener(
+					SelectionListener.widgetSelectedAdapter(event -> updateTableSorting(columnIndex)));
 		}
 	}
 
@@ -304,7 +305,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		restoreWidgetValues();
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
 		destinationNameField.setLayoutData(data);
-		destinationNameField.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> handleDestinationChanged(getDestinationValue())));
+		destinationNameField.addSelectionListener(
+				SelectionListener.widgetSelectedAdapter(event -> handleDestinationChanged(getDestinationValue())));
 		destinationNameField.addKeyListener(KeyListener.keyPressedAdapter(e -> {
 			if (e.character == SWT.CR) {
 				entryChanged = false;
@@ -314,7 +316,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		}));
 		destinationNameField.addModifyListener(e -> entryChanged = true);
 		destinationNameField.addFocusListener(FocusListener.focusLostAdapter(e -> {
-			//Clear the flag to prevent constant update
+			// Clear the flag to prevent constant update
 			if (entryChanged) {
 				entryChanged = false;
 				handleDestinationChanged(getDestinationValue());
@@ -338,11 +340,18 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	private boolean allowExportWithoutRepositoryReference() {
-		return Platform.getPreferencesService().getBoolean(Constants.Bundle_ID, Constants.PREF_IU_WITHOUT_REPO, false, new IScopeContext[] {DefaultScope.INSTANCE});
+		return Platform.getPreferencesService().getBoolean(Constants.Bundle_ID, Constants.PREF_IU_WITHOUT_REPO, false,
+				new IScopeContext[] { DefaultScope.INSTANCE });
 	}
 
 	protected IUColumnConfig[] getColumnConfig() {
-		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
+		return new IUColumnConfig[] {
+				new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME,
+						ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH),
+				new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION,
+						ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH),
+				new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID,
+						ILayoutConstants.DEFAULT_COLUMN_WIDTH) };
 	}
 
 	protected void createInstallationTable(final Composite parent) {
@@ -353,7 +362,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		group.setLayout(new GridLayout(1, false));
 		PatternFilter filter = getPatternFilter();
 		filter.setIncludeLeadingWildcard(true);
-		final ImportExportFilteredTree filteredTree = new ImportExportFilteredTree(group, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, true);
+		final ImportExportFilteredTree filteredTree = new ImportExportFilteredTree(group,
+				SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, true);
 		viewer = (CheckboxTreeViewer) filteredTree.getViewer();
 		final Tree tree = viewer.getTree();
 		tree.setHeaderVisible(true);
@@ -367,7 +377,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		viewer.addCheckStateListener(event -> {
 			if (!event.getChecked() && filteredTree.checkState != null) {
 				ArrayList<Object> toRemove = new ArrayList<>(1);
-				// See bug 258117.  Ideally we would get check state changes 
+				// See bug 258117. Ideally we would get check state changes
 				// for children when the parent state changed, but we aren't, so
 				// we need to remove all children from the additive check state
 				// cache.
@@ -388,8 +398,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 					for (Object element : filteredTree.checkState) {
 						if (viewer.getComparer().equals(element, event.getElement())) {
 							toRemove.add(element);
-							// Do not break out of the loop.  We may have duplicate equal
-							// elements in the cache.  Since the cache is additive, we want
+							// Do not break out of the loop. We may have duplicate equal
+							// elements in the cache. Since the cache is additive, we want
 							// to be sure we've gotten everything.
 						}
 					}
@@ -398,7 +408,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			}
 		});
 		parent.addControlListener(new ControlAdapter() {
-			private final int[] columnRate = new int[] {6, 2, 2};
+			private final int[] columnRate = new int[] { 6, 2, 2 };
 
 			@Override
 			public void controlResized(ControlEvent e) {
@@ -416,7 +426,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 				TreeColumn[] columns = tree.getColumns();
 				int hasUsed = 0, i = 0;
 				if (oldSize.x > area.width) {
-					// table is getting smaller so make the columns 
+					// table is getting smaller so make the columns
 					// smaller first and then resize the table to
 					// match the client area width
 					for (; i < columns.length - 1; i++) {
@@ -426,7 +436,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 					columns[columns.length - 1].setWidth(width - hasUsed);
 					tree.setSize(area.width, area.height);
 				} else {
-					// table is getting bigger so make the table 
+					// table is getting bigger so make the table
 					// bigger first and then make the columns wider
 					// to match the client area width
 					tree.setSize(area.width, area.height);
@@ -508,7 +518,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	protected boolean determinePageCompletion() {
 		currentMessage = null;
-		// validate groups in order of priority so error message is the most important one
+		// validate groups in order of priority so error message is the most important
+		// one
 		boolean complete = validateDestinationGroup() && validateOptionsGroup();
 
 		// Avoid draw flicker by not clearing the error
@@ -530,6 +541,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	/**
 	 * returns the destination label
+	 * 
 	 * @return non null string
 	 */
 	protected abstract String getDestinationLabel();
@@ -545,6 +557,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	/**
 	 * return the title of dialog
+	 * 
 	 * @return non null string
 	 */
 	protected abstract String getDialogTitle();
@@ -560,15 +573,15 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	protected abstract void giveFocusToDestination();
 
 	/**
-	 * Open an appropriate destination browser so that the user can specify a
-	 * source to import from
+	 * Open an appropriate destination browser so that the user can specify a source
+	 * to import from
 	 */
 	protected void handleDestinationBrowseButtonPressed() {
 		FileDialog dialog = new FileDialog(getContainer().getShell(), getBrowseDialogStyle() | SWT.SHEET);
 		dialog.setText(getDialogTitle());
 		dialog.setFilterPath(getDestinationValue());
-		dialog.setFilterExtensions(new String[] {Messages.EXTENSION_p2F, Messages.EXTENSION_ALL});
-		dialog.setFilterNames(new String[] {Messages.EXTENSION_p2F_NAME, Messages.EXTENSION_ALL_NAME});
+		dialog.setFilterExtensions(new String[] { Messages.EXTENSION_p2F, Messages.EXTENSION_ALL });
+		dialog.setFilterNames(new String[] { Messages.EXTENSION_p2F_NAME, Messages.EXTENSION_ALL_NAME });
 		String selectedFileName = dialog.open();
 
 		if (selectedFileName != null) {
@@ -594,7 +607,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	protected void initializeService() {
-		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), P2ImportExport.class.getName(), null);
+		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<>(
+				Platform.getBundle(Constants.Bundle_ID).getBundleContext(), P2ImportExport.class.getName(), null);
 		tracker.open();
 		importexportService = tracker.getService();
 		tracker.close();
@@ -619,8 +633,9 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	/**
 	 * Validate the destination group.
-	 * @return <code>true</code> if the group is valid. If
-	 * not set the error message and return <code>false</code>.
+	 * 
+	 * @return <code>true</code> if the group is valid. If not set the error message
+	 *         and return <code>false</code>.
 	 */
 	protected boolean validateDestinationGroup() {
 		if (!validDestination()) {
@@ -703,15 +718,14 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	/**
 	 * Add the passed value to self's destination widget's history
 	 * 
-	 * @param value
-	 *            java.lang.String
+	 * @param value java.lang.String
 	 */
 	protected void addDestinationItem(String value) {
 		destinationNameField.add(value);
 	}
 
 	void modifyDestinationValue(String destinationValue) {
-		//Do nothing
+		// Do nothing
 	}
 
 }

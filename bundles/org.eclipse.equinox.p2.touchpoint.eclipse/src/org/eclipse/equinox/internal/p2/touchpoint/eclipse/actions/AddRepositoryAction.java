@@ -30,13 +30,15 @@ public class AddRepositoryAction extends RepositoryAction {
 	public IStatus execute(Map<String, Object> parameters) {
 		try {
 			IProvisioningAgent agent = getAgent(parameters);
-			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-			IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+			IProfileRegistry registry = agent.getService(IProfileRegistry.class);
+			IAgentLocation agentLocation = agent.getService(IAgentLocation.class);
 			final RepositoryEvent event = createEvent(parameters);
 			IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
-				addRepositoryToProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
-			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
+				addRepositoryToProfile(agentLocation, profile, event.getRepositoryLocation(),
+						event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
+			// if provisioning into the current profile, broadcast an event to add this
+			// repository directly to the current repository managers.
 			if (isSelfProfile(registry, profile))
 				addToSelf(agent, agentLocation, event);
 			return Status.OK_STATUS;
@@ -53,13 +55,15 @@ public class AddRepositoryAction extends RepositoryAction {
 	public IStatus undo(Map<String, Object> parameters) {
 		try {
 			IProvisioningAgent agent = getAgent(parameters);
-			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-			IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+			IProfileRegistry registry = agent.getService(IProfileRegistry.class);
+			IAgentLocation agentLocation = agent.getService(IAgentLocation.class);
 			final RepositoryEvent event = createEvent(parameters);
 			IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
-				removeRepositoryFromProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryType());
-			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
+				removeRepositoryFromProfile(agentLocation, profile, event.getRepositoryLocation(),
+						event.getRepositoryType());
+			// if provisioning into the current profile, broadcast an event to add this
+			// repository directly to the current repository managers.
 			if (isSelfProfile(registry, profile))
 				removeFromSelf(agent, agentLocation, event);
 			return Status.OK_STATUS;

@@ -110,7 +110,8 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 
 		// fetch meta-data for these repositories
 		ArrayList<IMetadataRepository> repositories = new ArrayList<>();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) session.getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = session.getProvisioningAgent()
+				.getService(IMetadataRepositoryManager.class);
 		for (URI uri : locations) {
 			IMetadataRepository repository = manager.loadRepository(uri, monitor.newChild(1));
 			repositories.add(repository);
@@ -130,7 +131,8 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 			checkCancelled(monitor);
 			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(//
 					"id ~= /*.feature.group/ " + // //$NON-NLS-1$
-							"? providedCapabilities.exists(p | p.namespace == 'org.eclipse.equinox.p2.iu' && p.name ~= /*.feature.group/) " + // //$NON-NLS-1$
+							"? providedCapabilities.exists(p | p.namespace == 'org.eclipse.equinox.p2.iu' && p.name ~= /*.feature.group/) " //$NON-NLS-1$
+							+ //
 							": properties['org.eclipse.equinox.p2.type.category'] == true"); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> result = repository.query(query, monitor.newChild(1));
 			for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();) {

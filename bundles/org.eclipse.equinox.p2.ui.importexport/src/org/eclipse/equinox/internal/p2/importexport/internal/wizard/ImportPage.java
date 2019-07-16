@@ -95,14 +95,14 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		public String getColumnText(Object element, int columnIndex) {
 			IInstallableUnit iu = ((IUDetail) element).getIU();
 			switch (columnIndex) {
-				case 0 :
-					return getIUNameWithDetail(iu);
-				case 1 :
-					return iu.getVersion().toString();
-				case 2 :
-					return iu.getId();
-				default :
-					throw new RuntimeException("Should not happen"); //$NON-NLS-1$
+			case 0:
+				return getIUNameWithDetail(iu);
+			case 1:
+				return iu.getVersion().toString();
+			case 2:
+				return iu.getId();
+			default:
+				throw new RuntimeException("Should not happen"); //$NON-NLS-1$
 			}
 
 		}
@@ -126,7 +126,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		String patternString;
 
 		/**
-		 * Create a new instance of a AvailableIUPatternFilter 
+		 * Create a new instance of a AvailableIUPatternFilter
 		 */
 		public P2ImportIUPatternFilter(IUColumnConfig[] columnConfig) {
 			super();
@@ -148,9 +148,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		}
 
 		/*
-		 * Overridden to remember the pattern string for an optimization
-		 * in isParentMatch
-		 * (non-Javadoc)
+		 * Overridden to remember the pattern string for an optimization in
+		 * isParentMatch (non-Javadoc)
+		 * 
 		 * @see org.eclipse.ui.dialogs.PatternFilter#setPattern(java.lang.String)
 		 */
 		@Override
@@ -160,10 +160,12 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		}
 
 		/*
-		 * Overridden to avoid getting children unless there is actually
-		 * a filter.
+		 * Overridden to avoid getting children unless there is actually a filter.
 		 * (non-Javadoc)
-		 * @see org.eclipse.ui.dialogs.PatternFilter#isParentMatch(org.eclipse.jface.viewers.Viewer, java.lang.Object)
+		 * 
+		 * @see
+		 * org.eclipse.ui.dialogs.PatternFilter#isParentMatch(org.eclipse.jface.viewers.
+		 * Viewer, java.lang.Object)
 		 */
 		@Override
 		protected boolean isParentMatch(Viewer viewer1, Object element) {
@@ -420,8 +422,8 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	public void recompute(IProgressMonitor monitor) throws InterruptedException {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.ImportPage_QueryFeaturesJob, 1000);
 		if (agent != null) {
-			IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-			IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			IMetadataRepositoryManager metaManager = agent.getService(IMetadataRepositoryManager.class);
+			IArtifactRepositoryManager artifactManager = agent.getService(IArtifactRepositoryManager.class);
 			Object[] checked = getChecked();
 			sub.setWorkRemaining(100 * checked.length);
 			for (Object item : checked) {
@@ -455,7 +457,12 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 					// don't suppress this warning as it will cause build-time warning
 					// see bug 423628. Find a way to change the code to not produce
 					// the warning.
-					Set<IInstallableUnit> result = new CompoundQueryable<IInstallableUnit>(repos.toArray(new IRepository[repos.size()])).query(QueryUtil.createIUQuery(feature.getIU().getId(), new VersionRange(feature.getIU().getVersion(), true, null, false)), sub2.newChild(100)).toSet();
+					Set<IInstallableUnit> result = new CompoundQueryable<IInstallableUnit>(
+							repos.toArray(new IRepository[repos.size()]))
+									.query(QueryUtil.createIUQuery(feature.getIU().getId(),
+											new VersionRange(feature.getIU().getVersion(), true, null, false)),
+											sub2.newChild(100))
+									.toSet();
 					List<IUDetail> existingFeatures = new ArrayList<>(result.size());
 					for (IInstallableUnit iu : result) {
 						existingFeatures.add(new IUDetail(iu, feature.getReferencedRepositories()));

@@ -48,7 +48,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 
 	@Override
 	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
-		//return null if the caller wanted a modifiable repo
+		// return null if the caller wanted a modifiable repo
 		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
 			return null;
 		}
@@ -65,7 +65,8 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 				throw (ProvisionException) e;
 			if (e instanceof OperationCanceledException)
 				throw (OperationCanceledException) e;
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Unexpected_exception, location.toString()), e));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
+					NLS.bind(Messages.Unexpected_exception, location.toString()), e));
 		}
 		return new UpdateSiteArtifactRepository(location, repository);
 	}
@@ -91,14 +92,15 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		try {
 			return factory.load(localRepositoryURL, 0, monitor);
 		} catch (ProvisionException e) {
-			//fall through and create a new repository
+			// fall through and create a new repository
 		}
 		String repositoryName = "update site: " + location; //$NON-NLS-1$
 		return factory.create(localRepositoryURL, repositoryName, null, null);
 	}
 
-	public void initializeRepository(IArtifactRepository repository, URI location, IProgressMonitor monitor) throws ProvisionException {
-		UpdateSite updateSite = UpdateSite.load(location, (Transport) getAgent().getService(Transport.SERVICE_NAME), monitor);
+	public void initializeRepository(IArtifactRepository repository, URI location, IProgressMonitor monitor)
+			throws ProvisionException {
+		UpdateSite updateSite = UpdateSite.load(location, getAgent().getService(Transport.class), monitor);
 		String savedChecksum = repository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
@@ -112,7 +114,8 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		generateArtifactDescriptors(updateSite, repository, monitor);
 	}
 
-	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
+	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository,
+			IProgressMonitor monitor) throws ProvisionException {
 		final String PACK_EXT = ".pack.gz"; //$NON-NLS-1$
 		Set<IArtifactDescriptor> allSiteArtifacts = new HashSet<>();
 		boolean packSupported = updateSite.getSite().isPack200Supported();
@@ -120,7 +123,8 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			Feature[] features = updateSite.loadFeatures(monitor);
 			for (int i = 0; i < features.length; i++) {
 				Feature feature = features[i];
-				IArtifactKey featureKey = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
+				IArtifactKey featureKey = FeaturesAction.createFeatureArtifactKey(feature.getId(),
+						feature.getVersion());
 				SimpleArtifactDescriptor featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
 				URI featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
 				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString());
@@ -130,10 +134,13 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 					// Update site supports pack200, create a packed descriptor
 					featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
 					featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
-					featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString() + PACK_EXT);
-					IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+					featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE,
+							featureURL.toString() + PACK_EXT);
+					IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] { new ProcessingStepDescriptor(
+							"org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
 					featureArtifactDescriptor.setProcessingSteps(steps);
-					featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
+					featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT,
+							IArtifactDescriptor.FORMAT_PACKED);
 					allSiteArtifacts.add(featureArtifactDescriptor);
 				}
 
@@ -152,10 +159,14 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 							key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
 							artifactDescriptor = new SimpleArtifactDescriptor(key);
 							pluginURL = updateSite.getPluginURI(entry);
-							artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString() + PACK_EXT);
-							IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+							artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE,
+									pluginURL.toString() + PACK_EXT);
+							IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {
+									new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", //$NON-NLS-1$
+											null, true) };
 							artifactDescriptor.setProcessingSteps(steps);
-							artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
+							artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT,
+									IArtifactDescriptor.FORMAT_PACKED);
 							allSiteArtifacts.add(artifactDescriptor);
 						}
 					}
@@ -166,7 +177,8 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			BundleDescription[] bundles = updateSite.loadBundles(monitor);
 			for (int i = 0; i < bundles.length; i++) {
 				BundleDescription bundle = bundles[i];
-				IArtifactKey bundleKey = BundlesAction.createBundleArtifactKey(bundle.getSymbolicName(), bundle.getVersion().toString());
+				IArtifactKey bundleKey = BundlesAction.createBundleArtifactKey(bundle.getSymbolicName(),
+						bundle.getVersion().toString());
 				SimpleArtifactDescriptor bundleArtifactDescriptor = new SimpleArtifactDescriptor(bundleKey);
 				URI bundleURI = updateSite.getBundleURI(bundle.getSymbolicName(), bundle.getVersion().toString());
 				bundleArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, bundleURI.toString());
@@ -176,8 +188,10 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 					// Update site supports pack200, create a packed descriptor
 					bundleArtifactDescriptor = new SimpleArtifactDescriptor(bundleKey);
 					bundleURI = updateSite.getBundleURI(bundle.getSymbolicName(), bundle.getVersion().toString());
-					bundleArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, bundleURI.toString() + PACK_EXT);
-					IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+					bundleArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE,
+							bundleURI.toString() + PACK_EXT);
+					IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] { new ProcessingStepDescriptor(
+							"org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
 					bundleArtifactDescriptor.setProcessingSteps(steps);
 					bundleArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 					allSiteArtifacts.add(bundleArtifactDescriptor);

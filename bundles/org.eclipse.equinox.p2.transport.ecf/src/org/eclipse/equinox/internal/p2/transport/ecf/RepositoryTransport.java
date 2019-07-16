@@ -35,8 +35,8 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * RepositoryTransport adapts p2 to ECF file download and file browsing.
- * Download is performed by {@link FileReader}, and file browsing is performed by
- * {@link FileInfoReader}.
+ * Download is performed by {@link FileReader}, and file browsing is performed
+ * by {@link FileInfoReader}.
  */
 public class RepositoryTransport extends Transport {
 
@@ -47,12 +47,12 @@ public class RepositoryTransport extends Transport {
 	/**
 	 * Returns an shared instance of Generic Transport
 	 */
-	//	public static synchronized RepositoryTransport getInstance() {
-	//		if (instance == null) {
-	//			instance = new RepositoryTransport();
-	//		}
-	//		return instance;
-	//	}
+	// public static synchronized RepositoryTransport getInstance() {
+	// if (instance == null) {
+	// instance = new RepositoryTransport();
+	// }
+	// return instance;
+	// }
 
 	public RepositoryTransport() {
 		this(null);
@@ -60,8 +60,9 @@ public class RepositoryTransport extends Transport {
 
 	/**
 	 * 
-	 * @param agent If agent is <code>null</code>, it means client would like to use RepositoryTransport as a download utility, 
-	 * don't want to publish download progress.
+	 * @param agent If agent is <code>null</code>, it means client would like to use
+	 *              RepositoryTransport as a download utility, don't want to publish
+	 *              download progress.
 	 */
 	public RepositoryTransport(IProvisioningAgent agent) {
 		this.agent = agent;
@@ -77,7 +78,9 @@ public class RepositoryTransport extends Transport {
 			FileReader reader = null;
 			try {
 				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
-				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
+				IConnectContext context = (loginDetails == null) ? null
+						: ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(),
+								loginDetails.getPassword());
 
 				// perform the download
 				reader = new FileReader(agent, context);
@@ -85,14 +88,16 @@ public class RepositoryTransport extends Transport {
 				IProvisioningEventBus eventBus = null;
 				try {
 					if (agent != null) {
-						eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+						eventBus = agent.getService(IProvisioningEventBus.class);
 						if (eventBus != null) {
 							final FileReader fileReader = reader;
 							listener = event -> {
 								if (event instanceof DownloadPauseResumeEvent) {
-									if (((DownloadPauseResumeEvent) event).getType() == DownloadPauseResumeEvent.TYPE_PAUSE)
+									if (((DownloadPauseResumeEvent) event)
+											.getType() == DownloadPauseResumeEvent.TYPE_PAUSE)
 										fileReader.pause();
-									else if (((DownloadPauseResumeEvent) event).getType() == DownloadPauseResumeEvent.TYPE_RESUME)
+									else if (((DownloadPauseResumeEvent) event)
+											.getType() == DownloadPauseResumeEvent.TYPE_RESUME)
 										fileReader.resume();
 								}
 							};
@@ -110,7 +115,8 @@ public class RepositoryTransport extends Transport {
 				IStatus result = reader.getResult();
 				if (result == null) {
 					String msg = NLS.bind(Messages.RepositoryTransport_failedReadRepo, toDownload);
-					DownloadStatus ds = new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, null);
+					DownloadStatus ds = new DownloadStatus(IStatus.ERROR, Activator.ID,
+							ProvisionException.REPOSITORY_FAILED_READ, msg, null);
 					return statusOn(target, ds, reader);
 				}
 				if (result.getSeverity() == IStatus.CANCEL)
@@ -136,7 +142,8 @@ public class RepositoryTransport extends Transport {
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
 			} catch (Credentials.LoginCanceledException e) {
-				DownloadStatus status = new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
+				DownloadStatus status = new DownloadStatus(IStatus.ERROR, Activator.ID,
+						ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
 						NLS.bind(Messages.UnableToRead_0_UserCanceled, toDownload), null);
 				return statusOn(target, status, null);
 			} catch (JREHttpClientRequiredException e) {
@@ -148,7 +155,8 @@ public class RepositoryTransport extends Transport {
 			}
 		}
 		// reached maximum number of retries without success
-		DownloadStatus status = new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
+		DownloadStatus status = new DownloadStatus(IStatus.ERROR, Activator.ID,
+				ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
 				NLS.bind(Messages.UnableToRead_0_TooManyAttempts, toDownload), null);
 		return statusOn(target, status, null);
 	}
@@ -159,7 +167,8 @@ public class RepositoryTransport extends Transport {
 	}
 
 	@Override
-	public InputStream stream(URI toDownload, IProgressMonitor monitor) throws FileNotFoundException, CoreException, AuthenticationFailedException {
+	public InputStream stream(URI toDownload, IProgressMonitor monitor)
+			throws FileNotFoundException, CoreException, AuthenticationFailedException {
 
 		boolean promptUser = false;
 		boolean useJREHttp = false;
@@ -168,7 +177,9 @@ public class RepositoryTransport extends Transport {
 			FileReader reader = null;
 			try {
 				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
-				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
+				IConnectContext context = (loginDetails == null) ? null
+						: ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(),
+								loginDetails.getPassword());
 
 				// perform the streamed download
 				reader = new FileReader(agent, context);
@@ -178,7 +189,8 @@ public class RepositoryTransport extends Transport {
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
 			} catch (CoreException e) {
-				// must translate this core exception as it is most likely not informative to a user
+				// must translate this core exception as it is most likely not informative to a
+				// user
 				if (e.getStatus().getException() == null)
 					throw new CoreException(RepositoryStatus.forException(e, toDownload));
 				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
@@ -197,8 +209,9 @@ public class RepositoryTransport extends Transport {
 	}
 
 	/**
-	 * Set the status on the output stream if it implements IStateful. 
-	 * Update the DownloadStatus with information from FileReader.
+	 * Set the status on the output stream if it implements IStateful. Update the
+	 * DownloadStatus with information from FileReader.
+	 * 
 	 * @param target an OutputStream possibly implementing IStateful
 	 * @param status a DownloadStatus configured with status message, code, etc
 	 * @param reader a FileReade that was used to download (or null if not known).
@@ -220,21 +233,25 @@ public class RepositoryTransport extends Transport {
 	}
 
 	@Override
-	public long getLastModified(URI toDownload, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+	public long getLastModified(URI toDownload, IProgressMonitor monitor)
+			throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		boolean promptUser = false;
 		boolean useJREHttp = false;
 		AuthenticationInfo loginDetails = null;
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			try {
 				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
-				IConnectContext context = (loginDetails == null) ? null : ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
+				IConnectContext context = (loginDetails == null) ? null
+						: ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(),
+								loginDetails.getPassword());
 				// get the remote info
 				FileInfoReader reader = new FileInfoReader(context);
 				return reader.getLastModified(toDownload, monitor);
 			} catch (UserCancelledException e) {
 				throw new OperationCanceledException();
 			} catch (CoreException e) {
-				// must translate this core exception as it is most likely not informative to a user
+				// must translate this core exception as it is most likely not informative to a
+				// user
 				if (e.getStatus().getException() == null)
 					throw new CoreException(RepositoryStatus.forException(e, toDownload));
 				throw new CoreException(RepositoryStatus.forStatus(e.getStatus(), toDownload));
@@ -267,7 +284,8 @@ public class RepositoryTransport extends Transport {
 	public static DownloadStatus forStatus(IStatus original, URI toDownload) {
 		Throwable t = original.getException();
 		if (isForgiveableException(t) && original.getCode() == IArtifactRepository.CODE_RETRY)
-			return new DownloadStatus(original.getSeverity(), Activator.ID, original.getCode(), original.getMessage(), t);
+			return new DownloadStatus(original.getSeverity(), Activator.ID, original.getCode(), original.getMessage(),
+					t);
 		return forException(t, toDownload);
 	}
 
@@ -292,7 +310,10 @@ public class RepositoryTransport extends Transport {
 						}
 						if (retryCount != null) {
 							socketExceptionRetry.put(toDownload, retryCount);
-							return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY, NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {toDownload.toString(), t.getMessage(), retryCount.toString()}), t);
+							return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY,
+									NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {
+											toDownload.toString(), t.getMessage(), retryCount.toString() }),
+									t);
 						}
 					}
 				} catch (NumberFormatException e) {
@@ -300,18 +321,23 @@ public class RepositoryTransport extends Transport {
 				}
 			}
 		}
-		if (t instanceof FileNotFoundException || (t instanceof IncomingFileTransferException && ((IncomingFileTransferException) t).getErrorCode() == 404))
-			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, NLS.bind(Messages.artifact_not_found, toDownload), t);
+		if (t instanceof FileNotFoundException || (t instanceof IncomingFileTransferException
+				&& ((IncomingFileTransferException) t).getErrorCode() == 404))
+			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND,
+					NLS.bind(Messages.artifact_not_found, toDownload), t);
 		if (t instanceof ConnectException)
-			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.TransportErrorTranslator_UnableToConnectToRepository_0, toDownload), t);
+			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ,
+					NLS.bind(Messages.TransportErrorTranslator_UnableToConnectToRepository_0, toDownload), t);
 		if (t instanceof UnknownHostException)
-			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
+			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION,
+					NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
 		if (t instanceof IDCreateException) {
 			IStatus status = ((IDCreateException) t).getStatus();
 			if (status != null && status.getException() != null)
 				t = status.getException();
 
-			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
+			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION,
+					NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
 		}
 		int code = 0;
 
@@ -323,8 +349,9 @@ public class RepositoryTransport extends Transport {
 		else if (t instanceof BrowseFileTransferException)
 			code = ((BrowseFileTransferException) t).getErrorCode();
 
-		// Switch on error codes in the HTTP error code range. 
-		// Note that 404 uses ARTIFACT_NOT_FOUND (as opposed to REPOSITORY_NOT_FOUND, which
+		// Switch on error codes in the HTTP error code range.
+		// Note that 404 uses ARTIFACT_NOT_FOUND (as opposed to REPOSITORY_NOT_FOUND,
+		// which
 		// is determined higher up in the calling chain).
 		if (code == 401)
 			provisionCode = ProvisionException.REPOSITORY_FAILED_AUTHENTICATION;

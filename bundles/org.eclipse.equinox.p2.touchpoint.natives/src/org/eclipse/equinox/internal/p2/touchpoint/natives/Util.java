@@ -44,11 +44,11 @@ public class Util {
 	}
 
 	private static IAgentLocation getAgentLocation(IProvisioningAgent agent) {
-		return (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+		return agent.getService(IAgentLocation.class);
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager(IProvisioningAgent agent) {
-		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		return agent.getService(IArtifactRepositoryManager.class);
 	}
 
 	public static IFileArtifactRepository getDownloadCacheRepo(IProvisioningAgent agent) throws ProvisionException {
@@ -66,7 +66,8 @@ public class Util {
 			String repositoryName = location + " - Agent download cache"; //$NON-NLS-1$
 			Map<String, String> properties = new HashMap<>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			repository = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+			repository = manager.createRepository(location, repositoryName,
+					IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		}
 
 		IFileArtifactRepository downloadCache = repository.getAdapter(IFileArtifactRepository.class);
@@ -83,22 +84,28 @@ public class Util {
 	}
 
 	/**
-	 * Unzip from a File to an output directory, with progress indication and backup.
-	 * monitor and backup store may be null.
+	 * Unzip from a File to an output directory, with progress indication and
+	 * backup. monitor and backup store may be null.
 	 */
-	public static File[] unzipFile(File zipFile, File outputDir, IBackupStore store, String taskName, IProgressMonitor monitor) throws IOException {
-		return unzipFile(zipFile, outputDir, null /*path*/, null /*includes*/, null /*excludes*/, store, taskName, monitor);
+	public static File[] unzipFile(File zipFile, File outputDir, IBackupStore store, String taskName,
+			IProgressMonitor monitor) throws IOException {
+		return unzipFile(zipFile, outputDir, null /* path */, null /* includes */, null /* excludes */, store, taskName,
+				monitor);
 	}
 
 	/**
-	 * Unzip from a File to an output directory, with progress indication and backup.
-	 * monitor and backup store may be null.
-	 * It takes in count exclude/exclude pattern (that can be null, case when everything is unzipped).
-	 * If a path is specified, the path is consider as entry point in zip, as when the to directory in zip would have been the specified path.
+	 * Unzip from a File to an output directory, with progress indication and
+	 * backup. monitor and backup store may be null. It takes in count
+	 * exclude/exclude pattern (that can be null, case when everything is unzipped).
+	 * If a path is specified, the path is consider as entry point in zip, as when
+	 * the to directory in zip would have been the specified path.
 	 */
-	public static File[] unzipFile(File zipFile, File outputDir, String path, String[] includePatterns, String[] excludePatterns, IBackupStore store, String taskName, IProgressMonitor monitor) throws IOException {
+	public static File[] unzipFile(File zipFile, File outputDir, String path, String[] includePatterns,
+			String[] excludePatterns, IBackupStore store, String taskName, IProgressMonitor monitor)
+			throws IOException {
 		try (InputStream in = new FileInputStream(zipFile)) {
-			return unzipStream(in, zipFile.length(), outputDir, path, includePatterns, excludePatterns, store, taskName, monitor);
+			return unzipStream(in, zipFile.length(), outputDir, path, includePatterns, excludePatterns, store, taskName,
+					monitor);
 		} catch (IOException e) {
 			// add the file name to the message
 			IOException ioException = new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
@@ -108,21 +115,27 @@ public class Util {
 	}
 
 	/**
-	 * Unzip from an InputStream to an output directory using backup of overwritten files
-	 * if backup store is not null.
+	 * Unzip from an InputStream to an output directory using backup of overwritten
+	 * files if backup store is not null.
 	 */
-	public static File[] unzipStream(InputStream stream, long size, File outputDir, IBackupStore store, String taskName, IProgressMonitor monitor) throws IOException {
-		return unzipStream(stream, size, outputDir, null /*path*/, null /*includes*/, null /*excludes*/, store, taskName, monitor);
+	public static File[] unzipStream(InputStream stream, long size, File outputDir, IBackupStore store, String taskName,
+			IProgressMonitor monitor) throws IOException {
+		return unzipStream(stream, size, outputDir, null /* path */, null /* includes */, null /* excludes */, store,
+				taskName, monitor);
 	}
 
 	/**
-	 * Unzip from an InputStream to an output directory using backup of overwritten files
-	 * if backup store is not null.
-	 * It takes in count exclude/exclude pattern (that can be null, case when everything is unzipped).
-	 * If a path is specified, the path is consider as entry point in zip, as when the to directory in zip would have been the specified path.
+	 * Unzip from an InputStream to an output directory using backup of overwritten
+	 * files if backup store is not null. It takes in count exclude/exclude pattern
+	 * (that can be null, case when everything is unzipped). If a path is specified,
+	 * the path is consider as entry point in zip, as when the to directory in zip
+	 * would have been the specified path.
 	 */
-	public static File[] unzipStream(InputStream stream, long size, File outputDir, String path, String[] includePatterns, String[] excludePatterns, IBackupStore store, String taskName, IProgressMonitor monitor) throws IOException {
-		InputStream is = monitor == null ? stream : stream; // new ProgressMonitorInputStream(stream, size, size, taskName, monitor); TODO Commented code
+	public static File[] unzipStream(InputStream stream, long size, File outputDir, String path,
+			String[] includePatterns, String[] excludePatterns, IBackupStore store, String taskName,
+			IProgressMonitor monitor) throws IOException {
+		InputStream is = monitor == null ? stream : stream; // new ProgressMonitorInputStream(stream, size, size,
+															// taskName, monitor); TODO Commented code
 		try (ZipInputStream in = new ZipInputStream(new BufferedInputStream(is))) {
 			ZipEntry ze = in.getNextEntry();
 			if (ze == null) {
@@ -220,11 +233,11 @@ public class Util {
 	}
 
 	/**
-	 * Copy an input stream to an output stream.
-	 * Optionally close the streams when done.
-	 * Return the number of bytes written.
+	 * Copy an input stream to an output stream. Optionally close the streams when
+	 * done. Return the number of bytes written.
 	 */
-	public static int copyStream(InputStream in, boolean closeIn, OutputStream out, boolean closeOut) throws IOException {
+	public static int copyStream(InputStream in, boolean closeIn, OutputStream out, boolean closeOut)
+			throws IOException {
 		try {
 			int written = 0;
 			byte[] buffer = new byte[16 * 1024];
@@ -251,18 +264,18 @@ public class Util {
 		StringBuffer sb = new StringBuffer();
 		for (int c = 0; c < pattern.length(); c++) {
 			switch (pattern.charAt(c)) {
-				case '.' :
-					sb.append("\\."); //$NON-NLS-1$
-					break;
-				case '*' :
-					sb.append(".*"); //$NON-NLS-1$
-					break;
-				case '?' :
-					sb.append(".?"); //$NON-NLS-1$
-					break;
-				default :
-					sb.append(pattern.charAt(c));
-					break;
+			case '.':
+				sb.append("\\."); //$NON-NLS-1$
+				break;
+			case '*':
+				sb.append(".*"); //$NON-NLS-1$
+				break;
+			case '?':
+				sb.append(".?"); //$NON-NLS-1$
+				break;
+			default:
+				sb.append(pattern.charAt(c));
+				break;
 			}
 		}
 		String string = sb.toString();

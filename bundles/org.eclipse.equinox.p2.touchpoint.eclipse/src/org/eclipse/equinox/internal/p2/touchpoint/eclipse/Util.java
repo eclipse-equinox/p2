@@ -50,20 +50,22 @@ public class Util {
 	 */
 	public static final int AGGREGATE_CACHE = 0x01;
 	/**
-	 * Bit-mask value representing the shared profile's bundle pool in a shared install
+	 * Bit-mask value representing the shared profile's bundle pool in a shared
+	 * install
 	 */
 	public static final int AGGREGATE_SHARED_CACHE = 0x02;
 	/**
-	 * Bit-mask value representing the extension locations, such as the dropins folder.
+	 * Bit-mask value representing the extension locations, such as the dropins
+	 * folder.
 	 */
 	public static final int AGGREGATE_CACHE_EXTENSIONS = 0x04;
 
 	public static IAgentLocation getAgentLocation(IProvisioningAgent agent) {
-		return (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+		return agent.getService(IAgentLocation.class);
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager(IProvisioningAgent agent) {
-		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		return agent.getService(IArtifactRepositoryManager.class);
 	}
 
 	public static URI getBundlePoolLocation(IProvisioningAgent agent, IProfile profile) {
@@ -76,7 +78,8 @@ public class Util {
 		return location.getDataArea(Activator.ID);
 	}
 
-	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProvisioningAgent agent, IProfile profile) {
+	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProvisioningAgent agent,
+			IProfile profile) {
 		URI location = getBundlePoolLocation(agent, profile);
 		if (location == null)
 			return null;
@@ -89,13 +92,14 @@ public class Util {
 			// update site repository
 			return null;
 		} catch (ProvisionException e) {
-			//the repository doesn't exist, so fall through and create a new one
+			// the repository doesn't exist, so fall through and create a new one
 		}
 		try {
 			String repositoryName = Messages.BundlePool;
 			Map<String, String> properties = new HashMap<>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			return (IFileArtifactRepository) manager.createRepository(location, repositoryName, REPOSITORY_TYPE, properties);
+			return (IFileArtifactRepository) manager.createRepository(location, repositoryName, REPOSITORY_TYPE,
+					properties);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 			throw new IllegalArgumentException(NLS.bind(Messages.bundle_pool_not_writeable, location));
@@ -103,13 +107,16 @@ public class Util {
 	}
 
 	public static IFileArtifactRepository getAggregatedBundleRepository(IProvisioningAgent agent, IProfile profile) {
-		return getAggregatedBundleRepository(agent, profile, AGGREGATE_CACHE | AGGREGATE_SHARED_CACHE | AGGREGATE_CACHE_EXTENSIONS);
+		return getAggregatedBundleRepository(agent, profile,
+				AGGREGATE_CACHE | AGGREGATE_SHARED_CACHE | AGGREGATE_CACHE_EXTENSIONS);
 	}
 
-	public static IFileArtifactRepository getAggregatedBundleRepository(IProvisioningAgent agent, IProfile profile, int repoFilter) {
+	public static IFileArtifactRepository getAggregatedBundleRepository(IProvisioningAgent agent, IProfile profile,
+			int repoFilter) {
 		List<IFileArtifactRepository> bundleRepositories = new ArrayList<IFileArtifactRepository>();
 
-		// we check for a shared bundle pool first as it should be preferred over the user bundle pool in a shared install
+		// we check for a shared bundle pool first as it should be preferred over the
+		// user bundle pool in a shared install
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
 		if ((repoFilter & AGGREGATE_SHARED_CACHE) != 0) {
 			String sharedCache = profile.getProperty(IProfile.PROP_SHARED_CACHE);
@@ -117,10 +124,11 @@ public class Util {
 				try {
 					URI repoLocation = new File(sharedCache).toURI();
 					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
-					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
+					if (repository != null && repository instanceof IFileArtifactRepository
+							&& !bundleRepositories.contains(repository))
 						bundleRepositories.add((IFileArtifactRepository) repository);
 				} catch (ProvisionException e) {
-					//skip repository if it could not be read
+					// skip repository if it could not be read
 				}
 			}
 		}
@@ -139,14 +147,15 @@ public class Util {
 					try {
 						repoLocation = new URI(repo);
 					} catch (URISyntaxException e) {
-						//in 1.0 we wrote unencoded URL strings, so try as an unencoded string
+						// in 1.0 we wrote unencoded URL strings, so try as an unencoded string
 						repoLocation = URIUtil.fromString(repo);
 					}
 					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
-					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
+					if (repository != null && repository instanceof IFileArtifactRepository
+							&& !bundleRepositories.contains(repository))
 						bundleRepositories.add((IFileArtifactRepository) repository);
 				} catch (ProvisionException e) {
-					//skip repositories that could not be read
+					// skip repositories that could not be read
 				} catch (URISyntaxException e) {
 					// unexpected, URLs should be pre-checked
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
@@ -158,17 +167,19 @@ public class Util {
 		return new AggregatedBundleRepository(agent, bundleRepositories);
 	}
 
-	private static void getRunnableRepositories(IArtifactRepositoryManager manager, List<IFileArtifactRepository> bundleRepositories) {
+	private static void getRunnableRepositories(IArtifactRepositoryManager manager,
+			List<IFileArtifactRepository> bundleRepositories) {
 		URI[] localURLs = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
 		for (int i = 0; i < localURLs.length; i++) {
 			try {
 				IArtifactRepository candidate = manager.loadRepository(localURLs[i], new NullProgressMonitor());
 				if (Boolean.parseBoolean(candidate.getProperty(IArtifactRepository.PROP_RUNNABLE))) {
-					if (candidate != null && candidate instanceof IFileArtifactRepository && !bundleRepositories.contains(candidate))
+					if (candidate != null && candidate instanceof IFileArtifactRepository
+							&& !bundleRepositories.contains(candidate))
 						bundleRepositories.add((IFileArtifactRepository) candidate);
 				}
 			} catch (ProvisionException e) {
-				//skip repositories that could not be read
+				// skip repositories that could not be read
 			}
 		}
 	}
@@ -217,7 +228,8 @@ public class Util {
 		// Find the actual fully populated BundleInfo used by the runtime.
 		BundleInfo[] bundles = config.getBundles();
 		for (BundleInfo bundle : bundles) {
-			// Can't use BundleInfol.equals(), because bundleInfo is only partially populated.
+			// Can't use BundleInfol.equals(), because bundleInfo is only partially
+			// populated.
 			if (bundleInfo.getSymbolicName().equals(bundle.getSymbolicName())
 					&& bundleInfo.getVersion().equals(bundle.getVersion())) {
 				return bundle;
@@ -270,11 +282,12 @@ public class Util {
 	}
 
 	/*
-	 * Helper method to return the eclipse.home location. Return
-	 * null if it is unavailable.
+	 * Helper method to return the eclipse.home location. Return null if it is
+	 * unavailable.
 	 */
 	public static File getEclipseHome() {
-		Location eclipseHome = ServiceHelper.getService(Activator.getContext(), Location.class, Location.ECLIPSE_HOME_FILTER);
+		Location eclipseHome = ServiceHelper.getService(Activator.getContext(), Location.class,
+				Location.ECLIPSE_HOME_FILTER);
 		if (eclipseHome == null || !eclipseHome.isSet())
 			return null;
 		URL url = eclipseHome.getURL();
@@ -284,8 +297,8 @@ public class Util {
 	}
 
 	/**
-	 * Returns the install folder for the profile, or <code>null</code>
-	 * if no install folder is defined.
+	 * Returns the install folder for the profile, or <code>null</code> if no
+	 * install folder is defined.
 	 */
 	public static File getInstallFolder(IProfile profile) {
 		String folder = profile.getProperty(IProfile.PROP_INSTALL_FOLDER);

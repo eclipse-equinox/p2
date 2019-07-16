@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -46,12 +46,12 @@ import org.eclipse.ui.menus.AbstractContributionFactory;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * RevertProfilePage displays a profile's configuration history in
- * an Installation Page.  Clients can use this class as the implementation
- * class for an installationPages extension.
- * 
+ * RevertProfilePage displays a profile's configuration history in an
+ * Installation Page. Clients can use this class as the implementation class for
+ * an installationPages extension.
+ *
  * @see InstallationPage
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @since 2.0
@@ -94,7 +94,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		@Override
 		protected Object getValue(Object element) {
 			if (element instanceof RollbackProfileElement) {
-				return ((RollbackProfileElement) element).getProfileTag() != null ? ((RollbackProfileElement) element).getProfileTag() : ""; //$NON-NLS-1$
+				return ((RollbackProfileElement) element).getProfileTag() != null
+						? ((RollbackProfileElement) element).getProfileTag()
+						: ""; //$NON-NLS-1$
 			}
 			return null;
 		}
@@ -109,9 +111,11 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 				if (registry != null) {
 					IStatus status;
 					if (((String) value).length() > 0) {
-						status = registry.setProfileStateProperty(ele.getProfileId(), ele.getTimestamp(), IProfile.STATE_PROP_TAG, (String) value);
+						status = registry.setProfileStateProperty(ele.getProfileId(), ele.getTimestamp(),
+								IProfile.STATE_PROP_TAG, (String) value);
 					} else {
-						status = registry.removeProfileStateProperties(ele.getProfileId(), ele.getTimestamp(), Collections.singleton(IProfile.STATE_PROP_TAG));
+						status = registry.removeProfileStateProperties(ele.getProfileId(), ele.getTimestamp(),
+								Collections.singleton(IProfile.STATE_PROP_TAG));
 					}
 					if (!status.isOK()) {
 						StatusManager.getManager().handle(status);
@@ -160,7 +164,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		createContentsSection(sashForm);
 		setControl(sashForm);
 
-		// prime the selection.  The selection accesses the
+		// prime the selection. The selection accesses the
 		// revert action, so create it also.
 		createRevertAction();
 	}
@@ -176,7 +180,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigsLabel);
-		configsViewer = new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
+		configsViewer = new TableViewer(composite,
+				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
 		ProvElementContentProvider provider = new ProvElementContentProvider() {
 			@Override
 			protected void finishedFetchingElements(Object o) {
@@ -192,7 +197,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		configsViewer.setContentProvider(provider);
 		configsViewer.setLabelProvider(new ProvElementLabelProvider());
 		configsViewer.setComparator(new ViewerComparator() {
-			// We override the ViewerComparator so that we don't get the labels of the elements
+			// We override the ViewerComparator so that we don't get the labels of the
+			// elements
 			// for comparison, but rather get the timestamps and compare them.
 			// Reverse sorting is used so that newest is first.
 			@Override
@@ -244,7 +250,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigContentsLabel);
-		configContentsViewer = new TreeViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		configContentsViewer = new TreeViewer(composite,
+				SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
 		comparator.useColumnConfig(ProvUI.getIUColumnConfig());
 		configContentsViewer.setComparator(comparator);
@@ -265,7 +272,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		revertAction = new Action() {
 			@Override
 			public void run() {
-				int result = MessageDialog.open(MessageDialog.QUESTION, getShell(), ProvUIMessages.RevertDialog_Title, ProvUIMessages.RevertDialog_ConfirmRestartMessage, SWT.NONE, ProvUIMessages.RevertProfilePage_RevertLabel, ProvUIMessages.RevertDialog_CancelButtonLabel);
+				int result = MessageDialog.open(MessageDialog.QUESTION, getShell(), ProvUIMessages.RevertDialog_Title,
+						ProvUIMessages.RevertDialog_ConfirmRestartMessage, SWT.NONE,
+						ProvUIMessages.RevertProfilePage_RevertLabel, ProvUIMessages.RevertDialog_CancelButtonLabel);
 				if (result != Window.OK)
 					return;
 				boolean finish = revert();
@@ -286,12 +295,12 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	@Override
 	protected void buttonPressed(int buttonId) {
 		switch (buttonId) {
-			case REVERT_ID :
-				revertAction.run();
-				break;
-			case DELETE_ID :
-				deleteSelectedSnapshots();
-				break;
+		case REVERT_ID:
+			revertAction.run();
+			break;
+		case DELETE_ID:
+			deleteSelectedSnapshots();
+			break;
 		}
 	}
 
@@ -339,8 +348,10 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		Iterator<?> iter = configsViewer.getStructuredSelection().iterator();
 		while (iter.hasNext()) {
 			Object selected = iter.next();
-			// If it's not a recognized element or if it is the current profile, we can't delete.  Stop iterating.
-			if (!(selected instanceof RollbackProfileElement) || ((RollbackProfileElement) selected).isCurrentProfile()) {
+			// If it's not a recognized element or if it is the current profile, we can't
+			// delete. Stop iterating.
+			if (!(selected instanceof RollbackProfileElement)
+					|| ((RollbackProfileElement) selected).isCurrentProfile()) {
 				okToDelete = false;
 				break;
 			}
@@ -375,7 +386,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		IRunnableWithProgress runnable = monitor -> {
 			IProfile currentProfile;
 			IProfileRegistry registry = ProvUI.getProfileRegistry(getSession());
-			IPlanner planner = (IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
+			IPlanner planner = getSession().getProvisioningAgent().getService(IPlanner.class);
 			currentProfile = registry.getProfile(profileId);
 			plan[0] = planner.getDiffPlan(currentProfile, snapshot, monitor);
 		};
@@ -397,7 +408,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			if (plan[0].getStatus().isOK()) {
 				// We use a default provisioning context (all repos) because we have no other
 				// way currently to figure out which sites the user wants to contact
-				ProfileModificationJob op = new ProfileModificationJob(ProvUIMessages.RevertDialog_RevertOperationLabel, getSession(), profileId, plan[0], new ProvisioningContext(getSession().getProvisioningAgent()));
+				ProfileModificationJob op = new ProfileModificationJob(ProvUIMessages.RevertDialog_RevertOperationLabel,
+						getSession(), profileId, plan[0], new ProvisioningContext(getSession().getProvisioningAgent()));
 				// we want to force a restart (not allow apply changes)
 				op.setRestartPolicy(ProvisioningJob.RESTART_ONLY);
 				getProvisioningUI().schedule(op, StatusManager.SHOW | StatusManager.LOG);
@@ -405,7 +417,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			} else if (plan[0].getStatus().getSeverity() != IStatus.CANCEL) {
 				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG | StatusManager.SHOW);
 				// This message has no effect in an installation dialog
-				// setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
+				// setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError,
+				// IMessageProvider.ERROR);
 			}
 		}
 		return reverted;
@@ -415,7 +428,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	public void copyToClipboard(Control activeControl) {
 		String text = ""; //$NON-NLS-1$
 		if (activeControl == configContentsViewer.getControl()) {
-			text = CopyUtils.getIndentedClipboardText(configContentsViewer.getStructuredSelection().toArray(), labelProvider);
+			text = CopyUtils.getIndentedClipboardText(configContentsViewer.getStructuredSelection().toArray(),
+					labelProvider);
 		} else if (activeControl == configsViewer.getControl()) {
 			Object[] elements = configsViewer.getStructuredSelection().toArray();
 			StringBuilder buffer = new StringBuilder();
@@ -432,7 +446,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		if (text.isEmpty())
 			return;
 		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
-		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});
+		clipboard.setContents(new Object[] { text }, new Transfer[] { TextTransfer.getInstance() });
 		clipboard.dispose();
 	}
 
@@ -440,14 +454,20 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		IStructuredSelection selection = configsViewer.getStructuredSelection();
 		if (selection.isEmpty())
 			return;
-		String title = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_DeleteSingleConfigurationTitle : ProvUIMessages.RevertProfilePage_DeleteMultipleConfigurationsTitle;
-		String confirmMessage = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_ConfirmDeleteSingleConfig : ProvUIMessages.RevertProfilePage_ConfirmDeleteMultipleConfigs;
-		if (Window.OK == MessageDialog.open(MessageDialog.QUESTION, configsViewer.getControl().getShell(), title, confirmMessage, SWT.NONE, ProvUIMessages.RevertProfilePage_Delete, ProvUIMessages.RevertProfilePage_CancelButtonLabel)) {
+		String title = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_DeleteSingleConfigurationTitle
+				: ProvUIMessages.RevertProfilePage_DeleteMultipleConfigurationsTitle;
+		String confirmMessage = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_ConfirmDeleteSingleConfig
+				: ProvUIMessages.RevertProfilePage_ConfirmDeleteMultipleConfigs;
+		if (Window.OK == MessageDialog.open(MessageDialog.QUESTION, configsViewer.getControl().getShell(), title,
+				confirmMessage, SWT.NONE, ProvUIMessages.RevertProfilePage_Delete,
+				ProvUIMessages.RevertProfilePage_CancelButtonLabel)) {
 			Iterator<?> iter = selection.iterator();
 			while (iter.hasNext()) {
 				Object selected = iter.next();
-				// If it is a recognized element and it is not the current profile, then it can be deleted.
-				if (selected instanceof RollbackProfileElement && !((RollbackProfileElement) selected).isCurrentProfile()) {
+				// If it is a recognized element and it is not the current profile, then it can
+				// be deleted.
+				if (selected instanceof RollbackProfileElement
+						&& !((RollbackProfileElement) selected).isCurrentProfile()) {
 					RollbackProfileElement snapshot = (RollbackProfileElement) selected;
 					IProfileRegistry registry = ProvUI.getProfileRegistry(getSession());
 					if (registry != null) {
@@ -468,7 +488,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	}
 
 	ProvisioningUI getProvisioningUI() {
-		// if a UI has not been set then assume that the current default UI is the right thing
+		// if a UI has not been set then assume that the current default UI is the right
+		// thing
 		if (ui == null)
 			return ui = ProvisioningUI.getDefaultUI();
 		return ui;
@@ -480,7 +501,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	/**
 	 * Set the provisioning UI to use with this page
-	 * 
+	 *
 	 * @param value the provisioning ui to use
 	 * @since 2.1
 	 */

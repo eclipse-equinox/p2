@@ -98,7 +98,8 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 	private IProvisioningAgentProvider getAgentProvider() {
 		if (agentProvider == null) {
-			ServiceTracker<IProvisioningAgentProvider, IProvisioningAgentProvider> tracker = new ServiceTracker<>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), IProvisioningAgentProvider.class, null);
+			ServiceTracker<IProvisioningAgentProvider, IProvisioningAgentProvider> tracker = new ServiceTracker<>(
+					Platform.getBundle(Constants.Bundle_ID).getBundleContext(), IProvisioningAgentProvider.class, null);
 			tracker.open();
 			agentProvider = tracker.getService();
 			tracker.close();
@@ -116,7 +117,8 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 				@Override
 				public Boolean call() throws Exception {
-					Display.getDefault().syncExec(() -> validated = ImportFromInstallationPage.super.validateDestinationGroup());
+					Display.getDefault()
+							.syncExec(() -> validated = ImportFromInstallationPage.super.validateDestinationGroup());
 					return validated;
 				}
 			};
@@ -177,15 +179,18 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 							final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 							if (url.startsWith(CONFIG_DIR))
 								url = FILE_PROTOCOL + url.substring(CONFIG_DIR.length());
-							p2DataArea = new File(URIUtil.makeAbsolute(URIUtil.fromString(new File(url.substring(FILE_PROTOCOL.length())).isAbsolute() ? url : url.substring(FILE_PROTOCOL.length())), configArea));
+							p2DataArea = new File(URIUtil.makeAbsolute(URIUtil
+									.fromString(new File(url.substring(FILE_PROTOCOL.length())).isAbsolute() ? url
+											: url.substring(FILE_PROTOCOL.length())),
+									configArea));
 						}
 					} catch (IOException ioe) {
-						//ignore
+						// ignore
 					} finally {
 						try {
 							is.close();
 						} catch (IOException ioe) {
-							//ignore
+							// ignore
 						}
 						is = null;
 					}
@@ -206,21 +211,23 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 							otherInstanceAgent = getAgentProvider().createAgent(p2DataArea.toURI());
 						ArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
 						factory.setAgent(agent);
-						IArtifactRepository artiRepo = factory.load(new File(destination).toURI(), 0, progress.newChild(50));
-						artiURIs = new URI[] {artiRepo.getLocation()};
+						IArtifactRepository artiRepo = factory.load(new File(destination).toURI(), 0,
+								progress.newChild(50));
+						artiURIs = new URI[] { artiRepo.getLocation() };
 						MetadataRepositoryFactory metaFatory = new ExtensionLocationMetadataRepositoryFactory();
 						metaFatory.setAgent(agent);
-						IMetadataRepository metaRepo = metaFatory.load(new File(destination).toURI(), 0, progress.newChild(50));
-						metaURIs = new URI[] {metaRepo.getLocation()};
+						IMetadataRepository metaRepo = metaFatory.load(new File(destination).toURI(), 0,
+								progress.newChild(50));
+						metaURIs = new URI[] { metaRepo.getLocation() };
 
 					} else
 						throw new FileNotFoundException();
 				} catch (ProvisionException e) {
 					if (otherInstanceAgent != null) {
 						toBeImportedProfile = null;
-						IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-						IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-						IProfileRegistry registry = (IProfileRegistry) otherInstanceAgent.getService(IProfileRegistry.SERVICE_NAME);
+						IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
+						IArtifactRepositoryManager artifactManager = agent.getService(IArtifactRepositoryManager.class);
+						IProfileRegistry registry = otherInstanceAgent.getService(IProfileRegistry.class);
 						if (toBeImportedProfileId != null)
 							toBeImportedProfile = registry.getProfile(toBeImportedProfileId);
 						if (toBeImportedProfile == null) {
@@ -231,18 +238,30 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 								for (IProfile existingProfile : existingProfiles) {
 									if (toBeImportedProfile == null)
 										toBeImportedProfile = existingProfile;
-									else if ((toBeImportedProfile.getTimestamp() < existingProfile.getTimestamp())) // assuming last modified one is we are looking for
+									else if ((toBeImportedProfile.getTimestamp() < existingProfile.getTimestamp())) // assuming
+																													// last
+																													// modified
+																													// one
+																													// is
+																													// we
+																													// are
+																													// looking
+																													// for
 										toBeImportedProfile = existingProfile;
 								}
 							}
 						}
-						IAgentLocation location = (IAgentLocation) otherInstanceAgent.getService(IAgentLocation.SERVICE_NAME);
+						IAgentLocation location = otherInstanceAgent.getService(IAgentLocation.class);
 						URI engineDataArea = location.getDataArea("org.eclipse.equinox.p2.engine"); //$NON-NLS-1$
 						progress.setWorkRemaining(50);
-						IMetadataRepository metaRepo = manager.loadRepository(engineDataArea.resolve("profileRegistry/" + toBeImportedProfile.getProfileId() + ".profile"), progress.newChild(25)); //$NON-NLS-1$//$NON-NLS-2$
-						metaURIs = new URI[] {metaRepo.getLocation()};
-						IArtifactRepository artiRepo = artifactManager.loadRepository(new File(destination).toURI(), progress.newChild(25));
-						artiURIs = new URI[] {artiRepo.getLocation()};
+						IMetadataRepository metaRepo = manager.loadRepository(
+								engineDataArea
+										.resolve("profileRegistry/" + toBeImportedProfile.getProfileId() + ".profile"), //$NON-NLS-1$//$NON-NLS-2$
+								progress.newChild(25));
+						metaURIs = new URI[] { metaRepo.getLocation() };
+						IArtifactRepository artiRepo = artifactManager.loadRepository(new File(destination).toURI(),
+								progress.newChild(25));
+						artiURIs = new URI[] { artiRepo.getLocation() };
 					} else
 						throw new Exception();
 				}
@@ -313,8 +332,8 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 	@Override
 	void modifyDestinationValue(String selectedFileName) {
 		/*
-		 * If the destination file is a Mac app bundle, modify the destination 
-		 * to *.app/Contents/Eclipse if the path exists.
+		 * If the destination file is a Mac app bundle, modify the destination to
+		 * *.app/Contents/Eclipse if the path exists.
 		 */
 		if ("cocoa".equals(SWT.getPlatform())) { //$NON-NLS-1$
 			Path nPath = new Path(selectedFileName);
@@ -377,10 +396,10 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 	public void cleanLocalRepository() {
 		if (metaURIs != null && metaURIs.length > 0) {
 			IProvisioningAgent runningAgent = getProvisioningUI().getSession().getProvisioningAgent();
-			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) runningAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+			IMetadataRepositoryManager manager = runningAgent.getService(IMetadataRepositoryManager.class);
 			for (URI uri : metaURIs)
 				manager.removeRepository(uri);
-			IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) runningAgent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			IArtifactRepositoryManager artifactManager = runningAgent.getService(IArtifactRepositoryManager.class);
 			for (URI uri : artiURIs)
 				artifactManager.removeRepository(uri);
 		}

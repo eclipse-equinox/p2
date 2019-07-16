@@ -44,16 +44,16 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 /**
- * ProvisioningUI defines the provisioning session, UI policy, and related services for a
- * provisioning UI.  
- * 
+ * ProvisioningUI defines the provisioning session, UI policy, and related
+ * services for a provisioning UI.
+ *
  * @since 2.0
  */
 public class ProvisioningUI {
 
 	/**
-	 * Return the default ProvisioningUI.  
-	 * 
+	 * Return the default ProvisioningUI.
+	 *
 	 * @return the default Provisioning UI.
 	 */
 	public static ProvisioningUI getDefaultUI() {
@@ -67,10 +67,10 @@ public class ProvisioningUI {
 
 	/**
 	 * Creates a new instance of the provisioning user interface.
-	 * 
-	 * @param session The current provisioning session
+	 *
+	 * @param session   The current provisioning session
 	 * @param profileId The profile that this user interface is operating on
-	 * @param policy The user interface policy settings to use
+	 * @param policy    The user interface policy settings to use
 	 */
 	public ProvisioningUI(ProvisioningSession session, String profileId, Policy policy) {
 		this.policy = policy;
@@ -79,13 +79,14 @@ public class ProvisioningUI {
 			this.profileId = IProfileRegistry.SELF;
 		this.session = session;
 		this.runner = new ProvisioningOperationRunner(this);
-		// register this UI with the agent so other UI related agent services can find it
+		// register this UI with the agent so other UI related agent services can find
+		// it
 		session.getProvisioningAgent().registerService(ProvisioningUI.class.getName(), this);
 	}
 
 	/**
 	 * Return the UI policy used for this instance of the UI.
-	 * 
+	 *
 	 * @return the UI policy, must not be <code>null</code>
 	 */
 	public Policy getPolicy() {
@@ -93,9 +94,9 @@ public class ProvisioningUI {
 	}
 
 	/**
-	 * Return the provisioning session that should be used to obtain
-	 * provisioning services.
-	 * 
+	 * Return the provisioning session that should be used to obtain provisioning
+	 * services.
+	 *
 	 * @return the provisioning session, must not be <code>null</code>
 	 */
 	public ProvisioningSession getSession() {
@@ -103,31 +104,32 @@ public class ProvisioningUI {
 	}
 
 	/**
-	 * Return the license manager that should be used to remember
-	 * accepted user licenses.
-	 * @return  the license manager.  May be <code>null</code> if licenses are not
-	 * to be remembered.
+	 * Return the license manager that should be used to remember accepted user
+	 * licenses.
+	 * 
+	 * @return the license manager. May be <code>null</code> if licenses are not to
+	 *         be remembered.
 	 */
 	public LicenseManager getLicenseManager() {
 		return ServiceHelper.getService(ProvUIActivator.getContext(), LicenseManager.class);
 	}
 
 	/**
-	 * Return the repository tracker that should be used to add, remove, and track the
-	 * statuses of known repositories.
-	 * 
+	 * Return the repository tracker that should be used to add, remove, and track
+	 * the statuses of known repositories.
+	 *
 	 * @return the repository tracker, must not be <code>null</code>
 	 */
 	public RepositoryTracker getRepositoryTracker() {
-		return (RepositoryTracker) session.getProvisioningAgent().getService(RepositoryTracker.class.getName());
+		return session.getProvisioningAgent().getService(RepositoryTracker.class);
 	}
 
 	/**
-	 * Return the profile id that should be assumed for this ProvisioningUI if no other
-	 * id is otherwise specified.  Some UI classes are assigned a profile id, while others 
-	 * are not.  For those classes that are not assigned a current profile id, this id can
-	 * be used to obtain one.
-	 * 
+	 * Return the profile id that should be assumed for this ProvisioningUI if no
+	 * other id is otherwise specified. Some UI classes are assigned a profile id,
+	 * while others are not. For those classes that are not assigned a current
+	 * profile id, this id can be used to obtain one.
+	 *
 	 * @return a profile id
 	 */
 	public String getProfileId() {
@@ -135,9 +137,9 @@ public class ProvisioningUI {
 	}
 
 	/**
-	 * Return an install operation that describes installing the specified IInstallableUnits from the
-	 * provided list of repositories.
-	 * 
+	 * Return an install operation that describes installing the specified
+	 * IInstallableUnits from the provided list of repositories.
+	 *
 	 * @param iusToInstall the IInstallableUnits to be installed
 	 * @param repositories the repositories to use for the operation
 	 * @return the install operation
@@ -150,10 +152,10 @@ public class ProvisioningUI {
 	}
 
 	/**
-	 * Return an update operation that describes updating the specified IInstallableUnits from the
-	 * provided list of repositories.
-	 * 
-	 * @param iusToUpdate the IInstallableUnits to be updated
+	 * Return an update operation that describes updating the specified
+	 * IInstallableUnits from the provided list of repositories.
+	 *
+	 * @param iusToUpdate  the IInstallableUnits to be updated
 	 * @param repositories the repositories to use for the operation
 	 * @return the update operation
 	 */
@@ -165,11 +167,12 @@ public class ProvisioningUI {
 	}
 
 	/**
-	 * Return an uninstall operation that describes uninstalling the specified IInstallableUnits, using
-	 * the supplied repositories to replace any metadata that must be retrieved for the uninstall.
-	 * 
+	 * Return an uninstall operation that describes uninstalling the specified
+	 * IInstallableUnits, using the supplied repositories to replace any metadata
+	 * that must be retrieved for the uninstall.
+	 *
 	 * @param iusToUninstall the IInstallableUnits to be installed
-	 * @param repositories the repositories to use for the operation
+	 * @param repositories   the repositories to use for the operation
 	 * @return the uninstall operation
 	 */
 	public UninstallOperation getUninstallOperation(Collection<IInstallableUnit> iusToUninstall, URI[] repositories) {
@@ -192,36 +195,52 @@ public class ProvisioningUI {
 
 	/**
 	 * Open an install wizard for installing the specified IInstallableUnits
-	 * 
-	 * @param initialSelections the IInstallableUnits that should be selected when the wizard opens.  May be <code>null</code>.
-	 * @param operation the operation describing the proposed install.  If this operation is not <code>null</code>, then a wizard showing
-	 * only the IInstallableUnits described in the operation will be shown.  If the operation is <code>null</code>, then a
-	 * wizard allowing the user to browse the repositories will be opened.
-	 * @param job a repository load job that is loading or has already loaded the repositories.  Can be used to pass along
-	 * an in-memory repository reference to the wizard.
-	 * 
+	 *
+	 * @param initialSelections the IInstallableUnits that should be selected when
+	 *                          the wizard opens. May be <code>null</code>.
+	 * @param operation         the operation describing the proposed install. If
+	 *                          this operation is not <code>null</code>, then a
+	 *                          wizard showing only the IInstallableUnits described
+	 *                          in the operation will be shown. If the operation is
+	 *                          <code>null</code>, then a wizard allowing the user
+	 *                          to browse the repositories will be opened.
+	 * @param job               a repository load job that is loading or has already
+	 *                          loaded the repositories. Can be used to pass along
+	 *                          an in-memory repository reference to the wizard.
+	 *
 	 * @return the wizard return code
 	 */
-	public int openInstallWizard(Collection<IInstallableUnit> initialSelections, InstallOperation operation, LoadMetadataRepositoryJob job) {
+	public int openInstallWizard(Collection<IInstallableUnit> initialSelections, InstallOperation operation,
+			LoadMetadataRepositoryJob job) {
 		return openInstallWizard(initialSelections, operation, null, job);
 	}
 
 	/**
-	 * Open an install wizard for installing the specified IInstallableUnits and remediationOperation.
-	 * 
-	 * @param initialSelections the IInstallableUnits that should be selected when the wizard opens.  May be <code>null</code>.
-	 * @param operation the operation describing the proposed install.  If this operation is not <code>null</code>, then a wizard showing
-	 * only the IInstallableUnits described in the operation will be shown.  If the operation is <code>null</code>, then a
-	 * wizard allowing the user to browse the repositories will be opened.
-	 * @param remediationOperation the alternate operations if the proposed update failed.  May be <code>null</code>.
-	 * @param job a repository load job that is loading or has already loaded the repositories.  Can be used to pass along
-	 * an in-memory repository reference to the wizard.
-	 * 
+	 * Open an install wizard for installing the specified IInstallableUnits and
+	 * remediationOperation.
+	 *
+	 * @param initialSelections    the IInstallableUnits that should be selected
+	 *                             when the wizard opens. May be <code>null</code>.
+	 * @param operation            the operation describing the proposed install. If
+	 *                             this operation is not <code>null</code>, then a
+	 *                             wizard showing only the IInstallableUnits
+	 *                             described in the operation will be shown. If the
+	 *                             operation is <code>null</code>, then a wizard
+	 *                             allowing the user to browse the repositories will
+	 *                             be opened.
+	 * @param remediationOperation the alternate operations if the proposed update
+	 *                             failed. May be <code>null</code>.
+	 * @param job                  a repository load job that is loading or has
+	 *                             already loaded the repositories. Can be used to
+	 *                             pass along an in-memory repository reference to
+	 *                             the wizard.
+	 *
 	 * @return the wizard return code
 	 * @see RemediationOperation
 	 * @since 2.3
 	 */
-	public int openInstallWizard(Collection<IInstallableUnit> initialSelections, InstallOperation operation, RemediationOperation remediationOperation, LoadMetadataRepositoryJob job) {
+	public int openInstallWizard(Collection<IInstallableUnit> initialSelections, InstallOperation operation,
+			RemediationOperation remediationOperation, LoadMetadataRepositoryJob job) {
 		if (operation == null) {
 			InstallWizard wizard = new InstallWizard(this, operation, initialSelections, job);
 			WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
@@ -239,13 +258,18 @@ public class ProvisioningUI {
 
 	/**
 	 * Open an update wizard for the specified update operation.
-	 * 
-	 * @param skipSelectionsPage <code>true</code> if the selection page should be skipped so that the user is 
-	 * viewing the resolution results.  <code>false</code> if the update selection page should be shown first.
-	 * @param operation the operation describing the proposed update.  Must not be <code>null</code>.
-	 * @param job a repository load job that is loading or has already loaded the repositories.  Can be used to pass along
-	 * an in-memory repository reference to the wizard.
-	 * 
+	 *
+	 * @param skipSelectionsPage <code>true</code> if the selection page should be
+	 *                           skipped so that the user is viewing the resolution
+	 *                           results. <code>false</code> if the update selection
+	 *                           page should be shown first.
+	 * @param operation          the operation describing the proposed update. Must
+	 *                           not be <code>null</code>.
+	 * @param job                a repository load job that is loading or has
+	 *                           already loaded the repositories. Can be used to
+	 *                           pass along an in-memory repository reference to the
+	 *                           wizard.
+	 *
 	 * @return the wizard return code
 	 */
 	public int openUpdateWizard(boolean skipSelectionsPage, UpdateOperation operation, LoadMetadataRepositoryJob job) {
@@ -254,24 +278,34 @@ public class ProvisioningUI {
 	}
 
 	/**
-	 * Open an update wizard for the specified update operation and remediationOperation.
-	 * 
-	 * @param skipSelectionsPage <code>true</code> if the selection page should be skipped so that the user is 
-	 * viewing the resolution results.  <code>false</code> if the update selection page should be shown first.
-	 * @param operation the operation describing the proposed update.  Must not be <code>null</code>.
-	 * @param remediationOperation the alternate operations if the proposed update failed.  May be <code>null</code>.
-	 * @param job a repository load job that is loading or has already loaded the repositories.  Can be used to pass along
-	 * an in-memory repository reference to the wizard.
-	 * 
+	 * Open an update wizard for the specified update operation and
+	 * remediationOperation.
+	 *
+	 * @param skipSelectionsPage   <code>true</code> if the selection page should be
+	 *                             skipped so that the user is viewing the
+	 *                             resolution results. <code>false</code> if the
+	 *                             update selection page should be shown first.
+	 * @param operation            the operation describing the proposed update.
+	 *                             Must not be <code>null</code>.
+	 * @param remediationOperation the alternate operations if the proposed update
+	 *                             failed. May be <code>null</code>.
+	 * @param job                  a repository load job that is loading or has
+	 *                             already loaded the repositories. Can be used to
+	 *                             pass along an in-memory repository reference to
+	 *                             the wizard.
+	 *
 	 * @return the wizard return code
 	 * @since 2.3
 	 */
-	public int openUpdateWizard(boolean skipSelectionsPage, UpdateOperation operation, RemediationOperation remediationOperation, LoadMetadataRepositoryJob job) {
-		if (getPolicy().getUpdateWizardStyle() == Policy.UPDATE_STYLE_SINGLE_IUS && UpdateSingleIUWizard.validFor(operation)) {
+	public int openUpdateWizard(boolean skipSelectionsPage, UpdateOperation operation,
+			RemediationOperation remediationOperation, LoadMetadataRepositoryJob job) {
+		if (getPolicy().getUpdateWizardStyle() == Policy.UPDATE_STYLE_SINGLE_IUS
+				&& UpdateSingleIUWizard.validFor(operation)) {
 			UpdateSingleIUWizard wizard = new UpdateSingleIUWizard(this, operation);
 			WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
 			dialog.create();
-			// TODO do we need a hook for providing custom help?  Or would this just be shown in the update browser?
+			// TODO do we need a hook for providing custom help? Or would this just be shown
+			// in the update browser?
 			return dialog.open();
 		}
 		UpdateWizard wizard = new UpdateWizard(this, operation, operation.getSelectedUpdates(), job);
@@ -280,7 +314,8 @@ public class ProvisioningUI {
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
-		if (wizard.getCurrentStatus().getSeverity() == IStatus.ERROR && remediationOperation != null && remediationOperation.getResolutionResult() != Status.OK_STATUS) {
+		if (wizard.getCurrentStatus().getSeverity() == IStatus.ERROR && remediationOperation != null
+				&& remediationOperation.getResolutionResult() != Status.OK_STATUS) {
 			wizard.deselectLockedIUs();
 		}
 		return dialog.open();
@@ -289,15 +324,19 @@ public class ProvisioningUI {
 
 	/**
 	 * Open an uninstall wizard for the specified uninstall operation.
-	 * 
-	 * @param initialSelections the IInstallableUnits that should be selected when the wizard opens.  May be <code>null</code>.
-	 * @param operation the operation describing the proposed uninstall.  Must not be <code>null</code>.
-	 * @param job a repository load job that is loading or has already loaded the repositories.  Can be used to pass along
-	 * an in-memory repository reference to the wizard.
-	 * 
+	 *
+	 * @param initialSelections the IInstallableUnits that should be selected when
+	 *                          the wizard opens. May be <code>null</code>.
+	 * @param operation         the operation describing the proposed uninstall.
+	 *                          Must not be <code>null</code>.
+	 * @param job               a repository load job that is loading or has already
+	 *                          loaded the repositories. Can be used to pass along
+	 *                          an in-memory repository reference to the wizard.
+	 *
 	 * @return the wizard return code
 	 */
-	public int openUninstallWizard(Collection<IInstallableUnit> initialSelections, UninstallOperation operation, LoadMetadataRepositoryJob job) {
+	public int openUninstallWizard(Collection<IInstallableUnit> initialSelections, UninstallOperation operation,
+			LoadMetadataRepositoryJob job) {
 		UninstallWizard wizard = new UninstallWizard(this, operation, initialSelections, job);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.create();
@@ -307,11 +346,13 @@ public class ProvisioningUI {
 
 	/**
 	 * Open a UI that allows the user to manipulate the repositories.
+	 * 
 	 * @param shell the shell that should parent the UI
 	 */
 	public void manipulateRepositories(Shell shell) {
 		if (policy.getRepositoryPreferencePageId() != null) {
-			PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(shell, policy.getRepositoryPreferencePageId(), null, null);
+			PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(shell,
+					policy.getRepositoryPreferencePageId(), null, null);
 			dialog.open();
 		} else {
 			TitleAreaDialog dialog = new TitleAreaDialog(shell) {
@@ -354,8 +395,8 @@ public class ProvisioningUI {
 
 	/**
 	 * Schedule a job to execute the supplied ProvisioningOperation.
-	 * 
-	 * @param job The operation to execute
+	 *
+	 * @param job        The operation to execute
 	 * @param errorStyle the flags passed to the StatusManager for error reporting
 	 */
 	public void schedule(final ProvisioningJob job, final int errorStyle) {
@@ -364,16 +405,17 @@ public class ProvisioningUI {
 	}
 
 	/**
-	 * Manage the supplied job as a provisioning operation.  This will allow
-	 * the ProvisioningUI to be aware that a provisioning job is running, as well
-	 * as manage the restart behavior for the job.
-	 * 
-	 * @param job the job to be managed
-	 * @param jobRestartPolicy an integer constant specifying whether the
-	 * supplied job should cause a restart of the system.  The UI Policy's
-	 * restart policy is used in conjunction with this constant to determine
-	 * what actually occurs when a job completes.
-	 * 
+	 * Manage the supplied job as a provisioning operation. This will allow the
+	 * ProvisioningUI to be aware that a provisioning job is running, as well as
+	 * manage the restart behavior for the job.
+	 *
+	 * @param job              the job to be managed
+	 * @param jobRestartPolicy an integer constant specifying whether the supplied
+	 *                         job should cause a restart of the system. The UI
+	 *                         Policy's restart policy is used in conjunction with
+	 *                         this constant to determine what actually occurs when
+	 *                         a job completes.
+	 *
 	 * @see ProvisioningJob#RESTART_NONE
 	 * @see ProvisioningJob#RESTART_ONLY
 	 * @see ProvisioningJob#RESTART_OR_APPLY
@@ -385,9 +427,9 @@ public class ProvisioningUI {
 	/**
 	 * Return a boolean indicating whether the receiver has scheduled any operations
 	 * for the profile under management.
-	 * 
-	 * @return <code>true</code> if other provisioning operations have been scheduled,
-	 * <code>false</code> if there are no operations scheduled.
+	 *
+	 * @return <code>true</code> if other provisioning operations have been
+	 *         scheduled, <code>false</code> if there are no operations scheduled.
 	 */
 	public boolean hasScheduledOperations() {
 		return getSession().hasScheduledOperationsFor(profileId);
@@ -395,7 +437,9 @@ public class ProvisioningUI {
 
 	/**
 	 * This method is for automated testing only.
-	 * @return the provisioning operation that can suppress restart for automated testing.
+	 * 
+	 * @return the provisioning operation that can suppress restart for automated
+	 *         testing.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public ProvisioningOperationRunner getOperationRunner() {
@@ -403,9 +447,10 @@ public class ProvisioningUI {
 	}
 
 	/**
-	 * Signal that a repository operation is about to begin.  This allows clients to ignore intermediate
-	 * events until the operation is completed.  Callers are responsible for ensuring that
-	 * a corresponding operation ending event is signaled.
+	 * Signal that a repository operation is about to begin. This allows clients to
+	 * ignore intermediate events until the operation is completed. Callers are
+	 * responsible for ensuring that a corresponding operation ending event is
+	 * signaled.
 	 */
 	public void signalRepositoryOperationStart() {
 		runner.eventBatchCount++;
@@ -416,36 +461,43 @@ public class ProvisioningUI {
 
 	/**
 	 * Signal that a repository operation has completed.
-	 * 
-	 * @param event a {@link RepositoryEvent} that describes the overall operation.  May be <code>null</code>, which
-	 * indicates that there was no single event that can describe the operation.  
-	 * @param update <code>true</code> if the event should be reflected in the UI, false if it should be ignored.
+	 *
+	 * @param event  a {@link RepositoryEvent} that describes the overall operation.
+	 *               May be <code>null</code>, which indicates that there was no
+	 *               single event that can describe the operation.
+	 * @param update <code>true</code> if the event should be reflected in the UI,
+	 *               false if it should be ignored.
 	 */
 	public void signalRepositoryOperationComplete(RepositoryEvent event, boolean update) {
 		runner.eventBatchCount--;
 		if (Tracing.DEBUG_EVENTS_CLIENT)
 			Tracing.debug("Batch Count Decremented to:  " + Integer.toString(runner.eventBatchCount)); //$NON-NLS-1$
-		ProvUI.getProvisioningEventBus(getSession()).publishEvent(new RepositoryOperationEndingEvent(this, update, event));
+		ProvUI.getProvisioningEventBus(getSession())
+				.publishEvent(new RepositoryOperationEndingEvent(this, update, event));
 	}
 
 	/**
-	 * Load the specified metadata repository, signaling a repository operation start event
-	 * before loading, and a repository operation complete event after loading.
-	 * 
+	 * Load the specified metadata repository, signaling a repository operation
+	 * start event before loading, and a repository operation complete event after
+	 * loading.
+	 *
 	 * @param location the location of the repository
-	 * @param notify <code>true</code> if the UI should be updated as a result of the load, <code>false</code> if it should not
-	 * @param monitor the progress monitor to be used
+	 * @param notify   <code>true</code> if the UI should be updated as a result of
+	 *                 the load, <code>false</code> if it should not
+	 * @param monitor  the progress monitor to be used
 	 * @return the repository
 	 * @throws ProvisionException if the repository could not be loaded
 	 */
 
-	public IMetadataRepository loadMetadataRepository(URI location, boolean notify, IProgressMonitor monitor) throws ProvisionException {
+	public IMetadataRepository loadMetadataRepository(URI location, boolean notify, IProgressMonitor monitor)
+			throws ProvisionException {
 		IMetadataRepository repo = null;
 		try {
 			signalRepositoryOperationStart();
 			IMetadataRepositoryManager manager = ProvUI.getMetadataRepositoryManager(getSession());
 			repo = manager.loadRepository(location, monitor);
-			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
+			// If there is no user nickname assigned to this repo but there is a provider
+			// name, then set the nickname.
 			// This will keep the name in the manager even when the repo is not loaded
 			String name = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null || name.isEmpty()) {
@@ -456,30 +508,35 @@ public class ProvisioningUI {
 		} catch (ProvisionException e) {
 			getRepositoryTracker().reportLoadFailure(location, e);
 		} finally {
-			// We have no idea how many repos may have been touched as a result of loading this one.
+			// We have no idea how many repos may have been touched as a result of loading
+			// this one.
 			signalRepositoryOperationComplete(null, notify);
 		}
 		return repo;
 	}
 
 	/**
-	 * Load the specified artifact repository, signaling a repository operation start event
-	 * before loading, and a repository operation complete event after loading.
-	 * 
+	 * Load the specified artifact repository, signaling a repository operation
+	 * start event before loading, and a repository operation complete event after
+	 * loading.
+	 *
 	 * @param location the location of the repository
-	 * @param update <code>true</code> if the UI should be updated as a result of the load, <code>false</code> if it should not
-	 * @param monitor the progress monitor to be used
+	 * @param update   <code>true</code> if the UI should be updated as a result of
+	 *                 the load, <code>false</code> if it should not
+	 * @param monitor  the progress monitor to be used
 	 * @return the repository
 	 * @throws ProvisionException if the repository could not be loaded
 	 */
-	public IArtifactRepository loadArtifactRepository(URI location, boolean update, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository loadArtifactRepository(URI location, boolean update, IProgressMonitor monitor)
+			throws ProvisionException {
 		IArtifactRepository repo;
 		signalRepositoryOperationStart();
 		try {
 			IArtifactRepositoryManager manager = ProvUI.getArtifactRepositoryManager(getSession());
 			repo = manager.loadRepository(location, monitor);
 
-			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
+			// If there is no user nickname assigned to this repo but there is a provider
+			// name, then set the nickname.
 			// This will keep the name in the manager even when the repo is not loaded
 			String name = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null) {
@@ -488,7 +545,8 @@ public class ProvisioningUI {
 					manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 			}
 		} finally {
-			// We have no idea how many repos may have been touched as a result of loading this one,
+			// We have no idea how many repos may have been touched as a result of loading
+			// this one,
 			// so we do not use a specific repository event to represent it.
 			signalRepositoryOperationComplete(null, update);
 		}

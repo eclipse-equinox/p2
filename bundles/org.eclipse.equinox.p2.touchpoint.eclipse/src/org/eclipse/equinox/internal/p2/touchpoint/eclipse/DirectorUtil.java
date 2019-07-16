@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 public class DirectorUtil {
 
 	public static IStatus validateProfile(IProfile profile) {
-		IPlanner planner = (IPlanner) profile.getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
+		IPlanner planner = profile.getProvisioningAgent().getService(IPlanner.class);
 		IProfileChangeRequest pcr = planner.createChangeRequest(profile);
 		ProvisioningContext ctx = new ProvisioningContext(profile.getProvisioningAgent());
 		ctx.setMetadataRepositories(new URI[0]);

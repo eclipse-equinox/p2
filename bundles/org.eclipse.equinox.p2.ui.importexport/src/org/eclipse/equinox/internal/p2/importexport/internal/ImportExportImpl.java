@@ -51,24 +51,28 @@ public class ImportExportImpl implements P2ImportExport {
 
 	@Override
 	public List<IUDetail> importP2F(InputStream input) throws IOException {
-		P2FParser parser = new P2FParser(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), Constants.Bundle_ID);
+		P2FParser parser = new P2FParser(Platform.getBundle(Constants.Bundle_ID).getBundleContext(),
+				Constants.Bundle_ID);
 		parser.parse(input);
 		return parser.getIUs();
 	}
 
 	@Override
-	public IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, boolean allowEntriesWithoutRepo, IProgressMonitor monitor) {
+	public IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, boolean allowEntriesWithoutRepo,
+			IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.Replicator_ExportJobName, 1000);
 
-		//Collect repos where the IUs are going to be searched
-		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		URI[] uris = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_LOCAL | IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		// Collect repos where the IUs are going to be searched
+		IMetadataRepositoryManager repoManager = agent.getService(IMetadataRepositoryManager.class);
+		URI[] uris = repoManager.getKnownRepositories(
+				IRepositoryManager.REPOSITORIES_NON_LOCAL | IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		List<IMetadataRepository> repos = new ArrayList<>(uris.length);
 		for (URI uri : uris) {
 			try {
-				IMetadataRepository repo = repoManager.loadRepository(uri, subMonitor.newChild(500 / uris.length, SubMonitor.SUPPRESS_ALL_LABELS));
+				IMetadataRepository repo = repoManager.loadRepository(uri,
+						subMonitor.newChild(500 / uris.length, SubMonitor.SUPPRESS_ALL_LABELS));
 				repos.add(repo);
 			} catch (ProvisionException e) {
 				// ignore
@@ -86,40 +90,54 @@ public class ImportExportImpl implements P2ImportExport {
 			SubMonitor sub3 = sub2.newChild(100);
 			sub3.setWorkRemaining(repos.size() * 100);
 
-			//Search for repo matching the given IU
+			// Search for repo matching the given IU
 			for (IMetadataRepository repo : repos) {
-				IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, true)), sub3.newChild(100));
+				IQueryResult<IInstallableUnit> result = repo.query(
+						QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, true)),
+						sub3.newChild(100));
 				if (!result.isEmpty())
 					referredRepos.add(repo.getLocation());
 			}
 			sub3.setWorkRemaining(1).worked(1);
 
-			//Create object representing given IU
+			// Create object representing given IU
 			if (referredRepos.size() != 0 || (referredRepos.size() == 0 && allowEntriesWithoutRepo)) {
 				IUDetail iuToExport = new IUDetail(iu, referredRepos);
 				rootsToExport.add(iuToExport);
 			} else {
 				if (isContainedInLocalRepo(iu))
-					queryRepoResult.add(new Status(IStatus.INFO, Constants.Bundle_ID, IGNORE_LOCAL_REPOSITORY, NLS.bind(Messages.Replicator_InstallFromLocal, iu.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString())), null));
+					queryRepoResult
+							.add(new Status(IStatus.INFO, Constants.Bundle_ID, IGNORE_LOCAL_REPOSITORY,
+									NLS.bind(Messages.Replicator_InstallFromLocal,
+											iu.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString())),
+									null));
 				else
-					queryRepoResult.add(new Status(IStatus.WARNING, Constants.Bundle_ID, CANNOT_FIND_REPOSITORY, NLS.bind(Messages.Replicator_NotFoundInRepository, iu.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString())), null));
+					queryRepoResult
+							.add(new Status(IStatus.WARNING, Constants.Bundle_ID, CANNOT_FIND_REPOSITORY,
+									NLS.bind(Messages.Replicator_NotFoundInRepository,
+											iu.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString())),
+									null));
 			}
 		}
 		subMonitor.setWorkRemaining(50);
-		//Serialize
+		// Serialize
 		IStatus status = exportP2F(output, rootsToExport, subMonitor);
 		if (status.isOK() && queryRepoResult.isOK())
 			return status;
-		return new MultiStatus(Constants.Bundle_ID, 0, new IStatus[] {queryRepoResult, status}, null, null);
+		return new MultiStatus(Constants.Bundle_ID, 0, new IStatus[] { queryRepoResult, status }, null, null);
 	}
 
 	private boolean isContainedInLocalRepo(IInstallableUnit iu) {
-		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		URI[] uris = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL | IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+		IMetadataRepositoryManager repoManager = agent.getService(IMetadataRepositoryManager.class);
+		URI[] uris = repoManager.getKnownRepositories(
+				IRepositoryManager.REPOSITORIES_LOCAL | IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		for (URI uri : uris) {
 			try {
 				IMetadataRepository repo = repoManager.loadRepository(uri, null);
-				if (!repo.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, true)), null).isEmpty())
+				if (!repo
+						.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, true)),
+								null)
+						.isEmpty())
 					return true;
 			} catch (ProvisionException e) {
 				// ignore
@@ -136,7 +154,8 @@ public class ImportExportImpl implements P2ImportExport {
 		if (sub.isCanceled())
 			throw new OperationCanceledException();
 		try {
-			P2FWriter writer = new P2FWriter(output, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(P2FConstants.P2F_ELEMENT, P2FConstants.CURRENT_VERSION)});
+			P2FWriter writer = new P2FWriter(output, new ProcessingInstruction[] { ProcessingInstruction
+					.makeTargetVersionInstruction(P2FConstants.P2F_ELEMENT, P2FConstants.CURRENT_VERSION) });
 			writer.write(ius);
 			return Status.OK_STATUS;
 		} finally {

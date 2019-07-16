@@ -31,30 +31,30 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceReference;
 
 public class NativePackageExtractionApplication implements IApplication {
-	//Keys used in the file created by the application
+	// Keys used in the file created by the application
 	private static final String PROP_LAUNCHER_NAME = "launcherName"; //$NON-NLS-1$
 	private static final String PROP_ARCH = "arch"; //$NON-NLS-1$
 	private static final String PROP_DEPENDS = "depends"; //$NON-NLS-1$
 
-	//Internal constants
+	// Internal constants
 	private static final String DEFAULT_VERSION_CONSTRAINT = "ge"; //$NON-NLS-1$
 	private static final String _ACTION_ID = "_action_id_"; //$NON-NLS-1$
 	private static final String PROP_P2_PROFILE = "eclipse.p2.profile"; //$NON-NLS-1$
 	private static final Integer EXIT_ERROR = 13;
 
-	//Constants for arguments
+	// Constants for arguments
 	private static final String OPTION_TO_ANALYZE = "-toAnalyze"; //$NON-NLS-1$
 	private static final String OPTION_RESULT_FILE = "-output"; //$NON-NLS-1$
 
-	//Values provided as a parameter to the application
+	// Values provided as a parameter to the application
 	private File installation;
 	private File resultFile;
 
-	//Values derived
+	// Values derived
 	private IProvisioningAgent targetAgent;
 	private String profileId;
 
-	//Data collected by the application
+	// Data collected by the application
 	private Properties extractedData = new Properties();
 
 	private Properties installCommandsProperties = new Properties();
@@ -80,7 +80,9 @@ public class NativePackageExtractionApplication implements IApplication {
 
 	private void processArguments(String[] args) throws CoreException {
 		if (args == null || args.length == 0) {
-			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.NativePackageExtractionApplication_MissingParameters, OPTION_TO_ANALYZE, OPTION_RESULT_FILE)));
+			throw new CoreException(new Status(IStatus.ERROR, Activator.ID,
+					NLS.bind(Messages.NativePackageExtractionApplication_MissingParameters, OPTION_TO_ANALYZE,
+							OPTION_RESULT_FILE)));
 		}
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
@@ -89,7 +91,9 @@ public class NativePackageExtractionApplication implements IApplication {
 			if (OPTION_TO_ANALYZE.equals(opt)) {
 				installation = new File(getRequiredArgument(args, ++i));
 				if (!installation.exists())
-					throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.NativePackageExtractionApplication_FolderNotFound + installation.getAbsolutePath()));
+					throw new CoreException(new Status(IStatus.ERROR, Activator.ID,
+							Messages.NativePackageExtractionApplication_FolderNotFound
+									+ installation.getAbsolutePath()));
 				continue;
 			}
 
@@ -106,11 +110,12 @@ public class NativePackageExtractionApplication implements IApplication {
 			if (!arg.startsWith("-")) //$NON-NLS-1$
 				return arg;
 		}
-		throw new ProvisionException(NLS.bind(Messages.NativePackageExtractionApplication_MissingValue, args[argIdx - 1]));
+		throw new ProvisionException(
+				NLS.bind(Messages.NativePackageExtractionApplication_MissingValue, args[argIdx - 1]));
 	}
 
 	private void collectData() {
-		IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = targetAgent.getService(IProfileRegistry.class);
 		IProfile p = registry.getProfile(profileId);
 		collectArchitecture(p);
 		collectLauncherName(p);
@@ -121,7 +126,8 @@ public class NativePackageExtractionApplication implements IApplication {
 		try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(resultFile))) {
 			extractedData.store(os, "Data extracted from eclipse located at " + installation); //$NON-NLS-1$
 		} catch (IOException e) {
-			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.NativePackageExtractionApplication_PersistencePb + resultFile.getAbsolutePath(), e));
+			throw new CoreException(new Status(IStatus.ERROR, Activator.ID,
+					Messages.NativePackageExtractionApplication_PersistencePb + resultFile.getAbsolutePath(), e));
 		}
 	}
 
@@ -169,16 +175,20 @@ public class NativePackageExtractionApplication implements IApplication {
 					StringTokenizer tokenizer = new StringTokenizer(instruction.getBody(), ";"); //$NON-NLS-1$
 					while (tokenizer.hasMoreTokens()) {
 						Map<String, String> parsedInstructions = parseInstruction(tokenizer.nextToken());
-						if (parsedInstructions != null && parsedInstructions.get(_ACTION_ID).endsWith(CheckAndPromptNativePackage.ID)) {
+						if (parsedInstructions != null
+								&& parsedInstructions.get(_ACTION_ID).endsWith(CheckAndPromptNativePackage.ID)) {
 							if ("debian".equals(parsedInstructions.get(ActionConstants.PARM_LINUX_DISTRO))) { //$NON-NLS-1$
-								depends += formatAsDependsEntry(parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_NAME), parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_VERSION), parsedInstructions.get(ActionConstants.PARM_LINUX_VERSION_COMPARATOR)) + ',';
+								depends += formatAsDependsEntry(
+										parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_NAME),
+										parsedInstructions.get(ActionConstants.PARM_LINUX_PACKAGE_VERSION),
+										parsedInstructions.get(ActionConstants.PARM_LINUX_VERSION_COMPARATOR)) + ',';
 							}
 						}
 					}
 				}
 			}
 		}
-		//pre-prend a comma, and remove the last one
+		// pre-prend a comma, and remove the last one
 		if (depends.length() > 0)
 			depends = ',' + depends.substring(0, depends.length() - 1);
 
@@ -199,7 +209,7 @@ public class NativePackageExtractionApplication implements IApplication {
 		return installCommandsProperties.getProperty(comparator, ""); //$NON-NLS-1$
 	}
 
-	//Code copied from the InstructionParser class
+	// Code copied from the InstructionParser class
 	private Map<String, String> parseInstruction(String statement) {
 		Map<String, String> instructions = new HashMap<>();
 
@@ -227,7 +237,8 @@ public class NativePackageExtractionApplication implements IApplication {
 	}
 
 	private void initializeServices() throws ProvisionException {
-		ServiceReference<IProvisioningAgentProvider> agentProviderRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.class);
+		ServiceReference<IProvisioningAgentProvider> agentProviderRef = Activator.getContext()
+				.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider provider = Activator.getContext().getService(agentProviderRef);
 
 		URI p2DataArea = new File(installation, "p2").toURI(); //$NON-NLS-1$
@@ -303,7 +314,7 @@ public class NativePackageExtractionApplication implements IApplication {
 
 	@Override
 	public void stop() {
-		//We don't handle application stopping
+		// We don't handle application stopping
 	}
 
 }

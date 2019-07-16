@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     EclipseSource Inc. - initial API and implementation
  *******************************************************************************/
@@ -26,7 +26,7 @@ public class RepositoryTrackerComponent implements IAgentServiceFactory {
 
 	@Override
 	public Object createService(IProvisioningAgent agent) {
-		ProvisioningUI ui = (ProvisioningUI) agent.getService(ProvisioningUI.class.getName());
+		ProvisioningUI ui = agent.getService(ProvisioningUI.class);
 		if (ui == null)
 			return null;
 		return new ColocatedRepositoryTracker(ui);
