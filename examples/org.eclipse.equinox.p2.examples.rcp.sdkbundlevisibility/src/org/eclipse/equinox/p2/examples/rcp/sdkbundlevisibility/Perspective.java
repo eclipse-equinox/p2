@@ -11,15 +11,16 @@ public class Perspective implements IPerspectiveFactory {
 	 */
 	public static final String ID = "org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.perspective";
 
+	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
-		
-		layout.addStandaloneView(NavigationView.ID,  false, IPageLayout.LEFT, 0.25f, editorArea);
+
+		layout.addStandaloneView(NavigationView.ID, false, IPageLayout.LEFT, 0.25f, editorArea);
 		IFolderLayout folder = layout.createFolder("messages", IPageLayout.TOP, 0.5f, editorArea);
 		folder.addPlaceholder(View.ID + ":*");
 		folder.addView(View.ID);
-		
+
 		layout.getViewLayout(NavigationView.ID).setCloseable(false);
 	}
 }

@@ -31,7 +31,7 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * Preference page for general provisioning preferences.
- * 
+ *
  * @since 3.4
  */
 
@@ -41,6 +41,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 	private Button showLatestRadio, showAllRadio;
 	private Button alwaysShowFailedPlan, neverShowFailedPlan, promptOnFailedPlan;
 
+	@Override
 	protected Control createContents(Composite parent) {
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IProvSDKHelpContextIds.PROVISIONING_PREFERENCE_PAGE);
 
@@ -70,7 +71,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		gd.horizontalSpan = 3;
 		showAllRadio.setLayoutData(gd);
 
-		//Group for validating a failed plan
+		// Group for validating a failed plan
 		validateGroup = new Group(container, SWT.NONE);
 		validateGroup.setText(Messages.ProvisioningPreferencePage_OpenWizardIfInvalid);
 		layout = new GridLayout();
@@ -114,6 +115,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		promptOnFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.PROMPT));
 	}
 
+	@Override
 	protected void performDefaults() {
 		super.performDefaults();
 		Preferences pref = Activator.getDefault().getPluginPreferences();
@@ -125,6 +127,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		promptOnFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.PROMPT));
 	}
 
+	@Override
 	public boolean performOk() {
 		Preferences pref = Activator.getDefault().getPluginPreferences();
 		pref.setValue(PreferenceConstants.PREF_SHOW_LATEST_VERSION, showLatestRadio.getSelection());
@@ -139,6 +142,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		return true;
 	}
 
+	@Override
 	public void init(IWorkbench workbench) {
 		// Nothing to do
 	}
