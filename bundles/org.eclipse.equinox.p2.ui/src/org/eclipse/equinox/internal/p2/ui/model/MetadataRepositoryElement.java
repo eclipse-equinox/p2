@@ -29,11 +29,11 @@ import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
- * Element wrapper class for a metadata repository that gets its
- * contents in a deferred manner.  A metadata repository can be the root
- * (input) of a viewer, when the view is filtered by repo, or a child of
- * an input, when the view is showing many repos.  
- * 
+ * Element wrapper class for a metadata repository that gets its contents in a
+ * deferred manner. A metadata repository can be the root (input) of a viewer,
+ * when the view is filtered by repo, or a child of an input, when the view is
+ * showing many repos.
+ *
  * @since 3.4
  */
 public class MetadataRepositoryElement extends RootElement implements IRepositoryElement<IInstallableUnit> {
@@ -47,11 +47,13 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		this(parent, null, null, location, isEnabled);
 	}
 
-	public MetadataRepositoryElement(IUViewQueryContext queryContext, ProvisioningUI ui, URI location, boolean isEnabled) {
+	public MetadataRepositoryElement(IUViewQueryContext queryContext, ProvisioningUI ui, URI location,
+			boolean isEnabled) {
 		this(null, queryContext, ui, location, isEnabled);
 	}
 
-	public MetadataRepositoryElement(Object parent, IUViewQueryContext queryContext, ProvisioningUI ui, URI location, boolean isEnabled) {
+	public MetadataRepositoryElement(Object parent, IUViewQueryContext queryContext, ProvisioningUI ui, URI location,
+			boolean isEnabled) {
 		super(parent, queryContext, ui);
 		this.location = location;
 		this.isEnabled = isEnabled;
@@ -73,17 +75,19 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return cache;
 
 		SubMonitor sub = SubMonitor.convert(monitor, 200);
-		// Ensure the repository is loaded using the monitor, so we respond to cancelation.
-		// Otherwise, a non-loaded repository could be loaded in the query provider without a monitor.
+		// Ensure the repository is loaded using the monitor, so we respond to
+		// cancelation.
+		// Otherwise, a non-loaded repository could be loaded in the query provider
+		// without a monitor.
 		// If the load fails, return an explanation element.
 		try {
 			getMetadataRepository(sub.newChild(100));
-			//only invoke super if we successfully loaded the repository
+			// only invoke super if we successfully loaded the repository
 			cache = super.fetchChildren(o, sub.newChild(100));
 		} catch (ProvisionException e) {
 			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e);
 			// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=276784
-			cache = new Object[] {new EmptyElementExplanation(this, IStatus.ERROR, e.getLocalizedMessage(), "")}; //$NON-NLS-1$
+			cache = new Object[] { new EmptyElementExplanation(this, IStatus.ERROR, e.getLocalizedMessage(), "") }; //$NON-NLS-1$
 		}
 		return cache;
 	}
@@ -109,8 +113,6 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	/*
 	 * overridden to lazily fetch repository
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryable()
 	 */
 	@Override
 	public IQueryable<?> getQueryable() {
@@ -140,28 +142,19 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	}
 
 	/*
-	 * overridden to check whether url is specified rather
-	 * than loading the repo via getQueryable()
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#knowsQueryable()
+	 * overridden to check whether url is specified rather than loading the repo via
+	 * getQueryable()
 	 */
 	@Override
 	public boolean knowsQueryable() {
 		return location != null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getURL()
-	 */
 	@Override
 	public URI getLocation() {
 		return location;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
-	 */
 	@Override
 	public String getName() {
 		if (name == null) {
@@ -183,31 +176,22 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		setQueryable(null);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
-	 */
 	@Override
 	public String getDescription() {
 		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.RepositoryElement_NotFound;
-		String description = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		String description = getMetadataRepositoryManager().getRepositoryProperty(location,
+				IRepository.PROP_DESCRIPTION);
 		if (description == null)
 			return ""; //$NON-NLS-1$
 		return description;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#isEnabled()
-	 */
 	@Override
 	public boolean isEnabled() {
 		return isEnabled;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement#setEnabled(boolean)
-	 */
 	@Override
 	public void setEnabled(boolean enabled) {
 		isEnabled = enabled;
@@ -215,13 +199,12 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	/*
 	 * Overridden to check whether a repository instance has already been loaded.
-	 * This is necessary to prevent background loading of an already loaded repository
-	 * by the DeferredTreeContentManager, which will add redundant children to the
-	 * viewer.  
-	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=229069
-	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=226343
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#hasQueryable()
+	 * This is necessary to prevent background loading of an already loaded
+	 * repository by the DeferredTreeContentManager, which will add redundant
+	 * children to the viewer. see
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=229069 see
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=226343
+	 *
 	 */
 	@Override
 	public boolean hasQueryable() {
@@ -267,8 +250,8 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	/**
 	 * MetadataRepositoryElements can sometimes be roots and sometimes children.
-	 * When they are roots the should have a ui set directly.  As children they should
-	 * defer to the parent to get the ui.
+	 * When they are roots the should have a ui set directly. As children they
+	 * should defer to the parent to get the ui.
 	 */
 	@Override
 	public ProvisioningUI getProvisioningUI() {
@@ -278,7 +261,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		Object parent = getParent(this);
 		if (parent != null && parent instanceof QueriedElement)
 			return ((QueriedElement) parent).getProvisioningUI();
-		// if all else fails get the global UI.  This should not really happen but 
+		// if all else fails get the global UI. This should not really happen but
 		// we need to account for some possible historical cases.
 		return ProvisioningUI.getDefaultUI();
 	}

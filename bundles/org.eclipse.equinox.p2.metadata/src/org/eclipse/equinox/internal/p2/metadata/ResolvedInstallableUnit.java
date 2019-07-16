@@ -162,7 +162,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 
 	@Override
 	public boolean equals(Object obj) {
-		//TODO This is pretty ugly....
+		// TODO This is pretty ugly....
 		boolean result = original.equals(obj);
 		if (result)
 			return true;
@@ -234,9 +234,6 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 		return candidate.isMatch(this);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.metadata.expression.IMemberProvider#getMember(java.lang.String)
-	 */
 	@Override
 	public Object getMember(String memberName) {
 		if (MEMBER_FRAGMENTS == memberName)

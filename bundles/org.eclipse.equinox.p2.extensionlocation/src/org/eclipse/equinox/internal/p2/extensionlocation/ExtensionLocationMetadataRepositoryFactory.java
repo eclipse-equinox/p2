@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -80,8 +80,10 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	/*
+	 * @see
+	 * org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#
+	 * validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {

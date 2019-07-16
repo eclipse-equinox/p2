@@ -26,39 +26,35 @@ import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Touchpoint action which allows the user to set the -vm parameter in the 
+ * Touchpoint action which allows the user to set the -vm parameter in the
  * eclipse.ini file.
  *
  */
 public class SetJvmAction extends ProvisioningAction {
 	public static final String ID = "setJvm"; //$NON-NLS-1$
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.spi.ProvisioningAction#execute(java.util.Map)
-	 */
 	public IStatus execute(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM);
 		if (jvmArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM, ID));
-		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR)).getLauncherData();
+		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR))
+				.getLauncherData();
 		File previous = launcherData.getJvm();
 		File jvm = "null".equals(jvmArg) ? null : new File(jvmArg); //$NON-NLS-1$
-		// make a backup - even if it is null 
+		// make a backup - even if it is null
 		getMemento().put(ActionConstants.PARM_PREVIOUS_VALUE, previous == null ? null : previous.getPath());
 		launcherData.setJvm(jvm);
 		return Status.OK_STATUS;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.spi.ProvisioningAction#undo(java.util.Map)
-	 */
 	public IStatus undo(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM);
 		if (jvmArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM, ID));
-		// make a backup - even if it is null 
+		// make a backup - even if it is null
 		String previous = (String) getMemento().get(ActionConstants.PARM_PREVIOUS_VALUE);
-		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR)).getLauncherData();
+		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR))
+				.getLauncherData();
 		launcherData.setJvm(previous == null ? null : new File(previous));
 		return Status.OK_STATUS;
 	}

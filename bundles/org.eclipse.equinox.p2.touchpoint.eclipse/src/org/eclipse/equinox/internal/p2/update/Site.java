@@ -57,8 +57,8 @@ public class Site {
 	}
 
 	/*
-	 * Return the feature object with the specific id and version. Return null 
-	 * if there is no match or the id is null. If the version is null then return the
+	 * Return the feature object with the specific id and version. Return null if
+	 * there is no match or the id is null. If the version is null then return the
 	 * first feature with a matching id.
 	 */
 	public Feature getFeature(String id, String version) {
@@ -132,17 +132,11 @@ public class Site {
 		this.url = url;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		return getUrl().hashCode();
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Site))
@@ -166,16 +160,16 @@ public class Site {
 	}
 
 	/*
-	 * Return a boolean value indicating whether or not the given
-	 * objects are considered equal.
+	 * Return a boolean value indicating whether or not the given objects are
+	 * considered equal.
 	 */
 	public static boolean equals(Object one, Object two) {
 		return one == null ? two == null : one.equals(two);
 	}
 
 	/*
-	 * Return a boolean value indicating whether or not the given
-	 * lists are considered equal.
+	 * Return a boolean value indicating whether or not the given lists are
+	 * considered equal.
 	 */
 	public static boolean equals(Object[] one, Object[] two) {
 		if (one == null && two == null)

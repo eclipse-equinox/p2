@@ -14,7 +14,6 @@
 
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.widgets.Text;
@@ -32,9 +31,6 @@ public class TextURLDropAdapter extends URLDropAdapter {
 		this.text = text;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLDropAdapter#handleURLString(java.lang.String, org.eclipse.swt.dnd.DropTargetEvent)
-	 */
 	@Override
 	protected void handleDrop(String urlText, DropTargetEvent event) {
 		text.setText(urlText);

@@ -27,9 +27,6 @@ import org.eclipse.osgi.util.NLS;
 public class RemoveProgramPropertyAction extends ProvisioningAction {
 	public static final String ID = "removeProgramProperty"; //$NON-NLS-1$
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.spi.ProvisioningAction#execute(java.util.Map)
-	 */
 	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
@@ -41,14 +38,14 @@ public class RemoveProgramPropertyAction extends ProvisioningAction {
 		String previous = data.getProperty(propName);
 		if (previous == null)
 			return Status.OK_STATUS;
-		// make a backup - even if it is null 
+		// make a backup - even if it is null
 		getMemento().put(ActionConstants.PARM_PREVIOUS_VALUE, previous);
-		// if the value is null, remove the key/value pair. 
+		// if the value is null, remove the key/value pair.
 		if (propValue == null) {
 			data.setProperty(propName, null);
 			return Status.OK_STATUS;
 		}
-		// Otherwise treat the current value as a comma-separated list and remove 
+		// Otherwise treat the current value as a comma-separated list and remove
 		// just the one value that was specified.
 		List<String> list = AddProgramPropertyAction.convertToList(previous);
 		// if the value wasn't in the list, then just return
@@ -60,9 +57,6 @@ public class RemoveProgramPropertyAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.spi.ProvisioningAction#undo(java.util.Map)
-	 */
 	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);

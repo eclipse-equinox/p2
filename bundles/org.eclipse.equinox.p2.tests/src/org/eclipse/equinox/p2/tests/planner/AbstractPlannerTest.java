@@ -16,10 +16,19 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.p2.engine.Operand;
+import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
+import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
@@ -79,9 +88,6 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#setUp()
-	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();

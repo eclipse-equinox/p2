@@ -67,9 +67,6 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 		this.key = key;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor#getArtifactKey()
-	 */
 	@Override
 	public IArtifactKey getArtifactKey() {
 		return key;

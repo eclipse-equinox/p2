@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
  * Element wrapper class for an artifact key and its repository
- * 
+ *
  * @since 3.4
  */
 public class ArtifactElement extends ProvElement {
@@ -33,11 +33,6 @@ public class ArtifactElement extends ProvElement {
 		this.repo = repo;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
-	 */
 	@Override
 	protected String getImageId(Object obj) {
 		return null;

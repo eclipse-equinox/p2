@@ -41,9 +41,6 @@ public class Bug252308 extends AbstractProvisioningTest {
 	private Method transferSingle;
 	private Method extractRootCause;
 
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#setUp()
-	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();

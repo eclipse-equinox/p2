@@ -25,7 +25,7 @@ import org.eclipse.osgi.util.NLS;
 public class AddProgramPropertyAction extends ProvisioningAction {
 	public static final String ID = "addProgramProperty"; //$NON-NLS-1$
 
-	// treat the given string as a comma-separated list and parse and 
+	// treat the given string as a comma-separated list and parse and
 	// convert it to a real list
 	protected static List<String> convertToList(String value) {
 		List<String> result = new ArrayList<>();
@@ -45,9 +45,6 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 		return buffer.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.spi.ProvisioningAction#execute(java.util.Map)
-	 */
 	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
@@ -64,11 +61,12 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 			}
 		}
 
-		// if there was no value previously, then just set our key/value pair and return.
-		// otherwise we have to merge. 
+		// if there was no value previously, then just set our key/value pair and
+		// return.
+		// otherwise we have to merge.
 		ConfigData data = manipulator.getConfigData();
 		String previous = data.getProperty(propName);
-		// make a backup - even if it is null 
+		// make a backup - even if it is null
 		getMemento().put(ActionConstants.PARM_PREVIOUS_VALUE, previous);
 		// assume the value is a comma-separated list and just add ourselves to the end
 		if (previous != null)
@@ -77,9 +75,6 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.spi.ProvisioningAction#undo(java.util.Map)
-	 */
 	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);

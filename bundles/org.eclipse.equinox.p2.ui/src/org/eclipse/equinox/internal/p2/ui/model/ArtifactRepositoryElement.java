@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
@@ -25,9 +25,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 
 /**
- * Element wrapper class for a artifact repository that gets its
- * contents in a deferred manner.
- * 
+ * Element wrapper class for a artifact repository that gets its contents in a
+ * deferred manner.
+ *
  * @since 3.4
  */
 public class ArtifactRepositoryElement extends RemoteQueriedElement implements IRepositoryElement<IArtifactKey> {
@@ -83,18 +83,11 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 		return repo;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getURL()
-	 */
 	@Override
 	public URI getLocation() {
 		return location;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
-	 */
 	@Override
 	public String getName() {
 		String name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
@@ -105,49 +98,32 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 		return name;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
-	 */
 	@Override
 	public String getDescription() {
 		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.RepositoryElement_NotFound;
-		String description = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		String description = getArtifactRepositoryManager().getRepositoryProperty(location,
+				IRepository.PROP_DESCRIPTION);
 		if (description == null)
 			return ""; //$NON-NLS-1$
 		return description;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#isEnabled()
-	 */
 	@Override
 	public boolean isEnabled() {
 		return isEnabled;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement#setEnabled(boolean)
-	 */
 	@Override
 	public void setEnabled(boolean enabled) {
 		isEnabled = enabled;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
-	 */
 	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.AVAILABLE_ARTIFACTS;
 	}
 
-	/*
-	 * overridden to lazily fetch repository
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryable()
-	 */
 	@Override
 	public IQueryable<?> getQueryable() {
 		if (queryable == null)

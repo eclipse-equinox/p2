@@ -44,9 +44,6 @@ public class PublisherTask extends AbstractPublishTask {
 	private boolean start;
 	private String[] nonRootFiles;
 
-	/* (non-Javadoc)
-	 * @see org.apache.tools.ant.Task#execute()
-	 */
 	@Override
 	public void execute() throws BuildException {
 		try {
@@ -56,7 +53,7 @@ public class PublisherTask extends AbstractPublishTask {
 		}
 		createVersionAdvice();
 		IPublisherAction[] actions = createActions();
-		//TODO Do something with publisher result
+		// TODO Do something with publisher result
 		new Publisher(getInfo()).publish(actions, new NullProgressMonitor());
 	}
 
@@ -65,12 +62,14 @@ public class PublisherTask extends AbstractPublishTask {
 			// TODO what to do in this case?
 			return new IPublisherAction[] {};
 		if (operation.equals("-update")) //$NON-NLS-1$
-			// TODO fix this up.  watch for circularities
-			//			return new IPublishingAction[] {new LocalUpdateSiteAction(operationValue)};
+			// TODO fix this up. watch for circularities
+			// return new IPublishingAction[] {new LocalUpdateSiteAction(operationValue)};
 			return new IPublisherAction[] {};
 		if (operation.equals("-source")) //$NON-NLS-1$
 			// TODO what to do in this case?
-			return new IPublisherAction[] {new EclipseInstallAction(operationValue, root, Version.parseVersion(rootVersion), rootName, executableName, flavor, topLevel, nonRootFiles, start)};
+			return new IPublisherAction[] {
+					new EclipseInstallAction(operationValue, root, Version.parseVersion(rootVersion), rootName,
+							executableName, flavor, topLevel, nonRootFiles, start) };
 		// TODO what to do in this case?
 		return new IPublisherAction[] {};
 	}
@@ -90,7 +89,8 @@ public class PublisherTask extends AbstractPublishTask {
 				artifactLocation = sourceLocation.toURI();
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 		} else
-			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_OVERWRITE);
+			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH
+					| IPublisherInfo.A_OVERWRITE);
 		initializeRepositories(info);
 	}
 
@@ -99,7 +99,7 @@ public class PublisherTask extends AbstractPublishTask {
 	}
 
 	public void setBundles(String value) {
-		//TODO Remove - currently exists for compatibility with generator task
+		// TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setConfig(String value) {
@@ -132,7 +132,7 @@ public class PublisherTask extends AbstractPublishTask {
 	}
 
 	public void setFeatures(String value) {
-		//TODO Remove - currently exists for compatibility with generator task
+		// TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setFlavor(String value) {
@@ -144,11 +144,11 @@ public class PublisherTask extends AbstractPublishTask {
 	 */
 	@Deprecated
 	public void setLauncherConfig(String value) {
-		//TODO Remove - currently exists for compatibility with generator task
+		// TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setNoDefaultIUs(String value) {
-		//TODO Remove - currently exists for compatibility with generator task
+		// TODO Remove - currently exists for compatibility with generator task
 	}
 
 	/**
@@ -156,11 +156,11 @@ public class PublisherTask extends AbstractPublishTask {
 	 */
 	@Deprecated
 	public void setP2OS(String value) {
-		//TODO Remove - currently exists for compatibility with generator task
+		// TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setProductFile(String file) {
-		//TODO Remove - currently exists for compatibility with generator task
+		// TODO Remove - currently exists for compatibility with generator task
 	}
 
 	public void setPublishArtifactRepository(String value) {

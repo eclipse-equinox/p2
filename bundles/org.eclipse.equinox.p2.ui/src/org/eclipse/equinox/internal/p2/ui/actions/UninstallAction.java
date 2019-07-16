@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -36,25 +36,16 @@ public class UninstallAction extends ExistingIUInProfileAction {
 		return ProvUIMessages.UninstallIUProgress;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.AlterExistingProfileIUAction#getLockConstant()
-	 */
 	@Override
 	protected int getLockConstant() {
 		return IProfile.LOCK_UNINSTALL;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#getProfileChangeOperation(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
-	 */
 	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Collection<IInstallableUnit> ius) {
 		return ui.getUninstallOperation(ius, null);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#performAction(org.eclipse.equinox.p2.operations.ProfileChangeOperation, org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
-	 */
 	@Override
 	protected int performAction(ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
 		return ui.openUninstallWizard(ius, (UninstallOperation) operation, null);

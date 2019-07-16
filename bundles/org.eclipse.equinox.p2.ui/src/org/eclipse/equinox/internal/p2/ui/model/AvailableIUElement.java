@@ -67,13 +67,6 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		this.isPatch = iu == null ? false : Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(
-	 * java.lang.Object)
-	 */
 	@Override
 	protected String getImageId(Object obj) {
 		if (imageId != null)
@@ -168,32 +161,16 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
-	 */
 	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.AVAILABLE_IUS;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
-	 */
 	@Override
 	public Collection<IRequirement> getRequirements() {
 		return iu.getRequirements();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
-	 */
 	@Override
 	public boolean shouldShowChildren() {
 		return shouldShowChildren;

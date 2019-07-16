@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -32,7 +32,8 @@ import org.eclipse.jface.wizard.IWizardPage;
  */
 public class UninstallWizard extends ProvisioningOperationWizard {
 
-	public UninstallWizard(ProvisioningUI ui, UninstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob job) {
+	public UninstallWizard(ProvisioningUI ui, UninstallOperation operation,
+			Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob job) {
 		super(ui, operation, initialSelections.toArray(), job);
 		setWindowTitle(ProvUIMessages.UninstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL));
@@ -57,8 +58,8 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		root = new IUElementListRoot(ui);
 		ArrayList<InstalledIUElement> list = new ArrayList<>(selectedElements.length);
 		ArrayList<InstalledIUElement> selections = new ArrayList<>(selectedElements.length);
-		for (int i = 0; i < selectedElements.length; i++) {
-			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
+		for (Object selectedElement : selectedElements) {
+			IInstallableUnit iu = ElementUtils.getIU(selectedElement);
 			if (iu != null) {
 				InstalledIUElement element = new InstalledIUElement(root, getProfileId(), iu);
 				list.add(element);
@@ -74,10 +75,6 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		return (SelectableIUsPage) mainPage;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#getStartingPage()
-	 */
 	@Override
 	public IWizardPage getStartingPage() {
 		if (getCurrentStatus().isOK()) {
@@ -87,14 +84,11 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 		return super.getStartingPage();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getProfileChangeOperation(java.lang.Object[])
-	 */
 	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		UninstallOperation op = new UninstallOperation(ui.getSession(), ElementUtils.elementsToIUs(elements));
 		op.setProfileId(getProfileId());
-		//		op.setRootMarkerKey(getRootMarkerKey());
+		// op.setRootMarkerKey(getRootMarkerKey());
 		op.setProvisioningContext(getProvisioningContext());
 		return op;
 	}

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
  * Element class for a profile snapshot
- * 
+ *
  * @since 3.4
  */
 public class RollbackProfileElement extends RemoteQueriedElement {
@@ -46,11 +46,6 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 		this.profileTag = profileTag;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
-	 */
 	@Override
 	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_PROFILE;
@@ -103,19 +98,11 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 		this.profileTag = profileTag;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
-	 */
 	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.INSTALLED_IUS;
 	}
 
-	/*
-	 * The queryable is the profile snapshot
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getQueryable()
-	 */
 	@Override
 	public IQueryable<?> getQueryable() {
 		return getProfileSnapshot(new NullProgressMonitor());

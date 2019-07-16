@@ -17,9 +17,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.Dialog;
 
 /**
- * Element class representing an explanation for no children appearing
- * beneath an element.
- * 
+ * Element class representing an explanation for no children appearing beneath
+ * an element.
+ *
  * @since 3.5
  */
 public class EmptyElementExplanation extends ProvElement {
@@ -30,8 +30,9 @@ public class EmptyElementExplanation extends ProvElement {
 
 	/**
 	 * Create an empty element explanation
-	 * @param parent the parent of this element
-	 * @param severity the severity of the explanation {@link IStatus#INFO}, 
+	 * 
+	 * @param parent      the parent of this element
+	 * @param severity    the severity of the explanation {@link IStatus#INFO},
 	 * @param explanation
 	 */
 	public EmptyElementExplanation(Object parent, int severity, String explanation, String description) {
@@ -41,11 +42,6 @@ public class EmptyElementExplanation extends ProvElement {
 		this.description = description;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
-	 */
 	@Override
 	protected String getImageId(Object obj) {
 		if (severity == IStatus.ERROR)
@@ -60,9 +56,6 @@ public class EmptyElementExplanation extends ProvElement {
 		return explanation;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
-	 */
 	@Override
 	public Object[] getChildren(Object o) {
 		return new Object[0];

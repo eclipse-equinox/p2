@@ -27,6 +27,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 
 /**
  * Common superclass for wizards that need to show licenses.
+ *
  * @since 3.5
  */
 public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
@@ -35,11 +36,6 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 
 	AcceptLicensesWizardPage licensePage;
 	boolean bypassLicensePage;
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#addPages()
-	 */
 
 	public boolean isBypassLicensePage() {
 		return bypassLicensePage;
@@ -59,7 +55,8 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 		}
 	}
 
-	public WizardWithLicenses(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob job) {
+	public WizardWithLicenses(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections,
+			LoadMetadataRepositoryJob job) {
 		super(ui, operation, initialSelections, job);
 		this.bypassLicensePage = canBypassLicensePage();
 	}
@@ -73,8 +70,6 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 
 	/*
 	 * Overridden to determine whether the license page should be shown.
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
 	 */
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
@@ -103,10 +98,6 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#performFinish()
-	 */
 	@Override
 	public boolean performFinish() {
 
@@ -118,8 +109,10 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 	}
 
 	public static boolean canBypassLicensePage() {
-		IScopeContext[] contexts = new IScopeContext[] {InstanceScope.INSTANCE, DefaultScope.INSTANCE, BundleDefaultsScope.INSTANCE, ConfigurationScope.INSTANCE};
-		boolean bypass = Platform.getPreferencesService().getBoolean(ProvUIActivator.PLUGIN_ID, BYPASS_LICENSE_PAGE, false, contexts);
+		IScopeContext[] contexts = new IScopeContext[] { InstanceScope.INSTANCE, DefaultScope.INSTANCE,
+				BundleDefaultsScope.INSTANCE, ConfigurationScope.INSTANCE };
+		boolean bypass = Platform.getPreferencesService().getBoolean(ProvUIActivator.PLUGIN_ID, BYPASS_LICENSE_PAGE,
+				false, contexts);
 		return bypass;
 	}
 

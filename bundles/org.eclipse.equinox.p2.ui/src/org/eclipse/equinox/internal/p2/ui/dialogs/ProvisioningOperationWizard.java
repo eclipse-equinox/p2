@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -34,9 +34,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * Common superclass for a wizard that performs a provisioning
- * operation.
- * 
+ * Common superclass for a wizard that performs a provisioning operation.
+ *
  * @since 3.5
  */
 public abstract class ProvisioningOperationWizard extends Wizard {
@@ -57,7 +56,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	boolean waitingForOtherJobs = false;
 	protected RemediationOperation remediationOperation;
 
-	public ProvisioningOperationWizard(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob job) {
+	public ProvisioningOperationWizard(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections,
+			LoadMetadataRepositoryJob job) {
 		super();
 		this.ui = ui;
 		this.operation = operation;
@@ -119,7 +119,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
-		// If we are moving from the main page or error page, we may need to resolve before
+		// If we are moving from the main page or error page, we may need to resolve
+		// before
 		// advancing.
 
 		if (page == remediationPage) {
@@ -135,7 +136,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				couldNotResolve(null);
 			}
 			operation = remediationOperation;
-			initializeResolutionModelElements(ElementUtils.requestToElement(((RemediationOperation) operation).getCurrentRemedy(), !(this instanceof UpdateWizard)));
+			initializeResolutionModelElements(ElementUtils.requestToElement(
+					((RemediationOperation) operation).getCurrentRemedy(), !(this instanceof UpdateWizard)));
 			planChanged();
 			return resolutionPage;
 		} else if (page == mainPage || page == errorPage) {
@@ -152,11 +154,13 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			IStatus status = operation.getResolutionResult();
 			if (status == null || status.getSeverity() == IStatus.ERROR) {
 				if (page == mainPage) {
-					if (remediationOperation != null && remediationOperation.getResolutionResult() == Status.OK_STATUS && remediationOperation.getRemedyConfigs().length == 1) {
+					if (remediationOperation != null && remediationOperation.getResolutionResult() == Status.OK_STATUS
+							&& remediationOperation.getRemedyConfigs().length == 1) {
 						planChanged();
 						return getNextPage(remediationPage);
 					}
-					if (remediationOperation != null && remediationOperation.getResolutionResult() == Status.OK_STATUS) {
+					if (remediationOperation != null
+							&& remediationOperation.getResolutionResult() == Status.OK_STATUS) {
 						planChanged();
 						return remediationPage;
 					}
@@ -174,15 +178,16 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	/**
-	 * The selections that drive the provisioning operation have changed.  We might need to
-	 * change the completion state of the resolution page.
+	 * The selections that drive the provisioning operation have changed. We might
+	 * need to change the completion state of the resolution page.
 	 */
 	public void operationSelectionsChanged(ISelectableIUsPage page) {
 		if (resolutionPage != null) {
 			// If the page selections are different than what we may have resolved
 			// against, then this page is not complete.
 			boolean old = resolutionPage.isPageComplete();
-			resolutionPage.setPageComplete(page.getCheckedIUElements() != null && page.getCheckedIUElements().length > 0);
+			resolutionPage
+					.setPageComplete(page.getCheckedIUElements() != null && page.getCheckedIUElements().length > 0);
 			// If the state has truly changed, update the buttons.
 			if (old != resolutionPage.isPageComplete()) {
 				IWizardContainer container = getContainer();
@@ -196,7 +201,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		boolean previouslyWaiting = waitingForOtherJobs;
 		boolean previouslyCanceled = getCurrentStatus().getSeverity() == IStatus.CANCEL;
 		waitingForOtherJobs = ui.hasScheduledOperations();
-		return waitingForOtherJobs || previouslyWaiting || previouslyCanceled || pageSelectionsHaveChanged(page) || provisioningContextChanged();
+		return waitingForOtherJobs || previouslyWaiting || previouslyCanceled || pageSelectionsHaveChanged(page)
+				|| provisioningContextChanged();
 	}
 
 	protected boolean pageSelectionsHaveChanged(ISelectableIUsPage page) {
@@ -221,7 +227,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	protected void planChanged() {
 		IWizardPage currentPage = getContainer().getCurrentPage();
-		if ((currentPage == null || currentPage == mainPage) && remediationPage != null && remediationOperation != null && remediationOperation.getResolutionResult() == Status.OK_STATUS) {
+		if ((currentPage == null || currentPage == mainPage) && remediationPage != null && remediationOperation != null
+				&& remediationOperation.getResolutionResult() == Status.OK_STATUS) {
 			remediationPage.updateStatus(root, operation, planSelections);
 		}
 		resolutionPage.updateStatus(root, operation);
@@ -249,7 +256,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	public void computeRemediationOperation(ProfileChangeOperation op, ProvisioningUI ui, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation, RemedyConfig.getAllRemedyConfigs().length);
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation,
+				RemedyConfig.getAllRemedyConfigs().length);
 		monitor.setTaskName(ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation);
 		remediationOperation = new RemediationOperation(ui.getSession(), op.getProfileChangeRequest());
 		remediationOperation.resolveModal(monitor);
@@ -257,9 +265,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	/**
-	 * Recompute the provisioning plan based on the items in the IUElementListRoot and the given provisioning context.
-	 * Report progress using the specified runnable context.  This method may be called before the page is created.
-	 * 
+	 * Recompute the provisioning plan based on the items in the IUElementListRoot
+	 * and the given provisioning context. Report progress using the specified
+	 * runnable context. This method may be called before the page is created.
+	 *
 	 * @param runnableContext
 	 */
 	public void recomputePlan(IRunnableContext runnableContext, final boolean withRemediation) {
@@ -314,7 +323,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		if (message != null) {
 			couldNotResolveStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, message, null);
 		} else {
-			couldNotResolveStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningOperationWizard_UnexpectedFailureToResolve, null);
+			couldNotResolveStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID,
+					ProvUIMessages.ProvisioningOperationWizard_UnexpectedFailureToResolve, null);
 		}
 		StatusManager.getManager().handle(couldNotResolveStatus, StatusManager.LOG);
 	}
@@ -333,9 +343,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	public void saveBoundsRelatedSettings() {
 		IWizardPage[] pages = getPages();
-		for (int i = 0; i < pages.length; i++) {
-			if (pages[i] instanceof ProvisioningWizardPage)
-				((ProvisioningWizardPage) pages[i]).saveBoundsRelatedSettings();
+		for (IWizardPage page : pages) {
+			if (page instanceof ProvisioningWizardPage)
+				((ProvisioningWizardPage) page).saveBoundsRelatedSettings();
 		}
 	}
 
@@ -352,28 +362,30 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	/*
-	 * Overridden to start the preload job after page control creation.
-	 * This allows any listeners on repo events to be set up before a
-	 * batch load occurs.  The job creator uses a property to indicate if
-	 * the job needs scheduling (the client may have already completed the job
-	 * before the UI was opened).
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#createPageControls(org.eclipse.swt.widgets.Composite)
+	 * Overridden to start the preload job after page control creation. This allows
+	 * any listeners on repo events to be set up before a batch load occurs. The job
+	 * creator uses a property to indicate if the job needs scheduling (the client
+	 * may have already completed the job before the UI was opened).
 	 */
 	@Override
 	public void createPageControls(Composite pageContainer) {
-		// We call this so that wizards ignore all repository eventing that occurs while the wizard is
-		// open.  Otherwise, we can get an add event when a repository loads its references that we
-		// don't want to respond to.  Since repo discovery events can be received asynchronously by the
-		// manager, the subsequent add events generated by the manager aren't guaranteed to be synchronous,
-		// even if our listener is synchronous.  Thus, we can't fine-tune
+		// We call this so that wizards ignore all repository eventing that occurs while
+		// the wizard is
+		// open. Otherwise, we can get an add event when a repository loads its
+		// references that we
+		// don't want to respond to. Since repo discovery events can be received
+		// asynchronously by the
+		// manager, the subsequent add events generated by the manager aren't guaranteed
+		// to be synchronous,
+		// even if our listener is synchronous. Thus, we can't fine-tune
 		// the "ignore" window to a specific operation.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=277265#c38
 		ui.signalRepositoryOperationStart();
 		super.createPageControls(pageContainer);
 		if (repoPreloadJob != null) {
 			if (repoPreloadJob.getProperty(LoadMetadataRepositoryJob.WIZARD_CLIENT_SHOULD_SCHEDULE) != null) {
-				// job has not been scheduled.  Set a listener so we can report accumulated errors and
+				// job has not been scheduled. Set a listener so we can report accumulated
+				// errors and
 				// schedule it.
 				repoPreloadJob.addJobChangeListener(new JobChangeAdapter() {
 					@Override
@@ -419,8 +431,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	/*
-	 * Return a boolean indicating whether the wizard's current status should override any detail
-	 * reported by the operation.
+	 * Return a boolean indicating whether the wizard's current status should
+	 * override any detail reported by the operation.
 	 */
 	public boolean statusOverridesOperation() {
 		return false;

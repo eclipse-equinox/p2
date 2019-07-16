@@ -19,9 +19,9 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
- * Element wrapper class for a profile that uses the query
- * mechanism to obtain its contents.
- * 
+ * Element wrapper class for a profile that uses the query mechanism to obtain
+ * its contents.
+ *
  * @since 3.4
  */
 public class ProfileElement extends RemoteQueriedElement {
@@ -65,10 +65,8 @@ public class ProfileElement extends RemoteQueriedElement {
 	}
 
 	/*
-	 * Overridden to check whether we know the profile id rather
-	 * than fetch the profile from the registry using getQueryable()
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#knowsQueryable()
+	 * Overridden to check whether we know the profile id rather than fetch the
+	 * profile from the registry using getQueryable()
 	 */
 	@Override
 	public boolean knowsQueryable() {
@@ -76,14 +74,10 @@ public class ProfileElement extends RemoteQueriedElement {
 	}
 
 	/*
-	 * Overridden to check the children so that profiles
-	 * showing in profile views accurately reflect if they
-	 * are empty.  We do not cache the children because often
-	 * this element is the input of a view and when the view
-	 * is refreshed we want to refetch the children.
-	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement#isContainer()
+	 * Overridden to check the children so that profiles showing in profile views
+	 * accurately reflect if they are empty. We do not cache the children because
+	 * often this element is the input of a view and when the view is refreshed we
+	 * want to refetch the children.
 	 */
 	@Override
 	public boolean isContainer() {

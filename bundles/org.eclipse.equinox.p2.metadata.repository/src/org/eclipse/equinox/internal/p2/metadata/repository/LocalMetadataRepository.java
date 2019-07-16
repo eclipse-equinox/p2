@@ -96,9 +96,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		save();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addInstallableUnits(java.util.Collection)
-	 */
 	@Override
 	public synchronized void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		if (installableUnits == null || installableUnits.isEmpty())

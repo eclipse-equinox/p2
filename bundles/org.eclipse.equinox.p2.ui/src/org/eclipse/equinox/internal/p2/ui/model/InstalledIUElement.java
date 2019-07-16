@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 /**
  * Element wrapper class for installed IU's. Used instead of the plain IU when
  * there should be a parent profile available for operations.
- * 
+ *
  * @since 3.4
  */
 public class InstalledIUElement extends QueriedElement implements IIUElement {
@@ -40,11 +40,6 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 		this.isPatch = iu == null ? false : Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
-	 */
 	@Override
 	protected String getImageId(Object obj) {
 		return isPatch ? ProvUIImages.IMG_PATCH_IU : ProvUIImages.IMG_IU;
@@ -94,25 +89,16 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
-	 */
 	@Override
 	public Collection<IRequirement> getRequirements() {
 		return iu.getRequirements();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
-	 */
 	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.INSTALLED_IUS;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.IIUElement#shouldShowChildren()
-	 */
 	@Override
 	public boolean shouldShowChildren() {
 		return true;

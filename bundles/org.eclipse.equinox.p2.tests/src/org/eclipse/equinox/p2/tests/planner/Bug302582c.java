@@ -36,9 +36,6 @@ public class Bug302582c extends Bug302582 {
 	/*
 	 * Profile already contains a single optional singleton IU. Try to install 3 versions of that IU into it. (including the lower
 	 * version which is already installed)
-	 *
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.planner.Bug302582#testInstall()
 	 */
 	@Override
 	public void testInstall() {

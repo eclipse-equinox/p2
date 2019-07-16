@@ -18,10 +18,9 @@ import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
- * Element class that represents the root of a profile
- * viewer.  Its children are the profiles that match the
- * specified query for profiles.
- * 
+ * Element class that represents the root of a profile viewer. Its children are
+ * the profiles that match the specified query for profiles.
+ *
  * @since 3.4
  *
  */
@@ -31,18 +30,11 @@ public class Profiles extends RootElement {
 		super(ui);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
-	 */
 	@Override
 	public String getLabel(Object o) {
 		return ProvUIMessages.Label_Profiles;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getDefaultQueryType()
-	 */
 	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.PROFILES;

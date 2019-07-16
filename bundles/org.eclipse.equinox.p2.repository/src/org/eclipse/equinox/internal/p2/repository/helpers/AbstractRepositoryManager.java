@@ -257,8 +257,10 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	/*
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.
+	 * IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String,
+	 * java.lang.String, java.util.Map)
 	 */
 	protected IRepository<T> doCreateRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		checkValidLocation(location);

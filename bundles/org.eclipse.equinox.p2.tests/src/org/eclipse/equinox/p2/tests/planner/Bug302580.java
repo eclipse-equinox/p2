@@ -14,7 +14,9 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.p2.engine.Operand;
+import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -26,17 +28,11 @@ import org.junit.Assert;
  */
 public class Bug302580 extends AbstractPlannerTest {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.planner.AbstractPlannerTest#getTestDataPath()
-	 */
 	@Override
 	protected String getTestDataPath() {
 		return "testData/bug302580";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.planner.AbstractPlannerTest#getProfileId()
-	 */
 	@Override
 	protected String getProfileId() {
 		return "bootProfile";

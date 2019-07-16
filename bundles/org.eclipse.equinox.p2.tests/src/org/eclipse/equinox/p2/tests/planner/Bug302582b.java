@@ -20,9 +20,6 @@ package org.eclipse.equinox.p2.tests.planner;
  */
 public class Bug302582b extends Bug302582 {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.planner.Bug302582#getProfileId()
-	 */
 	@Override
 	protected String getProfileId() {
 		return "SDKProfile";

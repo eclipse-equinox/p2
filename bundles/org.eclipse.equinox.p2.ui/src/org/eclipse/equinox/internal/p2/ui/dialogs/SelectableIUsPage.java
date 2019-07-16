@@ -35,11 +35,11 @@ import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
 /**
- * A wizard page that presents a check box list of IUs and allows the user
- * to select and deselect them.  Typically the first page in a provisioning
+ * A wizard page that presents a check box list of IUs and allows the user to
+ * select and deselect them. Typically the first page in a provisioning
  * operation wizard, and usually it is the page used to report resolution errors
  * before advancing to resolution detail.
- * 
+ *
  * @since 3.5
  *
  */
@@ -58,7 +58,8 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	protected Policy policy;
 	SashForm sashForm;
 
-	public SelectableIUsPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, Object[] initialSelections) {
+	public SelectableIUsPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root,
+			Object[] initialSelections) {
 		super("IUSelectionPage", ui, wizard); //$NON-NLS-1$
 		this.root = root;
 		if (root == null)
@@ -126,7 +127,8 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 			updateSelection();
 		});
 
-		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
+		// Filters and sorters before establishing content, so we don't refresh
+		// unnecessarily.
 		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
 		comparator.useColumnConfig(ProvUI.getIUColumnConfig());
 		tableViewer.setComparator(comparator);
@@ -154,8 +156,10 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		controlsComposite.setLayoutData(gd);
 
-		// The text area shows a description of the selected IU, or error detail if applicable.
-		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), true);
+		// The text area shows a description of the selected IU, or error detail if
+		// applicable.
+		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer,
+				convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), true);
 
 		updateStatus(root, resolvedOperation);
 		setControl(sashForm);
@@ -240,25 +244,23 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 		ArrayList<Object> selections = new ArrayList<>(initialSelections.length);
 
-		for (int i = 0; i < initialSelections.length; i++) {
-			if (initialSelections[i] instanceof AvailableUpdateElement) {
-				AvailableUpdateElement element = (AvailableUpdateElement) initialSelections[i];
+		for (Object initialSelection : initialSelections) {
+			if (initialSelection instanceof AvailableUpdateElement) {
+				AvailableUpdateElement element = (AvailableUpdateElement) initialSelection;
 				if (element.isLockedForUpdate()) {
 					continue;
 				}
 			}
-			selections.add(initialSelections[i]);
+			selections.add(initialSelection);
 		}
 		tableViewer.setCheckedElements(selections.toArray(new Object[selections.size()]));
 	}
 
 	/*
-	 * Overridden so that we don't call getNextPage().
-	 * We use getNextPage() to start resolving the operation so
-	 * we only want to do that when the next button is pressed.
-	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.WizardPage#canFlipToNextPage()
+	 * Overridden so that we don't call getNextPage(). We use getNextPage() to start
+	 * resolving the operation so we only want to do that when the next button is
+	 * pressed.
+	 *
 	 */
 	@Override
 	public boolean canFlipToNextPage() {
@@ -266,11 +268,9 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	}
 
 	/*
-	 * Overridden to null out any cached page so that the wizard
-	 * is always consulted.  This allows wizards to do things like
-	 * synchronize previous page selections with this page.
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.WizardPage#getPreviousPage()
+	 * Overridden to null out any cached page so that the wizard is always
+	 * consulted. This allows wizards to do things like synchronize previous page
+	 * selections with this page.
 	 */
 	@Override
 	public IWizardPage getPreviousPage() {

@@ -105,9 +105,6 @@ public class Feature {
 		this.version = version;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Feature))
@@ -129,9 +126,6 @@ public class Feature {
 		return one == null ? two == null : one.equals(two);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		return id.hashCode() + version.hashCode();

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
@@ -26,9 +26,8 @@ import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * Generic element that represents a provisioning element in
- * a viewer.  
- * 
+ * Generic element that represents a provisioning element in a viewer.
+ *
  * @since 3.4
  *
  */
@@ -53,9 +52,8 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	/**
 	 * Return a string id of the image that should be used to show the specified
 	 * object. Returning null indicates that no image should be used.
-	 * 
-	 * @param obj
-	 *            the object whose image id is requested
+	 *
+	 * @param obj the object whose image id is requested
 	 * @return the string id of the image in the provisioning image registry, or
 	 *         <code>null</code> if no image should be shown.
 	 */
@@ -67,11 +65,6 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getImageDescriptor(java.lang.Object)
-	 */
 	@Override
 	public ImageDescriptor getImageDescriptor(Object object) {
 		String id = getImageId(object);
@@ -85,13 +78,12 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	}
 
 	/**
-	 * Return the image that should be used to show the specfied object. The
-	 * image is managed by an image registry and should not be freed.
-	 * 
-	 * @param object
-	 *            the object whose image id is requested
+	 * Return the image that should be used to show the specfied object. The image
+	 * is managed by an image registry and should not be freed.
+	 *
+	 * @param object the object whose image id is requested
 	 * @return the string id of the image in the provisioning image registry
-	 * 
+	 *
 	 */
 	public Image getImage(Object object) {
 		String id = getImageId(object);
@@ -134,10 +126,6 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		return children.length > 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getParent(java.lang.Object)
-	 */
 	@Override
 	public Object getParent(Object o) {
 		return parent;

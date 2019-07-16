@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -17,9 +17,9 @@ import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
- * Element class representing a fixed set of IU's.  This element should
- * never appear in a list, but can be used as a parent in a list.
- * 
+ * Element class representing a fixed set of IU's. This element should never
+ * appear in a list, but can be used as a parent in a list.
+ *
  * @since 3.5
  */
 public class IUElementListRoot extends QueriedElement {
@@ -44,11 +44,6 @@ public class IUElementListRoot extends QueriedElement {
 		this.children = children;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
-	 */
 	@Override
 	protected String getImageId(Object obj) {
 		return null;
@@ -59,9 +54,6 @@ public class IUElementListRoot extends QueriedElement {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
-	 */
 	@Override
 	public Object[] getChildren(Object o) {
 		return children;

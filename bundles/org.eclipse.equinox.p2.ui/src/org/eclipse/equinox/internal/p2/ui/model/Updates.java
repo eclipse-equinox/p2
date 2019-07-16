@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * Element class that represents available updates.
- * 
+ *
  * @since 3.4
  *
  */
@@ -38,18 +38,11 @@ public class Updates extends QueriedElement {
 		this.iusToBeUpdated = iusToBeUpdated;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
-	 */
 	@Override
 	public String getLabel(Object o) {
 		return ProvUIMessages.Updates_Label;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getDefaultQueryType()
-	 */
 	@Override
 	protected int getDefaultQueryType() {
 		return QueryProvider.AVAILABLE_UPDATES;

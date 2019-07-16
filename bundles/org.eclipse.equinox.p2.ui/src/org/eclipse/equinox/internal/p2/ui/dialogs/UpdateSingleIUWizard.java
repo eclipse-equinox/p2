@@ -34,7 +34,8 @@ public class UpdateSingleIUWizard extends Wizard {
 	UpdateOperation operation;
 
 	public static boolean validFor(UpdateOperation operation) {
-		return operation.hasResolved() && operation.getResolutionResult().isOK() && operation.getSelectedUpdates().length == 1;
+		return operation.hasResolved() && operation.getResolutionResult().isOK()
+				&& operation.getSelectedUpdates().length == 1;
 	}
 
 	public UpdateSingleIUWizard(ProvisioningUI ui, UpdateOperation operation) {
@@ -50,10 +51,6 @@ public class UpdateSingleIUWizard extends Wizard {
 		return mainPage;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#addPages()
-	 */
 	@Override
 	public void addPages() {
 		mainPage = createMainPage();

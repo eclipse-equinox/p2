@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,7 +26,7 @@ import org.eclipse.ui.progress.IElementCollector;
 
 /**
  * Element class for profile snapshots
- * 
+ *
  * @since 3.5
  */
 public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchAdapter {
@@ -44,9 +44,6 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 		return profileId;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
-	 */
 	@Override
 	public Object[] getChildren(Object o) {
 		IProfileRegistry registry = ProvUI.getProfileRegistry(session);
@@ -70,7 +67,8 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 			elements.add(element);
 
 			// Eliminate the first in the list (earliest) if there was no content at all.
-			// This doesn't always happen, but can, and we don't want to offer the user an empty profile to
+			// This doesn't always happen, but can, and we don't want to offer the user an
+			// empty profile to
 			// revert to. Just reset the list since it only has one element.
 			if (i == 0 && element.getChildren(element).length == 0)
 				elements.clear();
@@ -81,34 +79,22 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 		return elements.toArray(new RollbackProfileElement[elements.size()]);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
-	 */
 	@Override
 	public String getLabel(Object o) {
 		return ProvUIMessages.ProfileSnapshots_Label;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#fetchDeferredChildren(java.lang.Object, org.eclipse.ui.progress.IElementCollector, org.eclipse.core.runtime.IProgressMonitor)
-	 */
 	@Override
 	public void fetchDeferredChildren(Object object, IElementCollector collector, IProgressMonitor monitor) {
 		Object[] children = getChildren(object);
 		collector.add(children, monitor);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#getRule(java.lang.Object)
-	 */
 	@Override
 	public ISchedulingRule getRule(Object object) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.progress.IDeferredWorkbenchAdapter#isContainer()
-	 */
 	@Override
 	public boolean isContainer() {
 		return false;

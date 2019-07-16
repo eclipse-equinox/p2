@@ -21,9 +21,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.dialogs.PatternFilter;
 
 /**
- * A class that handles filtering IU's based on a supplied
- * matching string.
- *  
+ * A class that handles filtering IU's based on a supplied matching string.
+ * 
  * @since 3.4
  *
  */
@@ -33,46 +32,40 @@ public class AvailableIUPatternFilter extends PatternFilter {
 	String patternString;
 
 	/**
-	 * Create a new instance of a AvailableIUPatternFilter 
+	 * Create a new instance of a AvailableIUPatternFilter
 	 */
 	public AvailableIUPatternFilter(IUColumnConfig[] columnConfig) {
 		super();
-		for (int i = 0; i < columnConfig.length; i++) {
-			int field = columnConfig[i].getColumnType();
+		for (IUColumnConfig element : columnConfig) {
+			int field = element.getColumnType();
 			switch (field) {
-				case IUColumnConfig.COLUMN_ID:
-					checkId = true;
-					break;
-				case IUColumnConfig.COLUMN_NAME:
-					checkName = true;
-					break;
-				case IUColumnConfig.COLUMN_DESCRIPTION:
-					checkDescription = true;
-					break;
-				case IUColumnConfig.COLUMN_VERSION:
-					checkVersion = true;
-					break;
-				default:
-					break;
+			case IUColumnConfig.COLUMN_ID:
+				checkId = true;
+				break;
+			case IUColumnConfig.COLUMN_NAME:
+				checkName = true;
+				break;
+			case IUColumnConfig.COLUMN_DESCRIPTION:
+				checkDescription = true;
+				break;
+			case IUColumnConfig.COLUMN_VERSION:
+				checkVersion = true;
+				break;
+			default:
+				break;
 			}
 		}
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.internal.dialogs.PatternFilter#isElementSelectable(java.lang.Object)
-	 */
 	@Override
 	public boolean isElementSelectable(Object element) {
 		return element instanceof IIUElement && !(element instanceof CategoryElement);
 	}
 
 	/*
-	 * Overridden to remember the pattern string for an optimization
-	 * in isParentMatch
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.PatternFilter#setPattern(java.lang.String)
+	 * Overridden to remember the pattern string for an optimization in
+	 * isParentMatch
 	 */
 	@Override
 	public void setPattern(String patternString) {
@@ -81,10 +74,7 @@ public class AvailableIUPatternFilter extends PatternFilter {
 	}
 
 	/*
-	 * Overridden to avoid getting children unless there is actually
-	 * a filter.
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.PatternFilter#isParentMatch(org.eclipse.jface.viewers.Viewer, java.lang.Object)
+	 * Overridden to avoid getting children unless there is actually a filter.
 	 */
 	@Override
 	protected boolean isParentMatch(Viewer viewer, Object element) {
@@ -93,9 +83,6 @@ public class AvailableIUPatternFilter extends PatternFilter {
 		return super.isParentMatch(viewer, element);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.PatternFilter#isElementMatch(org.eclipse.jface.viewers.Viewer, java.lang.Object)
-	 */
 	@Override
 	protected boolean isLeafMatch(Viewer viewer, Object element) {
 		if (element instanceof CategoryElement) {

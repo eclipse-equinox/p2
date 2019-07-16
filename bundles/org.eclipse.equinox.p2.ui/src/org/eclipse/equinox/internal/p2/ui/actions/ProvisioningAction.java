@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -48,10 +48,8 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 	}
 
 	/*
-	 * Overridden to use the selection from the selection provider, not the one
-	 * from the triggering event.  Some selection providers reinterpret the raw selections
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.actions.SelectionProviderAction#selectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
+	 * Overridden to use the selection from the selection provider, not the one from
+	 * the triggering event. Some selection providers reinterpret the raw selections
 	 */
 	@Override
 	public final void selectionChanged(IStructuredSelection selection) {
@@ -59,7 +57,8 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 		if (providerSelection instanceof IStructuredSelection) {
 			checkEnablement(((IStructuredSelection) providerSelection).toArray());
 		} else {
-			// shouldn't really happen, but a provider could decide to de-structure the selection
+			// shouldn't really happen, but a provider could decide to de-structure the
+			// selection
 			selectionChanged(providerSelection);
 		}
 	}
@@ -69,8 +68,8 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 	}
 
 	/**
-	 * Recheck the enablement.  Called by clients when some condition outside of
-	 * the action that may effect its enablement should be changed.
+	 * Recheck the enablement. Called by clients when some condition outside of the
+	 * action that may effect its enablement should be changed.
 	 */
 	public final void checkEnablement() {
 		ISelection selection = getSelection();

@@ -20,37 +20,34 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.*;
 
 /**
- * Copy of ContainerCheckedTreeViewer which is specialized for use
- * with DeferredFetchFilteredTree.  Originally copied from
- * org.eclipse.ui.dialogs and altered to achieve the following:
+ * Copy of ContainerCheckedTreeViewer which is specialized for use with
+ * DeferredFetchFilteredTree. Originally copied from org.eclipse.ui.dialogs and
+ * altered to achieve the following:
+ *
+ * (1)checking a parent will expand it when we know it's a long running
+ * operation that involves a placeholder. The modified method is
+ * doCheckStateChanged().
  * 
- * (1)checking a parent will expand it when we know it's a long
- * running operation that involves a placeholder.
-*  The modified method is doCheckStateChanged().
-*  
- * (2)when preserving selection, we do not want the check state
- * to be rippled through the child and parent nodes.
- * Since we know that preservingSelection(Runnable) isn't working
- * properly, no need to do a bunch of work here.
- * The added methods is preservingSelection(Runnable).
- * Modified methods are updateChildrenItems(TreeItem parent) and
+ * (2)when preserving selection, we do not want the check state to be rippled
+ * through the child and parent nodes. Since we know that
+ * preservingSelection(Runnable) isn't working properly, no need to do a bunch
+ * of work here. The added methods is preservingSelection(Runnable). Modified
+ * methods are updateChildrenItems(TreeItem parent) and
  * updateParentItems(TreeItem parent).
- * 
- * (3)we correct the problem with preservingSelection(Runnable) by
- * remembering the check state and restoring it after a refresh.  We
- * fire a check state event so clients monitoring the selection will know
- * what's going on.  Added methods are internalRefresh(Object, boolean), 
- * saveCheckedState(), restoreCheckedState(), and 
- * fireCheckStateChanged(Object, boolean).  That last method is public
- * so that DeferredFetchFilteredTree can do the same thing when it 
- * remembers selections.
- * 
+ *
+ * (3)we correct the problem with preservingSelection(Runnable) by remembering
+ * the check state and restoring it after a refresh. We fire a check state event
+ * so clients monitoring the selection will know what's going on. Added methods
+ * are internalRefresh(Object, boolean), saveCheckedState(),
+ * restoreCheckedState(), and fireCheckStateChanged(Object, boolean). That last
+ * method is public so that DeferredFetchFilteredTree can do the same thing when
+ * it remembers selections.
+ *
  * This class does not correct the general problem reported in
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=170521
- * That is handled by preserving selections additively in 
- * DeferredFetchFilteredTree.  This class simply provides the API
- * needed by that class and manages the parent state according to the
- * children.
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=170521 That is handled by
+ * preserving selections additively in DeferredFetchFilteredTree. This class
+ * simply provides the API needed by that class and manages the parent state
+ * according to the children.
  */
 public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
@@ -59,6 +56,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Constructor for ContainerCheckedTreeViewer.
+	 * 
 	 * @see CheckboxTreeViewer#CheckboxTreeViewer(Composite)
 	 */
 	public ContainerCheckedTreeViewer(Composite parent) {
@@ -68,6 +66,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Constructor for ContainerCheckedTreeViewer.
+	 * 
 	 * @see CheckboxTreeViewer#CheckboxTreeViewer(Composite,int)
 	 */
 	public ContainerCheckedTreeViewer(Composite parent, int style) {
@@ -77,6 +76,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Constructor for ContainerCheckedTreeViewer.
+	 * 
 	 * @see CheckboxTreeViewer#CheckboxTreeViewer(Tree)
 	 */
 	public ContainerCheckedTreeViewer(Tree tree) {
@@ -104,6 +104,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Update element after a checkstate change.
+	 * 
 	 * @param element
 	 */
 	protected void doCheckStateChanged(Object element) {
@@ -115,9 +116,9 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 			if (element instanceof QueriedElement && treeItem.getChecked()) {
 				if (!((QueriedElement) element).hasQueryable()) {
 					// We have checked an element that will take some time
-					// to get its children.  Use this opportunity to auto-expand 
-					// the tree so that the check mark is not misleading.  Don't
-					// update the check state because it will just be a pending 
+					// to get its children. Use this opportunity to auto-expand
+					// the tree so that the check mark is not misleading. Don't
+					// update the check state because it will just be a pending
 					// placeholder.
 					expandToLevel(element, 1);
 					return;
@@ -130,7 +131,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	}
 
 	/**
-	 * The item has expanded. Updates the checked state of its children. 
+	 * The item has expanded. Updates the checked state of its children.
 	 */
 	private void initializeItem(TreeItem item) {
 		if (item.getChecked() && !item.getGrayed()) {
@@ -141,8 +142,8 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	/**
 	 * Updates the check state of all created children
 	 */
-	// MODIFIED to ignore parent state when in the middle of a 
-	// selection preserving refresh.  
+	// MODIFIED to ignore parent state when in the middle of a
+	// selection preserving refresh.
 	private void updateChildrenItems(TreeItem parent) {
 		// We are in the middle of preserving selections, don't
 		// update any children according to parent
@@ -150,8 +151,8 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 			return;
 		Item[] children = getChildren(parent);
 		boolean state = parent.getChecked();
-		for (int i = 0; i < children.length; i++) {
-			TreeItem curr = (TreeItem) children[i];
+		for (Item element : children) {
+			TreeItem curr = (TreeItem) element;
 			if (curr.getData() != null && ((curr.getChecked() != state) || curr.getGrayed())) {
 				curr.setChecked(state);
 				curr.setGrayed(false);
@@ -172,8 +173,8 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 			Item[] children = getChildren(item);
 			boolean containsChecked = false;
 			boolean containsUnchecked = false;
-			for (int i = 0; i < children.length; i++) {
-				TreeItem curr = (TreeItem) children[i];
+			for (Item element : children) {
+				TreeItem curr = (TreeItem) element;
 				containsChecked |= curr.getChecked();
 				containsUnchecked |= (!curr.getChecked() || curr.getGrayed());
 			}
@@ -183,9 +184,6 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ICheckable#setChecked(java.lang.Object, boolean)
-	 */
 	@Override
 	public boolean setChecked(Object element, boolean state) {
 		if (super.setChecked(element, state)) {
@@ -195,20 +193,14 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.CheckboxTreeViewer#setCheckedElements(java.lang.Object[])
-	 */
 	@Override
 	public void setCheckedElements(Object[] elements) {
 		super.setCheckedElements(elements);
-		for (int i = 0; i < elements.length; i++) {
-			doCheckStateChanged(elements[i]);
+		for (Object element : elements) {
+			doCheckStateChanged(element);
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.AbstractTreeViewer#setExpanded(org.eclipse.swt.widgets.Item, boolean)
-	 */
 	@Override
 	protected void setExpanded(Item item, boolean expand) {
 		super.setExpanded(item, expand);
@@ -217,16 +209,12 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.CheckboxTreeViewer#getCheckedElements()
-	 */
 	@Override
 	public Object[] getCheckedElements() {
 		Object[] checked = super.getCheckedElements();
 		// add all items that are children of a checked node but not created yet
 		ArrayList<Object> result = new ArrayList<>();
-		for (int i = 0; i < checked.length; i++) {
-			Object curr = checked[i];
+		for (Object curr : checked) {
 			result.add(curr);
 			Widget item = findItem(curr);
 			if (item != null) {
@@ -243,25 +231,25 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Recursively add the filtered children of element to the result.
+	 * 
 	 * @param element
 	 * @param result
 	 */
 	private void collectChildren(Object element, ArrayList<Object> result) {
 		Object[] filteredChildren = getFilteredChildren(element);
-		for (int i = 0; i < filteredChildren.length; i++) {
-			Object curr = filteredChildren[i];
+		for (Object curr : filteredChildren) {
 			result.add(curr);
 			collectChildren(curr, result);
 		}
 	}
 
 	// The super implementation doesn't really work because the
-	// non-expanded items are not holding their real elements yet. 
-	// Yet the code that records the checked state uses the 
+	// non-expanded items are not holding their real elements yet.
+	// Yet the code that records the checked state uses the
 	// elements to remember what checkmarks should be restored.
 	// The result is that non-expanded elements are not up to date
 	// and if anything in there should have been checked, it
-	// won't be.  The best we can do is at least turn off all the
+	// won't be. The best we can do is at least turn off all the
 	// rippling checks that happen during this method since we are going
 	// to reset all the checkmarks anyway.
 	@Override
@@ -278,18 +266,18 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		restoreCheckedState();
 	}
 
-	// We only remember the leaves.  This is specific to our
+	// We only remember the leaves. This is specific to our
 	// use case, not necessarily a good idea for fixing the general
 	// problem.
 	private void saveCheckedState() {
 		Object[] checked = getCheckedElements();
 		savedCheckState = new ArrayList<>(checked.length);
-		for (int i = 0; i < checked.length; i++)
-			if (!isExpandable(checked[i]) && !getGrayed(checked[i]))
-				savedCheckState.add(checked[i]);
+		for (Object element : checked)
+			if (!isExpandable(element) && !getGrayed(element))
+				savedCheckState.add(element);
 	}
 
-	// Now we restore checked state.  
+	// Now we restore checked state.
 	private void restoreCheckedState() {
 		setCheckedElements(new Object[0]);
 		setGrayedElements(new Object[0]);

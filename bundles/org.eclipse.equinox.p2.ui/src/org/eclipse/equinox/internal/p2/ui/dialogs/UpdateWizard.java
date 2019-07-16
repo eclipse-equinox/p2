@@ -173,12 +173,6 @@ public class UpdateWizard extends WizardWithLicenses {
 		return mainPage;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#
-	 * getProfileChangeOperation(java.lang.Object[])
-	 */
 	@Override
 	protected ProfileChangeOperation getProfileChangeOperation(Object[] elements) {
 		if (operation == null) {
