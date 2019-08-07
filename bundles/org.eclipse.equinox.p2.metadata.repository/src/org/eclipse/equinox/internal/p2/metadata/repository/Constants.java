@@ -7,34 +7,16 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - additional implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+public interface Constants {
 
-public class Activator implements BundleActivator {
+	String ID = "org.eclipse.equinox.p2.metadata.repository"; //$NON-NLS-1$
+	String REPO_PROVIDER_XPT = ID + '.' + "metadataRepositories"; //$NON-NLS-1$
 
-	public static final String ID = "org.eclipse.equinox.p2.metadata.repository"; //$NON-NLS-1$
-	public static final String REPO_PROVIDER_XPT = ID + '.' + "metadataRepositories"; //$NON-NLS-1$
-
-	private static BundleContext bundleContext;
-
-	public static BundleContext getContext() {
-		return bundleContext;
-	}
-
-	@Override
-	public void start(BundleContext aContext) throws Exception {
-		bundleContext = aContext;
-	}
-
-	@Override
-	public void stop(BundleContext aContext) throws Exception {
-		bundleContext = null;
-	}
 }

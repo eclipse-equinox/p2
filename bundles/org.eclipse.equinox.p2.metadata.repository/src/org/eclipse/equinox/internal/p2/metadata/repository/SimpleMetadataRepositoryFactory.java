@@ -60,7 +60,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			if (localFile.exists())
 				return localFile;
 			String msg = NLS.bind(Messages.io_failedRead, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		// file is not local, create a cache of the repository metadata
 		CacheManager cache = getAgent().getService(CacheManager.class);
@@ -71,7 +71,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			// there is no remote file in either form - this should not really happen as
 			// createCache should bail out with exception if something is wrong. This is an internal
 			// error.
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.repoMan_internalError, null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.repoMan_internalError, null));
 		}
 		return localFile;
 	}
@@ -123,10 +123,10 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			}
 		} catch (FileNotFoundException e) {
 			String msg = NLS.bind(Messages.io_failedRead, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));
+			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));
 		} catch (IOException e) {
 			String msg = NLS.bind(Messages.io_failedRead, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
 			if (monitor != null)
 				monitor.done();

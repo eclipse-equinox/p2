@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredPropertiesMatch;
-import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
+import org.eclipse.equinox.internal.p2.metadata.repository.Constants;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
@@ -422,7 +422,7 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 					}
 				}
 			} catch (IllegalStateException ise) {
-				LogHelper.log(new Status(IStatus.INFO, Activator.ID, "Error writing the copyright URL: " + copyright.getLocation())); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.INFO, Constants.ID, "Error writing the copyright URL: " + copyright.getLocation())); //$NON-NLS-1$
 			}
 			cdata(copyright.getBody(), true);
 			end(COPYRIGHT_ELEMENT);

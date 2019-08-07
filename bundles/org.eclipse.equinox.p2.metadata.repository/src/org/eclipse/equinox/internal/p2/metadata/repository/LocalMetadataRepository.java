@@ -282,7 +282,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()), new NullProgressMonitor());
 			new MetadataRepositoryIO(getProvisioningAgent()).write(this, output);
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + getLocation(), e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + getLocation(), e)); //$NON-NLS-1$
 		}
 	}
 
@@ -316,18 +316,18 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 				disableSave = true;
 				runnable.run(monitor);
 			} catch (OperationCanceledException oce) {
-				return new Status(IStatus.CANCEL, Activator.ID, oce.getMessage(), oce);
+				return new Status(IStatus.CANCEL, Constants.ID, oce.getMessage(), oce);
 			} catch (Throwable e) {
-				result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+				result = new Status(IStatus.ERROR, Constants.ID, e.getMessage(), e);
 			} finally {
 				disableSave = false;
 				try {
 					save();
 				} catch (Exception e) {
 					if (result != null)
-						result = new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
+						result = new MultiStatus(Constants.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
 					else
-						result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+						result = new Status(IStatus.ERROR, Constants.ID, e.getMessage(), e);
 				}
 			}
 		}

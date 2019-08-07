@@ -65,7 +65,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager<IInstal
 
 	@Override
 	protected String getBundleId() {
-		return Activator.ID;
+		return Constants.ID;
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager<IInstal
 
 	@Override
 	protected String getRepositoryProviderExtensionPointId() {
-		return Activator.REPO_PROVIDER_XPT;
+		return Constants.REPO_PROVIDER_XPT;
 	}
 
 	@Override

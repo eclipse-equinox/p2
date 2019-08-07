@@ -68,7 +68,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 			if (localFile.exists())
 				return localFile;
 			String msg = NLS.bind(Messages.io_failedRead, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		//file is not local, create a cache of the repository metadata
 		CacheManager cache = getAgent().getService(CacheManager.class);
@@ -78,7 +78,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 		if (localFile == null) {
 			//there is no remote file in either form
 			String msg = NLS.bind(Messages.io_failedRead, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		return localFile;
 	}
@@ -133,10 +133,10 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 			}
 		} catch (FileNotFoundException e) {
 			String msg = NLS.bind(Messages.io_failedRead, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));
+			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));
 		} catch (IOException e) {
 			String msg = NLS.bind(Messages.io_failedRead, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
 			if (monitor != null)
 				monitor.done();

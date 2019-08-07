@@ -37,6 +37,7 @@ import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.xml.sax.*;
 
 /**
@@ -61,7 +62,8 @@ public class MetadataRepositoryIO {
 			try {
 				bufferedInput = new BufferedInputStream(input);
 
-				Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
+				Parser repositoryParser = new Parser(
+						FrameworkUtil.getBundle(MetadataRepositoryIO.class).getBundleContext(), Constants.ID);
 				repositoryParser.setErrorContext(location.toExternalForm());
 				repositoryParser.parse(input, monitor);
 				IStatus result = repositoryParser.getStatus();
@@ -81,7 +83,7 @@ public class MetadataRepositoryIO {
 			}
 		} catch (IOException ioe) {
 			String msg = NLS.bind(Messages.io_failedRead, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, ioe));
+			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, ioe));
 		}
 	}
 
@@ -100,15 +102,15 @@ public class MetadataRepositoryIO {
 		// Constants defining the structure of the XML for a MetadataRepository
 
 		// A format version number for metadata repository XML.
-		public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
-		public static final Version CURRENT_VERSION = Version.createOSGi(1, 2, 0);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
+		Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
+		Version CURRENT_VERSION = Version.createOSGi(1, 2, 0);
+		VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
 		// Constants for processing Instructions
-		public static final String PI_REPOSITORY_TARGET = "metadataRepository"; //$NON-NLS-1$
+		String PI_REPOSITORY_TARGET = "metadataRepository"; //$NON-NLS-1$
 
 		// Constants for metadata repository elements
-		public static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
+		String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
 
 	}
 
