@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.e4.ui.dialogs.filteredtree.FilteredTree;
+import org.eclipse.e4.ui.dialogs.filteredtree.PatternFilter;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIProvisioningListener;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
@@ -23,8 +25,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.dialogs.FilteredTree;
-import org.eclipse.ui.dialogs.PatternFilter;
 
 /**
  * An InstalledIUGroup is a reusable UI component that displays the
@@ -57,8 +57,9 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	@Override
 	protected StructuredViewer createViewer(Composite parent) {
 		// Table of installed IU's
-		FilteredTree filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, new PatternFilter(), true);
-		filteredTree.getFilterControl().setFocus(); //Steal focus, consistent with org.eclipse.ui.internal.about.AboutPluginsPage
+		FilteredTree filteredTree = new FilteredTree(parent,
+				SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, new PatternFilter());
+		filteredTree.getFilterControl().setFocus(); // Steal focus, consistent with org.eclipse.ui.internal.about.AboutPluginsPage
 		TreeViewer installedIUViewer = filteredTree.getViewer();
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
