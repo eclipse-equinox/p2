@@ -207,7 +207,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	public String getClipboardText(Object element, String columnDelimiter) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < columnConfig.length; i++) {
 			if (i != 0)
 				result.append(columnDelimiter);

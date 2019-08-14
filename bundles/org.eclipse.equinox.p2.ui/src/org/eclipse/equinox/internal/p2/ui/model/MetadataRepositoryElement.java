@@ -234,7 +234,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	@Override
 	public String toString() {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		result.append("Metadata Repository Element - "); //$NON-NLS-1$
 		result.append(URIUtil.toUnencodedString(location));
 		if (hasQueryable())

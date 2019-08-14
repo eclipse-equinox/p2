@@ -35,7 +35,7 @@ public class CopyUtils {
 	private static final String CONTROL_ID = "org.eclipse.equinox.p2.ui.CopyControlId"; //$NON-NLS-1$
 
 	public static String getIndentedClipboardText(Object[] elements, IUDetailsLabelProvider labelProvider) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < elements.length; i++) {
 			if (i > 0)
 				buffer.append(NEWLINE);
@@ -74,7 +74,7 @@ public class CopyUtils {
 		}
 	}
 
-	private static void appendIndention(StringBuffer buffer, Object element) {
+	private static void appendIndention(StringBuilder buffer, Object element) {
 		Object parent;
 		while (element instanceof ProvElement && (parent = ((ProvElement) element).getParent(element)) != null) {
 			buffer.append(NESTING_INDENT);

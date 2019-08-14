@@ -280,7 +280,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 	@Override
 	protected String getClipboardText(Control control) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Object[] elements = getSelectedElements();
 		for (int i = 0; i < elements.length; i++) {
 			if (i > 0)

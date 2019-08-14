@@ -167,7 +167,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		IInstallableUnit iu = getIU();
 		if (iu == null)
 			return "NULL"; //$NON-NLS-1$
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		result.append("Category Element - "); //$NON-NLS-1$
 		result.append(getMergeKey(iu));
 		result.append(" (merging IUs: "); //$NON-NLS-1$

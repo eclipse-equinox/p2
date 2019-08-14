@@ -617,7 +617,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// Now look for IU's
 		java.util.List<IInstallableUnit> selected = getSelectedIUs();
 		if (selected.size() == 1) {
-			StringBuffer result = new StringBuffer();
+			StringBuilder result = new StringBuilder();
 			String filterString = availableIUGroup.getFilterString();
 			String description = selected.get(0).getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
 			if (description != null) {

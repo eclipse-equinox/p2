@@ -155,7 +155,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	IUColumnConfig versionColumn;
 
 	static String getIUName(IInstallableUnit iu) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 		if (name != null)
 			buf.append(name);

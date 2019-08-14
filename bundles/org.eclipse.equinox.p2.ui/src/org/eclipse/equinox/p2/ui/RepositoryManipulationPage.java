@@ -902,7 +902,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		if (elements.length == 0)
 			elements = getElements();
 		String text = ""; //$NON-NLS-1$
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < elements.length; i++) {
 			buffer.append(labelProvider.getClipboardText(elements[i], CopyUtils.DELIMITER));
 			if (i > 0)

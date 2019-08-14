@@ -80,7 +80,7 @@ public class UpdateSingleIUPage extends ProvisioningWizardPage {
 	}
 
 	private String getUpdateText(IInstallableUnit iu) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(new IUDetailsLabelProvider().getClipboardText(getUpdate().replacement, CopyUtils.DELIMITER));
 		buffer.append(CopyUtils.NEWLINE);
 		buffer.append(CopyUtils.NEWLINE);

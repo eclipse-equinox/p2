@@ -256,7 +256,7 @@ public class UpdateManagerCompatibility {
 	}
 
 	private static String getWritableXMLString(String value) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		if (value == null)
 			return buf.toString();
 		for (int i = 0; i < value.length(); i++) {

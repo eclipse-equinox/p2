@@ -94,7 +94,7 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 	}
 
 	public String getClipboardText(Object element, String columnDelimiter) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		result.append(getColumnText(element, COL_NAME));
 		result.append(columnDelimiter);
 		result.append(getColumnText(element, COL_LOCATION));
