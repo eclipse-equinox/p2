@@ -56,8 +56,8 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 			} else {
 				String[] locations = Utils.getPack200Commands("unpack200"); //$NON-NLS-1$
 				StringBuffer locationTried = new StringBuffer(100);
-				for (int i = 0; i < locations.length; i++) {
-					locationTried.append(locations[i]).append(", "); //$NON-NLS-1$
+				for (String location : locations) {
+					locationTried.append(location).append(", "); //$NON-NLS-1$
 				}
 				status = new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, "Unpack facility not configured. The locations searched for unpack200 are: " + locationTried, null); //$NON-NLS-1$
 			}
