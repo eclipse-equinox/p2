@@ -58,9 +58,9 @@ public class BlobStore {
 	}
 
 	/*
-	 * @see UniversalUniqueIdentifier#appendByteString(StringBuffer, byte)
+	 * @see UniversalUniqueIdentifier#appendByteString(StringBuilder, byte)
 	 */
-	private void appendByteString(StringBuffer buffer, byte value) {
+	private void appendByteString(StringBuilder buffer, byte value) {
 		String hexString;
 		if (value < 0)
 			hexString = Integer.toHexString(256 + value);
@@ -77,7 +77,7 @@ public class BlobStore {
 	 * @see UniversalUniqueIdentifier#toString()
 	 */
 	private String bytesToHexString(byte[] b) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (byte element : b)
 			appendByteString(buffer, element);
 		return buffer.toString();

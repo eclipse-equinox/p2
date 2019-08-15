@@ -86,7 +86,7 @@ public class Mapper {
 			if (repoLocation.endsWith("/")) //$NON-NLS-1$
 				repoLocation = repoLocation.substring(0, repoLocation.length() - 1);
 
-			StringBuffer output = new StringBuffer(pattern);
+			StringBuilder output = new StringBuilder(pattern);
 			int index = 0;
 			while (index < output.length()) {
 				int beginning = output.indexOf("${", index); //$NON-NLS-1$
@@ -124,7 +124,7 @@ public class Mapper {
 
 	@Override
 	public String toString() {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < filters.length; i++) {
 			result.append(filters[i]).append('-').append('>').append(outputStrings[i]).append('\n');
 		}

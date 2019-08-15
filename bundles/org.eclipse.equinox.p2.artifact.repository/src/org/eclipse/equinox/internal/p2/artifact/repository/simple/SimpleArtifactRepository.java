@@ -519,7 +519,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private String bytesToHexString(byte[] bytes) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (byte b : bytes) {
 			String hexString;
 			if (b < 0)

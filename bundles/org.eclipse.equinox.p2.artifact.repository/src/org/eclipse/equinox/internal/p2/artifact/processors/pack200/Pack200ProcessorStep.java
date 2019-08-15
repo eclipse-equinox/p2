@@ -31,7 +31,7 @@ import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExec
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
 /**
- * The Pack200Unpacker expects an input containing ".jar.pack.gz" data.   
+ * The Pack200Unpacker expects an input containing ".jar.pack.gz" data.
  */
 public class Pack200ProcessorStep extends AbstractBufferingStep {
 	public static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
@@ -55,7 +55,7 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 				detailedResult = true;
 			} else {
 				String[] locations = Utils.getPack200Commands("unpack200"); //$NON-NLS-1$
-				StringBuffer locationTried = new StringBuffer(100);
+				StringBuilder locationTried = new StringBuilder(100);
 				for (String location : locations) {
 					locationTried.append(location).append(", "); //$NON-NLS-1$
 				}
