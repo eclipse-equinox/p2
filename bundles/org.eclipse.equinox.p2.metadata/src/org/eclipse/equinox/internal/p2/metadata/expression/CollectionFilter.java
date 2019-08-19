@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
  * Some kind of operation that is performed for each element of a collection. I.e.
- * <code>x.&lt;operation&gt;(y | &lt;expression&rt;)</code>
+ * <code>x.&lt;operation&gt;(y | &lt;expression&gt;)</code>
  */
 public abstract class CollectionFilter extends Unary {
 	public static void appendProlog(StringBuffer bld, Variable rootVariable, Expression lhs, String operator) {
