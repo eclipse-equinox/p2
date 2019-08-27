@@ -33,10 +33,11 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 /**
- * Activator class for the automatic updates plugin. The automatic updates plugin
- * is responsible for scheduling background update checks, based on update settings
- * specified by end user settings. The implementation of update checking is provided
- * by another plugin that provides an IUpdateChecker implementation.
+ * Activator class for the automatic updates plugin. The automatic updates
+ * plugin is responsible for scheduling background update checks, based on
+ * update settings specified by end user settings. The implementation of update
+ * checking is provided by another plugin that provides an IUpdateChecker
+ * implementation.
  */
 public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
@@ -84,8 +85,6 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		context = bundleContext;
 		IProvisioningAgent agent = ServiceHelper.getService(getContext(), IProvisioningAgent.class);
 		session = new ProvisioningSession(agent);
-
-		PreferenceInitializer.migratePreferences();
 	}
 
 	@Override
@@ -128,7 +127,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	/*
-	 * Overridden to use a profile scoped preference store. 
+	 * Overridden to use a profile scoped preference store.
 	 */
 	@Override
 	public IPreferenceStore getPreferenceStore() {
@@ -137,7 +136,8 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 			final IAgentLocation agentLocation = getAgentLocation();
 			if (agentLocation == null)
 				return super.getPreferenceStore();
-			preferenceStore = new ScopedPreferenceStore(new ProfileScope(agentLocation, IProfileRegistry.SELF), PLUGIN_ID);
+			preferenceStore = new ScopedPreferenceStore(new ProfileScope(agentLocation, IProfileRegistry.SELF),
+					PLUGIN_ID);
 		}
 		return preferenceStore;
 	}
@@ -156,7 +156,10 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 			try {
 				preferenceStore.save();
 			} catch (IOException e) {
-				StatusManager.getManager().handle(new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID, 0, AutomaticUpdateMessages.ErrorSavingPreferences, e), StatusManager.LOG | StatusManager.SHOW);
+				StatusManager.getManager()
+						.handle(new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID, 0,
+								AutomaticUpdateMessages.ErrorSavingPreferences, e),
+								StatusManager.LOG | StatusManager.SHOW);
 			}
 	}
 
@@ -182,7 +185,8 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	public IProvisioningAgentProvider getAgentProvider() {
-		ServiceReference<IProvisioningAgentProvider> ref = getContext().getServiceReference(IProvisioningAgentProvider.class);
+		ServiceReference<IProvisioningAgentProvider> ref = getContext()
+				.getServiceReference(IProvisioningAgentProvider.class);
 		if (ref == null)
 			return null;
 		IProvisioningAgentProvider agentProvider = getContext().getService(ref);
