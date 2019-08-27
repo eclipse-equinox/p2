@@ -53,60 +53,39 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	private IUpdateListener listener = null;
 	private IUpdateChecker checker = null;
-	String profileId;
 
-	/**
-	 * The constructor.
-	 */
-	public AutomaticUpdateScheduler() {
-		AutomaticUpdatePlugin.getDefault().setScheduler(this);
-		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(),
-				IProvisioningAgent.class);
-		checker = agent.getService(IUpdateChecker.class);
-		if (checker == null) {
-			// Something did not initialize properly
-			IStatus status = new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID,
-					AutomaticUpdateMessages.AutomaticUpdateScheduler_UpdateNotInitialized);
-			StatusManager.getManager().handle(status, StatusManager.LOG);
-			return;
-		}
-		profileId = IProfileRegistry.SELF;
-	}
+	private IProvisioningAgent agent;
 
 	@Override
 	public void earlyStartup() {
-		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(),
-				IProvisioningAgent.class);
+		AutomaticUpdatePlugin.getDefault().setScheduler(this);
+		agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
 		IProfileRegistry registry = agent.getService(IProfileRegistry.class);
-		IProfile currentProfile = registry.getProfile(profileId);
-		if (currentProfile != null && new MigrationSupport().performMigration(agent, registry, currentProfile))
+		IProfile currentProfile = registry.getProfile(IProfileRegistry.SELF);
+		if (currentProfile != null && new MigrationSupport().performMigration(agent, registry, currentProfile)) {
 			return;
+		}
 
-		garbageCollect();
+		removeUnusedPlugins(registry);
 		scheduleUpdate();
 	}
 
 	/**
 	 * Invokes the garbage collector to discard unused plugins, if specified by a
 	 * corresponding preference.
+	 * 
 	 */
-	private void garbageCollect() {
-		// Nothing to do if we don't know what profile we are checking
-		if (profileId == null)
-			return;
+	private void removeUnusedPlugins(IProfileRegistry registry) {
 		// check if gc is enabled
 		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault().getPreferenceStore();
-		if (!pref.getBoolean(PreferenceConstants.PREF_GC_ON_STARTUP))
+		if (!pref.getBoolean(PreferenceConstants.PREF_GC_ON_STARTUP)) {
 			return;
-		IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(),
-				IProvisioningAgent.class);
+		}
 		GarbageCollector collector = agent.getService(GarbageCollector.class);
-		if (collector == null)
+		if (collector == null || registry == null) {
 			return;
-		IProfileRegistry registry = agent.getService(IProfileRegistry.class);
-		if (registry == null)
-			return;
-		IProfile profile = registry.getProfile(profileId);
+		}
+		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
 		if (profile == null)
 			return;
 		collector.runGC(profile);
@@ -118,25 +97,15 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	public void rescheduleUpdate() {
 		removeUpdateListener();
-		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault().getPreferenceStore();
-		String schedule = pref.getString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE);
-		// See if we have a scheduled check or startup only. If it is
-		// startup only, there is nothing more to do now, a listener will
-		// be created on the next startup.
-		if (schedule.equals(PreferenceConstants.PREF_UPDATE_ON_STARTUP)) {
-			return;
-		}
 		scheduleUpdate();
 	}
 
 	private void scheduleUpdate() {
-		// Nothing to do if we don't know what profile we are checking
-		if (profileId == null)
-			return;
 		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault().getPreferenceStore();
 		// See if automatic search is enabled at all
-		if (!pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED))
+		if (!pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED)) {
 			return;
+		}
 		String schedule = pref.getString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE);
 		long delay = IUpdateChecker.ONE_TIME_CHECK;
 		long poll = IUpdateChecker.ONE_TIME_CHECK;
@@ -161,7 +130,16 @@ public class AutomaticUpdateScheduler implements IStartup {
 				AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().checkingForUpdates();
 			}
 		};
-		checker.addUpdateCheck(profileId, getProfileQuery(), delay, poll, listener);
+
+		checker = agent.getService(IUpdateChecker.class);
+		if (checker == null) {
+			// Something did not initialize properly
+			IStatus status = new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID,
+					AutomaticUpdateMessages.AutomaticUpdateScheduler_UpdateNotInitialized);
+			StatusManager.getManager().handle(status, StatusManager.LOG);
+			return;
+		}
+		checker.addUpdateCheck(IProfileRegistry.SELF, getProfileQuery(), delay, poll, listener);
 
 	}
 

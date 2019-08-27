@@ -83,8 +83,6 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		super.start(bundleContext);
 		plugin = this;
 		context = bundleContext;
-		IProvisioningAgent agent = ServiceHelper.getService(getContext(), IProvisioningAgent.class);
-		session = new ProvisioningSession(agent);
 	}
 
 	@Override
@@ -104,8 +102,9 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	public AutomaticUpdateScheduler getScheduler() {
 		// If the scheduler was disabled, it does not get initialized
-		if (scheduler == null)
+		if (scheduler == null) {
 			scheduler = new AutomaticUpdateScheduler();
+		}
 		return scheduler;
 	}
 
@@ -181,6 +180,12 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	public ProvisioningSession getSession() {
+		if (session == null) {
+			synchronized (this) {
+				IProvisioningAgent agent = ServiceHelper.getService(getContext(), IProvisioningAgent.class);
+				session = new ProvisioningSession(agent);
+			}
+		}
 		return session;
 	}
 
