@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Random;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.MigrationSupport;
@@ -59,15 +60,22 @@ public class AutomaticUpdateScheduler implements IStartup {
 	@Override
 	public void earlyStartup() {
 		AutomaticUpdatePlugin.getDefault().setScheduler(this);
-		agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
-		IProfileRegistry registry = agent.getService(IProfileRegistry.class);
-		IProfile currentProfile = registry.getProfile(IProfileRegistry.SELF);
-		if (currentProfile != null && new MigrationSupport().performMigration(agent, registry, currentProfile)) {
-			return;
-		}
 
-		removeUnusedPlugins(registry);
-		scheduleUpdate();
+		Job updateJob = Job.create("Update Job", e -> { //$NON-NLS-1$
+			agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
+			IProfileRegistry registry = agent.getService(IProfileRegistry.class);
+			IProfile currentProfile = registry.getProfile(IProfileRegistry.SELF);
+			if (currentProfile != null && new MigrationSupport().performMigration(agent, registry, currentProfile)) {
+				return;
+			}
+
+			removeUnusedPlugins(registry);
+			scheduleUpdate();
+		});
+		updateJob.setSystem(true);
+		// allow the system to settle
+		updateJob.schedule(20000);
+
 	}
 
 	/**
