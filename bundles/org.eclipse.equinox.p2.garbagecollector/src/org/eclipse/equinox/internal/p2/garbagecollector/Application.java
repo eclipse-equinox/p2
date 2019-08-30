@@ -56,7 +56,7 @@ public class Application implements IApplication {
 	}
 
 	private void initializeServices() throws ProvisionException {
-		IProvisioningAgentProvider provider = GCActivator.getService(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = GarbageCollectorHelper.getService(IProvisioningAgentProvider.class);
 		agent = provider.createAgent(null);
 	}
 

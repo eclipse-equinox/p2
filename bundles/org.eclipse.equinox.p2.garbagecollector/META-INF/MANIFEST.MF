@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.garbagecollector;singleton:=true
 Bundle-Version: 1.1.400.qualifier
-Bundle-Activator: org.eclipse.equinox.internal.p2.garbagecollector.GCActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.garbagecollector;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.pde.core,org.eclipse.equinox.p2.ui.sdk.scheduler"

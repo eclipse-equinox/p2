@@ -61,7 +61,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 
 		@Override
 		public void handleException(Throwable exception) {
-			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.Error_in_extension, exception));
+			LogHelper.log(new Status(IStatus.ERROR, GarbageCollectorHelper.ID, Messages.Error_in_extension, exception));
 		}
 
 		@Override
@@ -77,7 +77,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 
 	private static final String ATTRIBUTE_CLASS = "class"; //$NON-NLS-1$
 
-	private static final String PT_MARKSET = GCActivator.ID + ".marksetproviders"; //$NON-NLS-1$
+	private static final String PT_MARKSET = GarbageCollectorHelper.ID + ".marksetproviders"; //$NON-NLS-1$
 	final IProvisioningAgent agent;
 
 	//The GC is triggered when an uninstall event occurred during a "transaction" and the transaction is committed.
@@ -122,13 +122,13 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	}
 
 	protected boolean getBooleanPreference(String key, boolean defaultValue) {
-		IPreferencesService prefService = GCActivator.getService(IPreferencesService.class);
+		IPreferencesService prefService = GarbageCollectorHelper.getService(IPreferencesService.class);
 		if (prefService == null)
 			return defaultValue;
 		List<IEclipsePreferences> nodes = new ArrayList<>();
 		// todo we should look in the instance scope as well but have to be careful that the instance location has been set
-		nodes.add(ConfigurationScope.INSTANCE.getNode(GCActivator.ID));
-		nodes.add(DefaultScope.INSTANCE.getNode(GCActivator.ID));
+		nodes.add(ConfigurationScope.INSTANCE.getNode(GarbageCollectorHelper.ID));
+		nodes.add(DefaultScope.INSTANCE.getNode(GarbageCollectorHelper.ID));
 		return Boolean.parseBoolean(prefService.get(key, Boolean.toString(defaultValue), nodes.toArray(new Preferences[nodes.size()])));
 	}
 
@@ -150,7 +150,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		} else if (o instanceof CommitOperationEvent) {
 			if (uninstallEventProfileId != null) {
 				CommitOperationEvent event = (CommitOperationEvent) o;
-				if (uninstallEventProfileId.equals(event.getProfile().getProfileId()) && getBooleanPreference(GCActivator.GC_ENABLED, true))
+				if (uninstallEventProfileId.equals(event.getProfile().getProfileId()) && getBooleanPreference(GarbageCollectorHelper.GC_ENABLED, true))
 					runGC(event.getProfile());
 				uninstallEventProfileId = null;
 			}

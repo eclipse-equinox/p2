@@ -13,18 +13,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.garbagecollector;
 
-import org.eclipse.osgi.service.debug.DebugOptions;
 import org.osgi.framework.*;
 
-public class GCActivator implements BundleActivator {
+public class GarbageCollectorHelper {
+
 	public static final String ID = "org.eclipse.equinox.p2.garbagecollector"; //$NON-NLS-1$
 	public static final String GC_ENABLED = "gc_enabled"; //$NON-NLS-1$
-	private static final String DEBUG_STRING = GCActivator.ID + "/debug"; //$NON-NLS-1$
-	private static final boolean DEFAULT_DEBUG = false;
 
-	static BundleContext context;
 
 	static <T> T getService(Class<T> clazz) {
+		BundleContext context = FrameworkUtil.getBundle(GarbageCollectorHelper.class).getBundleContext();
 		ServiceReference<T> reference = context.getServiceReference(clazz);
 		if (reference == null)
 			return null;
@@ -33,17 +31,6 @@ public class GCActivator implements BundleActivator {
 		return result;
 	}
 
-	@Override
-	public void start(BundleContext inContext) throws Exception {
-		GCActivator.context = inContext;
-		DebugOptions debug = getService(DebugOptions.class);
-		if (debug != null) {
-			CoreGarbageCollector.setDebugMode(debug.getBooleanOption(DEBUG_STRING, DEFAULT_DEBUG));
-		}
-	}
 
-	@Override
-	public void stop(BundleContext inContext) throws Exception {
-		GCActivator.context = null;
-	}
+
 }
