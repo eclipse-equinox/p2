@@ -18,6 +18,7 @@ package org.eclipse.equinox.internal.simpleconfigurator;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
 import org.osgi.framework.namespace.*;
@@ -396,26 +397,21 @@ class ConfigApplier {
 			}
 		}
 
-		final boolean[] flag = new boolean[] {false};
+		CountDownLatch latch = new CountDownLatch(1);
 		FrameworkListener listener = event -> {
 			if (event.getType() == FrameworkEvent.PACKAGES_REFRESHED) {
-				synchronized (flag) {
-					flag[0] = true;
-					flag.notifyAll();
-				}
+				latch.countDown();
 			}
 		};
 		context.addFrameworkListener(listener);
 		packageAdminService.refreshPackages(allSameBSNs.toArray(new Bundle[0]));
-		synchronized (flag) {
-			while (!flag[0]) {
-				try {
-					flag.wait();
-				} catch (InterruptedException e) {
-					//ignore
-				}
-			}
+
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			// ignore
 		}
+
 		//		if (DEBUG) {
 		//			for (int i = 0; i < bundles.length; i++) {
 		//				System.out.println(SimpleConfiguratorUtils.getBundleStateString(bundles[i]));
