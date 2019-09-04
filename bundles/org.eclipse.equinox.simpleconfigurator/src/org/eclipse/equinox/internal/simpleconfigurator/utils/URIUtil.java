@@ -141,7 +141,7 @@ public class URIUtil {
 	 * @return An unencoded string representation of the URI
 	 */
 	public static String toUnencodedString(URI uri) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		String scheme = uri.getScheme();
 		if (scheme != null)
 			result.append(scheme).append(':');

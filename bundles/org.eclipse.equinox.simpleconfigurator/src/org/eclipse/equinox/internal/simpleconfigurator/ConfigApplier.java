@@ -501,6 +501,6 @@ class ConfigApplier {
 	}
 
 	private String getVersionRange(String version) {
-		return version == null ? null : new StringBuffer().append('[').append(version).append(',').append(version).append(']').toString();
+		return version == null ? null : new StringBuilder().append('[').append(version).append(',').append(version).append(']').toString();
 	}
 }

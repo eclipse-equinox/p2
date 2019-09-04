@@ -67,7 +67,7 @@ public class BundleInfo {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("BundleInfo("); //$NON-NLS-1$
 		if (symbolicName != null)
 			buffer.append(symbolicName);

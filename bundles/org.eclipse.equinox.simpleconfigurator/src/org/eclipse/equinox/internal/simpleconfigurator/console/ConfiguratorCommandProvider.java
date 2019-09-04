@@ -80,7 +80,7 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 	}
 
 	private String getHelp(String commandName) {
-		StringBuffer help = new StringBuffer();
+		StringBuilder help = new StringBuilder();
 
 		if (commandName == null) {
 			help.append("---"); //$NON-NLS-1$
