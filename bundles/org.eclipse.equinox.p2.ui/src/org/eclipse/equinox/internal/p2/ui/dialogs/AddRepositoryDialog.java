@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2019 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -33,16 +33,16 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * Abstract dialog class for adding repositories of different types. This class
- * assumes the user view of a repository is a name and URI. Individual subclasses 
+ * assumes the user view of a repository is a name and URI. Individual subclasses
  * will dictate what kind of repository and how it's created.
- * 
+ *
  * @since 3.4
- * 
+ *
  */
 public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialog {
 
 	URI addedLocation;
-	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
+	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
 	Policy policy;
@@ -62,7 +62,7 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 		layout.marginTop = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
 
 		comp.setLayout(layout);
-		GridData data = new GridData();
+		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		comp.setLayoutData(data);
 
 		// Name: []
@@ -124,7 +124,7 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 	/**
 	 * Get the location of the repository that was added by this dialog.  Return <code>null</code>
 	 * if the dialog has not yet added a repository location.
-	 * 
+	 *
 	 * @return the location of the repository that has been added by this dialog, or <code>null</code>
 	 * if no repository has been added.
 	 */
@@ -142,5 +142,9 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 			getRepositoryTracker().addRepository(addedLocation, nick, getProvisioningUI().getSession());
 		}
 		return status;
+	}
+	@Override
+	protected boolean isResizable() {
+		return true;
 	}
 }
