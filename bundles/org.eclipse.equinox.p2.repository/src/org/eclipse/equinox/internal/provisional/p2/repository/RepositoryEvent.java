@@ -154,7 +154,7 @@ public class RepositoryEvent extends EventObject {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("RepositoryEvent["); //$NON-NLS-1$
 		switch (kind) {
 			case ADDED :

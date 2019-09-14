@@ -1204,7 +1204,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private String toString(Map<String, String> context) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (Map.Entry<String, String> entry : context.entrySet()) {
 			if (result.length() > 0)
 				result.append(',');

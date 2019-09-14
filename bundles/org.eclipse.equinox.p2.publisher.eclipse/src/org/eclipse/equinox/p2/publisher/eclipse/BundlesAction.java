@@ -525,7 +525,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	private static String toManifestString(Map<String, String> p) {
 		if (p == null)
 			return null;
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		// See https://bugs.eclipse.org/329386. We are trying to reduce the size of the manifest data in
 		// the eclipse touchpoint. We've removed the code that requires it but in order for old clients
 		// to still be able to use recent repositories, we're going to keep around the manifest properties

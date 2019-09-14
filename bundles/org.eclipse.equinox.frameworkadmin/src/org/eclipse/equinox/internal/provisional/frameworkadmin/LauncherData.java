@@ -221,7 +221,7 @@ public class LauncherData {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("Class:" + this.getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append("fwName=" + this.fwName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append("fwVersion=" + this.fwVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$

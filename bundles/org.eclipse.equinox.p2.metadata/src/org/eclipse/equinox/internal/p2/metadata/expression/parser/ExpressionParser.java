@@ -610,7 +610,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 
 	private void parseDelimitedString(char delim) {
 		int start = ++tokenPos;
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		int top = expression.length();
 		while (tokenPos < top) {
 			char ec = expression.charAt(tokenPos);

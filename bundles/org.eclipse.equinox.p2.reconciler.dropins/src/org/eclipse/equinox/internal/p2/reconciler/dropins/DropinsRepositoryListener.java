@@ -336,7 +336,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void setListRepositoryProperty(IRepository<?> repository, String key, List<String> listProperty) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (Iterator<String> it = listProperty.iterator(); it.hasNext();) {
 			String repositoryString = it.next();
 			buffer.append(repositoryString);

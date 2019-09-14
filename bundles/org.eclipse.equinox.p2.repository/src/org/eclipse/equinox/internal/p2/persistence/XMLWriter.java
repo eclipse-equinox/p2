@@ -45,7 +45,7 @@ public class XMLWriter implements XMLConstants {
 
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer("<?"); //$NON-NLS-1$
+			StringBuilder sb = new StringBuilder("<?"); //$NON-NLS-1$
 			sb.append(this.target).append(' ');
 			for (int i = 0; i < data.length; i++) {
 				sb.append(this.data[i]);

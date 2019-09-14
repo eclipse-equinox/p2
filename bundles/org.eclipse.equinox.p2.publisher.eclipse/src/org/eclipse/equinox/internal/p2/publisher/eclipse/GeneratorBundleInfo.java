@@ -62,7 +62,7 @@ public class GeneratorBundleInfo extends BundleInfo {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		String superSt = super.toString();
 		if (superSt.length() > 0)
 			buffer.append(superSt.substring(0, superSt.length() - 1));

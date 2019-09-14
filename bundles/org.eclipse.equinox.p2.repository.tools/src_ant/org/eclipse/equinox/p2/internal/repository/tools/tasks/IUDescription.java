@@ -89,7 +89,7 @@ public class IUDescription extends DataType {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer("Installable Unit ["); //$NON-NLS-1$
+		StringBuilder buffer = new StringBuilder("Installable Unit ["); //$NON-NLS-1$
 		if (id != null) {
 			buffer.append(" id="); //$NON-NLS-1$
 			buffer.append(id);

@@ -145,7 +145,7 @@ public class VersionSuffixGenerator {
 				break;
 			}
 		}
-		StringBuffer result = new StringBuffer(length + 1);
+		StringBuilder result = new StringBuilder(length + 1);
 		result.append(base64Character((length << 3) + (int) ((number >> (6 * length)) & 0x7)));
 		while (--length >= 0) {
 			result.append(base64Character((int) ((number >> (6 * length)) & 0x3f)));

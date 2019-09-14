@@ -197,7 +197,7 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	private String flattenStatus(IStatus[] childs, String indent) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; (childs != null) && (i < childs.length); i++) {
 			sb.append(indent).append(childs[i].getMessage()).append(NEW_LINE);

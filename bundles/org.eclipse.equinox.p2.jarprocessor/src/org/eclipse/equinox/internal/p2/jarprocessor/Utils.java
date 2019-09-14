@@ -218,7 +218,7 @@ public class Utils {
 	}
 
 	public static String concat(String[] array) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < array.length; i++) {
 			if (i > 0)
 				buffer.append(' ');

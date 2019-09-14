@@ -97,7 +97,7 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 			frameworkProperties.put("osgi.framework", null);
 			frameworkProperties.put("osgi.install.area", installarea.toURL().toExternalForm());
 			frameworkProperties.put("osgi.configuration.area", configarea.toURL().toExternalForm());
-			StringBuffer osgiBundles = new StringBuffer();
+			StringBuilder osgiBundles = new StringBuilder();
 			for (int i = 0; additionalBundle != null && i < additionalBundle.length; i++) {
 				osgiBundles.append("reference:").append(additionalBundle[i].toURL().toExternalForm()).append(",");
 			}

@@ -128,7 +128,7 @@ public class Disassembler {
 	}
 
 	public static String escapeString(String s) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, max = s.length(); i < max; i++) {
 			char c = s.charAt(i);
 			switch (c) {
@@ -179,7 +179,7 @@ public class Disassembler {
 	}
 
 	static String decodeStringValue(char[] chars) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, max = chars.length; i < max; i++) {
 			char c = chars[i];
 			switch (c) {
@@ -830,11 +830,11 @@ public class Disassembler {
 				final char[] innerName2 = o2.getInnerName();
 				final char[] outerClassName1 = o1.getOuterClassName();
 				final char[] outerClassName2 = o2.getOuterClassName();
-				StringBuffer buffer1 = new StringBuffer();
+				StringBuilder buffer1 = new StringBuilder();
 				buffer1.append(innerClassName1 == null ? EMPTY_CHAR_ARRAY : innerClassName1);
 				buffer1.append(innerName1 == null ? EMPTY_CHAR_ARRAY : innerName1);
 				buffer1.append(outerClassName1 == null ? EMPTY_CHAR_ARRAY : outerClassName1);
-				StringBuffer buffer2 = new StringBuffer();
+				StringBuilder buffer2 = new StringBuilder();
 				buffer2.append(innerClassName2 == null ? EMPTY_CHAR_ARRAY : innerClassName2);
 				buffer2.append(innerName2 == null ? EMPTY_CHAR_ARRAY : innerName2);
 				buffer2.append(outerClassName2 == null ? EMPTY_CHAR_ARRAY : outerClassName2);

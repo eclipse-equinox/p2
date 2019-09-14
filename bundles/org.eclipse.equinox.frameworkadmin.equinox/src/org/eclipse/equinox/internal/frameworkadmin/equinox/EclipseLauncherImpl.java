@@ -24,7 +24,7 @@ import org.osgi.service.log.LogService;
 
 public class EclipseLauncherImpl {
 	static String getStringOfCmd(String[] cmdarray) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < cmdarray.length; i++) {
 			sb.append(cmdarray[i]);
 			sb.append(" "); //$NON-NLS-1$

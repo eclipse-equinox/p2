@@ -80,7 +80,7 @@ public class DownloadStatus extends Status {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(super.toString());
+		StringBuilder sb = new StringBuilder(super.toString());
 		sb.append(' ');
 		sb.append("LastModified="); //$NON-NLS-1$
 		sb.append(getLastModified());

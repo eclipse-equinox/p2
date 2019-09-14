@@ -633,7 +633,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 	private void setupLinks(InstallableUnitDescription iu, FileSetDescriptor descriptor) {
 		String[] links = getArrayFromString(descriptor.getLinks(), ","); //$NON-NLS-1$
-		StringBuffer linkActions = new StringBuffer();
+		StringBuilder linkActions = new StringBuilder();
 
 		int i = 0;
 		while (i < links.length) {

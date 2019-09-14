@@ -654,7 +654,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File file = new File(path);
 		if (!file.exists())
 			return null;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 				buffer.append(line);

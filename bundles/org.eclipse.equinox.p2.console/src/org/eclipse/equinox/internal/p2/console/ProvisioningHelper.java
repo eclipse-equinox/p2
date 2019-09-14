@@ -191,7 +191,7 @@ public class ProvisioningHelper {
 			return null;
 		IQueryResult<IInstallableUnit> units = getInstallableUnits(agent, (URI) null, QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
-			StringBuffer error = new StringBuffer();
+			StringBuilder error = new StringBuilder();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n'); //$NON-NLS-1$
 			error.append("Repositories searched:\n");//$NON-NLS-1$
 			URI[] repos = getMetadataRepositories(agent);
@@ -290,7 +290,7 @@ public class ProvisioningHelper {
 			return null;
 		IQueryResult<IInstallableUnit> units = profile.query(QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
-			StringBuffer error = new StringBuffer();
+			StringBuilder error = new StringBuilder();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n'); //$NON-NLS-1$
 			error.append("Repositories searched:\n"); //$NON-NLS-1$
 			URI[] repos = getMetadataRepositories(agent);

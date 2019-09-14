@@ -132,7 +132,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	private static String toString(Object[] list) {
 		if (list == null || list.length == 0)
 			return null;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < list.length; i++) {
 			buffer.append(list[i].toString());
 			if (i + 1 < list.length)

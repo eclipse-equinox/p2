@@ -36,7 +36,7 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 
 	// convert the given list to a comma-separated string
 	protected static String convertToString(List<String> list) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (Iterator<String> iter = list.iterator(); iter.hasNext();) {
 			buffer.append(iter.next());
 			if (iter.hasNext())

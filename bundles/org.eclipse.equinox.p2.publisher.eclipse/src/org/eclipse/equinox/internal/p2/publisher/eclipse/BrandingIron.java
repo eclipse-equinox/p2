@@ -527,7 +527,7 @@ public class BrandingIron {
 		if (version != null) {
 			// CFBundleShortVersionString is to be 3 segments only
 			// http://developer.apple.com/library/mac/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html#//apple_ref/doc/uid/20001431-111349
-			StringBuffer sv = new StringBuffer(version.getSegmentCount() > 0 ? version.getSegment(0).toString() : "0"); //$NON-NLS-1$
+			StringBuilder sv = new StringBuilder(version.getSegmentCount() > 0 ? version.getSegment(0).toString() : "0"); //$NON-NLS-1$
 			sv.append('.');
 			sv.append(version.getSegmentCount() > 1 ? version.getSegment(1).toString() : "0"); //$NON-NLS-1$
 			sv.append('.');

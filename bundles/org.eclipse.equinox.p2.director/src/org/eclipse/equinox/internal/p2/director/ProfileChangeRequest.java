@@ -222,7 +222,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 
 	@Override
 	public String toString() {
-		StringBuffer result = new StringBuffer(1000);
+		StringBuilder result = new StringBuilder(1000);
 		result.append("==Profile change request for "); //$NON-NLS-1$
 		result.append(profile.getProfileId());
 		result.append('\n');

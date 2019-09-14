@@ -57,7 +57,7 @@ public class XMLWriter extends PrintWriter {
 	}
 
 	public void printTag(String name, Map<String, String> parameters, boolean shouldTab, boolean newLine) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("<"); //$NON-NLS-1$
 		sb.append(name);
 		if (parameters != null)

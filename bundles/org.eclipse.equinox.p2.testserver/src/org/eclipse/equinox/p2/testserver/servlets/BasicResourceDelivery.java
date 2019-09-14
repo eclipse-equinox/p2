@@ -282,7 +282,7 @@ public class BasicResourceDelivery extends HttpServlet {
 				}
 			} else /* path != "/" */
 			{
-				StringBuffer buf = new StringBuffer(aliaslen + pathlen);
+				StringBuilder buf = new StringBuilder(aliaslen + pathlen);
 				buf.append(path.getPath());
 
 				if (aliaslen == 1) /* alias == "/" */

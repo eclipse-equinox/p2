@@ -229,7 +229,7 @@ public class IUImplementationGroup extends IUGroup {
 	}
 
 	void copySelectionsToClipboard(List list) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		String[] selections = list.getSelection();
 		for (String selection : selections) {
 			buffer.append(selection);

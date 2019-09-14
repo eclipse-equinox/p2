@@ -295,7 +295,7 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 			IPath path = new Path(name);
 			if ("app".equals(path.getFileExtension())) //$NON-NLS-1$
 				return name;
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(name.substring(0, 1).toUpperCase());
 			buffer.append(name.substring(1));
 			buffer.append(".app/Contents/MacOS/"); //$NON-NLS-1$

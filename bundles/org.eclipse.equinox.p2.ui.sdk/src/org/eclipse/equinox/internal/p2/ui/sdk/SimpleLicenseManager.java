@@ -88,7 +88,7 @@ public class SimpleLicenseManager extends LicenseManager {
 
 	private void updatePreferences() {
 		Preferences pref = getPreferences();
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		Object[] indexedList = accepted.toArray();
 		for (int i = 0; i < indexedList.length; i++) {
 			if (i != 0)

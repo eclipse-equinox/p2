@@ -73,7 +73,7 @@ public class Stats extends HttpServlet {
 	}
 
 	private String getStatsResult() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(
 				"It's a page to count the downloading times when heading this page with query 'package=<package name>'.\n"); //$NON-NLS-1$
 		for (String string : downloadStats.keySet()) {

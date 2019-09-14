@@ -231,7 +231,7 @@ public abstract class VersionParser {
 		switch (c) {
 			case '\'' :
 			case '"' : {
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				for (;;) {
 					char q = c;
 					if (++current == maxPos)
@@ -370,7 +370,7 @@ public abstract class VersionParser {
 		int pos = position[0];
 		ArrayList<List<String>> identifiers = new ArrayList<>();
 		int ordinal = -1;
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (;;) {
 			if (pos >= maxPos)
 				return null;

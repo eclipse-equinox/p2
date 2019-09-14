@@ -90,7 +90,7 @@ public class TouchpointData implements ITouchpointData {
 	 */
 	@Override
 	public String toString() {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (Entry<String, ITouchpointInstruction> instruction : instructions.entrySet()) {
 			result.append(instruction.getKey()).append(" -> ").append(instruction.getValue()).append('\n'); //$NON-NLS-1$
 		}

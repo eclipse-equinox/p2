@@ -45,7 +45,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	private Set<IMetadataRepository> configRepositories;
 
 	private String toString(Feature[] features, String[] list) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (features != null) {
 			for (int i = 0; i < features.length; i++) {
 				String featureURL = features[i].getUrl();

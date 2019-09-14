@@ -665,7 +665,7 @@ public class EquinoxBundlesState implements BundlesState {
 	public String toString() {
 		if (state == null)
 			return null;
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		BundleDescription[] bundleDescriptions = state.getBundles();
 		for (int i = 0; i < bundleDescriptions.length; i++) {
 			sb.append(bundleDescriptions[i].getBundleId() + ":"); //$NON-NLS-1$

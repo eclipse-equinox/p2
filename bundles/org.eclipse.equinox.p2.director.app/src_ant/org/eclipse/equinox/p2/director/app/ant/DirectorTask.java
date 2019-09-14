@@ -142,7 +142,7 @@ public class DirectorTask extends Task implements ILog {
 		}
 		if (ius.size() > 0) {
 			result.add("-installIUs"); //$NON-NLS-1$
-			StringBuffer arg = new StringBuffer();
+			StringBuilder arg = new StringBuilder();
 			for (Iterator<IUDescription> iterator = ius.iterator(); iterator.hasNext();) {
 				IUDescription object = iterator.next();
 				arg.append(object.getVersionedId().toString());

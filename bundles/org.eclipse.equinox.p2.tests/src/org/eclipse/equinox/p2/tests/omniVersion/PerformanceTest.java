@@ -228,7 +228,7 @@ public class PerformanceTest extends TestCase {
 	 */
 	private static String[] createStrings() {
 		String[] strings = new String[MUL * MUL * MUL];
-		StringBuffer buf = new StringBuffer(100);
+		StringBuilder buf = new StringBuilder(100);
 		int x = 0;
 		for (int i = 0; i < MUL; i++)
 			for (int j = 0; j < MUL; j++)

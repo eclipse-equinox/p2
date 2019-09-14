@@ -40,7 +40,7 @@ public class StringHelperTest extends TestCase {
 
 	public void testPerformance() throws Exception {
 		String[] strings = new String[5];
-		StringBuffer inputBld = new StringBuffer();
+		StringBuilder inputBld = new StringBuilder();
 		for (int idx = 0; idx < 5; ++idx) {
 			if (idx > 0)
 				inputBld.append(',');

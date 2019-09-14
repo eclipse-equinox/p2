@@ -209,7 +209,7 @@ public class FeatureEntry implements IPlatformEntry {
 
 	@Override
 	public String toString() {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		result.append(isRequires ? "Requires: " : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		result.append(isPlugin ? "Plugin: " : "Feature: "); //$NON-NLS-1$ //$NON-NLS-2$
 		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$

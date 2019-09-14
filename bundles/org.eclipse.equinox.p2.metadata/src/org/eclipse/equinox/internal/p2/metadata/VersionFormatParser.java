@@ -1240,7 +1240,7 @@ class VersionFormatParser {
 	}
 
 	private String parseAndConsiderEscapeUntil(char endChar) throws VersionFormatException {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		while (current < eos) {
 			char c = format.charAt(current++);
 			if (c == endChar)
@@ -1288,7 +1288,7 @@ class VersionFormatParser {
 	private void parseCharacterGroup(VersionFormatParser.Instructions ep) throws VersionFormatException {
 		assertChar('[');
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		outer: for (; current < eos; ++current) {
 			char c = format.charAt(current);
 			switch (c) {
@@ -1355,7 +1355,7 @@ class VersionFormatParser {
 		++current;
 		ArrayList<List<String>> identifiers = new ArrayList<>();
 		ArrayList<String> idents = new ArrayList<>();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (;;) {
 			if (current >= eos)
 				throw formatException(Messages.bad_enum_definition);

@@ -437,7 +437,7 @@ public class ProfileSynchronizer {
 
 	private String synchronizeCacheExtensions() {
 		List<String> currentExtensions = new ArrayList<>();
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 
 		List<String> repositories = new ArrayList<>(repositoryMap.keySet());
 		URL installArea = Activator.getOSGiInstallArea();

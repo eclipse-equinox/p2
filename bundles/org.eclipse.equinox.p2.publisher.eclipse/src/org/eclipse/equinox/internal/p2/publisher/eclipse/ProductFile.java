@@ -213,7 +213,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		if (text == null || text.trim().length() == 0)
 			return ""; //$NON-NLS-1$
 
-		StringBuffer result = new StringBuffer(text.length());
+		StringBuilder result = new StringBuilder(text.length());
 		boolean haveSpace = false;
 		for (int i = 0; i < text.length(); i++) {
 			char c = text.charAt(i);

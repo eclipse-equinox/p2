@@ -159,8 +159,8 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private void writeBundlesList(File fwJar, Properties props, BundleInfo[] bundles) {
-		StringBuffer osgiBundlesList = new StringBuffer();
-		StringBuffer osgiFrameworkExtensionsList = new StringBuffer();
+		StringBuilder osgiBundlesList = new StringBuilder();
+		StringBuilder osgiFrameworkExtensionsList = new StringBuilder();
 		for (int j = 0; j < bundles.length; j++) {
 			BundleInfo bundle = bundles[j];
 

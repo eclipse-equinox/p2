@@ -444,7 +444,7 @@ public class SiteFeature {
 	 */
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (featureId != null)
 			buffer.append(featureId).append(' ');
 		if (featureVersion != null)

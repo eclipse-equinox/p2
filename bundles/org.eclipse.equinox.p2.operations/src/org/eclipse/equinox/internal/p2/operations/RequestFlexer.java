@@ -330,7 +330,7 @@ public class RequestFlexer {
 
 	//Create an OR expression that is matching all the entries from the given collection
 	private IRequirement createORRequirement(Collection<IInstallableUnit> findUpdates, boolean optional) {
-		StringBuffer expression = new StringBuffer();
+		StringBuilder expression = new StringBuilder();
 		Object[] expressionParameters = new Object[findUpdates.size() * 2];
 		int count = 0;
 		for (IInstallableUnit iu : findUpdates) {

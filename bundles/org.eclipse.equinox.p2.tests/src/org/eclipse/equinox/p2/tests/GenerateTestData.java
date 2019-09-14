@@ -71,7 +71,7 @@ public class GenerateTestData {
 
 		@Override
 		String getManifest() {
-			StringBuffer manifest = new StringBuffer();
+			StringBuilder manifest = new StringBuilder();
 			manifest.append("Manifest-Version: 1.0\n");
 			manifest.append("Bundle-RequiredExecutionEnvironment: J2SE-1.4\n");
 			manifest.append("Bundle-ManifestVersion: 2\n");
@@ -79,7 +79,7 @@ public class GenerateTestData {
 			manifest.append("Bundle-SymbolicName: " + id + '\n');
 			manifest.append("Bundle-Version: " + version + '\n');
 			if (!requires.isEmpty()) {
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				buffer.append("Require-Bundle: ");
 				for (Iterator<TestObject> iter = requires.iterator(); iter.hasNext();) {
 					TestObject req = iter.next();
@@ -98,7 +98,7 @@ public class GenerateTestData {
 
 		@Override
 		String getManifest() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 			buffer.append("	<feature\n");
 			buffer.append("\t\tid=\"" + id + "\"\n");
@@ -137,7 +137,7 @@ public class GenerateTestData {
 	}
 
 	static void printUsage() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("\nUse this application to generate test feature and bundle data.\n");
 		buffer.append("Parameters:\n");
 		buffer.append("-output <location>\n");
@@ -154,7 +154,7 @@ public class GenerateTestData {
 	 * Verify setup before starting. Ensure all required parameters have been set.
 	 */
 	static boolean validate() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (outputFile == null)
 			buffer.append("Need to set an output directory.\n");
 		if (numFeatures < 0 || numBundles <= 0)

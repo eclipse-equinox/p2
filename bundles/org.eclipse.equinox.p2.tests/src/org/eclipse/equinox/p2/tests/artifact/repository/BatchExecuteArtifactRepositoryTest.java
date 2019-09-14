@@ -181,7 +181,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 	}
 
 	boolean fileContainsString(URI location, String string) throws IOException {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		try (BufferedReader reader = new BufferedReader(new FileReader(new File(location)))) {
 
 			while (reader.ready())

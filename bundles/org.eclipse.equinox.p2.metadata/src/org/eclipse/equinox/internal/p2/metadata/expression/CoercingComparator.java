@@ -370,7 +370,7 @@ public abstract class CoercingComparator<T> {
 	}
 
 	protected IllegalArgumentException uncoercable(Object v) {
-		StringBuffer sb = new StringBuffer("Cannot coerce "); //$NON-NLS-1$
+		StringBuilder sb = new StringBuilder("Cannot coerce "); //$NON-NLS-1$
 		if (v instanceof String) {
 			sb.append('\'');
 			sb.append(v);

@@ -537,7 +537,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("++++++++++++++++++++++++++++++++++++++++++\n" + "Class:" + this.getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		sb.append("------------- LauncherData -----------\n"); //$NON-NLS-1$
 		sb.append(launcherData.toString());
@@ -606,7 +606,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	}
 
 	public static String makeArrayRelative(String array, URL rootURL) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (StringTokenizer tokenizer = new StringTokenizer(array, COMMA); tokenizer.hasMoreTokens();) {
 			String token = tokenizer.nextToken();
 			String absolute = makeRelative(token, rootURL);
@@ -618,7 +618,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	}
 
 	public static String makeArrayAbsolute(String array, URL rootURL) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (StringTokenizer tokenizer = new StringTokenizer(array, COMMA); tokenizer.hasMoreTokens();) {
 			String token = tokenizer.nextToken();
 			String absolute = makeAbsolute(token, rootURL);

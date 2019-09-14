@@ -669,7 +669,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		private String normalize(String license) {
 			String text = license.trim();
-			StringBuffer result = new StringBuffer();
+			StringBuilder result = new StringBuilder();
 			int length = text.length();
 			for (int i = 0; i < length; i++) {
 				char c = text.charAt(i);
