@@ -17,3 +17,4 @@ Bug 518051 - Update to xz-java 1.6
 Bug 529908 - Update xz-java 1.8
 Bug 444188 - Fix concurrent access to listener collections
 Bug 542873 - IBuild I20181217-1800 failed due to unresolved project dependencies.
+Bug 551174 - Comparator errors in 4.14 I build - I20190917-1800
