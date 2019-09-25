@@ -86,8 +86,8 @@ public class Sizing extends InstallableUnitPhase {
 		for (IArtifactRequest[] requests : artifactRequests) {
 			if (requests == null)
 				continue;
-			for (int i = 0; i < requests.length; i++) {
-				artifactsToObtain.add(requests[i]);
+			for (IArtifactRequest request : requests) {
+				artifactsToObtain.add(request);
 			}
 		}
 
@@ -103,8 +103,7 @@ public class Sizing extends InstallableUnitPhase {
 			if (sub.isCanceled())
 				break;
 			boolean found = false;
-			for (int i = 0; i < repositories.length; i++) {
-				IArtifactRepository repo = repositories[i];
+			for (IArtifactRepository repo : repositories) {
 				if (sub.isCanceled())
 					return Status.CANCEL_STATUS;
 				IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(artifactRequest.getArtifactKey());

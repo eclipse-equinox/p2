@@ -139,27 +139,27 @@ public class TouchpointManager implements IRegistryChangeListener {
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_TOUCHPOINTS);
 		IExtension[] extensions = point.getExtensions();
 		touchpointEntries = new HashMap<>(extensions.length);
-		for (int i = 0; i < extensions.length; i++) {
+		for (IExtension extension : extensions) {
 			try {
-				IConfigurationElement[] elements = extensions[i].getConfigurationElements();
-				for (int j = 0; j < elements.length; j++) {
-					String elementName = elements[j].getName();
+				IConfigurationElement[] elements = extension.getConfigurationElements();
+				for (IConfigurationElement element : elements) {
+					String elementName = element.getName();
 					if (!ELEMENT_TOUCHPOINT.equalsIgnoreCase(elementName)) {
-						reportError(NLS.bind(Messages.TouchpointManager_Incorrectly_Named_Extension, elements[j].getName(), ELEMENT_TOUCHPOINT));
+						reportError(NLS.bind(Messages.TouchpointManager_Incorrectly_Named_Extension, element.getName(), ELEMENT_TOUCHPOINT));
 						continue;
 					}
-					String id = elements[j].getAttribute(ATTRIBUTE_TYPE);
+					String id = element.getAttribute(ATTRIBUTE_TYPE);
 					if (id == null) {
 						reportError(NLS.bind(Messages.TouchpointManager_Attribute_Not_Specified, ATTRIBUTE_TYPE));
 						continue;
 					}
 					if (touchpointEntries.get(id) == null) {
-						touchpointEntries.put(id, new TouchpointEntry(elements[j]));
+						touchpointEntries.put(id, new TouchpointEntry(element));
 					} else {
 						reportError(NLS.bind(Messages.TouchpointManager_Conflicting_Touchpoint_Types, id));
 					}
 				}
-			} catch (InvalidRegistryObjectException e) {
+			}catch (InvalidRegistryObjectException e) {
 				//skip this extension
 			}
 		}

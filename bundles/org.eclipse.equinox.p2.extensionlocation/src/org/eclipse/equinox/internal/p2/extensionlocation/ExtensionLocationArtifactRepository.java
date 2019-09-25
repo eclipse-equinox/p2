@@ -110,9 +110,10 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 		String[] fileNames = base.list();
 		if (fileNames == null)
 			return false;
-		for (int i = 0; i < fileNames.length; i++) {
-			if (fileNames[i].endsWith(DOT_XML) && fileNames[i].contains(SITE))
+		for (String fileName : fileNames) {
+			if (fileName.endsWith(DOT_XML) && fileName.contains(SITE)) {
 				return true;
+			}
 		}
 		return false;
 	}

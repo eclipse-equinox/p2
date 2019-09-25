@@ -94,11 +94,10 @@ public class ActionManager implements IRegistryChangeListener {
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_ACTIONS);
 		IExtension[] extensions = point.getExtensions();
 		actionMap = new HashMap<>(extensions.length);
-		for (int i = 0; i < extensions.length; i++) {
+		for (IExtension extension : extensions) {
 			try {
-				IConfigurationElement[] elements = extensions[i].getConfigurationElements();
-				for (int j = 0; j < elements.length; j++) {
-					IConfigurationElement actionElement = elements[j];
+				IConfigurationElement[] elements = extension.getConfigurationElements();
+				for (IConfigurationElement actionElement : elements) {
 					if (!actionElement.getName().equals(ELEMENT_ACTION))
 						continue;
 
@@ -111,7 +110,7 @@ public class ActionManager implements IRegistryChangeListener {
 
 					actionMap.put(actionId, actionElement);
 				}
-			} catch (InvalidRegistryObjectException e) {
+			}catch (InvalidRegistryObjectException e) {
 				// skip
 			}
 		}

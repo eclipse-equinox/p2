@@ -54,9 +54,11 @@ public class SiteListener extends DirectoryChangeListener {
 	 */
 	private static boolean contains(String[] plugins, File file) {
 		String filename = file.getAbsolutePath();
-		for (int i = 0; i < plugins.length; i++)
-			if (filename.endsWith(plugins[i]))
+		for (String plugin : plugins) {
+			if (filename.endsWith(plugin)) {
 				return true;
+			}
+		}
 		return false;
 	}
 
@@ -170,8 +172,7 @@ public class SiteListener extends DirectoryChangeListener {
 		Feature feature = getFeature(file);
 		if (feature == null)
 			return false;
-		for (int i = 0; i < removed.length; i++) {
-			String line = removed[i];
+		for (String line : removed) {
 			// the line is a versioned identifier which is id_version
 			if (line.equals(feature.getId() + '_' + feature.getVersion()))
 				return true;
@@ -267,8 +268,7 @@ public class SiteListener extends DirectoryChangeListener {
 			result.add(featureFile.toString());
 			Feature feature = featureCache.get(featureFile);
 			FeatureEntry[] entries = feature.getEntries();
-			for (int inner = 0; inner < entries.length; inner++) {
-				FeatureEntry entry = entries[inner];
+			for (FeatureEntry entry : entries) {
 				// grab the right location from the plug-in cache
 				String key = entry.getId() + '/' + entry.getVersion();
 				File pluginLocation = pluginCache.get(key);
