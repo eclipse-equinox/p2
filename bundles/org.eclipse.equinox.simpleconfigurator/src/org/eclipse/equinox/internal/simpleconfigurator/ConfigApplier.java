@@ -458,10 +458,11 @@ class ConfigApplier {
 		//Build a set with all the bundles from the system
 		Set<Bundle> removedBundles = new HashSet<>(allBundles.length);
 		//		configurator.setPrerequisiteBundles(allBundles);
-		for (int i = 0; i < allBundles.length; i++) {
-			if (allBundles[i].getBundleId() == 0)
+		for (Bundle allBundle : allBundles) {
+			if (allBundle.getBundleId() == 0) {
 				continue;
-			removedBundles.add(allBundles[i]);
+			}
+			removedBundles.add(allBundle);
 		}
 
 		//Remove all the bundles appearing in the final list from the set of installed bundles

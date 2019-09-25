@@ -100,11 +100,12 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 		if (info.prerequisiteLocations == null)
 			return false;
-		for (int i = 0; i < info.prerequisiteLocations.length; i++)
-			if (location.equals(info.prerequisiteLocations[i])) {
+		for (URI prerequisiteLocation : info.prerequisiteLocations) {
+			if (location.equals(prerequisiteLocation)) {
 				ret = true;
 				break;
 			}
+		}
 
 		return ret;
 	}
@@ -121,17 +122,18 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		boolean ret = false;
 		if (info.systemFragmentedBundleLocations == null)
 			return false;
-		for (int i = 0; i < info.systemFragmentedBundleLocations.length; i++)
-			if (location.equals(info.systemFragmentedBundleLocations[i])) {
+		for (URI systemFragmentedBundleLocation : info.systemFragmentedBundleLocations) {
+			if (location.equals(systemFragmentedBundleLocation)) {
 				ret = true;
 				break;
 			}
+		}
 		return ret;
 	}
 
 	private static boolean isTargetConfiguratorBundle(BundleInfo[] bInfos) {
-		for (int i = 0; i < bInfos.length; i++) {
-			if (isTargetConfiguratorBundle(bInfos[i].getLocation())) {
+		for (BundleInfo bInfo : bInfos) {
+			if (isTargetConfiguratorBundle(bInfo.getLocation())) {
 				return true;
 				// TODO confirm that startlevel of configurator bundle must be no larger than
 				// beginning start level of fw. However, there is no way to know the start level
@@ -162,8 +164,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 				}
 			}
 
-		for (Iterator<Integer> ite = bslToList.keySet().iterator(); ite.hasNext();) {
-			Integer sL = ite.next();
+		for (Integer sL : bslToList.keySet()) {
 			List<BundleInfo> list = bslToList.get(sL);
 
 			if (sL.intValue() < configuratorSL) {
@@ -176,7 +177,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 				for (Iterator<BundleInfo> ite2 = list.iterator(); ite2.hasNext();) {
 					BundleInfo bInfo = ite2.next();
 					if (isPrerequisiteBundles(bInfo.getLocation(), info)
-							|| isSystemFragmentBundle(bInfo.getLocation(), info))
+						|| isSystemFragmentBundle(bInfo.getLocation(), info))
 						if (!isSystemBundle(bInfo.getLocation(), info))
 							setToInitialConfig.add(bInfo);
 					setToSimpleConfig.add(bInfo);
@@ -188,7 +189,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 					if (found) {
 						if (!isSystemBundle(bInfo.getLocation(), info))
 							if (isPrerequisiteBundles(bInfo.getLocation(), info)
-									|| isSystemFragmentBundle(bInfo.getLocation(), info))
+								|| isSystemFragmentBundle(bInfo.getLocation(), info))
 								setToInitialConfig.add(bInfo);
 						setToSimpleConfig.add(bInfo);
 						continue;
@@ -229,10 +230,10 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			targetBundleInfos = manipulator.getConfigData().getBundles();
 		}
 		BundleInfo configuratorBInfo = null;
-		for (int i = 0; i < targetBundleInfos.length; i++) {
-			if (isTargetConfiguratorBundle(targetBundleInfos[i].getLocation())) {
-				if (targetBundleInfos[i].isMarkedAsStarted()) {
-					configuratorBInfo = targetBundleInfos[i];
+		for (BundleInfo targetBundleInfo : targetBundleInfos) {
+			if (isTargetConfiguratorBundle(targetBundleInfo.getLocation())) {
+				if (targetBundleInfo.isMarkedAsStarted()) {
+					configuratorBInfo = targetBundleInfo;
 					break;
 				}
 			}
@@ -265,8 +266,8 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 	private SortedMap<Integer, List<BundleInfo>> getSortedMap(int initialSl, BundleInfo[] bInfos) {
 		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<>();
-		for (int i = 0; i < bInfos.length; i++) {
-			Integer sL = Integer.valueOf(bInfos[i].getStartLevel());
+		for (BundleInfo bInfo : bInfos) {
+			Integer sL = Integer.valueOf(bInfo.getStartLevel());
 			if (sL.intValue() == BundleInfo.NO_LEVEL)
 				sL = Integer.valueOf(initialSl);
 			List<BundleInfo> list = bslToList.get(sL);
@@ -274,7 +275,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 				list = new LinkedList<>();
 				bslToList.put(sL, list);
 			}
-			list.add(bInfos[i]);
+			list.add(bInfo);
 		}
 		return bslToList;
 	}
@@ -301,8 +302,9 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			StringBuffer sb = new StringBuffer();
 			sb.append("Missing constraints:\n"); //$NON-NLS-1$
 			String[] missings = state.getUnsatisfiedConstraints(bInfo);
-			for (int i = 0; i < missings.length; i++)
-				sb.append(" " + missings[i] + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			for (String missing : missings) {
+				sb.append(" " + missing + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			System.out.println(sb.toString());
 		}
 	}
@@ -569,12 +571,13 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			return;
 		Properties properties = new Properties();
 		String[] jvmArgs = manipulator.getLauncherData().getJvmArgs();
-		for (int i = 0; i < jvmArgs.length; i++) {
-			if (jvmArgs[i].startsWith("-D")) { //$NON-NLS-1$
-				int index = jvmArgs[i].indexOf("="); //$NON-NLS-1$
-				if (index > 0 && jvmArgs[i].length() > 2) {
-					String key = jvmArgs[i].substring(2, index);
-					String value = jvmArgs[i].substring(index + 1);
+		for (String jvmArg : jvmArgs) {
+			if (jvmArg.startsWith("-D")) {
+				//$NON-NLS-1$
+				int index = jvmArg.indexOf("="); //$NON-NLS-1$
+				if (index > 0 && jvmArg.length() > 2) {
+					String key = jvmArg.substring(2, index);
+					String value = jvmArg.substring(index + 1);
 					properties.setProperty(key, value);
 				}
 			}
@@ -602,21 +605,23 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 
 		List<BundleInfo> toUninstall = new LinkedList<>();
 		if (exclusiveInstallation)
-			for (int i = 0; i < currentBInfos.length; i++) {
+			for (BundleInfo currentBInfo : currentBInfos) {
 				boolean install = false;
-				for (int j = 0; j < toInstall.length; j++)
-					if (currentBInfos[i].getLocation().equals(toInstall[j].getLocation())) {
-						install = true;
-						break;
-					}
-				if (!install)
-					toUninstall.add(currentBInfos[i]);
+			for (BundleInfo toInstall1 : toInstall) {
+				if (currentBInfo.getLocation().equals(toInstall1.getLocation())) {
+					install = true;
+					break;
+				}
 			}
+			if (!install) {
+				toUninstall.add(currentBInfo);
+			}
+		}
 
-		for (int i = 0; i < toInstall.length; i++) {
+		for (BundleInfo toInstall1 : toInstall) {
 			try {
-				bundleState.installBundle(toInstall[i]);
-			} catch (RuntimeException e) {
+				bundleState.installBundle(toInstall1);
+			}catch (RuntimeException e) {
 				// Ignore
 			}
 		}

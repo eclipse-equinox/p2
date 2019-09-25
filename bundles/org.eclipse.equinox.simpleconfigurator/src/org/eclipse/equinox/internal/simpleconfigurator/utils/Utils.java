@@ -53,8 +53,8 @@ public class Utils {
 			return;
 		}
 		File[] children = file.listFiles();
-		for (int i = 0; i < children.length; i++) {
-			deleteDir(children[i]);
+		for (File child : children) {
+			deleteDir(child);
 		}
 		if (!file.delete())
 			throw new IOException("Fail to delete Dir(" + file.getAbsolutePath() + ")");
