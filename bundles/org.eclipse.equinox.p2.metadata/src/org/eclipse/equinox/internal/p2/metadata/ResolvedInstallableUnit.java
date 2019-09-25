@@ -104,8 +104,9 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 			return originalCapabilities;
 
 		ArrayList<IProvidedCapability> result = new ArrayList<>(originalCapabilities);
-		for (int i = 0; i < fragments.length; i++)
-			result.addAll(fragments[i].getProvidedCapabilities());
+		for (IInstallableUnitFragment fragment : fragments) {
+			result.addAll(fragment.getProvidedCapabilities());
+		}
 		return result;
 	}
 
@@ -116,8 +117,9 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 			return originalCapabilities;
 
 		ArrayList<IRequirement> result = new ArrayList<>(originalCapabilities);
-		for (int i = 0; i < fragments.length; i++)
-			result.addAll(fragments[i].getRequirements());
+		for (IInstallableUnitFragment fragment : fragments) {
+			result.addAll(fragment.getRequirements());
+		}
 		return result;
 	}
 
@@ -128,8 +130,9 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 			return originalCapabilities;
 
 		ArrayList<IRequirement> result = new ArrayList<>(originalCapabilities);
-		for (int i = 0; i < fragments.length; i++)
-			result.addAll(fragments[i].getMetaRequirements());
+		for (IInstallableUnitFragment fragment : fragments) {
+			result.addAll(fragment.getMetaRequirements());
+		}
 		return result;
 	}
 
@@ -140,8 +143,9 @@ public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvide
 			return originalTouchpointData;
 
 		ArrayList<ITouchpointData> result = new ArrayList<>(originalTouchpointData);
-		for (int i = 0; i < fragments.length; i++)
-			result.addAll(fragments[i].getTouchpointData());
+		for (IInstallableUnitFragment fragment : fragments) {
+			result.addAll(fragment.getTouchpointData());
+		}
 		return result;
 	}
 

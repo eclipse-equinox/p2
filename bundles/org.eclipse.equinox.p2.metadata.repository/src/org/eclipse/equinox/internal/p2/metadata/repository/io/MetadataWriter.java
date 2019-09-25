@@ -223,9 +223,9 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 
 	protected void writeApplicabilityScope(IRequirement[][] capabilities) {
 		start(APPLICABILITY_SCOPE);
-		for (int i = 0; i < capabilities.length; i++) {
+		for (IRequirement[] capability : capabilities) {
 			start(APPLY_ON);
-			writeRequirements(Arrays.asList(capabilities[i]));
+			writeRequirements(Arrays.asList(capability));
 			end(APPLY_ON);
 		}
 		end(APPLICABILITY_SCOPE);

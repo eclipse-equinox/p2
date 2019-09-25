@@ -142,8 +142,9 @@ public class IUMap implements Cloneable {
 	}
 
 	public void addAll(IInstallableUnit[] toAdd) {
-		for (int i = 0; i < toAdd.length; i++)
-			add(toAdd[i]);
+		for (IInstallableUnit toAdd1 : toAdd) {
+			add(toAdd1);
+		}
 	}
 
 	public void addAll(Collection<IInstallableUnit> toAdd) {

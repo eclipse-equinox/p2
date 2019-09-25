@@ -818,9 +818,10 @@ public final class MetadataFactory {
 	}
 
 	private static ITouchpointType getCachedTouchpointType(String id, Version version) {
-		for (int i = 0; i < typeCache.length; i++) {
-			if (typeCache[i] != null && typeCache[i].getId().equals(id) && typeCache[i].getVersion().equals(version))
-				return typeCache[i];
+		for (ITouchpointType typeCache1 : typeCache) {
+			if (typeCache1 != null && typeCache1.getId().equals(id) && typeCache1.getVersion().equals(version)) {
+				return typeCache1;
+			}
 		}
 		return null;
 	}
