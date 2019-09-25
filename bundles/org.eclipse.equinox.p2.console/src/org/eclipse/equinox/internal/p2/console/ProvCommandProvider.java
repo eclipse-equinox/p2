@@ -256,8 +256,9 @@ public class ProvCommandProvider implements CommandProvider {
 			repoURL = toURI(interpreter, urlString);
 		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoURL,
 				QueryUtil.createIUQuery(id, VersionRange.create(version)), null));
-		for (int i = 0; i < units.length; i++)
-			println(interpreter, units[i]);
+		for (IInstallableUnit unit : units) {
+			println(interpreter, unit);
+		}
 	}
 
 	/**
@@ -287,8 +288,9 @@ public class ProvCommandProvider implements CommandProvider {
 		if (units.length == 0)
 			interpreter.println("No units found");
 		else {
-			for (int i = 0; i < units.length; i++)
-				println(interpreter, units[i]);
+			for (IInstallableUnit unit : units) {
+				println(interpreter, unit);
+			}
 		}
 	}
 
@@ -305,8 +307,9 @@ public class ProvCommandProvider implements CommandProvider {
 		if (urlString == null) {
 			URI[] repositories = ProvisioningHelper.getMetadataRepositories(agent);
 			if (repositories != null)
-				for (int i = 0; i < repositories.length; i++)
-					interpreter.println(repositories[i]);
+				for (URI repository : repositories) {
+					interpreter.println(repository);
+				}
 			return;
 		}
 		URI repoLocation = toURI(interpreter, urlString);
@@ -314,8 +317,9 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoLocation,
 				QueryUtil.createIUQuery(id, VersionRange.create(version)), null));
-		for (int i = 0; i < units.length; i++)
-			println(interpreter, units[i]);
+		for (IInstallableUnit unit : units) {
+			println(interpreter, unit);
+		}
 	}
 
 	/**
@@ -340,8 +344,9 @@ public class ProvCommandProvider implements CommandProvider {
 				return;
 		}
 		IInstallableUnit[] units = sort(queryable.query(QueryUtil.createIUGroupQuery(), null));
-		for (int i = 0; i < units.length; i++)
-			println(interpreter, units[i]);
+		for (IInstallableUnit unit : units) {
+			println(interpreter, unit);
+		}
 	}
 
 	/**
@@ -356,8 +361,9 @@ public class ProvCommandProvider implements CommandProvider {
 			URI[] repositories = ProvisioningHelper.getArtifactRepositories(agent);
 			if (repositories == null)
 				return;
-			for (int i = 0; i < repositories.length; i++)
-				interpreter.println(repositories[i]);
+			for (URI repository : repositories) {
+				interpreter.println(repository);
+			}
 			return;
 		}
 		URI repoURL = toURI(interpreter, urlString);
@@ -376,11 +382,9 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		IFileArtifactRepository fileRepo = repo.getAdapter(IFileArtifactRepository.class);
-		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
+		for (IArtifactKey key : keys) {
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
-			for (int j = 0; j < descriptors.length; j++) {
-				IArtifactDescriptor descriptor = descriptors[j];
+			for (IArtifactDescriptor descriptor : descriptors) {
 				File location = null;
 				if (fileRepo != null)
 					location = fileRepo.getArtifactFile(descriptor);
@@ -425,8 +429,9 @@ public class ProvCommandProvider implements CommandProvider {
 				interpreter.println("No profile found");
 				return;
 			}
-			for (int i = 0; i < profiles.length; i++)
-				interpreter.println(profiles[i].getProfileId());
+			for (IProfile profile : profiles) {
+				interpreter.println(profile.getProfileId());
+			}
 			return;
 		}
 		// determine which profile is to be listed
@@ -445,8 +450,9 @@ public class ProvCommandProvider implements CommandProvider {
 
 		// list the profile contents
 		IInstallableUnit[] result = sort(target.query(QueryUtil.createIUQuery(id, VersionRange.create(range)), null));
-		for (int i = 0; i < result.length; i++)
-			interpreter.println(result[i]);
+		for (IInstallableUnit unit : result) {
+			interpreter.println(unit);
+		}
 	}
 
 	/**
@@ -474,9 +480,9 @@ public class ProvCommandProvider implements CommandProvider {
 		// else if there are some timestamps then print them out on separate line
 		interpreter.print("Timestamps for profile ");
 		interpreter.println(profileId);
-		for (int i = 0; i < profileTimestamps.length; i++) {
+		for (long profileTimestamp : profileTimestamps) {
 			interpreter.print("\t"); //$NON-NLS-1$
-			interpreter.println(Long.valueOf(profileTimestamps[i]));
+			interpreter.println(Long.valueOf(profileTimestamp));
 		}
 	}
 
@@ -549,8 +555,9 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 		IInstallableUnit[] units = sort(profile.query(QueryUtil.createIUGroupQuery(), new NullProgressMonitor()));
 		// Now print out results
-		for (int i = 0; i < units.length; i++)
-			println(interpreter, units[i]);
+		for (IInstallableUnit unit : units) {
+			println(interpreter, unit);
+		}
 	}
 
 	/**
@@ -592,8 +599,9 @@ public class ProvCommandProvider implements CommandProvider {
 		if (units.length == 0)
 			interpreter.println("No units found");
 		else {
-			for (int i = 0; i < units.length; i++)
-				println(interpreter, units[i]);
+			for (IInstallableUnit unit : units) {
+				println(interpreter, unit);
+			}
 		}
 	}
 
@@ -680,8 +688,8 @@ public class ProvCommandProvider implements CommandProvider {
 		IStatus[] children = status.getChildren();
 		if (children != null && children.length > 0) {
 			interpreter.println("Error status children:");
-			for (int i = 0; i < children.length; i++) {
-				printErrorStatus(interpreter, children[i]);
+			for (IStatus child : children) {
+				printErrorStatus(interpreter, child);
 			}
 		}
 		interpreter.println("--End Error Status--");

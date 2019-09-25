@@ -370,8 +370,7 @@ public class MirrorSelector {
 	public synchronized void reportResult(String toDownload, IStatus result) {
 		if (mirrors == null)
 			return;
-		for (int i = 0; i < mirrors.length; i++) {
-			MirrorInfo mirror = mirrors[i];
+		for (MirrorInfo mirror : mirrors) {
 			if (toDownload.startsWith(mirror.locationString)) {
 				if (!result.isOK() && result.getSeverity() != IStatus.CANCEL) {
 					// Punishing a mirror harshly for a FileNotFoundException can be very wrong.

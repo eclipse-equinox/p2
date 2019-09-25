@@ -93,15 +93,16 @@ public class SignatureVerifier extends ProcessingStep {
 		}
 		ArrayList<IStatus> allStatus = new ArrayList<>(0);
 		SignedContentEntry[] entries = signedContent.getSignedEntries();
-		for (int i = 0; i < entries.length; i++)
+		for (SignedContentEntry entry : entries) {
 			try {
-				entries[i].verify();
+				entry.verify();
 			} catch (InvalidContentException e) {
-				allStatus.add(new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, Messages.SignatureVerification_invalidContent + entries[i].getName(), e));
-			} catch (OutOfMemoryError e) {
+				allStatus.add(new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, Messages.SignatureVerification_invalidContent + entry.getName(), e));
+			}catch (OutOfMemoryError e) {
 				allStatus.add(new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerifier_OutOfMemory, e));
 				break;
 			}
+		}
 		if (allStatus.size() > 0)
 			return new MultiStatus(Activator.ID, IStatus.ERROR, allStatus.toArray(new IStatus[allStatus.size()]), Messages.SignatureVerification_invalidFileContent + inputFile, null);
 		return Status.OK_STATUS;
