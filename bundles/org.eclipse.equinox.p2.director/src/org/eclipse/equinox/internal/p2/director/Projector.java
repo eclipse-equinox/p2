@@ -526,29 +526,28 @@ public class Projector {
 			// noop(IU)-> ~ABS
 			// IU -> (noop(IU) or ABS)
 			// Therefore we only need one optional requirement statement per IU
-			for (int i = 0; i < reqs.length; i++) {
+			for (IRequirement[] requirement : reqs) {
 				//The requirement is unchanged
-				if (reqs[i][0] == reqs[i][1]) {
-					if (reqs[i][0].getMax() == 0) {
-						expandNegatedRequirement(reqs[i][0], iu, optionalAbstractRequirements, isRootIu);
+				if (requirement[0] == requirement[1]) {
+					if (requirement[0].getMax() == 0) {
+						expandNegatedRequirement(requirement[0], iu, optionalAbstractRequirements, isRootIu);
 						return;
 					}
-					if (!isApplicable(reqs[i][0]))
+					if (!isApplicable(requirement[0])) {
 						continue;
-
-					List<IInstallableUnitPatch> patchesAppliedElseWhere = unchangedRequirements.get(reqs[i][0]);
+					}
+					List<IInstallableUnitPatch> patchesAppliedElseWhere = unchangedRequirements.get(requirement[0]);
 					if (patchesAppliedElseWhere == null) {
 						patchesAppliedElseWhere = new ArrayList<>();
-						unchangedRequirements.put(reqs[i][0], patchesAppliedElseWhere);
+						unchangedRequirements.put(requirement[0], patchesAppliedElseWhere);
 					}
 					patchesAppliedElseWhere.add(patch);
 					continue;
 				}
-
 				//Generate dependency when the patch is applied
 				//P1 -> (A -> D) equiv. (P1 & A) -> D
-				if (isApplicable(reqs[i][1])) {
-					IRequirement req = reqs[i][1];
+				if (isApplicable(requirement[1])) {
+					IRequirement req = requirement[1];
 					List<IInstallableUnit> matches = getApplicableMatches(req);
 					determinePotentialHostsForFragment(iu);
 					if (req.getMin() > 0) {
@@ -606,9 +605,8 @@ public class Projector {
 				}
 				//Generate dependency when the patch is not applied
 				//-P1 -> (A -> B) ( equiv. A -> (P1 or B) )
-				if (isApplicable(reqs[i][0])) {
-					IRequirement req = reqs[i][0];
-
+				if (isApplicable(requirement[0])) {
+					IRequirement req = requirement[0];
 					// Fix: if multiple patches apply to the same IU-req, we need to make sure we list each
 					// patch as an optional match
 					Pending pending = nonPatchedRequirements.get(req);

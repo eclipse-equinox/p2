@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -145,8 +145,8 @@ public class FileUtils {
 	public static void deleteEmptyDirs(File dir) throws IOException {
 		File[] files = dir.listFiles();
 		if (files != null) {
-			for (int i = 0; i < files.length; i += 1) {
-				deleteEmptyDirs(files[i]);
+			for (File file : files) {
+				deleteEmptyDirs(file);
 			}
 			dir.getCanonicalFile().delete();
 		}
@@ -159,8 +159,9 @@ public class FileUtils {
 		if (file.isDirectory()) {
 			File[] files = file.listFiles();
 			if (files != null)
-				for (int i = 0; i < files.length; i++)
-					deleteAll(files[i]);
+				for (File f : files) {
+					deleteAll(f);
+				}
 		}
 		file.delete();
 	}
@@ -208,8 +209,9 @@ public class FileUtils {
 		if (sourceFile.isDirectory()) {
 			destinationFile.mkdirs();
 			File[] list = sourceFile.listFiles();
-			for (int i = 0; i < list.length; i++)
-				copy(source, destination, new File(root, list[i].getName()), false);
+			for (File file : list) {
+				copy(source, destination, new File(root, file.getName()), false);
+			}
 		} else {
 			destinationFile.getParentFile().mkdirs();
 			try (InputStream in = new BufferedInputStream(new FileInputStream(sourceFile)); OutputStream out = new BufferedOutputStream(new FileOutputStream(destinationFile));) {
@@ -221,7 +223,7 @@ public class FileUtils {
 	/**
 	 * Creates a zip archive at the given destination that contains all of the given inclusions
 	 * except for the given exclusions.  Inclusions and exclusions can be phrased as files or folders.
-	 * Including a folder implies that all files and folders under the folder 
+	 * Including a folder implies that all files and folders under the folder
 	 * should be considered for inclusion. Excluding a folder implies that all files and folders
 	 * under that folder will be excluded. Inclusions with paths deeper than an exclusion folder
 	 * are filtered out and do not end up in the resultant archive.
@@ -239,9 +241,9 @@ public class FileUtils {
 		try (FileOutputStream fileOutput = new FileOutputStream(destinationArchive); ZipOutputStream output = new ZipOutputStream(fileOutput)) {
 			HashSet<File> exclusionSet = exclusions == null ? new HashSet<>() : new HashSet<>(Arrays.asList(exclusions));
 			HashSet<IPath> directoryEntries = new HashSet<>();
-			for (int i = 0; i < inclusions.length; i++) {
+			for (File inclusion : inclusions) {
 				pathComputer.reset();
-				zip(output, inclusions[i], exclusionSet, pathComputer, directoryEntries);
+				zip(output, inclusion, exclusionSet, pathComputer, directoryEntries);
 			}
 		}
 	}
@@ -323,8 +325,9 @@ public class FileUtils {
 			return a.segmentCount() - b.segmentCount();
 		});
 
-		for (int i = 0; i < files.length; i++)
-			zip(output, files[i], exclusions, pathComputer, directoryEntries);
+		for (File file : files) {
+			zip(output, file, exclusions, pathComputer, directoryEntries);
+		}
 	}
 
 	/*
@@ -371,14 +374,14 @@ public class FileUtils {
 	 * Path computers are used to transform a given File path into a path suitable for use
 	 * as the to identify that file in an archive file or copy.
 	 */
-	public static interface IPathComputer {
+	public interface IPathComputer {
 		/**
 		 * Returns the path representing the given file.  Often this trims or otherwise
 		 * transforms the segments of the source file path.
 		 * @param source the file path to be transformed
 		 * @return the transformed path
 		 */
-		public IPath computePath(File source);
+		IPath computePath(File source);
 
 		/**
 		 * Resets this path computer. Path computers can accumulate state or other information
@@ -386,7 +389,7 @@ public class FileUtils {
 		 * state and start afresh.  The exact semantics of resetting depends on the nature of the
 		 * computer itself.
 		 */
-		public void reset();
+		void reset();
 	}
 
 	/**
@@ -415,13 +418,13 @@ public class FileUtils {
 	/**
 	 * Creates a path computer that is a cross between the root and parent computers.
 	 * When this computer is reset, the first path seen is considered a new root.  That path
-	 * is trimmed by the given number of segments and then used as in the same way as the 
+	 * is trimmed by the given number of segments and then used as in the same way as the
 	 * root path computer.  Every time this computer is reset, a new root is computed.
 	 * <p>
 	 * This is useful when handling several sets of disjoint files but for each set you want
-	 * to have a common root.  Rather than having to compute the roots ahead of time and 
+	 * to have a common root.  Rather than having to compute the roots ahead of time and
 	 * then manage their relationships, you can simply reset the computer between groups.
-	 * </p><p>	
+	 * </p><p>
 	 * For example, say you have the a list of folders { /a/b/c/eclipse/plugins/, /x/y/eclipse/features/}
 	 * and want to end up with a zip containing plugins and features folders.  Using a dynamic
 	 * path computer and keeping 1 segment allows this to be done simply by resetting the computer
@@ -429,7 +432,7 @@ public class FileUtils {
 	 * </p>
 	 * @param segmentsToKeep the number of segments of encountered paths to keep
 	 * relative to the dynamically computed roots.
-	 * @return a path computer that trims but keeps the given number of segments  relative 
+	 * @return a path computer that trims but keeps the given number of segments  relative
 	 * to the dynamically computed roots.
 	 */
 	public static IPathComputer createDynamicPathComputer(final int segmentsToKeep) {

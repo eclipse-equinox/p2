@@ -104,9 +104,10 @@ public class Slicer {
 
 	//This is a shortcut to simplify the error reporting when the filter of the ius we are being asked to install does not pass
 	private void validateInput(IInstallableUnit[] ius) {
-		for (int i = 0; i < ius.length; i++) {
-			if (!isApplicable(ius[i]))
-				throw new IllegalStateException(NLS.bind(Messages.Explanation_missingRootFilter, ius[i]));
+		for (IInstallableUnit iu : ius) {
+			if (!isApplicable(iu)) {
+				throw new IllegalStateException(NLS.bind(Messages.Explanation_missingRootFilter, iu));
+			}
 		}
 	}
 
