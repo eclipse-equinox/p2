@@ -49,9 +49,10 @@ public class AbsolutePlanTest extends AbstractProvisioningTest {
 
 		Operand[] ops = ((ProvisioningPlan) plan).getOperands();
 		boolean found = false;
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitPropertyOperand)
+		for (Operand op : ops) {
+			if (op instanceof InstallableUnitPropertyOperand) {
 				found = true;
+			}
 		}
 		assertTrue(found);
 

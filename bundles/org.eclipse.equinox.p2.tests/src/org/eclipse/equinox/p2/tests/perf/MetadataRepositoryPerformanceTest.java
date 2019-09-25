@@ -68,8 +68,8 @@ public class MetadataRepositoryPerformanceTest extends ProvisioningPerformanceTe
 
 			@Override
 			protected void test() {
-				for (int i = 0; i < queries.length; i++) {
-					repository.query(queries[i], null);
+				for (IQuery<IInstallableUnit> query : queries) {
+					repository.query(query, null);
 				}
 			}
 		}.run(this, "Test query local metadata repo for " + IU_COUNT + " ius", REPEATS, 10);

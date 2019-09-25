@@ -188,9 +188,10 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 	private boolean isMarkedStarted(Manipulator manipulator, File osgiTarget, boolean started) {
 		URI location = osgiTarget.toURI();
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
-		for (int i = 0; i < bundles.length; i++) {
-			if (location.equals(bundles[i].getLocation()) && (started == bundles[i].isMarkedAsStarted()))
+		for (BundleInfo bundle : bundles) {
+			if (location.equals(bundle.getLocation()) && (started == bundle.isMarkedAsStarted())) {
 				return true;
+			}
 		}
 		return false;
 	}

@@ -93,9 +93,10 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 	}
 
 	private void assertContainsSymbolicName(BundleInfo[] bundles, String symbolicName) {
-		for (int i = 0; i < bundles.length; i++) {
-			if (bundles[i].getSymbolicName().equals(symbolicName))
+		for (BundleInfo bundle : bundles) {
+			if (bundle.getSymbolicName().equals(symbolicName)) {
 				return;
+			}
 		}
 		fail();
 	}

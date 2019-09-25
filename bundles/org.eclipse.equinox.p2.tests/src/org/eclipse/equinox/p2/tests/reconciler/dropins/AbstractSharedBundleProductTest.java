@@ -103,8 +103,8 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 		}
 
 		// just add the bootstrap bundles into the result before returning
-		for (int i = 0; i < bootstrap.length; i++) {
-			BundleInfo info = map.get(bootstrap[i]);
+		for (String bundle : bootstrap) {
+			BundleInfo info = map.get(bundle);
 			if (info != null)
 				result.put(info.getSymbolicName(), info);
 		}

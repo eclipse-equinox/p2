@@ -109,8 +109,8 @@ public class StatsTest extends AbstractTestServerClientCase {
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
 		metaRepo.addInstallableUnits(Arrays.asList(iu));
 
-		for (int i = 0; i < descriptors.length; i++) {
-			File artifactFile = new File(sourceRepo.getLocation(descriptors[i]));
+		for (IArtifactDescriptor desc : descriptors) {
+			File artifactFile = new File(sourceRepo.getLocation(desc));
 			artifactFile.getParentFile().mkdirs();
 			assertTrue("Failed to create binary artifact file.", artifactFile.createNewFile());
 		}

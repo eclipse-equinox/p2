@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -42,7 +43,7 @@ public class Bug300572 extends AbstractProvisioningTest {
 		//The following repo contains the second patch to be installed
 		IMetadataRepository repo = repoMgr.loadRepository(getTestData("bug300572 data", "testData/bug300572/repo/").toURI(), new NullProgressMonitor());
 		IInstallableUnit[] ius = repo.query(QueryUtil.createIUQuery("hellopatch.feature.group"), null).toArray(IInstallableUnit.class);
-		System.out.println(ius);
+		System.out.println(Arrays.toString(ius));
 
 		IPlanner planner = agent.getService(IPlanner.class);
 		//The profile already contains a a feature (hellofeature) and a patch for it (hellopatch).

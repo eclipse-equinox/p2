@@ -13,12 +13,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import org.eclipse.equinox.internal.p2.director.OperationGenerator;
-import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.p2.engine.Operand;
+import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
 import org.eclipse.equinox.internal.p2.metadata.ResolvedInstallableUnit;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class OperationGenerationTest extends AbstractProvisioningTest {
@@ -485,9 +496,10 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	}
 
 	public void assertContains(String message, Object[] searched, Object expected) {
-		for (int i = 0; i < searched.length; i++) {
-			if (searched[i].equals(expected))
+		for (Object search : searched) {
+			if (search.equals(expected)) {
 				return;
+			}
 		}
 		fail(message + "Can't find " + expected);
 	}

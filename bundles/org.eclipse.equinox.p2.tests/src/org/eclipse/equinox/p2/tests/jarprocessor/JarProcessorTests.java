@@ -51,8 +51,8 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 							return true;
 					return false;
 				};
-				for (int i = 0; i < input.length; i++) {
-					File inputFile = new File(input[i]);
+				for (String filename : input) {
+					File inputFile = new File(filename);
 					if (inputFile.exists()) {
 						try {
 							process(inputFile, filter, true, processor, null);
@@ -99,8 +99,8 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 		});
 
 		input.mkdirs();
-		for (int i = 0; i < files.length; i++) {
-			copy("Setup input", files[i], new File(input, files[i].getName()));
+		for (File file : files) {
+			copy("Setup input", file, new File(input, file.getName()));
 		}
 
 		Options options = new Options();

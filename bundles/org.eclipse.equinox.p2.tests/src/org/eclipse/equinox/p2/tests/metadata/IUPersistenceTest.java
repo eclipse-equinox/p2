@@ -223,8 +223,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private static Map<String, String> createProperties(String[][] keyValuePairs) {
 		OrderedProperties props = new OrderedProperties(keyValuePairs.length);
-		for (int i = 0; i < keyValuePairs.length; i++) {
-			String[] nextPair = keyValuePairs[i];
+		for (String[] nextPair : keyValuePairs) {
 			props.put(nextPair[0], nextPair[1]);
 		}
 		return props;
@@ -251,8 +250,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private static ITouchpointData createTouchpointData(String[][] instructionData) {
 		Map<String, Object> map = new LinkedHashMap<>(instructionData.length);
-		for (int i = 0; i < instructionData.length; i++) {
-			String[] nextInstruction = instructionData[i];
+		for (String[] nextInstruction : instructionData) {
 			map.put(nextInstruction[0], nextInstruction[1]);
 		}
 		return MetadataFactory.createTouchpointData(map);

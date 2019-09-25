@@ -46,11 +46,11 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 
 	//Assert that all files are in the bundles
 	protected void assertJarsInstalled(File[] jars, Bundle[] bundles) {
-		for (int i = 0; i < jars.length; i++) {
+		for (File jar : jars) {
 			boolean found = false;
-			String jarName = getManifestEntry(jars[i], Constants.BUNDLE_SYMBOLICNAME);
-			for (int j = 0; j < bundles.length; j++) {
-				String bundleName = bundles[j].getSymbolicName();
+			String jarName = getManifestEntry(jar, Constants.BUNDLE_SYMBOLICNAME);
+			for (Bundle bundle : bundles) {
+				String bundleName = bundle.getSymbolicName();
 				if (bundleName.equalsIgnoreCase(jarName))
 					found = true;
 			}
@@ -122,8 +122,7 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 
 		try (BufferedWriter bundlesTxtOut = new BufferedWriter(new FileWriter(bundlesTxt))) {
 
-			for (int i = 0; i < jars.length; i++) {
-				File bundleJar = jars[i];
+			for (File bundleJar : jars) {
 				bundlesTxtOut.write(getBundlesTxtEntry(bundleJar) + "\n");
 			}
 			bundlesTxtOut.write(getBundlesTxtEntry(getLocation("org.eclipse.equinox.simpleconfigurator")) + "\n");

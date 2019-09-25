@@ -114,11 +114,12 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		//initialize to the size of both query results
 		int numKeys = repo1.length + repo2.length;
 
-		for (int i = 0; i < repo1.length; i++) {
-			for (int j = 0; j < repo2.length; j++) {
-				if (isEqual(repo1[i], repo2[j]))
+		for (IInstallableUnit repo1unit : repo1) {
+			for (IInstallableUnit repo2unit : repo2) {
+				if (isEqual(repo1unit, repo2unit)) {
 					numKeys--;
-				//identical keys has bee found, therefore the number of unique keys is one less than previously thought
+					//identical keys has bee found, therefore the number of unique keys is one less than previously thought
+				}
 			}
 		}
 		return numKeys;

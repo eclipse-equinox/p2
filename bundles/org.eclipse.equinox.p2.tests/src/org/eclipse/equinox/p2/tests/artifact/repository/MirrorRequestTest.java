@@ -295,9 +295,11 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			return false;
 
 		IStatus[] children = status.getChildren();
-		for (int i = 0; i < children.length; i++)
-			if (statusContains(children[i], statusString))
+		for (IStatus child : children) {
+			if (statusContains(child, statusString)) {
 				return true;
+			}
+		}
 
 		return false;
 	}

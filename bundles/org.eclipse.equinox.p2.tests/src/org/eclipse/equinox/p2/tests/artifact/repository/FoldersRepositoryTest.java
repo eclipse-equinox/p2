@@ -80,8 +80,7 @@ public class FoldersRepositoryTest extends TestCase {
 		File[] fileList = pluginsFolder.listFiles(filter);
 		assertEquals(2, fileList.length);
 		IProgressMonitor monitor = new NullProgressMonitor();
-		for (int i = 0; i < fileList.length; i++) {
-			File file = fileList[i];
+		for (File file : fileList) {
 			String fileName = file.getName();
 			if (fileName.endsWith(".jar"))
 				fileName = fileName.substring(0, fileName.length() - 4);

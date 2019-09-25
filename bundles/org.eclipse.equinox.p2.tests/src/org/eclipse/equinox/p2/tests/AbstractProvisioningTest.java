@@ -192,8 +192,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 		// print out the children if we have any
 		IStatus children[] = status.getChildren();
-		for (int i = 0; i < children.length; i++) {
-			IStatus child = children[i];
+		for (IStatus child : children) {
 			if (!child.isOK())
 				new CoreException(child).printStackTrace();
 		}
@@ -246,8 +245,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			if (!target.exists())
 				target.mkdirs();
 			File[] children = source.listFiles(filter);
-			for (int i = 0; i < children.length; i++)
-				copy(message, children[i], new File(target, children[i].getName()));
+			for (File child : children) {
+				copy(message, child, new File(target, child.getName()));
+			}
 			return;
 		}
 		try (InputStream input = new BufferedInputStream(new FileInputStream(source)); OutputStream output = new BufferedOutputStream(new FileOutputStream(target));) {
@@ -281,8 +281,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			if (!target.exists())
 				target.mkdirs();
 			File[] children = source.listFiles(filter);
-			for (int i = 0; i < children.length; i++)
-				move(message, children[i], new File(target, children[i].getName()), filter);
+			for (File child : children) {
+				move(message, child, new File(target, child.getName()), filter);
+			}
 			return;
 		}
 
@@ -527,8 +528,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		for (int i = 0; i < additionalProvides.length; i++) {
 			provides[i + 1] = additionalProvides[i];
 		}
-		for (Iterator<String> iter = properties.keySet().iterator(); iter.hasNext();) {
-			String nextKey = iter.next();
+		for (String nextKey : properties.keySet()) {
 			String nextValue = properties.get(nextKey);
 			iu.setProperty(nextKey, nextValue);
 		}
@@ -660,8 +660,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			file.setReadable(true);
 			file.setExecutable(true);
 			File[] children = file.listFiles();
-			for (int i = 0; i < children.length; i++)
-				delete(children[i]);
+			for (File child : children) {
+				delete(child);
+			}
 		}
 		if (!file.delete()) {
 			file.setWritable(true);
@@ -799,8 +800,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 		if (status.isMultiStatus()) {
 			IStatus[] children = status.getChildren();
-			for (int i = 0; i < children.length; i++)
-				write(children[i], indent + 1, output);
+			for (IStatus child : children) {
+				write(child, indent + 1, output);
+			}
 		}
 	}
 
@@ -816,7 +818,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (expected == null && actual == null)
 			return;
 		if (expected == null)
-			fail(message + " expected null but was: " + actual);
+			fail(message + " expected null but was: " + Arrays.toString(actual));
 		if (actual == null)
 			fail(message + " array is unexpectedly null");
 		if (expected.length != actual.length)
@@ -829,7 +831,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (expected == null && actual == null)
 			return;
 		if (expected == null)
-			fail(message + " expected null but was: " + actual);
+			fail(message + " expected null but was: " + Arrays.toString(actual));
 		if (actual == null)
 			fail(message + " array is unexpectedly null");
 		if (expected.length != actual.length)
@@ -1011,18 +1013,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			metadataRepos.clear();
 		}
 		URI[] urls = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		for (int i = 0; i < urls.length; i++) {
+		for (URI url : urls) {
 			try {
-				if (urls[i].toString().contains("cache") || urls[i].toString().contains("rollback"))
-					repoMan.loadRepository(urls[i], null).removeAll();
-			} catch (ProvisionException e) {
+				if (url.toString().contains("cache") || url.toString().contains("rollback")) {
+					repoMan.loadRepository(url, null).removeAll();
+				}
+			}catch (ProvisionException e) {
 				//if the repository didn't load, then it doesn't exist and we don't need to clear it up
 			}
 		}
 		//remove all profiles created by this test
 		IProfileRegistry profileRegistry = getProfileRegistry();
-		for (Iterator<String> it = profilesToRemove.iterator(); it.hasNext();) {
-			String toRemove = it.next();
+		for (String toRemove : profilesToRemove) {
 			profileRegistry.removeProfile(toRemove);
 		}
 		profilesToRemove.clear();
@@ -1070,17 +1072,17 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		super.setUp();
 		IMetadataRepositoryManager repoMan = getMetadataRepositoryManager();
 		URI[] repos = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		for (int i = 0; i < repos.length; i++) {
-			repoMan.removeRepository(repos[i]);
+		for (URI repo : repos) {
+			repoMan.removeRepository(repo);
 		}
 	}
 
 	protected IStatus installAsRoots(IProfile profile, IInstallableUnit[] ius, boolean strict, IPlanner planner, IEngine engine) {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		for (int i = 0; i < ius.length; i++) {
-			req.add(ius[i]);
-			req.setInstallableUnitInclusionRules(ius[i], strict ? ProfileInclusionRules.createStrictInclusionRule(ius[i]) : ProfileInclusionRules.createOptionalInclusionRule(ius[i]));
-			req.setInstallableUnitProfileProperty(ius[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+		for (IInstallableUnit iu : ius) {
+			req.add(iu);
+			req.setInstallableUnitInclusionRules(iu, strict ? ProfileInclusionRules.createStrictInclusionRule(iu) : ProfileInclusionRules.createOptionalInclusionRule(iu));
+			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		}
 
 		return install(req, planner, engine);
@@ -1088,11 +1090,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected IStatus installAsRootsAndFlaggedAsBase(IProfile profile, IInstallableUnit[] ius, boolean strict, IPlanner planner, IEngine engine) {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		for (int i = 0; i < ius.length; i++) {
-			req.add(ius[i]);
-			req.setInstallableUnitInclusionRules(ius[i], strict ? ProfileInclusionRules.createStrictInclusionRule(ius[i]) : ProfileInclusionRules.createOptionalInclusionRule(ius[i]));
-			req.setInstallableUnitProfileProperty(ius[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
-			req.setInstallableUnitProfileProperty(ius[i], "org.eclipse.equinox.p2.base", Boolean.TRUE.toString());
+		for (IInstallableUnit iu : ius) {
+			req.add(iu);
+			req.setInstallableUnitInclusionRules(iu, strict ? ProfileInclusionRules.createStrictInclusionRule(iu) : ProfileInclusionRules.createOptionalInclusionRule(iu));
+			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+			req.setInstallableUnitProfileProperty(iu, "org.eclipse.equinox.p2.base", Boolean.TRUE.toString());
 		}
 
 		return install(req, planner, engine);
@@ -1100,9 +1102,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected IStatus install(IProfile profile, IInstallableUnit[] ius, boolean strict, IPlanner planner, IEngine engine) {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		for (int i = 0; i < ius.length; i++) {
-			req.add(ius[i]);
-			req.setInstallableUnitInclusionRules(ius[i], strict ? ProfileInclusionRules.createStrictInclusionRule(ius[i]) : ProfileInclusionRules.createOptionalInclusionRule(ius[i]));
+		for (IInstallableUnit iu : ius) {
+			req.add(iu);
+			req.setInstallableUnitInclusionRules(iu, strict ? ProfileInclusionRules.createStrictInclusionRule(iu) : ProfileInclusionRules.createOptionalInclusionRule(iu));
 		}
 
 		return install(req, planner, engine);
@@ -1139,10 +1141,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (expected.length != actual.length)
 			assertTrue(message + ".2", false);
 		boolean[] found = new boolean[expected.length];
-		for (int i = 0; i < expected.length; i++) {
+		for (Object expectedelement : expected) {
 			for (int j = 0; j < expected.length; j++) {
-				if (!found[j] && expected[i].equals(actual[j]))
+				if (!found[j] && expectedelement.equals(actual[j])) {
 					found[j] = true;
+				}
 			}
 		}
 		for (int i = 0; i < found.length; i++)
@@ -1222,15 +1225,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 */
 	protected static void assertEquals(String message, IInstallableUnitFragment[] fragments1, IInstallableUnitFragment[] fragments2) throws AssertionFailedError {
 		Map map = new HashMap(fragments2.length);
-		for (int i = 0; i < fragments2.length; i++) {
-			map.put(fragments2[i], fragments2[i]);
+		for (IInstallableUnitFragment fragments2element : fragments2) {
+			map.put(fragments2element, fragments2element);
 		}
-
-		for (int i = 0; i < fragments1.length; i++) {
-			if (!map.containsKey(fragments1))
-				fail(message + " Expected fragment '" + fragments1[i] + "' not present.");
-			else {
-				assertEquals(message, fragments1[i], map.remove(fragments1[i]));
+		for (IInstallableUnitFragment fragments1element : fragments1) {
+			if (!map.containsKey(fragments1)) {
+				fail(message + " Expected fragment '" + fragments1element + "' not present.");
+			} else {
+				assertEquals(message, fragments1element, map.remove(fragments1element));
 			}
 		}
 
@@ -1272,22 +1274,22 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		TreeSet set = new TreeSet((o1, o2) -> o1.toString().compareTo(o2.toString()));
 		set.addAll(Arrays.asList(ius2));
 
-		for (int i = 0; i < ius1.length; i++) {
+		for (IInstallableUnit ius1unit : ius1) {
 			// + "\0" is a successor for strings
-			SortedSet subset = set.subSet(ius1[i], ius1[i].toString() + "\0");
+			SortedSet subset = set.subSet(ius1unit, ius1unit.toString() + "\0");
 			if (subset.size() == 1) {
 				IInstallableUnit candidate = (IInstallableUnit) subset.first();
 				try {
-					assertEquals(message, ius1[i], candidate);
+					assertEquals(message, ius1unit, candidate);
 				} catch (AssertionFailedError e) {
-					fail(message + " IUs '" + ius1[i] + "' are unequal : " + e.getMessage());
+					fail(message + " IUs '" + ius1unit + "' are unequal : " + e.getMessage());
 				}
 				subset.remove(candidate);
 			} else if (subset.size() > 1) {
 				//should not happen
 				fail(message + " ERROR: Unexpected failure.");
 			} else {
-				fail(message + " Expected IU " + ius1[i] + " not found.");
+				fail(message + " Expected IU " + ius1unit + " not found.");
 			}
 		}
 		if (set.size() > 0)
@@ -1453,10 +1455,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (expected == null || actual == null)
 			fail(message);
 		Object[] expectedArray = expected.keySet().toArray();
-		for (int i = 0; i < expectedArray.length; i++) {
-			assertTrue(message, actual.containsKey(expectedArray[i])); //Ensure the key exists
-			if (!expectedArray[i].equals("p2.timestamp")) //time stamp value is expected to change
-				assertEquals(message, expected.get(expectedArray[i]), actual.get(expectedArray[i]));
+		for (Object expectedelement : expectedArray) {
+			assertTrue(message, actual.containsKey(expectedelement)); //Ensure the key exists
+			if (!expectedelement.equals("p2.timestamp")) {
+				assertEquals(message, expected.get(expectedelement), actual.get(expectedelement));
+			}
 		}
 	}
 
@@ -1473,8 +1476,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			while (reader.ready()) {
 				String line = reader.readLine();
 				boolean found = true;
-				for (int i = 0; i < parts.length; i++) {
-					found = found && line.contains(parts[i]);
+				for (String part : parts) {
+					found = found && line.contains(part);
 				}
 				if (found)
 					return;
@@ -1687,11 +1690,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				if (!(expectedDescriptors == null && actualDescriptors == null))
 					fail(message + " missing key " + key);
 
-			top: for (int j = 0; j < expectedDescriptors.length; j++) {
-				for (int k = 0; k < actualDescriptors.length; k++) {
-					if (Arrays.equals(expectedDescriptors[j].getProcessingSteps(), actualDescriptors[k].getProcessingSteps())) {
-						File expectedFile = expected.getArtifactFile(expectedDescriptors[j]);
-						File actualFile = actual.getArtifactFile(actualDescriptors[k]);
+			top: for (IArtifactDescriptor expectedDescriptor : expectedDescriptors) {
+				for (IArtifactDescriptor actualDescriptor : actualDescriptors) {
+					if (Arrays.equals(expectedDescriptor.getProcessingSteps(), actualDescriptor.getProcessingSteps())) {
+						File expectedFile = expected.getArtifactFile(expectedDescriptor);
+						File actualFile = actual.getArtifactFile(actualDescriptor);
 						if (expectedFile == null || actualFile == null)
 							fail(message + " descriptor mismatch");
 						if (!(expectedFile.exists() && actualFile.exists()))
@@ -1706,7 +1709,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 						continue top;
 					}
 				}
-				fail(message + "Missing expected descriptor" + expectedDescriptors[j]);
+				fail(message + "Missing expected descriptor" + expectedDescriptor);
 			}
 		}
 	}

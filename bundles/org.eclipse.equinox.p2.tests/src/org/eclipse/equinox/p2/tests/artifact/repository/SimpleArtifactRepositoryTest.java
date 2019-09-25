@@ -111,11 +111,11 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;
-		for (int i = 0; i < files.length; i++) {
-			if ("artifacts.jar".equalsIgnoreCase(files[i].getName())) {
+		for (File file : files) {
+			if ("artifacts.jar".equalsIgnoreCase(file.getName())) {
 				jarFilePresent = true;
 			}
-			if ("artifacts.xml".equalsIgnoreCase(files[i].getName())) {
+			if ("artifacts.xml".equalsIgnoreCase(file.getName())) {
 				artifactFilePresent = false;
 			}
 		}
@@ -144,11 +144,11 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;
-		for (int i = 0; i < files.length; i++) {
-			if ("artifacts.jar".equalsIgnoreCase(files[i].getName())) {
+		for (File file : files) {
+			if ("artifacts.jar".equalsIgnoreCase(file.getName())) {
 				jarFilePresent = true;
 			}
-			if ("artifacts.xml".equalsIgnoreCase(files[i].getName())) {
+			if ("artifacts.xml".equalsIgnoreCase(file.getName())) {
 				artifactFilePresent = true;
 			}
 		}

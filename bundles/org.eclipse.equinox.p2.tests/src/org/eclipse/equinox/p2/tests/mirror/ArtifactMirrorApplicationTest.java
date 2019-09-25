@@ -16,11 +16,24 @@ package org.eclipse.equinox.p2.tests.mirror;
 
 import static org.junit.Assert.assertNotEquals;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
+import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -33,9 +46,15 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactDescriptorQuery;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
+import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
@@ -880,16 +899,15 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			IArtifactKey key = iterator.next();
 			IArtifactDescriptor[] srcDescriptors = packedRepo.getArtifactDescriptors(key);
 
-			for (int j = 0; j < srcDescriptors.length; j++) {
-				if (!(srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT).equals(IArtifactDescriptor.FORMAT_PACKED)) {
+			for (IArtifactDescriptor srcDescriptor : srcDescriptors) {
+				if (!(srcDescriptor.getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptor.getProperty(IArtifactDescriptor.FORMAT).equals(IArtifactDescriptor.FORMAT_PACKED)) {
 					//if we have a packed artifact
 					IArtifactDescriptor newDescriptor = new ArtifactDescriptor(key);
 					Map<String, String> properties = new OrderedProperties();
-					properties.putAll(srcDescriptors[j].getProperties());
+					properties.putAll(srcDescriptor.getProperties());
 					properties.remove(IArtifactDescriptor.FORMAT);
 					((ArtifactDescriptor) newDescriptor).addProperties(properties);
 					//create appropriate descriptor
-
 					try (OutputStream repositoryStream = destinationRepo.getOutputStream(newDescriptor)) {
 						//System.out.println("Mirroring: " + srcDescriptors[j].getArtifactKey() + " (Descriptor: " + srcDescriptors[j] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -897,10 +915,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 							return;
 						// TODO Is that ok to ignore the result?
 						//TODO MAKE THIS WORK PROPERLY
-						packedRepo.getArtifact(srcDescriptors[j], repositoryStream, new NullProgressMonitor());
-					} catch (ProvisionException e) {
+						packedRepo.getArtifact(srcDescriptor, repositoryStream, new NullProgressMonitor());
+					}catch (ProvisionException e) {
 						fail("27.1", e);
-					} catch (IOException e) {
+					}catch (IOException e) {
 						fail("27.2", e);
 					}
 					//corresponding key should now be in the destination
@@ -913,7 +931,6 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 					}
 					if (!canonicalFound)
 						fail("27.3 no canonical found for " + key.toString());
-
 					//ensure the canonical matches that in the expected
 					assertEqualArtifacts("27.3", (SimpleArtifactRepository) destinationRepo, (SimpleArtifactRepository) packedRepo);
 				}

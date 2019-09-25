@@ -52,12 +52,12 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 		String base = "/testData/profileSynchronizer/";
 		String[] extensions = new String[] {"bbb_1.0.0.jar", "bbb.linux_1.0.0.jar", "bbb.win32_1.0.0.jar"};
 		Set<File> jars = new HashSet<>();
-		for (int i = 0; i < extensions.length; i++)
-			jars.add(getTestData("0.99", base + extensions[i]));
+		for (String extension : extensions) {
+			jars.add(getTestData("0.99", base + extension));
+		}
 		File folder = getTempFolder();
 		toRemove.add(folder);
-		for (Iterator<File> iter = jars.iterator(); iter.hasNext();) {
-			File next = iter.next();
+		for (File next : jars) {
 			copy("1.0 " + next.getAbsolutePath(), next, new File(folder, next.getName()));
 		}
 
@@ -80,8 +80,9 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 
 		IInstallableUnit[] ius = watcher.getInstallableUnits();
 		assertEquals("3.0", expected.size(), ius.length);
-		for (int i = 0; i < ius.length; i++)
-			assertTrue("3.1 " + ius[i].getId(), expected.contains(ius[i].getId()));
+		for (IInstallableUnit iu : ius) {
+			assertTrue("3.1 " + iu.getId(), expected.contains(iu.getId()));
+		}
 		assertEquals("3.2", expected.size(), watcher.getArtifactKeys().length);
 	}
 

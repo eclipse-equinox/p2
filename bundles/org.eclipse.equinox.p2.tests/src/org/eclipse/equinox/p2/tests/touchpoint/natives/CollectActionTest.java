@@ -76,9 +76,10 @@ public class CollectActionTest extends AbstractProvisioningTest {
 
 	private boolean hasRequest(List<IArtifactRequest[]> requests, IArtifactKey key) {
 		for (IArtifactRequest[] request : requests) {
-			for (int i = 0; i < request.length; i++) {
-				if (key.equals(request[i].getArtifactKey()))
+			for (IArtifactRequest req : request) {
+				if (key.equals(req.getArtifactKey())) {
 					return true;
+				}
 			}
 		}
 		return false;

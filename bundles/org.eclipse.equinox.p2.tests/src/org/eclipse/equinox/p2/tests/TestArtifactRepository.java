@@ -150,8 +150,8 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		try {
 			MultiStatus overallStatus = new MultiStatus(TestActivator.PI_PROV_TESTS, IStatus.OK, null, null);
-			for (int i = 0; i < requests.length; i++) {
-				overallStatus.add(getArtifact((ArtifactRequest) requests[i], subMonitor.newChild(1)));
+			for (IArtifactRequest request : requests) {
+				overallStatus.add(getArtifact((ArtifactRequest) request, subMonitor.newChild(1)));
 			}
 			return (monitor.isCanceled() ? Status.CANCEL_STATUS : overallStatus);
 		} finally {

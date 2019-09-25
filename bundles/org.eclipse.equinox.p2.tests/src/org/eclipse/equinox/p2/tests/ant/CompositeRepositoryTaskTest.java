@@ -469,8 +469,9 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 	 */
 	protected AntTaskElement createRemoveElement(String type, URI[] addresses) {
 		AntTaskElement add = new AntTaskElement(REMOVE_ELEMENT);
-		for (int i = 0; i < addresses.length; i++)
-			add.addElement(getRepositoryElement(addresses[i], type));
+		for (URI address : addresses) {
+			add.addElement(getRepositoryElement(address, type));
+		}
 		return add;
 	}
 
@@ -479,8 +480,9 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 	 */
 	protected AntTaskElement createAddElement(String type, URI[] addresses) {
 		AntTaskElement add = new AntTaskElement(ADD_ELEMENT);
-		for (int i = 0; i < addresses.length; i++)
-			add.addElement(getRepositoryElement(addresses[i], type));
+		for (URI address : addresses) {
+			add.addElement(getRepositoryElement(address, type));
+		}
 		return add;
 	}
 

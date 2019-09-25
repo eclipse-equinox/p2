@@ -240,8 +240,7 @@ public class FilterTest {
 			}
 			this.dictionary = dictionary;
 			List<String> keyList = new ArrayList<>(dictionary.size());
-			for (Iterator<String> e = dictionary.keySet().iterator(); e.hasNext();) {
-				String key = e.next();
+			for (String key : dictionary.keySet()) {
 				for (Iterator<String> i = keyList.iterator(); i.hasNext();) {
 					if (key.equalsIgnoreCase(i.next())) {
 						throw new IllegalArgumentException();

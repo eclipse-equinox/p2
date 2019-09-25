@@ -188,9 +188,10 @@ public class SetStartLevelActionTest extends AbstractProvisioningTest {
 	private boolean isStartLevel(Manipulator manipulator, File osgiTarget, int startLevel) {
 		URI location = osgiTarget.toURI();
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
-		for (int i = 0; i < bundles.length; i++) {
-			if (location.equals(bundles[i].getLocation()) && (startLevel == bundles[i].getStartLevel()))
+		for (BundleInfo bundle : bundles) {
+			if (location.equals(bundle.getLocation()) && (startLevel == bundle.getStartLevel())) {
 				return true;
+			}
 		}
 		return false;
 	}

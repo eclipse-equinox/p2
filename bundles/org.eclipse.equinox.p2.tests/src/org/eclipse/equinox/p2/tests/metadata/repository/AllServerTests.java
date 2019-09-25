@@ -71,8 +71,7 @@ public class AllServerTests extends TestCase {
 		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
 		if (bundles == null)
 			return null;
-		for (int i = 0; i < bundles.length; i++) {
-			Bundle bundle = bundles[i];
+		for (Bundle bundle : bundles) {
 			if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
 				return bundle;
 		}

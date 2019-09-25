@@ -13,7 +13,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
@@ -24,25 +26,25 @@ public class IULoader {
 	public static void loadIUs(Object o) {
 		Class<? extends Object> classWithIUs = o.getClass();
 		annos = classWithIUs.getAnnotations();
-		for (int i = 0; i < annos.length; i++) {
-			System.out.println(annos[i]);
+		for (Annotation anno : annos) {
+			System.out.println(anno);
 		}
 
 		Field[] fields = classWithIUs.getFields();
-		for (int i = 0; i < fields.length; i++) {
-			Annotation[] a = fields[i].getAnnotations();
-			for (int j = 0; j < a.length; j++) {
-				if (a[j] instanceof IUDescription) {
-					IUDescription ml = (IUDescription) a[j]; // here it is !!!
+		for (Field field : fields) {
+			Annotation[] a = field.getAnnotations();
+			for (Annotation a1 : a) {
+				if (a1 instanceof IUDescription) {
+					IUDescription ml = (IUDescription) a1; // here it is !!!
 					ReducedCUDFParser parser = new ReducedCUDFParser();
-					try (InputStream is = new ByteArrayInputStream(ml.content().getBytes())) {
+					try (final InputStream is = new ByteArrayInputStream(ml.content().getBytes())) {
 						parser.parse(is, false, null);
-						fields[i].set(o, parser.getIU());
-					} catch (IllegalArgumentException e) {
+						field.set(o, parser.getIU());
+					}catch (IllegalArgumentException e) {
 						throw new RuntimeException(e);
-					} catch (IllegalAccessException e) {
+					}catch (IllegalAccessException e) {
 						throw new RuntimeException(e);
-					} catch (IOException e) {
+					}catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}

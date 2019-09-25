@@ -63,11 +63,11 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		boolean jarFilePresent = false;
 		boolean xmlFilePresent = false;
 		// one of the files in the repository should be the content.xml.jar
-		for (int i = 0; i < files.length; i++) {
-			if ("compositeContent.jar".equalsIgnoreCase(files[i].getName())) {
+		for (File file : files) {
+			if ("compositeContent.jar".equalsIgnoreCase(file.getName())) {
 				jarFilePresent = true;
 			}
-			if ("compositeContent.xml".equalsIgnoreCase(files[i].getName())) {
+			if ("compositeContent.xml".equalsIgnoreCase(file.getName())) {
 				xmlFilePresent = true;
 			}
 		}
@@ -85,8 +85,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		File[] files = repoLocation.listFiles();
 		boolean jarFilePresent = false;
 		// none of the files in the repository should be the content.xml.jar
-		for (int i = 0; i < files.length; i++) {
-			if ("compositeContent.jar".equalsIgnoreCase(files[i].getName())) {
+		for (File file : files) {
+			if ("compositeContent.jar".equalsIgnoreCase(file.getName())) {
 				jarFilePresent = true;
 			}
 		}

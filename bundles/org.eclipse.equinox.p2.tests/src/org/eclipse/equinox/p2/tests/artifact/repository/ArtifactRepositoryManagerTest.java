@@ -63,9 +63,10 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	private boolean managerContains(URI location) {
 		URI[] locations = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		for (int i = 0; i < locations.length; i++) {
-			if (locations[i].equals(location))
+		for (URI uri : locations) {
+			if (uri.equals(location)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -131,8 +132,9 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		Preferences prefs = prefService.getRootNode().node("/profile/" + locationString + "/_SELF_/" + REPO_BUNDLE + "/repositories"); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
 			String[] children = prefs.childrenNames();
-			for (int i = 0; i < children.length; i++)
-				prefs.node(children[i]).removeNode();
+			for (String child : children) {
+				prefs.node(child).removeNode();
+			}
 			prefs.flush();
 		} catch (BackingStoreException e) {
 			fail("0.99", e);

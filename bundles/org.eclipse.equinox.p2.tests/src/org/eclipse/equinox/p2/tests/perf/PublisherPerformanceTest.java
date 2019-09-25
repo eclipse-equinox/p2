@@ -46,8 +46,8 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 
 			@Override
 			protected void test() {
-				for (int i = 0; i < queries.length; i++) {
-					result.query(queries[i], null);
+				for (IQuery<IInstallableUnit> query : queries) {
+					result.query(query, null);
 				}
 			}
 		}.run(this, "Test query PublisherResult for " + IU_COUNT + " ius", REPEATS, 10);
@@ -73,8 +73,8 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 
 			@Override
 			protected void test() {
-				for (int i = 0; i < queries.length; i++) {
-					result.query(queries[i], null);
+				for (IQuery<IInstallableUnit> query : queries) {
+					result.query(query, null);
 				}
 			}
 		}.run(this, "Test query PublisherResult for " + IU_COUNT + " ius", REPEATS, 10);

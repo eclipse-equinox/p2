@@ -90,9 +90,10 @@ public class InstallBundleActionTest extends AbstractProvisioningTest {
 	private boolean inBundles(Manipulator manipulator, File osgiTarget) {
 		URI location = osgiTarget.toURI();
 		BundleInfo[] bundles = manipulator.getConfigData().getBundles();
-		for (int i = 0; i < bundles.length; i++) {
-			if (location.equals(bundles[i].getLocation()))
+		for (BundleInfo bundle : bundles) {
+			if (location.equals(bundle.getLocation())) {
 				return true;
+			}
 		}
 		return false;
 	}

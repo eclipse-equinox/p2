@@ -583,8 +583,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		try {
 			IInstallableUnit engineIU = createEclipseIU("org.eclipse.equinox.p2.engine", Version.create("55.2"));
 			final String[] values = new String[] {"", "blort", null, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED};
-			for (int i = 0; i < values.length; i++) {
-				final String currentValue = values[i];
+			for (String currentValue : values) {
 				if (currentValue == null)
 					System.getProperties().remove(EngineActivator.PROP_PROFILE_FORMAT);
 				else

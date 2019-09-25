@@ -64,10 +64,11 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 	protected Collection<InstallableUnitOperand> compress(IProvisioningPlan plan) {
 		Map<String, InstallableUnitOperand> result = new HashMap<>();
 		Operand[] operands = ((ProvisioningPlan) plan).getOperands();
-		for (int i = 0; i < operands.length; i++) {
-			if (!(operands[i] instanceof InstallableUnitOperand))
+		for (Operand oper : operands) {
+			if (!(oper instanceof InstallableUnitOperand)) {
 				continue;
-			InstallableUnitOperand operand = (InstallableUnitOperand) operands[i];
+			}
+			InstallableUnitOperand operand = (InstallableUnitOperand) oper;
 			String id = operand.first() == null ? operand.second().getId() : operand.first().getId();
 			InstallableUnitOperand existing = result.get(id);
 			if (existing == null) {
@@ -171,19 +172,19 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 
 		// make sure the expected plan isn't empty
 		assertFalse("0.9 Plan is empty.", expectedOperands.length == 0);
-		for (int outer = 0; outer < expectedOperands.length; outer++) {
-			if (!(expectedOperands[outer] instanceof InstallableUnitOperand))
+		for (Operand expectedOperand : expectedOperands) {
+			if (!(expectedOperand instanceof InstallableUnitOperand)) {
 				continue;
-			IInstallableUnit first = ((InstallableUnitOperand) expectedOperands[outer]).first();
-			IInstallableUnit second = ((InstallableUnitOperand) expectedOperands[outer]).second();
-
+			}
+			IInstallableUnit first = ((InstallableUnitOperand) expectedOperand).first();
+			IInstallableUnit second = ((InstallableUnitOperand) expectedOperand).second();
 			// see if there is an operand in the actual plan which involved this IU.
 			boolean found = false;
-			for (int inner = 0; inner < actualOperands.length; inner++) {
-				if (!(actualOperands[inner] instanceof InstallableUnitOperand))
+			for (Operand actualOperand : actualOperands) {
+				if (!(actualOperand instanceof InstallableUnitOperand)) {
 					continue;
-				InstallableUnitOperand actual = (InstallableUnitOperand) actualOperands[inner];
-
+				}
+				InstallableUnitOperand actual = (InstallableUnitOperand) actualOperand;
 				// handle removals
 				if (second == null) {
 					if (actual.second() != null)
@@ -193,7 +194,6 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 					// we are doing a removal and we have IUs with the same id... do they have the same version too?
 					assertEquals("0.5", first, actual.first());
 				}
-
 				// treat additions and updates the same as long as we end up with the same IU in the end
 				assertNotNull("1.2 " + actual, actual.second());
 				if (!actual.second().getId().equals(second.getId()))
@@ -201,7 +201,6 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 				// we are doing an install or upgrade and we have IUs with the same id... do they have the same version too?
 				assertEquals("2.0", second, actual.second());
 				found = true;
-
 			}
 			if (!found)
 				fail("3.0 Plan is missing install operand for: " + second);

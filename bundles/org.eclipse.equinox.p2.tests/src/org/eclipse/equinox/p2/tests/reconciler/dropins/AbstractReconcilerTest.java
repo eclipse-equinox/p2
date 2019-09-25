@@ -276,8 +276,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
 	public void add(String message, String target, File[] files) {
 		assertNotNull(files);
-		for (int i = 0; i < files.length; i++)
-			add(message, target, files[i]);
+		for (File file : files) {
+			add(message, target, file);
+		}
 	}
 
 	/*
@@ -298,8 +299,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	public void remove(String message, String target, String[] names) {
 		assertNotNull(names);
-		for (int i = 0; i < names.length; i++)
-			remove(message, target, names[i]);
+		for (String name : names) {
+			remove(message, target, name);
+		}
 	}
 
 	/*
@@ -427,8 +429,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		boolean leaveDirty = Boolean.parseBoolean(TestActivator.getContext().getProperty("p2.tests.doNotClean"));
 		if (leaveDirty)
 			return;
-		for (Iterator<File> iter = toRemove.iterator(); iter.hasNext();) {
-			File next = iter.next();
+		for (File next : toRemove) {
 			delete(next);
 		}
 		output = null;
@@ -511,8 +512,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		result.setUpdateable(updateable);
 		result.setUrl(uri);
 		if (plugins != null)
-			for (int i = 0; i < plugins.length; i++)
-				result.addPlugin(plugins[i]);
+			for (String plugin : plugins) {
+				result.addPlugin(plugin);
+			}
 		return result;
 	}
 

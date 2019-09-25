@@ -76,8 +76,7 @@ public class Bug309530 extends AbstractProvisioningTest {
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 
 		String[] ids = new String[] {"hi", "b"};
-		for (int i = 0; i < ids.length; i++) {
-			String id = ids[i];
+		for (String id : ids) {
 			IInstallableUnit iu = profile.query(QueryUtil.createIUQuery(id), new NullProgressMonitor()).iterator().next();
 			changeRequest.remove(iu);
 		}

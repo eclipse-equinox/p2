@@ -139,22 +139,22 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	}
 
 	protected Map<String, Object[]> getFileMap(Map<String, Object[]> map, File[] files, Path root) {
-		for (int i = 0; i < files.length; i++) {
-			if (files[i].isDirectory())
-				map = getFileMap(map, files[i].listFiles(), root);
-			else {
-				if (files[i].getPath().endsWith(JAR))
+		for (File file : files) {
+			if (file.isDirectory()) {
+				map = getFileMap(map, file.listFiles(), root);
+			} else {
+				if (file.getPath().endsWith(JAR)) {
 					continue;
+				}
 				try {
 					ByteArrayOutputStream content = new ByteArrayOutputStream();
-					File contentBytes = files[i];
+					File contentBytes = file;
 					FileUtils.copyStream(new FileInputStream(contentBytes), false, content, true);
-
-					IPath entryPath = new Path(files[i].getAbsolutePath());
+					IPath entryPath = new Path(file.getAbsolutePath());
 					entryPath = entryPath.removeFirstSegments(root.matchingFirstSegments(entryPath));
 					entryPath = entryPath.setDevice(null);
 					map.put(entryPath.toString(), new Object[] {contentBytes, content.toByteArray()});
-				} catch (IOException e) {
+				}catch (IOException e) {
 					e.printStackTrace();
 				}
 			}

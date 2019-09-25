@@ -142,8 +142,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = iterator.next();
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
-			for (int n = 0; n < descriptors.length; n++) {
-				IArtifactDescriptor desc = descriptors[n];
+			for (IArtifactDescriptor desc : descriptors) {
 				// Features should be unzipped, others should not be.
 				boolean isFolder = desc.getProperty("artifact.folder") != null ? Boolean.valueOf(desc.getProperty("artifact.folder")) : false;
 				if (key.getClassifier().equals(""))

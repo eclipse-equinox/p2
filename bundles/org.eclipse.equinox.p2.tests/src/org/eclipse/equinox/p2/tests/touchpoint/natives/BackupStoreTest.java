@@ -85,9 +85,11 @@ public class BackupStoreTest extends AbstractProvisioningTest {
 			return true;
 		if (file.isDirectory()) {
 			File[] children = file.listFiles();
-			for (int i = 0; i < children.length; i++)
-				if (!fullyDelete(new File(file, children[i].getName())))
+			for (File child : children) {
+				if (!fullyDelete(new File(file, child.getName()))) {
 					return false;
+				}
+			}
 		}
 		return file.delete();
 	}

@@ -742,8 +742,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertNotNull(metadataRepoMan);
 
 		URI[] knownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		for (int i = 0; i < knownRepos.length; i++) {
-			if (siteURI.equals(knownRepos[i])) {
+		for (URI knownRepo : knownRepos) {
+			if (siteURI.equals(knownRepo)) {
 				metadataRepoMan.removeRepository(siteURI);
 				knownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 				break;
@@ -768,8 +768,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertNotNull(artifactRepoMan);
 
 		URI[] knownRepos = artifactRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		for (int i = 0; i < knownRepos.length; i++) {
-			if (siteURI.equals(knownRepos[i])) {
+		for (URI knownRepo : knownRepos) {
+			if (siteURI.equals(knownRepo)) {
 				artifactRepoMan.removeRepository(siteURI);
 				knownRepos = artifactRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 				break;

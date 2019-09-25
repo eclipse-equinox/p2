@@ -73,10 +73,10 @@ public class ProfileSynchronizerTest2 extends AbstractProvisioningTest {
 	//We need to initialize the reconciler this way to bypass the automatic reconciliation that happens when the bundle is started
 	private void initializeReconciler() throws IllegalAccessException {
 		Field[] fields = org.eclipse.equinox.internal.p2.reconciler.dropins.Activator.class.getDeclaredFields();
-		for (int i = 0; i < fields.length; i++) {
-			if (fields[i].getName().equals("bundleContext")) {
-				fields[i].setAccessible(true);
-				fields[i].set(org.eclipse.equinox.internal.p2.reconciler.dropins.Activator.class, TestActivator.getContext());
+		for (Field field : fields) {
+			if (field.getName().equals("bundleContext")) {
+				field.setAccessible(true);
+				field.set(org.eclipse.equinox.internal.p2.reconciler.dropins.Activator.class, TestActivator.getContext());
 				break;
 			}
 		}

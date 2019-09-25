@@ -115,9 +115,10 @@ public class CategoryPublisherTest extends AbstractProvisioningTest {
 		assertTrue(directory.exists());
 		assertTrue(directory.isDirectory());
 		File[] listFiles = directory.listFiles();
-		for (int i = 0; i < listFiles.length; i++) {
-			if (listFiles[i].getName().equals(file))
+		for (File listFile : listFiles) {
+			if (listFile.getName().equals(file)) {
 				return;
+			}
 		}
 		fail("Directory does not contain file: " + file);
 	}

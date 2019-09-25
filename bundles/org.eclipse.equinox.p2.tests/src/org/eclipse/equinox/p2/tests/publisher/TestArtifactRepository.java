@@ -156,8 +156,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	@Override
 	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
-		for (int i = 0; i < descriptors.length; i++)
-			addDescriptor(descriptors[i]);
+		for (IArtifactDescriptor descriptor : descriptors) {
+			addDescriptor(descriptor);
+		}
 	}
 
 	@Override
@@ -210,8 +211,8 @@ public class TestArtifactRepository implements IArtifactRepository {
 		try {
 			//plugin ID taken from TestActivator
 			MultiStatus overallStatus = new MultiStatus("org.eclipse.equinox.p2.test", IStatus.OK, null, null); //$NON-NLS-1$
-			for (int i = 0; i < requests.length; i++) {
-				overallStatus.add(getArtifact((ArtifactRequest) requests[i], subMonitor.newChild(1)));
+			for (IArtifactRequest request : requests) {
+				overallStatus.add(getArtifact((ArtifactRequest) request, subMonitor.newChild(1)));
 			}
 			return (monitor.isCanceled() ? Status.CANCEL_STATUS : overallStatus);
 		} finally {

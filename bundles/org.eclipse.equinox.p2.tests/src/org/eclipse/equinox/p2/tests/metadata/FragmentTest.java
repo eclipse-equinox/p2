@@ -164,9 +164,10 @@ public class FragmentTest extends AbstractProvisioningTest {
 	}
 
 	public static void assertContains(Object[] objects, Object searched) {
-		for (int i = 0; i < objects.length; i++) {
-			if (objects[i] == searched)
+		for (Object object : objects) {
+			if (object == searched) {
 				return;
+			}
 		}
 		throw new AssertionFailedError("The array does not contain the searched element");
 	}

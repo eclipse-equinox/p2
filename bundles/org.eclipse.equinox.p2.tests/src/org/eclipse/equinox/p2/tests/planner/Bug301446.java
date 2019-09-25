@@ -61,8 +61,7 @@ public class Bug301446 extends AbstractPlannerTest {
 
 		// this is the plan that we expect - highest version only
 		Operand[] operands = ((ProvisioningPlan) actualPlan).getOperands();
-		for (int i = 0; i < operands.length; i++) {
-			Operand o = operands[i];
+		for (Operand o : operands) {
 			if (!(o instanceof InstallableUnitOperand))
 				continue;
 			IInstallableUnit iu = ((InstallableUnitOperand) o).second();

@@ -242,9 +242,10 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 	abstract protected VersionedId getPlatformSource();
 
 	protected void assertContains(String message, String[] source, String searched) {
-		for (int i = 0; i < source.length; i++) {
-			if (source[i].equals(searched))
+		for (String element : source) {
+			if (element.equals(searched)) {
 				return;
+			}
 		}
 		fail(message + " " + searched);
 	}

@@ -53,9 +53,11 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 	private void removeContents(File source, File target) {
 		if (source.exists() && source.isDirectory() && target.exists() && target.isDirectory()) {
 			File[] files = source.listFiles();
-			for (int i = 0; i < files.length; i++)
-				if (files[i] != null)
-					delete(new File(target, files[i].getName()));
+			for (File file : files) {
+				if (file != null) {
+					delete(new File(target, file.getName()));
+				}
+			}
 		}
 	}
 
@@ -79,8 +81,8 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 		copy("2.0", baseFolder, folder);
 		watcher.poll();
 		IArtifactKey[] keys = watcher.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			String file = watcher.getArtifactFile(keys[i]).getAbsolutePath();
+		for (IArtifactKey key : keys) {
+			String file = watcher.getArtifactFile(key).getAbsolutePath();
 			assertTrue("2.1." + file, file.startsWith(folder.getAbsolutePath()));
 		}
 		assertEquals("3.0", 2, watcher.getInstallableUnits().length);
@@ -118,8 +120,7 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 		IInstallableUnit directoryIU = null;
 		IInstallableUnit[] ius = watcher.getInstallableUnits();
 		assertEquals("3.0", 2, ius.length);
-		for (int i = 0; i < ius.length; i++) {
-			IInstallableUnit iu = ius[i];
+		for (IInstallableUnit iu : ius) {
 			if (isZipped(iu.getTouchpointData())) {
 				assertNull("4.0", jaredIU);
 				jaredIU = iu;
@@ -135,8 +136,7 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 		IArtifactDescriptor directoryDescriptor = null;
 		IArtifactKey[] keys = watcher.getArtifactKeys();
 		assertEquals("7.0", 2, keys.length);
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactKey key = keys[i];
+		for (IArtifactKey key : keys) {
 			IArtifactDescriptor[] descriptors = watcher.getArtifactDescriptors(key);
 			assertEquals("8.0", 1, descriptors.length);
 			SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) descriptors[0];
