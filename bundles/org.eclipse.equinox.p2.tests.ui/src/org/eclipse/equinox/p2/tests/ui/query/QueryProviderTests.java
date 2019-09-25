@@ -56,9 +56,9 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		CategoryElement cat = (CategoryElement) children[0];
 		children = cat.getChildren(cat);
 		boolean foundNestedCategory = false;
-		for (int i = 0; i < children.length; i++) {
-			if (children[i] instanceof CategoryElement) {
-				if (((CategoryElement) children[i]).getIU().equals(nestedCategory)) {
+		for (Object children1 : children) {
+			if (children1 instanceof CategoryElement) {
+				if (((CategoryElement) children1).getIU().equals(nestedCategory)) {
 					foundNestedCategory = true;
 					break;
 				}

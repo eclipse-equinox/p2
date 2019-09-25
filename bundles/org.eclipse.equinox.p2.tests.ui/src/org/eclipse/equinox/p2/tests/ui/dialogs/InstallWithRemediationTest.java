@@ -237,8 +237,8 @@ public class InstallWithRemediationTest extends WizardTest {
 			group.getCheckboxTreeViewer().expandAll();
 			Tree tree = (Tree) group.getCheckboxTreeViewer().getControl();
 			TreeItem[] items = tree.getItems();
-			for (int i = 0; i < items.length; i++) {
-				Object element = items[i].getData();
+			for (TreeItem item : items) {
+				Object element = item.getData();
 				if (element != null && element instanceof IIUElement) {
 					IInstallableUnit iu = ((IIUElement) element).getIU();
 					if (iu != null && iu.getId().equals(TOPLEVELIU)) {

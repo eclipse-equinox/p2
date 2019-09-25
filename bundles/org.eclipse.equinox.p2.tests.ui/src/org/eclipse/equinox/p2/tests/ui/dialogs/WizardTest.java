@@ -31,8 +31,8 @@ public abstract class WizardTest extends AbstractProvisioningUITest {
 			return (Tree) control;
 		if (control instanceof Composite) {
 			Control[] children = ((Composite) control).getChildren();
-			for (int i = 0; i < children.length; i++) {
-				Tree tree = findTree(children[i]);
+			for (Control children1 : children) {
+				Tree tree = findTree(children1);
 				if (tree != null)
 					return tree;
 			}

@@ -113,9 +113,10 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 
 	protected boolean managerContains(IRepositoryManager<?> manager, URI location) {
 		URI[] locations = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		for (int i = 0; i < locations.length; i++) {
-			if (locations[i].equals(location))
+		for (URI location1 : locations) {
+			if (location1.equals(location)) {
 				return true;
+			}
 		}
 		return false;
 	}

@@ -129,8 +129,7 @@ public class TestData {
 	public static void assertEquals(ZipInputStream input1, ZipInputStream input2) throws IOException {
 		Map<String, Object[]> jar1 = getEntries(input1);
 		Map<String, Object[]> jar2 = getEntries(input2);
-		for (Iterator<String> i = jar1.keySet().iterator(); i.hasNext();) {
-			String name = i.next();
+		for (String name : jar1.keySet()) {
 			Object[] file1 = jar1.get(name);
 			Object[] file2 = jar2.remove(name);
 			Assert.assertNotNull(file2);

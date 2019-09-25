@@ -57,8 +57,8 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 		importexportService = null;
 		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		URI[] urls = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		for (int i = 0; i < urls.length; i++) {
-			repoMan.removeRepository(urls[i]);
+		for (URI url : urls) {
+			repoMan.removeRepository(url);
 		}
 	}
 

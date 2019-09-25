@@ -99,29 +99,39 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		boolean found2 = false;
 		boolean found3 = false;
 
-		for (int i = 0; i < enabled.length; i++) {
-			if (enabled[i].equals(known1))
+		for (URI enabled1 : enabled) {
+			if (enabled1.equals(known1)) {
 				foundKnown1 = true;
-			if (enabled[i].equals(known2))
+			}
+			if (enabled1.equals(known2)) {
 				foundKnown2 = true;
-			if (enabled[i].equals(uri))
+			}
+			if (enabled1.equals(uri)) {
 				found1 = true;
-			if (enabled[i].equals(uri2))
+			}
+			if (enabled1.equals(uri2)) {
 				found2 = true;
-			if (enabled[i].equals(uri3))
+			}
+			if (enabled1.equals(uri3)) {
 				found3 = true;
+			}
 		}
-		for (int i = 0; i < disabled.length; i++) {
-			if (disabled[i].equals(known1))
+		for (URI disabled1 : disabled) {
+			if (disabled1.equals(known1)) {
 				foundKnown1 = true;
-			if (disabled[i].equals(known2))
+			}
+			if (disabled1.equals(known2)) {
 				foundKnown2 = true;
-			if (disabled[i].equals(uri))
+			}
+			if (disabled1.equals(uri)) {
 				found1 = true;
-			if (disabled[i].equals(uri2))
+			}
+			if (disabled1.equals(uri2)) {
 				found2 = true;
-			if (disabled[i].equals(uri3))
+			}
+			if (disabled1.equals(uri3)) {
 				found3 = true;
+			}
 		}
 		assertTrue("1.0", found1); // Enabled system repo still exists
 		assertTrue("1.1", found2); // Disabled system repo still exists

@@ -89,8 +89,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		Collection<?> results = wrapper.getElements(collector);
 		assertEquals("1.0", 2, collector.size());
 		boolean categoryFound = false;
-		for (Iterator<?> it = results.iterator(); it.hasNext();) {
-			Object element = it.next();
+		for (Object element : results) {
 			IInstallableUnit collected = getIU(element);
 			if (collected.equals(category)) {
 				categoryFound = true;
@@ -118,8 +117,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 		Collection<?> results = wrapper.getElements(collector);
 		assertEquals("1.0", 2, results.size());
 		boolean categoryFound = false;
-		for (Iterator<?> it = results.iterator(); it.hasNext();) {
-			Object element = it.next();
+		for (Object element : results) {
 			IInstallableUnit collected = getIU(element);
 			if (collected.equals(category)) {
 				categoryFound = true;

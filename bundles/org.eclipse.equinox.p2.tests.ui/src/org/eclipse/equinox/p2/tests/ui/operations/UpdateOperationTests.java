@@ -77,9 +77,9 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		op.resolveModal(getMonitor());
 		Update[] updates = op.getPossibleUpdates();
 		Update firstPatch = null;
-		for (int i = 0; i < updates.length; i++) {
-			if (updates[i].replacement.equals(firstPatchForA1)) {
-				firstPatch = updates[i];
+		for (Update update : updates) {
+			if (update.replacement.equals(firstPatchForA1)) {
+				firstPatch = update;
 				break;
 			}
 		}
@@ -118,9 +118,9 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		op.resolveModal(getMonitor());
 		Update[] updates = op.getPossibleUpdates();
 		Update notNewest = null;
-		for (int i = 0; i < updates.length; i++) {
-			if (updates[i].replacement.equals(a120WithDifferentId)) {
-				notNewest = updates[i];
+		for (Update update : updates) {
+			if (update.replacement.equals(a120WithDifferentId)) {
+				notNewest = update;
 				break;
 			}
 		}
