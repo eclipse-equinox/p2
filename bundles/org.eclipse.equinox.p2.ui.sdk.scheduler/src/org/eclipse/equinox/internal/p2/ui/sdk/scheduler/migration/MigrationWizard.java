@@ -112,11 +112,11 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 				.asList(metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL));
 
 		if (reposToMigrate != null && metaManager != null && artifactManager != null) {
-			for (int i = 0; i < reposToMigrate.length; i++) {
-				if (!currentMetaRepos.contains(reposToMigrate[i])) {
-					metaManager.addRepository(reposToMigrate[i]);
-					artifactManager.addRepository(reposToMigrate[i]);
-					addedRepos.add(reposToMigrate[i]);
+			for (URI repoToMigrate : reposToMigrate) {
+				if (!currentMetaRepos.contains(repoToMigrate)) {
+					metaManager.addRepository(repoToMigrate);
+					artifactManager.addRepository(repoToMigrate);
+					addedRepos.add(repoToMigrate);
 				}
 			}
 		}

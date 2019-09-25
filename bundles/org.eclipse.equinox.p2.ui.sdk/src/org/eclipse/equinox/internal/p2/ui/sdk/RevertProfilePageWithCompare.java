@@ -74,9 +74,10 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 		// compare is enabled if there are two elements selected
 		Object[] selection = structuredSelection.toArray();
 		if (selection.length == 2) {
-			for (int i = 0; i < selection.length; i++) {
-				if (!(selection[i] instanceof RollbackProfileElement))
+			for (Object selection1 : selection) {
+				if (!(selection1 instanceof RollbackProfileElement)) {
 					return false;
+				}
 			}
 			return true;
 		}
@@ -177,13 +178,13 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 			Set<ProvElementNode> children = new HashSet<>();
 			if (pe instanceof RollbackProfileElement) {
 				Object[] c = ((RollbackProfileElement) pe).getChildren(null);
-				for (int i = 0; i < c.length; i++) {
-					children.add(new ProvElementNode(c[i]));
+				for (Object c1 : c) {
+					children.add(new ProvElementNode(c1));
 				}
 			} else if (pe instanceof InstalledIUElement) {
 				Object[] c = ((InstalledIUElement) pe).getChildren(null);
-				for (int i = 0; i < c.length; i++) {
-					children.add(new ProvElementNode(c[i]));
+				for (Object c1 : c) {
+					children.add(new ProvElementNode(c1));
 				}
 			}
 			return children.toArray();

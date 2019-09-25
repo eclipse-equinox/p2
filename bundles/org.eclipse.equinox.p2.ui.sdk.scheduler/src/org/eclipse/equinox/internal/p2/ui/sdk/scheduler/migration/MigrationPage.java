@@ -114,10 +114,13 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 						Object[] checked = viewer.getCheckedElements();
 						if (checkState == null)
 							checkState = new ArrayList<>(checked.length);
-						for (int i = 0; i < checked.length; i++)
-							if (!viewer.getGrayed(checked[i]))
-								if (!checkState.contains(checked[i]))
-									checkState.add(checked[i]);
+						for (Object checked1 : checked) {
+							if (!viewer.getGrayed(checked1)) {
+								if (!checkState.contains(checked1)) {
+									checkState.add(checked1);
+								}
+							}
+						}
 					});
 				}
 
@@ -382,8 +385,8 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 				if (contentProvider.hasChildren(event.getElement())) {
 					Set<Object> unchecked = new HashSet<>();
 					Object[] children = contentProvider.getChildren(event.getElement());
-					for (int i = 0; i < children.length; i++) {
-						unchecked.add(children[i]);
+					for (Object child : children) {
+						unchecked.add(child);
 					}
 					Iterator<Object> iter = filteredTree.checkState.iterator();
 					while (iter.hasNext()) {

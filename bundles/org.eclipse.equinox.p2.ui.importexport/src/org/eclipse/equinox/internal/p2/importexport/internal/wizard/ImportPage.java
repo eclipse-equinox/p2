@@ -130,8 +130,8 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		 */
 		public P2ImportIUPatternFilter(IUColumnConfig[] columnConfig) {
 			super();
-			for (int i = 0; i < columnConfig.length; i++) {
-				int field = columnConfig[i].getColumnType();
+			for (IUColumnConfig columnConfig1 : columnConfig) {
+				int field = columnConfig1.getColumnType();
 				if (field == IUColumnConfig.COLUMN_ID)
 					checkId = true;
 				else if (field == IUColumnConfig.COLUMN_NAME)
@@ -328,8 +328,8 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	public Object[] getCheckedIUElements() {
 		Object[] checked = viewer.getCheckedElements();
 		List<IUDetail> checkedFeatures = new ArrayList<>(checked.length);
-		for (int i = 0; i < checked.length; i++) {
-			IUDetail feature = (IUDetail) checked[i];
+		for (Object checked1 : checked) {
+			IUDetail feature = (IUDetail) checked1;
 			IUDetail[] existingFeatures = newProposedFeature.get(feature);
 			if (existingFeatures == null)
 				checkedFeatures.add(feature);
