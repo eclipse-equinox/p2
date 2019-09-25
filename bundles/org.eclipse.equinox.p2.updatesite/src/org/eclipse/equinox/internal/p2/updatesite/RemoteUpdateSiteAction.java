@@ -48,10 +48,10 @@ public class RemoteUpdateSiteAction implements IPublisherAction {
 			Tracing.debug("Generating metadata for update site: " + updateSite.getLocation()); //$NON-NLS-1$
 		IPublisherAction[] actions = createActions();
 		MultiStatus finalStatus = new MultiStatus(this.getClass().getName(), 0, NLS.bind(Messages.Error_Generation, updateSite != null ? updateSite.getLocation().toString() : "Unknown"), null); //$NON-NLS-1$
-		for (int i = 0; i < actions.length; i++) {
+		for (IPublisherAction action : actions) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			finalStatus.merge(actions[i].perform(info, results, monitor));
+			finalStatus.merge(action.perform(info, results, monitor));
 		}
 		if (Tracing.DEBUG_PUBLISHING)
 			Tracing.debug("Generation for update site complete: " + updateSite.getLocation()); //$NON-NLS-1$

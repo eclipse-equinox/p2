@@ -56,11 +56,9 @@ public class RemoteFeaturesAction extends FeaturesAction {
 	protected void generateFeatureIUs(Feature[] featureList, IPublisherResult result) {
 		Map<String, String> extraProperties = new HashMap<>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
-		for (int i = 0; i < featureList.length; i++) {
-			Feature feature = featureList[i];
+		for (Feature feature : featureList) {
 			FeatureEntry[] featureEntries = feature.getEntries();
-			for (int j = 0; j < featureEntries.length; j++) {
-				FeatureEntry entry = featureEntries[j];
+			for (FeatureEntry entry : featureEntries) {
 				if (entry.isPlugin() && !entry.isRequires()) {
 					Dictionary<String, String> mockManifest = new Hashtable<>();
 					mockManifest.put("Manifest-Version", "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -70,8 +68,9 @@ public class RemoteFeaturesAction extends FeaturesAction {
 					BundleDescription bundleDescription = BundlesAction.createBundleDescription(mockManifest, null);
 					IArtifactKey key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
 					IInstallableUnit[] bundleIUs = EclipsePublisherHelper.createEclipseIU(bundleDescription, entry.isUnpack(), key, extraProperties);
-					for (int n = 0; n < bundleIUs.length; n++)
-						result.addIU(bundleIUs[n], IPublisherResult.ROOT);
+					for (IInstallableUnit bundleIU : bundleIUs) {
+						result.addIU(bundleIU, IPublisherResult.ROOT);
+					}
 				}
 			}
 			IInstallableUnit featureIU = createFeatureJarIU(feature, new PublisherInfo());

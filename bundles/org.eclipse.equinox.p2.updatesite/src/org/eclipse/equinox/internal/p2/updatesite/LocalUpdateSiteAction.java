@@ -70,10 +70,10 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherAction[] actions = createActions();
 		MultiStatus finalStatus = new MultiStatus(LocalUpdateSiteAction.class.getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toString() : "Unknown")), null); //$NON-NLS-1$
-		for (int i = 0; i < actions.length; i++) {
+		for (IPublisherAction action : actions) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			finalStatus.merge(actions[i].perform(info, results, monitor));
+			finalStatus.merge(action.perform(info, results, monitor));
 		}
 		if (!finalStatus.isOK())
 			return finalStatus;

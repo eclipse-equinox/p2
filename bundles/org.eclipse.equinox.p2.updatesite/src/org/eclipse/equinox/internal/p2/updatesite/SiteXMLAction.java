@@ -272,13 +272,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			return mappings;
 
 		SiteIU[] ius = site.getIUs();
-		for (int i = 0; i < ius.length; i++) {
+		for (SiteIU iu : ius) {
 			// add a mapping for each category this feature belongs to
-			String[] categoryNames = ius[i].getCategoryNames();
+			String[] categoryNames = iu.getCategoryNames();
 			Set<SiteCategory> categories = new HashSet<>();
-			mappings.put(ius[i], categories);
-			for (int j = 0; j < categoryNames.length; j++) {
-				SiteCategory category = site.getCategory(categoryNames[j]);
+			mappings.put(iu, categories);
+			for (String categoryName : categoryNames) {
+				SiteCategory category = site.getCategory(categoryName);
 				if (category != null)
 					categories.add(category);
 			}
@@ -433,16 +433,16 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			return mappings;
 
 		SiteFeature[] features = site.getFeatures();
-		for (int i = 0; i < features.length; i++) {
+		for (SiteFeature feature : features) {
 			// add a mapping for each category this feature belongs to
-			String[] categoryNames = features[i].getCategoryNames();
-			Set<SiteCategory> categories = mappings.get(features[i]);
+			String[] categoryNames = feature.getCategoryNames();
+			Set<SiteCategory> categories = mappings.get(feature);
 			if (categories == null) {
 				categories = new HashSet<>();
-				mappings.put(features[i], categories);
+				mappings.put(feature, categories);
 			}
-			for (int j = 0; j < categoryNames.length; j++) {
-				SiteCategory category = site.getCategory(categoryNames[j]);
+			for (String categoryName : categoryNames) {
+				SiteCategory category = site.getCategory(categoryName);
 				if (category != null)
 					categories.add(category);
 			}
@@ -465,13 +465,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			return mappings;
 
 		SiteBundle[] bundles = site.getBundles();
-		for (int i = 0; i < bundles.length; i++) {
+		for (SiteBundle bundle : bundles) {
 			// add a mapping for each category this feature belongs to
-			String[] categoryNames = bundles[i].getCategoryNames();
+			String[] categoryNames = bundle.getCategoryNames();
 			Set<SiteCategory> categories = new HashSet<>();
-			mappings.put(bundles[i], categories);
-			for (int j = 0; j < categoryNames.length; j++) {
-				SiteCategory category = site.getCategory(categoryNames[j]);
+			mappings.put(bundle, categories);
+			for (String categoryName : categoryNames) {
+				SiteCategory category = site.getCategory(categoryName);
 				if (category != null)
 					categories.add(category);
 			}
@@ -505,16 +505,15 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		URLEntry[] associatedSites = site.getAssociatedSites();
 		if (associatedSites != null) {
 			ArrayList<IRepositoryReference> refs = new ArrayList<>(associatedSites.length * 2);
-			for (int i = 0; i < associatedSites.length; i++) {
-				URLEntry associatedSite = associatedSites[i];
+			for (URLEntry associatedSite : associatedSites) {
 				String siteLocation = associatedSite.getURL();
 				try {
 					URI associateLocation = new URI(siteLocation);
 					String label = associatedSite.getAnnotation();
 					refs.add(new RepositoryReference(associateLocation, label, IRepository.TYPE_METADATA,
-							IRepository.ENABLED));
+						IRepository.ENABLED));
 					refs.add(new RepositoryReference(associateLocation, label, IRepository.TYPE_ARTIFACT,
-							IRepository.ENABLED));
+						IRepository.ENABLED));
 				} catch (URISyntaxException e) {
 					String message = "Invalid site reference: " + siteLocation; //$NON-NLS-1$
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
