@@ -274,8 +274,8 @@ public class DirectorTask extends Task implements ILog {
 		log(0, status);
 		if (status.isMultiStatus()) {
 			IStatus[] children = status.getChildren();
-			for (int i = 0; i < children.length; i++) {
-				log(1, children[i]);
+			for (IStatus child : children) {
+				log(1, child);
 			}
 		}
 	}

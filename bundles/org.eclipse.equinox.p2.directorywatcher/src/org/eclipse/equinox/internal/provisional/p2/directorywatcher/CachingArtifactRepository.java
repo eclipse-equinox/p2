@@ -101,10 +101,10 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, descriptors.length);
-			for (int i = 0; i < descriptors.length; i++) {
-				((ArtifactDescriptor) descriptors[i]).setRepository(this);
-				descriptorsToAdd.add(descriptors[i]);
-				mapDescriptor(descriptors[i]);
+			for (IArtifactDescriptor descriptor : descriptors) {
+				((ArtifactDescriptor) descriptor).setRepository(this);
+				descriptorsToAdd.add(descriptor);
+				mapDescriptor(descriptor);
 				subMonitor.worked(1);
 			}
 		} finally {
@@ -185,8 +185,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
 			IArtifactDescriptor[] toRemove = descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]);
-			for (int i = 0; i < toRemove.length; i++)
-				doRemoveArtifact(toRemove[i]);
+			for (IArtifactDescriptor toRemove1 : toRemove) {
+				doRemoveArtifact(toRemove1);
+			}
 			subMonitor.worked(1);
 		} finally {
 			if (monitor != null)
@@ -223,8 +224,8 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 		try {
 			IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
 			SubMonitor subMonitor = SubMonitor.convert(monitor, toRemove.length);
-			for (int i = 0; i < toRemove.length; i++) {
-				doRemoveArtifact(toRemove[i]);
+			for (IArtifactDescriptor toRemove1 : toRemove) {
+				doRemoveArtifact(toRemove1);
 				subMonitor.worked(1);
 			}
 		} finally {

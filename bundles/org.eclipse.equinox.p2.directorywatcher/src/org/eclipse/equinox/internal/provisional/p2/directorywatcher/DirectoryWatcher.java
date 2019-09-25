@@ -142,15 +142,13 @@ public class DirectoryWatcher {
 	}
 
 	private void scanDirectories() {
-		for (int index = 0; index < directories.length; index++) {
-			File directory = directories[index];
+		for (File directory : directories) {
 			File list[] = directory.listFiles();
 			if (list == null)
 				continue;
-			for (int i = 0; i < list.length; i++) {
-				File file = list[i];
+			for (File file : list) {
 				// if this is a deletion marker then add to the list of pending deletions.
-				if (list[i].getPath().endsWith(DEL_EXT)) {
+				if (file.getPath().endsWith(DEL_EXT)) {
 					File target = new File(file.getPath().substring(0, file.getPath().length() - 4));
 					removals.add(target);
 					pendingDeletions.add(target);
