@@ -101,8 +101,8 @@ public class Verifier extends JarProcessorExecutor {
 		};
 		verifier.setWorkingDirectory(workingDirectory.getAbsolutePath());
 
-		for (int i = 0; i < input.length; i++) {
-			File inputFile = new File(input[i]);
+		for (String input1 : input) {
+			File inputFile = new File(input1);
 			if (inputFile.exists()) {
 				try {
 					process(inputFile, Utils.PACK_GZ_FILTER, true, verifier, properties);

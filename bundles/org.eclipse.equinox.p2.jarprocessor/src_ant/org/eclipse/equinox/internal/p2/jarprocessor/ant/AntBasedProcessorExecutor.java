@@ -53,9 +53,10 @@ public class AntBasedProcessorExecutor extends JarProcessorExecutor {
 	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor, Properties packProperties) throws FileNotFoundException {
 		if (filterSet != null && filterSet.contains(input)) {
 			File[] files = input.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isDirectory() || baseFilter.accept(files[i]))
-					filterSet.add(files[i]);
+			for (File file : files) {
+				if (file.isDirectory() || baseFilter.accept(file)) {
+					filterSet.add(file);
+				}
 			}
 		}
 		super.processDirectory(input, filter, verbose, processor, packProperties);

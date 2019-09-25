@@ -35,12 +35,13 @@ public class UnpackStep extends CommandStep {
 		}
 
 		int result;
-		for (int i = 0; i < locations.length; i++) {
-			if (locations[i] == null)
+		for (String location : locations) {
+			if (location == null) {
 				continue;
-			result = execute(new String[] {locations[i], "-V"}); //$NON-NLS-1$
+			}
+			result = execute(new String[]{location, "-V"}); //$NON-NLS-1$
 			if (result == 0) {
-				unpackCommand = locations[i];
+				unpackCommand = location;
 				canUnpack = Boolean.TRUE;
 				return true;
 			}

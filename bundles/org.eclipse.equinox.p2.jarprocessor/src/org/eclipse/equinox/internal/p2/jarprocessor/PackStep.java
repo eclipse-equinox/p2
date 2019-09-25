@@ -36,12 +36,13 @@ public class PackStep extends CommandStep {
 		}
 
 		int result;
-		for (int i = 0; i < locations.length; i++) {
-			if (locations[i] == null)
+		for (String location : locations) {
+			if (location == null) {
 				continue;
-			result = execute(new String[] {locations[i], "-V"}); //$NON-NLS-1$
+			}
+			result = execute(new String[]{location, "-V"}); //$NON-NLS-1$
 			if (result == 0) {
-				packCommand = locations[i];
+				packCommand = location;
 				canPack = Boolean.TRUE;
 				return true;
 			}
@@ -99,8 +100,7 @@ public class PackStep extends CommandStep {
 	protected boolean shouldPack(File input, List<Properties> containers, Properties inf) {
 		//1: exclude by containers
 		// innermost jar is first on the list, it can override outer jars
-		for (Iterator<Properties> iterator = containers.iterator(); iterator.hasNext();) {
-			Properties container = iterator.next();
+		for (Properties container : containers) {
 			if (container.containsKey(Utils.MARK_EXCLUDE_CHILDREN_PACK)) {
 				if (Boolean.parseBoolean(container.getProperty(Utils.MARK_EXCLUDE_CHILDREN_PACK))) {
 					if (verbose)
@@ -144,8 +144,7 @@ public class PackStep extends CommandStep {
 		}
 
 		//2: Defaults set in one of our containing jars
-		for (Iterator<Properties> iterator = containers.iterator(); iterator.hasNext();) {
-			Properties container = iterator.next();
+		for (Properties container : containers) {
 			if (container.containsKey(Utils.DEFAULT_PACK_ARGS)) {
 				return container.getProperty(Utils.DEFAULT_PACK_ARGS);
 			}

@@ -40,9 +40,10 @@ public class Unsigner {
 			jar = new ZipFile(file);
 
 			if (signers != null) {
-				for (int i = 0; i < signers.length; i++) {
-					if (jar.getEntry((META_INF_PREFIX + signers[i] + SF_EXT).toUpperCase()) != null)
+				for (String signer : signers) {
+					if (jar.getEntry((META_INF_PREFIX + signer + SF_EXT).toUpperCase()) != null) {
 						return true;
+					}
 				}
 			} else {
 				Enumeration<? extends ZipEntry> entries = jar.entries();
@@ -133,9 +134,10 @@ public class Unsigner {
 			return 1;
 		}
 		if (signers != null) {
-			for (int i = 0; i < signers.length; i++) {
-				if (entryName.equalsIgnoreCase(META_INF_PREFIX + signers[i] + SF_EXT) || entryName.equalsIgnoreCase(META_INF_PREFIX + signers[i] + RSA_EXT) || entryName.equalsIgnoreCase(META_INF_PREFIX + signers[i] + DSA_EXT))
+			for (String signer : signers) {
+				if (entryName.equalsIgnoreCase(META_INF_PREFIX + signer + SF_EXT) || entryName.equalsIgnoreCase(META_INF_PREFIX + signer + RSA_EXT) || entryName.equalsIgnoreCase(META_INF_PREFIX + signer + DSA_EXT)) {
 					return 2;
+				}
 			}
 		} else {
 			if (entryName.startsWith(META_INF) && (entryName.endsWith(SF_EXT) || entryName.endsWith(RSA_EXT) || entryName.endsWith(DSA_EXT)))

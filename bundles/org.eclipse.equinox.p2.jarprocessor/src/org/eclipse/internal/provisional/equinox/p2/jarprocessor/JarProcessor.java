@@ -162,9 +162,7 @@ public class JarProcessor {
 
 	private String recursionEffect(String entryName) {
 		String result = null;
-		for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
-			IProcessStep step = iter.next();
-
+		for (IProcessStep step : steps) {
 			result = step.recursionEffect(entryName);
 			if (result != null)
 				entryName = result;
@@ -239,8 +237,7 @@ public class JarProcessor {
 
 	private File preProcess(File input, File tempDir) {
 		File result = null;
-		for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
-			IProcessStep step = iter.next();
+		for (IProcessStep step : steps) {
 			result = step.preProcess(input, tempDir, containingInfs);
 			if (result != null)
 				input = result;
@@ -250,8 +247,7 @@ public class JarProcessor {
 
 	private File postProcess(File input, File tempDir) {
 		File result = null;
-		for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
-			IProcessStep step = iter.next();
+		for (IProcessStep step : steps) {
 			result = step.postProcess(input, tempDir, containingInfs);
 			if (result != null)
 				input = result;
@@ -261,8 +257,7 @@ public class JarProcessor {
 
 	private boolean adjustInf(File input, Properties inf) {
 		boolean adjusted = false;
-		for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
-			IProcessStep step = iter.next();
+		for (IProcessStep step : steps) {
 			adjusted |= step.adjustInf(input, inf, containingInfs);
 		}
 		return adjusted;
@@ -283,8 +278,7 @@ public class JarProcessor {
 					System.out.println("Skipping " + input.getPath()); //$NON-NLS-1$
 				else {
 					System.out.print("Running "); //$NON-NLS-1$ 
-					for (Iterator<IProcessStep> iter = steps.iterator(); iter.hasNext();) {
-						IProcessStep step = iter.next();
+					for (IProcessStep step : steps) {
 						System.out.print(step.getStepName() + " "); //$NON-NLS-1$
 					}
 					System.out.println("on " + input.getPath()); //$NON-NLS-1$

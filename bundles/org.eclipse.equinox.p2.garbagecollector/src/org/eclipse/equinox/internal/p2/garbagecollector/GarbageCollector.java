@@ -192,15 +192,15 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
 
 		//First we collect all repos and keys for the profile being GC'ed
-		for (int i = 0; i < configElts.length; i++) {
-			if (!(configElts[i].getName().equals("run"))) { //$NON-NLS-1$
+		for (IConfigurationElement configElt : configElts) {
+			if (!(configElt.getName().equals("run"))) {
+				//$NON-NLS-1$
 				continue;
 			}
-			IConfigurationElement runAttribute = configElts[i];
+			IConfigurationElement runAttribute = configElt;
 			if (runAttribute == null) {
 				continue;
 			}
-
 			contributeMarkSets(runAttribute, profile, true);
 		}
 		return true;
@@ -209,20 +209,19 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	private void traverseRegisteredProfiles() {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
 		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
-		for (int i = 0; i < configElts.length; i++) {
-			if (!(configElts[i].getName().equals("run"))) { //$NON-NLS-1$
+		for (IConfigurationElement configElt : configElts) {
+			if (!(configElt.getName().equals("run"))) {
+				//$NON-NLS-1$
 				continue;
 			}
-			IConfigurationElement runAttribute = configElts[i];
+			IConfigurationElement runAttribute = configElt;
 			if (runAttribute == null) {
 				continue;
 			}
-
 			IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
 			if (profileRegistry == null)
 				return;
 			IProfile[] registeredProfiles = profileRegistry.getProfiles();
-
 			for (IProfile registeredProfile : registeredProfiles) {
 				contributeMarkSets(runAttribute, registeredProfile, false);
 			}

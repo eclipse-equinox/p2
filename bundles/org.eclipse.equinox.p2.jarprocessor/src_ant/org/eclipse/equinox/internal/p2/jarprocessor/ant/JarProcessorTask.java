@@ -124,12 +124,12 @@ public class JarProcessorTask extends Task {
 	public void addConfiguredFile(FileSet fileset) {
 		DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
 		String[] included = scanner.getIncludedFiles();
-		for (int i = 0; i < included.length; i++) {
-			addInputFile(new File(scanner.getBasedir(), included[i]));
+		for (String included1 : included) {
+			addInputFile(new File(scanner.getBasedir(), included1));
 		}
 		included = scanner.getIncludedDirectories();
-		for (int i = 0; i < included.length; i++) {
-			addInputFile(new File(scanner.getBasedir(), included[i]));
+		for (String included1 : included) {
+			addInputFile(new File(scanner.getBasedir(), included1));
 		}
 	}
 }

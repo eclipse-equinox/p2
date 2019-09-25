@@ -180,8 +180,9 @@ public class Utils {
 			// for some unknown reason, list() can return null.  
 			// Just skip the children If it does.
 			if (list != null)
-				for (int i = 0; i < list.length; i++)
-					result &= clear(new java.io.File(root, list[i]));
+				for (String list1 : list) {
+					result &= clear(new java.io.File(root, list1));
+			}
 		}
 		return result;
 	}
@@ -194,8 +195,8 @@ public class Utils {
 		if (packExcludes != null) {
 			String[] excludes = toStringArray(packExcludes, ","); //$NON-NLS-1$
 			Set<String> packExclusions = new HashSet<>();
-			for (int i = 0; i < excludes.length; i++) {
-				packExclusions.add(excludes[i]);
+			for (String exclude : excludes) {
+				packExclusions.add(exclude);
 			}
 			return packExclusions;
 		}
@@ -209,8 +210,8 @@ public class Utils {
 		if (signExcludes != null) {
 			String[] excludes = toStringArray(signExcludes, ","); //$NON-NLS-1$
 			Set<String> signExclusions = new HashSet<>();
-			for (int i = 0; i < excludes.length; i++) {
-				signExclusions.add(excludes[i]);
+			for (String exclude : excludes) {
+				signExclusions.add(exclude);
 			}
 			return signExclusions;
 		}

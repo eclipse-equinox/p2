@@ -144,11 +144,11 @@ public class InstallDescriptionParser {
 		if (rootSpec != null) {
 			String[] rootList = getArrayFromString(rootSpec, ","); //$NON-NLS-1$
 			ArrayList<IVersionedId> roots = new ArrayList<>(rootList.length);
-			for (int i = 0; i < rootList.length; i++) {
+			for (String rootList1 : rootList) {
 				try {
-					roots.add(VersionedId.parse(rootList[i]));
+					roots.add(VersionedId.parse(rootList1));
 				} catch (IllegalArgumentException e) {
-					LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid version in install description: " + rootList[i], e)); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid version in install description: " + rootList1, e)); //$NON-NLS-1$
 				}
 			}
 			if (!roots.isEmpty())
@@ -189,13 +189,13 @@ public class InstallDescriptionParser {
 	private static URI[] getURIs(String spec, URI base) {
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
 		ArrayList<URI> result = new ArrayList<>(urlSpecs.length);
-		for (int i = 0; i < urlSpecs.length; i++) {
+		for (String urlSpec : urlSpecs) {
 			try {
-				URI uri = URIUtil.fromString(urlSpecs[i]);
+				URI uri = URIUtil.fromString(urlSpec);
 				uri = URIUtil.makeAbsolute(uri, base);
 				result.add(uri);
 			} catch (URISyntaxException e) {
-				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid URL in install description: " + urlSpecs[i], e)); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid URL in install description: " + urlSpec, e)); //$NON-NLS-1$
 			}
 		}
 		if (result.isEmpty())
