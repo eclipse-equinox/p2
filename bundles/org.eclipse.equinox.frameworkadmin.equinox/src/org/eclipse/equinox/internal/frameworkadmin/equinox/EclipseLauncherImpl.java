@@ -25,8 +25,8 @@ import org.osgi.service.log.LogService;
 public class EclipseLauncherImpl {
 	static String getStringOfCmd(String[] cmdarray) {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < cmdarray.length; i++) {
-			sb.append(cmdarray[i]);
+		for (String cmd : cmdarray) {
+			sb.append(cmd);
 			sb.append(" "); //$NON-NLS-1$
 		}
 		return sb.toString();
@@ -38,7 +38,8 @@ public class EclipseLauncherImpl {
 		this.fwAdmin = fwAdmin;
 	}
 
-	public Process launch(Manipulator manipulator, File cwd) throws IllegalArgumentException, IOException, FrameworkAdminRuntimeException {
+	public Process launch(Manipulator manipulator, File cwd)
+			throws IllegalArgumentException, IOException, FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		Log.log(LogService.LOG_DEBUG, this, "launch(Manipulator , File )", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		LauncherData launcherData = manipulator.getLauncherData();
@@ -52,7 +53,7 @@ public class EclipseLauncherImpl {
 
 		if (launcherData.getLauncher() == null)
 			throw new IllegalStateException(Messages.exception_launcherLocationNotSet);
-		String[] cmdarray = new String[] {launcherData.getLauncher().getAbsolutePath()};
+		String[] cmdarray = new String[] { launcherData.getLauncher().getAbsolutePath() };
 		if (cwd == null)
 			cwd = launcherData.getLauncher().getParentFile();
 		Process process = Runtime.getRuntime().exec(cmdarray, null, cwd);

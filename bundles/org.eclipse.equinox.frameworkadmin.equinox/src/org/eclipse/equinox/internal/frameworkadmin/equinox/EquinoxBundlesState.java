@@ -37,16 +37,19 @@ public class EquinoxBundlesState implements BundlesState {
 	private static final String INTERNAL_AMD64 = "amd64"; //$NON-NLS-1$
 	private static final String INTERNAL_ARCH_I386 = "i386"; //$NON-NLS-1$
 	@SuppressWarnings("deprecation")
-	public static final String[] PROPS = {"osgi.os", "osgi.ws", "osgi.nl", "osgi.arch", Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode", Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "osgi.resolveOptional", "osgi.genericAliases"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+	public static final String[] PROPS = { "osgi.os", "osgi.ws", "osgi.nl", "osgi.arch", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode", Constants.FRAMEWORK_EXECUTIONENVIRONMENT, //$NON-NLS-1$
+			"osgi.resolveOptional", "osgi.genericAliases" }; //$NON-NLS-1$ //$NON-NLS-2$
 
 	static boolean checkFullySupported() {
-		//TODO - This was previously doing a bogus check by attempting to instantiate a particular class - it's not clear what this is trying to do
+		// TODO - This was previously doing a bogus check by attempting to instantiate a
+		// particular class - it's not clear what this is trying to do
 		return true;
 	}
 
 	/**
-	 * eclipse.exe will launch a fw where plugins/org.eclipse.osgi_*.*.*.*.jar
-	 * is an implementation of fw.
+	 * eclipse.exe will launch a fw where plugins/org.eclipse.osgi_*.*.*.*.jar is an
+	 * implementation of fw.
 	 * 
 	 * @param launcherData
 	 * @param configData
@@ -86,9 +89,9 @@ public class EquinoxBundlesState implements BundlesState {
 		// check -D arguments of jvmArgs ?
 		String[] jvmArgs = launcherData.getJvmArgs();
 		String location = null;
-		for (int i = 0; i < jvmArgs.length; i++) {
-			if (jvmArgs[i].endsWith("-D" + "osgi.framework=")) { //$NON-NLS-1$ //$NON-NLS-2$
-				location = jvmArgs[i].substring(("-D" + "osgi.framework=").length()); //$NON-NLS-1$ //$NON-NLS-2$
+		for (String jvmArg : jvmArgs) {
+			if (jvmArg.endsWith("-D" + "osgi.framework=")) {//$NON-NLS-1$ //$NON-NLS-2$
+				location = jvmArg.substring(("-D" + "osgi.framework=").length()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		if (location != null) {
@@ -102,22 +105,23 @@ public class EquinoxBundlesState implements BundlesState {
 			}
 		}
 		return null;
-		//		return getSystemBundleBySearching(launcherData);
+		// return getSystemBundleBySearching(launcherData);
 	}
 
 	private static long getMaxId(State state) {
 		BundleDescription[] bundleDescriptions = state.getBundles();
 		long maxId = DEFAULT_TIMESTAMP;
-		for (int i = 0; i < bundleDescriptions.length; i++)
-			if (maxId < bundleDescriptions[i].getBundleId()) {
-				maxId = bundleDescriptions[i].getBundleId();
+		for (BundleDescription bundleDescription : bundleDescriptions) {
+			if (maxId < bundleDescription.getBundleId()) {
+				maxId = bundleDescription.getBundleId();
 			}
+		}
 		return maxId;
 	}
 
 	private static File getSystemBundleFromBundleInfos(BundleInfo[] bundleInfos) {
-		for (int i = 0; i < bundleInfos.length; i++) {
-			File match = isSystemBundle(bundleInfos[i]);
+		for (BundleInfo bundleInfo : bundleInfos) {
+			File match = isSystemBundle(bundleInfo);
 			if (match != null)
 				return match;
 		}
@@ -140,9 +144,11 @@ public class EquinoxBundlesState implements BundlesState {
 		File[] lists = file.listFiles();
 		if (lists == null)
 			return ret;
-		for (int i = 0; i < lists.length; i++)
-			if (ret < lists[i].lastModified())
-				ret = lists[i].lastModified();
+		for (File list : lists) {
+			if (ret < list.lastModified()) {
+				ret = list.lastModified();
+			}
+		}
 		return ret;
 	}
 
@@ -194,11 +200,14 @@ public class EquinoxBundlesState implements BundlesState {
 					arch = org.eclipse.osgi.service.environment.Constants.ARCH_X86_64;
 				else
 					arch = name;
-				platformProperties.setProperty("osgi.arch", arch); //$NON-NLS-1$			
+				platformProperties.setProperty("osgi.arch", arch); //$NON-NLS-1$
 
-				platformProperties.setProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, context.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES));
-				platformProperties.setProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, context.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT));
-				platformProperties.setProperty("osgi.resolveOptional", "" + "true".equals(context.getProperty("osgi.resolveOptional"))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				platformProperties.setProperty(Constants.FRAMEWORK_SYSTEMPACKAGES,
+						context.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES));
+				platformProperties.setProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT,
+						context.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT));
+				platformProperties.setProperty("osgi.resolveOptional", //$NON-NLS-1$
+						"" + "true".equals(context.getProperty("osgi.resolveOptional"))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			} finally {
 				context.ungetService(environmentRef);
 			}
@@ -220,22 +229,23 @@ public class EquinoxBundlesState implements BundlesState {
 	private HashMap<URI, BundleDescription> locationStateIndex = new HashMap<>();
 
 	/**
-	 * Map of String->BundleDescription, where the key is the bundle name
-	 * and version as defined by the {@link #getKey(BundleDescription)} method.
+	 * Map of String->BundleDescription, where the key is the bundle name and
+	 * version as defined by the {@link #getKey(BundleDescription)} method.
 	 */
 	private HashMap<String, BundleDescription> nameVersionStateIndex = new HashMap<>();
 	private final PlatformAdmin platformAdmin;
 
 	/**
-	 * If useFwPersistentData flag equals false, this constructor will not take
-	 * a framework persistent data into account. Otherwise, it will.
+	 * If useFwPersistentData flag equals false, this constructor will not take a
+	 * framework persistent data into account. Otherwise, it will.
 	 * 
 	 * @param context
 	 * @param fwAdmin
 	 * @param manipulator
 	 * @param useFwPersistentData
 	 */
-	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin, boolean useFwPersistentData) {
+	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin,
+			boolean useFwPersistentData) {
 		this.context = context;
 		this.fwAdmin = fwAdmin;
 		this.platformAdmin = admin;
@@ -248,15 +258,16 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	/**
-	 * This constructor does NOT take a framework persistent data into account.
-	 * It will create State object based on the specified platformProperties.
+	 * This constructor does NOT take a framework persistent data into account. It
+	 * will create State object based on the specified platformProperties.
 	 * 
 	 * @param context
 	 * @param fwAdmin
 	 * @param manipulator
 	 * @param platformProperties
 	 */
-	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin, Properties platformProperties) {
+	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin,
+			Properties platformProperties) {
 		super();
 		this.context = context;
 		this.fwAdmin = fwAdmin;
@@ -286,16 +297,17 @@ public class EquinoxBundlesState implements BundlesState {
 
 	/**
 	 * compose new state without reading framework persistent data. The given
-	 * properties is used for the composition. If system bundle is not included
-	 * in the given bInfos, the fw jar launcherData contains will be used.
+	 * properties is used for the composition. If system bundle is not included in
+	 * the given bInfos, the fw jar launcherData contains will be used.
 	 * 
 	 * @param launcherData
 	 * @param configData
 	 * @param properties
 	 * @param bInfos
 	 */
-	private void composeNewState(LauncherData launcherData, ConfigData configData, Properties properties, BundleInfo[] bInfos) {
-		//Note, there use to be a lot more code in this method
+	private void composeNewState(LauncherData launcherData, ConfigData configData, Properties properties,
+			BundleInfo[] bInfos) {
+		// Note, there use to be a lot more code in this method
 		File fwJar = getSystemBundleFromBundleInfos(configData);
 		launcherData.setFwJar(fwJar);
 		this.setFwJar(fwJar);
@@ -313,7 +325,8 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @throws IllegalArgumentException
 	 * @throws FrameworkAdminRuntimeException
 	 */
-	private boolean composeState(BundleInfo[] bInfos, Dictionary<Object, Object> props, File fwPersistentDataLocation) throws IllegalArgumentException, FrameworkAdminRuntimeException {
+	private boolean composeState(BundleInfo[] bInfos, Dictionary<Object, Object> props, File fwPersistentDataLocation)
+			throws IllegalArgumentException, FrameworkAdminRuntimeException {
 		BundleInfo[] infos = manipulator.getConfigData().getBundles();
 		this.manipulator.getConfigData().setBundles(null);
 		SimpleBundlesState.checkAvailability(fwAdmin);
@@ -321,8 +334,10 @@ public class EquinoxBundlesState implements BundlesState {
 		state = null;
 		boolean flagNewState = false;
 		if (fwPersistentDataLocation != null) {
-			//NOTE Here there was a big chunk of code reading the framework state persisted on disk
-			// and I removed it because it was causing various problems. See in previous revision
+			// NOTE Here there was a big chunk of code reading the framework state persisted
+			// on disk
+			// and I removed it because it was causing various problems. See in previous
+			// revision
 			this.manipulator.getConfigData().setBundles(infos);
 			return false;
 		}
@@ -358,7 +373,8 @@ public class EquinoxBundlesState implements BundlesState {
 				newBundleInfos[0] = bInfos[indexSystemBundle];
 				System.arraycopy(bInfos, 0, newBundleInfos, 1, indexSystemBundle);
 				if (indexSystemBundle < bInfos.length - 1)
-					System.arraycopy(bInfos, indexSystemBundle + 1, newBundleInfos, indexSystemBundle + 1, bInfos.length - indexSystemBundle - 1);
+					System.arraycopy(bInfos, indexSystemBundle + 1, newBundleInfos, indexSystemBundle + 1,
+							bInfos.length - indexSystemBundle - 1);
 				bInfos = newBundleInfos;
 			}
 		}
@@ -369,7 +385,7 @@ public class EquinoxBundlesState implements BundlesState {
 				this.installBundle(bInfos[j]);
 				// System.out.println("install bInfos[" + j + "]=" + bInfos[j]);
 			} catch (RuntimeException e) {
-				//catch the exception and continue
+				// catch the exception and continue
 				Log.log(LogService.LOG_ERROR, this, "composeExpectedState()", "BundleInfo:" + bInfos[j], e); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
@@ -402,7 +418,8 @@ public class EquinoxBundlesState implements BundlesState {
 		return createBundleInfo(toConvert, markedAsStarted, sl, location, null);
 	}
 
-	private BundleInfo createBundleInfo(BundleDescription toConvert, boolean markedAsStarted, int sl, URI location, String fragmentHost) {
+	private BundleInfo createBundleInfo(BundleDescription toConvert, boolean markedAsStarted, int sl, URI location,
+			String fragmentHost) {
 		BundleInfo result = new BundleInfo();
 		result.setSymbolicName(toConvert.getSymbolicName());
 		result.setVersion(toConvert.getVersion().toString());
@@ -418,13 +435,14 @@ public class EquinoxBundlesState implements BundlesState {
 	public BundleInfo[] convertState(BundleDescription[] bundles) {
 		BundleInfo[] originalBInfos = manipulator.getConfigData().getBundles();
 		Map<URI, BundleInfo> bundleInfoMap = new HashMap<>();
-		for (int i = 0; i < originalBInfos.length; i++) {
-			bundleInfoMap.put(originalBInfos[i].getLocation(), originalBInfos[i]);
+		for (BundleInfo originalBInfo : originalBInfos) {
+			bundleInfoMap.put(originalBInfo.getLocation(), originalBInfo);
 		}
 
 		BundleInfo[] result = new BundleInfo[bundles.length];
 		for (int i = 0; i < bundles.length; i++) {
-			if (bundles[i].getBundleId() == 0 && EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundles[i].getSymbolicName())) {
+			if (bundles[i].getBundleId() == 0
+					&& EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundles[i].getSymbolicName())) {
 				result[i] = convertSystemBundle(bundles[i]);
 				continue;
 			}
@@ -432,14 +450,16 @@ public class EquinoxBundlesState implements BundlesState {
 			boolean markedAsStarted = false;
 			int sl = BundleInfo.NO_LEVEL;
 
-			//URI location = FileUtils.getEclipseRealLocation(manipulator, bundles[i].getLocation());
-			//TODO: I believe this is always an absolute URI
+			// URI location = FileUtils.getEclipseRealLocation(manipulator,
+			// bundles[i].getLocation());
+			// TODO: I believe this is always an absolute URI
 			URI location;
 			try {
 				location = new URI(bundles[i].getLocation());
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
-				throw new IllegalStateException("BundleDescription conversion problem" + e.getMessage(), e); //$NON-NLS-1$ //TODO path_fun
+				throw new IllegalStateException("BundleDescription conversion problem" + e.getMessage(), e); //$NON-NLS-1$ //TODO
+																												// path_fun
 			}
 			String fragmentHost = null;
 			BundleInfo original = bundleInfoMap.get(location);
@@ -469,17 +489,20 @@ public class EquinoxBundlesState implements BundlesState {
 		URI realLocation = bInfo.getLocation();
 		BundleDescription bundle = getBundleByLocation(realLocation);
 		ImportPackageSpecification[] imports = bundle.getImportPackages();
-		for (int i = 0; i < imports.length; i++) {
-			BaseDescription supplier = imports[i].getSupplier();
+		for (ImportPackageSpecification importspec : imports) {
+			BaseDescription supplier = importspec.getSupplier();
 			if (supplier == null) {
-				if (!imports[i].getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL))
+				if (!importspec.getDirective(Constants.RESOLUTION_DIRECTIVE)
+						.equals(ImportPackageSpecification.RESOLUTION_OPTIONAL)) {
 					throw new IllegalStateException("Internal error: import supplier should not be null"); //$NON-NLS-1$
-			} else
+				}
+			} else {
 				set.add(supplier.getSupplier());
+			}
 		}
 		BundleDescription[] requires = bundle.getResolvedRequires();
-		for (int i = 0; i < requires.length; i++) {
-			set.add(requires[i]);
+		for (BundleDescription require : requires) {
+			set.add(require);
 		}
 		BundleDescription[] bundles = new BundleDescription[set.size()];
 		set.toArray(bundles);
@@ -487,7 +510,8 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	private int getStartLevel(int startLevel) {
-		return (startLevel == BundleInfo.NO_LEVEL ? manipulator.getConfigData().getInitialBundleStartLevel() : startLevel);
+		return (startLevel == BundleInfo.NO_LEVEL ? manipulator.getConfigData().getInitialBundleStartLevel()
+				: startLevel);
 	}
 
 	@Override
@@ -540,7 +564,8 @@ public class EquinoxBundlesState implements BundlesState {
 			composeNewState(launcherData, configData, bInfos);
 		} else {
 			if (manipulator.getLauncherData().getFwPersistentDataLocation() == null) {
-				File installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configData.getProperties(), launcherData);
+				File installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()),
+						configData.getProperties(), launcherData);
 				if (DEBUG)
 					Log.log(LogService.LOG_DEBUG, this, "initialize(useFwPersistentDat)", "installArea=" + installArea); //$NON-NLS-1$ //$NON-NLS-2$
 				if (installArea == null)
@@ -577,7 +602,8 @@ public class EquinoxBundlesState implements BundlesState {
 
 		try {
 			bInfo.setBundleId(++maxId);
-			BundleDescription newBundleDescription = soFactory.createBundleDescription(state, manifest, realLocation.toString(), bInfo.getBundleId());
+			BundleDescription newBundleDescription = soFactory.createBundleDescription(state, manifest,
+					realLocation.toString(), bInfo.getBundleId());
 			addBundleToState(newBundleDescription);
 			manipulator.getConfigData().addBundle(bInfo);
 		} catch (BundleException e) {
@@ -644,8 +670,8 @@ public class EquinoxBundlesState implements BundlesState {
 
 		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
-			for (int i = 0; i < PROPS.length; i++) {
-				if (key.equals(PROPS[i])) {
+			for (String property : PROPS) {
+				if (key.equals(property)) {
 					platformProperties.put(key, props.get(key));
 					break;
 				}
@@ -667,24 +693,26 @@ public class EquinoxBundlesState implements BundlesState {
 			return null;
 		StringBuilder sb = new StringBuilder();
 		BundleDescription[] bundleDescriptions = state.getBundles();
-		for (int i = 0; i < bundleDescriptions.length; i++) {
-			sb.append(bundleDescriptions[i].getBundleId() + ":"); //$NON-NLS-1$
-			sb.append(bundleDescriptions[i].toString() + "("); //$NON-NLS-1$
-			sb.append(bundleDescriptions[i].isResolved() + ")"); //$NON-NLS-1$
-			String[] ees = bundleDescriptions[i].getExecutionEnvironments();
-			for (int j = 0; j < ees.length; j++)
-				sb.append(ees[j] + " "); //$NON-NLS-1$
+		for (BundleDescription bundleDescription : bundleDescriptions) {
+			sb.append(bundleDescription.getBundleId() + ":"); //$NON-NLS-1$
+			sb.append(bundleDescription.toString() + "("); //$NON-NLS-1$
+			sb.append(bundleDescription.isResolved() + ")"); //$NON-NLS-1$
+			String[] ees = bundleDescription.getExecutionEnvironments();
+			for (String ee : ees) {
+				sb.append(ee + " "); //$NON-NLS-1$
+				// $NON-NLS-1$
+			}
 			sb.append("\n"); //$NON-NLS-1$
 		}
 		sb.append("PlatformProperties:\n"); //$NON-NLS-1$
 		@SuppressWarnings("rawtypes")
 		Dictionary[] dics = state.getPlatformProperties();
-		for (int i = 0; i < dics.length; i++) {
+		for (Dictionary dic : dics) {
 			// don't disable this warning because it will cause build-time warning.
 			// see bug 423628 and 423625.
-			for (Enumeration<String> enumeration = dics[i].keys(); enumeration.hasMoreElements();) {
+			for (Enumeration<String> enumeration = dic.keys(); enumeration.hasMoreElements();) {
 				String key = enumeration.nextElement();
-				String value = (String) dics[i].get(key);
+				String value = (String) dic.get(key);
 				sb.append(" (" + key + "," + value + ")\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
@@ -705,10 +733,12 @@ public class EquinoxBundlesState implements BundlesState {
 			try {
 				Dictionary<String, String> manifest = Utils.getOSGiManifest(bInfo.getLocation());
 				if (manifest == null) {
-					Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", NLS.bind(Messages.exception_bundleManifest, bInfo.getLocation())); //$NON-NLS-1$
+					Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", //$NON-NLS-1$
+							NLS.bind(Messages.exception_bundleManifest, bInfo.getLocation()));
 					return;
 				}
-				BundleDescription bundleDescription = soFactory.createBundleDescription(state, manifest, realLocation.toString(), id);
+				BundleDescription bundleDescription = soFactory.createBundleDescription(state, manifest,
+						realLocation.toString(), id);
 				removeBundleFromState(bundleDescription);
 				manipulator.getConfigData().removeBundle(bInfo);
 			} catch (BundleException e) {
@@ -728,8 +758,8 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	/**
-	 * Returns a key for a bundle description containing the bundle name and version,
-	 * for use in the name/version state index map.
+	 * Returns a key for a bundle description containing the bundle name and
+	 * version, for use in the name/version state index map.
 	 */
 	private String getKey(BundleDescription bundle) {
 		return bundle.getSymbolicName() + ';' + bundle.getVersion();
@@ -737,10 +767,10 @@ public class EquinoxBundlesState implements BundlesState {
 
 	private void createStateIndexes() {
 		BundleDescription[] currentInstalledBundles = state.getBundles();
-		for (int i = 0; i < currentInstalledBundles.length; i++) {
-			URI location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation());
-			locationStateIndex.put(location, currentInstalledBundles[i]);
-			nameVersionStateIndex.put(getKey(currentInstalledBundles[i]), currentInstalledBundles[i]);
+		for (BundleDescription currentInstalledBundle : currentInstalledBundles) {
+			URI location = FileUtils.getRealLocation(manipulator, currentInstalledBundle.getLocation());
+			locationStateIndex.put(location, currentInstalledBundle);
+			nameVersionStateIndex.put(getKey(currentInstalledBundle), currentInstalledBundle);
 		}
 	}
 

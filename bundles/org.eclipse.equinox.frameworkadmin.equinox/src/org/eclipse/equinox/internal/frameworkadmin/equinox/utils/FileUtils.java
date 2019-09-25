@@ -145,28 +145,25 @@ public class FileUtils {
 		File result = null;
 		Version maxVersion = null;
 
-		for (int i = 0; i < candidates.length; i++) {
-			String candidateName = candidates[i].getName();
+		for (File candidate : candidates) {
+			String candidateName = candidate.getName();
 			if (!candidateName.startsWith(pluginName))
 				continue;
-
 			if (candidateName.length() > pluginName.length() && candidateName.charAt(pluginName.length()) != '_') {
 				// allow jar file with no _version tacked on the end
-				if (!candidates[i].isFile() || (candidateName.length() != 4 + pluginName.length()) || !candidateName.endsWith(".jar")) //$NON-NLS-1$
+				if (!candidate.isFile() || (candidateName.length() != 4 + pluginName.length()) || !candidateName.endsWith(".jar")) {
 					continue;
+				}
 			}
-
 			String candidateVersion = ""; //$NON-NLS-1$
 			if (candidateName.length() > pluginName.length() + 1 && candidateName.charAt(pluginName.length()) == '_')
 				candidateVersion = candidateName.substring(pluginName.length() + 1);
-
 			Version currentVersion = getVersion(candidateVersion);
 			if (currentVersion == null)
 				continue;
-
 			if (maxVersion == null || maxVersion.compareTo(currentVersion) < 0) {
 				maxVersion = currentVersion;
-				result = candidates[i];
+				result = candidate;
 			}
 		}
 		return result != null ? result.getAbsoluteFile().toURI() : null;

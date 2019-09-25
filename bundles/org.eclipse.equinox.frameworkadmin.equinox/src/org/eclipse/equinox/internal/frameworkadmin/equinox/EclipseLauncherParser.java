@@ -156,8 +156,7 @@ public class EclipseLauncherParser {
 	private void getJVMArgs(List<String> lines, LauncherData launcherData) {
 		ArrayList<String> vmargs = new ArrayList<>(lines.size());
 		boolean foundVmArgs = false;
-		for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
-			String line = iterator.next();
+		for (String line : lines) {
 			if (!foundVmArgs) {
 				if (EquinoxConstants.OPTION_VMARGS.equals(line))
 					foundVmArgs = true;
@@ -176,15 +175,14 @@ public class EclipseLauncherParser {
 			return;
 		String[] args = launcherData.getJvmArgs();
 		lines.add(EquinoxConstants.OPTION_VMARGS);
-		for (int i = 0; i < args.length; i++) {
-			lines.add(args[i]);
+		for (String arg : args) {
+			lines.add(arg);
 		}
 	}
 
 	private void getProgramArgs(List<String> lines, LauncherData launcherData) {
 		ArrayList<String> args = new ArrayList<>(lines.size());
-		for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
-			String line = iterator.next();
+		for (String line : lines) {
 			if (EquinoxConstants.OPTION_VMARGS.equals(line))
 				break;
 			args.add(line);

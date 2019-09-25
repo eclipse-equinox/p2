@@ -99,16 +99,16 @@ public class EquinoxFwConfigFileParser {
 
 		BundleInfo[] fwExtensions = parseBundleList(manipulator, props.getProperty(EquinoxConstants.PROP_FW_EXTENSIONS));
 		if (fwExtensions != null) {
-			for (int i = 0; i < fwExtensions.length; i++) {
-				fwExtensions[i].setFragmentHost(Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
-				configData.addBundle(fwExtensions[i]);
+			for (BundleInfo fwExtension : fwExtensions) {
+				fwExtension.setFragmentHost(Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
+				configData.addBundle(fwExtension);
 			}
 		}
 
 		BundleInfo[] bundles = parseBundleList(manipulator, props.getProperty(EquinoxConstants.PROP_BUNDLES));
 		if (bundles != null) {
-			for (int i = 0; i < bundles.length; i++) {
-				configData.addBundle(bundles[i]);
+			for (BundleInfo bundle : bundles) {
+				configData.addBundle(bundle);
 			}
 		}
 	}
@@ -119,10 +119,9 @@ public class EquinoxFwConfigFileParser {
 
 		List<BundleInfo> bundles = new ArrayList<>();
 		String[] bInfoStrings = Utils.getTokens(value, ","); //$NON-NLS-1$
-		for (int i = 0; i < bInfoStrings.length; i++) {
-			String entry = bInfoStrings[i].trim();
+		for (String bInfoString : bInfoStrings) {
+			String entry = bInfoString.trim();
 			entry = FileUtils.removeEquinoxSpecificProtocols(entry);
-
 			int indexStartInfo = entry.indexOf('@');
 			String location = (indexStartInfo == -1) ? entry : entry.substring(0, indexStartInfo);
 			URI realLocation = null;
@@ -136,10 +135,8 @@ public class EquinoxFwConfigFileParser {
 				}
 			}
 			String slAndFlag = (indexStartInfo > -1) ? entry.substring(indexStartInfo + 1) : null;
-
 			boolean markedAsStarted = getMarkedAsStartedFormat(slAndFlag);
 			int startLevel = getStartLevel(slAndFlag);
-
 			if (realLocation != null) {
 				bundles.add(new BundleInfo(realLocation, startLevel, markedAsStarted));
 				continue;
@@ -151,7 +148,6 @@ public class EquinoxFwConfigFileParser {
 				} catch (URISyntaxException e) {
 					//Ignore
 				}
-
 			//Fallback case, we use the location as a string
 			bundles.add(new BundleInfo(location, null, null, startLevel, markedAsStarted));
 		}
@@ -161,9 +157,7 @@ public class EquinoxFwConfigFileParser {
 	private void writeBundlesList(File fwJar, Properties props, BundleInfo[] bundles) {
 		StringBuilder osgiBundlesList = new StringBuilder();
 		StringBuilder osgiFrameworkExtensionsList = new StringBuilder();
-		for (int j = 0; j < bundles.length; j++) {
-			BundleInfo bundle = bundles[j];
-
+		for (BundleInfo bundle : bundles) {
 			//framework jar does not get stored on the bundle list, figure out who that is.
 			if (fwJar != null) {
 				if (URIUtil.sameURI(fwJar.toURI(), bundle.getLocation()))
@@ -586,12 +580,13 @@ public class EquinoxFwConfigFileParser {
 
 	private void canonicalizePathsForComparison(StringBuffer s) {
 		final String[] tokens = new String[] {"\\\\", "\\", "//", "/"}; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-		for (int t = 0; t < tokens.length; t++) {
+		for (String token : tokens) {
 			int idx = s.length();
 			for (int i = s.length(); i != 0 && idx != -1; i--) {
-				idx = s.toString().lastIndexOf(tokens[t], idx);
-				if (idx != -1)
-					s.replace(idx, idx + tokens[t].length(), "^"); //$NON-NLS-1$
+				idx = s.toString().lastIndexOf(token, idx);
+				if (idx != -1) {
+					s.replace(idx, idx + token.length(), "^"); //$NON-NLS-1$
+				}
 			}
 		}
 	}
