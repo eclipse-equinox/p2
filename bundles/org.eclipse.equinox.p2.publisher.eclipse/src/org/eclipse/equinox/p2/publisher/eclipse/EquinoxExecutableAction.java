@@ -191,8 +191,9 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		if (!Constants.OS_WIN32.equals(os)) {
 			// We are on linux/unix.  by default set all of the files to be executable.
 			File[] fileList = execDescriptor.getFiles();
-			for (int i = 0; i < fileList.length; i++)
-				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + fileList[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
+			for (File fileList1 : fileList) {
+				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + fileList1.getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -273,8 +274,9 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 
 	protected void partialBrandExecutables(ExecutablesDescriptor descriptor) {
 		File[] list = descriptor.getFiles();
-		for (int i = 0; i < list.length; i++)
-			mungeExecutableFileName(list[i], descriptor);
+		for (File list1 : list) {
+			mungeExecutableFileName(list1, descriptor);
+		}
 		descriptor.setExecutableName("eclipse", true); //$NON-NLS-1$
 	}
 

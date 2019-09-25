@@ -323,15 +323,14 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 					filteredKeys[2] = os + "." + arch; //$NON-NLS-1$
 				}
 			}
-			for (int i = 0; i < filteredKeys.length; i++) {
-				if (filteredKeys[i] != null) {
+			for (String filteredKey : filteredKeys) {
+				if (filteredKey != null) {
 					// copy all mappings that are filtered for this os and/or arch
-					HashMap<String, String> innerMap = filteredProperties.get(filteredKeys[i]);
+					HashMap<String, String> innerMap = filteredProperties.get(filteredKey);
 					if (innerMap != null) {
 						result.putAll(innerMap);
 					}
 				}
-
 			}
 		}
 		if (application != null && !result.containsKey(PROPERTY_ECLIPSE_APPLICATION))

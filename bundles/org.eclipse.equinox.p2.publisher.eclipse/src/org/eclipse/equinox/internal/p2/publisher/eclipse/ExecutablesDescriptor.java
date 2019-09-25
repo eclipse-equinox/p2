@@ -133,8 +133,9 @@ public class ExecutablesDescriptor {
 			this.files = new HashSet<>(11);
 		else {
 			this.files = new HashSet<>(files.length);
-			for (int i = 0; i < files.length; i++)
-				addAllFiles(files[i]);
+			for (File file : files) {
+				addAllFiles(file);
+			}
 		}
 	}
 
@@ -152,8 +153,9 @@ public class ExecutablesDescriptor {
 		else {
 			File absolute = file.isAbsolute() ? file : new File(location, file.getPath());
 			File[] list = absolute.listFiles();
-			for (int i = 0; i < list.length; i++)
-				addAllFiles(list[i]);
+			for (File list1 : list) {
+				addAllFiles(list1);
+			}
 		}
 	}
 

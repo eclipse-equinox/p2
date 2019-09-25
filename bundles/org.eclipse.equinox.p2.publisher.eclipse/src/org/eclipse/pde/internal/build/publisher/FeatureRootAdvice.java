@@ -78,8 +78,8 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 
 	public void addPermissions(String config, String permissions, String[] files) {
 		FileSetDescriptor descriptor = getDescriptor(config);
-		for (int i = 0; i < files.length; i++) {
-			descriptor.addPermissions(new String[] {permissions, files[i]});
+		for (String file : files) {
+			descriptor.addPermissions(new String[]{permissions, file});
 		}
 	}
 

@@ -144,9 +144,10 @@ public class BrandingIron {
 		if (brandIcons) {
 			File icon = null;
 			if (icons.length > 0) {
-				for (int i = 0; i < icons.length; i++) {
-					if (icons[i].toLowerCase().endsWith(".xpm")) { //$NON-NLS-1$
-						icon = new File(icons[i]);
+				for (String icon1 : icons) {
+					if (icon1.toLowerCase().endsWith(".xpm")) {
+						//$NON-NLS-1$
+						icon = new File(icon1);
 						break;
 					}
 				}
@@ -165,9 +166,7 @@ public class BrandingIron {
 			return;
 
 		File root = descriptor.getLocation();
-		for (int i = 0; i < icons.length; i++) {
-			String icon = icons[i];
-
+		for (String icon : icons) {
 			int iconNameLength = icon.length();
 			if (iconNameLength < 5)
 				continue;
@@ -209,9 +208,10 @@ public class BrandingIron {
 		String iconName = ""; //$NON-NLS-1$
 		if (brandIcons) {
 			File icon = null;
-			for (int i = 0; i < icons.length; i++) {
-				if (icons[i].toLowerCase().endsWith(".icns")) { //$NON-NLS-1$
-					icon = new File(icons[i]);
+			for (String icon1 : icons) {
+				if (icon1.toLowerCase().endsWith(".icns")) {
+					//$NON-NLS-1$
+					icon = new File(icon1);
 					if (icon.exists()) {
 						break;
 					}
@@ -333,13 +333,14 @@ public class BrandingIron {
 		if (source.isDirectory()) {
 			target.mkdirs();
 			File[] contents = source.listFiles();
-			for (int i = 0; i < contents.length; i++) {
-				File dest = new File(target, contents[i].getName());
-				if (contents[i].isFile()) {
-					contents[i].renameTo(dest);
-					descriptor.replace(contents[i], dest);
-				} else
-					moveContents(descriptor, contents[i], dest);
+			for (File content : contents) {
+				File dest = new File(target, content.getName());
+				if (content.isFile()) {
+					content.renameTo(dest);
+					descriptor.replace(content, dest);
+				} else {
+					moveContents(descriptor, content, dest);
+				}
 			}
 			source.delete();
 		} else {
@@ -563,11 +564,12 @@ public class BrandingIron {
 
 	private int scan(StringBuffer buf, int start, String[] targets) {
 		for (int i = start; i < buf.length(); i++) {
-			for (int j = 0; j < targets.length; j++) {
-				if (i < buf.length() - targets[j].length()) {
-					String match = buf.substring(i, i + targets[j].length());
-					if (targets[j].equalsIgnoreCase(match))
+			for (String target : targets) {
+				if (i < buf.length() - target.length()) {
+					String match = buf.substring(i, i + target.length());
+					if (target.equalsIgnoreCase(match)) {
 						return i;
+					}
 				}
 			}
 		}

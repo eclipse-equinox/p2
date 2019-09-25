@@ -52,8 +52,8 @@ public class GatheringComputer implements IPathComputer {
 	}
 
 	public void addFiles(String prefix, String[] files) {
-		for (int i = 0; i < files.length; i++) {
-			filesMap.put(new File(prefix, files[i]), prefix);
+		for (String file : files) {
+			filesMap.put(new File(prefix, file), prefix);
 		}
 	}
 

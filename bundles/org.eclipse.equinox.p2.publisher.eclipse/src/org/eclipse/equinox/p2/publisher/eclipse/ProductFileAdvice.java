@@ -204,10 +204,9 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		Map<String, List<BundleInfo>> unboundedBundles = new HashMap<>();
 
 		BundleInfo[] bundles = data.getBundles();
-		for (int i = 0; i < bundles.length; i++) {
+		for (BundleInfo bundleInfo : bundles) {
 			// For each bundle we know about, cache it.  If the bundle doesn't have a version
 			// add it to a list of bundles by name
-			BundleInfo bundleInfo = bundles[i];
 			if (bundleInfo.getVersion().equals(BundleInfo.EMPTY_VERSION)) {
 				addUnboundedBundle(unboundedBundles, bundleInfo);
 			} else {

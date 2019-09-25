@@ -77,8 +77,8 @@ public class IconExe {
 			try {
 				//An ICO should contain 7 images, a BMP will contain 1
 				ImageData[] current = loader.load(args[i]);
-				for (int j = 0; j < current.length; j++) {
-					images.add(current[j]);
+				for (ImageData id : current) {
+					images.add(id);
 				}
 			} catch (RuntimeException e) {
 				//ignore so that we process the other images
@@ -291,15 +291,15 @@ public class IconExe {
 			imageResourceDirectoryEntries[i] = new IMAGE_RESOURCE_DIRECTORY_ENTRY();
 			read(raf, imageResourceDirectoryEntries[i]);
 		}
-		for (int i = 0; i < imageResourceDirectoryEntries.length; i++) {
-			if (imageResourceDirectoryEntries[i].DataIsDirectory) {
-				dumpResourceDirectory(raf, imageResourceDirectoryEntries[i].OffsetToDirectory + resourceBase, resourceBase, delta, imageResourceDirectoryEntries[i].Id, level + 1, rt_icon_root ? true : type == RT_ICON);
+		for (IMAGE_RESOURCE_DIRECTORY_ENTRY imageResourceDirectoryEntry : imageResourceDirectoryEntries) {
+			if (imageResourceDirectoryEntry.DataIsDirectory) {
+				dumpResourceDirectory(raf, imageResourceDirectoryEntry.OffsetToDirectory + resourceBase, resourceBase, delta, imageResourceDirectoryEntry.Id, level + 1, rt_icon_root ? true : type == RT_ICON);
 			} else {
 				// Resource found
 				/// pResDirEntry->Name
-				IMAGE_RESOURCE_DIRECTORY_ENTRY irde = imageResourceDirectoryEntries[i];
+				IMAGE_RESOURCE_DIRECTORY_ENTRY irde = imageResourceDirectoryEntry;
 				IMAGE_RESOURCE_DATA_ENTRY data = new IMAGE_RESOURCE_DATA_ENTRY();
-				raf.seek(imageResourceDirectoryEntries[i].OffsetToData + resourceBase);
+				raf.seek(imageResourceDirectoryEntry.OffsetToData + resourceBase);
 				read(raf, data);
 				if (DEBUG)
 					System.out.println("Resource Id " + irde.Id + " Data Offset RVA " + data.OffsetToData + ", Size " + data.Size); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

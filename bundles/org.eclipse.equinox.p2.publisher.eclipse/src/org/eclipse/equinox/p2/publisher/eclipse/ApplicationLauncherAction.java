@@ -134,9 +134,9 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 
 	protected Collection<IPublisherAction> createExecutablesActions(String[] configs) {
 		Collection<IPublisherAction> actions = new ArrayList<>(configs.length);
-		for (int i = 0; i < configs.length; i++) {
-			ExecutablesDescriptor executables = computeExecutables(configs[i]);
-			IPublisherAction action = new EquinoxExecutableAction(executables, configs[i], id, version, flavor);
+		for (String config : configs) {
+			ExecutablesDescriptor executables = computeExecutables(config);
+			IPublisherAction action = new EquinoxExecutableAction(executables, config, id, version, flavor);
 			actions.add(action);
 		}
 		return actions;

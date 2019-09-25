@@ -101,10 +101,10 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		// we have N platforms, generate a CU for each
 		// TODO try and find common properties across platforms
 		String[] configSpecs = publisherInfo.getConfigurations();
-		for (int i = 0; i < configSpecs.length; i++) {
+		for (String configSpec1 : configSpecs) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			String configSpec = configSpecs[i];
+			String configSpec = configSpec1;
 			Collection<IConfigAdvice> configAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IConfigAdvice.class);
 			BundleInfo[] bundles = fillInBundles(configAdvice, results);
 			publishBundleCUs(publisherInfo, bundles, configSpec, innerResult);
@@ -144,17 +144,14 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			}
 
 			BundleInfo[] bundles = advice.getBundles();
-			for (int i = 0; i < bundles.length; i++) {
-				BundleInfo bundleInfo = bundles[i];
-
+			for (BundleInfo bundleInfo : bundles) {
 				if (bundleInfo.getStartLevel() != BundleInfo.NO_LEVEL && bundleInfo.getStartLevel() == defaultStart) {
 					bundleInfo.setStartLevel(BundleInfo.NO_LEVEL);
 				}
-
 				// prime the result with the current info.  This will be replaced if there is more info...
-				if ((bundleInfo.getSymbolicName() != null && bundleInfo.getVersion() != null) || bundleInfo.getLocation() == null)
-					result.add(bundles[i]);
-				else {
+				if ((bundleInfo.getSymbolicName() != null && bundleInfo.getVersion() != null) || bundleInfo.getLocation() == null) {
+					result.add(bundleInfo);
+				} else {
 					try {
 						File location = new File(bundleInfo.getLocation());
 						Dictionary<String, String> manifest = BundlesAction.loadManifestIgnoringExceptions(location);
@@ -300,14 +297,15 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		Set<String> programSet = new HashSet<>();
 		for (IExecutableAdvice advice : launchingAdvice) {
 			String[] jvmArgs = advice.getVMArguments();
-			for (int i = 0; i < jvmArgs.length; i++)
-				if (shouldPublishJvmArg(jvmArgs[i]) && !jvmSet.contains(jvmArgs[i])) {
-					jvmSet.add(jvmArgs[i]);
+			for (String jvmArg : jvmArgs) {
+				if (shouldPublishJvmArg(jvmArg) && !jvmSet.contains(jvmArg)) {
+					jvmSet.add(jvmArg);
 					touchpointParameters.clear();
-					touchpointParameters.put("jvmArg", jvmArgs[i]); //$NON-NLS-1$
+					touchpointParameters.put("jvmArg", jvmArg); //$NON-NLS-1$
 					configurationData += TouchpointInstruction.encodeAction("addJvmArg", touchpointParameters); //$NON-NLS-1$
 					unconfigurationData += TouchpointInstruction.encodeAction("removeJvmArg", touchpointParameters); //$NON-NLS-1$
 				}
+			}
 			String[] programArgs = advice.getProgramArguments();
 			for (int i = 0; i < programArgs.length; i++)
 				if (shouldPublishProgramArg(programArgs[i]) && !programSet.contains(programArgs[i])) {
@@ -341,17 +339,14 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			filter = createFilterSpec(configSpec);
 		}
 
-		for (int i = 0; i < bundles.length; i++) {
-			GeneratorBundleInfo bundle = createGeneratorBundleInfo(bundles[i], result);
+		for (BundleInfo bundle1 : bundles) {
+			GeneratorBundleInfo bundle = createGeneratorBundleInfo(bundle1, result);
 			if (bundle == null)
 				continue;
-
 			IInstallableUnit iu = bundle.getIU();
-
 			// If there is no host, or the filters don't match, skip this one.
 			if (iu == null || !filterMatches(iu.getFilter(), configSpec))
 				continue;
-
 			// TODO need to factor this out into its own action
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
@@ -362,13 +357,11 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 				// this bundle does not require any particular configuration, the plug-in default IU will handle installing it
 				continue;
 			}
-
 			IInstallableUnit cu = null;
 			if (this.version != null && !this.version.equals(Version.emptyVersion))
 				cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), this.version, false, bundle, flavor + cuIdPrefix, filter);
 			else
 				cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.parseVersion(bundle.getVersion()), false, bundle, flavor + cuIdPrefix, filter);
-
 			if (cu != null) {
 				// Product Query will run against the repo, make sure these CUs are in before then
 				// TODO review the aggressive addition to the metadata repo.  perhaps the query can query the result as well.

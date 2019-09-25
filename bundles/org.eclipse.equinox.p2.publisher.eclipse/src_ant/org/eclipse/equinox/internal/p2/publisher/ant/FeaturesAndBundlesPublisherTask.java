@@ -59,8 +59,8 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 				DirectoryScanner scanner = set.getDirectoryScanner(getProject());
 				String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
 				for (int i = 0; i < 2; i++) {
-					for (int j = 0; j < elements[i].length; j++) {
-						results.add(new File(set.getDir(), elements[i][j]));
+					for (String element : elements[i]) {
+						results.add(new File(set.getDir(), element));
 					}
 				}
 			} else if (obj instanceof File) {

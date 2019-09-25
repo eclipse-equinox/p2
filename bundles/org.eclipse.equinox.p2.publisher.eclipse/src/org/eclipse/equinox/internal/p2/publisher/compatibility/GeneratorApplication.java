@@ -131,8 +131,7 @@ public class GeneratorApplication implements IApplication {
 
 	private String[] flattenMap(Map<String, String> map) {
 		ArrayList<String> list = new ArrayList<>(map.size());
-		for (Iterator<String> iterator = map.keySet().iterator(); iterator.hasNext();) {
-			String key = iterator.next();
+		for (String key : map.keySet()) {
 			String value = map.get(key);
 			list.add(key);
 			if (value != null)

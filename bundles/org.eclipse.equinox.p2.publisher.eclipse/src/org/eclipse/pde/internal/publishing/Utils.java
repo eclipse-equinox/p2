@@ -70,9 +70,10 @@ public final class Utils {
 		if (classpath.length == 0)
 			return false;
 
-		for (int i = 0; i < classpath.length; i++) {
-			if (classpath[i].equals(".")) //$NON-NLS-1$
+		for (String classpath1 : classpath) {
+			if (classpath1.equals(".")) {
 				return false;
+			}
 		}
 		return true;
 	}

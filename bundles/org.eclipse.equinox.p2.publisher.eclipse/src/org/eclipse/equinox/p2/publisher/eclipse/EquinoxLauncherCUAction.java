@@ -60,8 +60,7 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 	 */
 	private void publishLauncherFragmentCUs(IPublisherResult results) {
 		String id = null;
-		for (int i = 0; i < configSpecs.length; i++) {
-			String configSpec = configSpecs[i];
+		for (String configSpec : configSpecs) {
 			String[] specs = Utils.getTokens(configSpec, "."); //$NON-NLS-1$
 			if (specs.length > 0 && !AbstractPublisherAction.CONFIG_ANY.equalsIgnoreCase(specs[0])) {
 				if (specs.length > 2 && Constants.OS_MACOSX.equals(specs[1]) && !Constants.ARCH_X86_64.equals(specs[2])) {

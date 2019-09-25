@@ -142,10 +142,10 @@ public class ProductAction extends AbstractPublisherAction {
 		publisherResults = results;
 		finalStatus = new MultiStatus(Activator.ID, 0, NLS.bind(Messages.message_problemPublishingProduct, product.getId()), null);
 		IPublisherAction[] actions = createActions(results);
-		for (int i = 0; i < actions.length; i++) {
+		for (IPublisherAction action : actions) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			finalStatus.merge(actions[i].perform(publisherInfo, results, monitor));
+			finalStatus.merge(action.perform(publisherInfo, results, monitor));
 		}
 		if (!finalStatus.isOK())
 			return finalStatus;
@@ -210,8 +210,9 @@ public class ProductAction extends AbstractPublisherAction {
 			name = product.getId();
 
 		String[] configSpecs = info.getConfigurations();
-		for (int i = 0; i < configSpecs.length; i++)
-			info.addAdvice(new ProductFileAdvice(product, configSpecs[i]));
+		for (String configSpec : configSpecs) {
+			info.addAdvice(new ProductFileAdvice(product, configSpec));
+		}
 	}
 
 	private Collection<IVersionedId> versionElements(Collection<IVersionedId> elements, String namespace) {

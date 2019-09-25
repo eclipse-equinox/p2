@@ -184,8 +184,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 */
 	private void createBundleShapeAdvice(Feature feature, IPublisherInfo publisherInfo) {
 		FeatureEntry entries[] = feature.getEntries();
-		for (int i = 0; i < entries.length; i++) {
-			FeatureEntry entry = entries[i];
+		for (FeatureEntry entry : entries) {
 			if (entry.isUnpack() && entry.isPlugin() && !entry.isRequires())
 				publisherInfo.addAdvice(new BundleShapeAdvice(entry.getId(), Version.parseVersion(entry.getVersion()), IBundleShapeAdvice.DIR));
 		}
@@ -246,10 +245,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		FeatureEntry entries[] = feature.getEntries();
 		List<IRequirement> required = new ArrayList<>(entries.length + (childIUs == null ? 0 : childIUs.size()));
-		for (int i = 0; i < entries.length; i++) {
-			VersionRange range = getVersionRange(entries[i]);
-			String requiredId = getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true);
-			required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, requiredId, range, getFilter(entries[i]), entries[i].isOptional(), false));
+		for (FeatureEntry entry : entries) {
+			VersionRange range = getVersionRange(entry);
+			String requiredId = getTransformedId(entry.getId(), entry.isPlugin(), /*isGroup*/true);
+			required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, requiredId, range, getFilter(entry), entry.isOptional(), false));
 		}
 
 		// link in all the children (if any) as requirements.
@@ -321,18 +320,18 @@ public class FeaturesAction extends AbstractPublisherAction {
 		ArrayList<IRequirement> applicabilityScope = new ArrayList<>();
 		ArrayList<IRequirement> patchRequirements = new ArrayList<>();
 		ArrayList<IRequirementChange> requirementChanges = new ArrayList<>();
-		for (int i = 0; i < entries.length; i++) {
-			VersionRange range = getVersionRange(entries[i]);
-			IRequirement req = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
-			if (entries[i].isRequires()) {
+		for (FeatureEntry entry : entries) {
+			VersionRange range = getVersionRange(entry);
+			IRequirement req = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entry.getId(), entry.isPlugin(), /*isGroup*/true), range, getFilter(entry), entry.isOptional(), false);
+			if (entry.isRequires()) {
 				applicabilityScope.add(req);
 				if (applicabilityScope.size() == 1) {
-					iu.setLifeCycle(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, null, false, false, false));
+					iu.setLifeCycle(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entry.getId(), entry.isPlugin(), /*isGroup*/true), range, null, false, false, false));
 				}
 				continue;
 			}
-			if (entries[i].isPlugin()) {
-				IRequirement from = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
+			if (entry.isPlugin()) {
+				IRequirement from = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entry.getId(), entry.isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entry), entry.isOptional(), false);
 				requirementChanges.add(MetadataFactory.createRequirementChange(from, req));
 				continue;
 			}
@@ -390,8 +389,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	private void expandLocations(File[] list, ArrayList<File> result) {
 		if (list == null)
 			return;
-		for (int i = 0; i < list.length; i++) {
-			File location = list[i];
+		for (File location : list) {
 			if (location.isDirectory()) {
 				// if the location is itself a feature, just add it.  Otherwise r down
 				if (new File(location, "feature.xml").exists()) //$NON-NLS-1$
@@ -406,8 +404,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 	protected void generateFeatureIUs(Feature[] featureList, IPublisherResult result) {
 		// Build Feature IUs, and add them to any corresponding categories
-		for (int i = 0; i < featureList.length; i++) {
-			Feature feature = featureList[i];
+		for (Feature feature : featureList) {
 			//first gather any advice that might help us
 			createBundleShapeAdvice(feature, info);
 			createAdviceFileAdvice(feature, info);
@@ -453,9 +450,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		IFeatureRootAdvice advice = collection.iterator().next();
 		String[] configs = advice.getConfigurations();
-		for (int i = 0; i < configs.length; i++) {
-			String config = configs[i];
-
+		for (String config : configs) {
 			FileSetDescriptor descriptor = advice.getDescriptor(config);
 			if (descriptor != null && descriptor.size() > 0) {
 				IInstallableUnit iu = createFeatureRootFileIU(feature.getId(), feature.getVersion(), null, descriptor);
@@ -512,18 +507,19 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (updateURL != null)
 			generateSiteReference(updateURL.getURL(), updateURL.getAnnotation(), feature.getId(), collector);
 		URLEntry[] discoverySites = feature.getDiscoverySites();
-		for (int i = 0; i < discoverySites.length; i++)
-			generateSiteReference(discoverySites[i].getURL(), discoverySites[i].getAnnotation(), feature.getId(), collector);
+		for (URLEntry discoverySite : discoverySites) {
+			generateSiteReference(discoverySite.getURL(), discoverySite.getAnnotation(), feature.getId(), collector);
+		}
 		if (!collector.isEmpty())
 			publisherInfo.getMetadataRepository().addReferences(collector);
 	}
 
 	protected Feature[] getFeatures(File[] featureLocations) {
 		ArrayList<Feature> result = new ArrayList<>(featureLocations.length);
-		for (int i = 0; i < featureLocations.length; i++) {
-			Feature feature = new FeatureParser().parse(featureLocations[i]);
+		for (File featureLocation : featureLocations) {
+			Feature feature = new FeatureParser().parse(featureLocation);
 			if (feature != null) {
-				feature.setLocation(featureLocations[i].getAbsolutePath());
+				feature.setLocation(featureLocation.getAbsolutePath());
 				result.add(feature);
 			}
 		}
@@ -594,9 +590,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 	private boolean isPatch(Feature feature) {
 		FeatureEntry[] entries = feature.getEntries();
-		for (int i = 0; i < entries.length; i++) {
-			if (entries[i].isPatch())
+		for (FeatureEntry entry : entries) {
+			if (entry.isPatch()) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -659,8 +656,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	private void setupPermissions(InstallableUnitDescription iu, FileSetDescriptor descriptor) {
 		Map<String, String> touchpointData = new HashMap<>();
 		String[][] permsList = descriptor.getPermissions();
-		for (int i = 0; i < permsList.length; i++) {
-			String[] permSpec = permsList[i];
+		for (String[] permSpec : permsList) {
 			String configurationData = " chmod(targetDir:${installFolder}, targetFile:" + permSpec[1] + ", permissions:" + permSpec[0] + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			touchpointData.put("install", configurationData); //$NON-NLS-1$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
