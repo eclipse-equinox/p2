@@ -55,9 +55,9 @@ public class BlockMacUpdate extends ProvisioningAction {
 		if (bundles == null)
 			return null;
 		//Return the first bundle that is not installed or uninstalled
-		for (int i = 0; i < bundles.length; i++) {
-			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
-				return bundles[i].getVersion();
+		for (Bundle bundle : bundles) {
+			if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
+				return bundle.getVersion();
 			}
 		}
 		return null;

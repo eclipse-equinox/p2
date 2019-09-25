@@ -289,8 +289,9 @@ public class NativePackageExtractionApplication implements IApplication {
 
 		if (status.isMultiStatus()) {
 			IStatus[] children = status.getChildren();
-			for (int i = 0; i < children.length; i++)
-				deeplyPrint(children[i], strm, level + 1);
+			for (IStatus child : children) {
+				deeplyPrint(child, strm, level + 1);
+			}
 		}
 	}
 

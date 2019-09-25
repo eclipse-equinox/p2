@@ -82,8 +82,9 @@ public class CopyAction extends ProvisioningAction {
 		}
 		// keep copied file in the profile as memento for CleanupCopy
 		StringBuffer copiedFileNameBuffer = new StringBuffer();
-		for (int i = 0; i < copiedFiles.length; i++)
-			copiedFileNameBuffer.append(copiedFiles[i].getAbsolutePath()).append(ActionConstants.PIPE);
+		for (File copiedFile : copiedFiles) {
+			copiedFileNameBuffer.append(copiedFile.getAbsolutePath()).append(ActionConstants.PIPE);
+		}
 
 		profile.setInstallableUnitProperty(iu, "copied" + ActionConstants.PIPE + originalSource + ActionConstants.PIPE + target, copiedFileNameBuffer.toString()); //$NON-NLS-1$
 
@@ -135,8 +136,9 @@ public class CopyAction extends ProvisioningAction {
 			File[] children = source.listFiles();
 			if (children == null)
 				throw new IOException("Error while retrieving children of directory: " + source); //$NON-NLS-1$
-			for (int i = 0; i < children.length; i++)
-				xcopy(copiedFiles, children[i], new File(target, children[i].getName()), overwrite, backupStore);
+			for (File child : children) {
+				xcopy(copiedFiles, child, new File(target, child.getName()), overwrite, backupStore);
+			}
 			return;
 		}
 		if (target.exists() && !overwrite)

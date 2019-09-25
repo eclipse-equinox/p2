@@ -193,8 +193,9 @@ public class ChmodAction extends ProvisioningAction {
 			int i = 0;
 			args[i++] = "chmod"; //$NON-NLS-1$
 			if (options != null) {
-				for (int j = 0; j < options.length; j++)
-					args[i++] = options[j];
+				for (String option : options) {
+					args[i++] = option;
+				}
 			}
 			args[i++] = perms;
 			args[i] = fileToChmod;

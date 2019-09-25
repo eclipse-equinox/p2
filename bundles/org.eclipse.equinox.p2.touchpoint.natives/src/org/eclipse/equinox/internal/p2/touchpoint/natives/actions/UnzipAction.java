@@ -83,8 +83,9 @@ public class UnzipAction extends ProvisioningAction {
 		result = new Value<>(filesAsString);
 
 		StringBuffer unzippedFileNameBuffer = new StringBuffer();
-		for (int i = 0; i < unzippedFiles.length; i++)
-			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append(ActionConstants.PIPE);
+		for (File unzippedFile : unzippedFiles) {
+			unzippedFileNameBuffer.append(unzippedFile.getAbsolutePath()).append(ActionConstants.PIPE);
+		}
 
 		profile.setInstallableUnitProperty(iu, "unzipped" + ActionConstants.PIPE + originalSource + ActionConstants.PIPE + target, unzippedFileNameBuffer.toString()); //$NON-NLS-1$
 
