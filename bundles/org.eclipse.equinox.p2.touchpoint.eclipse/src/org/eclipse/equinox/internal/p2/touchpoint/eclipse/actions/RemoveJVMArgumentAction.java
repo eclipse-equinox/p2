@@ -105,9 +105,11 @@ public class RemoveJVMArgumentAction extends ProvisioningAction {
 		else {
 			// Build a comma separated list of values for this flag
 			String argString = ""; //$NON-NLS-1$
-			for (int i = 0; i < args.length; i++)
-				if (args[i] != null)
-					argString += args[i] + ',';
+			for (String arg : args) {
+				if (arg != null) {
+					argString += arg + ',';
+				}
+			}
 
 			if (argString.length() > 0)
 				// Strip the trailing comma

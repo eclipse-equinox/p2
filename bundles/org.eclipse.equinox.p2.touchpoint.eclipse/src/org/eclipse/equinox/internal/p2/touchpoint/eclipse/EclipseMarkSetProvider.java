@@ -76,8 +76,8 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		ArrayList<Feature> result = new ArrayList<>();
 		for (Site object : sites) {
 			Feature[] features = object.getFeatures();
-			for (int i = 0; i < features.length; i++) {
-				result.add(features[i]);
+			for (Feature feature : features) {
+				result.add(feature);
 			}
 		}
 		return result;
@@ -127,12 +127,10 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	// Find for each bundle info a corresponding artifact in repo
 	private static List<IArtifactKey> findCorrespondinArtifacts(BundleInfo[] bis, IArtifactRepository repo) {
 		ArrayList<IArtifactKey> toRetain = new ArrayList<>();
-		for (int i = 0; i < bis.length; i++) {
+		for (BundleInfo bi : bis) {
 			// if version is "0.0.0", we will use null to find all versions, see bug 305710
-			Version version = BundleInfo.EMPTY_VERSION.equals(bis[i].getVersion()) ? null
-					: Version.create(bis[i].getVersion());
-			IArtifactKey match = searchArtifact(bis[i].getSymbolicName(), version, ARTIFACT_CLASSIFIER_OSGI_BUNDLE,
-					repo);
+			Version version = BundleInfo.EMPTY_VERSION.equals(bi.getVersion()) ? null : Version.create(bi.getVersion());
+			IArtifactKey match = searchArtifact(bi.getSymbolicName(), version, ARTIFACT_CLASSIFIER_OSGI_BUNDLE, repo);
 			if (match != null)
 				toRetain.add(match);
 		}

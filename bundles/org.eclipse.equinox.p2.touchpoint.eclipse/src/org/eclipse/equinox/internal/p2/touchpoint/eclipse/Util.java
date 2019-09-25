@@ -170,15 +170,15 @@ public class Util {
 	private static void getRunnableRepositories(IArtifactRepositoryManager manager,
 			List<IFileArtifactRepository> bundleRepositories) {
 		URI[] localURLs = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
-		for (int i = 0; i < localURLs.length; i++) {
+		for (URI localURL : localURLs) {
 			try {
-				IArtifactRepository candidate = manager.loadRepository(localURLs[i], new NullProgressMonitor());
+				IArtifactRepository candidate = manager.loadRepository(localURL, new NullProgressMonitor());
 				if (Boolean.parseBoolean(candidate.getProperty(IArtifactRepository.PROP_RUNNABLE))) {
 					if (candidate != null && candidate instanceof IFileArtifactRepository
-							&& !bundleRepositories.contains(candidate))
+						&& !bundleRepositories.contains(candidate))
 						bundleRepositories.add((IFileArtifactRepository) candidate);
 				}
-			} catch (ProvisionException e) {
+			}catch (ProvisionException e) {
 				// skip repositories that could not be read
 			}
 		}

@@ -178,10 +178,11 @@ public class Site {
 			return false;
 		if (one.length != two.length)
 			return false;
-		for (int i = 0; i < one.length; i++) {
+		for (Object one1 : one) {
 			boolean found = false;
-			for (int j = 0; !found && j < two.length; j++)
-				found = one[i].equals(two[j]);
+			for (int j = 0; !found && j < two.length; j++) {
+				found = one1.equals(two[j]);
+			}
 			if (!found)
 				return false;
 		}

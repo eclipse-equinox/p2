@@ -203,8 +203,9 @@ abstract class RepositoryAction extends ProvisioningAction {
 			try {
 				String[] keys = node.keys();
 
-				for (int i = 0; i < keys.length; i++)
-					node.remove(keys[i]);
+				for (String key : keys) {
+					node.remove(key);
+				}
 			} catch (BackingStoreException e) {
 				// TODO: Should this be passed back to be associated with State?
 			}

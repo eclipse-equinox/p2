@@ -215,9 +215,10 @@ public class PlatformConfigurationWrapper {
 		List<Site> sites = configuration.getSites();
 		for (Site site : sites) {
 			Feature[] features = site.getFeatures();
-			for (int i = 0; i < features.length; i++) {
-				if (id.equals(features[i].getId()) && version.equals(features[i].getVersion()))
+			for (Feature feature : features) {
+				if (id.equals(feature.getId()) && version.equals(feature.getVersion())) {
 					return site;
+				}
 			}
 		}
 		return null;

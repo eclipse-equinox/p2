@@ -147,8 +147,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	private static void write(XMLWriter writer, Feature[] features) {
 		if (features == null || features.length == 0)
 			return;
-		for (int i = 0; i < features.length; i++) {
-			Feature feature = features[i];
+		for (Feature feature : features) {
 			Map<String, String> args = new HashMap<>();
 			String value = feature.getId();
 			if (value != null)

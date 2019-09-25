@@ -199,9 +199,11 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 
 	// Get the current used argument if there is one
 	protected static String getCurrentArg(String flag, String[] jvmArgs) {
-		for (int i = 0; i < jvmArgs.length; i++)
-			if (jvmArgs[i] != null && jvmArgs[i].startsWith(flag))
-				return jvmArgs[i];
+		for (String jvmArg : jvmArgs) {
+			if (jvmArg != null && jvmArg.startsWith(flag)) {
+				return jvmArg;
+			}
+		}
 		return null;
 	}
 
