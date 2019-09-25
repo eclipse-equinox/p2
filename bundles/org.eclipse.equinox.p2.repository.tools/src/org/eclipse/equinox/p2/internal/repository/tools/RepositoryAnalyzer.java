@@ -14,15 +14,14 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.p2.repository.tools.analyzer.IIUAnalyzer;
-import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
-
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.tools.analyzer.IIUAnalyzer;
+import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
 /**
  * @since 2.0
@@ -42,18 +41,17 @@ public class RepositoryAnalyzer {
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 2);
 		IConfigurationElement[] config = RegistryFactory.getRegistry().getConfigurationElementsFor(IIUAnalyzer.ID);
 
-		for (int i = 0; i < repositories.length; i++) {
-			IQueryResult<IInstallableUnit> queryResult = repositories[i].query(QueryUtil.createIUAnyQuery(), sub);
-
+		for (IMetadataRepository repository : repositories) {
+			IQueryResult<IInstallableUnit> queryResult = repository.query(QueryUtil.createIUAnyQuery(), sub);
 			SubMonitor repositoryMonitor = SubMonitor.convert(sub, IProgressMonitor.UNKNOWN);
-			for (int j = 0; j < config.length; j++) {
+			for (IConfigurationElement config1 : config) {
 				try {
-					IIUAnalyzer verifier = (IIUAnalyzer) config[j].createExecutableExtension("class"); //$NON-NLS-1$
-					String analyizerName = config[j].getAttribute("name"); //$NON-NLS-1$
+					IIUAnalyzer verifier = (IIUAnalyzer) config1.createExecutableExtension("class"); //$NON-NLS-1$
+					String analyizerName = config1.getAttribute("name"); //$NON-NLS-1$
 					if (verifier instanceof IUAnalyzer) {
 						((IUAnalyzer) verifier).setName(analyizerName);
 					}
-					verifier.preAnalysis(repositories[i]);
+					verifier.preAnalysis(repository);
 					Iterator<IInstallableUnit> iter = queryResult.iterator();
 					while (iter.hasNext()) {
 						IInstallableUnit iu = iter.next();
@@ -67,9 +65,11 @@ public class RepositoryAnalyzer {
 					result.add(postAnalysisResult);
 				} catch (CoreException e) {
 					if (e.getCause() instanceof ClassNotFoundException) {
-						result.add(new Status(IStatus.ERROR, Activator.ID, "Cannot find: " + config[j].getAttribute("class")));
-					} else
+						result.add(new Status(IStatus.ERROR, Activator.ID,
+								"Cannot find: " + config1.getAttribute("class"))); //$NON-NLS-1$ //$NON-NLS-2$
+					} else {
 						e.printStackTrace();
+					}
 				}
 			}
 			repositoryMonitor.done();

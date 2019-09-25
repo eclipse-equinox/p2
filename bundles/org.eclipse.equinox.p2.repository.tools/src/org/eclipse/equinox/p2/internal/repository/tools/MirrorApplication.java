@@ -297,8 +297,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 		if (rootIUs != null) {
 			sourceIUs = new ArrayList<>();
-			for (int i = 0; i < rootIUs.length; i++) {
-				String[] segments = getArrayArgsFromString(rootIUs[i], "/"); //$NON-NLS-1$
+			for (String rootIU : rootIUs) {
+				String[] segments = getArrayArgsFromString(rootIU, "/"); //$NON-NLS-1$
 				VersionRange range = segments.length > 1 ? VersionRange.create(segments[1]) : null;
 				Iterator<IInstallableUnit> queryResult = metadataRepo.query(QueryUtil.createIUQuery(segments[0], range), null).iterator();
 				while (queryResult.hasNext())

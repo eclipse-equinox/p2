@@ -29,8 +29,8 @@ public class TaskHelper {
 				b.append('\n');
 			b.append(status.getMessage());
 		}
-		for (int i = 0; i < nestedStatus.length; i++) {
-			statusToString(nestedStatus[i], severities, b);
+		for (IStatus s : nestedStatus) {
+			statusToString(s, severities, b);
 		}
 		return b;
 	}

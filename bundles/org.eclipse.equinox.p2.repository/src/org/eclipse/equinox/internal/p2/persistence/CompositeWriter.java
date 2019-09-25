@@ -39,8 +39,9 @@ public class CompositeWriter extends XMLWriter implements XMLConstants {
 			return;
 		start(CHILDREN_ELEMENT);
 		attribute(COLLECTION_SIZE_ATTRIBUTE, children.length);
-		for (int i = 0; i < children.length; i++)
-			writeChild(children[i]);
+		for (URI child : children) {
+			writeChild(child);
+		}
 		end(CHILDREN_ELEMENT);
 	}
 

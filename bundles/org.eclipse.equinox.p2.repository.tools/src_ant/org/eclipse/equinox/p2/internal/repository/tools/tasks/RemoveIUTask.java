@@ -91,9 +91,9 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 								artifacts.removeDescriptor(key, new NullProgressMonitor());
 							} else {
 								IArtifactDescriptor[] descriptors = artifacts.getArtifactDescriptors(key);
-								for (int j = 0; j < descriptors.length; j++) {
-									if (filter.match(createDictionary(descriptors[j]))) {
-										artifacts.removeDescriptor(descriptors[j], new NullProgressMonitor());
+								for (IArtifactDescriptor descriptor : descriptors) {
+									if (filter.match(createDictionary(descriptor))) {
+										artifacts.removeDescriptor(descriptor, new NullProgressMonitor());
 									} else {
 										removeMetadata = false;
 									}

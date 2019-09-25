@@ -152,10 +152,9 @@ public abstract class AbstractRepositoryTask extends Task {
 				DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
 				String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
 				for (int i = 0; i < 2; i++) {
-					for (int j = 0; j < elements[i].length; j++) {
-						File file = new File(fileset.getDir(), elements[i][j]);
+					for (String element : elements[i]) {
+						File file = new File(fileset.getDir(), element);
 						URI uri = file.toURI();
-
 						if (file.isFile() && file.getName().endsWith(".zip")) { //$NON-NLS-1$
 							uri = URIUtil.toJarURI(uri, null);
 						}

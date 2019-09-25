@@ -71,8 +71,8 @@ public class XMLWriter implements XMLConstants {
 		this.open = false;
 		this.indent = "  "; //$NON-NLS-1$
 		if (piElements != null) {
-			for (int i = 0; i < piElements.length; i++) {
-				println(piElements[i].toString());
+			for (ProcessingInstruction piElement : piElements) {
+				println(piElement.toString());
 			}
 		}
 	}

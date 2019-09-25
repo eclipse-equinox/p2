@@ -53,8 +53,9 @@ public class AntMirrorLog implements IArtifactMirrorLog {
 		// Log any children of this status
 		IStatus[] nestedStatus = status.getChildren();
 		if (nestedStatus != null)
-			for (int i = 0; i < nestedStatus.length; i++)
-				log(nestedStatus[i]);
+			for (IStatus s : nestedStatus) {
+				log(s);
+			}
 	}
 
 	@Override

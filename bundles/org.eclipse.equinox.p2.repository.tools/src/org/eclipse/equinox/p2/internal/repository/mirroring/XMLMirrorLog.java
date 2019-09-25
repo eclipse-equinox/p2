@@ -117,8 +117,9 @@ public class XMLMirrorLog implements IArtifactMirrorLog {
 		// Log children statuses
 		IStatus[] nestedStatus = status.getChildren();
 		if (nestedStatus != null)
-			for (int i = 0; i < nestedStatus.length; i++)
-				log(nestedStatus[i]);
+			for (IStatus s : nestedStatus) {
+				log(s);
+		}
 
 		// Close status tag
 		if (writer != null)

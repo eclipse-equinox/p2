@@ -274,11 +274,11 @@ public class CacheManager {
 	void deleteCache(URI repositoryLocation) {
 		for (String prefix : knownPrefixes) {
 			File[] cacheFiles = getCacheFiles(repositoryLocation, prefix);
-			for (int i = 0; i < cacheFiles.length; i++) {
+			for (File cacheFile : cacheFiles) {
 				// delete the cache file if it exists
-				safeDelete(cacheFiles[i]);
+				safeDelete(cacheFile);
 				// delete a resumable download if it exists
-				safeDelete(new File(new File(cacheFiles[i].getParentFile(), DOWNLOADING), cacheFiles[i].getName()));
+				safeDelete(new File(new File(cacheFile.getParentFile(), DOWNLOADING), cacheFile.getName()));
 			}
 		}
 	}

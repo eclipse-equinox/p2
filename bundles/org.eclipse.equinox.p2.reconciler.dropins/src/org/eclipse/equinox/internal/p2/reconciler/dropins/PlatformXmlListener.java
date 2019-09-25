@@ -47,21 +47,22 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	private String toString(Feature[] features, String[] list) {
 		StringBuilder buffer = new StringBuilder();
 		if (features != null) {
-			for (int i = 0; i < features.length; i++) {
-				String featureURL = features[i].getUrl();
-				if (featureURL != null)
+			for (Feature feature : features) {
+				String featureURL = feature.getUrl();
+				if (featureURL != null) {
 					buffer.append(featureURL).append(',');
-				else {
-					String id = features[i].getId();
-					String version = features[i].getVersion();
+				} else {
+					String id = feature.getId();
+					String version = feature.getVersion();
 					if (id != null && version != null)
 						buffer.append("features/" + id + "_" + version + "/,"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$					
 				}
 			}
 		}
 		if (list != null) {
-			for (int i = 0; i < list.length; i++)
-				buffer.append(list[i]).append(',');
+			for (String list1 : list) {
+				buffer.append(list1).append(',');
+			}
 		}
 		if (buffer.length() == 0)
 			return ""; //$NON-NLS-1$
@@ -239,8 +240,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					} catch (ProvisionException ex) {
 						IArtifactRepository artifactRepository = Activator.loadArtifactRepository(location, null);
 						// set the repository properties here in case they have changed since the last time we loaded
-						for (Iterator<String> inner = properties.keySet().iterator(); inner.hasNext();) {
-							String key = inner.next();
+						for (String key : properties.keySet()) {
 							String value = properties.get(key);
 							artifactRepository.setProperty(key, value);
 						}

@@ -110,8 +110,8 @@ public class Mirroring {
 		while (keys.hasNext()) {
 			IArtifactKey key = keys.next();
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(key);
-			for (int j = 0; j < descriptors.length; j++) {
-				IStatus result = mirror(descriptors[j], verbose);
+			for (IArtifactDescriptor descriptor : descriptors) {
+				IStatus result = mirror(descriptor, verbose);
 				//Only log INFO and WARNING if we want verbose logging. Always log ERRORs
 				if (!result.isOK() && (verbose || result.getSeverity() == IStatus.ERROR))
 					multiStatus.add(result);
@@ -242,9 +242,10 @@ public class Mirroring {
 			return null;
 
 		IArtifactDescriptor[] baselineDescriptors = baseline.getArtifactDescriptors(descriptor.getArtifactKey());
-		for (int i = 0; i < baselineDescriptors.length; i++) {
-			if (baselineDescriptors[i].equals(descriptor))
-				return baselineDescriptors[i];
+		for (IArtifactDescriptor baselineDescriptor : baselineDescriptors) {
+			if (baselineDescriptor.equals(descriptor)) {
+				return baselineDescriptor;
+			}
 		}
 		return null;
 	}

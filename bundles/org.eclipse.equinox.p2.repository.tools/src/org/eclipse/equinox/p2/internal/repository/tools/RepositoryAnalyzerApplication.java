@@ -45,16 +45,17 @@ public class RepositoryAnalyzerApplication implements IApplication {
 			System.out.println("Repository Analyzer Finished succesfuly in " + time + " ms.");
 		else
 			System.out.println("Repository Analyzer Finished in " + time + " ms with status with errors.");
-		for (int i = 0; i < children.length; i++) {
-			if (children[i].isOK())
+		for (IStatus child : children) {
+			if (child.isOK()) {
 				System.out.print("[OK] ");
-			else
+			} else {
 				System.out.print("[Error] ");
-			System.out.println(children[i].getMessage());
-			if (children[i].isMultiStatus() && children[i].getChildren() != null && children[i].getChildren().length > 0) {
-				IStatus[] subChildren = children[i].getChildren();
-				for (int j = 0; j < subChildren.length; j++) {
-					System.out.println("   " + subChildren[j].getMessage());
+			}
+			System.out.println(child.getMessage());
+			if (child.isMultiStatus() && child.getChildren() != null && child.getChildren().length > 0) {
+				IStatus[] subChildren = child.getChildren();
+				for (IStatus subChild : subChildren) {
+					System.out.println("   " + subChild.getMessage());
 				}
 			}
 		}
