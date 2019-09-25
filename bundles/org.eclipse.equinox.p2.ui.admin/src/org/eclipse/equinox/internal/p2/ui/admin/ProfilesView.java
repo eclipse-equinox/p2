@@ -59,9 +59,10 @@ public class ProfilesView extends ProvView {
 		public void run() {
 			Object[] selections = getSelection().toArray();
 			List<String> profilesOnly = new ArrayList<>();
-			for (int i = 0; i < selections.length; i++) {
-				if (selections[i] instanceof ProfileElement)
-					profilesOnly.add(((ProfileElement) selections[i]).getProfileId());
+			for (Object selection : selections) {
+				if (selection instanceof ProfileElement) {
+					profilesOnly.add(((ProfileElement) selection).getProfileId());
+				}
 			}
 			RemoveProfilesJob op = new RemoveProfilesJob(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, getProvisioningUI().getSession(), profilesOnly.toArray(new String[profilesOnly.size()]));
 			ProfilesView.this.run(op);
@@ -171,8 +172,8 @@ public class ProfilesView extends ProvView {
 		Object[] selectionArray = ss.toArray();
 		if (selectionArray.length > 0) {
 			removeProfileAction.setEnabled(true);
-			for (int i = 0; i < selectionArray.length; i++) {
-				IProfile profile = ProvUI.getAdapter(selectionArray[i], IProfile.class);
+			for (Object selectionArray1 : selectionArray) {
+				IProfile profile = ProvUI.getAdapter(selectionArray1, IProfile.class);
 				if (profile == null) {
 					removeProfileAction.setEnabled(false);
 					break;

@@ -56,8 +56,8 @@ public class MetadataRepositoryTracker extends RepositoryTracker {
 	public void removeRepositories(URI[] repoLocations, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
 		try {
-			for (int i = 0; i < repoLocations.length; i++) {
-				getMetadataRepositoryManager().removeRepository(repoLocations[i]);
+			for (URI repoLocation : repoLocations) {
+				getMetadataRepositoryManager().removeRepository(repoLocation);
 			}
 		} finally {
 			ui.signalRepositoryOperationComplete(null, true);
@@ -68,10 +68,10 @@ public class MetadataRepositoryTracker extends RepositoryTracker {
 	public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
 		ui.signalRepositoryOperationStart();
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
-		for (int i = 0; i < locations.length; i++) {
+		for (URI location : locations) {
 			try {
-				getMetadataRepositoryManager().refreshRepository(locations[i], mon.newChild(100));
-			} catch (ProvisionException e) {
+				getMetadataRepositoryManager().refreshRepository(location, mon.newChild(100));
+			}catch (ProvisionException e) {
 				//ignore problematic repositories when refreshing
 			}
 		}

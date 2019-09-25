@@ -211,8 +211,9 @@ public abstract class RepositoryStatusHelper {
 
 		if (status.isMultiStatus()) {
 			IStatus[] children = status.getChildren();
-			for (int i = 0; i < children.length; i++)
-				deeplyPrint(children[i], strm, stackTrace, level + 1);
+			for (IStatus child : children) {
+				deeplyPrint(child, strm, stackTrace, level + 1);
+			}
 		}
 	}
 

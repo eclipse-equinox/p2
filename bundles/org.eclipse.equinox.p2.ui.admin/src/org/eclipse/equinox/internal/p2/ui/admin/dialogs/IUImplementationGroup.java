@@ -231,8 +231,8 @@ public class IUImplementationGroup extends IUGroup {
 	void copySelectionsToClipboard(List list) {
 		StringBuffer buffer = new StringBuffer();
 		String[] selections = list.getSelection();
-		for (int i = 0; i < selections.length; i++) {
-			buffer.append(selections[i]);
+		for (String selection : selections) {
+			buffer.append(selection);
 			buffer.append("\n"); //$NON-NLS-1$
 		}
 		Clipboard clipboard = new Clipboard(list.getDisplay());

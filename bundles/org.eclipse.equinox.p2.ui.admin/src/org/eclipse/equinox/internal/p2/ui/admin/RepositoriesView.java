@@ -59,9 +59,10 @@ abstract class RepositoriesView extends ProvView {
 			RepositoryTracker tracker = RepositoriesView.this.getRepositoryTracker();
 			Object[] elements = getSelection().toArray();
 			ArrayList<URI> uris = new ArrayList<>(elements.length);
-			for (int i = 0; i < elements.length; i++) {
-				if (elements[i] instanceof IRepositoryElement<?>)
-					uris.add(((IRepositoryElement<?>) elements[i]).getLocation());
+			for (Object element : elements) {
+				if (element instanceof IRepositoryElement<?>) {
+					uris.add(((IRepositoryElement<?>) element).getLocation());
+				}
 			}
 			tracker.removeRepositories(uris.toArray(new URI[uris.size()]), RepositoriesView.this.getProvisioningUI().getSession());
 		}
@@ -79,9 +80,11 @@ abstract class RepositoriesView extends ProvView {
 		public void run() {
 			Object[] elements = ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput());
 			ArrayList<URI> urls = new ArrayList<>();
-			for (int i = 0; i < elements.length; i++)
-				if (elements[i] instanceof IRepositoryElement<?>)
-					urls.add(((IRepositoryElement<?>) elements[i]).getLocation());
+			for (Object element : elements) {
+				if (element instanceof IRepositoryElement<?>) {
+					urls.add(((IRepositoryElement<?>) element).getLocation());
+				}
+			}
 			openAddRepositoryDialog(getShell());
 		}
 	}
@@ -174,8 +177,8 @@ abstract class RepositoriesView extends ProvView {
 		propertiesAction.setEnabled(selection.size() == 1 && ((ProvUI.getAdapter(selection.getFirstElement(), IInstallableUnit.class) != null) || (isRepository(selection.getFirstElement()))));
 		boolean enabled = false;
 		Object[] selectionArray = selection.toArray();
-		for (int i = 0; i < selectionArray.length; i++) {
-			if (!isRepository(selectionArray[i])) {
+		for (Object selectionArray1 : selectionArray) {
+			if (!isRepository(selectionArray1)) {
 				enabled = false;
 				break;
 			}

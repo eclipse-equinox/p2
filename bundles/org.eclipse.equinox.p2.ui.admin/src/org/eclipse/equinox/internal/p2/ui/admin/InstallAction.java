@@ -49,10 +49,11 @@ public class InstallAction extends ProfileModificationAction {
 		// We allow non-IU's to be selected at this point, but there
 		// must be at least one installable unit selected that is
 		// selectable
-		for (int i = 0; i < selectionArray.length; i++) {
-			if (selectionArray[i] instanceof InstalledIUElement && isSelectable((IIUElement) selectionArray[i]))
+		for (Object selectionArray1 : selectionArray) {
+			if (selectionArray1 instanceof InstalledIUElement && isSelectable((IIUElement) selectionArray1)) {
 				return true;
-			IInstallableUnit iu = ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
+			}
+			IInstallableUnit iu = ProvUI.getAdapter(selectionArray1, IInstallableUnit.class);
 			if (iu != null && isSelectable(iu))
 				return true;
 		}

@@ -32,8 +32,8 @@ public class RemoveProfilesJob extends ProvisioningJob {
 
 	@Override
 	public IStatus runModal(IProgressMonitor monitor) {
-		for (int i = 0; i < profileIds.length; i++) {
-			ProvAdminUIActivator.getDefault().getProfileRegistry().removeProfile(profileIds[i]);
+		for (String profileId : profileIds) {
+			ProvAdminUIActivator.getDefault().getProfileRegistry().removeProfile(profileId);
 		}
 		return Status.OK_STATUS;
 

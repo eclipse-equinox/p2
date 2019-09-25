@@ -133,9 +133,9 @@ public class RepositoryImplementationPropertyPage extends PropertyPage {
 			Map<String, String> repoProperties = getRepositoryElement().getRepository(null).getProperties();
 			if (repoProperties != null) {
 				String[] propNames = repoProperties.keySet().toArray(new String[repoProperties.size()]);
-				for (int i = 0; i < propNames.length; i++) {
+				for (String propName : propNames) {
 					TableItem item = new TableItem(propertiesTable, SWT.NULL);
-					item.setText(new String[] {propNames[i], repoProperties.get(propNames[i]).toString()});
+					item.setText(new String[]{propName, repoProperties.get(propName).toString()});
 				}
 			}
 		}

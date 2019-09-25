@@ -102,8 +102,8 @@ public class AddProfileDialog extends StatusDialog {
 			return false;
 		}
 
-		for (int i = 0; i < knownProfileIds.length; i++) {
-			if (knownProfileIds[i].equals(profileGroup.getProfileId())) {
+		for (String knownProfileId : knownProfileIds) {
+			if (knownProfileId.equals(profileGroup.getProfileId())) {
 				setOkEnablement(false);
 				this.updateStatus(new Status(IStatus.ERROR, ProvAdminUIActivator.PLUGIN_ID, IStatus.OK, ProvAdminUIMessages.AddProfileDialog_DuplicateProfileID, null));
 				return true;

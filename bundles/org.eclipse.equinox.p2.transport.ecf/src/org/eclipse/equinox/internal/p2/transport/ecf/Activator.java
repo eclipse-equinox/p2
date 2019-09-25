@@ -158,14 +158,14 @@ public class Activator implements BundleActivator {
 
 		Bundle[] bundles = packageAdmin.getBundles(bundleId, null);
 		if (bundles != null && bundles.length > 0) {
-			for (int i = 0; i < bundles.length; i++) {
+			for (Bundle bundle : bundles) {
 				try {
-					if ((bundles[i].getState() & Bundle.INSTALLED) == 0) {
-						bundles[i].start(Bundle.START_ACTIVATION_POLICY);
-						bundles[i].start(Bundle.START_TRANSIENT);
+					if ((bundle.getState() & Bundle.INSTALLED) == 0) {
+						bundle.start(Bundle.START_ACTIVATION_POLICY);
+						bundle.start(Bundle.START_TRANSIENT);
 						return true;
 					}
-				} catch (BundleException e) {
+				}catch (BundleException e) {
 					// failed, try next bundle
 				}
 			}
