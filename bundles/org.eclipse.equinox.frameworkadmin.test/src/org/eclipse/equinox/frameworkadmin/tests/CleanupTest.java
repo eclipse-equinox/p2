@@ -37,9 +37,10 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 
 	public void testSimpleConfiguratorRemoval() {
 		BundleInfo[] bis = m.getConfigData().getBundles();
-		for (int i = 0; i < bis.length; i++) {
-			if (bis[i].getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator"))
-				m.getConfigData().removeBundle(bis[i]);
+		for (BundleInfo bi : bis) {
+			if (bi.getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator")) {
+				m.getConfigData().removeBundle(bi);
+			}
 		}
 		try {
 			m.save(false);
@@ -51,9 +52,10 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 
 		//Now remove osgi
 		bis = m.getConfigData().getBundles();
-		for (int i = 0; i < bis.length; i++) {
-			if (bis[i].getSymbolicName().equals("org.eclipse.osgi"))
-				m.getConfigData().removeBundle(bis[i]);
+		for (BundleInfo bi : bis) {
+			if (bi.getSymbolicName().equals("org.eclipse.osgi")) {
+				m.getConfigData().removeBundle(bi);
+			}
 		}
 		try {
 			m.save(false);
@@ -66,9 +68,10 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 
 	public void testOSGiRemoval() {
 		BundleInfo[] bis = m.getConfigData().getBundles();
-		for (int i = 0; i < bis.length; i++) {
-			if (bis[i].getSymbolicName().equals("org.eclipse.osgi"))
-				m.getConfigData().removeBundle(bis[i]);
+		for (BundleInfo bi : bis) {
+			if (bi.getSymbolicName().equals("org.eclipse.osgi")) {
+				m.getConfigData().removeBundle(bi);
+			}
 		}
 		try {
 			m.save(false);
@@ -80,9 +83,10 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 		assertNotContent(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator/bundles.info"), "org.eclipse.osgi");
 
 		bis = m.getConfigData().getBundles();
-		for (int i = 0; i < bis.length; i++) {
-			if (bis[i].getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator"))
-				m.getConfigData().removeBundle(bis[i]);
+		for (BundleInfo bi : bis) {
+			if (bi.getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator")) {
+				m.getConfigData().removeBundle(bi);
+			}
 		}
 		try {
 			m.save(false);
@@ -99,9 +103,10 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 		m.save(false);
 
 		BundleInfo[] bis = m.getConfigData().getBundles();
-		for (int i = 0; i < bis.length; i++) {
-			if (bis[i].getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator"))
-				m.getConfigData().removeBundle(bis[i]);
+		for (BundleInfo bi1 : bis) {
+			if (bi1.getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator")) {
+				m.getConfigData().removeBundle(bi1);
+			}
 		}
 		m.save(false);
 

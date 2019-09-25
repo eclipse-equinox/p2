@@ -70,8 +70,8 @@ public class RemovingAllBundles extends AbstractFwkAdminTest {
 		}
 
 		BundleInfo[] infos = m2.getConfigData().getBundles();
-		for (int i = 0; i < infos.length; i++) {
-			m2.getConfigData().removeBundle(infos[i]);
+		for (BundleInfo info : infos) {
+			m2.getConfigData().removeBundle(info);
 		}
 		m2.save(false);
 

@@ -41,9 +41,10 @@ public class SimpleConfiguratorComingAndGoing extends FwkAdminAndSimpleConfigura
 		m.save(false);
 
 		BundleInfo[] bis = m.getConfigData().getBundles();
-		for (int i = 0; i < bis.length; i++) {
-			if (bis[i].getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator"))
-				m.getConfigData().removeBundle(bis[i]);
+		for (BundleInfo bi1 : bis) {
+			if (bi1.getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator")) {
+				m.getConfigData().removeBundle(bi1);
+			}
 		}
 		m.save(false);
 

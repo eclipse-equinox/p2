@@ -39,9 +39,9 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 	public void testRemovalUsingSameManipulator() throws IllegalStateException, FrameworkAdminRuntimeException, IOException {
 		BundleInfo[] infos = defaultManipulator.getConfigData().getBundles();
 		BundleInfo osgi = null;
-		for (int i = 0; i < infos.length; i++) {
-			if ("org.eclipse.osgi".equals(infos[i].getSymbolicName())) {
-				osgi = infos[i];
+		for (BundleInfo info : infos) {
+			if ("org.eclipse.osgi".equals(info.getSymbolicName())) {
+				osgi = info;
 				break;
 			}
 		}
@@ -55,9 +55,9 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		Manipulator newManipulator = getNewManipulator(workArea);
 		BundleInfo[] infos = newManipulator.getConfigData().getBundles();
 		BundleInfo osgi = null;
-		for (int i = 0; i < infos.length; i++) {
-			if ("org.eclipse.osgi".equals(infos[i].getSymbolicName())) {
-				osgi = infos[i];
+		for (BundleInfo info : infos) {
+			if ("org.eclipse.osgi".equals(info.getSymbolicName())) {
+				osgi = info;
 				break;
 			}
 		}
@@ -70,9 +70,9 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 	public void testAdditionUsingOtherManipulator() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
 		BundleInfo[] infos = defaultManipulator.getConfigData().getBundles();
 		BundleInfo osgi = null;
-		for (int i = 0; i < infos.length; i++) {
-			if ("org.eclipse.osgi".equals(infos[i].getSymbolicName())) {
-				osgi = infos[i];
+		for (BundleInfo info : infos) {
+			if ("org.eclipse.osgi".equals(info.getSymbolicName())) {
+				osgi = info;
 				break;
 			}
 		}
@@ -90,9 +90,9 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 	public void testChangeVersion() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, URISyntaxException {
 		BundleInfo[] infos = defaultManipulator.getConfigData().getBundles();
 		BundleInfo osgi = null;
-		for (int i = 0; i < infos.length; i++) {
-			if ("org.eclipse.osgi".equals(infos[i].getSymbolicName())) {
-				osgi = infos[i];
+		for (BundleInfo info : infos) {
+			if ("org.eclipse.osgi".equals(info.getSymbolicName())) {
+				osgi = info;
 				break;
 			}
 		}
@@ -113,9 +113,9 @@ public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 		//First Create a configuration that does not contain OSGi
 		BundleInfo[] infos = defaultManipulator.getConfigData().getBundles();
 		BundleInfo osgi = null;
-		for (int i = 0; i < infos.length; i++) {
-			if ("org.eclipse.osgi".equals(infos[i].getSymbolicName())) {
-				osgi = infos[i];
+		for (BundleInfo info : infos) {
+			if ("org.eclipse.osgi".equals(info.getSymbolicName())) {
+				osgi = info;
 				break;
 			}
 		}

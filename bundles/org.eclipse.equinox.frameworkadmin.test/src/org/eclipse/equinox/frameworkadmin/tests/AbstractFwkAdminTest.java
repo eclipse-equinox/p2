@@ -16,6 +16,7 @@ package org.eclipse.equinox.frameworkadmin.tests;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import junit.framework.TestCase;
@@ -69,8 +70,9 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			return true;
 		if (file.isDirectory()) {
 			File[] children = file.listFiles();
-			for (int i = 0; i < children.length; i++)
-				delete(children[i]);
+			for (File child : children) {
+				delete(child);
+			}
 		}
 		return file.delete();
 	}
@@ -238,7 +240,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		if (array1 == null || array2 == null) {
 			if (array1 == array2)
 				return;
-			fail(array1 + " not equal to " + array2);
+			fail(Arrays.toString(array1) + " not equal to " + Arrays.toString(array2));
 		}
 		assertEquals(array1.length, array2.length);
 		for (int i = 0; i < array1.length; i++) {
@@ -313,8 +315,9 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			if (!target.exists())
 				target.mkdirs();
 			File[] children = source.listFiles();
-			for (int i = 0; i < children.length; i++)
-				copy(message, children[i], new File(target, children[i].getName()));
+			for (File child : children) {
+				copy(message, child, new File(target, child.getName()));
+			}
 			return;
 		}
 		try (InputStream input = new BufferedInputStream(new FileInputStream(source)); 
@@ -368,8 +371,8 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		location.getParentFile().mkdirs();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(location))){
 			
-			for (int j = 0; j < lines.length; j++) {
-				bw.write(lines[j]);
+			for (String line : lines) {
+				bw.write(line);
 				bw.newLine();
 			}
 			bw.flush();
@@ -400,9 +403,10 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 	}
 
 	public void assertContains(String message, BundleInfo[] bundles, URI location) {
-		for (int i = 0; i < bundles.length; i++) {
-			if (bundles[i].getLocation().equals(location))
+		for (BundleInfo bundle : bundles) {
+			if (bundle.getLocation().equals(location)) {
 				return;
+			}
 		}
 		fail(message + " Can't find the bundle info " + location);
 	}

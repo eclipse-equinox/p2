@@ -36,13 +36,13 @@ public class TestRunningInstance extends AbstractFwkAdminTest {
 		Bundle[] bundles = Activator.getContext().getBundles();
 		
 		assertEquals(bundles.length, infos.length);
-		for (int i = 0; i < bundles.length; i++) {
+		for (Bundle bundle : bundles) {
 			boolean found = false;
 			for (int j = 0; j < infos.length && found == false; j++) {
-				found = same(infos[j], bundles[i]);
+				found = same(infos[j], bundle);
 			}
 			if (found == false) {
-				fail("Can't find: " + bundles[i]);
+				fail("Can't find: " + bundle);
 			}
 		}
 	}
