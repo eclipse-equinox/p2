@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,9 @@ import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.phases.CertificateChecker;
 import org.eclipse.equinox.p2.core.UIServices;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
 
 /**
  * Tests for {@link CertificateChecker}.
@@ -66,7 +68,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 		} catch (IOException e) {
 			fail("0.99", e);
 		}
-		assertTrue("1.0", unsigned != null);
+		assertNotNull("1.0", unsigned);
 		assertTrue("1.0", unsigned.exists());
 	}
 
