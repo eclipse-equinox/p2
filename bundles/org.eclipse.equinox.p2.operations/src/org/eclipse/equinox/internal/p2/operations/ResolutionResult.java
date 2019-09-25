@@ -81,8 +81,8 @@ public class ResolutionResult {
 	// Answers null if there is nothing to say about the ius
 	public String getDetailedReport(IInstallableUnit[] ius) {
 		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < ius.length; i++) {
-			MultiStatus iuStatus = iuToStatusMap.get(ius[i]);
+		for (IInstallableUnit iu : ius) {
+			MultiStatus iuStatus = iuToStatusMap.get(iu);
 			if (iuStatus != null)
 				appendDetailText(iuStatus, buffer, 0, true);
 		}
@@ -123,10 +123,10 @@ public class ResolutionResult {
 		}
 		// Now print the children status info (if there are children)
 		IStatus[] children = status.getChildren();
-		for (int i = 0; i < children.length; i++) {
+		for (IStatus child : children) {
 			if (buffer.length() > 0)
 				buffer.append('\n');
-			appendDetailText(children[i], buffer, indent + 1, true);
+			appendDetailText(child, buffer, indent + 1, true);
 		}
 	}
 }

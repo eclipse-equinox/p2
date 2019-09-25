@@ -79,8 +79,9 @@ public class PlanAnalyzer {
 		if (nothingToDo(originalRequest)) {
 			report.addSummaryStatus(getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null));
 			IStatus[] details = originalStatus.getChildren();
-			for (int i = 0; i < details.length; i++)
-				report.addSummaryStatus(details[i]);
+			for (IStatus detail : details) {
+				report.addSummaryStatus(detail);
+			}
 			return report;
 		}
 

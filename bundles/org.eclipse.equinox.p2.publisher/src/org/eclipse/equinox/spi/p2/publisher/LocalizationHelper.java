@@ -70,8 +70,7 @@ public final class LocalizationHelper {
 
 		if (localizationFiles != null && localizationFiles.length > 0) {
 			localizations = new HashMap<>(localizationFiles.length);
-			for (int i = 0; i < localizationFiles.length; i++) {
-				String nextFile = localizationFiles[i];
+			for (String nextFile : localizationFiles) {
 				Locale nextLocale = getLocale(LocalizationHelper.getLocaleString(nextFile, localizationFile));
 
 				try {
@@ -148,8 +147,7 @@ public final class LocalizationHelper {
 	// return a new property set with those keys and the localized values.
 	static public Map<String, String> getLocalizedProperties(String[] propertyKeys, Map<String, String> properties) {
 		Map<String, String> localizedProperties = new HashMap<>();
-		for (int i = 0; i < propertyKeys.length; i++) {
-			String key = propertyKeys[i];
+		for (String key : propertyKeys) {
 			if (key != null) {
 				String localizedValue = properties.get(key);
 				if (localizedValue != null)

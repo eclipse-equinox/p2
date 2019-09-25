@@ -150,9 +150,9 @@ public class JREAction extends AbstractPublisherAction {
 
 			try {
 				ManifestElement[] jrePackages = ManifestElement.parseHeader(PROFILE_SYSTEM_PACKAGES, packages);
-				for (int i = 0; i < jrePackages.length; i++) {
-					String packageName = jrePackages[i].getValue();
-					Version packageVersion = Version.create(jrePackages[i].getAttribute("version")); //$NON-NLS-1$
+				for (ManifestElement jrePackage : jrePackages) {
+					String packageName = jrePackage.getValue();
+					Version packageVersion = Version.create(jrePackage.getAttribute("version")); //$NON-NLS-1$
 					result.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName, packageVersion));
 				}
 			} catch (BundleException e) {
@@ -189,14 +189,10 @@ public class JREAction extends AbstractPublisherAction {
 	}
 
 	private static void parseSystemCapabilities(ManifestElement[] systemCapabilities, MultiStatus parsingStatus, List<IProvidedCapability> parsingResult) {
-		for (int capabilityIx = 0; capabilityIx < systemCapabilities.length; capabilityIx++) {
-			ManifestElement systemCapability = systemCapabilities[capabilityIx];
-
+		for (ManifestElement systemCapability : systemCapabilities) {
 			// this is general manifest syntax: a "manifest element" can have multiple "value components" -> all attributes apply to each value component (=namespace)
 			String[] namespaces = systemCapability.getValueComponents();
-			for (int namespaceIx = 0; namespaceIx < namespaces.length; namespaceIx++) {
-				String namespace = namespaces[namespaceIx];
-
+			for (String namespace : namespaces) {
 				if (NAMESPACE_OSGI_EE.equals(namespace)) { // this is the OSGi capability namespace "osgi.ee"
 					parseEECapability(systemCapability, parsingStatus, parsingResult);
 
@@ -221,8 +217,7 @@ public class JREAction extends AbstractPublisherAction {
 			return;
 		}
 
-		for (int versionIx = 0; versionIx < eeVersions.length; versionIx++) {
-			String rawVersion = eeVersions[versionIx];
+		for (String rawVersion : eeVersions) {
 			try {
 				Version parsedVersion = Version.parseVersion(rawVersion);
 

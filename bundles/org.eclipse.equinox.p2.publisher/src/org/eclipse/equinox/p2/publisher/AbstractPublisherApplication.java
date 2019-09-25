@@ -120,8 +120,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (contextMetadataRepositories != null && contextMetadataRepositories.length > 0) {
 			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite(agent);
 			if (contextMetadata != null) {
-				for (int i = 0; i < contextMetadataRepositories.length; i++)
-					contextMetadata.addChild(contextMetadataRepositories[i]);
+				for (URI repositoryuri : contextMetadataRepositories) {
+					contextMetadata.addChild(repositoryuri);
+				}
 				if (contextMetadata.getChildren().size() > 0)
 					publisherInfo.setContextMetadataRepository(contextMetadata);
 			}
@@ -129,8 +130,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (contextArtifactRepositories != null && contextArtifactRepositories.length > 0) {
 			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite(agent);
 			if (contextArtifact != null) {
-				for (int i = 0; i < contextArtifactRepositories.length; i++)
-					contextArtifact.addChild(contextArtifactRepositories[i]);
+				for (URI repositoryuri : contextArtifactRepositories) {
+					contextArtifact.addChild(repositoryuri);
+				}
 
 				if (contextArtifact.getChildren().size() > 0)
 					publisherInfo.setContextArtifactRepository(contextArtifact);
@@ -199,10 +201,10 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 		List<URI> result = new ArrayList<>(list.length);
 		if (result != null) {
-			for (int i = 0; i < list.length; i++) {
+			for (String uri : list) {
 				try {
-					result.add(URIUtil.fromString(list[i]));
-				} catch (URISyntaxException e) {
+					result.add(URIUtil.fromString(uri));
+				}catch (URISyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -259,8 +261,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			Object result = run(info);
 			if (result != IApplication.EXIT_OK) {
 				System.out.println(NLS.bind(Messages.message_publisherArguments, null));
-				for (int i = 0; i < args.length; i++)
-					System.out.println(args[i]);
+				for (String arg : args) {
+					System.out.println(arg);
+				}
 			}
 			return result;
 		} catch (Exception e) {

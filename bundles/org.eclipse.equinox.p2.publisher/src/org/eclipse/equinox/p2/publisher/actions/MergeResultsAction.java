@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -31,10 +31,9 @@ public class MergeResultsAction extends AbstractPublisherAction {
 	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		MultiStatus finalStatus = new MultiStatus(MergeResultsAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
-		for (int i = 0; i < actions.length; i++) {
+		for (IPublisherAction action : actions) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			IPublisherAction action = actions[i];
 			IPublisherResult result = new PublisherResult();
 			finalStatus.merge(action.perform(publisherInfo, result, monitor));
 			results.merge(result, mode);

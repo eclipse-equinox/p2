@@ -60,10 +60,10 @@ public class RootFilesAction extends AbstractPublisherAction {
 		// we have N platforms, generate a CU for each
 		// TODO try and find common properties across platforms
 		String[] configSpecs = publisherInfo.getConfigurations();
-		for (int i = 0; i < configSpecs.length; i++) {
+		for (String configSpec : configSpecs) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			generateRootFileIUs(configSpecs[i], innerResult);
+			generateRootFileIUs(configSpec, innerResult);
 		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
 		results.merge(innerResult, IPublisherResult.MERGE_ALL_NON_ROOT);

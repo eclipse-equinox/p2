@@ -205,12 +205,12 @@ public class Publisher {
 		@Override
 		public void run(IProgressMonitor monitor) {
 			MultiStatus finalStatus = new MultiStatus("this", 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
-			for (int i = 0; i < actions.length; i++) {
+			for (IPublisherAction action : actions) {
 				if (monitor.isCanceled()) {
 					result = Status.CANCEL_STATUS;
 					return;
 				}
-				IStatus status = actions[i].perform(publisherInfo, results, monitor);
+				IStatus status = action.perform(publisherInfo, results, monitor);
 				finalStatus.merge(status);
 				monitor.worked(1);
 			}

@@ -177,12 +177,11 @@ public class UpdateOperation extends ProfileChangeOperation {
 		for (IInstallableUnit iuToUpdate : iusToUpdate) {
 			SubMonitor iuMon = sub.newChild(100);
 			Update[] updates = updatesFor(iuToUpdate, profile, iuMon);
-			for (int j = 0; j < updates.length; j++) {
+			for (Update update : updates) {
 				toBeUpdated.add(iuToUpdate);
-				if (defaultUpdates != null && defaultUpdates.contains(updates[j])) {
-					elementsToPlan.add(updates[j]);
+				if (defaultUpdates != null && defaultUpdates.contains(update)) {
+					elementsToPlan.add(update);
 				}
-
 			}
 			if (!selectionSpecified) {
 				// If no selection was specified, we must figure out the latest version to apply.
@@ -195,19 +194,20 @@ public class UpdateOperation extends ProfileChangeOperation {
 				HashMap<String, Update> latestVersions = new HashMap<>();
 				boolean foundUpdate = false;
 				boolean foundPatch = false;
-				for (int j = 0; j < updates.length; j++) {
+				for (Update update : updates) {
 					String key;
-					if (QueryUtil.isPatch(updates[j].replacement)) {
+					if (QueryUtil.isPatch(update.replacement)) {
 						foundPatch = true;
-						key = updates[j].replacement.getId();
+						key = update.replacement.getId();
 					} else {
 						foundUpdate = true;
-						key = updates[j].toUpdate.getId();
+						key = update.toUpdate.getId();
 					}
 					Update latestUpdate = latestVersions.get(key);
 					IInstallableUnit latestIU = latestUpdate == null ? null : latestUpdate.replacement;
-					if (latestIU == null || updates[j].replacement.getVersion().compareTo(latestIU.getVersion()) > 0)
-						latestVersions.put(key, updates[j]);
+					if (latestIU == null || update.replacement.getVersion().compareTo(latestIU.getVersion()) > 0) {
+						latestVersions.put(key, update);
+					}
 				}
 				// If there is a true update available, ignore any patches found
 				// Patches are keyed by their own id

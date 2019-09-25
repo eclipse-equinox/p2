@@ -130,8 +130,8 @@ public abstract class RepositoryTracker {
 		// This is a fallback implementation in the absence of a repository tracker
 		// that would know what to do.
 		URI[] knownRepositories = getKnownRepositories(session);
-		for (int i = 0; i < knownRepositories.length; i++) {
-			if (URIUtil.sameURI(knownRepositories[i], location)) {
+		for (URI repository : knownRepositories) {
+			if (URIUtil.sameURI(repository, location)) {
 				return true;
 			}
 		}
