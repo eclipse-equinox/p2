@@ -81,12 +81,6 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getService(Class<T> key) {
-		return (T) getService(key.getName());
-	}
-
 	private void checkRunning() {
 		if (stopped)
 			throw new IllegalStateException("Attempt to access stopped agent: " + this); //$NON-NLS-1$

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB (Pascal Rapicault) - reading preferences from base in shared install
@@ -35,7 +35,7 @@ public interface IProvisioningAgent {
 	/**
 	 * Service name constant for the agent service. Note that an agent obtained directly
 	 * as a service typically represents the agent of the currently running system. To
-	 * obtain an agent for a different system the {@link IProvisioningAgentProvider} 
+	 * obtain an agent for a different system the {@link IProvisioningAgentProvider}
 	 * service must be used.
 	 */
 	public static final String SERVICE_NAME = IProvisioningAgent.class.getName();
@@ -43,20 +43,20 @@ public interface IProvisioningAgent {
 	public static final String INSTALLER_AGENT = "org.eclipse.equinox.p2.installer.agent"; //$NON-NLS-1$
 	public static final String INSTALLER_PROFILEID = "org.eclipse.equinox.p2.installer.profile.id"; //$NON-NLS-1$
 
-	/** 
+	/**
 	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent the agent representing what is in the shared location aka the base
 	 * @since 2.3
 	 */
 	public static final String SHARED_BASE_AGENT = "org.eclipse.equinox.shared.base.agent"; //$NON-NLS-1$
 
-	/** 
-	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent identified by {@link #SHARED_BASE_AGENT} the current agent 
+	/**
+	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent identified by {@link #SHARED_BASE_AGENT} the current agent
 	 * @since 2.3
 	 */
 	public static final String SHARED_CURRENT_AGENT = "org.eclipse.equinox.shared.current.agent"; //$NON-NLS-1$
 	/**
 	 * Service property identifying whether an agent is the default agent.
-	 * 
+	 *
 	 * <p>
 	 * This property may be used by clients wishing to obtain or track the
 	 * provisioning agent for the currently running system. When the value of
@@ -81,11 +81,14 @@ public interface IProvisioningAgent {
 	 * @exception ClassCastException if the agent cannot be cast to the provided class
 	 * @since 2.6
 	 */
-	public <T> T getService(Class<T> key);
+	@SuppressWarnings("unchecked")
+	public default <T> T getService(Class<T> key) {
+		return (T) getService(key.getName());
+	}
 
 	/**
 	 * Registers a service with this provisioning agent.
-	 * 
+	 *
 	 * @param serviceName The name of the service to register
 	 * @param service The service implementation
 	 * @exception IllegalStateException if this agent has been stopped
@@ -108,7 +111,7 @@ public interface IProvisioningAgent {
 	 * Unregisters a service that has previously been registered with this
 	 * agent via {@link #registerService(String, Object)}. This method has
 	 * no effect if no such service is registered with this agent.
-	 * 
+	 *
 	 * @param serviceName The name of the service to unregister
 	 * @param service The service implementation to unregister.
 	 */
