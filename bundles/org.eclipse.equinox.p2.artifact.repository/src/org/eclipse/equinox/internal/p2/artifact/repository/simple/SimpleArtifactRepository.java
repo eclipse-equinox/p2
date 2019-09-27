@@ -955,24 +955,26 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/**
 	 * Returns the maximum number of concurrent download threads.
 	 */
+
 	private int getMaximumThreads() {
-		int repoMaxThreads = DEFAULT_MAX_THREADS;
-		int userMaxThreads = DEFAULT_MAX_THREADS;
-		try {
-			String maxThreadString = getProperties().get(PROP_MAX_THREADS);
-			if (maxThreadString != null)
-				repoMaxThreads = Math.max(1, Integer.parseInt(maxThreadString));
-		} catch (NumberFormatException nfe) {
-			// default number of threads
-		}
+		int maxThreads = DEFAULT_MAX_THREADS;
 		try {
 			String maxThreadString = Activator.getContext().getProperty(PROP_MAX_THREADS);
 			if (maxThreadString != null)
-				userMaxThreads = Math.max(1, Integer.parseInt(maxThreadString));
+				maxThreads = Math.max(1, Integer.parseInt(maxThreadString));
 		} catch (NumberFormatException nfe) {
 			// default number of threads
 		}
-		return Math.min(repoMaxThreads, userMaxThreads);
+		try {
+			String maxThreadString = getProperties().get(PROP_MAX_THREADS);
+			if (maxThreadString != null) {
+				int repoMaxThreads = Math.max(1, Integer.parseInt(maxThreadString));
+				maxThreads = Math.min(maxThreads, repoMaxThreads);
+			}
+		} catch (NumberFormatException nfe) {
+			// ignore repoMaxThreads
+		}
+		return maxThreads;
 	}
 
 	@Override
