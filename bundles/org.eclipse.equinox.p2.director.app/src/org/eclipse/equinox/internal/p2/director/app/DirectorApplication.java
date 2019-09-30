@@ -506,8 +506,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		int removalIdx = 0;
 		boolean anyValid = false; // do we have any valid repos or did they all fail to load?
 		artifactReposForRemoval = new URI[artifactRepositoryLocations.size()];
-		for (int i = 0; i < artifactRepositoryLocations.size(); i++) {
-			URI location = artifactRepositoryLocations.get(i);
+		for (URI location : artifactRepositoryLocations) {
 			try {
 				if (!artifactManager.contains(location)) {
 					artifactManager.loadRepository(location, null);
@@ -1350,10 +1349,12 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		return IntStream.range(0, size).mapToObj(i -> "\t").collect(Collectors.joining()); //$NON-NLS-1$
 	}
 
-	private boolean canInstallInDestination() {
+	private boolean canInstallInDestination() throws CoreException {
 		//When we are provisioning what we are running. We can always install.
 		if (targetAgentIsSelfAndUp)
 			return true;
+		if (destination == null)
+			missingArgument("destination"); //$NON-NLS-1$
 		return canWrite(destination);
 	}
 
