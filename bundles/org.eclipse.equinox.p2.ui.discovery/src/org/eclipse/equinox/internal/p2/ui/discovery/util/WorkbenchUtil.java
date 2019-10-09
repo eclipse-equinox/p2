@@ -16,9 +16,12 @@
 
 package org.eclipse.equinox.internal.p2.ui.discovery.util;
 
+import static java.util.Arrays.stream;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Optional;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -47,27 +50,13 @@ public class WorkbenchUtil {
 	 * <p>
 	 * <b>Note: Applied from patch on bug 99472.</b>
 	 * 
-	 * @param shell
-	 *            A shell to exclude from the search. May be <code>null</code>.
-	 * @return Shell or <code>null</code>.
+	 * @return Shell.
 	 */
-	private static Shell getModalShellExcluding(Shell shell) {
+	private static Optional<Shell> getModalShell() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		Shell[] shells = workbench.getDisplay().getShells();
 		int modal = SWT.APPLICATION_MODAL | SWT.SYSTEM_MODAL | SWT.PRIMARY_MODAL;
-		for (Shell shell2 : shells) {
-			if (shell2.equals(shell)) {
-				break;
-			}
-			// Do not worry about shells that will not block the user.
-			if (shell2.isVisible()) {
-				int style = shell2.getStyle();
-				if ((style & modal) != 0) {
-					return shell2;
-				}
-			}
-		}
-		return null;
+		return stream(shells).filter(shell -> shell.isVisible() && (shell.getStyle() & modal) != 0).findFirst();
 	}
 
 	/**
@@ -83,11 +72,7 @@ public class WorkbenchUtil {
 		if (!PlatformUI.isWorkbenchRunning() || PlatformUI.getWorkbench().isClosing()) {
 			return null;
 		}
-		Shell modal = getModalShellExcluding(null);
-		if (modal != null) {
-			return modal;
-		}
-		return getNonModalShell();
+		return getModalShell().orElse(getNonModalShell().orElse(null));
 	}
 
 	/**
@@ -97,18 +82,18 @@ public class WorkbenchUtil {
 	 * 
 	 * @return Shell
 	 */
-	private static Shell getNonModalShell() {
+	private static Optional<Shell> getNonModalShell() {
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		if (window == null) {
 			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
 			if (windows.length > 0) {
-				return windows[0].getShell();
+				return Optional.of(windows[0].getShell());
 			}
 		} else {
-			return window.getShell();
+			return Optional.of(window.getShell());
 		}
 
-		return null;
+		return Optional.empty();
 	}
 
 	/**
