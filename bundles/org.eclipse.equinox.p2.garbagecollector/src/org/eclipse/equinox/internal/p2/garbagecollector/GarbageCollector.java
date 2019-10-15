@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2019 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -193,15 +193,10 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 
 		//First we collect all repos and keys for the profile being GC'ed
 		for (IConfigurationElement configElt : configElts) {
-			if (!(configElt.getName().equals("run"))) {
-				//$NON-NLS-1$
+			if (configElt == null || !(configElt.getName().equals("run"))) { //$NON-NLS-1$
 				continue;
 			}
-			IConfigurationElement runAttribute = configElt;
-			if (runAttribute == null) {
-				continue;
-			}
-			contributeMarkSets(runAttribute, profile, true);
+			contributeMarkSets(configElt, profile, true);
 		}
 		return true;
 	}
@@ -210,12 +205,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
 		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
 		for (IConfigurationElement configElt : configElts) {
-			if (!(configElt.getName().equals("run"))) {
-				//$NON-NLS-1$
-				continue;
-			}
-			IConfigurationElement runAttribute = configElt;
-			if (runAttribute == null) {
+			if (configElt == null || !(configElt.getName().equals("run"))) { //$NON-NLS-1$
 				continue;
 			}
 			IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
@@ -223,7 +213,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 				return;
 			IProfile[] registeredProfiles = profileRegistry.getProfiles();
 			for (IProfile registeredProfile : registeredProfiles) {
-				contributeMarkSets(runAttribute, registeredProfile, false);
+				contributeMarkSets(configElt, registeredProfile, false);
 			}
 		}
 	}

@@ -705,14 +705,14 @@ public class EquinoxBundlesState implements BundlesState {
 			sb.append("\n"); //$NON-NLS-1$
 		}
 		sb.append("PlatformProperties:\n"); //$NON-NLS-1$
-		@SuppressWarnings("rawtypes")
-		Dictionary[] dics = state.getPlatformProperties();
-		for (Dictionary dic : dics) {
+		@SuppressWarnings("unchecked")
+		Dictionary<String, String>[] dics = state.getPlatformProperties();
+		for (Dictionary<String, String> dic : dics) {
 			// don't disable this warning because it will cause build-time warning.
 			// see bug 423628 and 423625.
 			for (Enumeration<String> enumeration = dic.keys(); enumeration.hasMoreElements();) {
 				String key = enumeration.nextElement();
-				String value = (String) dic.get(key);
+				String value = dic.get(key);
 				sb.append(" (" + key + "," + value + ")\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
