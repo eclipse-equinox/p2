@@ -15,6 +15,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -45,6 +46,9 @@ public class SetJvmAction extends ProvisioningAction {
 		// make a backup - even if it is null
 		getMemento().put(ActionConstants.PARM_PREVIOUS_VALUE, previous == null ? null : previous.getPath());
 		launcherData.setJvm(jvm);
+		if (jvm != null) {
+			adjustWorkbenchSystemProperties(jvm);
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -57,8 +61,44 @@ public class SetJvmAction extends ProvisioningAction {
 		String previous = (String) getMemento().get(ActionConstants.PARM_PREVIOUS_VALUE);
 		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR))
 				.getLauncherData();
-		launcherData.setJvm(previous == null ? null : new File(previous));
+		final File jvm = previous == null ? null : new File(previous);
+		launcherData.setJvm(jvm);
+		if (jvm != null) {
+			adjustWorkbenchSystemProperties(jvm);
+		}
 		return Status.OK_STATUS;
+	}
+
+	private static void adjustWorkbenchSystemProperties(File jvm) {
+		try {
+			// set the eclipse.vm system property so the Workbench restart will use this vm
+			// to restart.
+			final String fullPath = jvm.getCanonicalPath();
+			System.setProperty("eclipse.vm", fullPath);
+
+			// also adjust the -vm property in the eclipse.commands system property so that
+			// vm is actually used.
+			String property = System.getProperty("eclipse.commands");
+			int index = property.indexOf("-vm");
+			if (index != -1) {
+				final String vmWithLineFeed = "-vm\n";
+				// find the next line ending after -vm line.
+				int index2 = property.indexOf('\n', index + vmWithLineFeed.length());
+				if (index2 == -1) {
+					property = property.substring(0, index) + vmWithLineFeed + fullPath;
+				} else {
+					String tmp = property.substring(0, index) + vmWithLineFeed + fullPath;
+					property = tmp + property.substring(index2);
+				}
+				System.setProperty("eclipse.commands", property);
+			}
+
+		} catch (IOException e) {
+			// ignore this error, should not really happen for file.getCanonicalPath() which
+			// should be just installed just fine.
+			// if this fails for some reason then only the restart wouldn't be using this,
+			// but it wouldn't block the actual install.
+		}
 	}
 
 }
