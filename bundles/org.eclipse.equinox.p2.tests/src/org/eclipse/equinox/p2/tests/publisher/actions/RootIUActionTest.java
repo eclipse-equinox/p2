@@ -300,8 +300,8 @@ public class RootIUActionTest extends ActionTest {
 	}
 
 	private boolean contains(Collection<IRequirement> required, String iu) {
-		for (Iterator<IRequirement> iterator = required.iterator(); iterator.hasNext();) {
-			IRequiredCapability req = (IRequiredCapability) iterator.next();
+		for (IRequirement requirement : required) {
+			IRequiredCapability req = (IRequiredCapability) requirement;
 			if (req.getName().equalsIgnoreCase(iu))
 				return true;
 		}

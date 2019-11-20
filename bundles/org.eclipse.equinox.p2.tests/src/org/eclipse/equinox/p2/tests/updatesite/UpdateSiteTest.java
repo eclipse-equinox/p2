@@ -23,7 +23,6 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -654,9 +653,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		IQueryResult<IInstallableUnit> result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit featureIU = result.iterator().next();
-		Collection<IRequirement> required = featureIU.getRequirements();
-		for (Iterator<IRequirement> iterator = required.iterator(); iterator.hasNext();) {
-			IRequiredCapability req = (IRequiredCapability) iterator.next();
+		for (IRequirement requirement : featureIU.getRequirements()) {
+			IRequiredCapability req = (IRequiredCapability) requirement;
 			if (req.getName().equals("org.eclipse.ui.ide")) {
 				assertEquals("2.0", VersionRange.emptyRange, req.getRange());
 			}

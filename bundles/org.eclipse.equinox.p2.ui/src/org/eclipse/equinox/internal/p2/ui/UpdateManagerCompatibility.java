@@ -16,7 +16,6 @@ package org.eclipse.equinox.internal.p2.ui;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Iterator;
 import java.util.Vector;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
@@ -134,8 +133,7 @@ public class UpdateManagerCompatibility {
 			writer = new PrintWriter(osw);
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); //$NON-NLS-1$
 			writer.println("<bookmarks>"); //$NON-NLS-1$
-			for (int i = 0; i < bookmarks.size(); i++) {
-				Object obj = bookmarks.get(i);
+			for (MetadataRepositoryElement obj : bookmarks) {
 				writeObject("   ", obj, writer); //$NON-NLS-1$
 			}
 		} catch (IOException e) {
@@ -173,8 +171,7 @@ public class UpdateManagerCompatibility {
 
 	public static IStatus getInstallHandlerStatus(IProvisioningPlan plan) {
 		IQueryResult<IInstallableUnit> result = plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null);
-		for (Iterator<IInstallableUnit> iterator = result.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : result) {
 			if (iu != null && iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null)
 				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, NLS.bind(ProvUIMessages.UpdateManagerCompatibility_ItemRequiresUpdateManager, iu.getId()));
 		}
@@ -213,8 +210,8 @@ public class UpdateManagerCompatibility {
 
 	public static void writeBookmarkFile(String filename, MetadataRepositoryElement[] sites) {
 		Vector<MetadataRepositoryElement> bookmarks = new Vector<>(sites.length);
-		for (int i = 0; i < sites.length; i++)
-			bookmarks.add(sites[i]);
+		for (MetadataRepositoryElement site : sites)
+			bookmarks.add(site);
 		store(filename, bookmarks);
 
 	}

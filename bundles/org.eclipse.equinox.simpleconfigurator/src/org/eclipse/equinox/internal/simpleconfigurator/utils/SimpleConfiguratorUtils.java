@@ -333,12 +333,12 @@ public class SimpleConfiguratorUtils {
 	public static void transferStreams(List<InputStream> sources, OutputStream destination) throws IOException {
 		destination = new BufferedOutputStream(destination);
 		try {
-			for (int i = 0; i < sources.size(); i++) {
-				try (InputStream source = new BufferedInputStream(sources.get(i))) {
+			for (InputStream source : sources) {
+				try (InputStream bufferedSource = new BufferedInputStream(source)) {
 					byte[] buffer = new byte[8192];
 					while (true) {
 						int bytesRead = -1;
-						if ((bytesRead = source.read(buffer)) == -1)
+						if ((bytesRead = bufferedSource.read(buffer)) == -1)
 							break;
 						destination.write(buffer, 0, bytesRead);
 					}

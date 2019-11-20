@@ -297,8 +297,8 @@ public class TranslationSupport {
 			String translation = null;
 			for (Iterator<IInstallableUnit> iter = collected.iterator(); iter.hasNext() && translation == null;) {
 				IInstallableUnit localizationIU = iter.next();
-				for (Iterator<String> jter = locales.iterator(); jter.hasNext();) {
-					String localeKey = makeLocalizedKey(actualKey, jter.next());
+				for (String unitlocale : locales) {
+					String localeKey = makeLocalizedKey(actualKey, unitlocale);
 					translation = localizationIU.getProperty(localeKey);
 					if (translation != null)
 						return cacheResult(iu, localizedKey, translation);

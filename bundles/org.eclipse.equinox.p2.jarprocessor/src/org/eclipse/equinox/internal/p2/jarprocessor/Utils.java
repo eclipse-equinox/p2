@@ -307,8 +307,8 @@ public class Utils {
 		PrintStream printStream = new PrintStream(stream);
 		printStream.print("#Processed using Jarprocessor\n"); //$NON-NLS-1$
 		SortedMap<Object, Object> sorted = new TreeMap<>(props);
-		for (Iterator<Object> iter = sorted.keySet().iterator(); iter.hasNext();) {
-			String key = (String) iter.next();
+		for (Object object : sorted.keySet()) {
+			String key = (String) object;
 			printStream.print(key);
 			printStream.print(" = "); //$NON-NLS-1$
 			printStream.print(sorted.get(key));

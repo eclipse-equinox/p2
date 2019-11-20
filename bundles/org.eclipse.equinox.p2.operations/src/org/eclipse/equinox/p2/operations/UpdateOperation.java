@@ -28,10 +28,10 @@ import org.eclipse.equinox.p2.query.*;
 /**
  * An UpdateOperation describes an operation that updates {@link IInstallableUnit}s in
  * a profile.
- * 
+ *
  * The following snippet shows how one might use an UpdateOperation to check for updates
  * to the profile and then install them in the background.
- * 
+ *
  * <pre>
  * UpdateOperation op = new UpdateOperation(session);
  * IStatus result = op.resolveModal(monitor);
@@ -39,13 +39,13 @@ import org.eclipse.equinox.p2.query.*;
  *   op.getProvisioningJob(monitor).schedule();
  * }
  * </pre>
- * 
+ *
  * The life cycle of an UpdateOperation is different than that of the other
  * operations.  Since assembling the list of possible updates may be costly,
  * clients should not have to create a new update operation if the desired updates
  * to be applied need to change.  In this case, the client can set a new set of
  * chosen updates on the update operation and resolve again.
- * 
+ *
  * <pre>
  * UpdateOperation op = new UpdateOperation(session);
  * IStatus result = op.resolveModal(monitor);
@@ -57,7 +57,7 @@ import org.eclipse.equinox.p2.query.*;
  *   IStatus result = op.resolveModal(monitor);
  * }
  * </pre>
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
@@ -77,7 +77,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * Create an update operation on the specified provisioning session that updates
 	 * the specified IInstallableUnits.  Unless otherwise specified, the operation will
 	 * be associated with the currently running profile.
-	 * 
+	 *
 	 * @param session the session to use for obtaining provisioning services
 	 * @param toBeUpdated the IInstallableUnits to be updated.
 	 */
@@ -89,7 +89,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	/**
 	 * Create an update operation that will update all of the user-visible installable
 	 * units in the profile (the profile roots).
-	 * 
+	 *
 	 * @param session the session providing the provisioning services
 	 */
 	public UpdateOperation(ProvisioningSession session) {
@@ -100,9 +100,9 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * Set the updates that should be selected from the set of available updates.
 	 * If the selected updates are not specified, then the latest available update
 	 * for each IInstallableUnit with updates will be chosen.
-	 * 
+	 *
 	 * @param defaultUpdates the updates that should be chosen from all of the available
-	 * updates. 
+	 * updates.
 	 */
 	public void setSelectedUpdates(Update[] defaultUpdates) {
 		this.defaultUpdates = new ArrayList<>(Arrays.asList(defaultUpdates));
@@ -112,7 +112,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * Get the updates that have been selected from the set of available updates.
 	 * If none have been specified by the client, then the latest available update
 	 * for each IInstallableUnit with updates will be chosen.
-	 * 
+	 *
 	 * @return the updates that should be chosen from all of the available updates
 	 */
 	public Update[] getSelectedUpdates() {
@@ -124,7 +124,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	/**
 	 * Get the list of all possible updates.  This list may include multiple versions
 	 * of updates for the same IInstallableUnit, as well as patches to the IInstallableUnit.
-	 * 
+	 *
 	 * @return an array of all possible updates
 	 */
 	public Update[] getPossibleUpdates() {
@@ -143,12 +143,13 @@ public class UpdateOperation extends ProfileChangeOperation {
 			// We must consult the planner
 			IQueryResult<IInstallableUnit> replacements = session.getPlanner().updatesFor(iu, context, monitor);
 			updates = new ArrayList<>();
-			for (Iterator<IInstallableUnit> replacementIterator = replacements.iterator(); replacementIterator.hasNext();) {
+			for (IInstallableUnit replacementIU : replacements) {
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=273967
-				// In the case of patches, it's possible that a patch is returned as an available update
-				// even though it is already installed, because we are querying each IU for updates individually.
+				// In the case of patches, it's possible that a patch is returned as an
+				// available update
+				// even though it is already installed, because we are querying each IU for
+				// updates individually.
 				// For now, we ignore any proposed update that is already installed.
-				IInstallableUnit replacementIU = replacementIterator.next();
 				IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(QueryUtil.createIUQuery(replacementIU), null);
 				if (alreadyInstalled.isEmpty()) {
 					Update update = new Update(iu, replacementIU);
@@ -275,12 +276,12 @@ public class UpdateOperation extends ProfileChangeOperation {
 
 	/*
 	 * Get the IInstallable units for the specified profile
-	 * 
+	 *
 	 * @param profileId the profile in question
 	 * @param all <code>true</code> if all IInstallableUnits in the profile should
 	 * be returned, <code>false</code> only those IInstallableUnits marked as (user visible) roots
 	 * should be returned.
-	 * 
+	 *
 	 * @return an array of IInstallableUnits installed in the profile.
 	 */
 	private Collection<IInstallableUnit> getInstalledIUs() {
@@ -321,7 +322,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * Overridden because our resolution job life cycle is different.  We have a job
 	 * before we've computed the profile change request, so we must ensure that we
 	 * have already computed the profile change request.
-	 * 
+	 *
 	 */
 	@Override
 	public boolean hasResolved() {

@@ -172,8 +172,8 @@ public class Slicer {
 		if (iu instanceof InstallableUnitPatch) {
 			IInstallableUnitPatch patchIU = (IInstallableUnitPatch) iu;
 			List<IRequirementChange> changes = patchIU.getRequirementsChange();
-			for (int i = 0; i < changes.size(); i++)
-				aggregatedRequirements.add(changes.get(i).newValue());
+			for (IRequirementChange change : changes)
+				aggregatedRequirements.add(change.newValue());
 		}
 
 		if (considerMetaRequirements)
@@ -186,8 +186,7 @@ public class Slicer {
 			return;
 		IQueryResult<IInstallableUnit> matches = possibilites.query(QueryUtil.createMatchQuery(req.getMatches()), null);
 		int validMatches = 0;
-		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = iterator.next();
+		for (IInstallableUnit match : matches) {
 			if (!isApplicable(match))
 				continue;
 			validMatches++;

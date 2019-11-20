@@ -454,8 +454,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			return;
 
 		List<String> subProfileIds = profile.getSubProfileIds();
-		for (int i = 0; i < subProfileIds.size(); i++) {
-			removeProfile(subProfileIds.get(i));
+		for (String subProfileId : subProfileIds) {
+			removeProfile(subProfileId);
 		}
 		internalLockProfile(profile);
 		// The above call recursively locked the parent(s). So save it away to rewind the locking process.

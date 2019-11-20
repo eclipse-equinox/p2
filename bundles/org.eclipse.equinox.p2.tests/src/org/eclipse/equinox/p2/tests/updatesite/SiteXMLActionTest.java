@@ -87,8 +87,7 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 		Collection<IRepositoryReference> references = metadataRepository.getReferences();
 		assertEquals("1.0", 2, references.size());
 		boolean metadataFound = false, artifactFound = false;
-		for (Iterator<IRepositoryReference> it = references.iterator(); it.hasNext();) {
-			IRepositoryReference ref = it.next();
+		for (IRepositoryReference ref : references) {
 			assertEquals("1.1", "http://download.eclipse.org/eclipse/updates/3.5", ref.getLocation().toString());
 			assertEquals("1.2", IRepository.ENABLED, ref.getOptions());
 			assertEquals("1.3", "Eclipse Project Update Site", ref.getNickname());

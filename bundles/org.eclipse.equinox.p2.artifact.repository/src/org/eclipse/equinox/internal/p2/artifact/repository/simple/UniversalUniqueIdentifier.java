@@ -296,8 +296,8 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 	@Override
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
-		for (int i = 0; i < fBits.length; i++)
-			appendByteString(buffer, fBits[i]);
+		for (byte bit : fBits)
+			appendByteString(buffer, bit);
 		return buffer.toString();
 	}
 

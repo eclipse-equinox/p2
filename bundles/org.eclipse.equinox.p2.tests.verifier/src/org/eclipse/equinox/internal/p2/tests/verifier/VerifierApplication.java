@@ -150,8 +150,8 @@ public class VerifierApplication implements IApplication {
 			for (StringTokenizer tokenizer = new StringTokenizer(list, ","); tokenizer.hasMoreTokens();)
 				ignoreResolved.add(tokenizer.nextToken().trim());
 		}
-		for (Iterator<String> iter = ignoreResolved.iterator(); iter.hasNext();) {
-			if (bundle.equals(iter.next()))
+		for (String string : ignoreResolved) {
+			if (bundle.equals(string))
 				return false;
 		}
 		return true;
@@ -203,8 +203,8 @@ public class VerifierApplication implements IApplication {
 		}
 
 		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.OK, "Problems checking resolved bundles.", null); //$NON-NLS-1$
-		for (Iterator<IStatus> iter = allProblems.iterator(); iter.hasNext();)
-			result.add(iter.next());
+		for (IStatus status : allProblems)
+			result.add(status);
 		return result;
 	}
 

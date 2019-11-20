@@ -91,18 +91,18 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	 */
 	private static void appendEncoded(StringBuffer buf, String value) {
 		char[] chars = value.toCharArray();
-		for (int i = 0; i < chars.length; i++) {
-			switch (chars[i]) {
+		for (char c : chars) {
+			switch (c) {
 				case '$' :
 				case ',' :
 				case ':' :
 				case ';' :
 				case '{' :
 				case '}' :
-					buf.append("${#").append(Integer.toString(chars[i])).append('}'); //$NON-NLS-1$
+					buf.append("${#").append(Integer.toString(c)).append('}'); //$NON-NLS-1$
 					break;
 				default :
-					buf.append(chars[i]);
+					buf.append(c);
 			}
 		}
 	}

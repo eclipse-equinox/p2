@@ -133,8 +133,8 @@ public class ValidationDialogServiceUI extends UIServices {
 
 				private IStatus createStatus() {
 					MultiStatus parent = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ServiceUI_unsigned_message, null);
-					for (int i = 0; i < unsignedDetail.length; i++) {
-						parent.add(new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, unsignedDetail[i]));
+					for (String element : unsignedDetail) {
+						parent.add(new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, element));
 					}
 					return parent;
 				}

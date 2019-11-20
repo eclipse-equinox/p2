@@ -239,8 +239,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	@Override
 	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		ArrayList<IArtifactDescriptor> removeList = new ArrayList<>();
-		for (Iterator<IArtifactDescriptor> iterator = repo.keySet().iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = iterator.next();
+		for (IArtifactDescriptor descriptor : repo.keySet()) {
 			if (descriptor.getArtifactKey().equals(key))
 				removeList.add(descriptor);
 		}

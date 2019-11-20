@@ -116,9 +116,9 @@ public class Utility {
 
 	public static ClassFileAttribute getAttribute(MethodInfo methodInfo, char[] attributeName) {
 		ClassFileAttribute[] attributes = methodInfo.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (Arrays.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
+		for (ClassFileAttribute attribute : attributes) {
+			if (Arrays.equals(attribute.getAttributeName(), attributeName)) {
+				return attribute;
 			}
 		}
 		return null;
@@ -126,9 +126,9 @@ public class Utility {
 
 	public static ClassFileAttribute getAttribute(FieldInfo fieldInfo, char[] attributeName) {
 		ClassFileAttribute[] attributes = fieldInfo.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (Arrays.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
+		for (ClassFileAttribute attribute : attributes) {
+			if (Arrays.equals(attribute.getAttributeName(), attributeName)) {
+				return attribute;
 			}
 		}
 		return null;
@@ -136,9 +136,9 @@ public class Utility {
 
 	public static ClassFileAttribute getAttribute(ClassFileReader classFileReader, char[] attributeName) {
 		ClassFileAttribute[] attributes = classFileReader.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (Arrays.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
+		for (ClassFileAttribute attribute : attributes) {
+			if (Arrays.equals(attribute.getAttributeName(), attributeName)) {
+				return attribute;
 			}
 		}
 		return null;

@@ -120,8 +120,8 @@ public class XZCompressor {
 	}
 
 	private void deleteFiles() {
-		for (Iterator<File> iterator = filesToDelete.iterator(); iterator.hasNext();) {
-			iterator.next().delete();
+		for (File file : filesToDelete) {
+			file.delete();
 		}
 	}
 

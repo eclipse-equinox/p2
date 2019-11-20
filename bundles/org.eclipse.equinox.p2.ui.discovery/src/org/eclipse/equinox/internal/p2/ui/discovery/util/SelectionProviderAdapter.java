@@ -20,8 +20,8 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.*;
 
 /**
- * Provides an simple implementation of {@link ISelectionProvider} that propagates selection events to registered
- * listeners.
+ * Provides an simple implementation of {@link ISelectionProvider} that
+ * propagates selection events to registered listeners.
  * 
  * @author Steffen Pingel
  */
@@ -30,10 +30,10 @@ public class SelectionProviderAdapter extends EventManager implements ISelection
 	private ISelection selection;
 
 	/**
-	 * Constructs a <code>SelectionProviderAdapter</code> and initializes the selection to <code>selection</code>.
+	 * Constructs a <code>SelectionProviderAdapter</code> and initializes the
+	 * selection to <code>selection</code>.
 	 * 
-	 * @param selection
-	 *            the initial selection
+	 * @param selection the initial selection
 	 * @see #setSelection(ISelection)
 	 */
 	public SelectionProviderAdapter(ISelection selection) {
@@ -41,7 +41,8 @@ public class SelectionProviderAdapter extends EventManager implements ISelection
 	}
 
 	/**
-	 * Constructs a <code>SelectionProviderAdapter</code> with a <code>null</code> selection.
+	 * Constructs a <code>SelectionProviderAdapter</code> with a <code>null</code>
+	 * selection.
 	 */
 	public SelectionProviderAdapter() {
 	}
@@ -64,13 +65,12 @@ public class SelectionProviderAdapter extends EventManager implements ISelection
 	@Override
 	public void selectionChanged(final SelectionChangedEvent event) {
 		this.selection = event.getSelection();
-		Object[] listeners = getListeners();
-		for (int i = 0; i < listeners.length; ++i) {
-			final ISelectionChangedListener listener = (ISelectionChangedListener) listeners[i];
+		for (Object listener : getListeners()) {
+			final ISelectionChangedListener selectionChangedListener = (ISelectionChangedListener) listener;
 			SafeRunner.run(new SafeRunnable() {
 				@Override
 				public void run() {
-					listener.selectionChanged(event);
+					selectionChangedListener.selectionChanged(event);
 				}
 			});
 		}

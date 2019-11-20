@@ -446,8 +446,8 @@ class VersionFormatParser {
 		boolean isMatch(String version, int pos) {
 			char c = version.charAt(pos);
 			if (delimChars != null) {
-				for (int idx = 0; idx < delimChars.length; ++idx)
-					if (c == delimChars[idx])
+				for (char delimChar : delimChars)
+					if (c == delimChar)
 						return !inverted;
 				return inverted;
 			} else if (VersionParser.isLetterOrDigit(c))
@@ -672,8 +672,8 @@ class VersionFormatParser {
 				super.setDefaults(segments);
 			} else {
 				// Assign defaults for all fragments
-				for (int idx = 0; idx < fragments.length; ++idx)
-					fragments[idx].setDefaults(segments);
+				for (Fragment fragment : fragments)
+					fragment.setDefaults(segments);
 			}
 		}
 
@@ -681,19 +681,19 @@ class VersionFormatParser {
 		void toString(StringBuffer sb) {
 			if (array) {
 				sb.append('<');
-				for (int idx = 0; idx < fragments.length; ++idx)
-					fragments[idx].toString(sb);
+				for (Fragment fragment : fragments)
+					fragment.toString(sb);
 				sb.append('>');
 			} else {
 				if (getQualifier() == VersionFormatParser.ZERO_OR_ONE_QUALIFIER) {
 					sb.append('[');
-					for (int idx = 0; idx < fragments.length; ++idx)
-						fragments[idx].toString(sb);
+					for (Fragment fragment : fragments)
+						fragment.toString(sb);
 					sb.append(']');
 				} else {
 					sb.append('(');
-					for (int idx = 0; idx < fragments.length; ++idx)
-						fragments[idx].toString(sb);
+					for (Fragment fragment : fragments)
+						fragment.toString(sb);
 					sb.append(')');
 				}
 			}
