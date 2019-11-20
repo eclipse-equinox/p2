@@ -24,7 +24,6 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -854,8 +853,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	 */
 	protected int getArtifactKeyCount(IQueryResult<IInstallableUnit> ius) {
 		int count = 0;
-		for (Iterator<IInstallableUnit> iter = ius.iterator(); iter.hasNext();)
-			count += iter.next().getArtifacts().size();
+		for (IInstallableUnit iu : ius)
+			count += iu.getArtifacts().size();
 		return count;
 	}
 
@@ -877,8 +876,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	protected void addAllIUs(AntTaskElement parent, IMetadataRepository repo) {
 		IQueryResult<IInstallableUnit> queryResult = repo.query(QueryUtil.createIUAnyQuery(), null);
 
-		for (Iterator<IInstallableUnit> iter = queryResult.iterator(); iter.hasNext();) {
-			IInstallableUnit iu = iter.next();
+		for (IInstallableUnit iu : queryResult) {
 			parent.addElement(createIUElement(iu));
 		}
 	}

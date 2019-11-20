@@ -65,8 +65,8 @@ public class IUDragAdapter extends DragSourceAdapter {
 		// Get a text description of each IU and set as the drag data
 		final StringBuilder buffer = new StringBuilder();
 
-		for (int i = 0; i < ius.length; i++) {
-			buffer.append(ius[i].toString());
+		for (IInstallableUnit iu : ius) {
+			buffer.append(iu.toString());
 			buffer.append('\n');
 		}
 		event.data = buffer.toString();

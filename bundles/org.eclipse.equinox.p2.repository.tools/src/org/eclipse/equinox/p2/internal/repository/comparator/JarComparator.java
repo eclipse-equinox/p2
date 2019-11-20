@@ -330,8 +330,8 @@ public class JarComparator implements IArtifactComparator {
 			return newErrorStatus(NLS.bind(Messages.propertiesSizesDifferent, entryName, String.valueOf(Math.abs(props1.size() - props2.size()))));
 
 		props1.keys();
-		for (Iterator<Object> iterator = props1.keySet().iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
+		for (Object object : props1.keySet()) {
+			String key = (String) object;
 			if (!props2.containsKey(key))
 				return newErrorStatus(NLS.bind(Messages.missingProperty, key, entryName));
 			String prop1 = props1.getProperty(key);
@@ -396,8 +396,7 @@ public class JarComparator implements IArtifactComparator {
 	private String normalize(String entryName) {
 		StringBuffer buffer = new StringBuffer();
 		char[] chars = entryName.toCharArray();
-		for (int i = 0, max = chars.length; i < max; i++) {
-			char currentChar = chars[i];
+		for (char currentChar : chars) {
 			if (!Character.isJavaIdentifierPart(currentChar)) {
 				buffer.append('_');
 			} else {

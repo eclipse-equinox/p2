@@ -17,7 +17,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -52,8 +51,9 @@ public class MetadataRepositoryManagerExceptionsTest extends AbstractProvisionin
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		for (Iterator<File> it = toDelete.iterator(); it.hasNext();)
-			delete(it.next());
+		for (File file : toDelete) {
+			delete(file);
+		}
 		toDelete.clear();
 	}
 

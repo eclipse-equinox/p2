@@ -15,7 +15,6 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -40,8 +39,7 @@ public class MD5Tests extends AbstractProvisioningTest {
 
 	public void DISABLE_testCheckMD5() {
 		IQueryResult<IArtifactDescriptor> descriptors = repo.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
-		for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
-			IArtifactDescriptor desc = iterator.next();
+		for (IArtifactDescriptor desc : descriptors) {
 			IStatus status = repo.getArtifact(desc, new ByteArrayOutputStream(500), new NullProgressMonitor());
 			//All artifacts that are expected to fail MD5 check are those whose id starts with bogus
 			if (desc.getArtifactKey().getId().startsWith("bogus")) {

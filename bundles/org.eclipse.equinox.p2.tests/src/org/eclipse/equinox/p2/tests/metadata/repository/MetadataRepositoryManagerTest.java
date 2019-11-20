@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -78,8 +77,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		for (Iterator<File> it = toDelete.iterator(); it.hasNext();)
-			delete(it.next());
+		for (File file : toDelete) {
+			delete(file);
+		}
 		toDelete.clear();
 		FailingMetadataRepositoryFactory.FAIL = false;
 	}

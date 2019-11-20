@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2018 Rapicorp Inc. and others. 
+ * Copyright (c) 2013, 2018 Rapicorp Inc. and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Contributors: 
+ * Contributors:
  *   Rapicorp, Inc. - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
@@ -110,12 +110,10 @@ public class OptimizationFunction {
 		//Now we deal the optional IUs,
 		long countOptional = 1;
 		List<IInstallableUnit> requestedPatches = new ArrayList<>();
-		Collection<IRequirement> reqs = metaIu.getRequirements();
-		for (IRequirement req : reqs) {
+		for (IRequirement req : metaIu.getRequirements()) {
 			if (req.getMin() > 0 || !req.isGreedy())
 				continue;
-			IQueryResult<IInstallableUnit> matches = picker.query(QueryUtil.createMatchQuery(req.getMatches()), null);
-			for (IInstallableUnit match : matches) {
+			for (IInstallableUnit match : picker.query(QueryUtil.createMatchQuery(req.getMatches()), null)) {
 				if (match instanceof IInstallableUnitPatch) {
 					requestedPatches.add(match);
 					countOptional = countOptional + 1;
@@ -125,8 +123,8 @@ public class OptimizationFunction {
 
 		// and we make sure that patches are always favored
 		BigInteger patchWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(countOptional)).negate();
-		for (Iterator<IInstallableUnit> iterator = requestedPatches.iterator(); iterator.hasNext();) {
-			weightedObjects.add(WeightedObject.newWO(iterator.next(), patchWeight));
+		for (IInstallableUnit iu : requestedPatches) {
+			weightedObjects.add(WeightedObject.newWO(iu, patchWeight));
 		}
 		return weightedObjects;
 	}

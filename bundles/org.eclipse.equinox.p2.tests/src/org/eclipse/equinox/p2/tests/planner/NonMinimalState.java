@@ -15,13 +15,18 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -76,8 +81,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		visited = new HashSet<>();
 		IQueryResult<IInstallableUnit> roots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", "true"), null);
 		searchedId = id;
-		for (Iterator<IInstallableUnit> iterator = roots.iterator(); iterator.hasNext();) {
-			IInstallableUnit type = iterator.next();
+		for (IInstallableUnit type : roots) {
 			if (type instanceof IInstallableUnitFragment) {
 				visited.add(type);
 				continue;
@@ -93,8 +97,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 			visited.add(iu);
 			return false;
 		}
-		Collection<IRequirement> reqs = iu.getRequirements();
-		for (IRequirement req : reqs) {
+		for (IRequirement req : iu.getRequirements()) {
 			boolean result = expandRequirement(iu, req);
 			if (result) {
 				System.out.println(iu + " because " + req.toString());
@@ -105,9 +108,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	}
 
 	private boolean expandRequirement(IInstallableUnit iu, IRequirement req) {
-		IQueryResult<IInstallableUnit> matches = profile.query(QueryUtil.createMatchQuery(req.getMatches()), null);
-		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = iterator.next();
+		for (IInstallableUnit match : profile.query(QueryUtil.createMatchQuery(req.getMatches()), null)) {
 			if (match.getId().equals(searchedId))
 				return true;
 			if (!visited.contains(match)) {

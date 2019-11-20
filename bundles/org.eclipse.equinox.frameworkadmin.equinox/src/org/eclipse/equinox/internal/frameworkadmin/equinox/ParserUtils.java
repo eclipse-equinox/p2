@@ -131,10 +131,10 @@ public class ParserUtils {
 	public static boolean isArgumentSet(String arg, List<String> args) {
 		if (arg == null || args == null)
 			return false;
-		for (int i = 0; i < args.size(); i++) {
-			if (args.get(i) == null)
+		for (String arg2 : args) {
+			if (arg2 == null)
 				continue;
-			if ((args.get(i)).equalsIgnoreCase(arg)) {
+			if ((arg2).equalsIgnoreCase(arg)) {
 				return true;
 			}
 		}

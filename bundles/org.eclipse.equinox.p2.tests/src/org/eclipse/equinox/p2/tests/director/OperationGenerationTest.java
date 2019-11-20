@@ -246,9 +246,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		new OperationGenerator(plan).generateOperation(from, to);
 		List<Operand> operands = Arrays.asList(plan.getOperands());
 		//We are uninstalling myBundle 1.0 and 2.0. 3.0 stays unchanged.
-		for (int i = 0; i < operands.size(); i++) {
-			assertNotSame("3.0", three, ((InstallableUnitOperand) operands.get(i)).first());
-			assertNotSame("3.0.1", three, ((InstallableUnitOperand) operands.get(i)).second());
+		for (Operand operand : operands) {
+			assertNotSame("3.0", three, ((InstallableUnitOperand) operand).first());
+			assertNotSame("3.0.1", three, ((InstallableUnitOperand) operand).second());
 		}
 		assertEquals("3.1", one, ((InstallableUnitOperand) operands.get(0)).first());
 		assertNull("3.2", ((InstallableUnitOperand) operands.get(0)).second());
@@ -278,9 +278,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		new OperationGenerator(plan).generateOperation(from, to);
 		List<Operand> operands = Arrays.asList(plan.getOperands());
 		//Two is already in the system therefore it will not be in the operands
-		for (int i = 0; i < operands.size(); i++) {
-			assertNotSame("2.0", two, ((InstallableUnitOperand) operands.get(i)).first());
-			assertNotSame("2.1", two, ((InstallableUnitOperand) operands.get(i)).second());
+		for (Operand operand : operands) {
+			assertNotSame("2.0", two, ((InstallableUnitOperand) operand).first());
+			assertNotSame("2.1", two, ((InstallableUnitOperand) operand).second());
 		}
 		//three is an update of one
 		assertEquals("2.2", 1, operands.size());
@@ -311,9 +311,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		new OperationGenerator(plan).generateOperation(from, to);
 		List<Operand> operands = Arrays.asList(plan.getOperands());
 		//Two is already in the system therefore it will not be in the operands
-		for (int i = 0; i < operands.size(); i++) {
-			assertNotSame("2.0", two, ((InstallableUnitOperand) operands.get(i)).first());
-			assertNotSame("2.1", two, ((InstallableUnitOperand) operands.get(i)).second());
+		for (Operand operand : operands) {
+			assertNotSame("2.0", two, ((InstallableUnitOperand) operand).first());
+			assertNotSame("2.1", two, ((InstallableUnitOperand) operand).second());
 		}
 		//We install three and uninstall one
 		assertEquals("2.2", 2, operands.size());
@@ -374,10 +374,10 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	}
 
 	private void assertContainsInstallableUnitOperand(String message, List<Operand> operands, InstallableUnitOperand operand) {
-		for (int i = 0; i < operands.size(); i++) {
-			if (!(operands.get(i) instanceof InstallableUnitOperand))
+		for (Operand op : operands) {
+			if (!(op instanceof InstallableUnitOperand))
 				continue;
-			InstallableUnitOperand cmp = (InstallableUnitOperand) operands.get(i);
+			InstallableUnitOperand cmp = (InstallableUnitOperand) op;
 			if (cmp.first() != null && cmp.first().equals(operand.first()) && cmp.second() != null && cmp.second().equals(operand.second()))
 				return;
 		}
@@ -505,10 +505,10 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 	}
 
 	public void assertContainsConfigurationChange(String message, List<Operand> operands) {
-		for (int i = 0; i < operands.size(); i++) {
-			if (!(operands.get(i) instanceof InstallableUnitOperand))
+		for (Operand operand : operands) {
+			if (!(operand instanceof InstallableUnitOperand))
 				continue;
-			InstallableUnitOperand op = (InstallableUnitOperand) operands.get(i);
+			InstallableUnitOperand op = (InstallableUnitOperand) operand;
 			if (op.first() != null && op.first().equals(op.second())) {
 				return;
 			}

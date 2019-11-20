@@ -893,9 +893,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 		SubMonitor sub = SubMonitor.convert(monitor, 1000);
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(sub.newChild(500));
-		IQueryResult<IInstallableUnit> matches = queryable.query(new UpdateQuery(toUpdate), sub.newChild(500));
-		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-			IInstallableUnit iu = it.next();
+		for (IInstallableUnit iu : queryable.query(new UpdateQuery(toUpdate), sub.newChild(500))) {
 			String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
 			IInstallableUnit currentIU = resultsMap.get(key);
 			if (currentIU == null || hasHigherFidelity(iu, currentIU))

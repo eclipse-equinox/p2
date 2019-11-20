@@ -233,8 +233,8 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 
 	protected void writeRequirementsChange(List<IRequirementChange> changes) {
 		start(REQUIREMENT_CHANGES);
-		for (int i = 0; i < changes.size(); i++) {
-			writeRequirementChange(changes.get(i));
+		for (IRequirementChange change : changes) {
+			writeRequirementChange(change);
 		}
 		end(REQUIREMENT_CHANGES);
 	}

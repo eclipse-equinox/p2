@@ -172,8 +172,8 @@ public abstract class Member extends Unary {
 	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		if (super.accept(visitor))
-			for (int idx = 0; idx < argExpressions.length; ++idx)
-				if (!argExpressions[idx].accept(visitor))
+			for (Expression expression : argExpressions)
+				if (!expression.accept(visitor))
 					return false;
 		return true;
 	}

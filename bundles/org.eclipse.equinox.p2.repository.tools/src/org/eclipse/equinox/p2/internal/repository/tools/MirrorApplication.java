@@ -231,8 +231,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		IQueryResult<IInstallableUnit> ius = slice.query(QueryUtil.createIUAnyQuery(), monitor);
 		boolean iusSpecified = !ius.isEmpty(); // call before ius.iterator() to avoid bug 420318
 		ArrayList<IArtifactKey> keys = new ArrayList<>();
-		for (Iterator<IInstallableUnit> iterator = ius.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : ius) {
 			keys.addAll(iu.getArtifacts());
 		}
 

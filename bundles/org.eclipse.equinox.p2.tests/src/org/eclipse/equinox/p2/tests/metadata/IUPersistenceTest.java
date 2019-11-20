@@ -19,7 +19,6 @@ import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -271,23 +270,23 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractRequires(IInstallableUnit iu) {
-		Collection<IRequirement> requyres = iu.getRequirements();
-		String[][] tuples = new String[requyres.size()][4];
+		Collection<IRequirement> requirements = iu.getRequirements();
+		String[][] tuples = new String[requirements.size()][4];
 		int i = 0;
-		for (Iterator<IRequirement> iterator = requyres.iterator(); iterator.hasNext();) {
-			IRequiredCapability next = (IRequiredCapability) iterator.next();
-			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
+		for (IRequirement requirement : requirements) {
+			IRequiredCapability capability = (IRequiredCapability) requirement;
+			tuples[i++] = new String[] {capability.getNamespace(), capability.getName(), capability.getRange().toString(), Boolean.valueOf(capability.getMin() == 0).toString()};
 		}
 		return tuples;
 	}
 
 	private static String[][] extractMetaRequires(IInstallableUnit iu) {
-		Collection<IRequirement> requyres = iu.getMetaRequirements();
-		String[][] tuples = new String[requyres.size()][4];
+		Collection<IRequirement> requirements = iu.getMetaRequirements();
+		String[][] tuples = new String[requirements.size()][4];
 		int i = 0;
-		for (IRequirement iRequirement : requyres) {
-			IRequiredCapability next = (IRequiredCapability) iRequirement;
-			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
+		for (IRequirement requirement : requirements) {
+			IRequiredCapability capability = (IRequiredCapability) requirement;
+			tuples[i++] = new String[] {capability.getNamespace(), capability.getName(), capability.getRange().toString(), Boolean.valueOf(capability.getMin() == 0).toString()};
 		}
 		return tuples;
 	}

@@ -146,11 +146,10 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 	private void cleanupProfileRegistry() {
 		IProfileRegistry registry = ProvisioningUI.getDefaultUI().getSession().getProvisioningAgent()
 				.getService(IProfileRegistry.class);
-		long[] history = registry.listProfileTimestamps(toImportFrom.getProfileId());
-		for (int i = 0; i < history.length; i++) {
-			if (history[i] < toImportFrom.getTimestamp())
+		for (long timestamp : registry.listProfileTimestamps(toImportFrom.getProfileId())) {
+			if (timestamp < toImportFrom.getTimestamp())
 				try {
-					registry.removeProfile(toImportFrom.getProfileId(), history[i]);
+					registry.removeProfile(toImportFrom.getProfileId(), timestamp);
 				} catch (ProvisionException e) {
 					// Can't happen
 				}

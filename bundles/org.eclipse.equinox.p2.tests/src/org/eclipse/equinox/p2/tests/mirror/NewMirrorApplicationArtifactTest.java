@@ -954,12 +954,8 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			fail("");
 		}
 
-		IQueryResult<IArtifactKey> keys = packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
-			IArtifactDescriptor[] srcDescriptors = packedRepo.getArtifactDescriptors(key);
-
-			for (IArtifactDescriptor srcDescriptor : srcDescriptors) {
+		for (IArtifactKey key : packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null)) {
+			for (IArtifactDescriptor srcDescriptor : packedRepo.getArtifactDescriptors(key)) {
 				if (!(srcDescriptor.getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptor.getProperty(IArtifactDescriptor.FORMAT).equals(IArtifactDescriptor.FORMAT_PACKED)) {
 					//if we have a packed artifact
 					IArtifactDescriptor newDescriptor = new ArtifactDescriptor(key);

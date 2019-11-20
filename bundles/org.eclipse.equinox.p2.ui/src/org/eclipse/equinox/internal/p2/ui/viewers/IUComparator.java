@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -30,18 +30,18 @@ public class IUComparator extends ViewerComparator {
 	}
 
 	/**
-	 * Use the specified column config to determine
-	 * whether the id should be used in lieu of an empty name
-	 * when sorting.
-	 * 
-	 * @param columnConfig
+	 * Use the specified column config to determine whether the id should be used in
+	 * lieu of an empty name when sorting.
+	 *
+	 * @param columnConfigs
 	 */
-	public void useColumnConfig(IUColumnConfig[] columnConfig) {
-		for (int i = 0; i < columnConfig.length; i++)
-			if (columnConfig[i].getColumnType() == IUColumnConfig.COLUMN_ID) {
+	public void useColumnConfig(IUColumnConfig[] columnConfigs) {
+		for (IUColumnConfig columnConfig : columnConfigs) {
+			if (columnConfig.getColumnType() == IUColumnConfig.COLUMN_ID) {
 				showingId = true;
 				break;
 			}
+		}
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class IUComparator extends ViewerComparator {
 		if (key == IU_NAME) {
 			// Compare the iu names in the default locale.
 			// If a name is not defined, we use blank if we know the id is shown in another
-			// column.  If the id is not shown elsewhere, then we are displaying it, so use
+			// column. If the id is not shown elsewhere, then we are displaying it, so use
 			// the id instead.
 			key1 = iu1.getProperty(IInstallableUnit.PROP_NAME, null);
 			if (key1 == null)
