@@ -107,8 +107,8 @@ public final class ProxiesDialog {
 		typeCombo = new Combo(composite, SWT.BORDER);
 		typeCombo.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 3, 1));
 		//Currently only these three proxy types are supported.
-		for (int i = 0; i < types.size(); i++) {
-			typeCombo.add(types.get(i));
+		for (String type : types) {
+			typeCombo.add(type);
 		}
 
 		typeCombo.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {

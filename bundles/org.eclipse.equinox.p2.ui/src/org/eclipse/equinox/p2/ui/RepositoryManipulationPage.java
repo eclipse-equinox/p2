@@ -133,9 +133,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			if (cachedElements == null) {
 				Object[] children = super.fetchChildren(o, monitor);
 				cachedElements = new Hashtable<>(children.length);
-				for (int i = 0; i < children.length; i++) {
-					if (children[i] instanceof MetadataRepositoryElement) {
-						put((MetadataRepositoryElement) children[i]);
+				for (Object element : children) {
+					if (element instanceof MetadataRepositoryElement) {
+						put((MetadataRepositoryElement) element);
 					}
 				}
 			}
@@ -520,9 +520,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	MetadataRepositoryElement[] getSelectedElements() {
 		Object[] items = repositoryViewer.getStructuredSelection().toArray();
 		ArrayList<Object> list = new ArrayList<>(items.length);
-		for (int i = 0; i < items.length; i++) {
-			if (items[i] instanceof MetadataRepositoryElement)
-				list.add(items[i]);
+		for (Object item : items) {
+			if (item instanceof MetadataRepositoryElement)
+				list.add(item);
 		}
 		return list.toArray(new MetadataRepositoryElement[list.size()]);
 	}
@@ -641,8 +641,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	boolean includesRepo(URI[] repos, URI repo) {
-		for (int i = 0; i < repos.length; i++)
-			if (repos[i].equals(repo))
+		for (URI repo2 : repos)
+			if (repo2.equals(repo))
 				return true;
 		return false;
 	}

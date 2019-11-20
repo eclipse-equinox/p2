@@ -150,8 +150,8 @@ public class ReducedCUDFParser {
 		if (TIMING)
 			//			Log.println("Time to parse:" + (System.currentTimeMillis() - start));
 			if (DEBUG)
-				for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();)
-					debug((InstallableUnit) iter.next());
+				for (IInstallableUnit iu : allIUs)
+					debug((InstallableUnit) iu);
 		//		if (FORCE_QUERY) {
 		//			if (query == null)
 		//				initializeQueryableArray();
@@ -540,8 +540,8 @@ public class ReducedCUDFParser {
 		List<Tuple> pkgs = createPackageList(line);
 		IProvidedCapability[] providedCapabilities = new ProvidedCapability[pkgs.size() + 2];
 		int i = 0;
-		for (Iterator<Tuple> iter = pkgs.iterator(); iter.hasNext();) {
-			providedCapabilities[i++] = createProvidedCapability(iter.next());
+		for (Tuple tuple : pkgs) {
+			providedCapabilities[i++] = createProvidedCapability(tuple);
 		}
 		providedCapabilities[i++] = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, currentIU.getId(), currentIU.getVersion());
 		providedCapabilities[i++] = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, currentIU.getId(), currentIU.getVersion());

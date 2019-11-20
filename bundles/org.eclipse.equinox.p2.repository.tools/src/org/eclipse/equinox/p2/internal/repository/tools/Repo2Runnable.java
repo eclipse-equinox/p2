@@ -150,8 +150,8 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			context.setMetadataRepositories(getRepositories(true));
 			context.setArtifactRepositories(getRepositories(false));
 			IProvisioningPlan plan = engine.createPlan(profile, context);
-			for (Iterator<IInstallableUnit> iterator = processedIUs.iterator(); iterator.hasNext();) {
-				plan.addInstallableUnit(iterator.next());
+			for (IInstallableUnit iu : processedIUs) {
+				plan.addInstallableUnit(iu);
 			}
 			IStatus result = engine.perform(plan, getPhaseSet(), progress.newChild(1));
 			PhaseSet nativeSet = getNativePhase();
@@ -170,21 +170,20 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 				File fragmentInfo = new File(parentDir, "fragment.info");
 				HashSet<BundleInfo> bundles = new HashSet<>();
 				try {
-					for (Iterator<IInstallableUnit> iterator = processedIUs.iterator(); iterator.hasNext();) {
-						IInstallableUnit unit = iterator.next();
-						if (unit.getId().equals("a.jre"))
+					for (IInstallableUnit iu : processedIUs) {
+						if (iu.getId().equals("a.jre"))
 							continue;
-						Collection<IProvidedCapability> providedCapabilities = unit.getProvidedCapabilities();
+						Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
 						for (IProvidedCapability cap : providedCapabilities) {
 							if ("org.eclipse.equinox.p2.eclipse.type".equals(cap.getNamespace())) {
 								if ("bundle".equals(cap.getName())) {
-									File candidate = new File(pluginsDir, unit.getId() + "_" + unit.getVersion());
+									File candidate = new File(pluginsDir, iu.getId() + "_" + iu.getVersion());
 									if (candidate.exists()) {
-										bundles.add(new BundleInfo(unit.getId(), unit.getVersion().toString(), candidate.toURI(), 4, false));
+										bundles.add(new BundleInfo(iu.getId(), iu.getVersion().toString(), candidate.toURI(), 4, false));
 									}
-									candidate = new File(pluginsDir, unit.getId() + "_" + unit.getVersion() + ".jar");
+									candidate = new File(pluginsDir, iu.getId() + "_" + iu.getVersion() + ".jar");
 									if (candidate.exists()) {
-										bundles.add(new BundleInfo(unit.getId(), unit.getVersion().toString(), candidate.toURI(), 4, false));
+										bundles.add(new BundleInfo(iu.getId(), iu.getVersion().toString(), candidate.toURI(), 4, false));
 									}
 									break;
 								}

@@ -17,7 +17,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -191,8 +190,8 @@ public class ProfileTest extends AbstractProvisioningTest {
 			if (profiles.length > 0) {
 				start(PROFILES_ELEMENT);
 				attribute(COLLECTION_SIZE_ATTRIBUTE, profiles.length);
-				for (int i = 0; i < profiles.length; i++) {
-					writeProfile(profiles[i]);
+				for (IProfile profile : profiles) {
+					writeProfile(profile);
 				}
 				end(PROFILES_ELEMENT);
 			}
@@ -289,8 +288,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 					return new IProfile[0];
 
 				Map<String, IProfile> profileMap = new LinkedHashMap<>();
-				for (Iterator<String> it = profileHandlers.keySet().iterator(); it.hasNext();) {
-					String profileId = it.next();
+				for (String profileId : profileHandlers.keySet()) {
 					addProfile(profileId, profileMap);
 				}
 
@@ -314,13 +312,11 @@ public class ProfileTest extends AbstractProvisioningTest {
 				profile.setTimestamp(profileHandler.getTimestamp());
 				IInstallableUnit[] ius = profileHandler.getInstallableUnits();
 				if (ius != null) {
-					for (int i = 0; i < ius.length; i++) {
-						IInstallableUnit iu = ius[i];
+					for (IInstallableUnit iu : ius) {
 						profile.addInstallableUnit(iu);
 						Map<String, String> iuProperties = profileHandler.getIUProperties(iu);
 						if (iuProperties != null) {
-							for (Iterator<Entry<String, String>> it = iuProperties.entrySet().iterator(); it.hasNext();) {
-								Entry<String, String> entry = it.next();
+							for (Entry<String, String> entry : iuProperties.entrySet()) {
 								String key = entry.getKey();
 								String value = entry.getValue();
 								profile.setInstallableUnitProperty(iu, key, value);
@@ -367,8 +363,8 @@ public class ProfileTest extends AbstractProvisioningTest {
 		@Override
 		protected Object getRootObject() {
 			Map<String, IProfile> result = new HashMap<>();
-			for (int i = 0; i < profiles.length; i++) {
-				result.put(profiles[i].getProfileId(), profiles[i]);
+			for (IProfile profile : profiles) {
+				result.put(profile.getProfileId(), profile);
 			}
 			return result;
 		}

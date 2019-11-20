@@ -135,8 +135,8 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 							+ //
 							": properties['org.eclipse.equinox.p2.type.category'] == true"); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> result = repository.query(query, monitor.newChild(1));
-			for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();) {
-				process(repository, iter.next());
+			for (IInstallableUnit iInstallableUnit : result) {
+				process(repository, iInstallableUnit);
 			}
 		}
 	}

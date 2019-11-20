@@ -198,8 +198,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				int sz = 0;
-				for (Iterator<IInstallableUnit> iter = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).iterator(); iter.hasNext();) {
-					IInstallableUnit candidate = iter.next();
+				for (IInstallableUnit candidate : repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())) {
 					if (candidate.getId().startsWith("org.eclipse."))
 						sz++;
 				}
@@ -445,8 +444,8 @@ public class PerformanceTest extends AbstractProvisioningTest {
 	private IInstallableUnit[] gatherAvailableInstallableUnits(IQueryable<IInstallableUnit> queryable) {
 		ArrayList<IInstallableUnit> list = new ArrayList<>();
 		IQueryResult<IInstallableUnit> matches = queryable.query(QueryUtil.createIUAnyQuery(), null);
-		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();)
-			list.add(it.next());
+		for (IInstallableUnit iInstallableUnit : matches)
+			list.add(iInstallableUnit);
 		return list.toArray(new IInstallableUnit[list.size()]);
 	}
 }

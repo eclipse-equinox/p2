@@ -16,7 +16,6 @@ package org.eclipse.equinox.p2.tests.ant;
 
 import java.io.*;
 import java.net.URI;
-import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -139,8 +138,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 			fail("Failed to load repository", e);
 		}
 		IQueryResult<IArtifactKey> keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
+		for (IArtifactKey key : keys) {
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 			for (IArtifactDescriptor desc : descriptors) {
 				// Features should be unzipped, others should not be.

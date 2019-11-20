@@ -131,8 +131,7 @@ public class RemediationGroup {
 			checkboxes.get(ALLOWDIFFERENTVERSION_INDEX).setSelection(remedy != null && remedy.getConfig().allowDifferentVersion);
 			checkboxes.get(ALLOWINSTALLEDUPDATE_INDEX).setSelection(remedy != null && remedy.getConfig().allowInstalledUpdate);
 			checkboxes.get(ALLOWINSTALLEDREMOVAL_INDEX).setSelection(remedy != null && remedy.getConfig().allowInstalledRemoval);
-			for (Iterator<Button> iterator = checkboxes.iterator(); iterator.hasNext();) {
-				Button btn1 = iterator.next();
+			for (Button btn1 : checkboxes) {
 				btn1.setVisible(true);
 			}
 			if (btn == buildMyOwnSolution && btn.getSelection()) {
@@ -289,8 +288,7 @@ public class RemediationGroup {
 						versions.add(ProvUIMessages.RemedyElementRequestedVersion + iuDetail.getRequestedVersion().toString());
 					if (iuDetail.getBeingInstalledVersion() != null)
 						versions.add(ProvUIMessages.RemedyElementBeingInstalledVersion + iuDetail.getBeingInstalledVersion().toString());
-					for (Iterator<String> iterator = versions.iterator(); iterator.hasNext();) {
-						String version = iterator.next();
+					for (String version : versions) {
 						toolTipText += (toolTipText == "" ? "" : "\n") + version; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
 					if (containerPage != null && containerPage.getWizard() instanceof UpdateWizard && compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0)

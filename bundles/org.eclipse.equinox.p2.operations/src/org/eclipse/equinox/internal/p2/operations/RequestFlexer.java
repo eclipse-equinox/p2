@@ -322,8 +322,8 @@ public class RequestFlexer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
 		Collection<IInstallableUnit> availableUpdates = new HashSet<>();
 		IQueryResult<IInstallableUnit> updatesAvailable = planner.updatesFor(iu, provisioningContext, subMonitor.split(1));
-		for (Iterator<IInstallableUnit> iterator = updatesAvailable.iterator(); iterator.hasNext();) {
-			availableUpdates.add(iterator.next());
+		for (IInstallableUnit unit : updatesAvailable) {
+			availableUpdates.add(unit);
 		}
 		return availableUpdates;
 	}

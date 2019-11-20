@@ -115,8 +115,7 @@ public class PhaseSet implements IPhaseSet {
 						List<ProvisioningAction> actions = phase.getActions(operand);
 						if (actions == null)
 							continue;
-						for (int k = 0; k < actions.size(); k++) {
-							ProvisioningAction action = actions.get(k);
+						for (ProvisioningAction action : actions) {
 							if (action instanceof MissingAction)
 								missingActions.add((MissingAction) action);
 						}

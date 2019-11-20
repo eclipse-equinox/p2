@@ -70,8 +70,8 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 		root = new IUElementListRoot(ui);
 		ArrayList<AvailableIUElement> list = new ArrayList<>(selectedElements.length);
 		ArrayList<AvailableIUElement> selected = new ArrayList<>(selectedElements.length);
-		for (int i = 0; i < selectedElements.length; i++) {
-			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
+		for (Object selectedElement : selectedElements) {
+			IInstallableUnit iu = ElementUtils.getIU(selectedElement);
 			if (iu != null) {
 				AvailableIUElement element = new AvailableIUElement(root, iu, getProfileId(), shouldShowProvisioningPlanChildren());
 				list.add(element);

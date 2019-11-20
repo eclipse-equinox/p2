@@ -77,8 +77,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 
 		repoMap = new HashMap<>();
 		IQueryResult<IArtifactKey> keys = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
+		for (IArtifactKey key : keys) {
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
 			repoMap.put(key, descriptors);
 		}

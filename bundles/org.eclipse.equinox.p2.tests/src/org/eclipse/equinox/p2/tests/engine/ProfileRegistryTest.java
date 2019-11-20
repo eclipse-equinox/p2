@@ -677,9 +677,9 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertEquals(3, timestamps.length);
 		int fail = 0;
 
-		for (int i = 0; i < timestamps.length; i++) {
+		for (long timestamp : timestamps) {
 			try {
-				registry.removeProfile(PROFILE_NAME, timestamps[i]);
+				registry.removeProfile(PROFILE_NAME, timestamp);
 			} catch (ProvisionException e) {
 				fail++;
 			}

@@ -233,14 +233,13 @@ public class Projector {
 			}
 			List<IInstallableUnit> iusToOrder = new ArrayList<>(queryResult.toSet());
 			Collections.sort(iusToOrder);
-			for (Iterator<IInstallableUnit> iusToEncode = iusToOrder.iterator(); iusToEncode.hasNext();) {
+			for (IInstallableUnit iu : iusToOrder) {
 				if (monitor.isCanceled()) {
 					result.merge(Status.CANCEL_STATUS);
 					throw new OperationCanceledException();
 				}
-				IInstallableUnit iuToEncode = iusToEncode.next();
-				if (iuToEncode != entryPointIU) {
-					processIU(iuToEncode, false);
+				if (iu != entryPointIU) {
+					processIU(iu, false);
 				}
 			}
 			createMustHave(entryPointIU, alreadyExistingRoots);
@@ -515,8 +514,8 @@ public class Projector {
 		Collection<IRequirement> iuRequirements = getRequiredCapabilities(iu);
 		Map<IRequirement, List<IInstallableUnitPatch>> unchangedRequirements = new HashMap<>(iuRequirements.size());
 		Map<IRequirement, Pending> nonPatchedRequirements = new HashMap<>(iuRequirements.size());
-		for (Iterator<IInstallableUnit> iterator = applicablePatches.iterator(); iterator.hasNext();) {
-			IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
+		for (IInstallableUnit iup : applicablePatches) {
+			IInstallableUnitPatch patch = (IInstallableUnitPatch) iup;
 			IRequirement[][] reqs = mergeRequirements(iu, patch);
 			if (reqs.length == 0)
 				return;
@@ -826,8 +825,7 @@ public class Projector {
 		IRequirement[] originalRequirements = iuRequirements.toArray(new IRequirement[iuRequirements.size()]);
 		List<IRequirement[]> rrr = new ArrayList<>();
 		boolean found = false;
-		for (int i = 0; i < changes.size(); i++) {
-			IRequirementChange change = changes.get(i);
+		for (IRequirementChange change : changes) {
 			for (int j = 0; j < originalRequirements.length; j++) {
 				if (originalRequirements[j] != null && safeMatch(originalRequirements, change, j)) {
 					found = true;

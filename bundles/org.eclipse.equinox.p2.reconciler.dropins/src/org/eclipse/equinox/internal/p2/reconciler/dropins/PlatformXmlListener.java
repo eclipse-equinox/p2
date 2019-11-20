@@ -257,8 +257,8 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			}
 		}
 		if (!toBeRemoved.isEmpty()) {
-			for (Iterator<Site> iter = toBeRemoved.iterator(); iter.hasNext();)
-				config.removeSite(iter.next());
+			for (Site site : toBeRemoved)
+				config.removeSite(site);
 			try {
 				config.save(root, Activator.getOSGiInstallArea());
 			} catch (ProvisionException e) {

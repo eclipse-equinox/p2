@@ -164,8 +164,7 @@ public abstract class Phase {
 
 			if (actions != null) {
 				Object lastResult = null;
-				for (int j = 0; j < actions.size(); j++) {
-					ProvisioningAction action = actions.get(j);
+				for (ProvisioningAction action : actions) {
 					Map<String, Object> parameters = operandParameters;
 					Touchpoint touchpoint = action.getTouchpoint();
 					if (touchpoint != null) {

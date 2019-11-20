@@ -76,8 +76,7 @@ public class Pipe extends NAry {
 		ArrayList<Expression> pipeables = new ArrayList<>();
 		ArrayList<Expression> booleans = new ArrayList<>();
 		VariableFinder finder = new VariableFinder(ExpressionFactory.EVERYTHING);
-		for (int idx = 0; idx < operands.length; ++idx) {
-			Expression operand = operands[idx];
+		for (Expression operand : operands) {
 			finder.reset();
 			operand.accept(finder);
 			if (finder.isFound()) {

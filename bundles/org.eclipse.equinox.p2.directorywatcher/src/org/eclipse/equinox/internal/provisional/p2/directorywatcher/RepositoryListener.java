@@ -265,8 +265,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		currentFiles.clear();
 		if (metadataRepository != null) {
 			IQueryResult<IInstallableUnit> ius = metadataRepository.query(QueryUtil.createIUAnyQuery(), null);
-			for (Iterator<IInstallableUnit> it = ius.iterator(); it.hasNext();) {
-				IInstallableUnit iu = it.next();
+			for (IInstallableUnit iu : ius) {
 				String filename = iu.getProperty(FILE_NAME);
 				if (filename == null) {
 					if (Tracing.DEBUG) {

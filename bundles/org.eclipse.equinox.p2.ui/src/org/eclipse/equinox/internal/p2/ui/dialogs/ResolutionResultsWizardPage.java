@@ -254,9 +254,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		if (operation == null || operation.getProvisioningPlan() == null)
 			return;
 		Object[] elements = root.getChildren(root);
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] instanceof QueriedElement) {
-				((QueriedElement) elements[i]).setQueryable(getQueryable(operation.getProvisioningPlan()));
+		for (Object element : elements) {
+			if (element instanceof QueriedElement) {
+				((QueriedElement) element).setQueryable(getQueryable(operation.getProvisioningPlan()));
 			}
 		}
 	}
