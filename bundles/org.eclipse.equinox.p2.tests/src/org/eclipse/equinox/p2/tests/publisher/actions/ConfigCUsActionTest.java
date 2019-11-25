@@ -95,8 +95,7 @@ public class ConfigCUsActionTest extends ActionTest {
 	private void verifyFragment(String cuType) {
 		ArrayList<IInstallableUnit> IUs = new ArrayList<>(publisherResult.getIUs(null, IPublisherResult.NON_ROOT));
 		assertTrue(IUs.size() == 2);
-		for (int i = 0; i < IUs.size(); i++) {
-			InstallableUnit iu = (InstallableUnit) IUs.get(i);
+		for (IInstallableUnit iu : IUs) {
 			if (iu.getId().equals(flavor + id + "." + cuType + "." + configSpec)) { //$NON-NLS-1$ //$NON-NLS-2$
 				assertTrue(iu.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))"))); //$NON-NLS-1$
 				assertTrue(iu.getVersion().equals(version));

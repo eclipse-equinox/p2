@@ -47,9 +47,9 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 		// referred to by the element itself..
 		IProfile profile = getProfile();
 		if (selectionArray.length > 0) {
-			for (int i = 0; i < selectionArray.length; i++) {
-				if (selectionArray[i] instanceof InstalledIUElement) {
-					InstalledIUElement element = (InstalledIUElement) selectionArray[i];
+			for (Object selection : selectionArray) {
+				if (selection instanceof InstalledIUElement) {
+					InstalledIUElement element = (InstalledIUElement) selection;
 					// If the parents are different, then they are either from 
 					// different profiles or are nested in different parts of the tree.
 					// Either way, this makes the selection invalid.
@@ -62,7 +62,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 					if (!isSelectable(element.getIU(), profile))
 						return false;
 				} else {
-					IInstallableUnit iu = ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
+					IInstallableUnit iu = ProvUI.getAdapter(selection, IInstallableUnit.class);
 					if (iu == null || !isSelectable(iu))
 						return false;
 				}

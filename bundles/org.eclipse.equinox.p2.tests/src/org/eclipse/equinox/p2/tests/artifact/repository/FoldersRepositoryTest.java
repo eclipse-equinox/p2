@@ -17,7 +17,6 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
-import java.util.Iterator;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -96,8 +95,7 @@ public class FoldersRepositoryTest extends TestCase {
 		}
 		IQueryResult<IArtifactKey> keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertEquals(2, AbstractProvisioningTest.queryResultSize(keys));
-		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
+		for (IArtifactKey key : keys) {
 			repo.removeDescriptor(key, monitor);
 		}
 

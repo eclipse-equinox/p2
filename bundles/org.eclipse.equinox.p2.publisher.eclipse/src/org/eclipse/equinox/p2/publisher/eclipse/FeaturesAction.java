@@ -254,8 +254,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		// link in all the children (if any) as requirements.
 		// TODO consider if these should be linked as exact version numbers.  Should be ok but may be brittle.
 		if (childIUs != null) {
-			for (int i = 0; i < childIUs.size(); i++) {
-				IInstallableUnit child = childIUs.get(i);
+			for (IInstallableUnit child : childIUs) {
 				IMatchExpression<IInstallableUnit> filter = child.getFilter();
 				required.add(MetadataFactory.createRequirement(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), filter, false, false));
 			}
@@ -340,8 +339,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		//Always add a requirement on the IU containing the feature jar
 		if (childIUs != null) {
-			for (int i = 0; i < childIUs.size(); i++) {
-				IInstallableUnit child = childIUs.get(i);
+			for (IInstallableUnit child : childIUs) {
 				patchRequirements.add(MetadataFactory.createRequirement(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter(), false, false));
 			}
 		}

@@ -16,7 +16,6 @@ package org.eclipse.equinox.p2.tests.reconciler.dropins;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Iterator;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.update.*;
@@ -387,8 +386,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		assertFalse("7.3", isInstalled("ccc", "1.0.0"));
 		assertFalse("7.4", isInstalled("bbb.feature.feature.group", "1.0.0"));
 		boolean found = false;
-		for (Iterator<Site> iter = getConfiguration().getSites().iterator(); iter.hasNext();) {
-			Site site = iter.next();
+		for (Site site : getConfiguration().getSites()) {
 			String link = site.getLinkFile();
 			if (link != null && link.contains("myLink"))
 				found = true;

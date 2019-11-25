@@ -328,8 +328,7 @@ public class EclipseLauncherParser {
 		//only write the file if we actually have content
 		if (newlines.size() > 0) {
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(launcherConfigFile));) {
-				for (int j = 0; j < newlines.size(); j++) {
-					String arg = newlines.get(j);
+				for (String arg : newlines) {
 					if (arg == null)
 						continue;
 					bw.write(arg);

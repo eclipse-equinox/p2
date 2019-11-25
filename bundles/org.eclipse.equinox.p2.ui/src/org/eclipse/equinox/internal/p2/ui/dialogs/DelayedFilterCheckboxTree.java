@@ -282,10 +282,10 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		if (checkState == null) {
 			checkState = new HashSet<>(checked.length);
 		}
-		for (int i = 0; i < checked.length; i++) {
-			if (!v.getGrayed(checked[i]) && contentProvider.getChildren(checked[i]).length == 0) {
-				if (!checkState.contains(checked[i])) {
-					checkState.add(checked[i]);
+		for (Object element : checked) {
+			if (!v.getGrayed(element) && contentProvider.getChildren(element).length == 0) {
+				if (!checkState.contains(element)) {
+					checkState.add(element);
 				}
 			}
 		}

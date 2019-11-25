@@ -245,8 +245,8 @@ class ConfigApplier {
 			List<InputStream> sourceStreams = new ArrayList<>(sourcesLocation.size() + 1);
 			sourceStreams.add(url.openStream());
 			if (Activator.EXTENDED) {
-				for (int i = 0; i < sourcesLocation.size(); i++) {
-					sourceStreams.add(new FileInputStream(sourcesLocation.get(i)));
+				for (File source : sourcesLocation) {
+					sourceStreams.add(new FileInputStream(source));
 				}
 			}
 			SimpleConfiguratorUtils.transferStreams(sourceStreams, destinationStream);

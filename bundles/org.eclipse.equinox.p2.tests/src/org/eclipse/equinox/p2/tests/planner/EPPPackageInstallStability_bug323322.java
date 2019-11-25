@@ -18,7 +18,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -63,8 +62,7 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 
 			//Extract all the unresolved IUs.
 			Set<IInstallableUnit> tmp = plan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).query(QueryUtil.ALL_UNITS, null).toSet();
-			for (Iterator<IInstallableUnit> iterator = tmp.iterator(); iterator.hasNext();) {
-				IInstallableUnit iu = iterator.next();
+			for (IInstallableUnit iu : tmp) {
 				iusFromFirstResolution.add(iu.unresolved());
 			}
 		}
@@ -84,8 +82,7 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 
 			Set<IInstallableUnit> tmp = plan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).query(QueryUtil.ALL_UNITS, null).toSet();
 			Set<IInstallableUnit> iusFromSecondResolution = new HashSet<>();
-			for (Iterator<IInstallableUnit> iterator = tmp.iterator(); iterator.hasNext();) {
-				IInstallableUnit iu = iterator.next();
+			for (IInstallableUnit iu : tmp) {
 				iusFromSecondResolution.add(iu.unresolved());
 			}
 

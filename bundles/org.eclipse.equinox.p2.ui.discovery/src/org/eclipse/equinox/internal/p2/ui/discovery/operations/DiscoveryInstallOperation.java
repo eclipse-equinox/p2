@@ -27,7 +27,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.operations.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -255,9 +256,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		for (final IMetadataRepository repository : repositories) {
 			checkCancelled(monitor);
 			final Set<String> installableUnitIdsThisRepository = getDescriptorIds(repository);
-			IQueryResult<IInstallableUnit> result = repository.query(createInstalledIUsQuery(), monitor.newChild(1));
-			for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();) {
-				IInstallableUnit iu = iter.next();
+			for (IInstallableUnit iu : repository.query(createInstalledIUsQuery(), monitor.newChild(1))) {
 				String id = iu.getId();
 				if (installableUnitIdsThisRepository.contains(id))
 					installableUnits.add(iu);

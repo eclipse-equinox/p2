@@ -67,10 +67,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 	}
 
 	private void verifyResults() {
-		ArrayList<IInstallableUnit> ius = new ArrayList<>(publisherResult.getIUs(null, null));
-		IInstallableUnit iu;
-		for (int i = 0; i < ius.size(); i++) {
-			iu = ius.get(i);
+		for (IInstallableUnit iu : new ArrayList<>(publisherResult.getIUs(null, null))) {
 			if (iu.getId().equals(flavorArg + EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
 				assertTrue(iu instanceof InstallableUnitFragment);
 				//verify required capability

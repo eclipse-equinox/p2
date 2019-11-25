@@ -139,10 +139,9 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		String _ws = config[0];
 		String _os = config[1];
 		String _arch = config[2];
-		for (int i = 0; i < iuList.size(); i++) {
-			IInstallableUnit possibleEclipse = iuList.get(i);
+		for (IInstallableUnit possibleEclipse : iuList) {
 			if (possibleEclipse.getId().equals(flavorArg + idBase + ".executable." + confSpec)) {//$NON-NLS-1$
-				IInstallableUnitFragment fragment = (IInstallableUnitFragment) iuList.get(i);
+				IInstallableUnitFragment fragment = (IInstallableUnitFragment) possibleEclipse;
 				Collection<IProvidedCapability> providedCapability = fragment.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + confSpec, version); //$NON-NLS-1$
 				assertTrue(providedCapability.size() == 1);
@@ -161,8 +160,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	}
 
 	private void verifyEclipseIU(ArrayList<IInstallableUnit> iuList, String idBase, String confSpec) {
-		for (int i = 0; i < iuList.size(); i++) {
-			IInstallableUnit possibleEclipse = iuList.get(i);
+		for (IInstallableUnit possibleEclipse : iuList) {
 			if (possibleEclipse.getId().equals((idBase + ".executable." + confSpec + "." + EXECUTABLE_NAME))) { //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(possibleEclipse.getVersion().equals(version));
 				Collection<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
@@ -181,8 +179,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		String _ws = config[0];
 		String _os = config[1];
 		String _arch = config[2];
-		for (int i = 0; i < iuList.size(); i++) {
-			IInstallableUnit possibleExec = iuList.get(i);
+		for (IInstallableUnit possibleExec : iuList) {
 			if (possibleExec.getId().equals(idBase + ".executable." + confSpec)) { //$NON-NLS-1$
 				//keep checking
 				assertTrue(possibleExec.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=" + _ws + ")(osgi.os=" + _os + ")(osgi.arch=" + _arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$

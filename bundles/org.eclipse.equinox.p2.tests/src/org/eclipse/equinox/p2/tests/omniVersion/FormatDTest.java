@@ -64,11 +64,11 @@ public class FormatDTest extends TestCase {
 		String formatString = "format(ndn):";
 		Integer one = Integer.valueOf(1);
 		Integer two = Integer.valueOf(2);
-		for (int i = 0; i < s_delim.length; i++) {
+		for (char delim : s_delim) {
 			StringBuilder buf = new StringBuilder();
 			buf.append(formatString);
 			buf.append("1");
-			buf.append(s_delim[i]);
+			buf.append(delim);
 			buf.append("2");
 			v = Version.parseVersion(buf.toString());
 			assertNotNull(v);
@@ -82,11 +82,11 @@ public class FormatDTest extends TestCase {
 		String formatString = "format(sds):";
 		String one = "abc";
 		String two = "def";
-		for (int i = 0; i < s_delim.length; i++) {
+		for (char delim : s_delim) {
 			StringBuilder buf = new StringBuilder();
 			buf.append(formatString);
 			buf.append(one);
-			buf.append(s_delim[i]);
+			buf.append(delim);
 			buf.append(two);
 			v = Version.parseVersion(buf.toString());
 			assertNotNull(v);

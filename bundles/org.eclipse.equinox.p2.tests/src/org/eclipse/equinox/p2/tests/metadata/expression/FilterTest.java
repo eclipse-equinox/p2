@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -241,8 +240,8 @@ public class FilterTest {
 			this.dictionary = dictionary;
 			List<String> keyList = new ArrayList<>(dictionary.size());
 			for (String key : dictionary.keySet()) {
-				for (Iterator<String> i = keyList.iterator(); i.hasNext();) {
-					if (key.equalsIgnoreCase(i.next())) {
+				for (String string : keyList) {
+					if (key.equalsIgnoreCase(string)) {
 						throw new IllegalArgumentException();
 					}
 				}

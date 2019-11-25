@@ -245,9 +245,8 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	private IBrandingAdvice getBrandingAdvice() {
 		// there is expected to only be one branding advice for a given configspec so
 		// just return the first one we find.
-		Collection<IBrandingAdvice> advice = info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class);
-		for (Iterator<IBrandingAdvice> i = advice.iterator(); i.hasNext();)
-			return i.next();
+		for (IBrandingAdvice advice : info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class))
+			return advice;
 		return null;
 	}
 

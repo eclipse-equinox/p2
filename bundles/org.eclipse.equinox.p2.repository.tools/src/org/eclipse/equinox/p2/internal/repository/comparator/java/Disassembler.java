@@ -57,8 +57,8 @@ public class Disassembler {
 		if (checkBits == null)
 			return;
 		boolean firstModifier = true;
-		for (int i = 0, max = checkBits.length; i < max; i++) {
-			switch (checkBits[i]) {
+		for (int checkBit : checkBits) {
+			switch (checkBit) {
 				case IModifierConstants.ACC_PUBLIC :
 					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
 					break;
@@ -180,8 +180,7 @@ public class Disassembler {
 
 	static String decodeStringValue(char[] chars) {
 		StringBuilder buffer = new StringBuilder();
-		for (int i = 0, max = chars.length; i < max; i++) {
-			char c = chars[i];
+		for (char c : chars) {
 			switch (c) {
 				case '\b' :
 					buffer.append("\\b"); //$NON-NLS-1$
@@ -248,9 +247,8 @@ public class Disassembler {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		final char[] typeName = CharOperation.replaceOnCopy(annotation.getTypeName(), '/', '.');
 		buffer.append(NLS.bind(Messages.disassembler_annotationentrystart, new String[] {new String(returnClassName(Signature.toCharArray(typeName), '.', mode))}));
-		final AnnotationComponent[] components = annotation.getComponents();
-		for (int i = 0, max = components.length; i < max; i++) {
-			disassemble(components[i], buffer, lineSeparator, tabNumber + 1, mode);
+		for (AnnotationComponent component : annotation.getComponents()) {
+			disassemble(component, buffer, lineSeparator, tabNumber + 1, mode);
 		}
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_annotationentryend);
@@ -323,12 +321,13 @@ public class Disassembler {
 				Annotation annotation = annotationComponentValue.getAnnotationValue();
 				disassemble(annotation, buffer, lineSeparator, tabNumber + 1, mode);
 				break;
-			case AnnotationComponentValue.ARRAY_TAG :
+			case AnnotationComponentValue.ARRAY_TAG:
 				buffer.append(Messages.disassembler_annotationarrayvaluestart);
-				final AnnotationComponentValue[] annotationComponentValues = annotationComponentValue.getAnnotationComponentValues();
-				for (int i = 0, max = annotationComponentValues.length; i < max; i++) {
+				final AnnotationComponentValue[] annotationComponentValues = annotationComponentValue
+					.getAnnotationComponentValues();
+				for (AnnotationComponentValue annotationComponentValue2 : annotationComponentValues) {
 					writeNewLine(buffer, lineSeparator, tabNumber + 1);
-					disassemble(annotationComponentValues[i], buffer, lineSeparator, tabNumber + 1, mode);
+					disassemble(annotationComponentValue2, buffer, lineSeparator, tabNumber + 1, mode);
 				}
 				writeNewLine(buffer, lineSeparator, tabNumber + 1);
 				buffer.append(Messages.disassembler_annotationarrayvalueend);
@@ -567,8 +566,7 @@ public class Disassembler {
 		if (innerClassesAttribute != null) {
 			// search the right entry
 			InnerClassesAttributeEntry[] entries = innerClassesAttribute.getInnerClassAttributesEntries();
-			for (int i = 0, max = entries.length; i < max; i++) {
-				InnerClassesAttributeEntry entry = entries[i];
+			for (InnerClassesAttributeEntry entry : entries) {
 				char[] innerClassName = entry.getInnerClassName();
 				if (innerClassName != null) {
 					if (Arrays.equals(classFileReader.getClassName(), innerClassName)) {
@@ -876,8 +874,8 @@ public class Disassembler {
 		Annotation[] annotations = parameterAnnotation.getAnnotations();
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(NLS.bind(Messages.disassembler_parameterannotationentrystart, new String[] {Integer.toString(index), Integer.toString(annotations.length)}));
-		for (int i = 0, max = annotations.length; i < max; i++) {
-			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
+		for (Annotation annotation : annotations) {
+			disassemble(annotation, buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
@@ -885,8 +883,8 @@ public class Disassembler {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_runtimeinvisibleannotationsattributeheader);
 		Annotation[] annotations = runtimeInvisibleAnnotationsAttribute.getAnnotations();
-		for (int i = 0, max = annotations.length; i < max; i++) {
-			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
+		for (Annotation annotation : annotations) {
+			disassemble(annotation, buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
@@ -903,8 +901,8 @@ public class Disassembler {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_runtimevisibleannotationsattributeheader);
 		Annotation[] annotations = runtimeVisibleAnnotationsAttribute.getAnnotations();
-		for (int i = 0, max = annotations.length; i < max; i++) {
-			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
+		for (Annotation annotation : annotations) {
+			disassemble(annotation, buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
@@ -1019,9 +1017,8 @@ public class Disassembler {
 	}
 
 	private void disassembleAsModifier(RuntimeInvisibleAnnotationsAttribute runtimeInvisibleAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
-		Annotation[] annotations = runtimeInvisibleAnnotationsAttribute.getAnnotations();
-		for (int i = 0, max = annotations.length; i < max; i++) {
-			disassembleAsModifier(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
+		for (Annotation annotation : runtimeInvisibleAnnotationsAttribute.getAnnotations()) {
+			disassembleAsModifier(annotation, buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
@@ -1069,9 +1066,9 @@ public class Disassembler {
 			}
 			return compare;
 		});
-		for (int i = 0, max = fields.length; i < max; i++) {
+		for (FieldInfo field : fields) {
 			writeNewLine(buffer, lineSeparator, tabNumber);
-			disassemble(fields[i], buffer, lineSeparator, tabNumber, mode);
+			disassemble(field, buffer, lineSeparator, tabNumber, mode);
 		}
 		MethodInfo[] methods = classFileReader.getMethodInfos();
 		// sort methods
@@ -1082,9 +1079,9 @@ public class Disassembler {
 			}
 			return compare;
 		});
-		for (int i = 0, max = methods.length; i < max; i++) {
+		for (MethodInfo method : methods) {
 			writeNewLine(buffer, lineSeparator, tabNumber);
-			disassemble(classFileReader, className, methods[i], buffer, lineSeparator, tabNumber, mode);
+			disassemble(classFileReader, className, method, buffer, lineSeparator, tabNumber, mode);
 		}
 	}
 
@@ -1095,10 +1092,9 @@ public class Disassembler {
 	}
 
 	private EnclosingMethodAttribute getEnclosingMethodAttribute(ClassFileReader classFileReader) {
-		ClassFileAttribute[] attributes = classFileReader.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (Arrays.equals(attributes[i].getAttributeName(), AttributeNamesConstants.ENCLOSING_METHOD)) {
-				return (EnclosingMethodAttribute) attributes[i];
+		for (ClassFileAttribute attribute : classFileReader.getAttributes()) {
+			if (Arrays.equals(attribute.getAttributeName(), AttributeNamesConstants.ENCLOSING_METHOD)) {
+				return (EnclosingMethodAttribute) attribute;
 			}
 		}
 		return null;
@@ -1113,9 +1109,8 @@ public class Disassembler {
 	}
 
 	private boolean isDeprecated(ClassFileReader classFileReader) {
-		ClassFileAttribute[] attributes = classFileReader.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (Arrays.equals(attributes[i].getAttributeName(), AttributeNamesConstants.DEPRECATED)) {
+		for (ClassFileAttribute attribute : classFileReader.getAttributes()) {
+			if (Arrays.equals(attribute.getAttributeName(), AttributeNamesConstants.DEPRECATED)) {
 				return true;
 			}
 		}
@@ -1127,9 +1122,8 @@ public class Disassembler {
 		if ((flags & IModifierConstants.ACC_SYNTHETIC) != 0) {
 			return true;
 		}
-		ClassFileAttribute[] attributes = classFileReader.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (Arrays.equals(attributes[i].getAttributeName(), AttributeNamesConstants.SYNTHETIC)) {
+		for (ClassFileAttribute attribute : classFileReader.getAttributes()) {
+			if (Arrays.equals(attribute.getAttributeName(), AttributeNamesConstants.SYNTHETIC)) {
 				return true;
 			}
 		}

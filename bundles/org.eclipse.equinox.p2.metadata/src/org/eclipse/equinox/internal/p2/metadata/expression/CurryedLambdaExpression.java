@@ -33,8 +33,8 @@ final class CurryedLambdaExpression extends LambdaExpression {
 	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		if (super.accept(visitor) && each.accept(visitor)) {
-			for (int idx = 0; idx < assignments.length; ++idx)
-				if (!assignments[idx].accept(visitor))
+			for (Assignment assignment : assignments)
+				if (!assignment.accept(visitor))
 					return false;
 			return true;
 		}
@@ -96,8 +96,8 @@ final class CurryedLambdaExpression extends LambdaExpression {
 	@Override
 	int countAccessToEverything() {
 		int cnt = 0;
-		for (int idx = 0; idx < assignments.length; ++idx)
-			cnt += assignments[idx].countAccessToEverything();
+		for (Assignment assignment : assignments)
+			cnt += assignment.countAccessToEverything();
 		cnt += super.countAccessToEverything();
 		return cnt;
 	}

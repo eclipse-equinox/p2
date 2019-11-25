@@ -107,17 +107,20 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		}
 	}
 
-	public static List<String> getIndexCandidateMembers(Class<?> elementClass, Variable itemVariable, Expression operand) {
+	public static List<String> getIndexCandidateMembers(Class<?> elementClass, Variable itemVariable,
+			Expression operand) {
 		MembersFinder finder = new MembersFinder(elementClass, itemVariable);
 		operand.accept(finder);
 		return finder.getMembers();
 	}
 
 	/**
-	 * Let the visitor visit this instance and all expressions that this
-	 * instance contains.
+	 * Let the visitor visit this instance and all expressions that this instance
+	 * contains.
+	 * 
 	 * @param visitor The visiting visitor.
-	 * @return <code>true</code> if the visitor should continue visiting, <code>false</code> otherwise.
+	 * @return <code>true</code> if the visitor should continue visiting,
+	 *         <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean accept(IExpressionVisitor visitor) {
@@ -146,6 +149,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 	/**
 	 * Evaluate this expression with given context and variables.
+	 * 
 	 * @param context The evaluation context
 	 * @return The result of the evaluation.
 	 */
@@ -218,12 +222,12 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 			if (base.getExpressionType() == op)
 				aArr = getFilterImpls(base);
 			else
-				aArr = new Expression[] {base};
+				aArr = new Expression[] { base };
 
 			if (b.getExpressionType() == op)
 				bArr = getFilterImpls(b);
 			else
-				bArr = new Expression[] {b};
+				bArr = new Expression[] { b };
 
 			List<Expression> common = null;
 			List<Expression> onlyA = null;
@@ -388,11 +392,9 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 			if (f.getExpressionType() != op)
 				continue;
 
-			Expression[] sfs = getFilterImpls(f);
 			operands.remove(idx);
 			--top;
-			for (int ndx = 0; ndx < sfs.length; ++ndx) {
-				Expression nf = sfs[ndx];
+			for (Expression nf : getFilterImpls(f)) {
 				if (!operands.contains(nf))
 					operands.add(nf);
 			}
@@ -484,7 +486,8 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 		@Override
 		public boolean visit(IExpression expression) {
-			if (expression.getExpressionType() == TYPE_MEMBER && InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(((Member) expression).getName()))
+			if (expression.getExpressionType() == TYPE_MEMBER
+					&& InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(((Member) expression).getName()))
 				found = true;
 			return !found;
 		}
@@ -495,8 +498,11 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 	}
 
 	/**
-	 * Checks if the expression will make repeated requests for the 'everything' iterator.
-	 * @return <code>true</code> if repeated requests will be made, <code>false</code> if not.
+	 * Checks if the expression will make repeated requests for the 'everything'
+	 * iterator.
+	 * 
+	 * @return <code>true</code> if repeated requests will be made,
+	 *         <code>false</code> if not.
 	 */
 	public boolean needsTranslationSupport() {
 		TranslationSupportFinder tsFinder = new TranslationSupportFinder();
