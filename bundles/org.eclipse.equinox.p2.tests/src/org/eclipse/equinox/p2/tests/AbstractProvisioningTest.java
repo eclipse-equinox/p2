@@ -1006,8 +1006,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		//remove all metadata repositories created by this test
 		IMetadataRepositoryManager repoMan = getMetadataRepositoryManager();
 		if (!metadataRepos.isEmpty()) {
-			for (Iterator<IMetadataRepository> it = metadataRepos.iterator(); it.hasNext();) {
-				IMetadataRepository repo = it.next();
+			for (IMetadataRepository repo : metadataRepos) {
 				repoMan.removeRepository(repo.getLocation());
 			}
 			metadataRepos.clear();
@@ -1314,9 +1313,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IArtifactRepository sourceRepo, IArtifactRepository destinationRepo) {
-		IQueryResult<IArtifactKey> sourceKeys = sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator<IArtifactKey> iterator = sourceKeys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
+		for (IArtifactKey key : sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, null)) {
 			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(key);
 			if (destinationDescriptors == null || destinationDescriptors.length == 0)
 				fail(message + ": unmatched key: " + key.toString());
@@ -1680,9 +1677,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected void assertEqualArtifacts(String message, SimpleArtifactRepository expected, SimpleArtifactRepository actual) {
-		IQueryResult<IArtifactKey> expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator<IArtifactKey> iterator = expectedKeys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
+		for (IArtifactKey key : expected.query(ArtifactKeyQuery.ALL_KEYS, null)) {
 			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(key);
 			IArtifactDescriptor[] actualDescriptors = actual.getArtifactDescriptors(key);
 

@@ -105,9 +105,7 @@ public class ANYConfigCUsActionTest extends ActionTest {
 	}
 
 	private void verifyFragment(String cuType) {
-		ArrayList<IInstallableUnit> IUs = new ArrayList<>(publisherResult.getIUs(null, IPublisherResult.NON_ROOT));
-		for (int i = 0; i < IUs.size(); i++) {
-			IInstallableUnit iu = IUs.get(i);
+		for (IInstallableUnit iu : new ArrayList<>(publisherResult.getIUs(null, IPublisherResult.NON_ROOT))) {
 			if (iu.getId().equals(flavor + id + "." + cuType + "." + configSpec)) { //$NON-NLS-1$ //$NON-NLS-2$
 
 				assertNull(iu.getFilter()); // no filter if config spec is ANY

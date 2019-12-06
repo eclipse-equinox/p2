@@ -32,7 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -98,14 +97,13 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		//create a compressed repo
 		createRepo(true);
 
-		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;
-		for (int i = 0; i < files.length; i++) {
-			if ("compositeArtifacts.jar".equalsIgnoreCase(files[i].getName())) {
+		for (File file : repositoryFile.listFiles()) {
+			if ("compositeArtifacts.jar".equalsIgnoreCase(file.getName())) {
 				jarFilePresent = true;
 			}
-			if ("compositeArtifacts.xml".equalsIgnoreCase(files[i].getName())) {
+			if ("compositeArtifacts.xml".equalsIgnoreCase(file.getName())) {
 				artifactFilePresent = false;
 			}
 		}
@@ -119,14 +117,13 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		//Setup: create an uncompressed repository
 		createRepo(false);
 
-		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;
-		for (int i = 0; i < files.length; i++) {
-			if ("compositeArtifacts.jar".equalsIgnoreCase(files[i].getName())) {
+		for (File file : repositoryFile.listFiles()) {
+			if ("compositeArtifacts.jar".equalsIgnoreCase(file.getName())) {
 				jarFilePresent = true;
 			}
-			if ("compositeArtifacts.xml".equalsIgnoreCase(files[i].getName())) {
+			if ("compositeArtifacts.xml".equalsIgnoreCase(file.getName())) {
 				artifactFilePresent = true;
 			}
 		}
@@ -1349,8 +1346,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			good.setAccessible(true);
 
 			List<?> list = (List<?>) field.get(parent);
-			for (Iterator<?> listIter = list.iterator(); listIter.hasNext();) {
-				Object obj = listIter.next();
+			for (Object obj : list) {
 				if (child.equals(repo.get(obj))) {
 					good.set(obj, false);
 					return;

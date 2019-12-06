@@ -28,7 +28,6 @@ import org.eclipse.equinox.internal.p2.ui.discovery.DiscoveryUi;
 import org.eclipse.equinox.internal.p2.ui.discovery.util.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -450,9 +449,7 @@ public class CatalogViewer extends FilteredViewer {
 		Set<String> features = new HashSet<>();
 		IProfile profile = ProvUI.getProfileRegistry(ProvisioningUI.getDefaultUI().getSession()).getProfile(ProvisioningUI.getDefaultUI().getProfileId());
 		if (profile != null) {
-			IQueryResult<IInstallableUnit> result = profile.available(QueryUtil.createIUGroupQuery(), monitor);
-			for (Iterator<IInstallableUnit> it = result.iterator(); it.hasNext();) {
-				IInstallableUnit unit = it.next();
+			for (IInstallableUnit unit : profile.available(QueryUtil.createIUGroupQuery(), monitor)) {
 				features.add(unit.getId());
 			}
 		}

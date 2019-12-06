@@ -14,8 +14,15 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.net.URI;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
@@ -23,7 +30,9 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class Bug362692 extends AbstractPlannerTest {
@@ -62,11 +71,9 @@ public class Bug362692 extends AbstractPlannerTest {
 
 		// create the actual plan - install everything in the repo as optional (mimic the dropins folder)
 		Set<IInstallableUnit> toAdd = new HashSet<>();
-		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		// we don't want to re-install units which are already installed in the profile so remove them. (this is what the reconciler does)
 		boolean already = false;
-		for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();) {
-			IInstallableUnit iu = iter.next();
+		for (IInstallableUnit iu : repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())) {
 			//toAdd.add(iu);
 			queryResult = getProfile().query(QueryUtil.createIUQuery(iu.getId(), iu.getVersion()), new NullProgressMonitor());
 			if (queryResult.isEmpty()) {
@@ -94,8 +101,8 @@ public class Bug362692 extends AbstractPlannerTest {
 		Collection<InstallableUnitOperand> compressedPlan = compress(plan);
 		if (compressedPlan.isEmpty())
 			System.out.println("Plan: ...is empty!");
-		for (Iterator<InstallableUnitOperand> iter = compressedPlan.iterator(); iter.hasNext();) {
-			System.out.println("Plan: " + iter.next());
+		for (InstallableUnitOperand installableUnitOperand : compressedPlan) {
+			System.out.println("Plan: " + installableUnitOperand);
 		}
 		validate(expected, plan);
 	}

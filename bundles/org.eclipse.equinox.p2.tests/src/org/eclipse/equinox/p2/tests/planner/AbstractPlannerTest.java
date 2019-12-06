@@ -18,7 +18,6 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
@@ -134,8 +133,7 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 
 		// add optional IUs
 		if (optionalAdds != null) {
-			for (Iterator<IInstallableUnit> iter = optionalAdds.iterator(); iter.hasNext();) {
-				IInstallableUnit iu = iter.next();
+			for (IInstallableUnit iu : optionalAdds) {
 				result.add(iu);
 				result.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 				result.setInstallableUnitProfileProperty(iu, "org.eclipse.equinox.p2.type.lock", "1");
@@ -145,8 +143,7 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 
 		// add strict IUs
 		if (strictAdds != null) {
-			for (Iterator<IInstallableUnit> iter = strictAdds.iterator(); iter.hasNext();) {
-				IInstallableUnit iu = iter.next();
+			for (IInstallableUnit iu : strictAdds) {
 				result.add(iu);
 				result.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createStrictInclusionRule(iu));
 			}
@@ -154,8 +151,7 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 
 		// include removals
 		if (toRemove != null) {
-			for (Iterator<IInstallableUnit> iter = toRemove.iterator(); iter.hasNext();) {
-				IInstallableUnit iu = iter.next();
+			for (IInstallableUnit iu : toRemove) {
 				result.remove(iu);
 			}
 		}

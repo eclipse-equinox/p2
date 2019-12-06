@@ -387,8 +387,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		// the same.  
 		licensesToIUs = new HashMap<>();//map of License->ArrayList of IUs with that license
 		HashMap<ILicense, HashSet<String>> namesSeen = new HashMap<>(); // map of License->HashSet of names with that license
-		for (int i = 0; i < iusToCheck.length; i++) {
-			IInstallableUnit iu = iusToCheck[i];
+		for (IInstallableUnit iu : iusToCheck) {
 			for (ILicense license : iu.getLicenses(null)) {
 				if (manager != null && !manager.isAccepted(license)) {
 					String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);

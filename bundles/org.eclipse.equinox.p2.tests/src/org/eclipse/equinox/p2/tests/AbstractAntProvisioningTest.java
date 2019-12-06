@@ -190,8 +190,8 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 			writer.attribute(iter.next(), iter.next());
 
 		// write sub elements if applicable
-		for (Iterator<AntTaskElement> iter = task.elements.iterator(); iter.hasNext();)
-			writeElement(writer, iter.next());
+		for (AntTaskElement element : task.elements)
+			writeElement(writer, element);
 
 		// close tag
 		writer.end();
@@ -274,8 +274,8 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	protected static List<IArtifactKey> getArtifactKeys(IQueryResult<IInstallableUnit> ius) {
 		List<IArtifactKey> keys = new ArrayList<>();
 
-		for (Iterator<IInstallableUnit> iter = ius.iterator(); iter.hasNext();)
-			keys.addAll(iter.next().getArtifacts());
+		for (IInstallableUnit iu : ius)
+			keys.addAll(iu.getArtifacts());
 		return keys;
 	}
 }

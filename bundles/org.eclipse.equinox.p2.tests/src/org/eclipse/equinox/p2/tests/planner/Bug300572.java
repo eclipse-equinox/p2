@@ -14,7 +14,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
@@ -55,8 +54,7 @@ public class Bug300572 extends AbstractProvisioningTest {
 		IProfileChangeRequest request = planner.createChangeRequest(sdkProfile);
 		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.ALL_UNITS, null);
 		request.addAll(allIUs.toUnmodifiableSet());
-		for (Iterator<IInstallableUnit> allIUsIterator = allIUs.iterator(); allIUsIterator.hasNext();) {
-			IInstallableUnit iu = allIUsIterator.next();
+		for (IInstallableUnit iu : allIUs) {
 			request.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 		}
 

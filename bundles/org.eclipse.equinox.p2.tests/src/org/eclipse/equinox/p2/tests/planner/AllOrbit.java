@@ -14,7 +14,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
@@ -51,8 +50,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
 		req1.addInstallableUnits(allIUs.toArray(IInstallableUnit.class));
-		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : allIUs) {
 			if (!iu.getId().equals("javax.wsdl"))
 				req1.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 		}
@@ -65,8 +63,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
 		ArrayList<IInstallableUnit> toInstall = new ArrayList<>();
-		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit toAdd = iterator.next();
+		for (IInstallableUnit toAdd : allIUs) {
 			if (!toAdd.getId().equals("com.ibm.icu")) {
 				toInstall.add(toAdd);
 			}
@@ -83,8 +80,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
 		ArrayList<IInstallableUnit> toInstall = new ArrayList<>();
-		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit toAdd = iterator.next();
+		for (IInstallableUnit toAdd : allIUs) {
 			if (!toAdd.getId().equals("com.ibm.icu")) {
 				toInstall.add(toAdd);
 				req1.setInstallableUnitInclusionRules(toAdd, ProfileInclusionRules.createOptionalInclusionRule(toAdd));

@@ -26,8 +26,8 @@ final class And extends NAry {
 
 	@Override
 	public Object evaluate(IEvaluationContext context) {
-		for (int idx = 0; idx < operands.length; ++idx) {
-			if (operands[idx].evaluate(context) != Boolean.TRUE)
+		for (Expression operand : operands) {
+			if (operand.evaluate(context) != Boolean.TRUE)
 				return Boolean.FALSE;
 		}
 		return Boolean.TRUE;
@@ -51,8 +51,8 @@ final class And extends NAry {
 	@Override
 	public void toLDAPString(StringBuffer buf) {
 		buf.append("(&"); //$NON-NLS-1$
-		for (int idx = 0; idx < operands.length; ++idx)
-			operands[idx].toLDAPString(buf);
+		for (Expression operand : operands)
+			operand.toLDAPString(buf);
 		buf.append(')');
 	}
 }

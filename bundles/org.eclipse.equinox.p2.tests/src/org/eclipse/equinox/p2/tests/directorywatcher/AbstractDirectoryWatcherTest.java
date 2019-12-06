@@ -35,8 +35,8 @@ public abstract class AbstractDirectoryWatcherTest extends AbstractProvisioningT
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		for (Iterator<File> iter = toRemove.iterator(); iter.hasNext();)
-			delete(iter.next());
+		for (File file : toRemove)
+			delete(file);
 		toRemove = new HashSet<>();
 	}
 

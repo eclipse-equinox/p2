@@ -296,9 +296,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	public Object[] getSelectedIUElements() {
 		Object[] elements = viewer.getStructuredSelection().toArray();
 		ArrayList<Object> list = new ArrayList<>(elements.length);
-		for (int i = 0; i < elements.length; i++)
-			if (ElementUtils.getIU(elements[i]) != null)
-				list.add(elements[i]);
+		for (Object element : elements)
+			if (ElementUtils.getIU(element) != null)
+				list.add(element);
 		return list.toArray();
 	}
 
@@ -315,9 +315,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		if (selections.length == 0)
 			return new IInstallableUnit[0];
 		ArrayList<IInstallableUnit> leaves = new ArrayList<>(selections.length);
-		for (int i = 0; i < selections.length; i++) {
-			if (!getCheckboxTreeViewer().getGrayed(selections[i])) {
-				IInstallableUnit iu = ProvUI.getAdapter(selections[i], IInstallableUnit.class);
+		for (Object selection : selections) {
+			if (!getCheckboxTreeViewer().getGrayed(selection)) {
+				IInstallableUnit iu = ProvUI.getAdapter(selection, IInstallableUnit.class);
 				if (iu != null && !ProvUI.isCategory(iu) && !leaves.contains(iu))
 					leaves.add(iu);
 			}
@@ -391,13 +391,12 @@ public class AvailableIUGroup extends StructuredIUGroup {
 						if (event.getJob() == lastRequestedLoadJob) {
 							final Tree tree = treeViewer.getTree();
 							if (tree != null && !tree.isDisposed()) {
-								TreeItem[] items = tree.getItems();
-								for (int i = 0; i < items.length; i++) {
-									if (items[i].getData() instanceof IRepositoryElement) {
-										URI url = ((IRepositoryElement<?>) items[i].getData()).getLocation();
+								for (TreeItem item : tree.getItems()) {
+									if (item.getData() instanceof IRepositoryElement) {
+										URI url = ((IRepositoryElement<?>) item.getData()).getLocation();
 										if (url.equals(location)) {
-											treeViewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
-											tree.select(items[i]);
+											treeViewer.expandToLevel(item.getData(), AbstractTreeViewer.ALL_LEVELS);
+											tree.select(item);
 											return;
 										}
 									}

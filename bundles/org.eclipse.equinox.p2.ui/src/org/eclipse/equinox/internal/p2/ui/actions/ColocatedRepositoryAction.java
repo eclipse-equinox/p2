@@ -23,7 +23,8 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 
 public abstract class ColocatedRepositoryAction extends ProvisioningAction {
 
-	public ColocatedRepositoryAction(ProvisioningUI ui, String label, String tooltipText, ISelectionProvider selectionProvider) {
+	public ColocatedRepositoryAction(ProvisioningUI ui, String label, String tooltipText,
+			ISelectionProvider selectionProvider) {
 		super(ui, label, selectionProvider);
 		setToolTipText(tooltipText);
 		init();
@@ -31,9 +32,10 @@ public abstract class ColocatedRepositoryAction extends ProvisioningAction {
 
 	protected URI[] getSelectedLocations(Object[] selectionArray) {
 		List<URI> urls = new ArrayList<>();
-		for (int i = 0; i < selectionArray.length; i++) {
-			if (selectionArray[i] instanceof MetadataRepositoryElement)
-				urls.add(((MetadataRepositoryElement) selectionArray[i]).getLocation());
+		for (Object element : selectionArray) {
+			if (element instanceof MetadataRepositoryElement) {
+				urls.add(((MetadataRepositoryElement) element).getLocation());
+			}
 		}
 		return urls.toArray(new URI[urls.size()]);
 	}
