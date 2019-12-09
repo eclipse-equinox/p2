@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,12 +18,14 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -38,7 +40,17 @@ public class NativeTouchpoint extends Touchpoint {
 
 	private static Map<IProfile, IBackupStore> backups = new WeakHashMap<>();
 
-	private List<NativePackageEntry> packagesToInstall = new ArrayList<>();
+	private static class NativePackageToInstallInfo {
+		NativePackageEntry entry;
+		IInstallableUnit iu;
+
+		public NativePackageToInstallInfo(NativePackageEntry entry, IInstallableUnit iu) {
+			this.entry = entry;
+			this.iu = iu;
+		}
+	}
+
+	private List<NativePackageToInstallInfo> packagesToInstall = new ArrayList<>();
 	private Properties installCommandsProperties = new Properties();
 
 	private IProvisioningAgent agent;
@@ -98,12 +110,21 @@ public class NativeTouchpoint extends Touchpoint {
 		String text = Messages.PromptForNative_IntroText;
 		String downloadLinks = ""; //$NON-NLS-1$
 		List<NativePackageEntry> entriesWithoutDownloadLink = new ArrayList<>(packagesToInstall.size());
-		for (NativePackageEntry nativePackageEntry : packagesToInstall) {
-			text += '\t' + nativePackageEntry.name + ' ' + formatVersion(nativePackageEntry) + '\n';
-			if (nativePackageEntry.getDownloadLink() != null) {
-				downloadLinks += "    <a>" + nativePackageEntry.getDownloadLink() + "</a>\n"; //$NON-NLS-1$ //$NON-NLS-2$
+		for (NativePackageToInstallInfo nativePackageEntry : packagesToInstall) {
+			text += '\t' + nativePackageEntry.entry.name + ' ' + formatVersion(nativePackageEntry.entry);
+			if (nativePackageEntry.iu != null) {
+				String name = nativePackageEntry.iu.getProperty(IInstallableUnit.PROP_NAME, null);
+				if (name != null && !name.isEmpty()) {
+					text += ' ';
+					text += NLS.bind(Messages.NativeTouchpoint_PromptForNative_RequiredBy, name);
+				}
+			}
+
+			text += '\n';
+			if (nativePackageEntry.entry.getDownloadLink() != null) {
+				downloadLinks += "    <a>" + nativePackageEntry.entry.getDownloadLink() + "</a>\n"; //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
-				entriesWithoutDownloadLink.add(nativePackageEntry);
+				entriesWithoutDownloadLink.add(nativePackageEntry.entry);
 			}
 		}
 
@@ -114,7 +135,7 @@ public class NativeTouchpoint extends Touchpoint {
 
 		String downloadText = null;
 		if (downloadLinks.length() > 0) {
-			downloadText = "You can download those from the following locations:\n" + downloadLinks;
+			downloadText = Messages.NativeTouchpoint_PromptForNative_YouCanDownloadFrom + downloadLinks;
 		}
 
 		serviceUI.showInformationMessage(Messages.PromptForNative_DialogTitle, text, downloadText);
@@ -158,12 +179,18 @@ public class NativeTouchpoint extends Touchpoint {
 		return text;
 	}
 
-	public void addPackageToInstall(NativePackageEntry entry) {
-		packagesToInstall.add(entry);
+	/**
+	 * Add the given entry as a new native package that needs to be installed.
+	 * 
+	 * @param entry Package information about the native
+	 * @param iu    optional IU that has this requirement
+	 */
+	public void addPackageToInstall(NativePackageEntry entry, IInstallableUnit iu) {
+		packagesToInstall.add(new NativePackageToInstallInfo(entry, iu));
 	}
 
 	public List<NativePackageEntry> getPackagesToInstall() {
-		return Collections.unmodifiableList(packagesToInstall);
+		return Collections.unmodifiableList(packagesToInstall.stream().map(e -> e.entry).collect(Collectors.toList()));
 	}
 
 	public void setDistro(String distro) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2015, 2017 SAP SE and others.
+ *  Copyright (c) 2015, 2019 SAP SE and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 public class CheckAndPromptNativePackageWindowsRegistry extends ProvisioningAction {
@@ -31,21 +32,23 @@ public class CheckAndPromptNativePackageWindowsRegistry extends ProvisioningActi
 
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
-		//If we are not running on Windows, do nothing and return
+		// If we are not running on Windows, do nothing and return
 		if (!IS_WINDOWS)
 			return Status.OK_STATUS;
 
-		//Get and check the paremeters
+		// Get and check the paremeters
 		String packageName = (String) parameters.get(ActionConstants.PARM_LINUX_PACKAGE_NAME);
 		String packageVersion = (String) parameters.get(ActionConstants.PARM_LINUX_PACKAGE_VERSION);
 		String key = (String) parameters.get(ActionConstants.PARM_WINDOWS_REGISTRY_KEY);
 		String attName = (String) parameters.get(ActionConstants.PARM_WINDOWS_REGISTRY_ATTRIBUTE_NAME);
 		String attValue = (String) parameters.get(ActionConstants.PARM_WINDOWS_REGISTRY_ATTRIBUTE_VALUE);
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
 
 		if (key == null || (attName != null && attValue == null))
 			return new Status(IStatus.ERROR, Activator.ID, Messages.Incorrect_Command);
 
-		//Check if the desired package is installed and collect information in the touchpoint
+		// Check if the desired package is installed and collect information in the
+		// touchpoint
 		File scriptToExecute = NativeTouchpoint.getFileFromBundle(WINDOWS_DISTRO, IS_INSTALLED);
 		if (scriptToExecute == null)
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Find_status, WINDOWS_DISTRO));
@@ -62,28 +65,30 @@ public class CheckAndPromptNativePackageWindowsRegistry extends ProvisioningActi
 			}
 			int exitValue = new ProcessBuilder(cmd).start().waitFor();
 			switch (exitValue) {
-				case 0 :
-					return Status.OK_STATUS;
-				case 1 :
-				case 2 :
-				default :
-					NativePackageEntry packageEntry = new NativePackageEntry(packageName, packageVersion, null);
-					String downloadLink = (String) parameters.get(ActionConstants.PARM_DOWNLOAD_LINK);
-					packageEntry.setDownloadLink(downloadLink);
-					((NativeTouchpoint) getTouchpoint()).addPackageToInstall(packageEntry);
-					((NativeTouchpoint) getTouchpoint()).setDistro(WINDOWS_DISTRO);
-					return Status.OK_STATUS;
+			case 0:
+				return Status.OK_STATUS;
+			case 1:
+			case 2:
+			default:
+				NativePackageEntry packageEntry = new NativePackageEntry(packageName, packageVersion, null);
+				String downloadLink = (String) parameters.get(ActionConstants.PARM_DOWNLOAD_LINK);
+				packageEntry.setDownloadLink(downloadLink);
+				((NativeTouchpoint) getTouchpoint()).addPackageToInstall(packageEntry, iu);
+				((NativeTouchpoint) getTouchpoint()).setDistro(WINDOWS_DISTRO);
+				return Status.OK_STATUS;
 			}
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Check_Package, new String[] {packageName, packageVersion, WINDOWS_DISTRO}));
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Check_Package,
+					new String[] { packageName, packageVersion, WINDOWS_DISTRO }));
 		} catch (InterruptedException e) {
-			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Check_Package, new String[] {packageName, packageVersion, WINDOWS_DISTRO}));
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Check_Package,
+					new String[] { packageName, packageVersion, WINDOWS_DISTRO }));
 		}
 	}
 
 	@Override
 	public IStatus undo(Map<String, Object> parameters) {
-		//Nothing to do since we are not modifying any state.
+		// Nothing to do since we are not modifying any state.
 		return null;
 	}
 

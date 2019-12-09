@@ -70,6 +70,8 @@ public class Messages extends NLS {
 	public static String NativePackageExtractionApplication_MissingParameters;
 	public static String NativePackageExtractionApplication_PersistencePb;
 	public static String NativePackageExtractionApplication_MissingValue;
+	public static String NativeTouchpoint_PromptForNative_RequiredBy;
+	public static String NativeTouchpoint_PromptForNative_YouCanDownloadFrom;
 	public static String PromptForNative_InstallText;
 	public static String PromptForNative_IntroText;
 	public static String PromptForNative_DialogTitle;
