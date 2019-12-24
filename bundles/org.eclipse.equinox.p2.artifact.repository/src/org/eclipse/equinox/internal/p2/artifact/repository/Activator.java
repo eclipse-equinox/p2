@@ -17,6 +17,7 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.URIUtil;
@@ -94,15 +95,9 @@ public class Activator implements BundleActivator {
 	private boolean isReadOnly(File file) {
 		if (file == null)
 			return true; // If we've reached the root, then return true
+
 		if (file.exists()) {
-			try {
-				// on Vista/Windows 7 you are not allowed to write executable files on virtual directories like "Program Files"
-				File tmpTestFile = File.createTempFile(".artifactlocktest", ".dll", file); //$NON-NLS-1$ //$NON-NLS-2$
-				tmpTestFile.delete();
-				return false;
-			} catch (IOException e) {
-				return true; // permission issue to create new file, so it's readonly
-			}
+			return !Files.isWritable(file.toPath());
 		}
 
 		return isReadOnly(file.getParentFile());
