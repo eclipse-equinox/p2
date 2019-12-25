@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -105,7 +107,7 @@ public class Activator implements BundleActivator {
 
 	private File getLockFile(URI repositoryLocation) throws IOException {
 		if (!URIUtil.isFileURI(repositoryLocation)) {
-			throw new IOException("Cannot lock a non file based repository"); //$NON-NLS-1$
+			throw new IOException(format("Cannot lock a non file based repository %s", repositoryLocation)); //$NON-NLS-1$
 		}
 		URI result = URIUtil.append(repositoryLocation, ".artifactlock"); //$NON-NLS-1$
 		return URIUtil.toFile(result);
