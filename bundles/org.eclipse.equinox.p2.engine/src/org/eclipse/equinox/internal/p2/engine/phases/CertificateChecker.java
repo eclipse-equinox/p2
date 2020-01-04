@@ -72,7 +72,7 @@ public class CertificateChecker {
 		IStatus status = Status.OK_STATUS;
 		if (artifacts.size() == 0 || serviceUI == null)
 			return status;
-		for (File artifact : artifacts) {
+		checkArtifacts: for (File artifact : artifacts) {
 			try {
 				content = verifierFactory.getSignedContent(artifact);
 				if (!content.isSigned()) {
@@ -85,6 +85,15 @@ public class CertificateChecker {
 			} catch (IOException e) {
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.CertificateChecker_SignedContentIOError, e);
 			}
+
+			// Determine if any element is trusted.
+			for (SignerInfo element : signerInfo) {
+				if (element.isTrusted()) {
+					continue checkArtifacts;
+				}
+			}
+
+			// Only record the untrusted elements if there are no trusted elements.
 			for (SignerInfo element : signerInfo) {
 				if (!element.isTrusted()) {
 					Certificate[] certificateChain = element.getCertificateChain();
@@ -100,30 +109,31 @@ public class CertificateChecker {
 						}
 					}
 				}
-
-				// log the unsigned artifacts if requested
-				if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNSIGNED && !unsigned.isEmpty()) {
-					StringBuilder message = new StringBuilder("The following artifacts are unsigned:\n"); //$NON-NLS-1$
-					for (File file : unsigned) {
-						message.append(NLS.bind("  {0}\n", file.getPath())); //$NON-NLS-1$
-					}
-					DebugHelper.debug(DEBUG_PREFIX, message.toString());
-				}
-
-				// log the untrusted certificates if requested
-				if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED && !untrusted.isEmpty()) {
-					StringBuilder message = new StringBuilder("The following certificates are untrusted:\n"); //$NON-NLS-1$
-					for (Certificate cert : untrustedArtifacts.keySet()) {
-						message.append(cert.toString() + "\n"); //$NON-NLS-1$
-						message.append("  used by the following artifacts:\n"); //$NON-NLS-1$
-						for (File file : untrustedArtifacts.get(cert)) {
-							message.append(NLS.bind("    {0}\n", file.getPath())); //$NON-NLS-1$
-						}
-					}
-					DebugHelper.debug(DEBUG_PREFIX, message.toString());
-				}
 			}
 		}
+
+		// log the unsigned artifacts if requested
+		if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNSIGNED && !unsigned.isEmpty()) {
+			StringBuilder message = new StringBuilder("The following artifacts are unsigned:\n"); //$NON-NLS-1$
+			for (File file : unsigned) {
+				message.append(NLS.bind("  {0}\n", file.getPath())); //$NON-NLS-1$
+			}
+			DebugHelper.debug(DEBUG_PREFIX, message.toString());
+		}
+
+		// log the untrusted certificates if requested
+		if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED && !untrusted.isEmpty()) {
+			StringBuilder message = new StringBuilder("The following certificates are untrusted:\n"); //$NON-NLS-1$
+			for (Certificate cert : untrustedArtifacts.keySet()) {
+				message.append(cert.toString() + "\n"); //$NON-NLS-1$
+				message.append("  used by the following artifacts:\n"); //$NON-NLS-1$
+				for (File file : untrustedArtifacts.get(cert)) {
+					message.append(NLS.bind("    {0}\n", file.getPath())); //$NON-NLS-1$
+				}
+			}
+			DebugHelper.debug(DEBUG_PREFIX, message.toString());
+		}
+
 		String policy = getUnsignedContentPolicy();
 		//if there is unsigned content and we should never allow it, then fail without further checking certificates
 		if (!unsigned.isEmpty() && EngineActivator.UNSIGNED_FAIL.equals(policy))
