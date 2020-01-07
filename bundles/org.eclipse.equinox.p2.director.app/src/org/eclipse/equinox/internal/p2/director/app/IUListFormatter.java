@@ -31,7 +31,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 public class IUListFormatter {
 
 	private static final String PREFIX = "${"; //$NON-NLS-1$
-	private static final String LINE_SEP = System.getProperty("line.separator"); //$NON-NLS-1$
+	private static final String LINE_SEP = System.lineSeparator();
 
 	private String formatString;
 	private Collection<String> properties;

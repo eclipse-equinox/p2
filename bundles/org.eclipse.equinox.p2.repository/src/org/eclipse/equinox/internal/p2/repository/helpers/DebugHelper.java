@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.osgi.service.debug.DebugOptions;
 
 public class DebugHelper {
-	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+	public static final String LINE_SEPARATOR = System.lineSeparator();
 
 	public static final boolean DEBUG_REPOSITORY_CREDENTIALS;
 	public static final boolean DEBUG_REPOSITORY_TRANSPORT;

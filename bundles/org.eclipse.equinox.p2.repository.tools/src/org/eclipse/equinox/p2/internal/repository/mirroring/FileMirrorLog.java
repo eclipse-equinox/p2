@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 public class FileMirrorLog implements IArtifactMirrorLog {
 
 	private static final String INDENT = "\t"; //$NON-NLS-1$
-	private static final String SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+	private static final String SEPARATOR = System.lineSeparator();
 	private BufferedWriter out;
 	private boolean consoleMessage = false;
 	private int minSeverity = IStatus.OK;

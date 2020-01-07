@@ -176,7 +176,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private static final String QUERY_SEPARATOR = "Q:"; //$NON-NLS-1$
 	private static final String QUERY_SEPARATOR_SMALL = "q:"; //$NON-NLS-1$
 
-	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+	public static final String LINE_SEPARATOR = System.lineSeparator();
 
 	private static void getURIs(List<URI> uris, String spec) throws CoreException {
 		if (spec == null)

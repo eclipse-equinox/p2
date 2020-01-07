@@ -14,9 +14,16 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import static java.util.Arrays.asList;
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.getCurrentArguments;
+import static org.easymock.EasyMock.replay;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.easymock.IAnswer;
 import org.eclipse.equinox.internal.p2.director.app.IUListFormatter;
@@ -37,7 +44,7 @@ public class IUListFormatterTest extends TestCase {
 				createIU("iu1", "1.0.0", "name", null), //
 				createIU("iu2", "2.0.0", "name2", null)//
 		));
-		assertEquals("iu1=1.0.0,name" + System.getProperty("line.separator") + "iu2=2.0.0,name2", result);
+		assertEquals("iu1=1.0.0,name" + System.lineSeparator() + "iu2=2.0.0,name2", result);
 	}
 
 	public void testFormat_UnknownFormatOption() {

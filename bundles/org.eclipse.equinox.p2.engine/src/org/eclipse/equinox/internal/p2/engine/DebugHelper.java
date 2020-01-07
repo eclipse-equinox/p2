@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.service.debug.DebugOptions;
 
 public class DebugHelper {
-	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+	public static final String LINE_SEPARATOR = System.lineSeparator();
 
 	public static final boolean DEBUG_PROFILE_REGISTRY;
 	public static final boolean DEBUG_ENGINE;
