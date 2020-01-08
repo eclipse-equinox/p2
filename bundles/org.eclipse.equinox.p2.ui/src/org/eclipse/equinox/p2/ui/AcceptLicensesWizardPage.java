@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.*;
  * AcceptLicensesWizardPage shows a list of the IU's that have
  * licenses that have not been approved by the user, and allows the
  * user to approve them.
- * 
+ *
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
  */
@@ -168,7 +168,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	/**
 	 * Create a license acceptance page for showing licenses to the user.
-	 * 
+	 *
 	 * @param manager the license manager that should be used to check for already accepted licenses.  May be <code>null</code>.
 	 * @param ius the IInstallableUnits for which licenses should be checked
 	 * @param operation the provisioning operation describing what changes are to take place on the profile
@@ -230,7 +230,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private void createLicenseAcceptSection(Composite parent, boolean multiple) {
 		// Buttons for accepting licenses
 		Composite buttonContainer = new Composite(parent, SWT.NULL);
-		GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		GridData gd = new GridData(SWT.FILL, SWT.TOP, true, false);
 		buttonContainer.setLayout(new GridLayout());
 		buttonContainer.setLayoutData(gd);
 
@@ -301,8 +301,8 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	/**
 	 * The wizard is finishing.  Perform any necessary processing.
-	 * 
-	 * @return <code>true</code> if the finish can proceed, 
+	 *
+	 * @return <code>true</code> if the finish can proceed,
 	 * <code>false</code> if it should not.
 	 */
 	public boolean performFinish() {
@@ -313,7 +313,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	/**
 	 * Return a boolean indicating whether there are licenses that must be accepted
 	 * by the user.
-	 * 
+	 *
 	 * @return <code>true</code> if there are licenses that must be accepted, and
 	 * <code>false</code> if there are no licenses that must be accepted.
 	 */
@@ -323,16 +323,16 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	/**
 	 * Update the current page to show the licenses that must be approved for the
-	 * selected IUs and the provisioning plan.  
-	 * 
+	 * selected IUs and the provisioning plan.
+	 *
 	 * Clients using this page in conjunction with a {@link ProfileChangeOperation} should
-	 * instead use {@link #update(IInstallableUnit[], ProfileChangeOperation)}.   This 
+	 * instead use {@link #update(IInstallableUnit[], ProfileChangeOperation)}.   This
 	 * method is intended for clients who are working with a low-level provisioning plan
 	 * rather than an {@link InstallOperation} or {@link UpdateOperation}.
-	 * 
+	 *
 	 * @param theIUs the installable units to be installed for which licenses must be checked
 	 * @param plan the provisioning plan that describes a resolved install operation
-	 * 
+	 *
 	 * @see #update(IInstallableUnit[], ProfileChangeOperation)
 	 */
 
@@ -360,7 +360,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	/**
 	 * Update the page for the specified IInstallableUnits and operation.
-	 * 
+	 *
 	 * @param theIUs the IInstallableUnits for which licenses should be checked
 	 * @param operation the operation describing the pending profile change
 	 */
@@ -384,7 +384,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=218532
 		// Current metadata generation can result with a feature group IU and the feature jar IU
 		// having the same name and license.  We will weed out duplicates if the license and name are both
-		// the same.  
+		// the same.
 		licensesToIUs = new HashMap<>();//map of License->ArrayList of IUs with that license
 		HashMap<ILicense, HashSet<String>> namesSeen = new HashMap<>(); // map of License->HashSet of names with that license
 		for (IInstallableUnit iu : iusToCheck) {
@@ -393,7 +393,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 					String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 					if (name == null)
 						name = iu.getId();
-					// Have we already found this license?  
+					// Have we already found this license?
 					if (licensesToIUs.containsKey(license)) {
 						HashSet<String> names = namesSeen.get(license);
 						if (!names.contains(name)) {
@@ -475,7 +475,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 					}
 				}
 			} catch (NumberFormatException e) {
-				// Ignore if there actually was a value that didn't parse.  
+				// Ignore if there actually was a value that didn't parse.
 			}
 		}
 		return new int[] {55, 45};
