@@ -142,13 +142,10 @@ public class IUDetailsGroup {
 		Link link = new Link(parent, SWT.PUSH);
 		link.setText(text);
 
-		link.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				IAction linkAction = getLinkAction(event.widget);
-				if (linkAction != null) {
-					linkAction.runWithEvent(event);
-				}
+		link.addListener(SWT.Selection, event -> {
+			IAction linkAction = getLinkAction(event.widget);
+			if (linkAction != null) {
+				linkAction.runWithEvent(event);
 			}
 		});
 		link.setToolTipText(action.getToolTipText());
