@@ -29,7 +29,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 /**
  * A wrapper that examines available IU's and wraps them in an
  * element representing either a category or a regular IU.
- *  
+ *
  * @since 3.4
  */
 public class AvailableIUWrapper extends QueriedElementWrapper {

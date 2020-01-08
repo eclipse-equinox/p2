@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB (Pascal Rapicault) - bug 398539
@@ -52,10 +52,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
 /**
  * Page that allows users to update, add, remove, import, and
  * export repositories.  This page can be hosted inside a preference
- * dialog or inside its own dialog.  
- * 
- * When hosting this page inside a non-preference dialog, some of the 
- * dialog methods will likely have to call page methods.  The following 
+ * dialog or inside its own dialog.
+ *
+ * When hosting this page inside a non-preference dialog, some of the
+ * dialog methods will likely have to call page methods.  The following
  * snippet shows how to host this page inside a TitleAreaDialog.
  * <pre>
  *		TitleAreaDialog dialog = new TitleAreaDialog(shell) {
@@ -83,9 +83,9 @@ import org.eclipse.ui.statushandlers.StatusManager;
  *		};
  *		dialog.open();
  * </pre>
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
- * 
+ *
  * @since 2.0
  */
 public class RepositoryManipulationPage extends PreferencePage implements IWorkbenchPreferencePage, ICopyable {
@@ -193,9 +193,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	/**
 	 * Set the provisioning UI that provides the session, policy, and other
-	 * services for the UI.  This method must be called before the contents are 
+	 * services for the UI.  This method must be called before the contents are
 	 * created or it will have no effect.
-	 * 
+	 *
 	 * @param ui the provisioning UI to use for this page.
 	 */
 	public void setProvisioningUI(ProvisioningUI ui) {

@@ -41,7 +41,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 /**
  * A wizard page that shows detailed information about a resolved install
  * operation.  It allows drill down into the elements that will be installed.
- * 
+ *
  * @since 3.4
  *
  */
@@ -265,10 +265,10 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	/**
 	 * Returns the restart policy for this operation.
-	 * 
+	 *
 	 * @return an integer constant describing whether the running profile
-	 * needs to be restarted. 
-	 * 
+	 * needs to be restarted.
+	 *
 	 * @see ProvisioningJob#RESTART_NONE
 	 * @see ProvisioningJob#RESTART_ONLY
 	 * @see ProvisioningJob#RESTART_OR_APPLY

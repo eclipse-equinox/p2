@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -18,8 +18,8 @@ import java.util.EventObject;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 
 /**
- * Event used to signal that a repository operation has completed.  
- * 
+ * Event used to signal that a repository operation has completed.
+ *
  * @since 2.0
  */
 public class RepositoryOperationEndingEvent extends EventObject {
@@ -27,7 +27,7 @@ public class RepositoryOperationEndingEvent extends EventObject {
 	private static final long serialVersionUID = -4513769756968621852L;
 
 	/**
-	 * A repository event describing the nature of the operation.  
+	 * A repository event describing the nature of the operation.
 	 */
 	private RepositoryEvent event;
 
@@ -39,7 +39,7 @@ public class RepositoryOperationEndingEvent extends EventObject {
 
 	/**
 	 * Construct a new instance of this event.
-	 * 
+	 *
 	 * @param source the source of the event
 	 * @param update a boolean indicating whether the UI should be updated in response
 	 * to this event.
@@ -57,7 +57,7 @@ public class RepositoryOperationEndingEvent extends EventObject {
 	 * Return a {@link RepositoryEvent} that reflects the operation that
 	 * occurred.  A <code>null</code> return value indicates that there
 	 * was not a single underlying repository operation.
-	 * 
+	 *
 	 * @return the {@link RepositoryEvent} that was involved in the operation.  May be
 	 * <code>null</code>.  This event may be used by clients to determine
 	 * what should be updated after an operation completes.
@@ -71,7 +71,7 @@ public class RepositoryOperationEndingEvent extends EventObject {
 	 * Return a boolean that indicates whether the client should update the UI in response
 	 * to this event.
 	 * event.
-	 * 
+	 *
 	 * @return <code>true</code> if clients should update to reflect to this event, <code>false</code>
 	 * if the client should ignore the entire operation.
 	 */

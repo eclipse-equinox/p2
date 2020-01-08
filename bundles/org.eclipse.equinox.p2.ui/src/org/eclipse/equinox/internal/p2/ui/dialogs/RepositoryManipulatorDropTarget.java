@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,7 +32,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * FileTransfer data types.  Files are converted to URL's with the file
  * protocol.  Any dropped URLs (or Files) are interpreted to mean that the
  * user wishes to add these files as repositories.
- * 
+ *
  * @since 3.4
  *
  */

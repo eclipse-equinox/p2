@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat, Inc. - support for remediation page, Bug 460967
@@ -30,7 +30,7 @@ import org.osgi.framework.BundleContext;
 
 /**
  * Controls the lifecycle of the provisioning UI bundle
- * 
+ *
  * @since 3.4
  */
 public class ProvUIActivator extends AbstractUIPlugin {
@@ -47,7 +47,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 
 	/**
 	 * Returns the singleton plugin instance
-	 * 
+	 *
 	 * @return the instance
 	 */
 	public static ProvUIActivator getDefault() {
@@ -73,7 +73,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 			Job.getJobManager().cancel(LoadMetadataRepositoryJob.LOAD_FAMILY);
 			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=305163
 			// join the jobs so that this bundle does not stop until the jobs are
-			// actually cancelled.  
+			// actually cancelled.
 			Job.getJobManager().join(LoadMetadataRepositoryJob.LOAD_FAMILY, new NullProgressMonitor());
 			plugin = null;
 			ProvUIActivator.context = null;

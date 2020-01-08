@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -34,7 +34,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * be run synchronously or in a job.  When scheduled as a job, the operation
  * determines whether the job is run in
  * the background or in the UI.
- * 
+ *
  * @since 3.4
  */
 public class ProvisioningOperationRunner {
@@ -49,7 +49,7 @@ public class ProvisioningOperationRunner {
 
 	/**
 	 * Schedule a job to execute the supplied ProvisioningOperation.
-	 * 
+	 *
 	 * @param job The operation to execute
 	 * @param errorStyle the flags passed to the StatusManager for error reporting
 	 */
@@ -67,8 +67,8 @@ public class ProvisioningOperationRunner {
 
 	/**
 	 * Request a restart of the platform according to the specified
-	 * restart policy.  
-	 * 
+	 * restart policy.
+	 *
 	 * @param restartPolicy
 	 */
 	void requestRestart(final int restartPolicy) {
@@ -136,10 +136,10 @@ public class ProvisioningOperationRunner {
 	/**
 	 * This method is provided for use in automated test case.  It should
 	 * no longer be needed to be used by clients.
-	 * 
+	 *
 	 * @param suppress <code>true</code> to suppress all restarts and <code>false</code>
 	 * to stop suppressing restarts.
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void suppressRestart(boolean suppress) {

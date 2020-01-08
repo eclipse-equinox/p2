@@ -20,7 +20,7 @@ import java.util.EventListener;
  * A listening interface used to signal when fetching begins and
  * ends.  Used by clients who wish to coordinate fetching with other
  * capabilities of the viewer.
- * 
+ *
  * @since 3.4
  *
  */

@@ -30,7 +30,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 /**
  * An Install wizard that is invoked when the user has already selected which
  * IUs should be installed and does not need to browse the available software.
- * 
+ *
  * @since 3.5
  */
 public class PreselectedIUInstallWizard extends WizardWithLicenses {

@@ -20,8 +20,8 @@ import java.net.URI;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 
 /**
- * RepositoryLocationQuery yields true for all URI elements.  
- * 
+ * RepositoryLocationQuery yields true for all URI elements.
+ *
  * @since 3.5
  */
 public class RepositoryLocationQuery extends ExpressionMatchQuery<URI> {

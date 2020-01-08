@@ -46,9 +46,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 /**
- * A RepositorySelectionGroup is a reusable UI component that displays 
- * available repositories and allows the user to select them.  
- * 
+ * A RepositorySelectionGroup is a reusable UI component that displays
+ * available repositories and allows the user to select them.
+ *
  * @since 3.5
  */
 public class RepositorySelectionGroup {
@@ -78,7 +78,7 @@ public class RepositorySelectionGroup {
 
 	Image info, warning, error;
 	URI[] comboRepos; // the URIs shown in the combo, kept in sync with combo items
-	HashMap<String, URI> disabledRepoProposals = new HashMap<>(); // proposal string -> disabled URI 
+	HashMap<String, URI> disabledRepoProposals = new HashMap<>(); // proposal string -> disabled URI
 
 	public RepositorySelectionGroup(ProvisioningUI ui, IWizardContainer container, Composite parent, IUViewQueryContext queryContext) {
 		this.container = container;
@@ -428,7 +428,7 @@ public class RepositorySelectionGroup {
 					return i;
 				}
 		}
-		// Look for URI match - the user may have pasted or dragged 
+		// Look for URI match - the user may have pasted or dragged
 		// in a location that matches one we already know about, even
 		// if the text does not match completely.  (slashes, no name, etc.)
 		try {
@@ -483,7 +483,7 @@ public class RepositorySelectionGroup {
 
 	/*
 	 *  Add a repository using the text in the combo or launch a dialog if the text
-	 *  represents an already known repo.  
+	 *  represents an already known repo.
 	 */
 	void addRepository(boolean alwaysPrompt) {
 		final RepositoryTracker manipulator = ui.getRepositoryTracker();

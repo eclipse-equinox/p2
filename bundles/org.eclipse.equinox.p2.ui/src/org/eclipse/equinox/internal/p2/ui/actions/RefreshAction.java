@@ -52,7 +52,7 @@ public abstract class RefreshAction extends ProvisioningAction {
 	 * Handle a key released event.  Used internally and also
 	 * made available so that clients can watch key events from
 	 * any other controls and dispatch to this action.
-	 * 
+	 *
 	 * @param event the key event
 	 */
 	public void handleKeyReleased(KeyEvent event) {

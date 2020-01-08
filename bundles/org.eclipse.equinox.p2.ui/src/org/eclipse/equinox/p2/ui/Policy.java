@@ -31,17 +31,17 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * The Policy class is used to specify application specific policies that
  * should be used in the standard p2 UI class libraries.   The default policy
  * is acquired using the OSGi service model.
- * 
- * Policy allows clients to specify things such as how repositories 
+ *
+ * Policy allows clients to specify things such as how repositories
  * are manipulated in the standard wizards and dialogs, and how the repositories
  * or the installation itself should be traversed when displaying content.
- * 
+ *
  * In some cases, the Policy is used only to define a default value that can
  * be overridden by user choice and subsequently stored in dialog settings.
- * 
+ *
  * Client applications should ensure that their Policy is registered before
- * any of the p2 UI objects access the default Policy.  
- * 
+ * any of the p2 UI objects access the default Policy.
+ *
  * @since 2.0
  */
 public class Policy {
@@ -49,13 +49,13 @@ public class Policy {
 	/**
 	 * A constant indicating that restart should be forced (without
 	 * confirmation) immediately after completion of a provisioning operation.
-	 * 
+	 *
 	 */
 	public static final int RESTART_POLICY_FORCE = 1;
 
 	/**
 	 * A constant indicating that the changes should be applied dynamically
-	 * to the profile (without confirmation) immediately after completion of 
+	 * to the profile (without confirmation) immediately after completion of
 	 * a provisioning operation.
 	 */
 	public static final int RESTART_POLICY_FORCE_APPLY = 2;
@@ -67,7 +67,7 @@ public class Policy {
 	public static final int RESTART_POLICY_PROMPT = 3;
 
 	/**
-	 * A constant indicating that, where possible, the user should 
+	 * A constant indicating that, where possible, the user should
 	 * be given the option to restart or dynamically apply the changes
 	 * after completion of a provisioning operation.
 	 */
@@ -80,7 +80,7 @@ public class Policy {
 	 * update will be used.  This option is recommended when the user's view
 	 * of the system is a set of component updates and the user is expected
 	 * to have knowledge of the composition of the system.
-	 * 
+	 *
 	 * @since 2.1
 	 */
 	public static final int UPDATE_STYLE_MULTIPLE_IUS = 1;
@@ -90,9 +90,9 @@ public class Policy {
 	 * update wizard that shows detail about a single IU that can be
 	 * updated.  If more than one IU can be updated, the user will be shown
 	 * a list; however, this option is recommended to be used only when
-	 * the user's view of the system is a single application that can be 
+	 * the user's view of the system is a single application that can be
 	 * updated, and only one IU is expected to be available for update.
-	 * 
+	 *
 	 * @since 2.1
 	 */
 	public static final int UPDATE_STYLE_SINGLE_IUS = 2;
@@ -116,7 +116,7 @@ public class Policy {
 	 * Answer a boolean indicating whether the caller should continue to work with the
 	 * specified operation.  This method is used when an operation has been resolved, but
 	 * the UI may have further restrictions on continuing with it.
-	 * 
+	 *
 	 * @param operation the operation in question.  It must already be resolved.
 	 * @param shell the shell to use for any interaction with the user
 	 * @return <code>true</code> if processing of the operation should continue, <code>false</code> if
@@ -158,7 +158,7 @@ public class Policy {
 	/**
 	 * Return a query that can be used to obtain the IInstallableUnits that
 	 * should be presented to the user from the software repositories.
-	 * 
+	 *
 	 * @return the query used to retrieve user visible available IUs
 	 */
 	public IQuery<IInstallableUnit> getVisibleAvailableIUQuery() {
@@ -168,7 +168,7 @@ public class Policy {
 	/**
 	 * Set the query that can be used to obtain the IInstallableUnits that
 	 * should be presented to the user.
-	 * 
+	 *
 	 * @param query the query used to retrieve user visible available IUs
 	 */
 	public void setVisibleAvailableIUQuery(IQuery<IInstallableUnit> query) {
@@ -178,7 +178,7 @@ public class Policy {
 	/**
 	 * Return a query that can be used to obtain the IInstallableUnits in
 	 * the profile that should be presented to the user.
-	 * 
+	 *
 	 * @return the query used to retrieve user visible installed IUs
 	 */
 	public IQuery<IInstallableUnit> getVisibleInstalledIUQuery() {
@@ -188,7 +188,7 @@ public class Policy {
 	/**
 	 * Set the query that can be used to obtain the IInstallableUnits in
 	 * the profile that should be presented to the user.
-	 * 
+	 *
 	 * @param query the query used to retrieve user visible installed IUs
 	 */
 	public void setVisibleInstalledIUQuery(IQuery<IInstallableUnit> query) {
@@ -198,9 +198,9 @@ public class Policy {
 	/**
 	 * Get the restart policy that should be used when the provisioning UI
 	 * determines that a restart is required.
-	 * 
+	 *
 	 * @return an integer constant describing the restart policy
-	 * 
+	 *
 	 * @see #RESTART_POLICY_FORCE
 	 * @see #RESTART_POLICY_FORCE_APPLY
 	 * @see #RESTART_POLICY_PROMPT
@@ -213,9 +213,9 @@ public class Policy {
 	/**
 	 * Set the restart policy that should be used when the provisioning UI
 	 * determines that a restart is required.
-	 * 
+	 *
 	 * @param restartPolicy an integer constant describing the restart policy
-	 * 
+	 *
 	 * @see #RESTART_POLICY_FORCE
 	 * @see #RESTART_POLICY_FORCE_APPLY
 	 * @see #RESTART_POLICY_PROMPT
@@ -229,7 +229,7 @@ public class Policy {
 	 * Return a boolean indicating whether the repositories should
 	 * be visible to the user, such that the user can add, remove, and
 	 * otherwise manipulate the software site list.
-	 * 
+	 *
 	 * @return <code>true</code> if repositories are visible to the end
 	 * user, <code>false</code> if they are not.
 	 */
@@ -241,7 +241,7 @@ public class Policy {
 	 * Set a boolean indicating whether the repositories should
 	 * be visible to the user, such that the user can add, remove, and
 	 * otherwise manipulate the software site list.
-	 * 
+	 *
 	 * @param visible <code>true</code> if repositories are visible to the end
 	 * user, <code>false</code> if they are not.
 	 */
@@ -252,7 +252,7 @@ public class Policy {
 	/**
 	 * Return a boolean indicating whether only the latest versions of
 	 * updates and available software should be shown to the user.
-	 * 
+	 *
 	 * @return <code>true</code> if only the latest versions are shown,
 	 * <code>false</code> if all versions should be shown.
 	 */
@@ -263,7 +263,7 @@ public class Policy {
 	/**
 	 * Set a boolean indicating whether only the latest versions of
 	 * updates and available software should be shown to the user.
-	 * 
+	 *
 	 * @param showLatest <code>true</code> if only the latest versions are shown,
 	 * <code>false</code> if all versions should be shown.
 	 */
@@ -274,7 +274,7 @@ public class Policy {
 	/**
 	 * Return a boolean indicating whether the user should be allowed drill
 	 * down from a visible update or installed item into the requirements.
-	 * 
+	 *
 	 * @return <code>true</code> if drilldown is allowed,
 	 * <code>false</code> if it is not.
 	 */
@@ -285,7 +285,7 @@ public class Policy {
 	/**
 	 * Set a boolean indicating whether the user should be allowed drill
 	 * down from a visible update or installed item into the requirements.
-	 * 
+	 *
 	 * @param drilldown <code>true</code> if drilldown is allowed,
 	 * <code>false</code> if it is not.
 	 */
@@ -296,8 +296,8 @@ public class Policy {
 	/**
 	 * Return a boolean value indicating whether or not the list of available
 	 * software should be filtered based on the environment settings of the profile.
-	 * 
-	 * @return <code>true</code> if the results should be filtered 
+	 *
+	 * @return <code>true</code> if the results should be filtered
 	 * and <code>false</code> otherwise.
 	 * @since 2.1
 	 */
@@ -308,8 +308,8 @@ public class Policy {
 	/**
 	 * Set a boolean value indicating whether or not the list of available
 	 * software should be filtered based on the environment settings of the profile.
-	 * 
-	 * @param filterOnEnv <code>true</code> if the results should be filtered 
+	 *
+	 * @param filterOnEnv <code>true</code> if the results should be filtered
 	 * and <code>false</code> otherwise.
 	 * @since 2.1
 	 */
@@ -320,7 +320,7 @@ public class Policy {
 	/**
 	 * Return a boolean indicating whether available software should be
 	 * grouped by category.
-	 * 
+	 *
 	 * @return <code>true</code> if items should be grouped by category,
 	 * <code>false</code> if categories should not be shown.
 	 */
@@ -331,7 +331,7 @@ public class Policy {
 	/**
 	 * Set a boolean indicating whether available software should be
 	 * grouped by category.
-	 * 
+	 *
 	 * @param group <code>true</code> if items should be grouped by category,
 	 * <code>false</code> if categories should not be shown.
 	 */
@@ -342,7 +342,7 @@ public class Policy {
 	/**
 	 * Get the id of the preference page that should be used to link to the
 	 * software sites page.
-	 * 
+	 *
 	 * @return the preference page id, or <code>null</code> if there is no
 	 * preference page id showing the software sites.
 	 */
@@ -353,7 +353,7 @@ public class Policy {
 	/**
 	 * Set the id of the preference page that should be used to link to the
 	 * software sites page.
-	 * 
+	 *
 	 * @param id the preference page id, or <code>null</code> if there is no
 	 * preference page id showing the software sites.
 	 */
@@ -365,7 +365,7 @@ public class Policy {
 	/**
 	 * Get the localized name of the preference page that should be displayed in
 	 * links to the software sites page.
-	 * 
+	 *
 	 * @return the preference page name, or <code>null</code> if there is no
 	 * preference page.
 	 */
@@ -377,10 +377,10 @@ public class Policy {
 	 * Set the localized name of the preference page that should be displayed in
 	 * links to the software sites page.  This name is ignored if no id is specified
 	 * for the preference page.
-	 * 
+	 *
 	 * @param name the preference page name, or <code>null</code> if there is no
 	 * preference page.
-	 * 
+	 *
 	 * @see Policy#setRepositoryPreferencePageId(String)
 	 */
 
@@ -391,12 +391,12 @@ public class Policy {
 	/**
 	 * Get the update wizard style that should be used to determine
 	 * what to show the user when updates are available.
-	 * 
+	 *
 	 * @return an integer constant describing the update wizard style
-	 * 
+	 *
 	 * @see #UPDATE_STYLE_SINGLE_IUS
 	 * @see #UPDATE_STYLE_MULTIPLE_IUS
-	 * 
+	 *
 	 * @since 2.1
 	 */
 
@@ -407,12 +407,12 @@ public class Policy {
 	/**
 	 * Get the update wizard style that should be used to determine
 	 * what to show the user when updates are available.
-	 * 
+	 *
 	 * @param updateWizardStyle an integer constant describing the update wizard style
-	 * 
+	 *
 	 * @see #UPDATE_STYLE_SINGLE_IUS
 	 * @see #UPDATE_STYLE_MULTIPLE_IUS
-	 * 
+	 *
 	 * @since 2.1
 	 */
 
@@ -423,10 +423,10 @@ public class Policy {
 	/**
 	 * Get a point describing the preferred size of the details area
 	 * shown in single IU update wizards.  This value may be null, in which case
-	 * the wizard may compute a default size.  
-	 * 
+	 * the wizard may compute a default size.
+	 *
 	 * @return a Point describing the preferred size of the update wizard details area.
-	 * 
+	 *
 	 * @see #UPDATE_STYLE_SINGLE_IUS
 	 *
 	 * @since 2.1
@@ -441,11 +441,11 @@ public class Policy {
 	 * notify the user of a single update.  Clients can use this value to ensure
 	 * that their product's branded update notifier is sized to fit the expected
 	 * content.
-	 * 
+	 *
 	 * @param preferredSize a Point describing the preferred size
-	 * 
+	 *
 	 * @see #UPDATE_STYLE_SINGLE_IUS
-	 * 
+	 *
 	 * @since 2.1
 	 */
 
@@ -454,8 +454,8 @@ public class Policy {
 	}
 
 	/**
-	 * Get a boolean value indicating whether to contact all sites. 
-	 * 
+	 * Get a boolean value indicating whether to contact all sites.
+	 *
 	 * @return <code>true</code> true if all sites need to be contacted,
 	 * <code>false</code> otherwise.
 	 *
@@ -467,7 +467,7 @@ public class Policy {
 
 	/**
 	 * Set a boolean indicating whether all sites need to be contacted.
-	 * 
+	 *
 	 * @param contactAll <code>true</code> if all sites need to be contacted,
 	 * <code>false</code> otherwise.
 	 *
@@ -479,7 +479,7 @@ public class Policy {
 
 	/**
 	 * Get a boolean value indicating whether to hide already installed units.
-	 * 
+	 *
 	 * @return <code>true</code> if already installed units are to be hidden,
 	 * <code>false</code> otherwise.
 	 *

@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.*;
  * (1)checking a parent will expand it when we know it's a long running
  * operation that involves a placeholder. The modified method is
  * doCheckStateChanged().
- * 
+ *
  * (2)when preserving selection, we do not want the check state to be rippled
  * through the child and parent nodes. Since we know that
  * preservingSelection(Runnable) isn't working properly, no need to do a bunch
@@ -56,7 +56,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Constructor for ContainerCheckedTreeViewer.
-	 * 
+	 *
 	 * @see CheckboxTreeViewer#CheckboxTreeViewer(Composite)
 	 */
 	public ContainerCheckedTreeViewer(Composite parent) {
@@ -66,7 +66,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Constructor for ContainerCheckedTreeViewer.
-	 * 
+	 *
 	 * @see CheckboxTreeViewer#CheckboxTreeViewer(Composite,int)
 	 */
 	public ContainerCheckedTreeViewer(Composite parent, int style) {
@@ -76,7 +76,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Constructor for ContainerCheckedTreeViewer.
-	 * 
+	 *
 	 * @see CheckboxTreeViewer#CheckboxTreeViewer(Tree)
 	 */
 	public ContainerCheckedTreeViewer(Tree tree) {
@@ -104,7 +104,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Update element after a checkstate change.
-	 * 
+	 *
 	 * @param element
 	 */
 	protected void doCheckStateChanged(Object element) {
@@ -231,7 +231,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Recursively add the filtered children of element to the result.
-	 * 
+	 *
 	 * @param element
 	 * @param result
 	 */

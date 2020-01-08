@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Control;
 
 /**
  * Implements drag behaviour when IU items are dragged from a repository view.
- * 
+ *
  * @since 3.4
  */
 public class IUDragAdapter extends DragSourceAdapter {
@@ -32,7 +32,7 @@ public class IUDragAdapter extends DragSourceAdapter {
 
 	/**
 	 * Constructs a new drag adapter.
-	 * 
+	 *
 	 * @param provider
 	 *            The selection provider
 	 */

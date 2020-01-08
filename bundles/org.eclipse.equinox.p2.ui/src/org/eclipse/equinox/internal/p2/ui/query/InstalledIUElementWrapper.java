@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 /**
  * ElementWrapper that accepts the matched IU's and
  * wraps them in an InstalledIUElement.
- * 
+ *
  * @since 3.4
  */
 public class InstalledIUElementWrapper extends QueriedElementWrapper {
@@ -34,7 +34,7 @@ public class InstalledIUElementWrapper extends QueriedElementWrapper {
 
 	/**
 	 * Accepts a result that matches the query criteria.
-	 * 
+	 *
 	 * @param match an object matching the query
 	 * @return <code>true</code> if the query should continue,
 	 * or <code>false</code> to indicate the query should stop.

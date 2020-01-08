@@ -31,7 +31,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * PropertyPage that shows an IU's properties
- * 
+ *
  * @since 3.4
  */
 public abstract class IUPropertyPage extends PropertyPage {

@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 /**
  * ElementWrapper that accepts the matched repo URLs and
  * wraps them in a MetadataRepositoryElement.
- * 
+ *
  * @since 3.4
  */
 public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
@@ -35,7 +35,7 @@ public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 
 	/**
 	 * Accepts a result that matches the query criteria.
-	 * 
+	 *
 	 * @param match an object matching the query
 	 * @return <code>true</code> if the query should continue,
 	 * or <code>false</code> to indicate the query should stop.

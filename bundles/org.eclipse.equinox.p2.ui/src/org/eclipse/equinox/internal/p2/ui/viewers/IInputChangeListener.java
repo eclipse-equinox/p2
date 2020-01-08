@@ -20,7 +20,7 @@ import org.eclipse.jface.viewers.Viewer;
 /**
  * A listening interface used to signal clients when input changes
  * in a viewer.
- * 
+ *
  * @since 3.4
  *
  */

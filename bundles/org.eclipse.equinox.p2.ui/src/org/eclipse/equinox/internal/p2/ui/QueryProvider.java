@@ -31,7 +31,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Provides a default set of queries to drive the provisioning UI.
- * 
+ *
  * @since 3.5
  */
 
@@ -103,7 +103,7 @@ public class QueryProvider {
 				return new ElementQueryDescriptor(queryable, new RepositoryLocationQuery(), new Collector<URI>(), new ArtifactRepositoryElementWrapper(null, element));
 
 			case AVAILABLE_IUS :
-				// Things get more complicated if the user wants to filter out installed items. 
+				// Things get more complicated if the user wants to filter out installed items.
 				// This involves setting up a secondary query for installed content that the various
 				// collectors will use to reject content.  We can't use a compound query because the
 				// queryables are different (profile for installed content, repo for available content)
@@ -137,7 +137,7 @@ public class QueryProvider {
 				}
 
 				// If it's a category or some other IUElement to drill down in, we get the requirements and show all requirements
-				// that are also visible in the available list.  
+				// that are also visible in the available list.
 				if (element instanceof CategoryElement || (element instanceof IIUElement && ((IIUElement) element).shouldShowChildren())) {
 					// children of a category should drill down according to the context.  If we aren't in a category, we are already drilling down and
 					// continue to do so.
@@ -171,7 +171,7 @@ public class QueryProvider {
 				return null;
 
 			case AVAILABLE_UPDATES :
-				// This query can be used by the automatic updater in headless cases (checking for updates).  
+				// This query can be used by the automatic updater in headless cases (checking for updates).
 				// We traffic in IU's rather than wrapped elements
 				IProfile profile;
 				IInstallableUnit[] toUpdate = null;

@@ -97,7 +97,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		layout.marginWidth = 0;
 
 		composite.setLayout(layout);
-		// Repo manipulation 
+		// Repo manipulation
 		createRepoArea(composite);
 
 		sashForm = new SashForm(composite, SWT.VERTICAL);
@@ -113,7 +113,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		grid.marginHeight = 0;
 		aboveSash.setLayout(grid);
 
-		// Now the available group 
+		// Now the available group
 		// If repositories are visible, we want to default to showing no repos.  Otherwise all.
 		int filterConstant = AvailableIUGroup.AVAILABLE_NONE;
 		if (!getPolicy().getRepositoriesVisible()) {
@@ -126,7 +126,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		availableIUGroup = new AvailableIUGroup(getProvisioningUI(), aboveSash, JFaceResources.getDialogFont(), queryContext, new IUColumnConfig[] {nameColumn, versionColumn}, filterConstant);
 
 		// Selection listeners must be registered on both the normal selection
-		// events and the check mark events.  Must be done after buttons 
+		// events and the check mark events.  Must be done after buttons
 		// are created so that the buttons can register and receive their selection notifications before us.
 		availableIUGroup.getStructuredViewer().addSelectionChangedListener(event -> {
 			updateDetails();
@@ -514,7 +514,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 					queryContext.setViewType(section.getInt(AVAILABLE_VIEW_TYPE));
 				}
 			} catch (NumberFormatException e) {
-				// Ignore if there actually was a value that didn't parse.  
+				// Ignore if there actually was a value that didn't parse.
 			}
 			// We no longer (in 3.5) show a view by site, so ignore any older dialog setting that
 			// instructs us to do this.
@@ -550,7 +550,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 					versionColumn.setWidthInPixels(section.getInt(VERSION_COLUMN_WIDTH));
 				}
 			} catch (NumberFormatException e) {
-				// Ignore if there actually was a value that didn't parse.  
+				// Ignore if there actually was a value that didn't parse.
 			}
 		}
 	}
@@ -569,7 +569,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 					}
 				}
 			} catch (NumberFormatException e) {
-				// Ignore if there actually was a value that didn't parse.  
+				// Ignore if there actually was a value that didn't parse.
 			}
 		}
 		return ILayoutConstants.IUS_TO_DETAILS_WEIGHTS;
@@ -678,10 +678,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	}
 
 	/**
-	 * Set the selections to be used in this page.  This method only changes the 
+	 * Set the selections to be used in this page.  This method only changes the
 	 * selections of items that are already visible.  It does not expand items
 	 * or change the repository elements in order to make the selections valid.
-	 * 
+	 *
 	 * @param elements
 	 */
 	@Override

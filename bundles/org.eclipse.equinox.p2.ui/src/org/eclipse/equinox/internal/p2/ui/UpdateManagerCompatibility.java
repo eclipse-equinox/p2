@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Utility methods involving compatibility with the Eclipse Update Manager.
- * 
+ *
  * @since 3.4
  *
  */
@@ -164,7 +164,7 @@ public class UpdateManagerCompatibility {
 			MetadataRepositoryElement element = (MetadataRepositoryElement) obj;
 			String sel = element.isEnabled() ? "true" : "false"; //$NON-NLS-1$ //$NON-NLS-2$
 			String name = element.getName();
-			writer.print(indent + "<site url=\"" + URIUtil.toUnencodedString(element.getLocation()) + "\" selected=\"" + sel + "\" name=\"" + getWritableXMLString(name) + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			writer.print(indent + "<site url=\"" + URIUtil.toUnencodedString(element.getLocation()) + "\" selected=\"" + sel + "\" name=\"" + getWritableXMLString(name) + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			writer.println("/>"); //$NON-NLS-1$
 		}
 	}
@@ -219,7 +219,7 @@ public class UpdateManagerCompatibility {
 	/**
 	 * Export the specified list of sites to a bookmarks file that
 	 * can be read later.
-	 * 
+	 *
 	 * @param shell the shell used to parent the export dialog
 	 * @param sites the sites to export
 	 */
@@ -239,8 +239,8 @@ public class UpdateManagerCompatibility {
 	}
 
 	/**
-	 * Open the old UpdateManager installer UI using the specified shell. 
-	 * We do not call the UpdateManagerUI class directly because we want to be able to be configured 
+	 * Open the old UpdateManager installer UI using the specified shell.
+	 * We do not call the UpdateManagerUI class directly because we want to be able to be configured
 	 * without requiring those plug-ins.  Instead, we invoke a known command.
 	 */
 	public static void openInstaller() {

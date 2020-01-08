@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -44,7 +44,7 @@ public class UserValidationDialog extends Dialog {
 
 	/**
 	 * Creates a new validation dialog that prompts the user for login credentials.
-	 * 
+	 *
 	 * @param parentShell the parent shell of this dialog
 	 * @param titleMessage the message to be displayed by this dialog's window
 	 * @param titleImage the image of this shell, may be <code>null</code>
@@ -56,7 +56,7 @@ public class UserValidationDialog extends Dialog {
 
 	/**
 	 * Creates a new validation dialog that prompts the user for login credentials.
-	 * 
+	 *
 	 * @param lastUsed the authentication information that was originally as an attempt to login
 	 * @param parentShell the parent shell of this dialog
 	 * @param titleMessage the message to be displayed by this dialog's window

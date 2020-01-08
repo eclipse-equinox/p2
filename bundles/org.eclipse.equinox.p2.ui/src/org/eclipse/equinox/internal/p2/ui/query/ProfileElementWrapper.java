@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 /**
  * Collector that accepts the matched Profiles and
  * wraps them in a ProfileElement.
- * 
+ *
  * @since 3.4
  */
 public class ProfileElementWrapper extends QueriedElementWrapper {

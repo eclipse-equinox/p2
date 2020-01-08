@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
  * ElementWrapper that wraps a URI with an ArtifactRepositoryElement.
- * 
+ *
  * @since 3.4
  */
 public class ArtifactRepositoryElementWrapper extends QueriedElementWrapper {
@@ -33,7 +33,7 @@ public class ArtifactRepositoryElementWrapper extends QueriedElementWrapper {
 
 	/**
 	 * Accepts a result that matches the query criteria.
-	 * 
+	 *
 	 * @param match an object matching the query
 	 * @return <code>true</code> if the query should continue,
 	 * or <code>false</code> to indicate the query should stop.

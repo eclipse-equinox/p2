@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 
 /**
- * 
+ *
  * IErrorReportingPage is used to report resolution
  * errors on a wizard page.
  *

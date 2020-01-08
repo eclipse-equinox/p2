@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Fix compiler problems from generified IAdaptable#getAdapter
@@ -23,9 +23,9 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 /**
  * Adapter factory for provisioning elements
- * 
+ *
  * @since 3.4
- * 
+ *
  */
 
 public class ProvUIAdapterFactory implements IAdapterFactory {

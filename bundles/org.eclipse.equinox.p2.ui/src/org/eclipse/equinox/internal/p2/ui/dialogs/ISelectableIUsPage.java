@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -17,7 +17,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import org.eclipse.jface.wizard.IWizardPage;
 
 /**
- * 
+ *
  * ISelectableIUsPage is used to get the selected or checked IUs in a
  * wizard page.
  *

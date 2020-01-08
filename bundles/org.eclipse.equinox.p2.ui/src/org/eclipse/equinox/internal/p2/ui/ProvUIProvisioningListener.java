@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
  * ProvisioningListener which handles event batching and other
  * extensions to the provisioning event framework that are used by
  * the UI.
- * 
+ *
  * @since 3.5
  */
 public abstract class ProvUIProvisioningListener implements SynchronousProvisioningListener {
@@ -73,9 +73,9 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 				}
 			} else {
 				// We are still in the middle of a batch operation, but we've been notified
-				// about a nested batch that ended.  See if it ended with a specific event.  
-				// If it did, this means there was a user action involving a repository 
-				// (rather than side-effect events).  For example, the user might add a repo while a full 
+				// about a nested batch that ended.  See if it ended with a specific event.
+				// If it did, this means there was a user action involving a repository
+				// (rather than side-effect events).  For example, the user might add a repo while a full
 				// background load is running.  We want to honor that
 				// event.  See https://bugs.eclipse.org/bugs/show_bug.cgi?id=305478
 				RepositoryEvent innerEvent = event.getEvent();
@@ -130,7 +130,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 	/**
 	 * A repository has been added.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param event the RepositoryEvent describing the details
 	 */
 	protected void repositoryAdded(RepositoryEvent event) {
@@ -142,7 +142,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 	/**
 	 * A repository has been removed.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param event the RepositoryEvent describing the details
 	 */
 	protected void repositoryRemoved(RepositoryEvent event) {
@@ -154,7 +154,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 	/**
 	 * A repository has been discovered.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param event the RepositoryEvent describing the details
 	 */
 	protected void repositoryDiscovered(RepositoryEvent event) {
@@ -166,7 +166,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 	/**
 	 * A repository has changed.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param event the RepositoryEvent describing the details
 	 */
 	protected void repositoryChanged(RepositoryEvent event) {
@@ -192,7 +192,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 	/**
 	 * The specified profile has changed.   Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param profileId the id of the profile that changed.
 	 */
 	protected void profileChanged(final String profileId) {
@@ -204,7 +204,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 	/**
 	 * The specified profile has been added.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param profileId the id of the profile that has been added.
 	 */
 	protected void profileAdded(final String profileId) {
@@ -216,7 +216,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 	/**
 	 * The specified profile has been removed.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param profileId the id of the profile that has been removed.
 	 */
 	protected void profileRemoved(final String profileId) {

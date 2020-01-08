@@ -20,7 +20,7 @@ import java.util.EventObject;
  * Event used to signal that a repository operation is about
  * to begin.  This event can be used to ignore lower-level repository events
  * until the operation is complete.
- *  
+ *
  * @since 2.0
  */
 public class RepositoryOperationBeginningEvent extends EventObject {

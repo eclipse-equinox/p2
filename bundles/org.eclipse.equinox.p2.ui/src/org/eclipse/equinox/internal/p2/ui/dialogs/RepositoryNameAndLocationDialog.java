@@ -32,9 +32,9 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * Class for showing a repository name and location
- * 
+ *
  * @since 3.4
- * 
+ *
  */
 public class RepositoryNameAndLocationDialog extends StatusDialog {
 
@@ -79,7 +79,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	/**
 	 * Return a RepositoryTracker appropriate for validating and adding the
 	 * repository.
-	 * 
+	 *
 	 * @return the Repository Tracker
 	 */
 	protected RepositoryTracker getRepositoryTracker() {
@@ -102,7 +102,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	/**
 	 * Get the repository location as currently typed in by the user.  Return null if there
 	 * is a problem with the URL.
-	 * 
+	 *
 	 * @return the URL currently typed in by the user.
 	 */
 	protected URI getUserLocation() {
@@ -112,7 +112,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	/**
 	 * Get the location of the repository that was entered by the user.
 	 * Return <code>null</code> if no location was provided.
-	 * 
+	 *
 	 * @return the location of the repository that has been provided by the user.
 	 */
 	public URI getLocation() {
@@ -122,7 +122,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	/**
 	 * Get the name of the repository that was entered by the user.
 	 * Return <code>null</code> if no name was provided.
-	 * 
+	 *
 	 * @return the name of the repository that has been provided by the user.
 	 */
 	public String getName() {
@@ -132,7 +132,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	/**
 	 * Validate the repository URL, returning a status that is appropriate
 	 * for showing the user.  The boolean indicates whether the repositories
-	 * should be consulted for validating the URL.  For example, it is not 
+	 * should be consulted for validating the URL.  For example, it is not
 	 * appropriate to contact the repositories on every keystroke.
 	 */
 	protected IStatus validateRepositoryURL(final boolean contactRepositories) {

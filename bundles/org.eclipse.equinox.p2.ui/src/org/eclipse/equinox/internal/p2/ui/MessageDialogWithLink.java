@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     Mickael Istria (Red Hat Inc.) - 483644 Improve "No updates found" dialog
  *******************************************************************************/

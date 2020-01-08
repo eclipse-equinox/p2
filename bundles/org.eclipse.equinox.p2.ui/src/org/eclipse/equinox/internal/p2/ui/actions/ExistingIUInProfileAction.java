@@ -25,11 +25,11 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ISelectionProvider;
 
 /**
- * 
+ *
  * Abstract class that implements the enablement rules for actions that
  * affect IU's already in a profile.  The action only enables when all of the
  * IU's involved are top level IU's from the same profile.
- * 
+ *
  * @since 3.5
  *
  */
@@ -50,7 +50,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 			for (Object selection : selectionArray) {
 				if (selection instanceof InstalledIUElement) {
 					InstalledIUElement element = (InstalledIUElement) selection;
-					// If the parents are different, then they are either from 
+					// If the parents are different, then they are either from
 					// different profiles or are nested in different parts of the tree.
 					// Either way, this makes the selection invalid.
 					if (parent == null) {

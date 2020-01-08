@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /**
  * A dialog which prompts the user to restart.
- * 
+ *
  * @since 3.4
  */
 public class ApplyProfileChangesDialog extends MessageDialog {
@@ -45,10 +45,10 @@ public class ApplyProfileChangesDialog extends MessageDialog {
 	 * Prompt the user for restart or apply profile changes.
 	 *
 	 * @param parent the parent shell of the dialog, or <code>null</code> if none
-	 * @param mustRestart indicates whether the user must restart to get the 
+	 * @param mustRestart indicates whether the user must restart to get the
 	 * 		changes.  If <code>false</code>, then the user may choose to apply
 	 * 		the changes to the running profile rather than restarting.
-	 * @return one of PROFILE_IGNORE (do nothing), PROFILE_APPLYCHANGES 
+	 * @return one of PROFILE_IGNORE (do nothing), PROFILE_APPLYCHANGES
 	 * 		(attempt to apply the changes), or PROFILE_RESTART (restart the system).
 	 */
 	public static int promptForRestart(Shell parent, boolean mustRestart) {
@@ -64,7 +64,7 @@ public class ApplyProfileChangesDialog extends MessageDialog {
 
 	/**
 	 * When a button is pressed, store the return code.
-	 * 
+	 *
 	 * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
 	 */
 	@Override

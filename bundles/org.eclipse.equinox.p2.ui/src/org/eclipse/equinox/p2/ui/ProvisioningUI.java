@@ -106,7 +106,7 @@ public class ProvisioningUI {
 	/**
 	 * Return the license manager that should be used to remember accepted user
 	 * licenses.
-	 * 
+	 *
 	 * @return the license manager. May be <code>null</code> if licenses are not to
 	 *         be remembered.
 	 */
@@ -346,7 +346,7 @@ public class ProvisioningUI {
 
 	/**
 	 * Open a UI that allows the user to manipulate the repositories.
-	 * 
+	 *
 	 * @param shell the shell that should parent the UI
 	 */
 	public void manipulateRepositories(Shell shell) {
@@ -437,7 +437,7 @@ public class ProvisioningUI {
 
 	/**
 	 * This method is for automated testing only.
-	 * 
+	 *
 	 * @return the provisioning operation that can suppress restart for automated
 	 *         testing.
 	 * @noreference This method is not intended to be referenced by clients.

@@ -25,8 +25,8 @@ import org.eclipse.swt.dnd.*;
 /**
  * URLDropAdapter can receive URL text from a drop.
  * The URLDropAdapter should only be used with
- * the URLTransfer mechanism unless otherwise stated.  
- * 
+ * the URLTransfer mechanism unless otherwise stated.
+ *
  * @since 3.4
  *
  */
@@ -102,7 +102,7 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 	}
 
 	/**
-	 * Determine whether the drop target data is valid.  On some platforms this cannot be detected, 
+	 * Determine whether the drop target data is valid.  On some platforms this cannot be detected,
 	 * in which which case we return true.
 	 * @param event the drop target event
 	 * @return <code>true</code> if data is valid, (or can not be determined), <code>false</code> otherwise.
@@ -114,9 +114,9 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 	}
 
 	/**
-	 * Handle the drop with the given text as the URL.  
+	 * Handle the drop with the given text as the URL.
 	 * @param urlText The url text specified by the drop.  It is never <code>null</code>.
-	 * @param event the originating drop target event.  
+	 * @param event the originating drop target event.
 	 */
 	protected abstract void handleDrop(String urlText, DropTargetEvent event);
 }

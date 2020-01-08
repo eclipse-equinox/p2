@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
  * Interface for elements that represent repositories.
- * 
+ *
  * @since 3.4
  */
 public interface IRepositoryElement<T> {

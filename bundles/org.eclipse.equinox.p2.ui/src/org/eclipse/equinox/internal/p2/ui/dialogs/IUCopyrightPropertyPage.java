@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * PropertyPage that shows an IU's copyright
- * 
+ *
  * @since 3.4
  */
 public class IUCopyrightPropertyPage extends IUPropertyPage {

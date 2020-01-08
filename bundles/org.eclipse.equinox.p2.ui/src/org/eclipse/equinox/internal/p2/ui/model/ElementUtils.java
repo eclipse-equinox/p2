@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Utility methods for manipulating model elements.
- * 
+ *
  * @since 3.4
  *
  */

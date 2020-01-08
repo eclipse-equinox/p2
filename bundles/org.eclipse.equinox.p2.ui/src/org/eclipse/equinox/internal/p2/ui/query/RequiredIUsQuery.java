@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc. - converted into expression based query
@@ -29,8 +29,8 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
  * plan that are required by this IU.  This is usually used in combination with
  * other queries (such as show all Required IUs which also are visible to
  * the user as available).
- * 
- * @since 2.0 
+ *
+ * @since 2.0
  */
 public class RequiredIUsQuery extends ExpressionMatchQuery<IInstallableUnit> {
 
@@ -38,8 +38,8 @@ public class RequiredIUsQuery extends ExpressionMatchQuery<IInstallableUnit> {
 
 	/**
 	 * Creates a new query that will return any IU that meets any
-	 * one of the requirements of the specified IU. 
-	 * 
+	 * one of the requirements of the specified IU.
+	 *
 	 * @param iu The IU whose requirements are to be checked
 	 */
 	public RequiredIUsQuery(IInstallableUnit iu) {

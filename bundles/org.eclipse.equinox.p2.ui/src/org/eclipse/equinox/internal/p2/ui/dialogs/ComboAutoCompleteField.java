@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Combo;
  * pattern matching the text in a combo to the contents of the combo.
  * If the proposals should include items outside of the combo, then
  * clients can set their own proposal strings.
- * 
+ *
  * @since 3.5
  */
 public class ComboAutoCompleteField {

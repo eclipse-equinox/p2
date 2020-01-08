@@ -25,9 +25,9 @@ import org.eclipse.jface.viewers.Viewer;
  * Content provider that retrieves children asynchronously where
  * possible using the IDeferredWorkbenchAdapter and provisioning
  * query mechanisms.
- * 
+ *
  * @since 3.4
- * 
+ *
  */
 public class DeferredQueryContentProvider extends ProvElementContentProvider {
 
@@ -41,7 +41,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 	IDeferredQueryTreeListener onFetchingActionListener;
 
 	/**
-	 * 
+	 *
 	 */
 	public DeferredQueryContentProvider() {
 		// Default constructor

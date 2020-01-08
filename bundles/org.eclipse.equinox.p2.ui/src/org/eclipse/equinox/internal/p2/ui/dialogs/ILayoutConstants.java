@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -17,9 +17,9 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
  * ILayoutConstants defines common dialog constants used when laying
  * out dialogs.  Units of measurement are character widths and heights
  * unless otherwise specified.
- * 
+ *
  * This interface is not intended to be implemented
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 3.5

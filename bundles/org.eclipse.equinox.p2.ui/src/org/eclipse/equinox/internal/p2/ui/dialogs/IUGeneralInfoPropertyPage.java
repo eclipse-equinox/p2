@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * PropertyPage that shows an IU's properties
- * 
+ *
  * @since 3.4
  */
 public class IUGeneralInfoPropertyPage extends IUPropertyPage {

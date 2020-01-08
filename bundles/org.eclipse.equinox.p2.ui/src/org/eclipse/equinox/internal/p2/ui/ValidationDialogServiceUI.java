@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Rapicorp, Inc. - add support for information dialog
@@ -222,7 +222,7 @@ public class ValidationDialogServiceUI extends UIServices {
 	}
 
 	private boolean isHeadless() {
-		// If there is no UI available and we are still the IServiceUI, 
+		// If there is no UI available and we are still the IServiceUI,
 		// assume that the operation should proceed.  See
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291049
 		return !PlatformUI.isWorkbenchRunning();

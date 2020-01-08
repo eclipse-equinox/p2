@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2010 EclipseSource and others.
  *
  * This
@@ -49,7 +49,7 @@ public abstract class ElementWrapper {
 
 	/**
 	 * Determines if this object should be accepted and wrapped
-	 * by a UI element.  
+	 * by a UI element.
 	 */
 	protected boolean shouldWrap(Object o) {
 		return true;

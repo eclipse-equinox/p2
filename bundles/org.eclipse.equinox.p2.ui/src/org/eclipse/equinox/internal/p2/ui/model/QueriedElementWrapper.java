@@ -28,7 +28,7 @@ import org.eclipse.osgi.util.NLS;
  * A wrapper that assigns a query provider and the queryable
  * who was performing the query to the wrapped elements
  * as they are accepted.
- * 
+ *
  * @since 3.4
  */
 public abstract class QueriedElementWrapper extends ElementWrapper {

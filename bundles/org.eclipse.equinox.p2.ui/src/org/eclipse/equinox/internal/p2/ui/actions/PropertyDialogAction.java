@@ -19,7 +19,7 @@ import org.eclipse.jface.window.IShellProvider;
 
 /**
  * PropertyDialogAction which sets its enablement on construction.
- * 
+ *
  * @since 3.4
  *
  */

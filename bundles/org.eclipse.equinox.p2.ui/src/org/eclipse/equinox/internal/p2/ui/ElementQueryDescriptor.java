@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.query.*;
  * ElementQueryDescriptor represents everything needed to run a query, including
  * the object to be queried, the query to use, and the query result.  It can optionally
  * wrap the query results in a UI element.
- * 
+ *
  * @since 3.4
  */
 public class ElementQueryDescriptor {

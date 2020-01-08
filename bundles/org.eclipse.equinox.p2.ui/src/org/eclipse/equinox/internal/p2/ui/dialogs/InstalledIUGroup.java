@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.*;
 /**
  * An InstalledIUGroup is a reusable UI component that displays the
  * IU's in a given profile.
- * 
+ *
  * @since 3.4
  */
 public class InstalledIUGroup extends StructuredIUGroup {
@@ -38,7 +38,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 
 	/**
 	 * Create a group that represents the installed IU's.
-	 * 
+	 *
 	 * @param parent the parent composite for the group
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.

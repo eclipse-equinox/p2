@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -45,9 +45,9 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * InstalledSoftwarePage displays a profile's IInstallableUnits in
  * an Installation Page.  Clients can use this class as the implementation
  * class for an installationPages extension.
- * 
+ *
  * @see InstallationPage
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @since 2.0
@@ -267,7 +267,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 
 	/**
 	 * Set the provisioning UI to use with this page
-	 * 
+	 *
 	 * @param value the provisioning ui to use
 	 * @since 2.1
 	 */
@@ -276,14 +276,14 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	}
 
 	/**
-	 * Filters {@link InstalledIUElement}s from a viewer using a String pattern. 
+	 * Filters {@link InstalledIUElement}s from a viewer using a String pattern.
 	 * Filtering is dependent on a given array of {@link IUColumnConfig}s :
 	 * <ul>
 	 * <li>if {@link IUColumnConfig#COLUMN_ID} is present, filters on the Installable Unit's id;</li>
 	 * <li>if {@link IUColumnConfig#COLUMN_NAME} is present, filters on the Installable Unit's  name;</li>
 	 * <li>if {@link IUColumnConfig#COLUMN_PROVIDER} is present, filters on the Installable Unit's provider;</li>
-	 * </ul>   
-	 * 
+	 * </ul>
+	 *
 	 * @since 2.3
 	 */
 	class IUPatternFilter extends ViewerFilter {

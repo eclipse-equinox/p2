@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -108,7 +108,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	 * action.  If the action has not been run, return ACTION_NOT_RUN.  If the
 	 * action does not open a wizard, return Window.OK if the operation was performed,
 	 * and Window.CANCEL if it was canceled.
-	 * 
+	 *
 	 * @return integer return code
 	 */
 	public int getReturnCode() {
@@ -142,9 +142,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	 * the actual number of selections in the action's selection provider.
 	 * That is, if the action is disabled due to invalid selections,
 	 * this method will return those selections that were valid.
-	 * 
+	 *
 	 * @return an array of selected IInstallableUnit that meet the
-	 * enablement criteria for the action.  
+	 * enablement criteria for the action.
 	 */
 	protected List<IInstallableUnit> getSelectedIUs() {
 		List<?> elements = getStructuredSelection().toList();

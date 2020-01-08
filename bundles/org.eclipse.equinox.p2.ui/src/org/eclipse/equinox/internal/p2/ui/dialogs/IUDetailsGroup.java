@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2016 EclipseSource and others.
  *
  * This
@@ -50,7 +50,7 @@ public class IUDetailsGroup {
 	private String lastText;
 
 	/**
-	 * 
+	 *
 	 */
 	public IUDetailsGroup(Composite parent, ISelectionProvider selectionProvider, int widthHint, boolean scrollable) {
 		this.selectionProvider = selectionProvider;

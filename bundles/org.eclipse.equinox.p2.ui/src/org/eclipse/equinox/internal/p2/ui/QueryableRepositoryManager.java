@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ import org.eclipse.osgi.util.NLS;
  * An object that provides query support for a specified
  * set of repositories.  The repository tracker flags determine which repositories
  * are included in the query.  Callers interested in only the resulting repository URIs
- * should specify a {@link RepositoryLocationQuery}, in which case the 
+ * should specify a {@link RepositoryLocationQuery}, in which case the
  * query is performed over the URI's.  Otherwise the repositories are loaded and
  * the query is performed over the repositories themselves.
  */
@@ -58,9 +58,9 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	 * query.
 	 * <p>
 	 * This method is long-running; progress and cancellation are provided
-	 * by the given progress monitor. 
+	 * by the given progress monitor.
 	 * </p>
-	 * 
+	 *
 	 * @param query The query to perform..
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
@@ -92,7 +92,7 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	 * can be queried by the receiver are already loaded.  If a repository
 	 * is not loaded because it was not found, this will not return false,
 	 * because this repository cannot be queried.
-	 * 
+	 *
 	 * @return <code>true</code> if all repositories to be queried by the
 	 * receiver are loaded, <code>false</code> if they
 	 * are not.
@@ -132,7 +132,7 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 
 	/**
 	 * Load the repository located at the specified location.
-	 * 
+	 *
 	 * @param manager the manager
 	 * @param location the repository location
 	 * @param monitor the progress monitor

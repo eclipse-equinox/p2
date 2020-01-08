@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -37,7 +37,7 @@ import org.eclipse.ui.PlatformUI;
 /**
  * An install wizard that allows the users to browse all of the repositories
  * and search/select for items to install.
- * 
+ *
  * @since 3.6
  */
 public class InstallWizard extends WizardWithLicenses {
@@ -229,10 +229,10 @@ public class InstallWizard extends WizardWithLicenses {
 
 	/*
 	 * When we've found an install handler, that status trumps anything that the operation might have
-	 * determined.  We are relying here on the knowledge that the wizard's couldNotResolveStatus is 
-	 * reset on every new resolution, so that status only holds the installHandler status when it is 
+	 * determined.  We are relying here on the knowledge that the wizard's couldNotResolveStatus is
+	 * reset on every new resolution, so that status only holds the installHandler status when it is
 	 * the current status.  The installHandlerStatus must be non-OK for it to matter at all.
-	 * 
+	 *
 	 */
 	@Override
 	public boolean statusOverridesOperation() {

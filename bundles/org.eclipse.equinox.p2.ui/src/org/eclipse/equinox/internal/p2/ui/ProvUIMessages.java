@@ -18,8 +18,8 @@ package org.eclipse.equinox.internal.p2.ui;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Message class for provisioning UI messages.  
- * 
+ * Message class for provisioning UI messages.
+ *
  * @since 3.4
  */
 public class ProvUIMessages extends NLS {

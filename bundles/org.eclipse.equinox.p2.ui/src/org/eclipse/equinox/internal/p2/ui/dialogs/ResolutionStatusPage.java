@@ -33,7 +33,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * to select and deselect them.  Typically the first page in a provisioning
  * operation wizard, and usually it is the page used to report resolution errors
  * before advancing to resolution detail.
- * 
+ *
  * @since 3.5
  *
  */
@@ -69,10 +69,10 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 	/**
 	 * Update the status area of the wizard to report the results of the operation.
-	 * 
+	 *
 	 * @param newRoot the root that describes the root IUs involved in creating the plan.
 	 * 		This can be <code>null</code> if the root should not be updated.
-	 * 
+	 *
 	 * @param op the ProfileChangeOperation that describes the operation
 	 */
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
@@ -156,7 +156,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		IUDetailsGroup detailsGroup = getDetailsGroup();
 
 		// We either haven't resolved, or we failed to resolve and reported some error
-		// while doing so.  
+		// while doing so.
 		if (resolvedOperation == null || !resolvedOperation.hasResolved() || getProvisioningWizard().statusOverridesOperation()) {
 			// See if the wizard status knows something more about it.
 			IStatus currentStatus = getProvisioningWizard().getCurrentStatus();
@@ -258,7 +258,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 					}
 				}
 			} catch (NumberFormatException e) {
-				// Ignore if there actually was a value that didn't parse.  
+				// Ignore if there actually was a value that didn't parse.
 			}
 		}
 		return ILayoutConstants.IUS_TO_DETAILS_WEIGHTS;
@@ -276,7 +276,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 				if (section.get(ID_COLUMN_WIDTH) != null)
 					getIdColumn().setWidthInPixels(section.getInt(ID_COLUMN_WIDTH));
 			} catch (NumberFormatException e) {
-				// Ignore if there actually was a value that didn't parse.  
+				// Ignore if there actually was a value that didn't parse.
 			}
 		}
 	}

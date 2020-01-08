@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Image;
 /**
  * Label provider for repository elements.  The column structure is
  * assumed to be known by the caller who sets up the columns
- * 
+ *
  * @since 3.5
  */
 public class RepositoryDetailsLabelProvider extends LabelProvider implements ITableLabelProvider {

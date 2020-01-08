@@ -20,9 +20,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * Content provider for provisioning repositories. The repositories are the
  * elements and the repository children are retrieved asynchronously
  * using the IDeferredWorkbenchAdapter mechanism.
- * 
+ *
  * @since 3.4
- * 
+ *
  */
 public class RepositoryContentProvider extends DeferredQueryContentProvider {
 

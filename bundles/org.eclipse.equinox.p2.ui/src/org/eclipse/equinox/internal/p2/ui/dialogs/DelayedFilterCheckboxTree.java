@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -25,10 +25,10 @@ import org.eclipse.ui.progress.WorkbenchJob;
 /**
  * FilteredTree extension that creates a ContainerCheckedTreeViewer, manages the
  * check state across filtering (working around bugs in ContainerCheckedTreeViewer),
- * and preloads all metadata repositories before allowing filtering, in order to 
+ * and preloads all metadata repositories before allowing filtering, in order to
  * coordinate background fetch and filtering.  It also manages a cache of expanded
  * elements that can survive a change of input.
- * 
+ *
  * @since 3.4
  *
  */
@@ -70,7 +70,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 					clearCheckStateCache();
 				} else {
 					ArrayList<Object> toRemove = new ArrayList<>(1);
-					// See bug 258117.  Ideally we would get check state changes 
+					// See bug 258117.  Ideally we would get check state changes
 					// for children when the parent state changed, but we aren't, so
 					// we need to remove all children from the additive check state
 					// cache.
@@ -201,7 +201,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				} else if (ignoreFiltering) {
 					event.getJob().sleep();
 				} else {
-					// shouldn't get here unless the prefilter job finished 
+					// shouldn't get here unless the prefilter job finished
 					// and ignoreFiltering became false since we entered this listener.
 					rememberLeafCheckState();
 				}

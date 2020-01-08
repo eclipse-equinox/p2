@@ -81,7 +81,7 @@ public abstract class QueriedElement extends ProvElement {
 	/**
 	 * Return the query type that is appropriate for this element when there is no
 	 * query context.
-	 * 
+	 *
 	 * @return The integer query type
 	 */
 	protected abstract int getDefaultQueryType();
@@ -91,7 +91,7 @@ public abstract class QueriedElement extends ProvElement {
 	 * element, the query type may take the query context into account. Subclasses
 	 * should override this method if there are context-dependent decisions to be
 	 * made to determine the query.
-	 * 
+	 *
 	 * @return The integer query type
 	 */
 	public int getQueryType() {

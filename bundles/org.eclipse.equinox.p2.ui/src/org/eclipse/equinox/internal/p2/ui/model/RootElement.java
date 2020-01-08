@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 /**
  * Element class that represents the root of a viewer.  It can be configured
  * with its own ui and query context.
- * 
+ *
  * @since 3.5
  *
  */
@@ -49,7 +49,7 @@ public abstract class RootElement extends RemoteQueriedElement {
 
 	/**
 	 * Set the query context that is used when querying the receiver.
-	 * 
+	 *
 	 * @param context the query context to use
 	 */
 	public void setQueryContext(IUViewQueryContext context) {

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,7 +32,7 @@ import org.eclipse.ui.dialogs.FilteredTree;
 /**
  * Label provider for showing IU's in a table.  Clients can configure
  * what is shown in each column.
- * 
+ *
  * @since 3.4
  */
 public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITableLabelProvider, IFontProvider {
@@ -102,7 +102,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 					return name;
 				// If the iu name is not available, we return blank if we know know we are
 				// showing id in another column.  Otherwise we return id so the user doesn't
-				// see blank iu's.  
+				// see blank iu's.
 				if (showingId)
 					return BLANK;
 				return iu.getId();

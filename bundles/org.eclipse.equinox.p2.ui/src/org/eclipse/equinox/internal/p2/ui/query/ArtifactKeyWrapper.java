@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
  * Wrapper that accepts artifact keys and wraps them in an ArtifactKeyElement.
- * 
+ *
  * @since 3.6
  */
 public class ArtifactKeyWrapper extends QueriedElementWrapper {

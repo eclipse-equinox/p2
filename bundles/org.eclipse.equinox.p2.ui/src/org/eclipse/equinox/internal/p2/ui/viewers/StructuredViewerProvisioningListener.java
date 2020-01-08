@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ import org.eclipse.ui.PlatformUI;
  * model elements or the entire viewer based on the nature of the change and the
  * changes that the client is interested in.  Subclasses typically only need
  * override when there is additional, specialized behavior required.
- * 
+ *
  * @since 3.4
  */
 public class StructuredViewerProvisioningListener extends ProvUIProvisioningListener {
@@ -47,7 +47,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * A repository has been added.  The default behavior is to
 	 * refresh the viewer.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param event the RepositoryEvent describing the details
 	 */
 	@Override
@@ -59,7 +59,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * A repository has been removed.  The default behavior is to
 	 * refresh the viewer.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param event the RepositoryEvent describing the details
 	 */
 	@Override
@@ -70,7 +70,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	/**
 	 * A repository has been discovered.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param event the RepositoryEvent describing the details
 	 */
 	@Override
@@ -81,7 +81,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	/**
 	 * A repository has changed.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param event the RepositoryEvent describing the details
 	 */
 	@Override
@@ -95,7 +95,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * The specified profile has changed.  The default behavior is to refresh the viewer
 	 * with a profile element of the matching id.  Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param profileId the id of the profile that changed.
 	 */
 	@Override
@@ -114,7 +114,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * The specified profile has been added.  The default behavior is to fully
 	 * refresh the associated viewer. Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param profileId the id of the profile that has been added.
 	 */
 	@Override
@@ -126,7 +126,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 * The specified profile has been removed.  The default behavior is to fully
 	 * refresh the associated viewer. Subclasses may override.  May be called
 	 * from a non-UI thread.
-	 * 
+	 *
 	 * @param profileId the id of the profile that has been removed.
 	 */
 	@Override
@@ -155,7 +155,7 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	/**
 	 * Refresh the entire structure of the viewer.  Subclasses may
 	 * override to ensure that any caching done in content providers or
-	 * model elements is refreshed before the viewer is refreshed.  This will 
+	 * model elements is refreshed before the viewer is refreshed.  This will
 	 * always be called from the UI thread.
 	 */
 	protected void refreshViewer() {

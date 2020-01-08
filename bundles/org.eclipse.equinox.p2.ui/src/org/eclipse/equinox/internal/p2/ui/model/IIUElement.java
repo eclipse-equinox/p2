@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * Interface for elements that represent IU's.
- * 
+ *
  * @since 3.4
  */
 public interface IIUElement {

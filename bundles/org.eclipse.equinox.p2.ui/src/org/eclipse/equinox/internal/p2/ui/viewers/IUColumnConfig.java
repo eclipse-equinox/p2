@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -20,9 +20,9 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Control;
 
 /**
- * An IUColumnConfig describes a column in a viewer that is showing 
- * information about an IIInstallableUnit.  
- * 
+ * An IUColumnConfig describes a column in a viewer that is showing
+ * information about an IIInstallableUnit.
+ *
  * @since 3.4
  */
 public class IUColumnConfig {
@@ -64,11 +64,11 @@ public class IUColumnConfig {
 	/**
 	 * Create an IUColumnConfig describing a column with the specified title, type, and
 	 * default width.
-	 * 
+	 *
 	 * @param title the title that should appear for the column
 	 * @param columnType the type of column represented.  The type may be used to determine
 	 * appropriate size or formatting of the column's content.
-	 * @param columnWidthInChars the width (in characters) that should be used for the column if no 
+	 * @param columnWidthInChars the width (in characters) that should be used for the column if no
 	 * other width is specified by the client.
 	 */
 
@@ -82,7 +82,7 @@ public class IUColumnConfig {
 	/**
 	 * Return the title of the column.
 	 * @return the title that should be used for the column.
-	 * 
+	 *
 	 * @since 3.6
 	 */
 	public String getColumnTitle() {
@@ -92,7 +92,7 @@ public class IUColumnConfig {
 	/**
 	 * Set the title of the column
 	 * @param title the String that should be used when the column's title is shown
-	 * 
+	 *
 	 * @since 3.6
 	 */
 	public void setColumnTitle(String title) {
@@ -102,7 +102,7 @@ public class IUColumnConfig {
 	/**
 	 * Return the width of the column in character width units
 	 * @return the width (in characters) of the column
-	 * 
+	 *
 	 * @since 3.6
 	 */
 	public int getWidthInChars() {
@@ -112,7 +112,7 @@ public class IUColumnConfig {
 	/**
 	 * Set the width of the column in character width units
 	 * @param columnWidth the width (in characters) of the column
-	 * 
+	 *
 	 * @since 3.6
 	 */
 	public void setWidthInChars(int columnWidth) {
@@ -126,9 +126,9 @@ public class IUColumnConfig {
 	 * width specified for the column.
 	 * @param control
 	 * @return the width in pixels that should be used for the column
-	 * 
+	 *
 	 * @since 3.6
-	 * 
+	 *
 	 * @see #setWidthInPixels(int)
 	 */
 	public int getWidthInPixels(Control control) {
@@ -146,9 +146,9 @@ public class IUColumnConfig {
 	 * Set the width in pixels that should be used for this column.  This width overrides
 	 * any character width that has been specified.  This method is useful when the column width
 	 * is determined by user action.
-	 * 
+	 *
 	 * @param width
-	 * 
+	 *
 	 * @since 3.6
 	 */
 	public void setWidthInPixels(int width) {
@@ -158,7 +158,7 @@ public class IUColumnConfig {
 	/**
 	 * Return the type of column.
 	 * @return an Integer constant specifying the type of data being shown in the column.
-	 * 
+	 *
 	 * @since 3.6
 	 * @see #COLUMN_ID
 	 * @see #COLUMN_NAME
@@ -172,9 +172,9 @@ public class IUColumnConfig {
 	/**
 	 * Set the type of column.
 	 * @param type an Integer constant specifying the type of data being shown in the column.
-	 * 
+	 *
 	 * @since 3.6
-	 * 
+	 *
 	 * @see #COLUMN_ID
 	 * @see #COLUMN_NAME
 	 * @see #COLUMN_SIZE

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -34,9 +34,9 @@ import org.eclipse.ui.PlatformUI;
 /**
  * Label provider for provisioning elements. Some provisioning objects are
  * wrapped by ProvElements and some are not.  This is the most generic of the
- * provisioning label providers.  A two-column format for elements is 
+ * provisioning label providers.  A two-column format for elements is
  * supported, with the content of the columns dependent on the type of object.
- * 
+ *
  * @since 3.4
  */
 public class ProvElementLabelProvider extends LabelProvider implements ITableLabelProvider {

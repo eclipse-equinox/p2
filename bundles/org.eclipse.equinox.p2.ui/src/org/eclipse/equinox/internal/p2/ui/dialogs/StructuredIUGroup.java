@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.*;
 /**
  * A StructuredIUGroup is a reusable UI component that displays a
  * structured view of IU's driven by some queries.
- * 
+ *
  * @since 3.4
  */
 public abstract class StructuredIUGroup {
@@ -46,7 +46,7 @@ public abstract class StructuredIUGroup {
 
 	/**
 	 * Create a group that represents the available IU's.
-	 * 
+	 *
 	 * @param ui The application policy to use in the group
 	 * @param parent the parent composite for the group
 	 * to retrieve elements in the viewer.

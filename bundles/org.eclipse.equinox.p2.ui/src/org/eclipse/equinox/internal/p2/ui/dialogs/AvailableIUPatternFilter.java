@@ -22,7 +22,7 @@ import org.eclipse.ui.dialogs.PatternFilter;
 
 /**
  * A class that handles filtering IU's based on a supplied matching string.
- * 
+ *
  * @since 3.4
  *
  */

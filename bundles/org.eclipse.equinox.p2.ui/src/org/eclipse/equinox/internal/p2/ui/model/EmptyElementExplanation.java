@@ -30,7 +30,7 @@ public class EmptyElementExplanation extends ProvElement {
 
 	/**
 	 * Create an empty element explanation
-	 * 
+	 *
 	 * @param parent      the parent of this element
 	 * @param severity    the severity of the explanation {@link IStatus#INFO},
 	 * @param explanation

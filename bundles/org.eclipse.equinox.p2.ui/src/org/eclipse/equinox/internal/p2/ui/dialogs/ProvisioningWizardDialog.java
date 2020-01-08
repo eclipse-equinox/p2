@@ -58,7 +58,7 @@ public class ProvisioningWizardDialog extends WizardDialog {
 
 	/**
 	 * This method is provided only for automated testing.
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public Button testGetButton(int id) {

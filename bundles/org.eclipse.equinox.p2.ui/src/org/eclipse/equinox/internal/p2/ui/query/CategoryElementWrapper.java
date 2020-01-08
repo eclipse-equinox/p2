@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 /**
  * A collector that converts IU's to category elements as it accepts them.
  * It can be configured so that it is never empty.
- * 
+ *
  * @since 3.4
  */
 public class CategoryElementWrapper extends QueriedElementWrapper {
@@ -52,7 +52,7 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 			}
 
 			Iterator<?> iter = super.getCollection().iterator();
-			// Don't add the same category IU twice.  
+			// Don't add the same category IU twice.
 			while (iter.hasNext()) {
 				CategoryElement element = (CategoryElement) iter.next();
 				if (element.shouldMerge(iu)) {
