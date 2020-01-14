@@ -71,26 +71,28 @@ public class SetJvmAction extends ProvisioningAction {
 
 	private static void adjustWorkbenchSystemProperties(File jvm) {
 		try {
-			// set the eclipse.vm system property so the Workbench restart will use this vm
-			// to restart.
-			final String fullPath = jvm.getCanonicalPath();
-			System.setProperty("eclipse.vm", fullPath);
+			String eclipseCommands = System.getProperty("eclipse.commands"); //$NON-NLS-1$
+			if (eclipseCommands != null) {
+				// set the eclipse.vm system property so the Workbench restart will use this vm
+				// to restart.
+				final String fullPath = jvm.getCanonicalPath();
+				System.setProperty("eclipse.vm", fullPath); //$NON-NLS-1$
 
-			// also adjust the -vm property in the eclipse.commands system property so that
-			// vm is actually used.
-			String property = System.getProperty("eclipse.commands");
-			int index = property.indexOf("-vm");
-			if (index != -1) {
-				final String vmWithLineFeed = "-vm\n";
-				// find the next line ending after -vm line.
-				int index2 = property.indexOf('\n', index + vmWithLineFeed.length());
-				if (index2 == -1) {
-					property = property.substring(0, index) + vmWithLineFeed + fullPath;
-				} else {
-					String tmp = property.substring(0, index) + vmWithLineFeed + fullPath;
-					property = tmp + property.substring(index2);
+				// also adjust the -vm property in the eclipse.commands system property so that
+				// vm is actually used.
+				int index = eclipseCommands.indexOf("-vm"); //$NON-NLS-1$
+				if (index != -1) {
+					final String vmWithLineFeed = "-vm\n"; //$NON-NLS-1$
+					// find the next line ending after -vm line.
+					int index2 = eclipseCommands.indexOf('\n', index + vmWithLineFeed.length());
+					if (index2 == -1) {
+						eclipseCommands = eclipseCommands.substring(0, index) + vmWithLineFeed + fullPath;
+					} else {
+						String tmp = eclipseCommands.substring(0, index) + vmWithLineFeed + fullPath;
+						eclipseCommands = tmp + eclipseCommands.substring(index2);
+					}
+					System.setProperty("eclipse.commands", eclipseCommands); //$NON-NLS-1$
 				}
-				System.setProperty("eclipse.commands", property);
 			}
 
 		} catch (IOException e) {
