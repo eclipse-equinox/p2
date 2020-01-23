@@ -24,9 +24,9 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * The activator class controls the plug-in life cycle.
- * This activator has helper methods to get file transfer service tracker, and
- * for making sure required ECF bundles are started.
+ * The activator class controls the plug-in life cycle. This activator has
+ * helper methods to get file transfer service tracker, and for making sure
+ * required ECF bundles are started.
  */
 @SuppressWarnings("restriction")
 public class Activator implements BundleActivator {
@@ -66,10 +66,6 @@ public class Activator implements BundleActivator {
 
 	}
 
-	public static BundleContext getContext() {
-		return Activator.context;
-	}
-
 	/**
 	 * Get singleton instance.
 	 *
@@ -80,9 +76,11 @@ public class Activator implements BundleActivator {
 	}
 
 	/**
-	 * Returns a {@link IRetrieveFileTransferFactory} using a {@link ServiceTracker} after having attempted
-	 * to start the bundle "org.eclipse.ecf.provider.filetransfer". If something is wrong with the configuration
-	 * this method returns null.
+	 * Returns a {@link IRetrieveFileTransferFactory} using a {@link ServiceTracker}
+	 * after having attempted to start the bundle
+	 * "org.eclipse.ecf.provider.filetransfer". If something is wrong with the
+	 * configuration this method returns null.
+	 *
 	 * @return a factory, or null, if configuration is incorrect
 	 */
 	public IRetrieveFileTransferFactory getRetrieveFileTransferFactory() {
@@ -128,14 +126,15 @@ public class Activator implements BundleActivator {
 	}
 
 	/**
-	 * Gets the singleton ServiceTracker for the IRetrieveFileTransferFactory and starts the bundles
-	 * "org.eclipse.ecf" and
+	 * Gets the singleton ServiceTracker for the IRetrieveFileTransferFactory and
+	 * starts the bundles "org.eclipse.ecf" and
 	 * "org.eclipse.ecf.provider.filetransfer" on first call.
-	 * @return  ServiceTracker
+	 * 
+	 * @return ServiceTracker
 	 */
 	private synchronized ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> getFileTransferServiceTracker() {
 		if (retrievalFactoryTracker == null) {
-			retrievalFactoryTracker = new ServiceTracker<>(Activator.getContext(), IRetrieveFileTransferFactory.class, null);
+			retrievalFactoryTracker = new ServiceTracker<>(Activator.context, IRetrieveFileTransferFactory.class, null);
 			retrievalFactoryTracker.open();
 			startBundle("org.eclipse.ecf"); //$NON-NLS-1$
 			startBundle("org.eclipse.ecf.provider.filetransfer"); //$NON-NLS-1$
@@ -145,14 +144,15 @@ public class Activator implements BundleActivator {
 
 	private IFileTransferProtocolToFactoryMapper getProtocolToFactoryMapper() {
 		if (protocolToFactoryMapperTracker == null) {
-			protocolToFactoryMapperTracker = new ServiceTracker<>(context, IFileTransferProtocolToFactoryMapper.class, null);
+			protocolToFactoryMapperTracker = new ServiceTracker<>(context, IFileTransferProtocolToFactoryMapper.class,
+					null);
 			protocolToFactoryMapperTracker.open();
 		}
 		return protocolToFactoryMapperTracker.getService();
 	}
 
 	private boolean startBundle(String bundleId) {
-		PackageAdmin packageAdmin = ServiceHelper.getService(Activator.getContext(), PackageAdmin.class);
+		PackageAdmin packageAdmin = ServiceHelper.getService(Activator.context, PackageAdmin.class);
 		if (packageAdmin == null)
 			return false;
 
@@ -165,7 +165,7 @@ public class Activator implements BundleActivator {
 						bundle.start(Bundle.START_TRANSIENT);
 						return true;
 					}
-				}catch (BundleException e) {
+				} catch (BundleException e) {
 					// failed, try next bundle
 				}
 			}
