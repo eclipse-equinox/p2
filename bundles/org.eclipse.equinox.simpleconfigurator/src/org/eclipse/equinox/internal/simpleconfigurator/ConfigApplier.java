@@ -22,11 +22,11 @@ import java.util.concurrent.CountDownLatch;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
 import org.osgi.framework.namespace.*;
+import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.wiring.*;
 import org.osgi.resource.Namespace;
 import org.osgi.resource.Requirement;
 import org.osgi.service.packageadmin.PackageAdmin;
-import org.osgi.service.startlevel.StartLevel;
 
 class ConfigApplier {
 	private static final String LAST_BUNDLES_INFO = "last.bundles.info"; //$NON-NLS-1$
@@ -34,7 +34,6 @@ class ConfigApplier {
 
 	private final BundleContext manipulatingContext;
 	private final PackageAdmin packageAdminService;
-	private final StartLevel startLevelService;
 	private final FrameworkWiring frameworkWiring;
 	private final boolean runningOnEquinox;
 	private final boolean inDevMode;
@@ -53,11 +52,6 @@ class ConfigApplier {
 		if (packageAdminRef == null)
 			throw new IllegalStateException("No PackageAdmin service is available."); //$NON-NLS-1$
 		packageAdminService = manipulatingContext.getService(packageAdminRef);
-
-		ServiceReference<StartLevel> startLevelRef = manipulatingContext.getServiceReference(StartLevel.class);
-		if (startLevelRef == null)
-			throw new IllegalStateException("No StartLevelService service is available."); //$NON-NLS-1$
-		startLevelService = manipulatingContext.getService(startLevelRef);
 
 		frameworkWiring = manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
 	}
@@ -367,7 +361,7 @@ class ConfigApplier {
 				continue;
 
 			try {
-				startLevelService.setBundleStartLevel(current, startLevel);
+				current.adapt(BundleStartLevel.class).setStartLevel(startLevel);
 			} catch (IllegalArgumentException ex) {
 				Utils.log(4, null, null, "Failed to set start level of Bundle:" + element, ex); //$NON-NLS-1$
 			}

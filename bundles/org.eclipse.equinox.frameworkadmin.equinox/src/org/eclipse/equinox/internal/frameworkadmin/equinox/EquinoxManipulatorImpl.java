@@ -28,6 +28,7 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.PlatformAdmin;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
+import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.service.log.LogService;
 import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
@@ -308,8 +309,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		}
 		// 2. Create a Manipulator object fully initialized to the current running fw.
 
-		ServiceReference<StartLevel> reference = context.getServiceReference(StartLevel.class);
-		StartLevel startLevel = context.getService(reference);
 		Bundle[] bundles = context.getBundles();
 		BundleInfo[] bInfos = new BundleInfo[bundles.length];
 		for (int i = 0; i < bundles.length; i++) {
@@ -323,8 +322,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(),
 							bundles[i].getHeaders("").get(Constants.BUNDLE_VERSION), //$NON-NLS-1$
 							FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(),
-							startLevel.getBundleStartLevel(bundles[i]),
-							startLevel.isBundlePersistentlyStarted(bundles[i]));
+							bundles[i].adapt(BundleStartLevel.class).getStartLevel(),
+							bundles[i].adapt(BundleStartLevel.class).isPersistentlyStarted());
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
