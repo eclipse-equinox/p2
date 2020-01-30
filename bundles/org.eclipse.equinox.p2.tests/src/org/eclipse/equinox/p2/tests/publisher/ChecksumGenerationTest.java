@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.util.Arrays;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -21,7 +23,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -58,6 +59,6 @@ public class ChecksumGenerationTest extends AbstractProvisioningTest {
 	@Test
 	public void testGenerationNoFolder() {
 		IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(new ArtifactKey("classifierTest", "idTest", Version.createOSGi(1, 0, 0)), null);
-		Assert.assertThat(ad.getProperty(checksumProperty), CoreMatchers.not(CoreMatchers.containsString(checksumValue)));
+		assertThat(ad.getProperty(checksumProperty), CoreMatchers.not(CoreMatchers.containsString(checksumValue)));
 	}
 }
