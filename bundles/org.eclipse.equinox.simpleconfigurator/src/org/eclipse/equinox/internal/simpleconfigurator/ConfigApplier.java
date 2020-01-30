@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2020 IBM Corporation and others.
  * All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which accompanies this distribution,
@@ -361,7 +361,7 @@ class ConfigApplier {
 				continue;
 			if (current.getBundleId() == 0)
 				continue;
-			if (packageAdminService.getBundleType(current) == PackageAdmin.BUNDLE_TYPE_FRAGMENT)
+			if (isFragment(current))
 				continue;
 			if (SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME.equals(current.getSymbolicName()))
 				continue;
@@ -373,6 +373,11 @@ class ConfigApplier {
 			}
 		}
 		return toRefresh;
+	}
+
+	private boolean isFragment(Bundle current) {
+		BundleRevision revision = current.adapt(BundleRevision.class);
+		return (revision != null) && ((revision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0);
 	}
 
 	private void refreshPackages(Bundle[] bundles, BundleContext context) {
@@ -428,7 +433,7 @@ class ConfigApplier {
 			}
 			if (bundle.getState() == Bundle.STARTING && (bundle == callingBundle || bundle == manipulatingContext.getBundle()))
 				continue;
-			if (packageAdminService.getBundleType(bundle) == PackageAdmin.BUNDLE_TYPE_FRAGMENT)
+			if (isFragment(bundle))
 				continue;
 			if (bundle.getBundleId() == 0)
 				continue;
