@@ -17,7 +17,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import static org.eclipse.equinox.p2.tests.AdditionalCoreMatchers.hasSize;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 import java.util.Map;
