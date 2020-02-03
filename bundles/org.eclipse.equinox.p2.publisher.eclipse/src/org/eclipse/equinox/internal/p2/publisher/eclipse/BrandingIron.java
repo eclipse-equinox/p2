@@ -16,7 +16,11 @@ package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.*;
 import javax.xml.transform.TransformerException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.pde.internal.publishing.Activator;
 import org.eclipse.pde.internal.publishing.Utils;
 import org.eclipse.pde.internal.swt.tools.IconExe;
 
@@ -69,7 +73,7 @@ public class BrandingIron {
 				icons = null;
 			}
 		}
-		//trim whitespace
+		// trim whitespace
 		if (icons != null) {
 			for (int i = 0; i < icons.length; i++) {
 				icons[i] = icons[i].trim();
@@ -87,8 +91,9 @@ public class BrandingIron {
 
 		File root = descriptor.getLocation();
 
-		// if the root does not exists (happens in some packaging cases) or 
-		// there is already a file with target name and we don't need to update its icons, don't do anything
+		// if the root does not exists (happens in some packaging cases) or
+		// there is already a file with target name and we don't need to update its
+		// icons, don't do anything
 		String testName = os.equals("win32") ? name + ".exe" : name; //$NON-NLS-1$ //$NON-NLS-2$
 		if (!root.exists() || (!brandIcons && new File(root, testName).exists()))
 			return;
@@ -103,9 +108,10 @@ public class BrandingIron {
 		}
 		descriptor.setLocation(root);
 
-		if (os==null)
+		if (os == null)
 			renameLauncher(descriptor);
-		else switch (os) {
+		else
+			switch (os) {
 			case "win32": //$NON-NLS-1$
 				brandWindows(descriptor);
 				break;
@@ -127,7 +133,7 @@ public class BrandingIron {
 			default:
 				renameLauncher(descriptor);
 				break;
-		}
+			}
 		descriptor.setExecutableName(name, true);
 	}
 
@@ -145,8 +151,7 @@ public class BrandingIron {
 			File icon = null;
 			if (icons.length > 0) {
 				for (String icon1 : icons) {
-					if (icon1.toLowerCase().endsWith(".xpm")) {
-						//$NON-NLS-1$
+					if (icon1.toLowerCase().endsWith(".xpm")) { //$NON-NLS-1$
 						icon = new File(icon1);
 						break;
 					}
@@ -181,11 +186,11 @@ public class BrandingIron {
 	}
 
 	private void brandMac(ExecutablesDescriptor descriptor) throws Exception {
-		//Initially the files are in: <root>/Eclipse.app/ 
-		//and they must appear in <root>/MyAppName.app/
-		//Because java does not support the rename of a folder, files are copied.
+		// Initially the files are in: <root>/Eclipse.app/
+		// and they must appear in <root>/MyAppName.app/
+		// Because java does not support the rename of a folder, files are copied.
 
-		//Initialize the target folders
+		// Initialize the target folders
 		File root = descriptor.getLocation();
 
 		File target = root;
@@ -202,15 +207,16 @@ public class BrandingIron {
 			initialRoot = new File(root, "eclipse.app/Contents"); //$NON-NLS-1$
 		if (!initialRoot.exists())
 			throw new FileNotFoundException("cannot find launcher root (Eclipse.app or Launcher.app)"); //$NON-NLS-1$
-		// use the canonical rep to avoid possible issues from case-insensitive file systems
+		// use the canonical rep to avoid possible issues from case-insensitive file
+		// systems
 		initialRoot = initialRoot.getCanonicalFile();
 		copyMacLauncher(descriptor, initialRoot, target);
 		String iconName = ""; //$NON-NLS-1$
 		if (brandIcons) {
 			File icon = null;
 			for (String icon1 : icons) {
-				if (icon1.toLowerCase().endsWith(".icns")) {
-					//$NON-NLS-1$
+				if (icon1.toLowerCase().endsWith(".icns")) { //$NON-NLS-1$
+					// $NON-NLS-1$
 					icon = new File(icon1);
 					if (icon.exists()) {
 						break;
@@ -223,7 +229,7 @@ public class BrandingIron {
 				try {
 					// canonicalize to ensure case matches
 					initialIcon = initialIcon.getCanonicalFile();
-				} catch (IOException e) { /*ignore*/
+				} catch (IOException e) { /* ignore */
 				}
 				File targetIcon = new File(target, "Resources/" + iconName); //$NON-NLS-1$
 
@@ -246,8 +252,9 @@ public class BrandingIron {
 	}
 
 	/**
-	 * Brand the splash.app Info.plist and  link or copy the mac launcher.
-	 * It is assumed that the mac launcher has been branded already.
+	 * Brand the splash.app Info.plist and link or copy the mac launcher. It is
+	 * assumed that the mac launcher has been branded already.
+	 * 
 	 * @param descriptor
 	 * @param initialRoot
 	 * @param target
@@ -255,9 +262,10 @@ public class BrandingIron {
 	 */
 	private void brandMacSplash(ExecutablesDescriptor descriptor, File initialRoot, File target, String iconName) {
 		String splashContents = "Resources/Splash.app/Contents"; //$NON-NLS-1$
-		modifyInfoPListFile(descriptor, new File(initialRoot, splashContents), new File(target, splashContents), iconName);
+		modifyInfoPListFile(descriptor, new File(initialRoot, splashContents), new File(target, splashContents),
+				iconName);
 
-		//link the MacOS launcher for the splash app
+		// link the MacOS launcher for the splash app
 		String splashMacOS = splashContents + "/MacOS"; //$NON-NLS-1$
 		File macOSDir = new File(target, "MacOS"); //$NON-NLS-1$
 		File splashMacOSDir = new File(target, splashMacOS);
@@ -270,7 +278,7 @@ public class BrandingIron {
 		String osName = System.getProperty("os.name"); //$NON-NLS-1$
 		if (osName != null && !osName.startsWith("Windows")) { //$NON-NLS-1$
 			try {
-				String[] command = new String[] {"ln", "-sf", "../../../MacOS/" + name, name}; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+				String[] command = new String[] { "ln", "-sf", "../../../MacOS/" + name, name }; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 				Process proc = Runtime.getRuntime().exec(command, null, splashMacOSDir);
 				result = proc.waitFor();
 			} catch (IOException e) {
@@ -281,16 +289,16 @@ public class BrandingIron {
 		}
 
 		if (result != 0) {
-			//ln failed, or we are on windows, just copy the executable instead
+			// ln failed, or we are on windows, just copy the executable instead
 			try {
 				Utils.copy(new File(macOSDir, name), targetLauncher);
 				try {
-					Runtime.getRuntime().exec(new String[] {"chmod", "755", targetLauncher.getAbsolutePath()}); //$NON-NLS-1$ //$NON-NLS-2$
+					Runtime.getRuntime().exec(new String[] { "chmod", "755", targetLauncher.getAbsolutePath() }); //$NON-NLS-1$ //$NON-NLS-2$
 				} catch (IOException e) {
 					// ignore
 				}
 			} catch (IOException e) {
-				System.out.println("Could not copy macosx splash launcher"); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Could not copy macosx splash launcher", e)); //$NON-NLS-1$
 			}
 		}
 
@@ -308,7 +316,7 @@ public class BrandingIron {
 	}
 
 	private File findLauncher(File root) {
-		for (String launcherName : new String[] {"launcher", "eclipse"}) { //$NON-NLS-1$ //$NON-NLS-2$
+		for (String launcherName : new String[] { "launcher", "eclipse" }) { //$NON-NLS-1$ //$NON-NLS-2$
 			File launcher = new File(root, launcherName);
 			if (launcher.exists())
 				return launcher;
@@ -323,7 +331,7 @@ public class BrandingIron {
 			source = source.getCanonicalFile();
 			target = target.getCanonicalFile();
 		} catch (IOException e) {
-			System.out.println("Could not copy macosx resources."); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Could not copy macosx resources.", e)); //$NON-NLS-1$
 			return;
 		}
 		if (source.equals(target))
@@ -363,7 +371,7 @@ public class BrandingIron {
 				System.arraycopy(icons, 0, args, 1, icons.length);
 				IconExe.main(args);
 			} else {
-				System.out.println("Could not find executable to brand"); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Could not find executable to brand", null)); //$NON-NLS-1$
 			}
 		}
 		File targetLauncher = new File(root, name + ".exe"); //$NON-NLS-1$
@@ -392,7 +400,7 @@ public class BrandingIron {
 		if (!launcher.exists()) {
 			launcher = eclipseLauncher;
 		} else if (eclipseLauncher.exists() && !targetFile.equals(eclipseLauncher)) {
-			//we may actually have both if exporting from the mac
+			// we may actually have both if exporting from the mac
 			eclipseLauncher.delete();
 			descriptor.removeFile(eclipseLauncher);
 		}
@@ -400,7 +408,7 @@ public class BrandingIron {
 			try {
 				Utils.copy(launcher, targetFile);
 			} catch (IOException e) {
-				System.out.println("Could not copy macosx launcher"); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Could not copy macosx launcher", e)); //$NON-NLS-1$
 				return;
 			}
 			launcher.delete();
@@ -408,10 +416,11 @@ public class BrandingIron {
 			descriptor.replace(launcher, targetFile);
 		}
 		try {
-			//Force the executable bit on the exe because it has been lost when copying the file
-			Runtime.getRuntime().exec(new String[] {"chmod", "755", targetFile.getAbsolutePath()}); //$NON-NLS-1$ //$NON-NLS-2$
+			// Force the executable bit on the exe because it has been lost when copying the
+			// file
+			Runtime.getRuntime().exec(new String[] { "chmod", "755", targetFile.getAbsolutePath() }); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (IOException e) {
-			//ignore
+			// ignore
 		}
 		descriptor.setExecutableName(name, false);
 	}
@@ -427,17 +436,17 @@ public class BrandingIron {
 	private void copyMacIni(ExecutablesDescriptor descriptor, File initialRoot, File target, String iconName) {
 		String brandedIniName = "MacOS/" + name + ".ini"; //$NON-NLS-1$//$NON-NLS-2$
 		// 4 possibilities, in order of preference:
-		// rcp.app/Contents/MacOS/rcp.ini   		(targetFile)
-		// Eclipse.app/Contents/MacOS/rcp.ini		(brandedIni)
-		// Eclipse.app/Contents/MacOS/eclipse.ini	(ini)
-		// Eclipse.app/Contents/MacOS/Eclipse.ini	(ini2)
+		// rcp.app/Contents/MacOS/rcp.ini (targetFile)
+		// Eclipse.app/Contents/MacOS/rcp.ini (brandedIni)
+		// Eclipse.app/Contents/MacOS/eclipse.ini (ini)
+		// Eclipse.app/Contents/MacOS/Eclipse.ini (ini2)
 		File targetFile = getCanonicalFile(new File(target, brandedIniName));
 		File brandedIni = getCanonicalFile(new File(initialRoot, brandedIniName));
 		File ini = getCanonicalFile(new File(initialRoot, "MacOS/eclipse.ini")); //$NON-NLS-1$
 		File ini2 = getCanonicalFile(new File(initialRoot, "MacOS/Eclipse.ini")); //$NON-NLS-1$
 
 		if (targetFile.exists()) {
-			//an ini already exists at the target, use that
+			// an ini already exists at the target, use that
 			if (brandedIni.exists() && !brandedIni.equals(targetFile)) {
 				brandedIni.delete();
 				descriptor.removeFile(brandedIni);
@@ -452,7 +461,7 @@ public class BrandingIron {
 			}
 			ini = targetFile;
 		} else if (brandedIni.exists()) {
-			//take the one that is already branded
+			// take the one that is already branded
 			if (ini.exists() && !ini.equals(brandedIni)) {
 				ini.delete();
 				descriptor.removeFile(ini);
@@ -466,7 +475,10 @@ public class BrandingIron {
 			if (ini.exists()) {
 				if (ini2.exists() && !ini2.equals(ini)) {
 					// this should not happen really
-					System.out.printf("Found both %s and %s - discarding the latter", ini.getAbsolutePath(), ini2.getAbsolutePath()); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID,
+							String.format("Found both %s and %s - discarding the latter", ini.getAbsolutePath(), //$NON-NLS-1$
+									ini2.getAbsolutePath()),
+							null)); // $NON-NLS-1$
 					ini2.delete();
 					descriptor.removeFile(ini2);
 				}
@@ -480,7 +492,7 @@ public class BrandingIron {
 		try {
 			buffer = readFile(ini);
 		} catch (IOException e) {
-			System.out.println("Impossible to brand ini file"); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Impossible to brand ini file", e)); //$NON-NLS-1$
 			return;
 		}
 
@@ -498,22 +510,23 @@ public class BrandingIron {
 				ini.delete();
 				descriptor.replace(ini, targetFile);
 			}
-		} catch (FileNotFoundException e) {
-			System.out.println("Impossible to brand ini file"); //$NON-NLS-1$
-			return;
 		} catch (IOException e) {
-			System.out.println("Impossible to brand ini file"); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Impossible to brand ini file", e)); //$NON-NLS-1$
 			return;
 		}
 	}
 
-	private void modifyInfoPListFile(ExecutablesDescriptor descriptor, File initialRoot, File targetRoot, String iconName) {
+	private void modifyInfoPListFile(ExecutablesDescriptor descriptor, File initialRoot, File targetRoot,
+			String iconName) {
 		File infoPList = new File(initialRoot, "Info.plist"); //$NON-NLS-1$
 		InfoPListEditor infoPListEditor = null;
 		try {
 			infoPListEditor = InfoPListEditor.loadPListEditor(infoPList);
 		} catch (IOException e) {
-			System.out.println("Impossible to create info.plist editor for " + infoPList.getAbsolutePath() + ". Caused by " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID,
+					"Impossible to create info.plist editor for " + infoPList.getAbsolutePath() //$NON-NLS-1$
+							+ ". Caused by " + e.getMessage(), //$NON-NLS-1$
+					e));
 			return;
 		}
 
@@ -528,7 +541,8 @@ public class BrandingIron {
 		if (version != null) {
 			// CFBundleShortVersionString is to be 3 segments only
 			// http://developer.apple.com/library/mac/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html#//apple_ref/doc/uid/20001431-111349
-			StringBuilder sv = new StringBuilder(version.getSegmentCount() > 0 ? version.getSegment(0).toString() : "0"); //$NON-NLS-1$
+			StringBuilder sv = new StringBuilder(
+					version.getSegmentCount() > 0 ? version.getSegment(0).toString() : "0"); //$NON-NLS-1$
 			sv.append('.');
 			sv.append(version.getSegmentCount() > 1 ? version.getSegment(1).toString() : "0"); //$NON-NLS-1$
 			sv.append('.');
@@ -541,25 +555,26 @@ public class BrandingIron {
 			infoPListEditor.setKey(InfoPListEditor.ICON_KEY, iconName);
 		}
 
-		File target = new File(targetRoot, "Info.plist"); //$NON-NLS-1$;
+		File target = new File(targetRoot, "Info.plist"); //$NON-NLS-1$ ;
 		try {
 			target.getParentFile().mkdirs();
 			infoPListEditor.save(target);
 		} catch (TransformerException e) {
-			System.out.println("Impossible to save info.plist file " + target.getAbsolutePath()); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID,
+					"Impossible to save info.plist file " + target.getAbsolutePath(), e)); //$NON-NLS-1$
 			return;
 		}
 		try {
 			if (!infoPList.getCanonicalFile().equals(target.getCanonicalFile()))
 				infoPList.delete();
 		} catch (IOException e) {
-			//ignore
+			// ignore
 		}
 		descriptor.replace(infoPList, target);
 	}
 
 	private int scan(StringBuffer buf, int start, String targetName) {
-		return scan(buf, start, new String[] {targetName});
+		return scan(buf, start, new String[] { targetName });
 	}
 
 	private int scan(StringBuffer buf, int start, String[] targets) {
