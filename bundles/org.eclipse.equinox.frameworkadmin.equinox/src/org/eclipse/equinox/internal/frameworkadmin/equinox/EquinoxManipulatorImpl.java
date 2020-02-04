@@ -212,7 +212,22 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		URL url = location.getURL();
 		if (!url.getProtocol().equals("file")) //$NON-NLS-1$
 			return null;
-		return new File(url.getFile());
+		return toFile(url);
+	}
+
+	static File toFile(URL url) {
+		try {
+			URI uri = URIUtil.toURI(url);
+			File file = URIUtil.toFile(uri);
+			if (file == null) {
+				// fall back to path of URL in catch block
+				throw new URISyntaxException(uri.toString(), "file URL does not represent a local file");
+			}
+			return file;
+		} catch (URISyntaxException e) {
+			Log.log(LogService.LOG_WARNING, "URL is not a valid URI, using only path for file", e); //$NON-NLS-1$
+			return new File(url.getFile());
+		}
 	}
 
 	private File getRunningLauncherFile() {
@@ -614,7 +629,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 				done = true;
 			}
 		}
-		if (url == null || !new File(url.getFile()).isAbsolute())
+		if (url == null || !toFile(url).isAbsolute())
 			return urlString;
 
 		String rootString = rootURL.toExternalForm();
@@ -689,7 +704,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 				done = true;
 			}
 		}
-		if (url == null || new File(url.getFile()).isAbsolute())
+		if (url == null || toFile(url).isAbsolute())
 			return urlString;
 
 		return urlString.substring(0, index - 5) + makeAbsolute(urlString.substring(index), rootURL.toExternalForm());

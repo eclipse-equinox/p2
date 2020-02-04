@@ -364,7 +364,7 @@ public class EquinoxFwConfigFileParser {
 				return null;
 			}
 		}
-		File sharedConfigurationFolder = new File(sharedConfigurationURL.getPath());
+		File sharedConfigurationFolder = EquinoxManipulatorImpl.toFile(sharedConfigurationURL);
 		if (!sharedConfigurationFolder.isDirectory()) {
 			Log.log(LogService.LOG_WARNING, NLS.bind(Messages.log_shared_config_file_missing, sharedConfigurationFolder));
 			return null;

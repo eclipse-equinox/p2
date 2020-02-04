@@ -160,7 +160,11 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
 			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateRoamingProfile"); //$NON-NLS-1$
 		Location installLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.INSTALL_FILTER);
-		File location = new File(installLocation.getURL().getPath());
+		File location = URLUtil.toFile(installLocation.getURL());
+		if (location == null) {
+			// fallback: use only path of the URL if the protocol is not 'file'
+			location = new File(installLocation.getURL().getPath());
+		}
 		boolean changed = false;
 		if (!location.equals(new File(selfProfile.getProperty(IProfile.PROP_INSTALL_FOLDER)))) {
 			selfProfile.setProperty(IProfile.PROP_INSTALL_FOLDER, location.getAbsolutePath());

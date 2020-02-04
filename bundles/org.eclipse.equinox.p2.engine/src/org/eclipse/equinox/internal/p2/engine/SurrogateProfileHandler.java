@@ -20,8 +20,7 @@ import java.lang.ref.SoftReference;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -98,7 +97,11 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private static void updateProperties(final IProfile sharedProfile, Profile userProfile) {
 		Location installLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.INSTALL_FILTER);
-		File installFolder = new File(installLocation.getURL().getPath());
+		File installFolder = URLUtil.toFile(installLocation.getURL());
+		if (installFolder == null) {
+			// fallback: use only path of the URL if the protocol is not 'file'
+			installFolder = new File(installLocation.getURL().getPath());
+		}
 
 		if (Boolean.parseBoolean(sharedProfile.getProperty(IProfile.PROP_ROAMING))) {
 			userProfile.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.getAbsolutePath());
@@ -111,7 +114,11 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		}
 
 		Location configurationLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.CONFIGURATION_FILTER);
-		File configurationFolder = new File(configurationLocation.getURL().getPath());
+		File configurationFolder = URLUtil.toFile(configurationLocation.getURL());
+		if (configurationFolder == null) {
+			// fallback: use only path of the URL if the protocol is not 'file'
+			configurationFolder = new File(configurationLocation.getURL().getPath());
+		}
 		userProfile.setProperty(IProfile.PROP_CONFIGURATION_FOLDER, configurationFolder.getAbsolutePath());
 
 		// We need to check that the configuration folder is not a file system root.
