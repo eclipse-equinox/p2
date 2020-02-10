@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.sar;
 
-import junit.framework.TestCase;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -21,7 +20,7 @@ import org.junit.runners.Suite;
  * Performs all sar tests.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({DirectByteArrayOutputStreamTest.class, SarTest.class, SarEntryTest.class})
-public class AllTests extends TestCase {
+@Suite.SuiteClasses({ DirectByteArrayOutputStreamTest.class, SarTest.class, SarEntryTest.class })
+public class AllTests {
 	// test suite
 }

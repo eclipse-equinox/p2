@@ -13,15 +13,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.optimizers;
 
-import junit.framework.TestCase;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-/**
- * @since 1.0
- */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({org.eclipse.equinox.p2.tests.artifact.optimizers.AllTests.class, org.eclipse.equinox.p2.tests.artifact.processors.AllTests.class, org.eclipse.equinox.p2.tests.sar.AllTests.class})
-public class AutomatedTests extends TestCase {
+@Suite.SuiteClasses({ org.eclipse.equinox.p2.tests.artifact.optimizers.AllTests.class,
+		org.eclipse.equinox.p2.tests.artifact.processors.AllTests.class,
+		org.eclipse.equinox.p2.tests.sar.AllTests.class })
+public class AutomatedTests {
 	// test suite
 }

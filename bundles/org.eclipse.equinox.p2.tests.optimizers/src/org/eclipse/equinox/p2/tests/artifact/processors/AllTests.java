@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
-import junit.framework.TestCase;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -21,7 +20,7 @@ import org.junit.runners.Suite;
  * Performs all automated director tests.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({JarDeltaProcessorTest.class})
-public class AllTests extends TestCase {
-	//test suite
+@Suite.SuiteClasses({ JarDeltaProcessorTest.class })
+public class AllTests {
+	// test suite
 }
