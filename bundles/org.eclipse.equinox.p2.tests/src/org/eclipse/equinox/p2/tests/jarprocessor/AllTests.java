@@ -13,17 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.jarprocessor;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated JarProcessor tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(JarProcessorTests.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ JarProcessorTests.class })
+public class AllTests {
+// test suite
 }

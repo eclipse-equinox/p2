@@ -7,41 +7,27 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated artifact repository tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(ArtifactLockingTest.class);
-		suite.addTestSuite(ArtifactOutputStreamTest.class);
-		suite.addTestSuite(ArtifactRepositoryManagerTest.class);
-		suite.addTestSuite(ArtifactRepositoryMissingSizeData.class);
-		suite.addTestSuite(ArtifactRepositoryWithReferenceDescriptors.class);
-		suite.addTestSuite(BatchExecuteArtifactRepositoryTest.class);
-		suite.addTestSuite(Bug252308.class);
-		suite.addTestSuite(Bug265577.class);
-		suite.addTestSuite(Bug351944.class);
-		suite.addTestSuite(CompositeArtifactRepositoryTest.class);
-		suite.addTestSuite(CorruptedJar.class);
-		suite.addTestSuite(FoldersRepositoryTest.class);
-		suite.addTestSuite(JarURLArtifactRepositoryTest.class);
-		suite.addTestSuite(LocationTest.class);
-		suite.addTestSuite(MD5Tests.class);
-		suite.addTestSuite(MirrorSelectorTest.class);
-		suite.addTestSuite(MirrorRequestTest.class);
-		suite.addTestSuite(SimpleArtifactRepositoryTest.class);
-		suite.addTestSuite(TransferTest.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+		ArtifactLockingTest.class, ArtifactOutputStreamTest.class, ArtifactRepositoryManagerTest.class,
+		ArtifactRepositoryMissingSizeData.class, ArtifactRepositoryWithReferenceDescriptors.class,
+		BatchExecuteArtifactRepositoryTest.class, Bug252308.class, Bug265577.class, Bug351944.class,
+		CompositeArtifactRepositoryTest.class, CorruptedJar.class, FoldersRepositoryTest.class,
+		JarURLArtifactRepositoryTest.class, LocationTest.class, MD5Tests.class, MirrorSelectorTest.class,
+		MirrorRequestTest.class, SimpleArtifactRepositoryTest.class, TransferTest.class
+})
+public class AllTests {
+// test suite
 }

@@ -1,54 +1,37 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated touchpoint tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(EclipseTouchpointTest.class);
-		suite.addTestSuite(AddJVMArgumentActionTest.class);
-		suite.addTestSuite(AddProgramArgumentActionTest.class);
-		suite.addTestSuite(AddProgramPropertyActionTest.class);
-		suite.addTestSuite(AddRepositoryActionTest.class);
-		suite.addTestSuite(AddSourceBundleActionTest.class);
-		suite.addTestSuite(CheckTrustActionTest.class);
-		suite.addTestSuite(ChmodActionTest.class);
-		suite.addTestSuite(CollectActionTest.class);
-		suite.addTestSuite(InstallBundleActionTest.class);
-		suite.addTestSuite(InstallFeatureActionTest.class);
-		suite.addTestSuite(JVMArgumentActionLogicTest.class);
-		suite.addTestSuite(LinkActionTest.class);
-		suite.addTestSuite(MarkStartedActionTest.class);
-		suite.addTestSuite(PathUtilTest.class);
-		suite.addTestSuite(RemoveJVMArgumentActionTest.class);
-		suite.addTestSuite(RemoveProgramArgumentActionTest.class);
-		suite.addTestSuite(RemoveProgramPropertyActionTest.class);
-		suite.addTestSuite(RemoveRepositoryActionTest.class);
-		suite.addTestSuite(RemoveSourceBundleActionTest.class);
-		suite.addTestSuite(SetFrameworkDependentPropertyActionTest.class);
-		suite.addTestSuite(SetFrameworkIndependentPropertyActionTest.class);
-		suite.addTestSuite(SetLauncherNameActionTest.class);
-		suite.addTestSuite(SetProgramPropertyActionTest.class);
-		suite.addTestSuite(SetStartLevelActionTest.class);
-		suite.addTestSuite(UninstallBundleActionTest.class);
-		suite.addTestSuite(UninstallFeatureActionTest.class);
-		return suite;
-	}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+		EclipseTouchpointTest.class, AddJVMArgumentActionTest.class, AddProgramArgumentActionTest.class,
+		AddProgramPropertyActionTest.class, AddRepositoryActionTest.class, AddSourceBundleActionTest.class,
+		CheckTrustActionTest.class, ChmodActionTest.class, CollectActionTest.class, InstallBundleActionTest.class,
+		InstallFeatureActionTest.class, JVMArgumentActionLogicTest.class, LinkActionTest.class,
+		MarkStartedActionTest.class, PathUtilTest.class, RemoveJVMArgumentActionTest.class,
+		RemoveProgramArgumentActionTest.class, RemoveProgramPropertyActionTest.class, RemoveRepositoryActionTest.class,
+		RemoveSourceBundleActionTest.class, SetFrameworkDependentPropertyActionTest.class,
+		SetFrameworkIndependentPropertyActionTest.class, SetLauncherNameActionTest.class,
+		SetProgramPropertyActionTest.class, SetStartLevelActionTest.class, UninstallBundleActionTest.class,
+		UninstallFeatureActionTest.class
+})
+public class AllTests {
+	// test suite
 }

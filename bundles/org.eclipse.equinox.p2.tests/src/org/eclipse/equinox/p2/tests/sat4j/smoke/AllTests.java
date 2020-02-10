@@ -7,19 +7,17 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.sat4j.smoke;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(SmokeTestSAT4J.class);
-		return suite;
-	}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ SmokeTestSAT4J.class })
+public class AllTests {
+	// test suite
 }

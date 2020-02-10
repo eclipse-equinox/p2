@@ -7,44 +7,27 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all engine tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(CertificateCheckerTest.class);
-		suite.addTestSuite(DownloadManagerTest.class);
-		suite.addTestSuite(InstructionParserTest.class);
-		suite.addTestSuite(EngineTest.class);
-		suite.addTestSuite(PhaseApplicabilityTest.class);
-		suite.addTestSuite(PhaseSetTest.class);
-		suite.addTestSuite(PhaseTest.class);
-		suite.addTestSuite(ParameterizedProvisioningActionTest.class);
-		suite.addTestSuite(ProfileMetadataRepositoryTest.class);
-		suite.addTestSuite(ProfileTest.class);
-		suite.addTestSuite(ProfilePreferencesTest.class);
-		suite.addTestSuite(ProfileRegistryTest.class);
-		suite.addTestSuite(ProvisioningContextTest.class);
-		suite.addTestSuite(SurrogateProfileHandlerTest.class);
-		suite.addTestSuite(ActionManagerTest.class);
-		suite.addTestSuite(TouchpointManagerTest.class);
-		suite.addTestSuite(TouchpointTest.class);
-		suite.addTestSuite(ProvisioningEventTest.class);
-		suite.addTestSuite(VariableTest.class);
-		suite.addTestSuite(VariableTest2.class);
-		suite.addTestSuite(VariableTest3.class);
-		suite.addTestSuite(DebugHelperTest.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+		CertificateCheckerTest.class, DownloadManagerTest.class, InstructionParserTest.class, EngineTest.class,
+		PhaseApplicabilityTest.class, PhaseSetTest.class, PhaseTest.class, ParameterizedProvisioningActionTest.class,
+		ProfileMetadataRepositoryTest.class, ProfileTest.class, ProfilePreferencesTest.class, ProfileRegistryTest.class,
+		ProvisioningContextTest.class, SurrogateProfileHandlerTest.class, ActionManagerTest.class,
+		TouchpointManagerTest.class, TouchpointTest.class, ProvisioningEventTest.class, VariableTest.class,
+		VariableTest2.class, VariableTest3.class, DebugHelperTest.class
+})
+public class AllTests {
+// test suite
 }

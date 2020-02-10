@@ -13,15 +13,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public class AllMetaReqTests extends TestCase {
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllMetaReqTests.class.getName());
-		suite.addTestSuite(AgentPlanTestInExternalInstance.class);
-		suite.addTestSuite(AgentPlanTestInExternalInstanceForCohostedMode.class);
-		suite.addTestSuite(AgentPlanTestInRunningInstance.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ AgentPlanTestInExternalInstance.class, AgentPlanTestInExternalInstanceForCohostedMode.class,
+		AgentPlanTestInRunningInstance.class })
+public class AllMetaReqTests {
+	// test suite
 }

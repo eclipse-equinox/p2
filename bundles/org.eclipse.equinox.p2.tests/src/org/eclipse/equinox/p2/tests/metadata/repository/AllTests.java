@@ -7,36 +7,29 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Rapicorp, Inc - addition implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated metadata repository tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(BatchExecuteMetadataRepositoryTest.class);
-		suite.addTestSuite(CompositeMetadataRepositoryTest.class);
-		suite.addTestSuite(JarURLMetadataRepositoryTest.class);
-		suite.addTestSuite(LocalMetadataRepositoryTest.class);
-		suite.addTestSuite(SPIMetadataRepositoryTest.class);
-		suite.addTestSuite(StandaloneSerializationTest.class);
-		suite.addTestSuite(MetadataRepositoryManagerTest.class);
-		suite.addTestSuite(NoFailOver.class);
-		suite.addTestSuite(SiteIndexFileTest.class);
-		suite.addTestSuite(XZedRepositoryTest.class);
-		//		suite.addTestSuite(ResumeDownloadTest.class);
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+		BatchExecuteMetadataRepositoryTest.class, CompositeMetadataRepositoryTest.class,
+		JarURLMetadataRepositoryTest.class, LocalMetadataRepositoryTest.class, SPIMetadataRepositoryTest.class,
+		StandaloneSerializationTest.class, MetadataRepositoryManagerTest.class, NoFailOver.class,
+		SiteIndexFileTest.class, XZedRepositoryTest.class
+})
+public class AllTests {
+	// ResumeDownloadTest.class,
 		// DISABLING until we get a test build
-		//		AllServerTests.addToSuite(suite);
-		return suite;
-	}
+	// AllServerTests.addToSuite(suite,
 
 }

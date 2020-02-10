@@ -14,33 +14,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import junit.framework.JUnit4TestAdapter;
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all metadata tests.
  */
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ ArtifactKeyParsingTest.class, FragmentMethodTest.class, FragmentTest.class,
+		InstallableUnitTest.class, InstallableUnitPatchTest.class, IUPersistenceTest.class, LatestIUTest.class,
+		LicenseTest.class, MultipleIUAndFragmentTest.class, PersistNegation.class, PersistFragment.class,
+		ProvidedCapabilityTest.class, RequirementToString.class, RequirementParsingTest.class })
 public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(ArtifactKeyParsingTest.class);
-		suite.addTestSuite(FragmentMethodTest.class);
-		suite.addTestSuite(FragmentTest.class);
-		suite.addTestSuite(InstallableUnitTest.class);
-		suite.addTestSuite(InstallableUnitPatchTest.class);
-		suite.addTestSuite(IUPersistenceTest.class);
-		suite.addTestSuite(LatestIUTest.class);
-		suite.addTestSuite(LicenseTest.class);
-		suite.addTestSuite(MultipleIUAndFragmentTest.class);
-		suite.addTestSuite(PersistNegation.class);
-		suite.addTestSuite(PersistFragment.class);
-		suite.addTestSuite(ProvidedCapabilityTest.class);
-		suite.addTestSuite(RequirementToString.class);
-		suite.addTest(new JUnit4TestAdapter(RequirementParsingTest.class));
-		return suite;
-	}
-
+//test suite
 }

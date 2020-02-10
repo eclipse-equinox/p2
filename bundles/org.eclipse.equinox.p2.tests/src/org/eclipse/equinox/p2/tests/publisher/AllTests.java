@@ -8,50 +8,54 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP AG - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
-import junit.framework.*;
-import org.eclipse.equinox.p2.tests.publisher.actions.*;
+import org.eclipse.equinox.p2.tests.publisher.actions.ANYConfigCUsActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.AbstractPublisherActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.AccumulateConfigDataActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.AdviceFileParserTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.BundlesActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.CategoryPublisherTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.ConfigCUsActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.ContextRepositoryTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.DefaultCUsActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.EquinoxExecutableActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.EquinoxLauncherCUActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.FeaturesActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.JREActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.LocalUpdateSiteActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.LocalizationTests;
+import org.eclipse.equinox.p2.tests.publisher.actions.MD5GenerationTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.ProductActionCapturingTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.ProductActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.ProductActionTestMac;
+import org.eclipse.equinox.p2.tests.publisher.actions.ProductActionWithJRELocationTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.ProductContentTypeTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.ProductFileAdviceTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.ProductFileTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.RootFilesActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.RootIUActionTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.VersionAdviceTest;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public class AllTests extends TestCase {
 
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(AbstractPublisherActionTest.class);
-		suite.addTestSuite(AccumulateConfigDataActionTest.class);
-		suite.addTestSuite(AdviceFileParserTest.class);
-		suite.addTestSuite(ANYConfigCUsActionTest.class);
-		suite.addTestSuite(BundlesActionTest.class);
-		suite.addTestSuite(CategoryPublisherTest.class);
-		suite.addTestSuite(ConfigCUsActionTest.class);
-		suite.addTestSuite(ContextRepositoryTest.class);
-		suite.addTestSuite(DefaultCUsActionTest.class);
-		suite.addTestSuite(EquinoxExecutableActionTest.class);
-		suite.addTestSuite(EquinoxLauncherCUActionTest.class);
-		suite.addTestSuite(FeaturesActionTest.class);
-		suite.addTestSuite(JREActionTest.class);
-		suite.addTestSuite(LocalizationTests.class);
-		suite.addTestSuite(LocalUpdateSiteActionTest.class);
-		suite.addTestSuite(MD5GenerationTest.class);
-		suite.addTest(new JUnit4TestAdapter(ChecksumGenerationTest.class));
-		suite.addTestSuite(ProductActionTest.class);
-		suite.addTestSuite(ProductActionCapturingTest.class);
-		suite.addTestSuite(ProductActionTestMac.class);
-		suite.addTestSuite(ProductActionWithJRELocationTest.class);
-		suite.addTestSuite(ProductContentTypeTest.class);
-		suite.addTestSuite(ProductFileAdviceTest.class);
-		suite.addTestSuite(ProductFileTest.class);
-		suite.addTestSuite(RootFilesActionTest.class);
-		suite.addTestSuite(RootIUActionTest.class);
-		suite.addTestSuite(GeneralPublisherTests.class);
-		suite.addTestSuite(VersionAdviceTest.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ AbstractPublisherActionTest.class, AccumulateConfigDataActionTest.class,
+		AdviceFileParserTest.class, ANYConfigCUsActionTest.class, BundlesActionTest.class, CategoryPublisherTest.class,
+		ConfigCUsActionTest.class, ContextRepositoryTest.class, DefaultCUsActionTest.class,
+		EquinoxExecutableActionTest.class, EquinoxLauncherCUActionTest.class, FeaturesActionTest.class,
+		JREActionTest.class, LocalizationTests.class, LocalUpdateSiteActionTest.class, MD5GenerationTest.class,
+		ChecksumGenerationTest.class, ProductActionTest.class, ProductActionCapturingTest.class,
+		ProductActionTestMac.class, ProductActionWithJRELocationTest.class, ProductContentTypeTest.class,
+		ProductFileAdviceTest.class, ProductFileTest.class, RootFilesActionTest.class, RootIUActionTest.class,
+		GeneralPublisherTests.class, VersionAdviceTest.class })
+public class AllTests {
+// test suite
 }

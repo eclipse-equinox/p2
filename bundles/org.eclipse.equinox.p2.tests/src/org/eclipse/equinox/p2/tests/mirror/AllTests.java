@@ -7,29 +7,24 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated mirror repository tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(ArtifactMirrorApplicationTest.class);
-		suite.addTestSuite(MetadataMirrorApplicationTest.class);
-		suite.addTestSuite(ArtifactRepositoryCleanupTest.class);
-		suite.addTestSuite(MetadataRepositoryCleanupTest.class);
-		suite.addTest(new JUnit4TestAdapter(NewMirrorApplicationArtifactTest.class));
-		suite.addTestSuite(NewMirrorApplicationMetadataTest.class);
-		suite.addTest(new JUnit4TestAdapter(MirrorApplicationTest.class));
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+		ArtifactMirrorApplicationTest.class, MetadataMirrorApplicationTest.class, ArtifactRepositoryCleanupTest.class,
+		MetadataRepositoryCleanupTest.class, NewMirrorApplicationArtifactTest.class,
+		NewMirrorApplicationMetadataTest.class, MirrorApplicationTest.class
+})
+public class AllTests {
+// test suite
 }

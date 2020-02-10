@@ -7,30 +7,23 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     Red Hat, Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public class AllRequestFlexerTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllRequestFlexerTests.class.getName());
-		suite.addTestSuite(TestRequestFlexerIUProperties.class);
-		suite.addTestSuite(TestRequestFlexerOneInstalledOneBeingInstalled.class);
-		suite.addTestSuite(TestRequestFlexerOneInstalledReplacingIt.class);
-		suite.addTestSuite(TestRequestFlexerOneInstalledTwoBeingInstalled.class);
-		suite.addTestSuite(TestRequestFlexerProduct.class);
-		suite.addTestSuite(TestRequestFlexerProduct2.class);
-		suite.addTestSuite(TestRequestFlexerProductWithLegacyMarkup.class);
-		suite.addTestSuite(TestRequestFlexerProductWithMixedMarkup.class);
-		suite.addTestSuite(TestRequestFlexerRequestWithOptionalInstall.class);
-		suite.addTestSuite(TestRequestFlexerRequestWithRemoval.class);
-		suite.addTestSuite(TestRequestFlexerSharedInstall.class);
-		return suite;
-
-	}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+		TestRequestFlexerIUProperties.class, TestRequestFlexerOneInstalledOneBeingInstalled.class,
+		TestRequestFlexerOneInstalledReplacingIt.class, TestRequestFlexerOneInstalledTwoBeingInstalled.class,
+		TestRequestFlexerProduct.class, TestRequestFlexerProduct2.class, TestRequestFlexerProductWithLegacyMarkup.class,
+		TestRequestFlexerProductWithMixedMarkup.class, TestRequestFlexerRequestWithOptionalInstall.class,
+		TestRequestFlexerRequestWithRemoval.class, TestRequestFlexerSharedInstall.class
+})
+public class AllRequestFlexerTests {
+// test suite
 }

@@ -7,25 +7,20 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ant;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated artifact repository tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(CompositeRepositoryTaskTest.class);
-		suite.addTestSuite(MirrorTaskTest.class);
-		suite.addTestSuite(Repo2RunnableTaskTests.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ CompositeRepositoryTaskTest.class, MirrorTaskTest.class, Repo2RunnableTaskTests.class })
+public class AllTests {
+// test suite
 }

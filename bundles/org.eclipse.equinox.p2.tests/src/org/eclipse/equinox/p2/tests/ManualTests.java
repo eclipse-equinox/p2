@@ -7,22 +7,21 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * This is the master test suite for all automated provisioning tests that require some
  * manual set. These tests can't be run automatically as part of a build.
  */
-public class ManualTests extends TestCase {
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
-		suite.addTestSuite(org.eclipse.equinox.p2.tests.full.DirectorTest.class);
-		return suite;
-	}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ org.eclipse.equinox.p2.tests.full.DirectorTest.class })
+public class ManualTests {
+//test suite
 }

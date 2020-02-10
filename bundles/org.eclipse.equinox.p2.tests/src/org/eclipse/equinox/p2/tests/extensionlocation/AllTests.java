@@ -13,18 +13,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.extensionlocation;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated director tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(ExtensionLocationArtifactRepositoryFactoryTest.class);
-		suite.addTestSuite(ExtensionLocationMetadataRepositoryFactoryTest.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ ExtensionLocationArtifactRepositoryFactoryTest.class,
+		ExtensionLocationMetadataRepositoryFactoryTest.class })
+public class AllTests {
+// test suite
 }

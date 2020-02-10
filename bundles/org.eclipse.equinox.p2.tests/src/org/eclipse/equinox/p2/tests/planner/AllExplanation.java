@@ -7,30 +7,22 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public class AllExplanation extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllExplanation.class.getName());
-		suite.addTestSuite(ExplanationDeepConflict.class);
-		suite.addTestSuite(ExplanationForOptionalDependencies.class);
-		suite.addTestSuite(ExplanationForPartialInstallation.class);
-		suite.addTestSuite(ExplanationLargeConflict.class);
-		suite.addTestSuite(ExplanationSeveralConflictingRoots.class);
-		suite.addTestSuite(MissingDependency.class);
-		suite.addTestSuite(MissingNonGreedyRequirement.class);
-		suite.addTestSuite(MissingNonGreedyRequirement2.class);
-		suite.addTestSuite(MultipleSingleton.class);
-		suite.addTestSuite(PatchTest10.class);
-		suite.addTestSuite(PatchTest12.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+		ExplanationDeepConflict.class, ExplanationForOptionalDependencies.class,
+		ExplanationForPartialInstallation.class, ExplanationLargeConflict.class,
+		ExplanationSeveralConflictingRoots.class, MissingDependency.class, MissingNonGreedyRequirement.class,
+		MissingNonGreedyRequirement2.class, MultipleSingleton.class, PatchTest10.class, PatchTest12.class
+})
+public class AllExplanation {
+// test suite
 }

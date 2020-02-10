@@ -7,34 +7,23 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated director tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(AutomatedDirectorTest.class);
-		suite.addTestSuite(Bug203637.class);
-		suite.addTestSuite(OperationGenerationTest.class);
-		suite.addTestSuite(OracleTest.class);
-		suite.addTestSuite(OracleTest2.class);
-		suite.addTestSuite(ReplacePlanTest.class);
-		suite.addTestSuite(RollbackTest.class);
-		suite.addTestSuite(SingletonTest.class);
-		suite.addTestSuite(UninstallTest.class);
-		suite.addTestSuite(UpdateTest.class);
-		suite.addTestSuite(IUListFormatterTest.class);
-		suite.addTestSuite(DirectorApplicationTest.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ AutomatedDirectorTest.class, Bug203637.class, OperationGenerationTest.class,
+		OracleTest.class,
+		OracleTest2.class, ReplacePlanTest.class, RollbackTest.class, SingletonTest.class, UninstallTest.class,
+		UpdateTest.class, IUListFormatterTest.class, DirectorApplicationTest.class })
+public class AllTests {
+// test suite
 }

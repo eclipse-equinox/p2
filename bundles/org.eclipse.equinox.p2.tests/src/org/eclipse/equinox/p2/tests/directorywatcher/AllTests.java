@@ -13,19 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated director tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(DirectoryWatcherTest.class);
-		suite.addTestSuite(RepositoryListenerTest.class);
-		suite.addTestSuite(ProfileSynchronizerTest.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ DirectoryWatcherTest.class, RepositoryListenerTest.class, ProfileSynchronizerTest.class })
+public class AllTests {
+// test suite
 }

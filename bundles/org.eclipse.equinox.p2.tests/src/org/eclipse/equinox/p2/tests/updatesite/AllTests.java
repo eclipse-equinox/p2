@@ -7,28 +7,21 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated director tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(CategoryXMLActionTest.class);
-		suite.addTestSuite(CategoryIUXMLActionTest.class);
-		suite.addTestSuite(DoesNotCacheStaleData.class);
-		suite.addTestSuite(SiteXMLActionTest.class);
-		suite.addTestSuite(UpdateSiteTest.class);
-		suite.addTestSuite(LocalUpdatesiteTest.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ CategoryXMLActionTest.class, CategoryIUXMLActionTest.class, DoesNotCacheStaleData.class,
+		SiteXMLActionTest.class, UpdateSiteTest.class, LocalUpdatesiteTest.class, })
+public class AllTests {
+//test suite
 }

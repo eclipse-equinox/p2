@@ -7,33 +7,25 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated director tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(ChmodActionTest.class);
-		suite.addTestSuite(CleanupzipActionTest.class);
-		suite.addTestSuite(CollectActionTest.class);
-		suite.addTestSuite(LinkActionTest.class);
-		suite.addTestSuite(MkdirActionTest.class);
-		suite.addTestSuite(NativeTouchpointTest.class);
-		suite.addTestSuite(RmdirActionTest.class);
-		suite.addTestSuite(UnzipActionTest.class);
-		suite.addTestSuite(CopyActionTest.class);
-		suite.addTestSuite(RemoveActionTest.class);
-		suite.addTestSuite(BackupStoreTest.class);
-		suite.addTest(new JUnit4TestAdapter(CheckAndPromptNativePackageWindowsRegistryTest.class));
-		return suite;
-	}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+		ChmodActionTest.class, CleanupzipActionTest.class, CollectActionTest.class, LinkActionTest.class,
+		MkdirActionTest.class, NativeTouchpointTest.class, RmdirActionTest.class, UnzipActionTest.class,
+		CopyActionTest.class, RemoveActionTest.class, BackupStoreTest.class,
+		CheckAndPromptNativePackageWindowsRegistryTest.class
+})
+public class AllTests {
+// test suite
 }

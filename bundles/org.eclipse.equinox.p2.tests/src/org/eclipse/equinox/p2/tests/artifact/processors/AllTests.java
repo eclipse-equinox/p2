@@ -13,20 +13,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated director tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(Pack200ProcessorTest.class);
-		suite.addTestSuite(ZipVerifierProcessorTest.class);
-		suite.addTest(new JUnit4TestAdapter(ChecksumVerifierTest.class));
-		suite.addTest(new JUnit4TestAdapter(ChecksumUtilitiesTest.class));
-		return suite;
-	}
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ Pack200ProcessorTest.class, ZipVerifierProcessorTest.class, ChecksumVerifierTest.class,
+		ChecksumUtilitiesTest.class })
+public class AllTests {
+// test suite
 }
