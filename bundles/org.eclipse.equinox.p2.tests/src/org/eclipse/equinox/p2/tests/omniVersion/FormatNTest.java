@@ -14,14 +14,18 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import static org.junit.Assert.assertThrows;
+
 import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
 
 /**
  * Tests format(n) and format(N)
  *
  */
 public class FormatNTest extends TestCase {
+	@Test
 	public void testNonNegative() {
 		Version v = Version.parseVersion("format(n):1");
 		assertNotNull(v);
@@ -30,14 +34,11 @@ public class FormatNTest extends TestCase {
 		assertNotNull(v = Version.parseVersion("format(n):0"));
 		assertEquals(Version.parseVersion("raw:0"), v);
 
-		try {
-			Version.parseVersion("format(n):-1");
-			fail("Uncaught exception: negative number in 'n' format");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("negative number in 'n' format", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(n):-1"));
 	}
 
+	@Test
 	public void testNegativeValues() {
 		Version v = Version.parseVersion("format(N):-1");
 		assertNotNull(v);
@@ -50,6 +51,7 @@ public class FormatNTest extends TestCase {
 		assertEquals(Version.parseVersion("raw:0"), v);
 	}
 
+	@Test
 	public void testLeadingZeros() {
 		Version v = Version.parseVersion("format(n):000001");
 		assertNotNull(v);
@@ -59,6 +61,7 @@ public class FormatNTest extends TestCase {
 		assertEquals(Version.parseVersion("raw:-1"), v);
 	}
 
+	@Test
 	public void testExact() {
 		Version v = Version.parseVersion("format(n={2};n={2};):1122");
 		assertNotNull(v);
@@ -70,56 +73,29 @@ public class FormatNTest extends TestCase {
 		assertNotNull(v = Version.parseVersion("format(N={4};N={3};):-001234"));
 		assertEquals(Version.parseVersion("raw:-1.234"), v);
 
-		try {
-			v = Version.parseVersion("format(n={2};.;n={2};):1.2");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-		try {
-			v = Version.parseVersion("format(n={2};.;n={2};):111.2222");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(n={2};.;n={2};):1.2"));
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(n={2};.;n={2};):111.2222"));
 	}
 
+	@Test
 	public void testAtLeast() {
 		Version v = Version.parseVersion("format(n={2,};.n={2,};):111.22222");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:111.22222"), v);
-		try {
-			v = Version.parseVersion("format(n={2,};.;n={2};):111.2");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(n={2,};.;n={2};):111.2"));
 	}
 
+	@Test
 	public void testAtMost() {
 		Version v = Version.parseVersion("format(n={2,3};.n={2,3};):111.22");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:111.22"), v);
-		try {
-			v = Version.parseVersion("format(n={2,3};.n={2,3};):111.2222");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-		try {
-			v = Version.parseVersion("format(n={2,3};.n={2,3};):1.222");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(n={2,3};.n={2,3};):111.2222"));
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(n={2,3};.n={2,3};):1.222"));
 	}
 
+	@Test
 	public void testNIsGreedy() {
-		try {
-			Version.parseVersion("format(nn):1010");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(nn):1010"));
 	}
 }

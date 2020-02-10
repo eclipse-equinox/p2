@@ -14,19 +14,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.util.*;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector.MirrorInfo;
+import org.junit.Before;
+import org.junit.Test;
 
-public class MirrorSelectorTest extends TestCase {
+public class MirrorSelectorTest {
 
 	private List<MirrorInfo> originals;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-
+	@Before
+	public void setUp() throws Exception {
 		// examples taken from real live.
 		// This is the expected order of mirrors,
 		// doesn't matter how often you're resorting ;-)
@@ -257,6 +261,7 @@ public class MirrorSelectorTest extends TestCase {
 
 	}
 
+	@Test
 	public void testSorting() {
 
 		long maxBytesPerSecond = 0;
@@ -295,6 +300,7 @@ public class MirrorSelectorTest extends TestCase {
 
 	}
 
+	@Test
 	public void testComparatorZeros() {
 
 		MirrorSelector.MirrorInfoComparator comparator = new MirrorSelector.MirrorInfoComparator(0, 0, 0);

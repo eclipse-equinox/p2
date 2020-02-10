@@ -13,16 +13,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.junit.Test;
 
 /**
  * Tests for the {@link org.eclipse.equinox.internal.provisional.p2.query.Query} class.
  */
-public class QueryTest extends TestCase {
+public class QueryTest {
 
 	static class AnyStringQuery extends MatchQuery {
 		@Override
@@ -32,8 +37,9 @@ public class QueryTest extends TestCase {
 	}
 
 	/**
-	* Tests a simple perform where all items match.
-	*/
+	 * Tests a simple perform where all items match.
+	 */
+	@Test
 	public void testPerformSimple() {
 		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
@@ -47,6 +53,7 @@ public class QueryTest extends TestCase {
 	/**
 	 * Tests a perform where only some items match.
 	 */
+	@Test
 	public void testPerformSomeMatches() {
 		List<Object> items = Arrays.asList(new Object(), "green", new Object());
 		IQuery query = new AnyStringQuery();
@@ -55,6 +62,7 @@ public class QueryTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.1", collector, "green");
 	}
 
+	@Test
 	public void testLimitQuery() {
 		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
@@ -64,6 +72,7 @@ public class QueryTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.1", collector, "red");
 	}
 
+	@Test
 	public void testLimitQuery2() {
 		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
@@ -74,6 +83,7 @@ public class QueryTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.2", collector, "green");
 	}
 
+	@Test
 	public void testLimitQuery3() {
 		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
@@ -85,6 +95,7 @@ public class QueryTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.3", collector, "blue");
 	}
 
+	@Test
 	public void testLimitQuery0() {
 		List<String> items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();

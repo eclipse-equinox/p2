@@ -13,26 +13,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
-import java.io.*;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ZipVerifierStep;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.junit.Test;
 import org.osgi.framework.Bundle;
 
-public class ZipVerifierProcessorTest extends TestCase {
+public class ZipVerifierProcessorTest {
 
-	public ZipVerifierProcessorTest(String name) {
-		super(name);
-	}
-
-	public ZipVerifierProcessorTest() {
-		super("");
-	}
-
+	@Test
 	public void testGoodZip() throws IOException {
 		// Setup the processor
 		ProcessingStep step = new ZipVerifierStep();
@@ -47,6 +44,7 @@ public class ZipVerifierProcessorTest extends TestCase {
 		assertEquals(step.getStatus().getSeverity(), IStatus.OK);
 	}
 
+	@Test
 	public void testBogusFile() throws IOException {
 		// Setup the processor
 		ProcessingStep step = new ZipVerifierStep();
@@ -61,6 +59,7 @@ public class ZipVerifierProcessorTest extends TestCase {
 		assertEquals(step.getStatus().getSeverity(), IStatus.ERROR);
 	}
 
+	@Test
 	public void testBogusFile2() throws IOException {
 		// Setup the processor
 		ProcessingStep step = new ZipVerifierStep();
@@ -75,6 +74,7 @@ public class ZipVerifierProcessorTest extends TestCase {
 		assertEquals(step.getStatus().getSeverity(), IStatus.ERROR);
 	}
 
+	@Test
 	public void testBogusFile3() throws IOException {
 		// Setup the processor
 		ProcessingStep step = new ZipVerifierStep();
@@ -89,6 +89,7 @@ public class ZipVerifierProcessorTest extends TestCase {
 		assertEquals(step.getStatus().getSeverity(), IStatus.ERROR);
 	}
 
+	@Test
 	public void testPackGZFile() throws IOException {
 
 		// Setup the processor

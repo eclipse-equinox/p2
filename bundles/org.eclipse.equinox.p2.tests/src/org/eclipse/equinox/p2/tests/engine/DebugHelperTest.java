@@ -14,12 +14,12 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.util.HashMap;
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.engine.DebugHelper;
 import org.junit.Assert;
+import org.junit.Test;
 
-public class DebugHelperTest extends TestCase {
-
+public class DebugHelperTest {
+	@Test
 	public void testFormatParametersContainsNullValue() {
 		HashMap<String, Object> parameters = new HashMap<>();
 		parameters.put("key", null);

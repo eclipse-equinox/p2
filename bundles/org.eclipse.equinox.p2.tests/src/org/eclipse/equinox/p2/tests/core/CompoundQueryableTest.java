@@ -14,18 +14,26 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.Iterator;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.tests.harness.TestProgressMonitor;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.junit.Test;
 
 /**
  * Tests the compound queryable
  */
-public class CompoundQueryableTest extends TestCase {
+public class CompoundQueryableTest {
 
 	public static class CompoundQueryTestProgressMonitor extends TestProgressMonitor {
 
@@ -168,6 +176,7 @@ public class CompoundQueryableTest extends TestCase {
 		}
 	};
 
+	@Test
 	public void testMatchQuery() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -181,6 +190,7 @@ public class CompoundQueryableTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
 	}
 
+	@Test
 	public void testSingleQueryable() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(Arrays.asList(queryable1));
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -190,6 +200,7 @@ public class CompoundQueryableTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
 	}
 
+	@Test
 	public void testSingleContextQuery() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(Arrays.asList(queryable1));
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -198,6 +209,7 @@ public class CompoundQueryableTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.1", queryResult, 5);
 	}
 
+	@Test
 	public void testMultipleContextQueries() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -206,6 +218,7 @@ public class CompoundQueryableTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.1", queryResult, 12);
 	}
 
+	@Test
 	public void testCompoundMatchAndQuery() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -216,6 +229,7 @@ public class CompoundQueryableTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
 	}
 
+	@Test
 	public void testCompoundMatchOrQuery() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -229,6 +243,7 @@ public class CompoundQueryableTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
 	}
 
+	@Test
 	public void testMatchQueryProgressMonitor() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -237,6 +252,7 @@ public class CompoundQueryableTest extends TestCase {
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
+	@Test
 	public void testSingleQueryableProgressMonitor() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(Arrays.asList(queryable1));
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -245,6 +261,7 @@ public class CompoundQueryableTest extends TestCase {
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
+	@Test
 	public void testSingleContextQueryProgressMonitor() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(Arrays.asList(queryable1));
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -253,6 +270,7 @@ public class CompoundQueryableTest extends TestCase {
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
+	@Test
 	public void testMultipleContextQueriesProgressMonitor() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
@@ -261,6 +279,7 @@ public class CompoundQueryableTest extends TestCase {
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
+	@Test
 	public void testNullProgressMonitor() {
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(queryable1, queryable2);
 		cQueryable.query(greatestNumberQuery, null);
@@ -268,6 +287,7 @@ public class CompoundQueryableTest extends TestCase {
 
 	}
 
+	@Test
 	public void testDoubleCompoundContextOrQuery() {
 		IQueryable<Integer> cQueryable1 = QueryUtil.compoundQueryable(queryable3, queryable2);
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(cQueryable1, queryable1);
@@ -285,6 +305,7 @@ public class CompoundQueryableTest extends TestCase {
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
+	@Test
 	public void testDoubleCompositeQuery() {
 		IQueryable<Integer> cQueryable1 = QueryUtil.compoundQueryable(queryable3, queryable2);
 		IQueryable<Integer> cQueryable = QueryUtil.compoundQueryable(cQueryable1, queryable1);

@@ -15,11 +15,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import static org.junit.Assert.assertTrue;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -29,40 +30,29 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JarURLArtifactRepositoryTest extends TestCase {
+public class JarURLArtifactRepositoryTest {
 
 	private IArtifactRepositoryManager manager;
 
-	public JarURLArtifactRepositoryTest(String name) {
-		super(name);
-	}
-
-	public JarURLArtifactRepositoryTest() {
-		super("");
-	}
-
-	@Override
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		IProvisioningAgent agent = ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.class);
 		manager = agent.getService(IArtifactRepositoryManager.class);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		manager = null;
 	}
 
-	public void testJarURLRepository() throws ProvisionException {
+	@Test
+	public void testJarURLRepository() throws ProvisionException, MalformedURLException, URISyntaxException {
 		URL engineJar = TestActivator.getContext().getBundle().getEntry("/testData/enginerepo.jar");
-		URI jarRepoLocation = null;
-		try {
-			jarRepoLocation = URIUtil.toURI(new URL("jar:" + engineJar.toString() + "!/testData/enginerepo/"));
-		} catch (URISyntaxException e) {
-			fail(e.getMessage());
-		} catch (MalformedURLException e) {
-			fail(e.getMessage());
-		}
+		URI jarRepoLocation = URIUtil.toURI(new URL("jar:" + engineJar.toString() + "!/testData/enginerepo/"));
 		IArtifactRepository repo = manager.loadRepository(jarRepoLocation, null);
 		assertTrue(repo.contains(new ArtifactKey("osgi.bundle", "testdata", Version.create("1.0.0.1"))));
 	}

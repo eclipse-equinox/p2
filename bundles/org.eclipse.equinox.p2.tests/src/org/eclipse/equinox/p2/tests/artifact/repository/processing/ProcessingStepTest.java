@@ -13,27 +13,36 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository.processing;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.io.OutputStream;
-import junit.framework.TestCase;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ProcessingStepTest extends TestCase {
+public class ProcessingStepTest {
 
 	private ProcessingStep ps;
 	private boolean flushed;
 	private boolean closed;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		ps = new ProcessingStep() {};
 		flushed = false;
 		closed = false;
 	}
 
+	@Test
 	public void testDefaultStatus() {
 		assertNotNull(ps.getStatus());
 		assertTrue(ps.getStatus().isOK());
@@ -42,6 +51,7 @@ public class ProcessingStepTest extends TestCase {
 		assertTrue(ProcessingStepHandler.checkStatus(ps).isOK());
 	}
 
+	@Test
 	public void testGetDeepStatus() {
 		ProcessingStep ps2 = new ProcessingStep() {};
 		ps.link(ps2, new NullProgressMonitor());
@@ -68,6 +78,7 @@ public class ProcessingStepTest extends TestCase {
 		assertEquals(IStatus.CANCEL, ps.getStatus(true).getSeverity());
 	}
 
+	@Test
 	public void testFlush() throws IOException {
 		OutputStream destination = new OutputStream() {
 
@@ -85,6 +96,7 @@ public class ProcessingStepTest extends TestCase {
 		assertTrue(flushed);
 	}
 
+	@Test
 	public void testCloseSimpleOutputStreamAsDestination() throws IOException {
 		OutputStream destination = new OutputStream() {
 
@@ -102,6 +114,7 @@ public class ProcessingStepTest extends TestCase {
 		assertFalse(closed);
 	}
 
+	@Test
 	public void testCloseProcessingStepAsDestination() throws IOException {
 		OutputStream destination = new ProcessingStep() {
 			@Override

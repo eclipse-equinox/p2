@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,48 +28,38 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.io.IUDeserializer;
 import org.eclipse.equinox.p2.metadata.io.IUSerializer;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 
-public class StandaloneSerializationTest extends TestCase {
-	public void testNothingToWrite() {
-		try {
-			File f = File.createTempFile(getName(), "iu");
-			try (OutputStream os = new FileOutputStream(f)) {
-				new IUSerializer(os).write(Collections.EMPTY_LIST);
-			}
-			assertTrue(f.length() > 0);
-			f.delete();
-		} catch (FileNotFoundException e) {
-			fail("problem writing: " + e.getCause().getMessage());
-		} catch (UnsupportedEncodingException e) {
-			fail("problem writing: " + e.getCause().getMessage());
-		} catch (IOException e) {
-			fail("problem writing: " + e.getCause().getMessage());
+public class StandaloneSerializationTest {
+	@Rule
+	public TestName name = new TestName();
+
+	@Test
+	public void testNothingToWrite() throws IOException {
+		File f = File.createTempFile(name.getMethodName(), "iu");
+		try (OutputStream os = new FileOutputStream(f)) {
+			new IUSerializer(os).write(Collections.EMPTY_LIST);
 		}
+		assertTrue(f.length() > 0);
+		f.delete();
 	}
 
-	public void testNoContent() {
-		//Write file w/o content
-		File f = null;
-		try {
-			f = File.createTempFile(getName(), "iu");
-			try (OutputStream os = new FileOutputStream(f)) {
-				new IUSerializer(os).write(Collections.EMPTY_LIST);
-			}
-		} catch (FileNotFoundException e) {
-			fail("problem writing: " + e.getCause().getMessage());
-		} catch (UnsupportedEncodingException e) {
-			fail("problem writing: " + e.getCause().getMessage());
-		} catch (IOException e) {
-			fail("problem writing: " + e.getCause().getMessage());
+	@Test
+	public void testNoContent() throws IOException {
+		// Write file w/o content
+		File f = File.createTempFile(name.getMethodName(), "iu");
+		try (OutputStream os = new FileOutputStream(f)) {
+			new IUSerializer(os).write(Collections.EMPTY_LIST);
 		}
 
-		//Read file written
+		// Read file written
 		boolean exceptionRaised = false;
 		try (InputStream is = new FileInputStream(f)) {
 			Collection<IInstallableUnit> ius = new IUDeserializer().read(is);
@@ -82,7 +76,8 @@ public class StandaloneSerializationTest extends TestCase {
 		f.delete();
 	}
 
-	public void testWritingThenLoading() {
+	@Test
+	public void testWritingThenLoading() throws FileNotFoundException, IOException {
 		MetadataFactory.InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId("foo");
 		iu.setVersion(Version.create("1.0.0"));
@@ -94,28 +89,13 @@ public class StandaloneSerializationTest extends TestCase {
 		ius.add(MetadataFactory.createInstallableUnit(iu));
 		ius.add(MetadataFactory.createInstallableUnit(iu2));
 
-		File f = null;
-		try {
-			f = File.createTempFile(getName(), "iu");
-			try (OutputStream os = new FileOutputStream(f)) {
-				new IUSerializer(os).write(ius);
-			}
-		} catch (FileNotFoundException e) {
-			fail("problem writing: " + e.getCause().getMessage());
-		} catch (UnsupportedEncodingException e) {
-			fail("problem writing: " + e.getCause().getMessage());
-		} catch (IOException e) {
-			fail("problem writing: " + e.getCause().getMessage());
+		File f = File.createTempFile(name.getMethodName(), "iu");
+		try (OutputStream os = new FileOutputStream(f)) {
+			new IUSerializer(os).write(ius);
 		}
 
 		try (InputStream is = new FileInputStream(f)) {
 			assertEquals(2, new IUDeserializer().read(is).size());
-		} catch (FileNotFoundException e) {
-			fail("problem writing: " + e.getCause().getMessage());
-		} catch (UnsupportedEncodingException e) {
-			fail("problem writing: " + e.getCause().getMessage());
-		} catch (IOException e) {
-			fail("problem writing: " + e.getCause().getMessage());
 		} finally {
 			f.delete();
 		}

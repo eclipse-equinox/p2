@@ -14,12 +14,15 @@
 
 package org.eclipse.equinox.p2.tests.core;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.core.helpers.StringHelper;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
+import org.junit.Test;
 
-public class StringHelperTest extends TestCase {
+public class StringHelperTest {
+	@Test
 	public void testSimilarBehavior() {
 		String[] a1 = AbstractPublisherAction.getArrayFromString("foo, bar, baz ,,, zaz", ",");
 		String[] a2 = StringHelper.getArrayFromString("foo, bar, baz ,,, zaz", ',');
@@ -38,6 +41,7 @@ public class StringHelperTest extends TestCase {
 		assertTrue("1.4", Arrays.equals(a1, a2));
 	}
 
+	@Test
 	public void testPerformance() throws Exception {
 		String[] strings = new String[5];
 		StringBuilder inputBld = new StringBuilder();

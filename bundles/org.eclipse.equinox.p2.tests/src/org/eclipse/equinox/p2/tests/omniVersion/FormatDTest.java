@@ -14,19 +14,23 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+
 import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
 
 /**
  * Tests format(d) and explicit delimiter chars and strings.
  */
-public class FormatDTest extends TestCase {
+public class FormatDTest {
 	/**
 	 * Definition of default set of delimiters
 	 */
 	private static char[] s_delim = { //
 	0x20, // ' '
-			0x21, // ! 
+			0x21, // !
 			0x22, // #
 			0x23, // "
 			0x24, // '$'
@@ -45,7 +49,7 @@ public class FormatDTest extends TestCase {
 			0x3b, // ';'
 			0x3c, // '<'
 			0x3d, // '='
-			0x3e, // '>' 
+			0x3e, // '>'
 			0x3f, // '?'
 			0x40, // @   <--- TODO: Debatable - is @ a delimiter of part of a string?
 			0x5b, // [
@@ -59,6 +63,7 @@ public class FormatDTest extends TestCase {
 			0x7e, // ~
 	};
 
+	@Test
 	public void testNumericWithDefaultSet() {
 		Version v = null;
 		String formatString = "format(ndn):";
@@ -77,6 +82,7 @@ public class FormatDTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testStringWithDefaultSet() {
 		Version v = null;
 		String formatString = "format(sds):";
@@ -95,6 +101,7 @@ public class FormatDTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testAccepted() {
 		Version v = Version.parseVersion("format((d=[A-Z];n){3}):A1B22C333");
 		assertNotNull(v);
@@ -119,6 +126,7 @@ public class FormatDTest extends TestCase {
 		assertEquals(Integer.valueOf(333), v.getSegment(2));
 	}
 
+	@Test
 	public void testRejected() {
 		Version v = null;
 		assertNotNull(v = Version.parseVersion("format((d=[^.:];S=[a-z0-9];){3}):/a1;b22=c333"));
@@ -127,6 +135,7 @@ public class FormatDTest extends TestCase {
 		assertEquals("c333", v.getSegment(2));
 	}
 
+	@Test
 	public void testExplicit() {
 		Version v = null;
 		assertNotNull(v = Version.parseVersion("format('epoch='n';''major='n';''minor='n';'):epoch=1;major=22;minor=333;"));
@@ -141,6 +150,7 @@ public class FormatDTest extends TestCase {
 
 	}
 
+	@Test
 	public void testCounted() {
 		// repeated d, char count d, and counted d are equal
 		Version v1 = Version.parseVersion("format(dddn):///1");
@@ -153,43 +163,27 @@ public class FormatDTest extends TestCase {
 
 	}
 
+	@Test
 	public void testIllegalCharCount() {
-		try {
-			Version.parseVersion("format(d={3};n):///1");
-			fail("Uncaught error: char count can not be used with 'd'");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+			assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(d={3};n):///1"));
 
 	}
 
+	@Test
 	public void testIllegalAsPad() {
-		try {
-			Version.parseVersion("format(nd=pm;n):1.0");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(nd=pm;n):1.0"));
 	}
 
+	@Test
 	public void testIllegalWithDefault() {
-		try {
-			Version.parseVersion("format(nd='a';n):1.0");
-			fail("Uncaught error: 'd' can not have a default value");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(nd='a';n):1.0"));
 	}
 
 	/**
 	 * Ignore of d is illegal as d is already ignored.
 	 */
+	@Test
 	public void testIllegalIgnore() {
-		try {
-			Version.parseVersion("format(nd=!;n):1.0");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(nd=!;n):1.0"));
 	}
 }

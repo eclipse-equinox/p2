@@ -14,16 +14,21 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import junit.framework.TestCase;
-import org.eclipse.equinox.p2.metadata.Version;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-public class FormatPTest extends TestCase {
+import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
+
+public class FormatPTest {
+	@Test
 	public void testPad() {
 		Version v = Version.parseVersion("format(qp):''pm");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:''pm"), v);
 	}
 
+	@Test
 	public void testArrayPad() {
 		Version v = Version.parseVersion("format(r):<''pm>");
 		assertNotNull(v);

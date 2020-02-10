@@ -29,15 +29,17 @@ import org.easymock.IAnswer;
 import org.eclipse.equinox.internal.p2.director.app.IUListFormatter;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
 
 public class IUListFormatterTest extends TestCase {
-
+	@Test
 	public void testFormat() {
 		IUListFormatter format = new IUListFormatter("${id}=${id},${version},${org.eclipse.equinox.p2.name}");
 		String result = format.format(asList(createIU("iu1", "1.0.0", "name", null)));
 		assertEquals("iu1=iu1,1.0.0,name", result);
 	}
 
+	@Test
 	public void testFormat_MultipleIUs() {
 		IUListFormatter format = new IUListFormatter("${id}=${version},${org.eclipse.equinox.p2.name}");
 		String result = format.format(asList(//
@@ -47,12 +49,14 @@ public class IUListFormatterTest extends TestCase {
 		assertEquals("iu1=1.0.0,name" + System.lineSeparator() + "iu2=2.0.0,name2", result);
 	}
 
+	@Test
 	public void testFormat_UnknownFormatOption() {
 		IUListFormatter format = new IUListFormatter("${id}${UNKNOWN}");
 		String result = format.format(asList(createIU("iu1", "1.0.0", "name", null)));
 		assertEquals("iu1", result);
 	}
 
+	@Test
 	public void testFormat_Malformed() {
 		IUListFormatter format = new IUListFormatter("${id=${version");
 		String result = format.format(asList(createIU("iu1", "1.0.0", "name", null)));

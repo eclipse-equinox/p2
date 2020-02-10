@@ -14,24 +14,26 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.TestCase;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.junit.Test;
 
 /**
  * This tests both Compound and Composite queries
  *
  */
-public class AggregateQueryTest extends TestCase {
+public class AggregateQueryTest {
 
 	public List<String> getABCDE() {
 		return Arrays.asList("A", "B", "C", "D", "E");
@@ -41,6 +43,7 @@ public class AggregateQueryTest extends TestCase {
 		return Arrays.asList("1", "2", "3");
 	}
 
+	@Test
 	public void testEmptyCompositeQuery() {
 		IQuery<String> query = QueryUtil.createPipeQuery(Collections.emptySet());
 		query.perform(getABCDE().iterator());
@@ -48,6 +51,7 @@ public class AggregateQueryTest extends TestCase {
 		// will return in this case
 	}
 
+	@Test
 	public void testSymmetry() {
 		IQuery getLatest = new ContextQuery() {
 
@@ -97,9 +101,9 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	/**
-	 * The CompositeQuery should not support symmetry.
-	 * This method tests that
+	 * The CompositeQuery should not support symmetry. This method tests that
 	 */
+	@Test
 	public void testNonSymmetry() {
 		IQuery getLatest = new ContextQuery() {
 
@@ -142,6 +146,7 @@ public class AggregateQueryTest extends TestCase {
 
 	}
 
+	@Test
 	public void testIntersection() {
 		IQuery<String> ABC = new MatchQuery<String>() {
 			@Override
@@ -168,6 +173,7 @@ public class AggregateQueryTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.2", result, "C");
 	}
 
+	@Test
 	public void testIntersection2() {
 		IQuery ABC = new ContextQuery() {
 			@Override
@@ -202,6 +208,7 @@ public class AggregateQueryTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.2", result, "C");
 	}
 
+	@Test
 	public void testUnion() {
 		IQuery<String> ABC = new MatchQuery<String>() {
 			@Override
@@ -231,6 +238,7 @@ public class AggregateQueryTest extends TestCase {
 		AbstractProvisioningTest.assertContains("1.5", result, "E");
 	}
 
+	@Test
 	public void testUnion2() {
 		IQuery ABC = new ContextQuery() {
 			@Override

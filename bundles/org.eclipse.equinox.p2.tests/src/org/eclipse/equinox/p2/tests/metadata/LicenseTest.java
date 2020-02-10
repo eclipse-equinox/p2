@@ -7,21 +7,24 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *		EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.equinox.p2.metadata.ILicense;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.junit.Test;
 
 /**
  * Tests for License class
  */
-public class LicenseTest extends TestCase {
+public class LicenseTest {
+	@Test
 	public void testNormalize() {
 		ILicense licenseOne = MetadataFactory.createLicense(null, "a   b");
 		ILicense licenseTwo = MetadataFactory.createLicense(null, "a\t\n\r  \t\n\r  b");

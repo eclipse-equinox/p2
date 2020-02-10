@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import junit.framework.TestCase;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -26,6 +25,6 @@ import org.junit.runners.Suite;
 		InstallableUnitTest.class, InstallableUnitPatchTest.class, IUPersistenceTest.class, LatestIUTest.class,
 		LicenseTest.class, MultipleIUAndFragmentTest.class, PersistNegation.class, PersistFragment.class,
 		ProvidedCapabilityTest.class, RequirementToString.class, RequirementParsingTest.class })
-public class AllTests extends TestCase {
+public class AllTests {
 //test suite
 }
