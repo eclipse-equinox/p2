@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,14 +22,12 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class NoRenamingLauncherIni extends AbstractFwkAdminTest {
 
-	public NoRenamingLauncherIni(String name) {
-		super(name);
-	}
-
+	@Test
 	public void testConfigFiles() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();

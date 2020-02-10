@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,14 +22,12 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class RenamingLauncherIni extends AbstractFwkAdminTest {
 
-	public RenamingLauncherIni(String name) {
-		super(name);
-	}
-
+	@Test
 	public void testConfigFiles() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
@@ -55,7 +55,7 @@ public class RenamingLauncherIni extends AbstractFwkAdminTest {
 		manipulator.save(false);
 
 		File fooINI = new File(installFolder, "foo.ini");
-		assertEquals(fooINI.exists(), true);
+		assertTrue(fooINI.exists());
 
 		Manipulator m2 = fwkAdmin.getManipulator();
 
@@ -71,6 +71,6 @@ public class RenamingLauncherIni extends AbstractFwkAdminTest {
 		launcherData2.setLauncher(new File(installFolder, "foo"));
 		m2.save(false);
 
-		assertEquals(new File(installFolder, "foo.ini").exists(), true);
+		assertTrue(new File(installFolder, "foo.ini").exists());
 	}
 }

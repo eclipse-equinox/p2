@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.service.environment.Constants;
+import org.junit.After;
+import org.junit.Before;
 import org.osgi.framework.BundleException;
 
 public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdminTest {
@@ -27,21 +29,18 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 	private String launcherName;
 	private IPath launcherPath;
 
-	public FwkAdminAndSimpleConfiguratorTest(String name) {
-		super(name);
-	}
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		startSimpleConfiguratorManipulator();
 	}
 
-	protected Manipulator getNewManipulator(String workArea) throws FrameworkAdminRuntimeException, IOException, BundleException {
+	protected Manipulator getNewManipulator(String workArea)
+			throws FrameworkAdminRuntimeException, IOException, BundleException {
 		return getNewManipulator(workArea, null);
 	}
 
-	protected Manipulator getNewManipulator(String workArea, String os) throws FrameworkAdminRuntimeException, IOException, BundleException {
+	protected Manipulator getNewManipulator(String workArea, String os)
+			throws FrameworkAdminRuntimeException, IOException, BundleException {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
@@ -60,7 +59,7 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 		return manipulator;
 	}
@@ -72,24 +71,25 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 	protected Manipulator createMinimalConfiguration(String workArea, String os) throws Exception {
 		Manipulator manipulator = getNewManipulator(workArea, os);
 
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
-		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1",
+				URIUtil.toURI(FileLocator
+						.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))),
+				0, true);
+		BundleInfo configuratorBi = new BundleInfo(
+				"org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator
+						.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))),
+				1, true);
 
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
 
-		try {
-			manipulator.save(false);
-		} catch (IOException e) {
-			fail("Error while persisting");
-		} catch (FrameworkAdminRuntimeException e) {
-			fail("Error while persisting");
-		}
+		manipulator.save(false);
 		return manipulator;
 	}
 
 	@Override
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		super.tearDown();
 		if (installFolder != null)
 			delete(installFolder);

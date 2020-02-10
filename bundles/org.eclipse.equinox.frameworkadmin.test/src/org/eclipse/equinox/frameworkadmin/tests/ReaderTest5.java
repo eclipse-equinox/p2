@@ -13,10 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class ReaderTest5 extends AbstractFwkAdminTest {
@@ -24,24 +28,22 @@ public class ReaderTest5 extends AbstractFwkAdminTest {
 	private File configurationFolder = null;
 	private String launcherName = "eclipse";
 
-	public ReaderTest5(String name) {
-		super(name);
-	}
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		startSimpleConfiguratorManipulator();
 
 		installFolder = Activator.getContext().getDataFile(ReaderTest5.class.getName());
 		configurationFolder = new File(installFolder, "configuration");
-		writeEclipseIni(new File(installFolder, "eclipse.ini"), new String[] { "-install", installFolder.getAbsolutePath()});
+		writeEclipseIni(new File(installFolder, "eclipse.ini"),
+				new String[] { "-install", installFolder.getAbsolutePath() });
 		Properties properties = new Properties();
 		properties.setProperty("foo", "bar");
 		writeConfigIni(new File(configurationFolder, "config.ini"), properties);
 	}
 
-	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
+	@Test
+	public void testConfigContent()
+			throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 		LauncherData launcherData = manipulator.getLauncherData();
@@ -49,16 +51,11 @@ public class ReaderTest5 extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
-		
-		assertEquals(configurationFolder, manipulator.getLauncherData().getFwConfigLocation());  
-		assertEquals("bar", manipulator.getConfigData(). getProperty("foo"));
-	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
+		assertEquals(configurationFolder, manipulator.getLauncherData().getFwConfigLocation());
+		assertEquals("bar", manipulator.getConfigData().getProperty("foo"));
 	}
 
 }

@@ -13,28 +13,30 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
+public class TestVMArg extends FwkAdminAndSimpleConfiguratorTest {
 
 	private Manipulator m;
 
-	public TestVMArg(String name) {
-		super(name);
-	}
-
 	@Override
-	protected void setUp() throws  Exception {
+	@Before
+	public void setUp() throws Exception {
 		super.setUp();
 		m = createMinimalConfiguration(TestEclipseDataArea.class.getName());
 	}
-	
+	@Test
 	public void testVMInsideInstall() throws FrameworkAdminRuntimeException, IOException {
-		//Test VM path in the install folder
+		// Test VM path in the install folder
 		File jreLocation = new File(m.getLauncherData().getLauncher().getParentFile(), "jre");
 		m.getLauncherData().setJvm(jreLocation);
 		m.save(false);
@@ -51,7 +53,7 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "-vm");
 		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "jre");
 	}
-	
+
 //	public void testVMInsideInstall_MacOS() throws Exception {
 //		m = createMinimalConfiguration(TestEclipseDataArea.class.getName(), Constants.OS_MACOSX);
 //		final String expectedRelativePath = "../../../jre";
@@ -78,26 +80,26 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 //		assertNotContent("No absolute JRE path must be present in " + launcherConfigFile, launcherConfigFile, jreLocation.getAbsolutePath());
 //		assertContent("Relative JRE path must be present in " + launcherConfigFile, launcherConfigFile, expectedRelativePath);
 //	}
-
+	@Test
 	public void testVMOutsideInstall() throws FrameworkAdminRuntimeException, IOException {
-		//Test VM path in the install folder
+		// Test VM path in the install folder
 		File jreLocation = new File(m.getLauncherData().getLauncher().getParentFile(), "../../jre").getCanonicalFile();
 		m.getLauncherData().setJvm(jreLocation);
 		m.save(false);
-		assertContent(getLauncherConfigFile(), jreLocation.getAbsolutePath().replace('\\','/'));
+		assertContent(getLauncherConfigFile(), jreLocation.getAbsolutePath().replace('\\', '/'));
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), "-vm");
 		assertContent(m.getLauncherData().getLauncherConfigLocation(), "jre");
 		assertNotContent(m.getLauncherData().getLauncherConfigLocation(), "file:");
 		m.load();
 		assertEquals(jreLocation, m.getLauncherData().getJvm());
 	}
-
+	@Test
 	public void test269502() throws FrameworkAdminRuntimeException, IOException {
-		//Test VM path in the install folder
+		// Test VM path in the install folder
 		String winPath = "c:/ibm5sr3/bin";
 		String linuxPath = "/Users/Pascal/ibm5sr3/bin";
-		String chosenPath = Platform.getOS().equals("win32") ? winPath : linuxPath; 
-		File jreLocation =  new File(chosenPath);
+		String chosenPath = Platform.getOS().equals("win32") ? winPath : linuxPath;
+		File jreLocation = new File(chosenPath);
 		m.getLauncherData().setJvm(jreLocation);
 		m.save(false);
 		assertContent(getLauncherConfigFile(), chosenPath);
@@ -125,13 +127,13 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 //	}
 
 	/**
-	 * But 282303: 
-	 * Have -vm ../jre as program arguments.
-	 * See them vanish during the save operation of the manipulator 
+	 * But 282303: Have -vm ../jre as program arguments. See them vanish during the
+	 * save operation of the manipulator
 	 * 
 	 * @throws FrameworkAdminRuntimeException
 	 * @throws IOException
 	 */
+	@Test
 	public void test282303() throws FrameworkAdminRuntimeException, IOException {
 		assertNotContent(getLauncherConfigFile(), "-vm");
 		assertNotContent(getLauncherConfigFile(), "../mylocation");
@@ -144,9 +146,9 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 		m.load();
 		String[] args = m.getLauncherData().getProgramArgs();
 		boolean found = false;
-		for(int i = 0; i < args.length; i++) {
-			if("-vm".equals(args[i]) && i != args.length - 1) {
-				if("../mylocation".equals(args[++i])) {
+		for (int i = 0; i < args.length; i++) {
+			if ("-vm".equals(args[i]) && i != args.length - 1) {
+				if ("../mylocation".equals(args[++i])) {
 					found = true;
 					break;
 				}

@@ -20,20 +20,19 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class NoConfigurationValueInEclipseIni extends FwkAdminAndSimpleConfiguratorTest {
 
-	public NoConfigurationValueInEclipseIni(String name) {
-		super(name);
-	}
-
+	@Test
 	public void testAbsenceOfConfigurationInEclipseINI() throws Exception {
 		createMinimalConfiguration(NoConfigurationValueInEclipseIni.class.getName());
 		File launcherIni = new File(getInstallFolder(), getLauncherName() + ".ini");
 		assertNotContent(launcherIni, "-configuration");
 	}
 
+	@Test
 	public void testPresenceOfConfigurationInEclipseINI() throws FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();

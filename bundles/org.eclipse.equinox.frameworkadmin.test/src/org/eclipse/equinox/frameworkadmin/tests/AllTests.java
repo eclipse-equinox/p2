@@ -15,45 +15,44 @@
 package org.eclipse.equinox.frameworkadmin.tests;
 
 
-import junit.framework.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
  * Performs all automated director tests.
  */
-public class AllTests extends TestCase {
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(Bug196525.class);
-		suite.addTestSuite(Bug258370.class);
-		suite.addTestSuite(CleanupTest.class);
-		suite.addTestSuite(FrameworkExtensionTest.class);
-		suite.addTestSuite(LauncherConfigLocationTest.class);
-		suite.addTestSuite(LauncherDataTest.class);
-		suite.addTestSuite(ManipulatorTests.class);
-		suite.addTestSuite(NoConfigurationValueInEclipseIni.class);
-		suite.addTestSuite(NoRenamingLauncherIni.class);
-		suite.addTestSuite(OSGiVersionChange.class);
-		suite.addTestSuite(ParserUtilsTest.class);
-		suite.addTestSuite(ReaderTest1.class);
-		suite.addTestSuite(ReaderTest2.class);
-		suite.addTestSuite(ReaderTest3.class);
-		suite.addTestSuite(ReaderTest4.class);
-		suite.addTestSuite(ReaderTest5.class);
-		suite.addTestSuite(ReaderTestBug267850.class);
-		suite.addTestSuite(ReaderTestBug285935.class);
-		suite.addTestSuite(RelativePathTest.class);
-		suite.addTestSuite(RemovingABundle.class);
-		suite.addTestSuite(RemovingAllBundles.class);
-		suite.addTestSuite(RenamingLauncherIni.class);
-		suite.addTestSuite(SharedConfigurationTest.class);
-		suite.addTestSuite(SimpleConfiguratorComingAndGoing.class);
-		suite.addTestSuite(SimpleConfiguratorTest.class);
-		suite.addTestSuite(TestEclipseDataArea.class);
-		suite.addTestSuite(TestRunningInstance.class);
-		suite.addTestSuite(TestVMArg.class);
-		suite.addTestSuite(UtilsTest.class);
-		return suite;
-	}
-
+@RunWith(Suite.class)				
+@Suite.SuiteClasses({	
+	Bug196525.class,
+	Bug258370.class,
+	CleanupTest.class,
+	FrameworkExtensionTest.class,
+	LauncherConfigLocationTest.class,
+	LauncherDataTest.class,
+	ManipulatorTests.class,
+	NoConfigurationValueInEclipseIni.class,
+	NoRenamingLauncherIni.class,
+	OSGiVersionChange.class,
+	ParserUtilsTest.class,
+	ReaderTest1.class,
+	ReaderTest2.class,
+	ReaderTest3.class,
+	ReaderTest4.class,
+	ReaderTest5.class,
+	ReaderTestBug267850.class,
+	ReaderTestBug285935.class,
+	RelativePathTest.class,
+	RemovingABundle.class,
+	RemovingAllBundles.class,
+	RenamingLauncherIni.class,
+	SharedConfigurationTest.class,
+	SimpleConfiguratorComingAndGoing.class,
+	SimpleConfiguratorTest.class,
+	TestEclipseDataArea.class,
+	TestRunningInstance.class,
+	TestVMArg.class,
+	UtilsTest.class
+})
+public class AllTests {
+	// SuiteClasses
 }

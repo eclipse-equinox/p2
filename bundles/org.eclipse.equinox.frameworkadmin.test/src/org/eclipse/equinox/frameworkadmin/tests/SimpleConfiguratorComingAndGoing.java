@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertFalse;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,23 +22,25 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class SimpleConfiguratorComingAndGoing extends FwkAdminAndSimpleConfiguratorTest {
 	Manipulator m = null;
 
-	public SimpleConfiguratorComingAndGoing(String name) {
-		super(name);
-	}
-
 	@Override
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		super.setUp();
 		m = createMinimalConfiguration(SimpleConfiguratorComingAndGoing.class.getName());
 	}
 
+	@Test
 	public void testWithMutipleBundles() throws IOException, BundleException, URISyntaxException {
-		BundleInfo bi = new BundleInfo(URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2, false);
+		BundleInfo bi = new BundleInfo(
+				URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2,
+				false);
 		m.getConfigData().addBundle(bi);
 		m.save(false);
 
@@ -48,7 +52,7 @@ public class SimpleConfiguratorComingAndGoing extends FwkAdminAndSimpleConfigura
 		}
 		m.save(false);
 
-		assertNothing(getBundleTxt());
+		assertFalse(getBundleTxt().exists());
 		assertContent(getConfigIni(), "bundle_1");
 		assertContent(getConfigIni(), "org.eclipse.osgi");
 
@@ -61,10 +65,12 @@ public class SimpleConfiguratorComingAndGoing extends FwkAdminAndSimpleConfigura
 		try {
 			newManipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
-		newManipulator.getConfigData().addBundle(new BundleInfo(URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true));
+		newManipulator.getConfigData().addBundle(new BundleInfo(URIUtil.toURI(FileLocator.resolve(
+				Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1,
+				true));
 		newManipulator.save(false);
 
 		assertContent(getBundleTxt(), "org.eclipse.osgi");

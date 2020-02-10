@@ -13,83 +13,67 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertArrayEquals;
+
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
+import org.junit.Test;
 
 /**
  * @since 1.0
  */
-public class LauncherDataTest extends TestCase {
+public class LauncherDataTest {
 
-	/*
-	 * Constructor for the class.
-	 */
-	public LauncherDataTest(String name) {
-		super(name);
-	}
-
+	@Test
 	public void testRemoveProgramArg() {
 		LauncherData data = new LauncherData("equinox", "1.0", "eclipse", "1.0");
-		data.setProgramArgs(new String[] {"-console", "-startup", "foo"});
+		data.setProgramArgs(new String[] { "-console", "-startup", "foo" });
 		data.removeProgramArg("-startup");
-		assertEquals("1.0", new String[] {"-console"}, data.getProgramArgs());
+		assertArrayEquals("1.0", new String[] { "-console" }, data.getProgramArgs());
 
 		data.setProgramArgs(null);
-		data.setProgramArgs(new String[] {"-console", "-startup", "foo", "-bar"});
+		data.setProgramArgs(new String[] { "-console", "-startup", "foo", "-bar" });
 		data.removeProgramArg("-startup");
-		assertEquals("2.0", new String[] {"-console", "-bar"}, data.getProgramArgs());
+		assertArrayEquals("2.0", new String[] { "-console", "-bar" }, data.getProgramArgs());
 
 		data.setProgramArgs(null);
-		data.setProgramArgs(new String[] {"-startup", "foo"});
+		data.setProgramArgs(new String[] { "-startup", "foo" });
 		data.removeProgramArg("-startup");
-		assertEquals("3.0", new String[0], data.getProgramArgs());
+		assertArrayEquals("3.0", new String[0], data.getProgramArgs());
 
 		data.setProgramArgs(null);
-		data.setProgramArgs(new String[] {"-console", "-startup", "foo", "bar"});
+		data.setProgramArgs(new String[] { "-console", "-startup", "foo", "bar" });
 		data.removeProgramArg("-startup");
-		assertEquals("4.0", new String[] {"-console"}, data.getProgramArgs());
+		assertArrayEquals("4.0", new String[] { "-console" }, data.getProgramArgs());
 
 		data.setProgramArgs(null);
-		data.setProgramArgs(new String[] {"-console", "-startup", "foo", "bar", "-xxx"});
+		data.setProgramArgs(new String[] { "-console", "-startup", "foo", "bar", "-xxx" });
 		data.removeProgramArg("-startup");
-		assertEquals("5.0", new String[] {"-console", "-xxx"}, data.getProgramArgs());
+		assertArrayEquals("5.0", new String[] { "-console", "-xxx" }, data.getProgramArgs());
 
-		// arg which doesn't start with a dash - dont' consume anything but that specific arg
+		// arg which doesn't start with a dash - dont' consume anything but that
+		// specific arg
 		data.setProgramArgs(null);
-		data.setProgramArgs(new String[] {"-console", "-startup", "foo", "bar", "-xxx"});
+		data.setProgramArgs(new String[] { "-console", "-startup", "foo", "bar", "-xxx" });
 		data.removeProgramArg("foo");
-		assertEquals("6.0", new String[] {"-console", "-startup", "foo", "bar", "-xxx"}, data.getProgramArgs());
+		assertArrayEquals("6.0", new String[] { "-console", "-startup", "foo", "bar", "-xxx" }, data.getProgramArgs());
 
 		// non-matching arg
 		data.setProgramArgs(null);
-		data.setProgramArgs(new String[] {"-console", "-startup", "foo", "bar", "-xxx"});
+		data.setProgramArgs(new String[] { "-console", "-startup", "foo", "bar", "-xxx" });
 		data.removeProgramArg("zzz");
-		assertEquals("7.0", new String[] {"-console", "-startup", "foo", "bar", "-xxx"}, data.getProgramArgs());
+		assertArrayEquals("7.0", new String[] { "-console", "-startup", "foo", "bar", "-xxx" }, data.getProgramArgs());
 
 		// empty string
 		data.setProgramArgs(null);
-		data.setProgramArgs(new String[] {"-console", "-startup", "foo", "bar", "-xxx"});
+		data.setProgramArgs(new String[] { "-console", "-startup", "foo", "bar", "-xxx" });
 		data.removeProgramArg("foo");
-		assertEquals("8.0", new String[] {"-console", "-startup", "foo", "bar", "-xxx"}, data.getProgramArgs());
+		assertArrayEquals("8.0", new String[] { "-console", "-startup", "foo", "bar", "-xxx" }, data.getProgramArgs());
 
 		// just whitespace
 		data.setProgramArgs(null);
-		data.setProgramArgs(new String[] {"-console", "-startup", "foo", "bar", "-xxx"});
+		data.setProgramArgs(new String[] { "-console", "-startup", "foo", "bar", "-xxx" });
 		data.removeProgramArg(" ");
-		assertEquals("9.0", new String[] {"-console", "-startup", "foo", "bar", "-xxx"}, data.getProgramArgs());
+		assertArrayEquals("9.0", new String[] { "-console", "-startup", "foo", "bar", "-xxx" }, data.getProgramArgs());
 
-	}
-
-	/*
-	 * Compare the give 2 arrays and assert whether or not they should be considered equal.
-	 */
-	public static void assertEquals(String message, String[] one, String[] two) {
-		if (one == null)
-			assertNull(message, two);
-		if (two == null)
-			fail(message);
-		assertEquals(message, one.length, two.length);
-		for (int i = 0; i < one.length; i++)
-			assertEquals(message, one[i], two[i]);
 	}
 }

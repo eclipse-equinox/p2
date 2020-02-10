@@ -13,24 +13,25 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import java.net.URI;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class SimpleConfiguratorTest extends AbstractFwkAdminTest {
 
-	public SimpleConfiguratorTest(String name) {
-		super(name);
-	}
-
-	public void testConfigFiles() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
+	@Test
+	public void testConfigFiles() throws IllegalStateException, FrameworkAdminRuntimeException, IOException,
+			BundleException, URISyntaxException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
@@ -45,11 +46,17 @@ public class SimpleConfiguratorTest extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
-		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1",
+				URIUtil.toURI(FileLocator
+						.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))),
+				0, true);
+		BundleInfo configuratorBi = new BundleInfo(
+				"org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator
+						.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))),
+				1, true);
 
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
@@ -64,20 +71,22 @@ public class SimpleConfiguratorTest extends AbstractFwkAdminTest {
 		assertContent(configINI, "org.eclipse.equinox.simpleconfigurator");
 	}
 
+	@Test
 	public void testBundleInfoEquals() throws Exception {
 		BundleInfo b1 = new BundleInfo("org.foo", "3.1.0", new URI("plugins/org.foo_3.1.0"), -1, false);
 		BundleInfo b2 = new BundleInfo("org.foo", "3.1.0", null, -1, false);
-		BundleInfo b3 = new BundleInfo("org.foo", "3.1.0", URIUtil.fromString("C:/sp ace/plugins/org.foo_3.1.0"), -1, false);
-		
+		BundleInfo b3 = new BundleInfo("org.foo", "3.1.0", URIUtil.fromString("C:/sp ace/plugins/org.foo_3.1.0"), -1,
+				false);
+
 		assertEquals(b1, b2);
 		assertFalse(b1.equals(b3));
-		
+
 		b1.setBaseLocation(URIUtil.fromString("C:/sp ace"));
 		assertEquals(b1, b3);
-		
+
 		b3.setBaseLocation(URIUtil.fromString("C:/sp ace"));
 		assertEquals(b1, b3);
-		
+
 		b3.setVersion(null);
 		b1.setVersion("0.0.0");
 		assertEquals(b1, b3);

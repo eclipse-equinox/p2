@@ -13,21 +13,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.net.URI;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.osgi.service.environment.Constants;
+import org.junit.Test;
 
 public class UtilsTest extends AbstractFwkAdminTest {
 
-	/**
-	 * @param name
-	 */
-	public UtilsTest(String name) {
-		super(name);
-	}
-
+	@Test
 	public void test_getEclipseRealLocation() throws Exception {
 		File installFolder = Activator.getContext().getDataFile("212361");
 
@@ -41,21 +38,25 @@ public class UtilsTest extends AbstractFwkAdminTest {
 		foo_64.mkdirs();
 		fooWithSpaces.mkdirs();
 
-		Manipulator manipulator = getFrameworkManipulator(new File(installFolder, "configuration"), new File(installFolder, "eclipse"));
+		Manipulator manipulator = getFrameworkManipulator(new File(installFolder, "configuration"),
+				new File(installFolder, "eclipse"));
 
-		
 		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo"), foo2.toURI());
 		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo_1.2.3.abc"), foo1.toURI());
 		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo.x86_64"), foo_64.toURI());
-			
-		assertEquals(FileUtils.getEclipseRealLocation(manipulator, plugins.toURI().toString() + "alotof/s%20p%20a%20c%20e%20s/org.foo_1.2.3.abc/"), fooWithSpaces.toURI());
+
+		assertEquals(
+				FileUtils.getEclipseRealLocation(manipulator,
+						plugins.toURI().toString() + "alotof/s%20p%20a%20c%20e%20s/org.foo_1.2.3.abc/"),
+				fooWithSpaces.toURI());
 
 		File other = new File(installFolder, "other/org.foo_1.2.4");
 		other.mkdirs();
 		manipulator.getConfigData().setProperty("osgi.syspath", other.getParentFile().getAbsolutePath());
 		assertEquals(FileUtils.getEclipseRealLocation(manipulator, "org.foo"), other.toURI());
 	}
-	
+
+	@Test
 	public void testMacRealLocation() throws Exception {
 		File installFolder = Activator.getContext().getDataFile("280007/Eclipse.app/Contents/Eclipse/");
 
@@ -63,7 +64,8 @@ public class UtilsTest extends AbstractFwkAdminTest {
 		File foo = new File(plugins, "org.foo_1.2.3.abc");
 		foo.mkdirs();
 
-		Manipulator manipulator = getFrameworkManipulator(new File(installFolder, "configuration"), new File(installFolder, "../MacOS/eclipse"));
+		Manipulator manipulator = getFrameworkManipulator(new File(installFolder, "configuration"),
+				new File(installFolder, "../MacOS/eclipse"));
 		manipulator.getLauncherData().setOS(Constants.OS_MACOSX);
 		URI res = FileUtils.getEclipseRealLocation(manipulator, "org.foo");
 		assertEquals(res, foo.toURI());

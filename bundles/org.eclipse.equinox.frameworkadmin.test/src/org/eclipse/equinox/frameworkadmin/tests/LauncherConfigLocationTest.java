@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,14 +22,12 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class LauncherConfigLocationTest extends AbstractFwkAdminTest {
 
-	public LauncherConfigLocationTest(String name) {
-		super(name);
-	}	
-	
+	@Test
 	public void testCustomLauncherConfig() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
@@ -46,9 +46,9 @@ public class LauncherConfigLocationTest extends AbstractFwkAdminTest {
 		launcherData.setLauncher(new File(installFolder, launcherName));
 		
 		File defaultlaunchConfig = new File(installFolder, launcherName + ".ini");
-		assertEquals(defaultlaunchConfig.exists(), false);
+		assertFalse(defaultlaunchConfig.exists());
 		File launchConfig = new File(installFolder, "mylaunch.ini");
-		assertEquals(launchConfig.exists(), false);
+		assertFalse(launchConfig.exists());
 		launcherData.setLauncherConfigLocation(launchConfig);
 		try {
 			manipulator.load();
@@ -64,7 +64,7 @@ public class LauncherConfigLocationTest extends AbstractFwkAdminTest {
 
 		manipulator.save(false);
 
-		assertEquals(launchConfig.exists(), true);
-		assertEquals(defaultlaunchConfig.exists(), false);
+		assertTrue(launchConfig.exists());
+		assertFalse(defaultlaunchConfig.exists());
 	}
 }

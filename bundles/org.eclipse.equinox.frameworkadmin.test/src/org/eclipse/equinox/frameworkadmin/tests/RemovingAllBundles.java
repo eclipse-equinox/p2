@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,15 +23,14 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class RemovingAllBundles extends AbstractFwkAdminTest {
 
-	public RemovingAllBundles(String name) {
-		super(name);
-	}
-
-	public void testConfigFiles() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
+	@Test
+	public void testConfigFiles() throws IllegalStateException, FrameworkAdminRuntimeException, IOException,
+			BundleException, URISyntaxException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
@@ -43,11 +45,17 @@ public class RemovingAllBundles extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
-		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1",
+				URIUtil.toURI(FileLocator
+						.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))),
+				0, true);
+		BundleInfo configuratorBi = new BundleInfo(
+				"org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator
+						.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))),
+				1, true);
 
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
@@ -55,7 +63,7 @@ public class RemovingAllBundles extends AbstractFwkAdminTest {
 		manipulator.save(false);
 
 		File fooINI = new File(installFolder, "foo.ini");
-		assertEquals(fooINI.exists(), true);
+		assertTrue(fooINI.exists());
 
 		Manipulator m2 = fwkAdmin.getManipulator();
 
@@ -66,7 +74,7 @@ public class RemovingAllBundles extends AbstractFwkAdminTest {
 		try {
 			m2.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
 		BundleInfo[] infos = m2.getConfigData().getBundles();
@@ -75,6 +83,6 @@ public class RemovingAllBundles extends AbstractFwkAdminTest {
 		}
 		m2.save(false);
 
-		assertEquals(new File(configurationFolder + "/org.eclipse.equinox.simpleconfigurator", "bundles.info").exists(), false);
+		assertFalse(new File(configurationFolder + "/org.eclipse.equinox.simpleconfigurator", "bundles.info").exists());
 	}
 }

@@ -13,10 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class ReaderTest2 extends AbstractFwkAdminTest {
@@ -24,24 +28,22 @@ public class ReaderTest2 extends AbstractFwkAdminTest {
 	private File configurationFolder = null;
 	private String launcherName = "eclipse";
 
-	public ReaderTest2(String name) {
-		super(name);
-	}
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		startSimpleConfiguratorManipulator();
 
 		installFolder = Activator.getContext().getDataFile(ReaderTest2.class.getName());
 		configurationFolder = new File(installFolder, "conf");
-		writeEclipseIni(new File(installFolder, "eclipse.ini"), new String[] { "-configuration", configurationFolder.getAbsolutePath() });
+		writeEclipseIni(new File(installFolder, "eclipse.ini"),
+				new String[] { "-configuration", configurationFolder.getAbsolutePath() });
 		Properties properties = new Properties();
 		properties.setProperty("foo", "bar");
 		writeConfigIni(new File(configurationFolder, "config.ini"), properties);
 	}
 
-	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
+	@Test
+	public void testConfigContent()
+			throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 		LauncherData launcherData = manipulator.getLauncherData();
@@ -49,10 +51,10 @@ public class ReaderTest2 extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
-		
-		assertEquals(new File(installFolder, "conf"), manipulator.getLauncherData().getFwConfigLocation());  
+
+		assertEquals(new File(installFolder, "conf"), manipulator.getLauncherData().getFwConfigLocation());
 		assertEquals("bar", manipulator.getConfigData().getProperty("foo"));
 	}
 

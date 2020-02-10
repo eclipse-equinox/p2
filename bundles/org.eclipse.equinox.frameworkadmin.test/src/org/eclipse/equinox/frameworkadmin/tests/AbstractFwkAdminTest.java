@@ -13,29 +13,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.fail;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.junit.After;
+import org.junit.Before;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
-public abstract class AbstractFwkAdminTest extends TestCase {
+public abstract class AbstractFwkAdminTest {
 	private ServiceTracker<Object, FrameworkAdmin> fwAdminTracker;
 	private File testFolder;
-
-	public AbstractFwkAdminTest(String name) {
-		super(name);
-	}
 
 	/**
 	 * Copy an input stream to an output stream.
@@ -122,10 +117,8 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		return testFolder;
 	}
 
-	@Override
-	protected void runTest() throws Throwable {
-		super.runTest();
-
+	@Before
+	public void runTest() throws Throwable {
 		//clean up after success
 		if (testFolder != null && testFolder.exists()) {
 			delete(testFolder);
@@ -133,31 +126,11 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		}
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 		if (fwAdminTracker != null) {
 			fwAdminTracker.close();
 		}
-	}
-
-	public void assertIsFile(File file) {
-		if (!file.exists())
-			fail("File: " + file.toString() + " can't be found.");
-		if (!file.isFile())
-			fail("File: " + file.toString() + " is expected to be a file.");
-	}
-
-	public void assertIsDirectory(File file) {
-		if (!file.exists())
-			fail("Directory: " + file.toString() + " can't be found.");
-		if (!file.isDirectory())
-			fail("Directory: " + file.toString() + " is expected to be a directory.");
-	}
-
-	public void assertNothing(File file) {
-		if (file.exists())
-			fail("No file or directory should be there: " + file);
 	}
 
 	public void assertNotContent(File file, String search) {
@@ -190,20 +163,6 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		}
 	}
 
-	public void assertIniFileNotContain(File file, String argument, String value) {
-		List<String> args = null;
-		try {
-			args = FileUtils.loadFile(file);
-		} catch (IOException e) {
-			fail("Can't read file " + file);
-		}
-		String tmp = ParserUtils.getValueForArgument(argument, args);
-		if (tmp == null)
-			return;
-
-		assertTrue(tmp.indexOf(value) == -1);
-	}
-
 	private String getProperty(File file, String property) {
 		Properties p = new Properties();
 		try (FileInputStream fis = new FileInputStream(file)) {
@@ -234,18 +193,6 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		int index = value.indexOf(text);
 		if (index != -1)
 			fail(text + " found in property:" + property + " for file: " +file);
-	}
-
-	public void assertEquals(String[] array1, String[] array2) {
-		if (array1 == null || array2 == null) {
-			if (array1 == array2)
-				return;
-			fail(Arrays.toString(array1) + " not equal to " + Arrays.toString(array2));
-		}
-		assertEquals(array1.length, array2.length);
-		for (int i = 0; i < array1.length; i++) {
-			assertEquals(array1[i], array2[i]);
-		}
 	}
 
 	public void assertContent(File file, String... search) {
@@ -283,18 +230,6 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			fail("Bundle: " + SIMPLECONFIGURATOR_MANIPULATOR + " is required for this test");
 		try {
 			manipulatorBundle.start();
-		} catch (BundleException e) {
-			fail("Exception while starting up " + SIMPLECONFIGURATOR_MANIPULATOR + ' ' + e.getMessage());
-		}
-	}
-
-	public void stopSimpleConfiguratorManipulator() {
-		final String SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator";
-		Bundle manipulatorBundle = Platform.getBundle(SIMPLECONFIGURATOR_MANIPULATOR);
-		if (manipulatorBundle == null)
-			return;
-		try {
-			manipulatorBundle.stop();
 		} catch (BundleException e) {
 			fail("Exception while starting up " + SIMPLECONFIGURATOR_MANIPULATOR + ' ' + e.getMessage());
 		}

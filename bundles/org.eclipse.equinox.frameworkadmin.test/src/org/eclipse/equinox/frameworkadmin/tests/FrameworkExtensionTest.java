@@ -17,14 +17,12 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.junit.Test;
 import org.osgi.framework.Constants;
 
 public class FrameworkExtensionTest extends FwkAdminAndSimpleConfiguratorTest {
 
-	public FrameworkExtensionTest(String name) {
-		super(name);
-	}
-	
+	@Test
 	public void testAddRemoveFrameworkExtension() throws Exception  {
 		Manipulator manipulator = createMinimalConfiguration(FrameworkExtensionTest.class.getName());
 		BundleInfo bundleInfo = new BundleInfo("dummy.frameworkextension", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/dummy.frameworkextension_1.0.0.jar"))), 4, false);

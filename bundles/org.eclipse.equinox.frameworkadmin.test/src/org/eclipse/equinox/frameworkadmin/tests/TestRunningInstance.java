@@ -13,28 +13,29 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.junit.Test;
 import org.osgi.framework.*;
 
 public class TestRunningInstance extends AbstractFwkAdminTest {
 
-	public TestRunningInstance(String name) {
-		super(name);
-	}
-
+	@Test
 	public void testRunningInstance() throws BundleException {
-		//TODO Commented out due to NPE failure on Windows on test machines only
+		// TODO Commented out due to NPE failure on Windows on test machines only
 		if (Platform.OS_WIN32.equals(Platform.getOS()))
 			return;
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator m = fwkAdmin.getRunningManipulator();
 		BundleInfo[] infos = m.getConfigData().getBundles();
-		
+
 		Bundle[] bundles = Activator.getContext().getBundles();
-		
+
 		assertEquals(bundles.length, infos.length);
 		for (Bundle bundle : bundles) {
 			boolean found = false;
@@ -46,7 +47,7 @@ public class TestRunningInstance extends AbstractFwkAdminTest {
 			}
 		}
 	}
-	
+
 	private boolean same(BundleInfo info, Bundle bundle) {
 		if (info.getSymbolicName().equals(bundle.getSymbolicName())) {
 			if (new Version(bundle.getHeaders().get(Constants.BUNDLE_VERSION)).equals(new Version(info.getVersion())))

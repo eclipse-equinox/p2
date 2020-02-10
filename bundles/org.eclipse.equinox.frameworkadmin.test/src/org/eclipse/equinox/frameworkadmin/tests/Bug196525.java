@@ -20,6 +20,8 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.osgi.framework.BundleException;
 
 public class Bug196525 extends AbstractFwkAdminTest {
@@ -29,14 +31,10 @@ public class Bug196525 extends AbstractFwkAdminTest {
 	private File bundleTXT;
 	private File configINI;
 
-	public Bug196525(String name) {
-		super(name);
-	}
-
-	@Override
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		startSimpleConfiguratorManipulator();
-		//create a configuration with osgi and simpleconfigurator in it
+		// create a configuration with osgi and simpleconfigurator in it
 
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
@@ -53,11 +51,17 @@ public class Bug196525 extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
-		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1",
+				URIUtil.toURI(FileLocator
+						.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))),
+				0, true);
+		BundleInfo configuratorBi = new BundleInfo(
+				"org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator
+						.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))),
+				1, true);
 
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
@@ -65,7 +69,9 @@ public class Bug196525 extends AbstractFwkAdminTest {
 		manipulator.save(false);
 	}
 
-	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
+	@Test
+	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException,
+			BundleException, URISyntaxException {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
@@ -75,16 +81,16 @@ public class Bug196525 extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
-		try {
-			assertContains("1.0", manipulator.getConfigData().getBundles(), URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))));
-			assertContains("2.0", manipulator.getConfigData().getBundles(), URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))));
-		} catch (URISyntaxException e) {
-			fail("Unexpected failure while creating URI");
-		}
-		BundleInfo bundle1Bi = new BundleInfo("bundle_1", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2, true);
+		assertContains("1.0", manipulator.getConfigData().getBundles(), URIUtil.toURI(
+				FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))));
+		assertContains("2.0", manipulator.getConfigData().getBundles(), URIUtil.toURI(FileLocator.resolve(
+				Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))));
+		BundleInfo bundle1Bi = new BundleInfo("bundle_1", "1.0.0",
+				URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2,
+				true);
 
 		manipulator.getConfigData().addBundle(bundle1Bi);
 

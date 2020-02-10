@@ -13,74 +13,72 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.junit.Before;
+import org.junit.Test;
 
 public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
-
-	public CleanupTest(String name) {
-		super(name);
-	}
 
 	Manipulator m = null;
 
 	@Override
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		super.setUp();
 		m = createMinimalConfiguration(CleanupTest.class.getName());
 	}
 
-	public void testSimpleConfiguratorRemoval() {
+	@Test
+	public void testSimpleConfiguratorRemoval() throws FrameworkAdminRuntimeException, IOException {
 		BundleInfo[] bis = m.getConfigData().getBundles();
 		for (BundleInfo bi : bis) {
 			if (bi.getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator")) {
 				m.getConfigData().removeBundle(bi);
 			}
 		}
-		try {
-			m.save(false);
-		} catch (IOException e) {
-			fail("Error while saving");
-		}
-		assertNothing(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator"));
-		assertIsDirectory(getConfigurationFolder());
+		m.save(false);
+		assertFalse(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator").exists());
+		assertTrue(getConfigurationFolder().exists());
+		assertTrue(getConfigurationFolder().isDirectory());
 
-		//Now remove osgi
+		// Now remove osgi
 		bis = m.getConfigData().getBundles();
 		for (BundleInfo bi : bis) {
 			if (bi.getSymbolicName().equals("org.eclipse.osgi")) {
 				m.getConfigData().removeBundle(bi);
 			}
 		}
-		try {
-			m.save(false);
-		} catch (IOException e) {
-			fail("Error while saving");
-		}
-		assertNothing(getConfigurationFolder());
-		assertNothing(new File(getInstallFolder(), getLauncherName() + ".ini"));
+		m.save(false);
+		assertFalse(getConfigurationFolder().exists());
+		assertFalse(new File(getInstallFolder(), getLauncherName() + ".ini").exists());
 	}
 
-	public void testOSGiRemoval() {
+	@Test
+	public void testOSGiRemoval() throws FrameworkAdminRuntimeException, IOException {
 		BundleInfo[] bis = m.getConfigData().getBundles();
 		for (BundleInfo bi : bis) {
 			if (bi.getSymbolicName().equals("org.eclipse.osgi")) {
 				m.getConfigData().removeBundle(bi);
 			}
 		}
-		try {
-			m.save(false);
-		} catch (IOException e) {
-			fail("Error while saving");
-		}
-		assertIsDirectory(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator"));
-		assertIsDirectory(getConfigurationFolder());
-		assertNotContent(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator/bundles.info"), "org.eclipse.osgi");
+		m.save(false);
+		File confFile = new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator");
+		assertTrue(confFile.exists());
+		assertTrue(confFile.isDirectory());
+		assertTrue(getConfigurationFolder().exists());
+		assertTrue(getConfigurationFolder().isDirectory());
+		assertNotContent(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator/bundles.info"),
+				"org.eclipse.osgi");
 
 		bis = m.getConfigData().getBundles();
 		for (BundleInfo bi : bis) {
@@ -88,17 +86,16 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 				m.getConfigData().removeBundle(bi);
 			}
 		}
-		try {
-			m.save(false);
-		} catch (IOException e) {
-			fail("Error while saving");
-		}
-		assertNothing(getConfigurationFolder());
-		assertNothing(new File(getInstallFolder(), getLauncherName() + ".ini"));
+		m.save(false);
+		assertFalse(getConfigurationFolder().exists());
+		assertFalse(new File(getInstallFolder(), getLauncherName() + ".ini").exists());
 	}
 
+	@Test
 	public void testWithMutipleBundles() throws IOException, URISyntaxException {
-		BundleInfo bi = new BundleInfo(URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2, false);
+		BundleInfo bi = new BundleInfo(
+				URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2,
+				false);
 		m.getConfigData().addBundle(bi);
 		m.save(false);
 
@@ -110,7 +107,7 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 		}
 		m.save(false);
 
-		assertNothing(getBundleTxt());
+		assertFalse(getBundleTxt().exists());
 		assertContent(getConfigIni(), "bundle_1");
 	}
 }

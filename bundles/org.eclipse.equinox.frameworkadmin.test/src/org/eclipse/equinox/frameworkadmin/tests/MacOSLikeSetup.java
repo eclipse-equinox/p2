@@ -13,6 +13,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
@@ -20,21 +23,23 @@ import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.service.environment.Constants;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 import org.osgi.framework.BundleException;
 
 public class MacOSLikeSetup extends FwkAdminAndSimpleConfiguratorTest {
+	@Rule
+	public TestName name = new TestName();
 
-	public MacOSLikeSetup(String name) {
-		super(name);
-	}
-
+	@Test
 	public void testMacOSSetup() throws FrameworkAdminRuntimeException, IOException, BundleException {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = new File(Activator.getContext().getDataFile(getName()), "Eclipse.app/Contents/Eclipse");
+		File installFolder = new File(Activator.getContext().getDataFile(name.getMethodName()), "Eclipse.app/Contents/Eclipse");
 		File configurationFolder = new File(installFolder, "configuration");
-		File launcherFolder = new File(installFolder, "../MacOS/"); 
+		File launcherFolder = new File(installFolder, "../MacOS/");
 		File launcherName = new File(launcherFolder, "eclipse");
 
 		LauncherData launcherData = manipulator.getLauncherData();
@@ -43,27 +48,35 @@ public class MacOSLikeSetup extends FwkAdminAndSimpleConfiguratorTest {
 		launcherData.setLauncherConfigLocation(new File(installFolder, "eclipse.ini"));
 		launcherData.setOS(Constants.OS_MACOSX);
 
-		//Setup the plugins as they should
+		// Setup the plugins as they should
 		File osgiJar = new File(installFolder, "plugins/org.eclipse.osgi.jar");
 		File scJar = new File(installFolder, "plugins/org.eclipse.equinox.simpleconfigurator.jar");
 		File launcherJar = new File(installFolder, "plugins/org.eclipse.equinox.launcher.jar");
-		copy("OSGi", new File(FileLocator.toFileURL(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).getPath()), osgiJar);
-		copy("SC", new File(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar")).getPath()), scJar);
-		copy("Startup", new File(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.launcher.jar")).getPath()), launcherJar);
-		
+		copy("OSGi", new File(FileLocator
+				.toFileURL(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).getPath()),
+				osgiJar);
+		copy("SC", new File(FileLocator.resolve(
+				Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))
+				.getPath()), scJar);
+		copy("Startup",
+				new File(FileLocator.resolve(
+						Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.launcher.jar"))
+						.getPath()),
+				launcherJar);
+
 		manipulator.getConfigData().addBundle(new BundleInfo(osgiJar.toURI()));
 		manipulator.getConfigData().addBundle(new BundleInfo(scJar.toURI(), 1, true));
 		manipulator.getConfigData().addBundle(new BundleInfo(launcherJar.toURI()));
-		
+
 		manipulator.getLauncherData().addProgramArg(EquinoxConstants.OPTION_STARTUP);
 		manipulator.getLauncherData().addProgramArg(launcherJar.toURI().toString());
-		
+
 		manipulator.getLauncherData().setFwJar(osgiJar);
-		
+
 		try {
 			manipulator.save(false);
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 		File launcherIni = new File(installFolder, "eclipse.ini");
 		assertNotContent(launcherIni, "-configuration");
@@ -72,36 +85,44 @@ public class MacOSLikeSetup extends FwkAdminAndSimpleConfiguratorTest {
 		assertContent(launcherIni, "../Eclipse/plugins/org.eclipse.equinox.launcher.jar");
 		assertNotContent(launcherIni, MacOSLikeSetup.class.getName());
 		assertNotContent(new File(configurationFolder, "config.ini"), MacOSLikeSetup.class.getName());
-		assertTrue("bundles.info missing", new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info").exists());
-		
+		assertTrue("bundles.info missing",
+				new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info").exists());
+
 	}
-	
+
+	@Test
 	public void testMacWithoutStartupOrFw() throws Exception {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = new File(Activator.getContext().getDataFile(getName()), "Eclipse.app/Contents/Eclipse");
+		File installFolder = new File(Activator.getContext().getDataFile(name.getMethodName()), "Eclipse.app/Contents/Eclipse");
 		File configurationFolder = new File(installFolder, "configuration");
-		File launcherFolder = new File(installFolder, "../MacOS/"); 
+		File launcherFolder = new File(installFolder, "../MacOS/");
 		File launcherName = new File(launcherFolder, "eclipse");
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(configurationFolder);
 		launcherData.setLauncher(launcherName);
 		launcherData.setOS(Constants.OS_MACOSX);
-		
+
 		File osgiJar = new File(installFolder, "plugins/org.eclipse.osgi.jar");
 		File scJar = new File(installFolder, "plugins/org.eclipse.equinox.simpleconfigurator.jar");
 		File bundle = new File(installFolder, "plugins/bundle_1");
-		copy("OSGi", new File(FileLocator.toFileURL(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).getPath()), osgiJar);
-		copy("SC", new File(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar")).getPath()), scJar);
-		copy("bundle", new File(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).getPath()), bundle);
-		
+		copy("OSGi", new File(FileLocator
+				.toFileURL(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).getPath()),
+				osgiJar);
+		copy("SC", new File(FileLocator.resolve(
+				Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))
+				.getPath()), scJar);
+		copy("bundle", new File(
+				FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).getPath()),
+				bundle);
+
 		manipulator.getConfigData().addBundle(new BundleInfo(osgiJar.toURI()));
 		manipulator.getConfigData().addBundle(new BundleInfo(scJar.toURI(), 1, true));
 		manipulator.getConfigData().addBundle(new BundleInfo(bundle.toURI()));
 		manipulator.save(false);
-		
+
 		File launcherIni = new File(installFolder, "eclipse.ini");
 		File bundleInfo = new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info");
 		assertFalse(launcherIni.exists());

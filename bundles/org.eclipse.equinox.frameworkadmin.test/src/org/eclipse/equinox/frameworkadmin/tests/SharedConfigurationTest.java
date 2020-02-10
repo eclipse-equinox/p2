@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import static org.junit.Assert.*;
+
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.Properties;
@@ -24,26 +26,30 @@ import org.eclipse.equinox.internal.frameworkadmin.equinox.Log;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.Messages;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.util.NLS;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 import org.osgi.framework.BundleException;
 import org.osgi.service.log.LogService;
 
 public class SharedConfigurationTest extends AbstractFwkAdminTest {
 
 	private static final String BASE_CONFIG_INI_TIMESTAMP = ".baseConfigIniTimestamp";
+	@Rule
+	public TestName name = new TestName();
 
-	public SharedConfigurationTest(String name) {
-		super(name);
-	}
-
-	public void testDefaultConfiguration() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
+	@Test
+	public void testDefaultConfiguration()
+			throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(getName());
+		File installFolder = Activator.getContext().getDataFile(name.getMethodName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
-		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
+		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"),
+				new File(defaultConfigurationFolder, "config.ini"));
 
 		String launcherName = "foo";
 
@@ -54,25 +60,29 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
 		assertEquals("false", manipulator.getConfigData().getProperty("config.shared"));
 		assertEquals("true", manipulator.getConfigData().getProperty("from.parent"));
 	}
 
-	public void testSharedConfiguration() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
+	@Test
+	public void testSharedConfiguration()
+			throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(getName());
+		File installFolder = Activator.getContext().getDataFile(name.getMethodName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
-		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
+		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"),
+				new File(defaultConfigurationFolder, "config.ini"));
 		File userConfigurationFolder = new File(installFolder, "user/configuration");
 		userConfigurationFolder.mkdirs();
-		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/user-config.ini"), new File(userConfigurationFolder, "config.ini"));
+		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/user-config.ini"),
+				new File(userConfigurationFolder, "config.ini"));
 
 		String launcherName = "foo";
 
@@ -83,25 +93,29 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
 		assertEquals("true", manipulator.getConfigData().getProperty("config.shared"));
 		assertEquals("true", manipulator.getConfigData().getProperty("from.parent"));
 	}
 
-	public void testNotSharedConfiguration() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
+	@Test
+	public void testNotSharedConfiguration()
+			throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(getName());
+		File installFolder = Activator.getContext().getDataFile(name.getMethodName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
-		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
+		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"),
+				new File(defaultConfigurationFolder, "config.ini"));
 		File userConfigurationFolder = new File(installFolder, "user/configuration");
 		userConfigurationFolder.mkdirs();
-		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/user-noshare-config.ini"), new File(userConfigurationFolder, "config.ini"));
+		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/user-noshare-config.ini"),
+				new File(userConfigurationFolder, "config.ini"));
 
 		String launcherName = "foo";
 
@@ -112,25 +126,29 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
 		assertEquals("false", manipulator.getConfigData().getProperty("config.shared"));
 		assertEquals(null, manipulator.getConfigData().getProperty("from.parent"));
 	}
 
-	public void testConfigIniTimestamp() throws BundleException, FrameworkAdminRuntimeException, IOException, URISyntaxException {
+	@Test
+	public void testConfigIniTimestamp()
+			throws BundleException, FrameworkAdminRuntimeException, IOException, URISyntaxException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(getName());
+		File installFolder = Activator.getContext().getDataFile(name.getMethodName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
-		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
+		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/config.ini"),
+				new File(defaultConfigurationFolder, "config.ini"));
 		File userConfigurationFolder = new File(installFolder, "user/configuration");
 		userConfigurationFolder.mkdirs();
-		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/user-config.ini"), new File(userConfigurationFolder, "config.ini"));
+		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/user-config.ini"),
+				new File(userConfigurationFolder, "config.ini"));
 
 		String launcherName = "foo";
 
@@ -142,38 +160,57 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 			manipulator.load();
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
-		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))), 0, true);
-		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))), 1, true);
+		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1",
+				URIUtil.toURI(FileLocator
+						.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar"))),
+				0, true);
+		BundleInfo configuratorBi = new BundleInfo(
+				"org.eclipse.equinox.simpleconfigurator", "1.0.0", URIUtil.toURI(FileLocator.resolve(Activator
+						.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar"))),
+				1, true);
 
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
 
 		manipulator.save(false);
 		File baseTimestamp = new File(userConfigurationFolder, BASE_CONFIG_INI_TIMESTAMP);
-		assertIsFile(baseTimestamp);
+		assertTrue(baseTimestamp.exists());
+		assertTrue(baseTimestamp.isFile());
 		assertContent(baseTimestamp, Long.toString(new File(defaultConfigurationFolder, "config.ini").lastModified()));
 	}
 
-	public void testConfigurationIgnoredWhenChanged() throws BundleException, FrameworkAdminRuntimeException, IOException {
+	@Test
+	public void testConfigurationIgnoredWhenChanged()
+			throws BundleException, FrameworkAdminRuntimeException, IOException {
 		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		//setup the files
-		File installFolder = Activator.getContext().getDataFile(getName());
+		// setup the files
+		File installFolder = Activator.getContext().getDataFile(name.getMethodName());
 		File defaultConfigurationFolder = new File(installFolder, "configuration");
 		defaultConfigurationFolder.mkdirs();
-		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/ignoreUserConfig/config.ini"), new File(defaultConfigurationFolder, "config.ini"));
+		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/ignoreUserConfig/config.ini"),
+				new File(defaultConfigurationFolder, "config.ini"));
 		File userConfigurationFolder = new File(installFolder, "user/configuration");
 		userConfigurationFolder.mkdirs();
-		copy("creating shared config.ini", getTestData("", "dataFile/sharedconfiguration/ignoreUserConfig/user-config.ini"), new File(userConfigurationFolder, "config.ini"));
-		
-		//setup the timestamp 
+		copy("creating shared config.ini",
+				getTestData("", "dataFile/sharedconfiguration/ignoreUserConfig/user-config.ini"),
+				new File(userConfigurationFolder, "config.ini"));
+
+		// setup the timestamp
 		Properties p = new Properties();
-		p.setProperty("configIniTimestamp", Long.toString(new File(defaultConfigurationFolder, "config.ini").lastModified() - 10)); //Here we write an outdated timestamp to mimic the fact that the base has changed 
+		p.setProperty("configIniTimestamp",
+				Long.toString(new File(defaultConfigurationFolder, "config.ini").lastModified() - 10)); // Here we write
+																										// an outdated
+																										// timestamp to
+																										// mimic the
+																										// fact that the
+																										// base has
+																										// changed
 		saveProperties(new File(userConfigurationFolder, BASE_CONFIG_INI_TIMESTAMP), p);
 
 		String launcherName = "foo";
@@ -185,7 +222,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
+			// TODO We ignore the framework JAR location not set exception
 		}
 
 		assertNull(manipulator.getConfigData().getProperty("userKey"));
