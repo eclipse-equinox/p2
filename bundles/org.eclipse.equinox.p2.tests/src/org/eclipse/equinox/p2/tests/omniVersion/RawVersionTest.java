@@ -838,7 +838,7 @@ public class RawVersionTest extends VersionTesting {
 	public void testBadDecimalInteger() {
 		assertThrows(IllegalArgumentException.class, () -> Version.create("raw:12af"));
 	}
-
+    @Test
 	public void testUnquotedStringFirstValue() {
 		assertThrows(IllegalArgumentException.class, () -> Version.create("raw:a"));
 	}
