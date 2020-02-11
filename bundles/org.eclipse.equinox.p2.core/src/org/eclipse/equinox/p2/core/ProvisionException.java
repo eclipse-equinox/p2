@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.p2.core.Activator;
 /**
  * A checked exception indicating a recoverable error occurred while provisioning.
  * The status provides a further description of the problem.
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
@@ -34,48 +34,48 @@ public class ProvisionException extends CoreException {
 
 	//Repository status codes [1000-1999]
 	//General repository codes [1000-1099]
-	/** 
+	/**
 	 * Status code constant (value 1000) indicating a repository
 	 * unexpectedly does not exist.
 	 */
 	public static final int REPOSITORY_NOT_FOUND = 1000;
 
-	/** 
+	/**
 	 * Status code constant (value 1001) indicating a repository
 	 * unexpectedly exists.
 	 */
 	public static final int REPOSITORY_EXISTS = 1001;
 
-	/** 
+	/**
 	 * Status code constant (value 1002) indicating a repository
 	 * could not be read
 	 */
 	public static final int REPOSITORY_FAILED_READ = 1002;
 
-	/** 
+	/**
 	 * Status code constant (value 1003) indicating a failure occurred
 	 * while writing to a repository.
 	 */
 	public static final int REPOSITORY_FAILED_WRITE = 1003;
 
-	/** 
+	/**
 	 * Status code constant (value 1004) indicating a repository
 	 * could not be written because it is a read-only repository.
 	 */
 	public static final int REPOSITORY_READ_ONLY = 1004;
 
-	/** 
+	/**
 	 * Status code constant (value 1005) indicating an attempt was
 	 * made to create or access a repository of unknown type.
 	 */
 	public static final int REPOSITORY_UNKNOWN_TYPE = 1005;
-	/** 
+	/**
 	 * Status code constant (value 1006) indicating that a specified
 	 * repository location is not valid.
 	 */
 	public static final int REPOSITORY_INVALID_LOCATION = 1006;
 
-	/** 
+	/**
 	 * Status code constant (value 1007) indicating that there was
 	 * an authentication error while reading a repository
 	 */
@@ -85,13 +85,13 @@ public class ProvisionException extends CoreException {
 
 	//Artifact repository codes [1200-1299]
 
-	/** 
+	/**
 	 * Status code constant (value 1200) indicating an artifact unexpectedly
 	 * does not exist.
 	 */
 	public static final int ARTIFACT_NOT_FOUND = 1200;
 
-	/** 
+	/**
 	 * Status code constant (value 1201) indicating an artifact unexpectedly
 	 * already exists.
 	 */
@@ -121,7 +121,7 @@ public class ProvisionException extends CoreException {
 	}
 
 	/**
-	 * Creates a new exception with the given message and a severity of 
+	 * Creates a new exception with the given message and a severity of
 	 * {@link IStatus#ERROR}.
 	 *
 	 * @param message The human-readable problem message

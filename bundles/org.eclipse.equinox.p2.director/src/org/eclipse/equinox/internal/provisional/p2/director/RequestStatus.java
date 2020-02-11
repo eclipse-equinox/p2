@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others. 
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of

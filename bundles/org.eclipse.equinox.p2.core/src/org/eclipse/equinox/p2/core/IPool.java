@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -22,16 +22,16 @@ package org.eclipse.equinox.p2.core;
  * </p><p>
  * This interface is not intended to be implemented by clients.
  * </p>
- * @noimplement This interface is not intended to be implemented by clients. 
+ * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.1
  */
 public interface IPool<T> {
 
-	/** 
-	 * Returns the first object from this pool which is equal to the given object.  If the pool 
-	 * contains no such object then the object is added to the pool and returned.  If the object is <code>null</code>, 
+	/**
+	 * Returns the first object from this pool which is equal to the given object.  If the pool
+	 * contains no such object then the object is added to the pool and returned.  If the object is <code>null</code>,
 	 * <code>null</code> is returned.
-	 * 
+	 *
 	 * @param newObject the object to add
 	 * @return a shared object that is equal to the given object or <code>null</code>
 	 */

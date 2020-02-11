@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -18,9 +18,9 @@ import java.util.Map;
 
 /**
  * An object pool backed by strong references.  Objects stored in this pool
- * will not be garbage collected as they refer to themselves.  The client is responsible for 
+ * will not be garbage collected as they refer to themselves.  The client is responsible for
  * nulling all references to the pool instance when it is no longer needed so that
- * the contained objects can be garbage collected.  
+ * the contained objects can be garbage collected.
  * <p>
  * If a long lived, memory managed pool is required use {@link org.eclipse.equinox.p2.core.WeakPool}.
  * </p>

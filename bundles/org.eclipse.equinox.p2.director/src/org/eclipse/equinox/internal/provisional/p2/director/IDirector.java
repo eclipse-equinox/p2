@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -20,14 +20,14 @@ import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 /**
- * Directors are responsible for determining what should be done to a given 
- * profile to reshape it as requested. That is, given the current state of a 
- * profile, a description of the desired end state of that profile and metadata 
- * describing the available IUs, a director produces a list of provisioning 
- * operations (e.g., install, update or uninstall) to perform on the related IUs. 
- * Directors are also able to validate profiles and assist in the diagnosis of 
- * configuration errors. Note that directors may range in complexity from 
- * very simple (e.g., reading a list of bundles from a static file) to very complex. 
+ * Directors are responsible for determining what should be done to a given
+ * profile to reshape it as requested. That is, given the current state of a
+ * profile, a description of the desired end state of that profile and metadata
+ * describing the available IUs, a director produces a list of provisioning
+ * operations (e.g., install, update or uninstall) to perform on the related IUs.
+ * Directors are also able to validate profiles and assist in the diagnosis of
+ * configuration errors. Note that directors may range in complexity from
+ * very simple (e.g., reading a list of bundles from a static file) to very complex.
  */
 public interface IDirector {
 
@@ -38,7 +38,7 @@ public interface IDirector {
 
 	/**
 	 * performs the change request with the given context.
-	 * 
+	 *
 	 * @param profileChangeRequest The change request
 	 * @param context The provisioning context used for finding resources
 	 * @param monitor a progress monitor, or <code>null</code> if progress
@@ -48,7 +48,7 @@ public interface IDirector {
 
 	/**
 	 * Reverts the profile to a previous state described in the target revertProfile.
-	 * 
+	 *
 	 * @param profile The profile to revert
 	 * @param revertProfile The profile snapshot state to revert to
 	 * @param context The provisioning context used for finding resources

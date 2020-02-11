@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ public interface IProvisioningAgentProvider {
 
 	/**
 	 * Creates a provisioning agent who metadata is stored at the given location.
-	 * If a <code>null</code> location is provided, the provisioning agent for the 
+	 * If a <code>null</code> location is provided, the provisioning agent for the
 	 * currently running system is returned, if available. If a <code>null</code>
 	 * location is provided and the currently running system has not been provisioned
 	 * by any known agent, <code>null</code> is returned.

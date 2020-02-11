@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Contributors: 
+ * Contributors:
  *   IBM Corporation - initial API and implementation
  *   Daniel Le Berre - Fix in the encoding and the optimization function
  *   Alban Browaeys - Optimized string concatenation in bug 251357
@@ -82,7 +82,7 @@ public class Projector {
 	//Non greedy things
 	private Set<IInstallableUnit> nonGreedyIUs; //All the IUs that would satisfy non greedy dependencies
 	private Map<IInstallableUnit, AbstractVariable> nonGreedyVariables = new HashMap<>();
-	private Map<AbstractVariable, List<Object>> nonGreedyProvider = new HashMap<>(); //Keeps track of all the "object" that provide an IU that is non greedly requested  
+	private Map<AbstractVariable, List<Object>> nonGreedyProvider = new HashMap<>(); //Keeps track of all the "object" that provide an IU that is non greedly requested
 
 	private boolean emptyBecauseFiltered;
 	private boolean userDefinedFunction;
@@ -204,7 +204,7 @@ public class Projector {
 			int timeout = DEFAULT_SOLVER_TIMEOUT;
 			String timeoutString = null;
 			try {
-				// allow the user to specify a longer timeout. 
+				// allow the user to specify a longer timeout.
 				// only set the value if it is a positive integer larger than the default.
 				// see https://bugs.eclipse.org/336967
 				timeoutString = DirectorActivator.context.getProperty(PROP_PROJECTOR_TIMEOUT);
@@ -368,7 +368,7 @@ public class Projector {
 			return;
 
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
-		// for each host requirement, find matches and remember them 
+		// for each host requirement, find matches and remember them
 		for (IRequirement req : fragment.getHost()) {
 			List<IInstallableUnit> matches = getApplicableMatches(req);
 			rememberHostMatches((IInstallableUnitFragment) iu, matches);
@@ -487,7 +487,7 @@ public class Projector {
 
 	private Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
 		boolean isFragment = iu instanceof IInstallableUnitFragment;
-		//Short-circuit for the case of an IInstallableUnit 
+		//Short-circuit for the case of an IInstallableUnit
 		if ((!isFragment) && iu.getMetaRequirements().size() == 0)
 			return iu.getRequirements();
 

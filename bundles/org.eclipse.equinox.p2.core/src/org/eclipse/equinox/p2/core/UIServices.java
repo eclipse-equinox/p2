@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Rapicorp, Inc. - add support for information dialog
@@ -19,13 +19,13 @@ import java.security.cert.Certificate;
 /**
  * Service used for prompting for user information from within lower level code.
  * Implementors of this service are responsible for registering the service.
- * 
+ *
  * It is possible that the UIServices service is requested very early in the startup
- * sequence for an application.  For example, applications that check for updates 
+ * sequence for an application.  For example, applications that check for updates
  * during startup will trigger the service lookup if a server requiring authentication
- * is detected.  For this reason, implementors of UIServices should ensure that the 
+ * is detected.  For this reason, implementors of UIServices should ensure that the
  * bundle providing the service is partitioned appropriately.
- * 
+ *
  * @since 2.0
  */
 public abstract class UIServices {
@@ -35,9 +35,9 @@ public abstract class UIServices {
 	public static final String SERVICE_NAME = UIServices.class.getName();
 
 	/**
-	 * This constant may be returned by the <code>getUsernamePassword</code> methods if the user 
+	 * This constant may be returned by the <code>getUsernamePassword</code> methods if the user
 	 * explicitly canceled the authentication prompt.
-	 * 
+	 *
 	 * @since 2.2
 	 */
 	public static final AuthenticationInfo AUTHENTICATION_PROMPT_CANCELED = new AuthenticationInfo("", "", false); //$NON-NLS-1$//$NON-NLS-2$
@@ -86,7 +86,7 @@ public abstract class UIServices {
 		/**
 		 * Return an array of the certificates that should be trusted for the
 		 * requested operation.
-		 * 
+		 *
 		 * @return the trusted certificates, or <code>null</code> if there are
 		 * no certificates that were verified as trusted.
 		 */
@@ -97,8 +97,8 @@ public abstract class UIServices {
 		/**
 		 * Return a boolean indicating whether the trusted certificates should
 		 * be persisted for future operations.
-		 * 
-		 * @return <code>true</code> if the trusted certificates should be persisted, <code>false</code> if 
+		 *
+		 * @return <code>true</code> if the trusted certificates should be persisted, <code>false</code> if
 		 * the trust only applies for this request.
 		 */
 		public boolean persistTrust() {
@@ -108,8 +108,8 @@ public abstract class UIServices {
 		/**
 		 * Return a boolean indicating whether the unsigned content should be trusted
 		 * during this operation.
-		 * 
-		 * @return <code>true</code> if the unsigned content should be trusted, or if there was no unsigned content, 
+		 *
+		 * @return <code>true</code> if the unsigned content should be trusted, or if there was no unsigned content,
 		 * and <code>false</code> if there was unsigned content and should not be trusted.
 		 */
 		public boolean trustUnsignedContent() {
@@ -119,7 +119,7 @@ public abstract class UIServices {
 
 	/**
 	 * Opens a UI prompt for authentication details
-	 * 
+	 *
 	 * @param location - the location requiring login details, may be <code>null</code>.
 	 * @return The authentication result, or <code>null</code>, or {@link #AUTHENTICATION_PROMPT_CANCELED}
 	 */
@@ -128,7 +128,7 @@ public abstract class UIServices {
 	/**
 	 * Opens a UI prompt for authentication details when cached or remembered details
 	 * where not accepted.
-	 * 
+	 *
 	 * @param location  the location requiring login details
 	 * @param previousInfo - the previously used authentication details - may not be null.
 	 * @return The authentication result, or <code>null</code>, or {@link #AUTHENTICATION_PROMPT_CANCELED}
@@ -137,13 +137,13 @@ public abstract class UIServices {
 
 	/**
 	 * Opens a UI prompt to capture information about trusted content.
-	 *  
+	 *
 	 * @param untrustedChain - an array of certificate chains for which there is no current trust anchor.  May be
 	 * <code>null</code>, which means there are no untrusted certificate chains.
 	 * @param unsignedDetail - an array of strings, where each String describes content that is not signed.
 	 * May be <code>null</code>, which means there is no unsigned content
 	 * @return  the TrustInfo that describes the user's choices for trusting certificates and
-	 * unsigned content. 
+	 * unsigned content.
 	 */
 	public abstract TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail);
 

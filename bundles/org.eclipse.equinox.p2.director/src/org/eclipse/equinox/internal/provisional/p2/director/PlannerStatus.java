@@ -39,7 +39,7 @@ public class PlannerStatus implements IStatus {
 
 	/**
 	 * Returns a request status object containing additional global details on the planning of the request
-	 * 
+	 *
 	 * @return An IStatus object with global details on the planning process
 	 */
 	public RequestStatus getRequestStatus() {
@@ -50,8 +50,8 @@ public class PlannerStatus implements IStatus {
 	 * Returns a map of the problems associated with changes to the given installable unit
 	 * in this plan. A status with severity {@link IStatus#OK} is returned if the unit
 	 * can be provisioned successfully
-	 * 
-	 * @return A map of {@link IInstallableUnit} to {@link IStatus} of the requested 
+	 *
+	 * @return A map of {@link IInstallableUnit} to {@link IStatus} of the requested
 	 * changes and their corresponding explanation.
 	 */
 	public Map<IInstallableUnit, RequestStatus> getRequestChanges() {
@@ -77,16 +77,16 @@ public class PlannerStatus implements IStatus {
 	}
 
 	/**
-	 * Returns the set of InstallableUnits that make up the expected planned state in terms 
-	 * of additions and removals to the profile based on the planning process. 
-	 * 
-	 * @return An IQueryable of the InstallableUnits in the planned state. 
+	 * Returns the set of InstallableUnits that make up the expected planned state in terms
+	 * of additions and removals to the profile based on the planning process.
+	 *
+	 * @return An IQueryable of the InstallableUnits in the planned state.
 	 */
 	public IQueryable<IInstallableUnit> getPlannedState() {
 		return plannedState;
 	}
 
-	// Remaining Methods Delegate to wrapped Status 
+	// Remaining Methods Delegate to wrapped Status
 	@Override
 	public IStatus[] getChildren() {
 		return status.getChildren();

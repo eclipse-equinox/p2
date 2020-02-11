@@ -8,7 +8,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.core.helpers;
@@ -20,8 +20,8 @@ public class ServiceHelper {
 	/**
 	 * Returns the service described by the given arguments.  Note that this is a helper class
 	 * that <b>immediately</b> ungets the service reference.  This results in a window where the
-	 * system thinks the service is not in use but indeed the caller is about to use the returned 
-	 * service object.  
+	 * system thinks the service is not in use but indeed the caller is about to use the returned
+	 * service object.
 	 * @param context
 	 * @param clazz the service class
 	 * @return The requested service
@@ -56,8 +56,8 @@ public class ServiceHelper {
 	/**
 	 * Returns the service described by the given arguments.  Note that this is a helper class
 	 * that <b>immediately</b> ungets the service reference.  This results in a window where the
-	 * system thinks the service is not in use but indeed the caller is about to use the returned 
-	 * service object.  
+	 * system thinks the service is not in use but indeed the caller is about to use the returned
+	 * service object.
 	 * @param context
 	 * @param name
 	 * @return The requested service

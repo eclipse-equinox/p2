@@ -96,7 +96,7 @@ public interface IProvisioningAgent {
 	public void registerService(String serviceName, Object service);
 
 	/**
-	 * Stops the provisioning agent. This causes services provided by this 
+	 * Stops the provisioning agent. This causes services provided by this
 	 * agent to be cleaned up and discarded. No services provided by the agent
 	 * should be referenced after the agent has been stopped, and subsequent
 	 * attempts to obtain services after the agent has stopped will fail.

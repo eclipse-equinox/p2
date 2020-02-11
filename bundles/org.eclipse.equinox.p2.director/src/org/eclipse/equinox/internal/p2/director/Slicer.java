@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Sonatype, Inc. - ongoing development
@@ -158,7 +158,7 @@ public class Slicer {
 	private Collection<IRequirement> getRequirements(IInstallableUnit iu) {
 		boolean isPatch = iu instanceof IInstallableUnitPatch;
 		boolean isFragment = iu instanceof IInstallableUnitFragment;
-		//Short-circuit for the case of an IInstallableUnit 
+		//Short-circuit for the case of an IInstallableUnit
 		if ((!isFragment) && (!isPatch) && iu.getMetaRequirements().size() == 0)
 			return iu.getRequirements();
 

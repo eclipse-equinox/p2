@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Contributors: 
+ * Contributors:
  *   Daniel Le Berre - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/

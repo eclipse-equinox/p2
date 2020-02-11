@@ -16,9 +16,9 @@ package org.eclipse.equinox.p2.core;
 import java.net.URI;
 
 /**
- * An instance of this service represents the location of a provisioning agent's 
- * metadata. 
- * 
+ * An instance of this service represents the location of a provisioning agent's
+ * metadata.
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -39,7 +39,7 @@ public interface IAgentLocation {
 
 	/**
 	 * Returns the root {@link URI} of the agent metadata.
-	 * 
+	 *
 	 * @return the location of the agent metadata
 	 */
 	public URI getRootLocation();

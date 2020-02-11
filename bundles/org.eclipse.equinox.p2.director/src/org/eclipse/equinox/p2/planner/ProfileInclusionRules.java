@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Sonatype Inc - Refactoring
@@ -33,7 +33,7 @@ public class ProfileInclusionRules {
 	 * later profile change request. That is, when there is a dependency conflict
 	 * between a strictly installed unit and a non-strict unit, the strictly installed
 	 * installable unit will take precedence.
-	 * 
+	 *
 	 * @param iu the installable unit to be installed.
 	 * @return an opaque token to be passed to the {@link IProfileChangeRequest#setInstallableUnitInclusionRules(IInstallableUnit, String)}
 	 */
@@ -45,7 +45,7 @@ public class ProfileInclusionRules {
 	 * Returns an inclusion rule to optionally install the given installable unit. An optionally
 	 * installed installable unit will automatically be removed from the profile if any of
 	 * its dependencies become unsatisfied.
-	 * 
+	 *
 	 * @param iu the installable unit to be installed.
 	 * @return an opaque token to be passed to the {@link IProfileChangeRequest#setInstallableUnitInclusionRules(IInstallableUnit, String)}
 	 */

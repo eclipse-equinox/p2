@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -34,7 +34,7 @@ public interface IAgentServiceFactory {
 
 	/**
 	 * Instantiates a service instance for the given provisioning agent.
-	 * 
+	 *
 	 * @param agent The agent this service will belong to
 	 * @return The created service
 	 */

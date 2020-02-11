@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB (Pascal Rapicault) - reading preferences from base in shared install
@@ -70,7 +70,7 @@ public class Activator implements BundleActivator {
 	 * Builds a URL with the given specification
 	 * NOTE: This method is copied from LocationHelper in org.eclipse.osgi
 	 * due to access restrictions.
-	 * 
+	 *
 	 * @param spec the URL specification
 	 * @param trailingSlash flag to indicate a trailing slash on the spec
 	 * @return a URL
@@ -126,7 +126,7 @@ public class Activator implements BundleActivator {
 
 	private IAgentLocation buildLocation(String property, URI defaultLocation, boolean readOnlyDefault, boolean addTrailingSlash) {
 		String location = Activator.context.getProperty(property);
-		// if the instance location is not set, predict where the workspace will be and 
+		// if the instance location is not set, predict where the workspace will be and
 		// put the instance area inside the workspace meta area.
 		if (location == null)
 			return new AgentLocation(defaultLocation);
@@ -197,7 +197,7 @@ public class Activator implements BundleActivator {
 		//This figures out if we are running in shared mode and computes the location of the p2 folder in the base.
 		//Note that this logic only works for the case where the p2 location is colocated with the configuration area
 		//(configuration and p2 are sibling of each others).
-		//To make that work for other scenarios, the config.ini of the base would have to be read and interpreted. 
+		//To make that work for other scenarios, the config.ini of the base would have to be read and interpreted.
 		URI location = null;
 		String sharedConfigArea = null;
 		try {

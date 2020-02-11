@@ -45,7 +45,7 @@ public class LogHelper {
 		ArrayList<FrameworkLogEntry> childlist = new ArrayList<>();
 
 		int stackCode = t instanceof CoreException ? 1 : 0;
-		// ensure a substatus inside a CoreException is properly logged 
+		// ensure a substatus inside a CoreException is properly logged
 		if (stackCode == 1) {
 			IStatus coreStatus = ((CoreException) t).getStatus();
 			if (coreStatus != null) {

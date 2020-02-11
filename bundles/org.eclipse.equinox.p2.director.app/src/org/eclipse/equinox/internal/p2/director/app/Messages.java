@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  * 	IBM Corporation - initial API and implementation
  * 	Cloudsmith - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226401
  ******************************************************************************/

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -20,12 +20,12 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
- * Planners are responsible for determining what should be done to a given 
- * profile to reshape it as requested. That is, given the current state of a 
- * profile, a description of the desired changes to that profile and metadata 
+ * Planners are responsible for determining what should be done to a given
+ * profile to reshape it as requested. That is, given the current state of a
+ * profile, a description of the desired changes to that profile and metadata
  * describing the available installable units, a planner produces a concrete plan that lists the
  * exact steps that the engine should perform.
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -39,7 +39,7 @@ public interface IPlanner {
 	/**
 	 * Returns a plan describing the set of changes that must be performed to
 	 * satisfy the given profile change request.
-	 * 
+	 *
 	 * @param profileChangeRequest the request to be evaluated
 	 * @param context the context in which the request is processed
 	 * @param monitor a monitor on which planning
@@ -52,8 +52,8 @@ public interface IPlanner {
 	public IProfileChangeRequest createChangeRequest(IProfile profileToChange);
 
 	/**
-	 * @noreference This method is not intended to be referenced by clients. 
-	 * You may want to consider using the org.eclipse.equinox.p2.operations.UpdateOperation class instead. 
+	 * @noreference This method is not intended to be referenced by clients.
+	 * You may want to consider using the org.eclipse.equinox.p2.operations.UpdateOperation class instead.
 	 */
 	public IQueryResult<IInstallableUnit> updatesFor(IInstallableUnit iu, ProvisioningContext context, IProgressMonitor monitor);
 }

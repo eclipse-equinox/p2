@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2018 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -30,7 +30,7 @@ public class TarFile implements Closeable {
 
 	/**
 	 * Create a new TarFile for the given file.
-	 * 
+	 *
 	 * @param file
 	 * @throws TarException
 	 * @throws IOException
@@ -59,7 +59,7 @@ public class TarFile implements Closeable {
 
 	/**
 	 * Close the tar file input stream.
-	 * 
+	 *
 	 * @throws IOException if the file cannot be successfully closed
 	 */
 	@Override
@@ -71,7 +71,7 @@ public class TarFile implements Closeable {
 
 	/**
 	 * Returns an enumeration cataloguing the tar archive.
-	 * 
+	 *
 	 * @return enumeration of all files in the archive
 	 */
 	public Enumeration<TarEntry> entries() {
@@ -98,7 +98,7 @@ public class TarFile implements Closeable {
 
 	/**
 	 * Returns a new InputStream for the given file in the tar archive.
-	 * 
+	 *
 	 * @param entry
 	 * @return an input stream for the given file
 	 * @throws TarException
@@ -131,7 +131,7 @@ public class TarFile implements Closeable {
 
 	/**
 	 * Returns the path name of the file this archive represents.
-	 * 
+	 *
 	 * @return path
 	 */
 	public String getName() {
