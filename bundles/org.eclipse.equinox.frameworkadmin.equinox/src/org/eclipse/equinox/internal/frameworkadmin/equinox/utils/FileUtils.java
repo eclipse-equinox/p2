@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
@@ -108,10 +108,10 @@ public class FileUtils {
 	}
 
 	/**
-	 * If a bundle of the specified location is in the Eclipse plugin format (either plugin-name_version.jar 
+	 * If a bundle of the specified location is in the Eclipse plugin format (either plugin-name_version.jar
 	 * or as a folder named plugin-name_version ), return version string.Otherwise, return null;
-	 * 
-	 * @return version string. If invalid format, return null. 
+	 *
+	 * @return version string. If invalid format, return null.
 	 */
 	private static Version getVersion(String version) {
 		if (version.length() == 0)

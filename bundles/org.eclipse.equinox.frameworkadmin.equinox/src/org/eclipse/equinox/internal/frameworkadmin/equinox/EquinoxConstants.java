@@ -16,7 +16,7 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 public class EquinoxConstants {
 
 	/**
-	 * If BundleContext#getProperty(PROP_KEY_USE_REFERENCE) does not equal "false", 
+	 * If BundleContext#getProperty(PROP_KEY_USE_REFERENCE) does not equal "false",
 	 * Manipulator#save() will add "reference:" to any bundle location specified osgi.bundles in order to avoid
 	 * caching its bundle jar.  Otherwise, it will add nothing to any bundle location.
 	 */
@@ -51,7 +51,7 @@ public class EquinoxConstants {
 	public static final String PROP_OSGI_FW = "osgi.framework"; //$NON-NLS-1$
 	public static final String PROP_OSGI_SYSPATH = "osgi.syspath"; //$NON-NLS-1$
 	public static final String PROP_LAUNCHER_NAME = "osgi.launcherIni"; //$NON-NLS-1$
-	public static final String PROP_SHARED_CONFIGURATION_AREA = "osgi.sharedConfiguration.area"; //$NON-NLS-1$	
+	public static final String PROP_SHARED_CONFIGURATION_AREA = "osgi.sharedConfiguration.area"; //$NON-NLS-1$
 
 	public static final String INI_EXTENSION = ".ini"; //$NON-NLS-1$
 	public static final String EXE_EXTENSION = ".exe"; //$NON-NLS-1$

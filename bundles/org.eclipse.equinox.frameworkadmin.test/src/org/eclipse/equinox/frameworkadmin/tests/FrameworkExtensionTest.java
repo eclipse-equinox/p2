@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,10 +32,10 @@ public class FrameworkExtensionTest extends FwkAdminAndSimpleConfiguratorTest {
 		assertContent(getBundleTxt(), "dummy.frameworkextension");
 		assertPropertyContains(getConfigIni(),"osgi.framework.extensions", "dummy.frameworkextension");
 		assertNotPropertyContains(getConfigIni(),"osgi.bundles", "dummy.frameworkextension");
-		
+
 		BundleInfo basicBundleInfo = new BundleInfo("dummy.frameworkextension", "1.0.0", null, -1, false);
 		manipulator.getConfigData().removeBundle(basicBundleInfo);
-		manipulator.save(false);		
+		manipulator.save(false);
 		assertNotContent(getBundleTxt(), "dummy.frameworkextension");
 		assertNotPropertyContains(getConfigIni(),"osgi.framework.extensions", "dummy.frameworkextension");
 	}

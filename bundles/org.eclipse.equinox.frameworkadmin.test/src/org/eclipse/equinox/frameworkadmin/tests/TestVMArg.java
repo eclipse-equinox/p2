@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -129,7 +129,7 @@ public class TestVMArg extends FwkAdminAndSimpleConfiguratorTest {
 	/**
 	 * But 282303: Have -vm ../jre as program arguments. See them vanish during the
 	 * save operation of the manipulator
-	 * 
+	 *
 	 * @throws FrameworkAdminRuntimeException
 	 * @throws IOException
 	 */

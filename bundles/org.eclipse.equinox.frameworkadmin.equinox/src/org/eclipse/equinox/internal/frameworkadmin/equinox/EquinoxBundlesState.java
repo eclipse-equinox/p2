@@ -50,7 +50,7 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * eclipse.exe will launch a fw where plugins/org.eclipse.osgi_*.*.*.*.jar is an
 	 * implementation of fw.
-	 * 
+	 *
 	 * @param launcherData
 	 * @param configData
 	 * @return File of fwJar to be used.
@@ -238,7 +238,7 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * If useFwPersistentData flag equals false, this constructor will not take a
 	 * framework persistent data into account. Otherwise, it will.
-	 * 
+	 *
 	 * @param context
 	 * @param fwAdmin
 	 * @param manipulator
@@ -260,7 +260,7 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * This constructor does NOT take a framework persistent data into account. It
 	 * will create State object based on the specified platformProperties.
-	 * 
+	 *
 	 * @param context
 	 * @param fwAdmin
 	 * @param manipulator
@@ -286,7 +286,7 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * compose new state without reading framework persistent data. The
 	 * configData.getFwDependentProps() is used for the composition.
-	 * 
+	 *
 	 * @param launcherData
 	 * @param configData
 	 * @param bInfos
@@ -299,7 +299,7 @@ public class EquinoxBundlesState implements BundlesState {
 	 * compose new state without reading framework persistent data. The given
 	 * properties is used for the composition. If system bundle is not included in
 	 * the given bInfos, the fw jar launcherData contains will be used.
-	 * 
+	 *
 	 * @param launcherData
 	 * @param configData
 	 * @param properties
@@ -317,7 +317,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 	/**
 	 * compose state. If it cannot compose it by somehow, false is returned.
-	 * 
+	 *
 	 * @param bInfos
 	 * @param props
 	 * @param fwPersistentDataLocation
@@ -641,7 +641,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 	/**
 	 * get platforme properties from the given state.
-	 * 
+	 *
 	 * @param state
 	 */
 	private void setPlatformProperties(State state) {
@@ -662,7 +662,7 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * set platfromProperties required to compose state object into
 	 * platformProperties of this state.
-	 * 
+	 *
 	 * @param props
 	 */
 	private void setPlatformPropertiesToState(Dictionary<Object, Object> props) {

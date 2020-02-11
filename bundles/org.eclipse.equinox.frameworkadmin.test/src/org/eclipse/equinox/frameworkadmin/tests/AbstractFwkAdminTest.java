@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -101,7 +101,7 @@ public abstract class AbstractFwkAdminTest {
 	protected File getTestFolder(String name) {
 		return getTestFolder(name, true);
 	}
-	
+
 	protected File getTestFolder(String name, boolean clean) {
 		Location instanceLocation = Platform.getInstanceLocation();
 		URL url = instanceLocation != null ? instanceLocation.getURL() : null;
@@ -166,7 +166,7 @@ public abstract class AbstractFwkAdminTest {
 	private String getProperty(File file, String property) {
 		Properties p = new Properties();
 		try (FileInputStream fis = new FileInputStream(file)) {
-			p.load(fis);			
+			p.load(fis);
 		} catch (FileNotFoundException e) {
 			fail("Can't find file " + file);
 		} catch (IOException e) {
@@ -174,12 +174,12 @@ public abstract class AbstractFwkAdminTest {
 		}
 		return p.getProperty(property);
 	}
-	
+
 	public void assertPropertyContains(File file, String property, String text) {
 		String value = getProperty(file, property);
 		if (value == null)
 			fail("property: " + property + " not found in: " +file);
-		
+
 		int index = value.indexOf(text);
 		if (index == -1)
 			fail(text + " not found in property:" + property + " for file: " +file);
@@ -189,7 +189,7 @@ public abstract class AbstractFwkAdminTest {
 		String value = getProperty(file, property);
 		if (value == null)
 			return;
-		
+
 		int index = value.indexOf(text);
 		if (index != -1)
 			fail(text + " found in property:" + property + " for file: " +file);
@@ -255,7 +255,7 @@ public abstract class AbstractFwkAdminTest {
 			}
 			return;
 		}
-		try (InputStream input = new BufferedInputStream(new FileInputStream(source)); 
+		try (InputStream input = new BufferedInputStream(new FileInputStream(source));
 				OutputStream output = new BufferedOutputStream(new FileOutputStream(target))) {
 
 			byte[] buffer = new byte[8192];
@@ -305,7 +305,7 @@ public abstract class AbstractFwkAdminTest {
 	protected void writeEclipseIni(File location, String[] lines) {
 		location.getParentFile().mkdirs();
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(location))){
-			
+
 			for (String line : lines) {
 				bw.write(line);
 				bw.newLine();

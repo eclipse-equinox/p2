@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -31,7 +31,7 @@ public class ParserUtilsTest extends AbstractFwkAdminTest {
 		args.add("-foo");
 		args.add("bar");
 		assertEquals( "bar", ParserUtils.getValueForArgument("-foo", args));
-		
+
 		args.set(1, "-bar");
 		assertEquals(null, ParserUtils.getValueForArgument("-foo", args));
 	}
@@ -40,11 +40,11 @@ public class ParserUtilsTest extends AbstractFwkAdminTest {
 		String [] args = new String [] { "-bar", "-foo", "-other"};
 		ParserUtils.removeArgument("-foo", Arrays.asList(args));
 		assertArrayEquals(args, new String [] {"-bar", null, "-other"});
-		
+
 		args = new String [] { "-bar", "-foo", "other"};
 		ParserUtils.removeArgument("-foo", Arrays.asList(args));
 		assertArrayEquals(args, new String [] {"-bar", null, null});
-		
+
 		args = new String [] { "-bar", "-foo", "s-pecial"};
 		ParserUtils.removeArgument("-foo", Arrays.asList(args));
 		assertArrayEquals(args, new String [] {"-bar", null, null});
@@ -56,7 +56,7 @@ public class ParserUtilsTest extends AbstractFwkAdminTest {
 		assertEquals(2, args.size());
 		assertEquals(args.get(0), "-foo");
 		assertEquals(args.get(1), "bar");
-		
+
 		args.add("-other");
 		args.set(1, "s-pecial");
 		ParserUtils.setValueForArgument("-foo", "bas", args);
@@ -64,7 +64,7 @@ public class ParserUtilsTest extends AbstractFwkAdminTest {
 		assertEquals(args.get(0), "-foo");
 		assertEquals(args.get(1), "bas");
 		assertEquals(args.get(2), "-other");
-		
+
 		args.remove(1);
 		ParserUtils.setValueForArgument("-foo", "bas", args);
 		assertEquals(3, args.size());
@@ -77,7 +77,7 @@ public class ParserUtilsTest extends AbstractFwkAdminTest {
 		String path = "";
 		File result =ParserUtils.fromOSGiJarToOSGiInstallArea(path);
 		assertNotNull("1.0", result);
-		
+
 		path = "osgi.jar";
 		result =ParserUtils.fromOSGiJarToOSGiInstallArea(path);
 		assertNotNull("1.0", result);

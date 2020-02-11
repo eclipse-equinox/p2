@@ -19,7 +19,7 @@ import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * Utility class with static methods for logging to LogService, if available 
+ * Utility class with static methods for logging to LogService, if available
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Log {

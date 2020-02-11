@@ -316,7 +316,7 @@ public class EclipseLauncherParser {
 		//append jvm args
 		setJVMArgs(newlines, launcherData);
 
-		// backup file if exists.		
+		// backup file if exists.
 		if (backup)
 			if (launcherConfigFile.exists()) {
 				File dest = Utils.getSimpleDataFormattedFile(launcherConfigFile);

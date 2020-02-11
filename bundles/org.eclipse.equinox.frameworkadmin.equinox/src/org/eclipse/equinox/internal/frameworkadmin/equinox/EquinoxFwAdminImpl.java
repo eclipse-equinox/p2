@@ -98,10 +98,10 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 	}
 
 	/**
-	 * If both the vendor and the Bundle-Version in the manifest match, 
+	 * If both the vendor and the Bundle-Version in the manifest match,
 	 * return true. Otherwise false.
-	 *  
-	 * @return flag true if the ManipulatorAdmin object can handle currently running fw launch. 
+	 *
+	 * @return flag true if the ManipulatorAdmin object can handle currently running fw launch.
 	 */
 	boolean isRunningFw() {
 		//TODO implementation for Eclipse.exe and for Equinox
@@ -116,7 +116,7 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 		if (value > 0) {
 			return true;
 		}
-		// TODO need to identify the version of eclipse.exe used for this launch, if used. 
+		// TODO need to identify the version of eclipse.exe used for this launch, if used.
 		return false;
 	}
 

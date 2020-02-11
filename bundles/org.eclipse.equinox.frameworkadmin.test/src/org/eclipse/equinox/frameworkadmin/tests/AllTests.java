@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - ongoing development
@@ -21,8 +21,8 @@ import org.junit.runners.Suite;
 /**
  * Performs all automated director tests.
  */
-@RunWith(Suite.class)				
-@Suite.SuiteClasses({	
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
 	Bug196525.class,
 	Bug258370.class,
 	CleanupTest.class,
