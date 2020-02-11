@@ -14,15 +14,19 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
 
 /**
  * Test of format() performing tests not covered by tests per rule.
- * 
+ *
  */
-public class FormatTest extends TestCase {
+public class FormatTest {
 
+	@Test
 	public void testEmptySegmentsRemoved() {
 		Version v = Version.parseVersion("format(ndddn):1...2");
 		assertNotNull(v);
@@ -30,6 +34,7 @@ public class FormatTest extends TestCase {
 		assertEquals(v.getSegment(1), Integer.valueOf(2));
 	}
 
+	@Test
 	public void testGreedyParsing() {
 		Version v = Version.parseVersion("format(n(.n)*(.s)*):1.2.3.hello");
 		assertNotNull(v);

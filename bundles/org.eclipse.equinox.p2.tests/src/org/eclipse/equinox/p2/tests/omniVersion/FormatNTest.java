@@ -14,9 +14,10 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
-import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ import org.junit.Test;
  * Tests format(n) and format(N)
  *
  */
-public class FormatNTest extends TestCase {
+public class FormatNTest {
 	@Test
 	public void testNonNegative() {
 		Version v = Version.parseVersion("format(n):1");

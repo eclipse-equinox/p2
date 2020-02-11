@@ -14,9 +14,12 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.junit.Test;
 
 /**
  * Tests intersection of VersionRanges.
@@ -25,12 +28,13 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
  * - equal range
  * - same lower bound - upper inside
  * - same upper bound - lower inside
- * - inside 
- * 
+ * - inside
+ *
  * Tests made with both inclusive and non inclusive values.
- * 
+ *
  */
-public class IntersectionTest extends TestCase {
+public class IntersectionTest {
+	@Test
 	public void testIntersectsEmpty() {
 		VersionRange a = new VersionRange("raw:[1.0.0,3.0.0]");
 		VersionRange b = new VersionRange("raw:[4.0.0,6.0.0]");
@@ -48,6 +52,7 @@ public class IntersectionTest extends TestCase {
 		assertTrue("Non overlapping ranges b/a should be empty #6", b.intersect(a) == null);
 	}
 
+	@Test
 	public void testStraddleBoundary() {
 		VersionRange a = new VersionRange("raw:[1.0.0,3.0.0]");
 		VersionRange b = new VersionRange("raw:[2.0.0,6.0.0]");
@@ -79,6 +84,7 @@ public class IntersectionTest extends TestCase {
 
 	}
 
+	@Test
 	public void testEqualRanges() {
 		VersionRange a = new VersionRange("raw:[1.0.0,3.0.0]");
 		VersionRange b = new VersionRange("raw:[1.0.0,3.0.0]");
@@ -107,6 +113,7 @@ public class IntersectionTest extends TestCase {
 		assertTrue("#2.8", !r.getIncludeMinimum());
 	}
 
+	@Test
 	public void testPartialEqualLower() {
 		VersionRange a = new VersionRange("raw:[1.0.0,3.0.0]");
 		VersionRange b = new VersionRange("raw:[1.0.0,2.0.0]");
@@ -135,6 +142,7 @@ public class IntersectionTest extends TestCase {
 
 	}
 
+	@Test
 	public void testPartialEqualUpper() {
 		VersionRange a = new VersionRange("raw:[1.0.0,3.0.0]");
 		VersionRange b = new VersionRange("raw:[2.0.0,3.0.0]");
@@ -162,6 +170,7 @@ public class IntersectionTest extends TestCase {
 		assertTrue("#2.8", !r.getIncludeMinimum());
 	}
 
+	@Test
 	public void testFullyInside() {
 		VersionRange a = new VersionRange("raw:[1.0.0,3.0.0]");
 		VersionRange b = new VersionRange("raw:[2.0.0,2.5.0]");

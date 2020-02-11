@@ -13,9 +13,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -24,7 +25,7 @@ import org.junit.Test;
 /**
  * Test <code>ArtifactkeyDeSerializer</code>
  */
-public class ArtifactKeyParsingTest extends TestCase {
+public class ArtifactKeyParsingTest {
 	@Test
 	public void testSerialize() {
 		IArtifactKey key = new ArtifactKey("classifier", "identifier", Version.create("1.0"));

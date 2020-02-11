@@ -14,27 +14,33 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+
 import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
 
 /**
  * Tests format(r)
  *
  */
-public class FormatRTest extends TestCase {
-
+public class FormatRTest {
+	@Test
 	public void testNumeric() {
 		Version v = Version.parseVersion("format(r):1");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:1"), v);
 	}
 
+	@Test
 	public void testNegativeNumeric() {
 		Version v = Version.parseVersion("format(r):-1");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:-1"), v);
 	}
 
+	@Test
 	public void testString() {
 		Version v = Version.parseVersion("format(r):'a'");
 		assertNotNull(v);
@@ -44,6 +50,7 @@ public class FormatRTest extends TestCase {
 		assertEquals(Version.parseVersion("raw:'a'"), v);
 	}
 
+	@Test
 	public void testConcatentatedStrings() {
 		Version v = Version.parseVersion("format(r):'a''b'");
 		assertNotNull(v);
@@ -53,36 +60,32 @@ public class FormatRTest extends TestCase {
 		assertEquals(Version.parseVersion("raw:'a has a \"hat\" it is '\"a's\""), v);
 	}
 
+	@Test
 	public void testMaxString() {
 		Version v = Version.parseVersion("format(r):m");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:m"), v);
 	}
 
+	@Test
 	public void testMaxNumeric() {
 		Version v = Version.parseVersion("format(r):M");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:M"), v);
 	}
 
+	@Test
 	public void testArray() {
 		Version v = Version.parseVersion("format(r):<1>");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:<1>"), v);
 	}
 
+	@Test
 	public void testNonRElements() {
-		try {
-			Version.parseVersion("format(r):aaa");
-			fail("a is not a valid raw element");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-		try {
-			Version.parseVersion("format(r):1,2");
-			fail("comma is not a delimiter in raw format");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("a is not a valid raw element", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(r):aaa"));
+		assertThrows("comma is not a delimiter in raw format", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(r):1,2"));
 	}
 }

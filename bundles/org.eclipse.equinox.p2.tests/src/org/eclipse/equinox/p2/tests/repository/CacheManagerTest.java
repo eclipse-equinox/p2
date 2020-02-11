@@ -10,10 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.repository;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -24,10 +26,13 @@ import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-public class CacheManagerTest extends TestCase {
+public class CacheManagerTest {
 
 	private static final int ONE_HOUR = 3600000;
 	private URI repositoryLocation;
@@ -35,8 +40,8 @@ public class CacheManagerTest extends TestCase {
 	private CacheManager cacheManager;
 	private final String cachePrefix = "content"; //$NON-NLS-1$
 
-	@Override
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		repositoryLocation = createRepistory();
 		BundleContext bundle = Platform.getBundle("org.eclipse.equinox.p2.repository").getBundleContext();
 		ServiceReference<IProvisioningAgentProvider> serviceReference = bundle.getServiceReference(IProvisioningAgentProvider.class);
@@ -46,12 +51,13 @@ public class CacheManagerTest extends TestCase {
 		cacheManager = new CacheManager(new AgentLocationMock(), transport);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		Path repositoryLocationPath = new Path(repositoryLocation.getPath());
 		deleteFileOrDirectory(repositoryLocationPath.toFile());
 	}
 
+	@Test
 	public void testRepositoryDowngraded() throws ProvisionException, IOException {
 		File cache = cacheManager.createCache(repositoryLocation, cachePrefix, new NullProgressMonitor());
 		long lastModifiedInitial = cache.lastModified();
@@ -65,6 +71,7 @@ public class CacheManagerTest extends TestCase {
 				lastModifiedInitial == cache2.lastModified());
 	}
 
+	@Test
 	public void testClientDifferentTimeZone() throws ProvisionException, IOException {
 		File cache = cacheManager.createCache(repositoryLocation, cachePrefix, new NullProgressMonitor());
 		long lastModifiedInitial = cache.lastModified();
@@ -79,6 +86,7 @@ public class CacheManagerTest extends TestCase {
 				lastModifiedInitial + ONE_HOUR == cache2.lastModified());
 	}
 
+	@Test
 	public void testRepositoryUpdate() throws ProvisionException, IOException {
 		File cache = cacheManager.createCache(repositoryLocation, cachePrefix, new NullProgressMonitor());
 		long lastModifiedInitial = cache.lastModified();

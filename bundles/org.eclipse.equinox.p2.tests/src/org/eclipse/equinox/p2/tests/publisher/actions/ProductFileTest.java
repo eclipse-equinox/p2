@@ -18,10 +18,12 @@ import static org.eclipse.equinox.p2.tests.AdditionalCoreMatchers.hasSize;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
@@ -30,11 +32,13 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.tests.TestData;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Tests the product file parser found in the publisher.
  */
-public class ProductFileTest extends TestCase {
+public class ProductFileTest {
 
 	String productFileLocation = null;
 	ProductFile productFile = null;
@@ -47,8 +51,8 @@ public class ProductFileTest extends TestCase {
 	private String uidProductFileLocation;
 	private ProductFile uidProductFile;
 
-	@Override
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		productFileLocation = TestData.getFile("ProductActionTest/productWithConfig", "sample.product").toString();
 		noLauncherFlag = new ProductFile(TestData.getFile("ProductActionTest/launcherFlags", "noLauncherFlag.product").toString());
 		falseLauncherFlag = new ProductFile(TestData.getFile("ProductActionTest/launcherFlags", "falseLauncherFlag.product").toString());
@@ -62,6 +66,7 @@ public class ProductFileTest extends TestCase {
 	/**
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getLauncherName()}.
 	 */
+	@Test
 	public void testGetLauncherName() {
 		assertEquals("1.0", "sample", productFile.getLauncherName());
 	}
@@ -69,6 +74,7 @@ public class ProductFileTest extends TestCase {
 	/**
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getLocation()}.
 	 */
+	@Test
 	public void testGetLocation() {
 		assertEquals("1.0", productFileLocation, productFile.getLocation().toString());
 	}
@@ -76,6 +82,7 @@ public class ProductFileTest extends TestCase {
 	/**
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getProperties()}.
 	 */
+	@Test
 	public void testGetConfigurationProperties() {
 		Map<String, String> properties = productFile.getConfigurationProperties();
 		assertEquals("1.0", 4, properties.size());
@@ -86,8 +93,10 @@ public class ProductFileTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getBundles(boolean)}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getBundles(boolean)}.
 	 */
+	@Test
 	public void testGetBundles() {
 		List<IVersionedId> bundles = productFile.getBundles(false);
 		assertEquals("1.0", 1, bundles.size());
@@ -98,8 +107,10 @@ public class ProductFileTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getBundleInfos()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getBundleInfos()}.
 	 */
+	@Test
 	public void testGetBundleInfos() {
 		List<BundleInfo> bundleInfos = productFile.getBundleInfos();
 		BundleInfo info = bundleInfos.iterator().next();
@@ -110,8 +121,10 @@ public class ProductFileTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getFragments()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getFragments()}.
 	 */
+	@Test
 	public void testGetFragments() {
 		List<IVersionedId> fragments = productFile.getFragments();
 		assertEquals("1.0", 1, fragments.size());
@@ -119,8 +132,10 @@ public class ProductFileTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getFeatures()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getFeatures()}.
 	 */
+	@Test
 	public void testGetFeatures() {
 		List<IVersionedId> features = productFile.getFeatures();
 		assertEquals("1.0", 1, features.size());
@@ -128,6 +143,7 @@ public class ProductFileTest extends TestCase {
 		assertEquals("1.2", Version.create("3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t"), features.get(0).getVersion());
 	}
 
+	@Test
 	public void testGetRootFeatures() {
 		List<IVersionedId> features = rootFeaturesProduct.getFeatures(IProductDescriptor.ROOT_FEATURES);
 		assertThat(features, hasItem(new VersionedId("org.eclipse.help", "2.0.102.v20140128")));
@@ -135,6 +151,7 @@ public class ProductFileTest extends TestCase {
 		assertThat(features, hasSize(2));
 	}
 
+	@Test
 	public void testGetIncludedFeatures() {
 		List<IVersionedId> features = rootFeaturesProduct.getFeatures(IProductDescriptor.INCLUDED_FEATURES);
 		assertThat(features, hasItem(new VersionedId("org.eclipse.rcp", "4.4.0.v20140128")));
@@ -142,10 +159,12 @@ public class ProductFileTest extends TestCase {
 		assertThat(features, hasSize(2));
 	}
 
+	@Test
 	public void testGetFeaturesOnlyReturnsIncludedFeatures() {
 		assertThat(rootFeaturesProduct.getFeatures(), is(rootFeaturesProduct.getFeatures(IProductDescriptor.INCLUDED_FEATURES)));
 	}
 
+	@Test
 	public void testHasFeatures() throws Exception {
 		ProductFile featuresOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyFeatures.product").toString());
 		assertThat(featuresOnly.hasFeatures(), is(true));
@@ -153,6 +172,7 @@ public class ProductFileTest extends TestCase {
 		assertThat(featuresOnly.hasBundles(true), is(false));
 	}
 
+	@Test
 	public void testHasBundles() throws Exception {
 		ProductFile bundlesOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyBundles.product").toString());
 		assertThat(bundlesOnly.hasFeatures(), is(false));
@@ -160,6 +180,7 @@ public class ProductFileTest extends TestCase {
 		assertThat(bundlesOnly.hasBundles(true), is(true));
 	}
 
+	@Test
 	public void testHasFragments() throws Exception {
 		ProductFile bundlesOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyFragments.product").toString());
 		assertThat(bundlesOnly.hasFeatures(), is(false));
@@ -177,69 +198,86 @@ public class ProductFileTest extends TestCase {
 	//		assertEquals("1.1", absolutePath, icons[0]);
 	//	}
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getConfigIniPath()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getConfigIniPath()}.
 	 */
+	@Test
 	public void testGetConfigIniPath() {
 		String configIni = productFile.getConfigIniPath("win32");
 		assertEquals("1.0", "config.ini", configIni);
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getId()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getId()}.
 	 */
+	@Test
 	public void testGetId() {
 		String id = productFile.getId();
 		assertEquals("1.0", "test.product", id);
 	}
 
+	@Test
 	public void testGetUID() {
 		String id = uidProductFile.getId();
 		assertEquals("1.0", "UID.test.product", id);
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getSplashLocation()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getSplashLocation()}.
 	 */
+	@Test
 	public void testGetSplashLocation() {
 		String splashLocation = productFile.getSplashLocation();
 		assertEquals("1.0", "org.eclipse.equinox.p2.tests", splashLocation);
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getProductName()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getProductName()}.
 	 */
+	@Test
 	public void testGetProductName() {
 		String productName = productFile.getProductName();
 		assertEquals("1.0", "aaTestProduct", productName);
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getApplication()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getApplication()}.
 	 */
+	@Test
 	public void testGetApplication() {
 		String application = productFile.getApplication();
 		assertEquals("1.0", "test.app", application);
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#useFeatures()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#useFeatures()}.
 	 */
+	@Test
 	public void testUseFeatures() {
 		boolean useFeatures = productFile.useFeatures();
 		assertTrue("1.0", !useFeatures);
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getVersion()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getVersion()}.
 	 */
+	@Test
 	public void testGetVersion() {
 		String version = productFile.getVersion();
 		assertEquals("1.0", Version.create("1"), Version.create(version));
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getVMArguments(java.lang.String)}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getVMArguments(java.lang.String)}.
 	 */
+	@Test
 	public void testGetVMArguments() {
 		String vmArguments = productFile.getVMArguments("");
 		assertEquals("1.0", "vmArg -Dfoo=\"b a r\"", vmArguments);
@@ -247,6 +285,7 @@ public class ProductFileTest extends TestCase {
 		assertEquals("1.1", "vmArg -Dfoo=\"b a r\"", vmArguments);
 	}
 
+	@Test
 	public void testIncludeLaunchers() {
 		assertEquals("1.0", true, noLauncherFlag.includeLaunchers());
 		assertEquals("1.1", false, falseLauncherFlag.includeLaunchers());
@@ -254,8 +293,10 @@ public class ProductFileTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getProgramArguments(java.lang.String)}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getProgramArguments(java.lang.String)}.
 	 */
+	@Test
 	public void testGetProgramArguments() {
 		String programArguments = productFile.getProgramArguments("");
 		assertEquals("1.0", "programArg -name \"My Name\"", programArguments);
@@ -263,18 +304,21 @@ public class ProductFileTest extends TestCase {
 		assertEquals("1.1", "programArg -name \"My Name\"", programArguments);
 	}
 
+	@Test
 	public void testGetLicenseURL() throws Exception {
 		String productWithLicense = TestData.getFile("ProductActionTest", "productWithLicense.product").toString();
 		ProductFile product = new ProductFile(productWithLicense);
 		assertEquals("1.0", "http://www.example.com", product.getLicenseURL());
 	}
 
+	@Test
 	public void testGetLicenseText() throws Exception {
 		String productWithLicense = TestData.getFile("ProductActionTest", "productWithLicense.product").toString();
 		ProductFile product = new ProductFile(productWithLicense);
 		assertEquals("1.0", "This is the liCenSE.", product.getLicenseText().trim());
 	}
 
+	@Test
 	public void testGetVM() throws Exception {
 		String productWithVM = TestData.getFile("ProductActionTest", "productWithVM.product").toString();
 		ProductFile product = new ProductFile(productWithVM);

@@ -13,17 +13,38 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import java.util.*;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.AdviceFileParser;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.junit.Test;
 
-public class AdviceFileParserTest extends TestCase {
+public class AdviceFileParserTest {
+	@Test
 	public void testNoAdvice() {
 		AdviceFileParser parser = new AdviceFileParser("id", Version.emptyVersion, Collections.EMPTY_MAP);
 		parser.parse();
@@ -34,6 +55,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertNull(parser.getTouchpointInstructions());
 	}
 
+	@Test
 	public void testAdviceVersion() {
 		Map<String, String> map = new HashMap<>();
 		map.put("advice.version", "1.0");
@@ -41,15 +63,11 @@ public class AdviceFileParserTest extends TestCase {
 		parser.parse();
 
 		map.put("advice.version", "999");
-		parser = new AdviceFileParser("id", Version.emptyVersion, map);
-		try {
-			parser.parse();
-		} catch (IllegalStateException e) {
-			return;
-		}
-		fail("expected version parse problem");
+		assertThrows("expected version parse problem", IllegalStateException.class,
+				() -> new AdviceFileParser("id", Version.emptyVersion, map).parse());
 	}
 
+	@Test
 	public void testUpdateDescriptorAdvice() {
 		Map<String, String> map = new HashMap<>();
 		map.put("update.id", "testName");
@@ -70,6 +88,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("Test Description", updateDescriptor.getDescription());
 	}
 
+	@Test
 	public void testUpdateDescriptorAdviceDefaultBound() {
 		Map<String, String> map = new HashMap<>();
 		map.put("update.id", "testName");
@@ -90,6 +109,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("Test Description", updateDescriptor.getDescription());
 	}
 
+	@Test
 	public void testUpdateDescriptorWithMatch() {
 		Map<String, String> map = new HashMap<>();
 		map.put("update.matchExp", "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && (pc.name == 'B' || pc.name == 'C'))");
@@ -103,15 +123,11 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("Test Description", updateDescriptor.getDescription());
 		assertEquals(10, updateDescriptor.getSeverity());
 		//Here we test that the extraction of the name fails since this is not of an appropriate format
-		boolean exceptionRaised = false;
-		try {
-			RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
-		} catch (IllegalArgumentException e) {
-			exceptionRaised = true;
-		}
-		assertTrue(exceptionRaised);
+		assertThrows(IllegalArgumentException.class,
+				() -> RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next()));
 	}
 
+	@Test
 	public void testUpdateDescriptorAdviceDefaultBound2() {
 		Map<String, String> map = new HashMap<>();
 		map.put("update.id", "testName");
@@ -131,6 +147,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("Test Description", updateDescriptor.getDescription());
 	}
 
+	@Test
 	public void testUpdateDescriptorAdviceDefaultID() {
 		Map<String, String> map = new HashMap<>();
 		map.put("update.severity", "10");
@@ -149,6 +166,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("Test Description", updateDescriptor.getDescription());
 	}
 
+	@Test
 	public void testUpdateDescriptorAdviceDefaults() {
 		Map<String, String> map = new HashMap<>();
 		map.put("update.id", "id");
@@ -166,6 +184,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(null, updateDescriptor.getDescription());
 	}
 
+	@Test
 	public void testPropertyAdvice() {
 		Map<String, String> map = new HashMap<>();
 		map.put("properties.0.name", "testName1");
@@ -179,6 +198,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testValue2", parser.getProperties().get("testName2"));
 	}
 
+	@Test
 	public void testProvidesAdvice() {
 		Map<String, String> map = new HashMap<>();
 		map.put("provides.0.namespace", "testNamespace1");
@@ -209,6 +229,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(Version.emptyVersion, capabilities[1].getVersion());
 	}
 
+	@Test
 	public void testRequiresAdvice() {
 		Map<String, String> map = new HashMap<>();
 		map.put("requires.0.namespace", "testNamespace1");
@@ -250,6 +271,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(1, reqs[1].getMin());
 	}
 
+	@Test
 	public void testRequireWithExpression() {
 		Map<String, String> map = new HashMap<>();
 		String matchExp = "properties[abc] == 'def'";
@@ -268,6 +290,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(matchExpression, reqs[0].getMatches());
 	}
 
+	@Test
 	public void testRequireWithExpressionAndOptional() {
 		Map<String, String> map = new HashMap<>();
 		String matchExp = "properties[abc] == 'def'";
@@ -287,6 +310,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(1, reqs[0].getMax());
 	}
 
+	@Test
 	public void testMetaRequiresAdvice() {
 		Map<String, String> map = new HashMap<>();
 		map.put("metaRequirements.0.namespace", "testNamespace1");
@@ -328,6 +352,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(1, reqs[1].getMin());
 	}
 
+	@Test
 	public void testInstructionsAdvice() {
 		Map<String, String> map = new HashMap<>();
 		map.put("instructions.configure", "addProgramArg(programArg:-startup); addProgramArg(programArg:@artifact);");
@@ -346,6 +371,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("removeProgramArg(programArg:-startup); removeProgramArg(programArg:@artifact);)", unconfigure.getBody());
 	}
 
+	@Test
 	public void testAdditionalInstallableUnitDescriptionsAdvice() {
 		Map<String, String> map = new HashMap<>();
 		map.put("units.0.id", "testid0");

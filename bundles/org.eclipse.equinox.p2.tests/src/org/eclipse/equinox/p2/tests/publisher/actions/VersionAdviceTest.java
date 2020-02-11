@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2010 EclipseSource and others.
  *
  * This
@@ -14,21 +14,24 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 import org.eclipse.equinox.p2.tests.TestData;
+import org.junit.Test;
 
 /**
  * Test cases for VersionAdvice
  */
-public class VersionAdviceTest extends TestCase {
-
+public class VersionAdviceTest {
+	@Test
 	public void testBadVersionPropertyFile() {
 		VersionAdvice versionAdvice = new VersionAdvice();
 		versionAdvice.load(null, "some random string");
 	}
 
+	@Test
 	public void testLoadNullVersionAdvice() throws Exception {
 		String versionAdviceFoo = TestData.getFile("publisher", "versionadvicefoo.prop").toString();
 		VersionAdvice versionAdvice = new VersionAdvice();
@@ -38,6 +41,7 @@ public class VersionAdviceTest extends TestCase {
 		assertEquals("3.0", Version.create("1.4.0"), versionAdvice.getVersion(null, "org.eclipse.tptp"));
 	}
 
+	@Test
 	public void testLoadNullVersionAdvice2() throws Exception {
 		String versionAdviceFoo = TestData.getFile("publisher", "versionadvicefoo.prop").toString();
 		VersionAdvice versionAdvice = new VersionAdvice();
@@ -47,6 +51,7 @@ public class VersionAdviceTest extends TestCase {
 		assertEquals("3.0", Version.create("1.4.0"), versionAdvice.getVersion(null, "org.eclipse.tptp"));
 	}
 
+	@Test
 	public void testOverloadNull() throws Exception {
 		String versionAdviceFoo = TestData.getFile("publisher", "versionadvicefoo.prop").toString();
 		String versionAdviceBar = TestData.getFile("publisher", "versionadvicebar.prop").toString();
@@ -59,6 +64,7 @@ public class VersionAdviceTest extends TestCase {
 		assertEquals("3.0", Version.create("1.5.0"), versionAdvice.getVersion(null, "org.eclipse.tptp"));
 	}
 
+	@Test
 	public void testLoadVersionAdviceFoo() throws Exception {
 		String versionAdviceFoo = TestData.getFile("publisher", "versionadvicefoo.prop").toString();
 		VersionAdvice versionAdvice = new VersionAdvice();
@@ -69,6 +75,7 @@ public class VersionAdviceTest extends TestCase {
 		assertEquals("4.0", null, versionAdvice.getVersion(null, "org.eclipse.tptp"));
 	}
 
+	@Test
 	public void testLoadVersionAdviceBar() throws Exception {
 		String versionAdviceBar = TestData.getFile("publisher", "versionadvicebar.prop").toString();
 		VersionAdvice versionAdvice = new VersionAdvice();
@@ -79,6 +86,7 @@ public class VersionAdviceTest extends TestCase {
 		assertEquals("4.0", Version.create("1.5.0"), versionAdvice.getVersion("bar", "org.eclipse.tptp"));
 	}
 
+	@Test
 	public void testLoadVersionAdviceFooBar() throws Exception {
 		String versionAdviceFoo = TestData.getFile("publisher", "versionadvicefoo.prop").toString();
 		String versionAdviceBar = TestData.getFile("publisher", "versionadvicebar.prop").toString();

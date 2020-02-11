@@ -14,9 +14,10 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
-import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ import org.junit.Test;
  * Tests format(<>) - arrays.
  *
  */
-public class FormatArrayTest extends TestCase {
+public class FormatArrayTest {
 	@Test
 	public void testEmptyArray() {
 		assertThrows("Uncaught error: empty array group is not allowed:", IllegalArgumentException.class,

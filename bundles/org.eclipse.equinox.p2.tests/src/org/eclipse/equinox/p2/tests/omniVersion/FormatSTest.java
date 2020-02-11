@@ -14,29 +14,32 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+
 import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
 
 /**
  * Tests format(s), and format(S)
- * 
- * a string group matching any character except any following 
- * explicit/optional delimiter. Use processing rules =[]; or =[^] to define the set of allowed characters.
- * 
+ *
+ * a string group matching any character except any following explicit/optional
+ * delimiter. Use processing rules =[]; or =[^] to define the set of allowed
+ * characters.
+ *
  */
-public class FormatSTest extends TestCase {
+public class FormatSTest {
+	@Test
 	public void testStringAcceptDigit() {
 		Version v = Version.parseVersion("format(S):1");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:'1'"), v);
-		try {
-			Version.parseVersion("format(s):1");
-			fail("Uncaught error: s should not accept digits");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("Uncaught error: s should not accept digits", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(s):1"));
 	}
 
+	@Test
 	public void testStringAcceptAlpha() {
 		Version v = Version.parseVersion("format(s):a");
 		assertNotNull(v);
@@ -46,18 +49,16 @@ public class FormatSTest extends TestCase {
 		assertEquals(Version.parseVersion("raw:'a'"), v);
 	}
 
+	@Test
 	public void testStringDelimitedByNumeric() {
 		Version v = Version.parseVersion("format(sn):foobar123");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:'foobar'.123"), v);
-		try {
-			Version.parseVersion("format(Sn):foobar123");
-			fail("Uncaught error: S should eat entire string, no n found at the end");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("Uncaught error: S should eat entire string, no n found at the end",
+				IllegalArgumentException.class, () -> Version.parseVersion("format(Sn):foobar123"));
 	}
 
+	@Test
 	public void testStringWithSpace() {
 		Version v;
 
@@ -65,15 +66,11 @@ public class FormatSTest extends TestCase {
 		assertEquals(Version.parseVersion("raw:'foo bar'.123"), v);
 
 		// Test 's' with attempt to include 'space' and delimiters
-		//
-		try {
-			Version.parseVersion("format(s=[^];n):foo bar123");
-			fail("Uncaught error: format(s) can not match non letters (space).");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("Uncaught error: format(s) can not match non letters (space).", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(s=[^];n):foo bar123"));
 	}
 
+	@Test
 	public void testStringDelimitedByDelimiter() {
 		Version v = Version.parseVersion("format(s.n):foobar.123");
 		assertNotNull(v);
@@ -83,24 +80,28 @@ public class FormatSTest extends TestCase {
 		assertEquals(Version.parseVersion("raw:'foobar'.123"), v);
 	}
 
+	@Test
 	public void testStringDelimitedByExplicitDelimiter() {
 		Version v = Version.parseVersion("format(s=[^r];d=[r];n):foobar123");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:'fooba'.123"), v);
 	}
 
+	@Test
 	public void testStringWithAllowedSet() {
 		Version v = Version.parseVersion("format(s=[a-z];sn):fooBAR123");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:'foo'.'BAR'.123"), v);
 	}
 
+	@Test
 	public void testStringWithDisallowedSet() {
 		Version v = Version.parseVersion("format(s=[^a-z];sn):FOObar123");
 		assertNotNull(v);
 		assertEquals(Version.parseVersion("raw:'FOO'.'bar'.123"), v);
 	}
 
+	@Test
 	public void testExact() {
 		Version v = Version.parseVersion("format(S={4};S):123abc456'def'");
 		assertNotNull(v);
@@ -121,30 +122,20 @@ public class FormatSTest extends TestCase {
 		assertNotNull(v = Version.parseVersion("format(S={2};.S={1};s={3};):12.3abc"));
 		assertEquals(Version.parseVersion("raw:'12'.'3'.'abc'"), v);
 
-		try {
-			Version.parseVersion("format(s={4};.s):aaa.abc456'def'");
-			fail("Uncaught error: first segment is less than 4 chars long");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-		try {
-			Version.parseVersion("format(s={4};.s):123.abc456'def'");
-			fail("Uncaught error: first segment has digits");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-		try {
-			Version.parseVersion("format(S={4}=[^.];.S):123.abc456'def'");
-			fail("Uncaught error: first segment has only 3 characters");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("Uncaught error: first segment is less than 4 chars long", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(s={4};.s):aaa.abc456'def'"));
+		assertThrows("Uncaught error: first segment has digits", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(s={4};.s):123.abc456'def'"));
+		assertThrows("Uncaught error: first segment has only 3 characters", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(S={4}=[^.];.S):123.abc456'def'"));
 
 	}
 
 	/**
-	 * Test that unbound upper range is just a limit on lower range. Upper delimiter must be a delimiter.
+	 * Test that unbound upper range is just a limit on lower range. Upper delimiter
+	 * must be a delimiter.
 	 */
+	@Test
 	public void testAtLeast() {
 		Version v = Version.parseVersion("format(S={2,};):123abc456'def'");
 		assertNotNull(v);
@@ -153,20 +144,13 @@ public class FormatSTest extends TestCase {
 		assertNotNull(v = Version.parseVersion("format(S={2,};=[^.];.S):123a.bc456'def'"));
 		assertEquals(Version.parseVersion("raw:'123a'.\"bc456'def'\""), v);
 
-		try {
-			Version.parseVersion("format(s={2,};.S):a.abc456'def'");
-			fail("uncaught error: first segment is shorter than 2");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-		try {
-			Version.parseVersion("format(s={2,};.s={10,};):aa.abcd");
-			fail("Uncaught error: secont segment too short");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("Uncaught error: first segment is shorter than 2", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(s={2,};.S):a.abc456'def'"));
+		assertThrows("Uncaught error: second segment too short", IllegalArgumentException.class,
+				() -> Version.parseVersion("format(s={2,};.s={10,};):aa.abcd"));
 	}
 
+	@Test
 	public void testAtMost() {
 		Version v = Version.parseVersion("format(S={1,3};S={1,2};S):123abc456'def'");
 		assertNotNull(v);
@@ -176,19 +160,10 @@ public class FormatSTest extends TestCase {
 		assertNotNull(v = Version.parseVersion("format(S={1,4};=[^.];.S={1,4};.S):123.abc4.56'def'"));
 		assertEquals(Version.parseVersion("raw:'123'.'abc4'.\"56'def'\""), v);
 
-		try {
-			// fails because of delimiter after one char
-			Version.parseVersion("format(s={2,3};s):a.abc456'def'");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-		try {
-			// fails because there are trailing characters after 'c'
-			Version.parseVersion("format(s={2,3};.S={2,3};):aa.abc456'd'");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		// fails because of delimiter after one char
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("format(s={2,3};s):a.abc456'def'"));
+		// fails because there are trailing characters after 'c'
+		assertThrows(IllegalArgumentException.class,
+				() -> Version.parseVersion("format(s={2,3};.S={2,3};):aa.abc456'd'"));
 	}
 }

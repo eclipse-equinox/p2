@@ -14,23 +14,24 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
 
 /**
  * Simple performance comparison between OSGi version implementation and Omni Version.
  * Tests performance of creating version instances using 4 values, as well as string parsing.
  * Tests comparison of versions.
- * 
+ *
  * Aprox 10000 instances are created.
  * Comparison compares all instances against all other (i.e. about 10 milj).
- * 
+ *
  */
-public class PerformanceTest extends TestCase {
+public class PerformanceTest {
 	static final int MUL = 24;
 
 	static final String qualifierTemplate = "r20090112-12345-abcdefghijklmnopqrstuvwxyz"; // longer than MUL chars
 
+	@Test
 	public void testStringCreationPerformance() {
 		// Ensure that classes are loaded etc.
 		Version.MAX_VERSION.compareTo(Version.emptyVersion);
@@ -52,6 +53,7 @@ public class PerformanceTest extends TestCase {
 		// System.out.printf("String creation: osgi=%d, omni=%d, factor=%.2f\n", osgiTime, omniTime, factor(omniTime, osgiTime));
 	}
 
+	@Test
 	public void testCreationPerformance() {
 		// Ensure that classes are loaded etc.
 		Version.MAX_VERSION.compareTo(Version.emptyVersion);
@@ -71,6 +73,7 @@ public class PerformanceTest extends TestCase {
 		// System.out.printf("Creation: osgi=%d, omni=%d, factor=%f2\n", osgiTime, omniTime, factor(omniTime, osgiTime));
 	}
 
+	@Test
 	public void testComparePerformance() {
 		Version[] omniVersions = createOmniVersions();
 		org.osgi.framework.Version osgiVersions[] = createOsgiVersions();
@@ -88,6 +91,7 @@ public class PerformanceTest extends TestCase {
 		//System.out.printf("Compare (%d comparisons): osgi=%d, omni=%d\n, factor=%d", units, osgiTime, omniTime, omniTime / osgiTime);
 	}
 
+	@Test
 	public void testEqualsPerformance() {
 		Version[] omniVersions = createOmniVersions();
 		org.osgi.framework.Version osgiVersions[] = createOsgiVersions();
@@ -105,6 +109,7 @@ public class PerformanceTest extends TestCase {
 		//System.out.printf("Equals (%d comparisons): osgi=%d, omni=%d, factor=%d\n", units, osgiTime, omniTime, omniTime / osgiTime);
 	}
 
+	@Test
 	public void testToStringPerformance() {
 		Version[] omniVersions = createOmniVersions();
 		org.osgi.framework.Version osgiVersions[] = createOsgiVersions();
@@ -123,26 +128,22 @@ public class PerformanceTest extends TestCase {
 
 		//System.out.printf("toString (%d versions): osgi=%d, omni=%d\n", units, osgiTime, omniTime);
 	}
-
 	public static void osgiVersionToString(org.osgi.framework.Version versions[]) {
 		// compare every version against all other versions
 		for (int i = 0; i < MUL * MUL * MUL; i++)
 			versions[i].toString();
 	}
-
 	public static void omniVersionToString(Version versions[]) {
 		// compare every version against all other versions
 		for (int i = 0; i < MUL * MUL * MUL; i++)
 			versions[i].toString();
 	}
-
 	public static void omniVersionCreate() {
 		for (int i = 0; i < MUL; i++)
 			for (int j = 0; j < MUL; j++)
 				for (int k = 0; k < MUL; k++)
 					Version.createOSGi(i, j, k, qualifierTemplate);
 	}
-
 	public static void omniVersionCompare(Version versions[]) {
 		//compare every version against all other versions
 		for (int i = 0; i < MUL * MUL * MUL; i++)

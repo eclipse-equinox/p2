@@ -7,24 +7,30 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherApplication;
 import org.eclipse.equinox.p2.tests.StringBufferStream;
+import org.junit.Test;
 
-public class GeneralPublisherTests extends TestCase {
-
+public class GeneralPublisherTests {
+	@Test
 	public void testBug255820_Product_normalize() throws Exception {
 		Method normalizeMethod = ProductFile.class.getDeclaredMethod("normalize", String.class);
 		normalizeMethod.setAccessible(true);
@@ -34,6 +40,7 @@ public class GeneralPublisherTests extends TestCase {
 		assertEquals(normalizeMethod.invoke(null, "a\fbd\r\n e"), "a bd e");
 	}
 
+	@Test
 	public void testInvalidConfiguration1() {
 		FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication();
 		Integer retValue = 0;
@@ -52,6 +59,7 @@ public class GeneralPublisherTests extends TestCase {
 		assertEquals("1.1", Messages.exception_noMetadataRepo, application.getStatus().getMessage());
 	}
 
+	@Test
 	public void testInvalidConfiguration2() {
 		FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication();
 		Integer retValue = 0;
@@ -71,6 +79,7 @@ public class GeneralPublisherTests extends TestCase {
 
 	}
 
+	@Test
 	public void testQuotedTokenizer() throws Exception {
 		QuotedTokenizer tokenizer = new QuotedTokenizer("abra ca dabra");
 		assertEquals("abra", tokenizer.nextToken());
