@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 public class CoreGarbageCollector {
 
 	/**
-	 * When set to true, information will be logged every time an artifact is removed 
+	 * When set to true, information will be logged every time an artifact is removed
 	 */
 	static boolean debugMode = false;
 
