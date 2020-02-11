@@ -14,26 +14,28 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.junit.Test;
 
 /**
  * Tests version ranges specified using raw.
  *
  */
 public class RawRangeTest extends VersionTesting {
+	@Test
 	public void testEmptyRange() {
 		VersionRange range = new VersionRange("raw:''");
 		assertIncludedInRange("#1", range, "raw:'a'");
 
-		try {
-			new VersionRange("raw:");
-			fail("Uncaught error: a raw range can not be empty.");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("Uncaught error: a raw range can not be empty.", IllegalArgumentException.class,
+				() -> new VersionRange("raw:"));
 	}
 
+	@Test
 	public void testRangeDelimitersInStrings() {
 		VersionRange range = null;
 		range = new VersionRange("raw:['one\\,\\ two','three\\,\\ \\[and\\]\\ four']");
@@ -41,6 +43,7 @@ public class RawRangeTest extends VersionTesting {
 		assertIncludedInRange("#2", range, "raw:'three, [and] four'");
 	}
 
+	@Test
 	public void testRangeDelimitersInStringstoString() {
 		VersionRange range = null;
 		String s = null;
@@ -48,6 +51,7 @@ public class RawRangeTest extends VersionTesting {
 		assertEquals(s, range.toString());
 	}
 
+	@Test
 	public void testSingleVersionRange() {
 		VersionRange range;
 		range = new VersionRange("raw:[1.0.0, 1.0.0.'-')");
@@ -64,17 +68,15 @@ public class RawRangeTest extends VersionTesting {
 		assertNotIncludedInRange("2.4", range, "raw:2");
 	}
 
+	@Test
 	public void testInvertedRange() {
-		try {
-			new VersionRange("raw:[2.0.0, 1.0.0]");
-			fail("Inverted range is not allowed");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("\"Inverted range is not allowed\"", IllegalArgumentException.class,
+				() -> new VersionRange("raw:[2.0.0, 1.0.0]"));
 	}
 
+	@Test
 	public void testGreaterThan() {
-		// any version equal or greater than 1.0.0 is ok 
+		// any version equal or greater than 1.0.0 is ok
 		VersionRange lowerBound = new VersionRange("raw:1.0.0");
 		assertNotIncludedInRange("1.0", lowerBound, "raw:0.9.0");
 		assertIncludedInRange("1.1", lowerBound, "raw:1.0.0");
@@ -83,8 +85,9 @@ public class RawRangeTest extends VersionTesting {
 		assertIncludedInRange("1.3", lowerBound, "raw:M.M.M.m");
 	}
 
+	@Test
 	public void testGreaterThanSmallest() {
-		// any version equal or greater than -M' (empty string) is ok 
+		// any version equal or greater than -M' (empty string) is ok
 		VersionRange lowerBound = new VersionRange("raw:-M");
 		assertIncludedInRange("#1", lowerBound, "raw:-M");
 		assertIncludedInRange("#1.1", lowerBound, "raw:''");
@@ -98,8 +101,9 @@ public class RawRangeTest extends VersionTesting {
 		assertIncludedInRange("#8", lowerBound, "raw:MpM");
 	}
 
+	@Test
 	public void testLowerThan() {
-		// any version lower than 2.0 is ok 		
+		// any version lower than 2.0 is ok
 		VersionRange upperBound = new VersionRange("raw:[0, 2.0)");
 		assertIncludedInRange("1.0", upperBound, "raw:0.0");
 		assertIncludedInRange("1.1", upperBound, "raw:0.9");
@@ -109,6 +113,7 @@ public class RawRangeTest extends VersionTesting {
 		assertNotIncludedInRange("1.5", upperBound, "raw:2.1");
 	}
 
+	@Test
 	public void testSerialize() {
 		VersionRange v = null;
 
@@ -135,6 +140,7 @@ public class RawRangeTest extends VersionTesting {
 		assertSerialized(v);
 	}
 
+	@Test
 	public void testToString() {
 		VersionRange v = null;
 		String s = null;

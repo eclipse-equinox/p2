@@ -15,14 +15,20 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.junit.Test;
 
 /**
  * Tests ranges of versions specified with osgi (default) version format.
  *
  */
 public class OSGiRangeTest extends VersionTesting {
+	@Test
 	public void testSingleVersionRange() {
 		VersionRange range;
 		range = new VersionRange("[1.0.0, 1.0.0.-)");
@@ -37,17 +43,15 @@ public class OSGiRangeTest extends VersionTesting {
 		assertTrue("2.4", !range.isIncluded(Version.parseVersion("2")));
 	}
 
+	@Test
 	public void testInvertedRange() {
-		try {
-			new VersionRange("[2.0.0, 1.0.0]");
-			fail("Inverted range is not allowed");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows("Inverted range is not allowed", IllegalArgumentException.class,
+				() -> new VersionRange("[2.0.0, 1.0.0]"));
 	}
 
+	@Test
 	public void testGreaterThan() {
-		// any version equal or greater than 1.0 is ok 
+		// any version equal or greater than 1.0 is ok
 		VersionRange lowerBound = new VersionRange("1.0.0");
 		assertTrue("1.0", !lowerBound.isIncluded(Version.parseVersion("0.9")));
 		assertTrue("1.1", lowerBound.isIncluded(Version.parseVersion("1.0")));
@@ -58,8 +62,9 @@ public class OSGiRangeTest extends VersionTesting {
 
 	}
 
+	@Test
 	public void testLowerThan() {
-		// any version lower than 2.0 is ok 		
+		// any version lower than 2.0 is ok
 		VersionRange upperBound = new VersionRange("[0,2.0)");
 		assertTrue("1.0", upperBound.isIncluded(Version.parseVersion("0.0")));
 		assertTrue("1.1", upperBound.isIncluded(Version.parseVersion("0.9")));
@@ -69,6 +74,7 @@ public class OSGiRangeTest extends VersionTesting {
 		assertTrue("1.5", !upperBound.isIncluded(Version.parseVersion("2.1")));
 	}
 
+	@Test
 	public void testRangeStrings() {
 		VersionRange v = null;
 
@@ -96,9 +102,10 @@ public class OSGiRangeTest extends VersionTesting {
 	}
 
 	/**
-	 * Tests that null values passed to the {@link VersionRange} constructor
-	 * are not interpreted as MIN/MAX versions.
+	 * Tests that null values passed to the {@link VersionRange} constructor are not
+	 * interpreted as MIN/MAX versions.
 	 */
+	@Test
 	public void testNullConstructor() {
 		VersionRange range = new VersionRange(null);
 		assertEquals("1.0", range.getMinimum(), Version.emptyVersion);
@@ -109,6 +116,7 @@ public class OSGiRangeTest extends VersionTesting {
 		assertEquals("2.1", range.getMaximum(), Version.MAX_VERSION);
 	}
 
+	@Test
 	public void testSerialize() {
 		VersionRange v = null;
 

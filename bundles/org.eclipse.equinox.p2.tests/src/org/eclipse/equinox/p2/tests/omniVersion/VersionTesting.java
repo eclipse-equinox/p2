@@ -14,8 +14,17 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import java.io.*;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import org.eclipse.equinox.internal.p2.metadata.VersionVector;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
@@ -24,7 +33,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
  * Base class for version testing. Adds useful assert methods.
  *
  */
-public class VersionTesting extends TestCase {
+public class VersionTesting {
 	/**
 	 * Asserts that the versionString version is included in the range.
 	 * @param message

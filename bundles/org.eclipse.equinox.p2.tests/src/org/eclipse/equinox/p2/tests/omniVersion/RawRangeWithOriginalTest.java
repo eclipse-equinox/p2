@@ -14,151 +14,123 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
 import org.eclipse.equinox.internal.p2.metadata.VersionFormat;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.junit.Test;
 
 /**
  * Tests inclusion of original version range string in raw format.
  * The tests in this class does not fully test the various "format(rules)" only that the sequence
  * "raw RANGE/format():ORIGINAL RANGE" works, and that errors at the top level are caught.
- * 
+ *
  */
 public class RawRangeWithOriginalTest extends VersionTesting {
-
+	@Test
 	public void testRawWithUnknownFormat() {
 		VersionRange v = new VersionRange("raw:[1.0,2.0]/:sailor.moon.R,sailor.moon.S");
 		assertEquals(v, new VersionRange("raw:[1.0,2.0]"));
 	}
 
+	@Test
 	public void testRawWithUnknownFormatToString() {
 		assertEquals("raw:[1.0,2.0]/:sailor.moon.R,sailor.moon.S", new VersionRange("raw:[1.0,2.0]/:sailor.moon.R,sailor.moon.S").toString());
 	}
 
+	@Test
 	public void testRawWithUnknownFormatSerialized() {
 		assertSerialized(new VersionRange("raw:[1.0,2.0]/:sailor.moon.R,sailor.moon.S"));
 		assertEquals("raw:[1.0,2.0]/:sailor.moon.R,sailor.moon.S", getSerialized(new VersionRange("raw:[1.0,2.0]/:sailor.moon.R,sailor.moon.S")).toString());
 	}
 
+	@Test
 	public void testRawWithSimpleFormat() {
 		VersionRange v = new VersionRange("raw:[1.0,2.0]/format(n.n):[1.0,2.0]");
 		assertEquals(v, new VersionRange("raw:[1.0,2.0]"));
 	}
 
+	@Test
 	public void testRawWithSimpleFormatToString() {
 		// range brackets are normalized in toString - not needed in original
 		assertEquals("raw:[1.0,2.0]/format(n.n):1.0,2.0", new VersionRange("raw:[1.0,2.0]/format(n.n):[1.0,2.0]").toString());
 	}
 
+	@Test
 	public void testSimpleFormatToString() {
 		// range brackets are normalized in toString - not needed in original
 		assertEquals("raw:[1.0,2.0]/format(n.n):1.0,2.0", new VersionRange("format(n.n):[1.0,2.0]").toString());
 	}
 
+	@Test
 	public void testRawWithSimpleFormatSerialized() {
 		assertSerialized(new VersionRange("raw:[1.0,2.0]/format(n.n):[1.0,2.0]"));
 		// range brackets are normalized in toString - not needed in original
 		assertEquals("raw:[1.0,2.0]/format(n.n):1.0,2.0", getSerialized(new VersionRange("raw:[1.0,2.0]/format(n.n):[1.0,2.0]")).toString());
 	}
 
+	@Test
 	public void testOriginalStatedButMissing() {
-		try {
-			new VersionRange("raw:[1.0,2.0]/");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+			assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]/"));
 	}
 
+	@Test
 	public void testOriginalAndUnknownStatedButMissing() {
-		try {
-			new VersionRange("raw:[1.0,2.0]/:");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]/:"));
 	}
 
+	@Test
 	public void testOriginalIllegalFormat() {
-		try {
-			new VersionRange("raw:[1.0,2.0]/foo:");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]/foo:"));
 	}
 
+	@Test
 	public void testOriginalIllegalFormat2() {
-		try {
-			new VersionRange("raw:[1.0,2.0]/100:");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]/100:"));
 	}
 
+	@Test
 	public void testOriginalIllegalFormat3() {
-		try {
-			new VersionRange("raw:[1.0,2.0]/'format':");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]/'format':"));
 	}
 
+	@Test
 	public void testOriginalIllegalFormat4() {
-		try {
-			new VersionRange("raw:[1.0,2.0]//1.0");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]//1.0"));
 	}
 
+	@Test
 	public void testOriginalIllegalFormat5() {
-		try {
-			new VersionRange("raw:[1.0,2.0]/format:");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]/format:"));
 	}
 
+	@Test
 	public void testOriginalFormatUnbalancedLeft() {
-		try {
-			new VersionRange("raw:[1.0,2.0]/formatn.n):");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]/formatn.n):"));
 	}
 
+	@Test
 	public void testOriginalFormatUnbalancedRight() {
-		try {
-			new VersionRange("raw:[1.0,2.0]/format(n.n:1.0");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]/format(n.n:1.0"));
 	}
 
+	@Test
 	public void testOriginalFormatOriginalMissing() {
-		try {
-			new VersionRange("raw:[1.0,2.0]/format(n.n):");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> new VersionRange("raw:[1.0,2.0]/format(n.n):"));
 	}
 
+	@Test
 	public void testGreaterThan() {
-		// any version equal or greater than 1.0.0 is ok 
+		// any version equal or greater than 1.0.0 is ok
 		VersionRange lowerBound = new VersionRange("raw:2.1.0.M/format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
 		assertNotIncludedInRange("1.0", lowerBound, "raw:2.0.9");
 		assertIncludedInRange("1.1", lowerBound, "raw:2.2");
 		assertIncludedInRange("1.3", lowerBound, "raw:999.999.999.'foo'");
 	}
 
+	@Test
 	public void testMinBoundary() {
 		String rangeString = "raw:[-M,2.1.0.M]/format(n[.n=0;[.n=0;]][d?S=M;]):-M,2.1";
 		VersionRange range = new VersionRange(rangeString);
@@ -171,6 +143,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 		assertEquals(range2, range);
 	}
 
+	@Test
 	public void testOSGiMinBoundary() {
 		String rangeString = "raw:[-M,2.1.0.'']/format(" + VersionFormat.OSGI_FORMAT_STRING + "):-M,2.1.0";
 		VersionRange range = new VersionRange(rangeString);
@@ -184,6 +157,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 		assertEquals(range2, range);
 	}
 
+	@Test
 	public void testMaxBoundary() {
 		String rangeString = "raw:[2.1.0.M,MpM]/format(n[.n=0;[.n=0;]][d?S=M;]):2.1,MpM";
 		VersionRange range = new VersionRange(rangeString);
@@ -196,6 +170,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 		assertEquals(range2, range);
 	}
 
+	@Test
 	public void testRecreateUsingMaxUpper() {
 		Version v = Version.create("format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
 		VersionRange range = new VersionRange(v, true, null, true);
@@ -205,6 +180,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 		assertEquals(range2, range);
 	}
 
+	@Test
 	public void testRecreateUsingMinLower() {
 		Version v = Version.create("format(n[.n=0;[.n=0;]][d?S=M;]):2.1");
 		VersionRange range = new VersionRange(null, true, v, true);
@@ -214,6 +190,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 		assertEquals(range2, range);
 	}
 
+	@Test
 	public void testOSGiMaxBoundary() {
 		String rangeString = "raw:[2.1.0.'',MpM]/format(" + VersionFormat.OSGI_FORMAT_STRING + "):2.1.0,MpM";
 		VersionRange range = new VersionRange(rangeString);

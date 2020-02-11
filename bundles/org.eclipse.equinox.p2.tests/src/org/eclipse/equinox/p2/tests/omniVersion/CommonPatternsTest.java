@@ -14,8 +14,11 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.equinox.p2.metadata.IVersionFormat;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
 
 /**
  * Test common patterns:
@@ -23,7 +26,7 @@ import org.eclipse.equinox.p2.metadata.Version;
  * - Mozilla
  * - RPM
  * - JSR277 (proposed version handling as documented Dec 30, 2008).
- * 
+ *
  */
 public class CommonPatternsTest extends VersionTesting {
 	public static String TRIPLET_FORMAT_STRING = "n=0;[.n=0;[.n=0;]][dS=m;]";
@@ -32,6 +35,7 @@ public class CommonPatternsTest extends VersionTesting {
 	public static String RPM_PREFIX = "format(<[n=0;:]a(d=[^a-zA-Z0-9@_-];?a)*>[-n[dS=!;]]):";
 	public static String JSR277_PREFIX = "format(n(.n=0;){0,3}[-S=m;]):";
 
+	@Test
 	public void testMozillaPattern() {
 
 		// 1.-1
@@ -114,11 +118,13 @@ public class CommonPatternsTest extends VersionTesting {
 		assertOrder(v17, v18);
 	}
 
+	@Test
 	public void testMozillaPatternToString() {
 		String test = MOZ_PREFIX + "1.1pre1aa";
 		assertEquals(MOZ_PREFIX, Version.parseVersion(test).getFormat().toString() + ':');
 	}
 
+	@Test
 	public void testTripletPattern() {
 		Version v1 = Version.parseVersion(TRIPLE_PREFIX + "1");
 		Version v1a = Version.parseVersion(TRIPLE_PREFIX + "1.0");
@@ -142,11 +148,13 @@ public class CommonPatternsTest extends VersionTesting {
 		assertOrder(v6, v3);
 	}
 
+	@Test
 	public void testTripletPatternToString() {
 		String test = TRIPLE_PREFIX + "1.0-FC1";
 		assertEquals(TRIPLE_PREFIX, Version.parseVersion(test).getFormat().toString() + ':');
 	}
 
+	@Test
 	public void testTripletPatternToOSGi() throws Exception {
 		IVersionFormat triplet = Version.compile(TRIPLET_FORMAT_STRING);
 		assertEquals(Version.createOSGi(1, 0, 0), triplet.parse("1.0.0." + IVersionFormat.DEFAULT_MIN_STRING_TRANSLATION));
@@ -157,17 +165,20 @@ public class CommonPatternsTest extends VersionTesting {
 		assertEquals(Version.createOSGi(1, 0, 0), Version.create("raw:1.0.0.''"));
 	}
 
+	@Test
 	public void testMinTranslation() throws Exception {
 		IVersionFormat format = Version.compile("n=0;[.n=0;[.n=0;]][dS=m{!};]");
 		assertEquals(Version.create("raw:1.0.0.''"), format.parse("1.0.0.!"));
 	}
 
+	@Test
 	public void testMaxTranslation() throws Exception {
 		IVersionFormat format = Version.compile("n=0;[.n=0;[.n=0;]][dS=''{~,4};]");
 		assertEquals(Version.create("raw:1.0.0.m"), format.parse("1.0.0.~~~~"));
 	}
 
 	// TODO: Not clear what a missing RPM EPOCH (i.e. first '.n:' should be interpreted as
+	@Test
 	public void testRPMPattern() {
 		Version v1 = Version.parseVersion(RPM_PREFIX + "33:1.2.3a-23/i386");
 		assertEquals(Version.parseVersion("raw:<33.1.2.3.'a'>.23"), v1);
@@ -191,6 +202,7 @@ public class CommonPatternsTest extends VersionTesting {
 		assertOrder(v13, v14);
 	}
 
+	@Test
 	public void testRPMPatternToString() {
 		String test = RPM_PREFIX + "33:1.2.3a-23/i386";
 		assertEquals(RPM_PREFIX, Version.parseVersion(test).getFormat().toString() + ':');
@@ -200,6 +212,7 @@ public class CommonPatternsTest extends VersionTesting {
 	 * JSR277 works like triplet, but has 4 elements. The last qualifier can be used without specifying the preceding
 	 * three segments.
 	 */
+	@Test
 	public void testJsr277Pattern() {
 		Version v1 = Version.parseVersion(JSR277_PREFIX + "1");
 		Version v1a = Version.parseVersion(JSR277_PREFIX + "1.0");
@@ -228,6 +241,7 @@ public class CommonPatternsTest extends VersionTesting {
 		assertOrder(v3, v5);
 	}
 
+	@Test
 	public void testJsr277PatternToString() {
 		String test = JSR277_PREFIX + "1.0.0.0-a";
 		assertEquals(JSR277_PREFIX, Version.parseVersion(test).getFormat().toString() + ':');

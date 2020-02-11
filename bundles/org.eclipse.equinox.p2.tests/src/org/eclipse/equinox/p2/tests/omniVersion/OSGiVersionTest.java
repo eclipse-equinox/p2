@@ -14,7 +14,14 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
 import org.eclipse.equinox.p2.metadata.Version;
+import org.junit.Test;
 
 /**
  * Tests versions specified with default OSGi version strings and tests OSGi compatibility
@@ -22,7 +29,7 @@ import org.eclipse.equinox.p2.metadata.Version;
  *
  */
 public class OSGiVersionTest extends VersionTesting {
-
+	@Test
 	public void testBasicParsing() {
 
 		// should parse without exception
@@ -34,6 +41,7 @@ public class OSGiVersionTest extends VersionTesting {
 		assertNotNull(Version.parseVersion("1.0.0.r12345_hello"));
 	}
 
+	@Test
 	public void testOSGiStrings() {
 
 		Version v = Version.parseVersion(null);
@@ -54,6 +62,7 @@ public class OSGiVersionTest extends VersionTesting {
 		assertEquals("1.0.0.r12345_hello", v.toString());
 	}
 
+	@Test
 	public void testSerialize() {
 
 		Version v = null;
@@ -71,107 +80,63 @@ public class OSGiVersionTest extends VersionTesting {
 		assertSerialized(v);
 	}
 
+	@Test
 	public void testNegativeFirstValue() {
-		try {
-			Version.parseVersion("-1");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("-1"));
 	}
 
+	@Test
 	public void testPeriodInQualifier() {
-		try {
-			Version.parseVersion("1.0.0.sailor.moon");
-			fail("Uncaught exception: period is not allowed in osgi qualifier");
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-
+		assertThrows("Uncaught exception: period is not allowed in osgi qualifier", IllegalArgumentException.class,
+				() -> Version.parseVersion("1.0.0.sailor.moon"));
 	}
 
+	@Test
 	public void testNegativeSecondValue() {
-		try {
-			Version.parseVersion("1.-1");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("1.-1"));
 	}
 
+	@Test
 	public void testNegativeThirdValue() {
-		try {
-			Version.parseVersion("1.0.-1");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("1.0.-1"));
 	}
 
+	@Test
 	public void testEmptyFourthValue() {
-		try {
-			Version.parseVersion("1.0.0.");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("1.0.0."));
 	}
 
+	@Test
 	public void testStringFirstValue() {
-		try {
-			Version.parseVersion("a");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("a"));
 	}
 
+	@Test
 	public void testStringSecondValue() {
-		try {
-			Version.parseVersion("1.a");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("1.a"));
 	}
 
+	@Test
 	public void testStringThirdValue() {
-		try {
-			Version.parseVersion("1.0.a");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("1.0.a"));
 	}
 
+	@Test
 	public void testSinglePeriod() {
-		try {
-			Version.parseVersion(".");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("."));
 	}
 
+	@Test
 	public void testTwoPeriods() {
-		try {
-			Version.parseVersion("..");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion(".."));
 	}
 
+	@Test
 	public void testThreePeriods() {
-		try {
-			Version.parseVersion("...");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-
+		assertThrows(IllegalArgumentException.class, () -> Version.parseVersion("..."));
 	}
 
+	@Test
 	public void testEquality() {
 		// should parse without exception
 		Version v1 = Version.parseVersion("1");
@@ -188,6 +153,7 @@ public class OSGiVersionTest extends VersionTesting {
 
 	}
 
+	@Test
 	public void testVersionCompare() {
 		// should parse without exception
 		Version v1 = Version.parseVersion("1");
@@ -209,6 +175,7 @@ public class OSGiVersionTest extends VersionTesting {
 
 	}
 
+	@Test
 	public void testCompatability() {
 		Version v = Version.parseVersion("raw:1.2.3.'foo'");
 		assertNotNull(v);
