@@ -5,15 +5,15 @@
  * and is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
- * 
+ *
  * Ericsson AB (Pascal Rapicault) - Bug 397216 -[Shared] Better shared
  * configuration change discovery
- * 
+ *
  * Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
  * read .info files from many locations
- * 
+ *
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
@@ -57,7 +57,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	/**
 	 * Return the ConfiguratorConfigFile which is determined by the parameters set
 	 * in Manipulator.
-	 * 
+	 *
 	 * @param manipulator
 	 * @return File
 	 */

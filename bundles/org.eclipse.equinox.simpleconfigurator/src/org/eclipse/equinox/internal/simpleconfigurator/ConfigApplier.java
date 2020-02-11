@@ -7,8 +7,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
  * read .info files from many locations, Bug 460967
@@ -445,8 +445,8 @@ class ConfigApplier {
 	}
 
 	/**
-	 * Uninstall bundles which are not listed on finalList.  
-	 * 
+	 * Uninstall bundles which are not listed on finalList.
+	 *
 	 * @param finalList bundles list not to be uninstalled.
 	 * @param packageAdmin package admin service.
 	 * @return Collection HashSet of bundles finally installed.

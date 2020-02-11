@@ -24,32 +24,32 @@ import org.osgi.framework.*;
 
 /**
  * At its start, SimpleConfigurator bundle does the followings.
- * 
- * 1. A value will be gotten by @{link BundleContext#getProperty(key)} with 
+ *
+ * 1. A value will be gotten by @{link BundleContext#getProperty(key)} with
  * {@link SimpleConfiguratorConstants#PROP_KEY_CONFIGURL} as a key.
- * The value will be used for the referal URL. Under the url, there must be a simple 
+ * The value will be used for the referal URL. Under the url, there must be a simple
  * bundles list file to be installed with thier start level and flag of marked as started.
- * 
+ *
  * 2. If the value is null, do nothing any more.
  * 3. Otherwise, retrieve the bundles list from the url and install,
  *  set start level of and start bundles, as specified.
- * 
- * 4. A value will be gotten by @{link BundleContext#getProperty(key)} with 
+ *
+ * 4. A value will be gotten by @{link BundleContext#getProperty(key)} with
  * {@link SimpleConfiguratorConstants#PROP_KEY_EXCLUSIVE_INSTALLATION} as a key.
- * 
- * 5. If it equals "false", it will do exclusive installation, which means that 
+ *
+ * 5. If it equals "false", it will do exclusive installation, which means that
  * the bundles will not be listed in the specified url but installed at the time
- * of the method call except SystemBundle will be uninstalled. 
+ * of the method call except SystemBundle will be uninstalled.
  * Otherwise, no uninstallation will not be done.
- * 
+ *
  */
 public class Activator implements BundleActivator {
 	public final static boolean DEBUG = false;
 
 	/**
-	 * If this property is set to true, simpleconfigurator will attempt to read 
+	 * If this property is set to true, simpleconfigurator will attempt to read
 	 * multiple *.info files.
-	 * 
+	 *
 	 * This field is writable only for test purposes.
 	 */
 	public static String EXTENSIONS = System.getProperty("p2.fragments");

@@ -7,8 +7,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  * 		IBM Corporation - initial API and implementation
  * 		Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
  * read .info files from many locations
@@ -200,8 +200,8 @@ public class SimpleConfiguratorUtils {
 
 	/**
 	 * Read the configuration from the given InputStream
-	 * 
-	 * @param stream - the stream is always closed 
+	 *
+	 * @param stream - the stream is always closed
 	 * @param base
 	 * @return List of {@link BundleInfo}
 	 * @throws IOException
@@ -234,9 +234,9 @@ public class SimpleConfiguratorUtils {
 	}
 
 	/*
-	 * We expect the first line of the bundles.info to be 
+	 * We expect the first line of the bundles.info to be
 	 *    #encoding=UTF-8
-	 * if it isn't, then it is an older bundles.info and should be 
+	 * if it isn't, then it is an older bundles.info and should be
 	 * read with the default encoding
 	 */
 	private static String determineEncoding(BufferedInputStream stream) {

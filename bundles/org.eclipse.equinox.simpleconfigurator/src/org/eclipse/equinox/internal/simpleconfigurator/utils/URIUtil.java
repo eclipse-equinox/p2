@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
@@ -180,8 +180,8 @@ public class URIUtil {
 
 	/**
 	 * Returns a URI as a URL.
-	 * 
-	 * @throws MalformedURLException 
+	 *
+	 * @throws MalformedURLException
 	 */
 	public static URL toURL(URI uri) throws MalformedURLException {
 		return new URL(uri.toString());

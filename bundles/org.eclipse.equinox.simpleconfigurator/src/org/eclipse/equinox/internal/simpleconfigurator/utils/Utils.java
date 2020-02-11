@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
@@ -21,7 +21,7 @@ import java.util.List;
 /*
  * This class was copied from org.eclipse.equinox.internal.frameworkadmin.utils
  * package of org.eclipse.equinox.frameworkadmin plugin on March 3 2007.
- * 
+ *
  * The reason why it was copied is to make simpleconfigurator dependent on any
  * bundles(org.eclipse.equinox.framework).
  */

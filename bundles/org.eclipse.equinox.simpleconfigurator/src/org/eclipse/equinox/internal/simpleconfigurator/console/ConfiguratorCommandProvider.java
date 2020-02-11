@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -44,7 +44,7 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 
 	/**
 	 * Apply the current configuration
-	 * @param interpreter 
+	 * @param interpreter
 	 */
 	public void _confapply(CommandInterpreter interpreter) {
 		String parameter = interpreter.nextArgument();
@@ -57,7 +57,7 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 
 	/**
 	 * Handles the help command
-	 * 
+	 *
 	 * @param intp
 	 * @return description for a particular command or false if there is no command with the specified name
 	 */

@@ -7,12 +7,12 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Ericsson AB (Pascal Rapicault) - Bug 397216 -[Shared] Better shared configuration change discovery
  *      Red Hat, Inc (Krzysztof Daniel) - Bug 421935: Extend simpleconfigurator to
- * read .info files from many locations 
+ * read .info files from many locations
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator;
 
@@ -29,9 +29,9 @@ import org.osgi.framework.BundleContext;
  * SimpleConfigurator provides ways to install bundles listed in a file
  * accessible by the specified URL and expect states for it in advance without
  * actual application.
- * 
+ *
  * In every methods of SimpleConfiguration object,
- * 
+ *
  * 1. A value will be gotten by @{link BundleContext#getProperty(key) with
  * {@link SimpleConfiguratorConstants#PROP_KEY_EXCLUSIVE_INSTALLATION} as a key.
  * 2. If it equals "true", it will do exclusive installation, which means that
@@ -115,7 +115,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 	/**
 	 * This method is public for testing purposes only.
 	 * @param relativeURL - a relative URL of the configuration
-	 * @param configURL - an array of parent config URLs to which relativeURL can be appended. 
+	 * @param configURL - an array of parent config URLs to which relativeURL can be appended.
 	 */
 	public URL chooseConfigurationURL(URL relativeURL, URL[] configURL) throws MalformedURLException {
 		if (configURL != null) {
