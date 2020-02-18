@@ -563,6 +563,12 @@ public class BackupStore implements IBackupStore {
 		File buRoot = new File(backupRoot, backupName);
 		if (!fullyDelete(buRoot))
 			logWarning(NLS.bind(Messages.BackupStore_can_not_remove_bu_directory, buRoot.getAbsolutePath()));
+		for (String newName : renamedInPlace.values()) {
+			File buFile = new File(newName);
+			if (!fullyDelete(buFile)) {
+				logWarning(NLS.bind(Messages.BackupStore_can_not_remove_bu_file, buRoot.getAbsolutePath()));
+			}
+		}
 	}
 
 	private static void logWarning(String message) {

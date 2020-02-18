@@ -13,7 +13,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.BackupStore;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -96,7 +100,11 @@ public class BackupStoreTest extends AbstractProvisioningTest {
 
 	public void testBackupByRenamingFile() {
 		String filePath = aTxt.getAbsolutePath();
-		new BackupStore(null, BUPREFIX) {
+		class TestBackupByRenamingFileBackupStore extends BackupStore {
+			public TestBackupByRenamingFileBackupStore() {
+				super(null, BUPREFIX);
+			}
+
 			@Override
 			public void renameInPlace(File file) {
 				super.renameInPlace(file);
@@ -106,15 +114,24 @@ public class BackupStoreTest extends AbstractProvisioningTest {
 			protected String getTimeStamp() {
 				return "-123";
 			}
-		}.renameInPlace(aTxt);
+		}
+		TestBackupByRenamingFileBackupStore backupStore = new TestBackupByRenamingFileBackupStore();
+		backupStore.renameInPlace(aTxt);
 
 		assertFalse(aTxt.exists());
 		assertTrue(new File(filePath + "-123.p2bu").exists());
+
+		backupStore.discard();
+		assertFalse(new File(filePath + "-123.p2bu").exists());
 	}
 
 	public void testRenameIfMoveToBackupFails() throws IOException {
 		String filePath = aTxt.getAbsolutePath();
-		new BackupStore(null, BUPREFIX) {
+		class TestRenameIfMoveToBackupFailsBackupStore extends BackupStore {
+			public TestRenameIfMoveToBackupFailsBackupStore() {
+				super(null, BUPREFIX);
+			}
+
 			@Override
 			public void renameInPlace(File file) {
 				super.renameInPlace(file);
@@ -134,11 +151,16 @@ public class BackupStoreTest extends AbstractProvisioningTest {
 			protected String getTimeStamp() {
 				return "-123";
 			}
-		}.moveToBackup(aTxt, bTxt);
+		}
+		TestRenameIfMoveToBackupFailsBackupStore backupStore = new TestRenameIfMoveToBackupFailsBackupStore();
+		backupStore.moveToBackup(aTxt, bTxt);
 
 		assertFalse(aTxt.exists());
 		assertTrue(new File(filePath + "-123.p2bu").exists());
 		assertFalse(bTxt.exists());
+
+		backupStore.discard();
+		assertFalse(new File(filePath + "-123.p2bu").exists());
 	}
 
 	public void testDoNotRenameIfMoveToBackupWorks() throws IOException {

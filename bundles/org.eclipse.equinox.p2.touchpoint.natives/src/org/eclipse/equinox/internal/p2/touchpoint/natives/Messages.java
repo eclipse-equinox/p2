@@ -34,6 +34,7 @@ public class Messages extends NLS {
 	public static String BackupStore_can_not_delete_tmp_file;
 	public static String BackupStore_can_not_remove;
 	public static String BackupStore_can_not_remove_bu_directory;
+	public static String BackupStore_can_not_remove_bu_file;
 	public static String BackupStore_directory_file_mismatch;
 	public static String BackupStore_directory_not_empty;
 	public static String BackupStore_errors_while_restoring_see_log;
