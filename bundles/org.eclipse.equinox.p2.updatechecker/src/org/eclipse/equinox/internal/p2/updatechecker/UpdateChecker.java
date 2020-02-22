@@ -84,7 +84,7 @@ public class UpdateChecker implements IUpdateChecker {
 					} else {
 						trace("No updates were available"); //$NON-NLS-1$
 					}
-					if (delay == ONE_TIME_CHECK || delay <= 0) {
+					if (delay == ONE_TIME_CHECK || delay <= 0 || poll <= 0) {
 						done = true;
 					} else {
 						Thread.sleep(poll);
