@@ -15,8 +15,11 @@
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ChmodAction;
@@ -92,7 +95,9 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 
 		xparameters = Collections.unmodifiableMap(parameters);
 		IStatus result = action.execute(xparameters);
-		assertFalse("Missing file should result in error", result.isOK());
+		assertFalse(
+				"Missing file should result in error, except on Windows where ChmodAction is a no-op",
+				!Platform.getOS().equals(Platform.OS_WIN32) && result.isOK());
 		action.undo(xparameters);
 
 	}
