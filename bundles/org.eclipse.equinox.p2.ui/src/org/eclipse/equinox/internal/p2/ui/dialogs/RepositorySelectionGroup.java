@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corporation and others.
+ * Copyright (c) 2009, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Yury Chernikov <Yury.Chernikov@borland.com> - Bug 271447 [ui] Bad layout in 'Install available software' dialog
+ *     Pierre-Yves B. <pyvesdev@gmail.com> - Bug 281164 - [ui] Install new software dialog 'Work with' 'type or select a site' should not be a selection
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -157,21 +158,35 @@ public class RepositorySelectionGroup {
 			URI location = null;
 			IStatus status = null;
 			String text = repoCombo.getText().trim();
-			int index = getComboIndex(text);
-			// only validate text that doesn't match existing text in combo
-			if (index < 0) {
-				location = tracker.locationFromString(repoCombo.getText());
-				if (location == null) {
-					status = tracker.getInvalidLocationStatus(repoCombo.getText());
+			if (!text.isEmpty()) {
+				int index = getComboIndex(text);
+				// only validate text that doesn't match existing text in combo
+				if (index < 0) {
+					location = tracker.locationFromString(repoCombo.getText());
+					if (location == null) {
+						status = tracker.getInvalidLocationStatus(repoCombo.getText());
+					} else {
+						status = tracker.validateRepositoryLocation(ui.getSession(), location, false, new NullProgressMonitor());
+					}
 				} else {
-					status = tracker.validateRepositoryLocation(ui.getSession(), location, false, new NullProgressMonitor());
+					// user typed or pasted an existing location.  Select it.
+					repoComboSelectionChanged();
 				}
-			} else {
-				// user typed or pasted an existing location.  Select it.
-				repoComboSelectionChanged();
 			}
 			setRepoComboDecoration(status);
 		});
+
+		// Clear default text when user clicks in the combo box.
+		repoCombo.addMouseListener(MouseListener.mouseDownAdapter(e -> {
+			if (repoCombo.getText().equals(SITE_NONE))
+				repoCombo.setText(""); //$NON-NLS-1$
+		}));
+
+		// Restore default text when focus is lost from the combo box.
+		repoCombo.addFocusListener(FocusListener.focusLostAdapter(e -> {
+			if (repoCombo.getText().isEmpty())
+				fillRepoCombo(SITE_NONE);
+		}));
 
 		repoDec = new ControlDecoration(repoCombo, SWT.LEFT | SWT.TOP);
 		repoDec.setMarginWidth(DEC_MARGIN_WIDTH);
