@@ -20,10 +20,12 @@ import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.engine.ProfilePreferences;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.MigrationWizard;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -350,6 +352,15 @@ public class VerifierApplication implements IApplication {
 		MigrationWizard wizardPage = new MigrationWizard(profile, Collections.emptyList(), new URI[0], false);
 		int cancelAnswer = Integer.parseInt(properties.getProperty("checkMigration.cancelAnswer"));
 		wizardPage.rememberCancellationDecision(cancelAnswer);
+		// The preferences are saved by:
+		// org.eclipse.equinox.internal.p2.engine.ProfilePreferences.SaveJob
+		// This job is scheduled with a delay: saveJob.schedule(SAVE_SCHEDULE_DELAY).
+		// We'd best wait for that job to complete before existing.
+		try {
+			Job.getJobManager().join(ProfilePreferences.PROFILE_SAVE_JOB_FAMILY, null);
+		} catch (InterruptedException e) {
+			throw new RuntimeException();
+		}
 	}
 
 	private IStatus checkSystemProperties() {

@@ -17,7 +17,6 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.ReconcilerTestSuite;
 
 public class Cancellation extends AbstractSharedInstallTest {
@@ -34,8 +33,6 @@ public class Cancellation extends AbstractSharedInstallTest {
 	}
 
 	public void testCancellation() {
-		if (!Platform.getOS().equals(Platform.OS_WIN32))
-			return;
 		assertInitialized();
 		setupReadOnlyInstall();
 		System.out.println(readOnlyBase);
