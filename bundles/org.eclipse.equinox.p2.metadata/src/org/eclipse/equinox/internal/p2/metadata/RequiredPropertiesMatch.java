@@ -28,23 +28,27 @@ import org.eclipse.equinox.p2.metadata.expression.IFilterExpression;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 /**
- * A required capability match represents some external constraint on an {@link IInstallableUnit}.
+ * A required capability match represents some external constraint on an
+ * {@link IInstallableUnit}.
  * <p>
- * This is a flavor of the general {@link IRequirement} that searches for
- * a capability that has {@link IProvidedCapability#getProperties() properties} that match a given expression.
- * I.e. this is much more limited that an arbitrary match expression executed over all metadata of the IU.
+ * This is a flavor of the general {@link IRequirement} that searches for a
+ * capability that has {@link IProvidedCapability#getProperties() properties}
+ * that match a given expression. I.e. this is much more limited that an
+ * arbitrary match expression executed over all metadata of the IU.
  */
 public class RequiredPropertiesMatch extends Requirement {
 	/**
-	 * Argument $0 must evaluate to a String
-	 * Argument $2 must evaluate to an expression compatible with the match operator "~="
+	 * Argument $0 must evaluate to a String Argument $2 must evaluate to an
+	 * expression compatible with the match operator "~="
 	 */
-	private static final IExpression PROPERTIES_MATCH = ExpressionUtil.parse(
-			String.format("%s.exists(cap | cap.%s == $0 && cap.%s ~= $1)", //$NON-NLS-1$
+	private static final IExpression PROPERTIES_MATCH = ExpressionUtil
+			.parse(String.format("%s.exists(cap | cap.%s == $0 && cap.%s ~= $1)", //$NON-NLS-1$
 					MEMBER_PROVIDED_CAPABILITIES, MEMBER_NAMESPACE, MEMBER_PROPERTIES));
 
-	public RequiredPropertiesMatch(String namespace, IFilterExpression attrFilter, IMatchExpression<IInstallableUnit> envFilter, int min, int max, boolean greedy, String description) {
-		super(createMatchExpressionFromFilter(namespace, attrFilter), envFilter, min, max, greedy, description);
+	public RequiredPropertiesMatch(String namespace, IFilterExpression attrFilter,
+			IMatchExpression<IInstallableUnit> envFilter, int min, int max, boolean greedy, String description) {
+		super(createMatchExpressionFromFilter(namespace, attrFilter, description), envFilter, min, max, greedy,
+				description);
 	}
 
 	@Override
@@ -58,9 +62,11 @@ public class RequiredPropertiesMatch extends Requirement {
 		return result.toString();
 	}
 
-	public static IMatchExpression<IInstallableUnit> createMatchExpressionFromFilter(String namespace, IFilterExpression attrFilter) {
+	public static IMatchExpression<IInstallableUnit> createMatchExpressionFromFilter(String namespace,
+			IFilterExpression attrFilter, String description) {
 		Assert.isNotNull(namespace);
-		Assert.isNotNull(attrFilter);
+		Assert.isNotNull(attrFilter,
+				"Filter is missing for required capability " + namespace + " in bundle " + description); //$NON-NLS-1$ //$NON-NLS-2$
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		return factory.matchExpression(PROPERTIES_MATCH, namespace, attrFilter);
 	}

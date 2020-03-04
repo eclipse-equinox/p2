@@ -53,44 +53,46 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 public final class MetadataFactory {
 	/**
 	 * A description containing information about an installable unit. Once created,
-	 * installable units are immutable. This description class allows a client to build
-	 * up the state for an installable unit incrementally, and then finally produce
-	 * the resulting immutable unit.
+	 * installable units are immutable. This description class allows a client to
+	 * build up the state for an installable unit incrementally, and then finally
+	 * produce the resulting immutable unit.
 	 */
 	public static class InstallableUnitDescription {
 		InstallableUnit unit;
 
 		/**
-		 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a 
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a
 		 * boolean property indicating that an installable unit is a group.
 		 * 
 		 */
 		public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
 
 		/**
-		 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a 
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a
 		 * boolean property indicating that an installable unit is a patch.
 		 * 
 		 */
 		public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
 
 		/**
-		 * A property key (value <code>"org.eclipse.equinox.p2.type.fragment"</code>) for a 
-		 * boolean property indicating that an installable unit is a fragment.
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.fragment"</code>)
+		 * for a boolean property indicating that an installable unit is a fragment.
 		 * 
 		 */
 		public static final String PROP_TYPE_FRAGMENT = "org.eclipse.equinox.p2.type.fragment"; //$NON-NLS-1$
 
 		/**
-		 * A property key (value <code>"org.eclipse.equinox.p2.type.category"</code>) for a 
-		 * boolean property indicating that an installable unit is a category.
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.category"</code>)
+		 * for a boolean property indicating that an installable unit is a category.
 		 * 
 		 */
 		public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 
 		/**
-		 * A property key (value <code>"org.eclipse.equinox.p2.type.product"</code>) for a 
-		 * boolean property indicating that an installable unit is the root IU of a product.
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.product"</code>) for
+		 * a boolean property indicating that an installable unit is the root IU of a
+		 * product.
+		 * 
 		 * @since 2.2
 		 */
 		public static final String PROP_TYPE_PRODUCT = "org.eclipse.equinox.p2.type.product"; //$NON-NLS-1$
@@ -101,6 +103,7 @@ public final class MetadataFactory {
 
 		/**
 		 * Add the specified capabilities to the installable unit.
+		 * 
 		 * @param additional the capabilities to add.
 		 */
 		public void addProvidedCapabilities(Collection<IProvidedCapability> additional) {
@@ -121,6 +124,7 @@ public final class MetadataFactory {
 
 		/**
 		 * Add the specified requirements to the installable unit.
+		 * 
 		 * @param additional the requirements to add
 		 */
 		public void addRequirements(Collection<IRequirement> additional) {
@@ -146,7 +150,8 @@ public final class MetadataFactory {
 		}
 
 		/**
-		 * Return a collection of all the capabilities specified on this installable unit.
+		 * Return a collection of all the capabilities specified on this installable
+		 * unit.
 		 */
 		public Collection<IProvidedCapability> getProvidedCapabilities() {
 			return unit().getProvidedCapabilities();
@@ -172,7 +177,8 @@ public final class MetadataFactory {
 		}
 
 		/**
-		 * Return a collection of the meta requirements specified on this installable unit.
+		 * Return a collection of the meta requirements specified on this installable
+		 * unit.
 		 */
 		public Collection<IRequirement> getMetaRequirements() {
 			return unit().getMetaRequirements();
@@ -198,6 +204,7 @@ public final class MetadataFactory {
 
 		/**
 		 * Returns the UpdateDescriptor for this IU
+		 * 
 		 * @since 2.1
 		 */
 		public IUpdateDescriptor getUpdateDescriptor() {
@@ -205,7 +212,9 @@ public final class MetadataFactory {
 		}
 
 		/**
-		 * Set the artifact keys for the installable unit. Previous values will be overwritten.
+		 * Set the artifact keys for the installable unit. Previous values will be
+		 * overwritten.
+		 * 
 		 * @param value the artifacts to the used.
 		 */
 		public void setArtifacts(IArtifactKey[] value) {
@@ -213,7 +222,9 @@ public final class MetadataFactory {
 		}
 
 		/**
-		 * Set the capabilities for the installable unit. Previous values will be overwritten.
+		 * Set the capabilities for the installable unit. Previous values will be
+		 * overwritten.
+		 * 
 		 * @param exportedCapabilities the capabilities to be used.
 		 */
 		public void setCapabilities(IProvidedCapability[] exportedCapabilities) {
@@ -221,7 +232,9 @@ public final class MetadataFactory {
 		}
 
 		/**
-		 * Set the copyright for the installable unit. Previous values will be overwritten.
+		 * Set the copyright for the installable unit. Previous values will be
+		 * overwritten.
+		 * 
 		 * @param copyright the copyright to be used.
 		 */
 		public void setCopyright(ICopyright copyright) {
@@ -236,7 +249,7 @@ public final class MetadataFactory {
 			unit().setFilter(filter);
 		}
 
-		/** 
+		/**
 		 * Set the id of the installable unit.
 		 */
 		public void setId(String id) {
@@ -244,7 +257,8 @@ public final class MetadataFactory {
 		}
 
 		/**
-		 * Set the licenses for the installable unit. Previous values will be overwritten.
+		 * Set the licenses for the installable unit. Previous values will be
+		 * overwritten.
 		 */
 		public void setLicenses(ILicense[] licenses) {
 			unit().setLicenses(licenses);
@@ -252,7 +266,8 @@ public final class MetadataFactory {
 
 		/**
 		 * Set a property with a specified value for this installable unit.
-		 * @param key key with which the specified value is to be associated
+		 * 
+		 * @param key   key with which the specified value is to be associated
 		 * @param value value to be associated with the specified key
 		 */
 		public void setProperty(String key, String value) {
@@ -266,7 +281,9 @@ public final class MetadataFactory {
 		}
 
 		/**
-		 * Set the requirements for the installable unit. Previous values will be overwritten.
+		 * Set the requirements for the installable unit. Previous values will be
+		 * overwritten.
+		 * 
 		 * @param requirements the requirements to be used.
 		 */
 		public void setRequirements(IRequirement[] requirements) {
@@ -280,7 +297,9 @@ public final class MetadataFactory {
 		}
 
 		/**
-		 * Set the meta requirements for the installable unit. Previous values will be overwritten.
+		 * Set the meta requirements for the installable unit. Previous values will be
+		 * overwritten.
+		 * 
 		 * @param metaRequirements the meta requirements to be used.
 		 */
 		public void setMetaRequirements(IRequirement[] metaRequirements) {
@@ -310,6 +329,7 @@ public final class MetadataFactory {
 
 		/**
 		 * Set the version of this installable unit.
+		 * 
 		 * @param newVersion version to be set on the installable unit.
 		 */
 		public void setVersion(Version newVersion) {
@@ -332,10 +352,10 @@ public final class MetadataFactory {
 	}
 
 	/**
-	 * A description containing information about an installable unit fragment. Once created,
-	 * installable units are immutable. This description class allows a client to build
-	 * up the state for an installable unit fragment incrementally, and then finally produce
-	 * the resulting immutable unit.
+	 * A description containing information about an installable unit fragment. Once
+	 * created, installable units are immutable. This description class allows a
+	 * client to build up the state for an installable unit fragment incrementally,
+	 * and then finally produce the resulting immutable unit.
 	 */
 	public static class InstallableUnitFragmentDescription extends InstallableUnitDescription {
 		public InstallableUnitFragmentDescription() {
@@ -344,7 +364,8 @@ public final class MetadataFactory {
 		}
 
 		/**
-		 * Specify the requirements identifying the host to which the installable unit fragment should be attached to. 
+		 * Specify the requirements identifying the host to which the installable unit
+		 * fragment should be attached to.
 		 */
 		public void setHost(IRequirement... hostRequirement) {
 			((InstallableUnitFragment) unit()).setHost(Arrays.asList(hostRequirement));
@@ -359,10 +380,10 @@ public final class MetadataFactory {
 	}
 
 	/**
-	 * A description containing information about an installable unit patch. Once created,
-	 * installable units are immutable. This description class allows a client to build
-	 * up the state for an installable unit patch incrementally, and then finally produce
-	 * the resulting immutable unit.
+	 * A description containing information about an installable unit patch. Once
+	 * created, installable units are immutable. This description class allows a
+	 * client to build up the state for an installable unit patch incrementally, and
+	 * then finally produce the resulting immutable unit.
 	 */
 	public static class InstallableUnitPatchDescription extends InstallableUnitDescription {
 
@@ -414,9 +435,9 @@ public final class MetadataFactory {
 	private static int typeCacheOffset;
 
 	/**
-	 * Returns an {@link IInstallableUnit} based on the given 
-	 * description.  Once the installable unit has been created, the information is 
-	 * discarded from the description object.
+	 * Returns an {@link IInstallableUnit} based on the given description. Once the
+	 * installable unit has been created, the information is discarded from the
+	 * description object.
 	 * 
 	 * @param description The description of the unit to create
 	 * @return The created installable unit
@@ -427,22 +448,23 @@ public final class MetadataFactory {
 	}
 
 	/**
-	 * Returns an {@link IInstallableUnitFragment} based on the given 
-	 * description.  Once the fragment has been created, the information is 
-	 * discarded from the description object.
+	 * Returns an {@link IInstallableUnitFragment} based on the given description.
+	 * Once the fragment has been created, the information is discarded from the
+	 * description object.
 	 * 
 	 * @param description The description of the unit to create
 	 * @return The created installable unit fragment
 	 */
-	public static IInstallableUnitFragment createInstallableUnitFragment(InstallableUnitFragmentDescription description) {
+	public static IInstallableUnitFragment createInstallableUnitFragment(
+			InstallableUnitFragmentDescription description) {
 		Assert.isNotNull(description);
 		return (IInstallableUnitFragment) description.unitCreate();
 	}
 
 	/**
-	 * Returns an {@link IInstallableUnitPatch} based on the given 
-	 * description.  Once the patch installable unit has been created, the information is 
-	 * discarded from the description object.
+	 * Returns an {@link IInstallableUnitPatch} based on the given description. Once
+	 * the patch installable unit has been created, the information is discarded
+	 * from the description object.
 	 * 
 	 * @param description The description of the unit to create
 	 * @return The created installable unit patch
@@ -456,8 +478,8 @@ public final class MetadataFactory {
 	 * Returns a {@link IProvidedCapability} with the given values.
 	 * 
 	 * @param namespace The capability namespace
-	 * @param name The capability name
-	 * @param version The capability version
+	 * @param name      The capability name
+	 * @param version   The capability version
 	 */
 	public static IProvidedCapability createProvidedCapability(String namespace, String name, Version version) {
 		return new ProvidedCapability(namespace, name, version);
@@ -466,7 +488,7 @@ public final class MetadataFactory {
 	/**
 	 * Returns a {@link IProvidedCapability} with the given values.
 	 * 
-	 * @param namespace The capability namespace
+	 * @param namespace  The capability namespace
 	 * @param properties The description of the capability
 	 * @since 2.4
 	 */
@@ -475,184 +497,269 @@ public final class MetadataFactory {
 	}
 
 	/**
-	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * Create and return a new requirement ({@link IRequirement}) with the specified
+	 * values.
 	 * 
-	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
-	 * @param name the name for the requirement. Must not be <code>null</code>.
-	 * @param range the version range. A value of <code>null</code> is equivalent to {@link VersionRange#emptyRange} and matches all versions.
-	 * @param filter The filter used to evaluate whether this capability is applicable in the
-	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
-	 * @param optional <code>true</code> if this requirement is optional, and <code>false</code> otherwise.
-	 * @param multiple <code>true</code> if this requirement can be satisfied by multiple provided capabilities, or <code>false</code> 
-	 * 	if it requires exactly one match
-	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @param namespace the namespace for the requirement. Must not be
+	 *                  <code>null</code>.
+	 * @param name      the name for the requirement. Must not be <code>null</code>.
+	 * @param range     the version range. A value of <code>null</code> is
+	 *                  equivalent to {@link VersionRange#emptyRange} and matches
+	 *                  all versions.
+	 * @param filter    The filter used to evaluate whether this capability is
+	 *                  applicable in the current environment, or <code>null</code>
+	 *                  to indicate this capability is always applicable
+	 * @param optional  <code>true</code> if this requirement is optional, and
+	 *                  <code>false</code> otherwise.
+	 * @param multiple  <code>true</code> if this requirement can be satisfied by
+	 *                  multiple provided capabilities, or <code>false</code> if it
+	 *                  requires exactly one match
+	 * @param greedy    <code>true</code> if the requirement should be considered
+	 *                  greedy and <code>false</code> otherwise
 	 * @return the requirement
 	 */
-	public static IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
-		return new RequiredCapability(namespace, name, range, InstallableUnit.parseFilter(filter), optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, greedy, null);
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range, String filter,
+			boolean optional, boolean multiple, boolean greedy) {
+		return new RequiredCapability(namespace, name, range, InstallableUnit.parseFilter(filter), optional ? 0 : 1,
+				multiple ? Integer.MAX_VALUE : 1, greedy, null);
 	}
 
 	/**
 	 * Returns a {@link IRequirement} with the given values.
 	 * 
 	 * @param namespace The capability namespace
-	 * @param name The required capability name
-	 * @param range The range of versions that are required, or <code>null</code>
-	 * to indicate that any version will do.
-	 * @param filter The filter used to evaluate whether this capability is applicable in the
-	 * current environment, or <code>null</code> to indicate this capability is always applicable
-	 * @param optional <code>true</code> if this required capability is optional,
-	 * and <code>false</code> otherwise.
-	 * @param multiple <code>true</code> if this capability can be satisfied by multiple provided capabilities, 
-	 * or <code>false</code> if it requires exactly one match
+	 * @param name      The required capability name
+	 * @param range     The range of versions that are required, or
+	 *                  <code>null</code> to indicate that any version will do.
+	 * @param filter    The filter used to evaluate whether this capability is
+	 *                  applicable in the current environment, or <code>null</code>
+	 *                  to indicate this capability is always applicable
+	 * @param optional  <code>true</code> if this required capability is optional,
+	 *                  and <code>false</code> otherwise.
+	 * @param multiple  <code>true</code> if this capability can be satisfied by
+	 *                  multiple provided capabilities, or <code>false</code> if it
+	 *                  requires exactly one match
 	 * @return the requirement
 	 */
-	public static IRequirement createRequirement(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, boolean optional, boolean multiple) {
-		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true, null);
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range,
+			IMatchExpression<IInstallableUnit> filter, boolean optional, boolean multiple) {
+		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1,
+				multiple ? Integer.MAX_VALUE : 1, true, null);
 	}
 
 	/**
-	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * Create and return a new requirement ({@link IRequirement}) with the specified
+	 * values.
 	 * 
-	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
-	 * @param name the name for the requirement. Must not be <code>null</code>.
-	 * @param range the version range. A value of <code>null</code> is equivalent to {@link VersionRange#emptyRange} and matches all versions.
-	 * @param filter The filter used to evaluate whether this capability is applicable in the
-	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
-	 * @param minCard minimum cardinality
-	 * @param maxCard maximum cardinality
-	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @param namespace the namespace for the requirement. Must not be
+	 *                  <code>null</code>.
+	 * @param name      the name for the requirement. Must not be <code>null</code>.
+	 * @param range     the version range. A value of <code>null</code> is
+	 *                  equivalent to {@link VersionRange#emptyRange} and matches
+	 *                  all versions.
+	 * @param filter    The filter used to evaluate whether this capability is
+	 *                  applicable in the current environment, or <code>null</code>
+	 *                  to indicate this capability is always applicable
+	 * @param minCard   minimum cardinality
+	 * @param maxCard   maximum cardinality
+	 * @param greedy    <code>true</code> if the requirement should be considered
+	 *                  greedy and <code>false</code> otherwise
 	 * @return the requirement
 	 */
-	public static IRequirement createRequirement(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy) {
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range,
+			IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy, null);
 	}
 
 	/**
-	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * Create and return a new requirement ({@link IRequirement}) with the specified
+	 * values.
 	 * 
-	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
-	 * @param name the name for the requirement. Must not be <code>null</code>.
-	 * @param range the version range. A value of <code>null</code> is equivalent to {@link VersionRange#emptyRange} and matches all versions.
-	 * @param filter The filter used to evaluate whether this capability is applicable in the
-	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
-	 * @param minCard minimum cardinality
-	 * @param maxCard maximum cardinality
-	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
-	 * @param description a <code>String</code> description of the requirement, or <code>null</code>
+	 * @param namespace   the namespace for the requirement. Must not be
+	 *                    <code>null</code>.
+	 * @param name        the name for the requirement. Must not be
+	 *                    <code>null</code>.
+	 * @param range       the version range. A value of <code>null</code> is
+	 *                    equivalent to {@link VersionRange#emptyRange} and matches
+	 *                    all versions.
+	 * @param filter      The filter used to evaluate whether this capability is
+	 *                    applicable in the current environment, or
+	 *                    <code>null</code> to indicate this capability is always
+	 *                    applicable
+	 * @param minCard     minimum cardinality
+	 * @param maxCard     maximum cardinality
+	 * @param greedy      <code>true</code> if the requirement should be considered
+	 *                    greedy and <code>false</code> otherwise
+	 * @param description a <code>String</code> description of the requirement, or
+	 *                    <code>null</code>
 	 * @return the requirement
 	 */
-	public static IRequirement createRequirement(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy, String description) {
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range,
+			IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy, String description) {
 		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy, description);
 	}
 
 	/**
 	 * 
-	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
-	 * @param propsFilter filter applied on {@link IProvidedCapability#getProperties()} of every {@link IInstallableUnit#getProvidedCapabilities()}
-	 * @param envFilter matcher over {@link IInstallableUnit#getProperties()}
-	 * @param minCard minimum cardinality
-	 * @param maxCard maximum cardinality
-	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @param namespace   the namespace for the requirement. Must not be
+	 *                    <code>null</code>.
+	 * @param propsFilter filter applied on
+	 *                    {@link IProvidedCapability#getProperties()} of every
+	 *                    {@link IInstallableUnit#getProvidedCapabilities()}
+	 * @param envFilter   matcher over {@link IInstallableUnit#getProperties()}
+	 * @param minCard     minimum cardinality
+	 * @param maxCard     maximum cardinality
+	 * @param greedy      <code>true</code> if the requirement should be considered
+	 *                    greedy and <code>false</code> otherwise
 	 * @return the requirement
 	 * @since 2.4
 	 */
-	public static IRequirement createRequirement(String namespace, String propsFilter, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy) {
+	public static IRequirement createRequirement(String namespace, String propsFilter,
+			IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy) {
 		IFilterExpression attrFilterExpr = ExpressionUtil.parseLDAP(propsFilter);
 		return new RequiredPropertiesMatch(namespace, attrFilterExpr, envFilter, minCard, maxCard, greedy, null);
 	}
 
 	/**
 	 * 
-	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
-	 * @param propsFilter filter applied on {@link IProvidedCapability#getProperties()} of every {@link IInstallableUnit#getProvidedCapabilities()}
-	 * @param envFilter matcher over {@link IInstallableUnit#getProperties()}
-	 * @param minCard minimum cardinality
-	 * @param maxCard maximum cardinality
-	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
-	 * @param description a <code>String</code> description of the requirement, or <code>null</code>
+	 * @param namespace   the namespace for the requirement. Must not be
+	 *                    <code>null</code>.
+	 * @param propsFilter filter applied on
+	 *                    {@link IProvidedCapability#getProperties()} of every
+	 *                    {@link IInstallableUnit#getProvidedCapabilities()}
+	 * @param envFilter   matcher over {@link IInstallableUnit#getProperties()}
+	 * @param minCard     minimum cardinality
+	 * @param maxCard     maximum cardinality
+	 * @param greedy      <code>true</code> if the requirement should be considered
+	 *                    greedy and <code>false</code> otherwise
+	 * @return the requirement
+	 * @since 2.5
+	 */
+	public static IRequirement createRequirement(String namespace, String propsFilter,
+			IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy,
+			String description) {
+		IFilterExpression attrFilterExpr = ExpressionUtil.parseLDAP(propsFilter);
+		return new RequiredPropertiesMatch(namespace, attrFilterExpr, envFilter, minCard, maxCard, greedy, description);
+	}
+
+	/**
+	 * 
+	 * @param namespace   the namespace for the requirement. Must not be
+	 *                    <code>null</code>.
+	 * @param propsFilter filter applied on
+	 *                    {@link IProvidedCapability#getProperties()} of every
+	 *                    {@link IInstallableUnit#getProvidedCapabilities()}
+	 * @param envFilter   matcher over {@link IInstallableUnit#getProperties()}
+	 * @param minCard     minimum cardinality
+	 * @param maxCard     maximum cardinality
+	 * @param greedy      <code>true</code> if the requirement should be considered
+	 *                    greedy and <code>false</code> otherwise
+	 * @param description a <code>String</code> description of the requirement, or
+	 *                    <code>null</code>
 	 * @return the requirement
 	 * @since 2.4
 	 */
-	public static IRequirement createRequirement(String namespace, IFilterExpression propsFilter, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy, String description) {
+	public static IRequirement createRequirement(String namespace, IFilterExpression propsFilter,
+			IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy,
+			String description) {
 		return new RequiredPropertiesMatch(namespace, propsFilter, envFilter, minCard, maxCard, greedy, description);
 	}
 
 	/**
-	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * Create and return a new requirement ({@link IRequirement}) with the specified
+	 * values.
 	 * 
 	 * @param requirement the match expression
-	 * @param envFilter The filter used to evaluate whether this capability is applicable in the
-	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
-	 * @param minCard minimum cardinality
-	 * @param maxCard maximum cardinality
-	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @param envFilter   The filter used to evaluate whether this capability is
+	 *                    applicable in the current environment, or
+	 *                    <code>null</code> to indicate this capability is always
+	 *                    applicable
+	 * @param minCard     minimum cardinality
+	 * @param maxCard     maximum cardinality
+	 * @param greedy      <code>true</code> if the requirement should be considered
+	 *                    greedy and <code>false</code> otherwise
 	 * @return the requirement
 	 */
-	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy) {
+	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement,
+			IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy) {
 		return createRequirementInternal(requirement, envFilter, minCard, maxCard, greedy, null);
 	}
 
 	/**
-	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
-	 *  
+	 * Create and return a new requirement ({@link IRequirement}) with the specified
+	 * values.
+	 * 
 	 * @param requirement the match expression
-	 * @param envFilter the filter, or <code>null</code>
-	 * @param minCard minimum cardinality
-	 * @param maxCard maximum cardinality
-	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
-	 * @param description a <code>String</code> description of the requirement, or <code>null</code>
+	 * @param envFilter   the filter, or <code>null</code>
+	 * @param minCard     minimum cardinality
+	 * @param maxCard     maximum cardinality
+	 * @param greedy      <code>true</code> if the requirement should be considered
+	 *                    greedy and <code>false</code> otherwise
+	 * @param description a <code>String</code> description of the requirement, or
+	 *                    <code>null</code>
 	 * @return the requirement
 	 */
-	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy, String description) {
+	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement,
+			IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy,
+			String description) {
 		return createRequirementInternal(requirement, envFilter, minCard, maxCard, greedy, description);
 	}
 
 	/**
 	 * Returns a new requirement change.
-	 * @param applyOn The source of the requirement change - the kind of requirement to apply the change to
-	 * @param newValue The result of the requirement change - the requirement to replace the source requirement with
+	 * 
+	 * @param applyOn  The source of the requirement change - the kind of
+	 *                 requirement to apply the change to
+	 * @param newValue The result of the requirement change - the requirement to
+	 *                 replace the source requirement with
 	 * @return a requirement change
 	 */
 	public static IRequirementChange createRequirementChange(IRequirement applyOn, IRequirement newValue) {
-		if ((applyOn == null || applyOn instanceof IRequiredCapability) && (newValue == null || newValue instanceof IRequiredCapability))
+		if ((applyOn == null || applyOn instanceof IRequiredCapability)
+				&& (newValue == null || newValue instanceof IRequiredCapability))
 			return new RequirementChange((IRequiredCapability) applyOn, (IRequiredCapability) newValue);
 		throw new IllegalArgumentException();
 	}
 
 	/**
 	 * Returns a new {@link ICopyright}.
-	 * @param location the location of a document containing the copyright notice, or <code>null</code>
-	 * @param body the copyright body, cannot be <code>null</code>
-	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
+	 * 
+	 * @param location the location of a document containing the copyright notice,
+	 *                 or <code>null</code>
+	 * @param body     the copyright body, cannot be <code>null</code>
+	 * @throws IllegalArgumentException when the <code>body</code> is
+	 *                                  <code>null</code>
 	 */
 	public static ICopyright createCopyright(URI location, String body) {
 		return new Copyright(location, body);
 	}
 
 	/**
-	 * Return a new {@link ILicense}
-	 * The body should contain either the full text of the license or an summary for a license
-	 * fully specified in the given location.
+	 * Return a new {@link ILicense} The body should contain either the full text of
+	 * the license or an summary for a license fully specified in the given
+	 * location.
 	 * 
-	 * @param location the location of a document containing the full license, or <code>null</code>
-	 * @param body the license body, cannot be <code>null</code>
-	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
+	 * @param location the location of a document containing the full license, or
+	 *                 <code>null</code>
+	 * @param body     the license body, cannot be <code>null</code>
+	 * @throws IllegalArgumentException when the <code>body</code> is
+	 *                                  <code>null</code>
 	 */
 	public static ILicense createLicense(URI location, String body) {
 		return new License(location, body, null);
 	}
 
 	/**
-	 * Returns an {@link IInstallableUnit} that represents the given
-	 * unit bound to the given fragments.
+	 * Returns an {@link IInstallableUnit} that represents the given unit bound to
+	 * the given fragments.
 	 * 
 	 * @see IInstallableUnit#isResolved()
-	 * @param unit The unit to be bound
+	 * @param unit      The unit to be bound
 	 * @param fragments The fragments to be bound
 	 * @return A resolved installable unit
 	 */
-	public static IInstallableUnit createResolvedInstallableUnit(IInstallableUnit unit, IInstallableUnitFragment[] fragments) {
+	public static IInstallableUnit createResolvedInstallableUnit(IInstallableUnit unit,
+			IInstallableUnitFragment[] fragments) {
 		if (unit.isResolved())
 			return unit;
 		Assert.isNotNull(unit);
@@ -669,7 +776,7 @@ public final class MetadataFactory {
 	 */
 	public static ITouchpointData createTouchpointData(Map<String, ? extends Object> instructions) {
 		Assert.isNotNull(instructions);
-		//copy the map to protect against subsequent change by caller
+		// copy the map to protect against subsequent change by caller
 		if (instructions.isEmpty())
 			return EMPTY_TOUCHPOINT_DATA;
 
@@ -689,11 +796,14 @@ public final class MetadataFactory {
 
 	/**
 	 * Merge the given touchpoint instructions with a pre-existing touchpoint data
-	 * @param initial - the initial ITouchpointData
-	 * @param incomingInstructions - Map of ITouchpointInstructions to merge into the initial touchpoint data
+	 * 
+	 * @param initial              - the initial ITouchpointData
+	 * @param incomingInstructions - Map of ITouchpointInstructions to merge into
+	 *                             the initial touchpoint data
 	 * @return the merged ITouchpointData
 	 */
-	public static ITouchpointData mergeTouchpointData(ITouchpointData initial, Map<String, ITouchpointInstruction> incomingInstructions) {
+	public static ITouchpointData mergeTouchpointData(ITouchpointData initial,
+			Map<String, ITouchpointInstruction> incomingInstructions) {
 		if (incomingInstructions == null || incomingInstructions.size() == 0)
 			return initial;
 
@@ -734,7 +844,7 @@ public final class MetadataFactory {
 	/**
 	 * Returns a {@link TouchpointType} with the given id and version.
 	 * 
-	 * @param id The touchpoint id
+	 * @param id      The touchpoint id
 	 * @param version The touchpoint version
 	 * @return A touchpoint type instance with the given id and version
 	 */
@@ -758,49 +868,65 @@ public final class MetadataFactory {
 	/**
 	 * 
 	 * @param descriptors The IUs that the descriptor provides updates for.
-	 * @param severity The update severity (either {@link IUpdateDescriptor#NORMAL} 
-	 * or {@link IUpdateDescriptor#HIGH})
+	 * @param severity    The update severity (either
+	 *                    {@link IUpdateDescriptor#NORMAL} or
+	 *                    {@link IUpdateDescriptor#HIGH})
 	 * @param description A description of the update
-	 * @param location  a {@link URI} specifying the location or <code>null</code> 
+	 * @param location    a {@link URI} specifying the location or <code>null</code>
 	 * @return A new update descriptor
 	 */
-	public static IUpdateDescriptor createUpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description, URI location) {
+	public static IUpdateDescriptor createUpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors,
+			int severity, String description, URI location) {
 		return new UpdateDescriptor(descriptors, severity, description, location);
 	}
 
 	/**
 	 * Creates a new update descriptor object.
-	 * @param id The id of the installable unit that the descriptor provides updates for
-	 * @param range The version range that the descriptor provides updates for
-	 * @param severity The update severity (either {@link IUpdateDescriptor#NORMAL} 
-	 * or {@link IUpdateDescriptor#HIGH})
+	 * 
+	 * @param id          The id of the installable unit that the descriptor
+	 *                    provides updates for
+	 * @param range       The version range that the descriptor provides updates for
+	 * @param severity    The update severity (either
+	 *                    {@link IUpdateDescriptor#NORMAL} or
+	 *                    {@link IUpdateDescriptor#HIGH})
 	 * @param description A description of the update
 	 * @return A new update descriptor
 	 */
-	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
+	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity,
+			String description) {
 		return createUpdateDescriptor(id, range, severity, description, null);
 	}
 
 	/**
-	 * Create and return a new update descriptor {@link IUpdateDescriptor} with the specified values.
+	 * Create and return a new update descriptor {@link IUpdateDescriptor} with the
+	 * specified values.
 	 * 
-	 * @param id the identifiter for the update. Must not be <code>null</code>.
-	 * @param range the version range. A <code>null</code> range is equivalent to {@link VersionRange#emptyRange} and matches all versions.
-	 * @param severity the severity
+	 * @param id          the identifiter for the update. Must not be
+	 *                    <code>null</code>.
+	 * @param range       the version range. A <code>null</code> range is equivalent
+	 *                    to {@link VersionRange#emptyRange} and matches all
+	 *                    versions.
+	 * @param severity    the severity
 	 * @param description a <code>String</code> description or <code>null</code>
-	 * @param location a {@link URI} specifying the location or <code>null</code> 
+	 * @param location    a {@link URI} specifying the location or <code>null</code>
 	 * @return the update descriptor
 	 */
-	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description, URI location) {
+	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity,
+			String description, URI location) {
 		Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<>(1);
 		descriptors.add(RequiredCapability.createMatchExpressionFromRange(IInstallableUnit.NAMESPACE_IU_ID, id, range));
 		return createUpdateDescriptor(descriptors, severity, description, location);
 	}
 
-	private static IRequirement createRequirementInternal(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy, String description) {
-		// IRequiredCapability is simply a requirement with a match expression derived from a  (namespace, name, version) tripet.
-		// However the xml format also requires that maxCard > 1 or it is serialized in the generic format.
-		// When parsing back from xml try to convert to an IRequiredCapability to retain the representation prior to serialization
+	private static IRequirement createRequirementInternal(IMatchExpression<IInstallableUnit> requirement,
+			IMatchExpression<IInstallableUnit> envFilter, int minCard, int maxCard, boolean greedy,
+			String description) {
+		// IRequiredCapability is simply a requirement with a match expression derived
+		// from a (namespace, name, version) tripet.
+		// However the xml format also requires that maxCard > 1 or it is serialized in
+		// the generic format.
+		// When parsing back from xml try to convert to an IRequiredCapability to retain
+		// the representation prior to serialization
 		if (RequiredCapability.isVersionRangeRequirement(requirement)) {
 			String namespace = RequiredCapability.extractNamespace(requirement);
 			String name = RequiredCapability.extractName(requirement);
@@ -827,7 +953,7 @@ public final class MetadataFactory {
 	}
 
 	private static void putCachedTouchpointType(ITouchpointType result) {
-		//simple rotating buffer
+		// simple rotating buffer
 		typeCache[typeCacheOffset] = result;
 		typeCacheOffset = (typeCacheOffset + 1) % typeCache.length;
 	}

@@ -55,9 +55,9 @@ import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.resource.Namespace;
 
 /**
- * Publish IUs for all of the bundles in a given set of locations or described by a set of
- * bundle descriptions.  The locations can be actual locations of the bundles or folders
- * of bundles.
+ * Publish IUs for all of the bundles in a given set of locations or described
+ * by a set of bundle descriptions. The locations can be actual locations of the
+ * bundles or folders of bundles.
  *
  * This action consults the following types of advice:
  * </ul>
@@ -72,15 +72,17 @@ import org.osgi.resource.Namespace;
 public class BundlesAction extends AbstractPublisherAction {
 
 	/**
-	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace
-	 * representing and OSGi bundle resource
+	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE}
+	 * namespace representing and OSGi bundle resource
+	 * 
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
 
 	/**
-	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace
-	 * representing a source bundle
+	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE}
+	 * namespace representing a source bundle
+	 * 
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
@@ -89,30 +91,37 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
 	public static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
 
-	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, Version.createOSGi(1, 0, 0));
-	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, Version.createOSGi(1, 0, 0));
+	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(
+			PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, Version.createOSGi(1, 0, 0));
+	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(
+			PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, Version.createOSGi(1, 0, 0));
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "OSGI-INF/l10n/bundle"; //$NON-NLS-1$
 
-	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnit.PROP_BUNDLE_LOCALIZATION, Constants.BUNDLE_LOCALIZATION, IInstallableUnit.PROP_BUNDLE_LOCALIZATION};
+	private static final String[] BUNDLE_IU_PROPERTY_MAP = { Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME,
+			Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR,
+			IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT,
+			Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL, Constants.BUNDLE_UPDATELOCATION,
+			IInstallableUnit.PROP_BUNDLE_LOCALIZATION, Constants.BUNDLE_LOCALIZATION,
+			IInstallableUnit.PROP_BUNDLE_LOCALIZATION };
 	public static final int BUNDLE_LOCALIZATION_INDEX = PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length - 1;
 	public static final String DIR = "dir"; //$NON-NLS-1$
 	public static final String JAR = "jar"; //$NON-NLS-1$
 	public static final String BUNDLE_SHAPE = "Eclipse-BundleShape"; //$NON-NLS-1$
 
 	/**
-	 * Manifest header directive for specifying how optional runtime 
-	 * requirements shall be handled during installation.
+	 * Manifest header directive for specifying how optional runtime requirements
+	 * shall be handled during installation.
 	 * 
 	 * @see #INSTALLATION_GREEDY
 	 */
 	public static final String INSTALLATION_DIRECTIVE = "x-installation"; //$NON-NLS-1$
 
-	/** 
-	 * Value for {@link #INSTALLATION_DIRECTIVE} indicating that an optional 
-	 * requirement shall be installed unless this is prevented by other 
-	 * mandatory requirements. Optional requirements without this directive 
-	 * value are ignored during installation.
+	/**
+	 * Value for {@link #INSTALLATION_DIRECTIVE} indicating that an optional
+	 * requirement shall be installed unless this is prevented by other mandatory
+	 * requirements. Optional requirements without this directive value are ignored
+	 * during installation.
 	 */
 	public static final String INSTALLATION_GREEDY = "greedy"; //$NON-NLS-1$
 
@@ -124,7 +133,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, Version.parseVersion(version));
 	}
 
-	public static IInstallableUnit createBundleConfigurationUnit(String hostId, Version cuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, IMatchExpression<IInstallableUnit> filter) {
+	public static IInstallableUnit createBundleConfigurationUnit(String hostId, Version cuVersion,
+			boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor,
+			IMatchExpression<IInstallableUnit> filter) {
 		if (configInfo == null)
 			return null;
 
@@ -133,16 +144,21 @@ public class BundlesAction extends AbstractPublisherAction {
 		cu.setId(configUnitId);
 		cu.setVersion(cuVersion);
 
-		//Indicate the IU to which this CU apply
+		// Indicate the IU to which this CU apply
 		Version hostVersion = Version.parseVersion(configInfo.getVersion());
-		VersionRange range = hostVersion == Version.emptyVersion ? VersionRange.emptyRange : new VersionRange(hostVersion, true, Version.MAX_VERSION, true);
+		VersionRange range = hostVersion == Version.emptyVersion ? VersionRange.emptyRange
+				: new VersionRange(hostVersion, true, Version.MAX_VERSION, true);
 		cu.setHost(new IRequirement[] { //
 				MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, hostId, range, null, false, false, true), //
-				MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
+				MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE,
+						new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null,
+						false, false, false) });
 
-		//Adds capabilities for fragment, self, and describing the flavor supported
+		// Adds capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, cuVersion), MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
+		cu.setCapabilities(new IProvidedCapability[] { PublisherHelper.createSelfCapability(configUnitId, cuVersion),
+				MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_FLAVOR, configurationFlavor,
+						Version.createOSGi(1, 0, 0)) });
 
 		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -155,7 +171,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo info) {
-		return new BundlesAction(new BundleDescription[] {bd}).doCreateBundleIU(bd, key, info);
+		return new BundlesAction(new BundleDescription[] { bd }).doCreateBundleIU(bd, key, info);
 	}
 
 	protected IInstallableUnit doCreateBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo info) {
@@ -172,8 +188,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		iu.setId(bd.getSymbolicName());
 		iu.setVersion(PublisherHelper.fromOSGiVersion(bd.getVersion()));
 		iu.setFilter(bd.getPlatformFilter());
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), computeUpdateRange(bd.getVersion()), IUpdateDescriptor.NORMAL, null));
-		iu.setArtifacts(new IArtifactKey[] {key});
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(),
+				computeUpdateRange(bd.getVersion()), IUpdateDescriptor.NORMAL, null));
+		iu.setArtifacts(new IArtifactKey[] { key });
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 
 		boolean isFragment = (bd.getHost() != null);
@@ -183,17 +200,20 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Process required fragment host
 		if (isFragment) {
-			requirements.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+			requirements.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(),
+					PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
 		}
 
 		// Process required bundles
-		ManifestElement[] rawRequireBundleHeader = parseManifestHeader(Constants.REQUIRE_BUNDLE, manifest, bd.getLocation());
+		ManifestElement[] rawRequireBundleHeader = parseManifestHeader(Constants.REQUIRE_BUNDLE, manifest,
+				bd.getLocation());
 		for (BundleSpecification requiredBundle : bd.getRequiredBundles()) {
 			addRequireBundleRequirement(requirements, requiredBundle, rawRequireBundleHeader);
 		}
 
 		// Process the import packages
-		ManifestElement[] rawImportPackageHeader = parseManifestHeader(Constants.IMPORT_PACKAGE, manifest, bd.getLocation());
+		ManifestElement[] rawImportPackageHeader = parseManifestHeader(Constants.IMPORT_PACKAGE, manifest,
+				bd.getLocation());
 		for (ImportPackageSpecification importedPackage : bd.getImportPackages()) {
 			if (!isDynamicImport(importedPackage)) {
 				addImportPackageRequirement(requirements, importedPackage, rawImportPackageHeader);
@@ -201,9 +221,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 
 		// Process generic requirements
-		ManifestElement[] rawRequireCapHeader = parseManifestHeader(Constants.REQUIRE_CAPABILITY, manifest, bd.getLocation());
+		ManifestElement[] rawRequireCapHeader = parseManifestHeader(Constants.REQUIRE_CAPABILITY, manifest,
+				bd.getLocation());
 		for (GenericSpecification requiredCap : bd.getGenericRequires()) {
-			addRequirement(requirements, requiredCap, rawRequireCapHeader);
+			addRequirement(requirements, requiredCap, rawRequireCapHeader, bd);
 		}
 
 		iu.setRequirements(requirements.toArray(new IRequirement[requirements.size()]));
@@ -212,22 +233,28 @@ public class BundlesAction extends AbstractPublisherAction {
 		List<IProvidedCapability> providedCapabilities = new ArrayList<>();
 
 		// Add identification capabilities
-		providedCapabilities.add(PublisherHelper.createSelfCapability(bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
-		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
+		providedCapabilities.add(PublisherHelper.createSelfCapability(bd.getSymbolicName(),
+				PublisherHelper.fromOSGiVersion(bd.getVersion())));
+		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE,
+				bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
 
 		// Process exported packages
 		for (ExportPackageDescription packageExport : bd.getExportPackages()) {
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageExport.getName(), PublisherHelper.fromOSGiVersion(packageExport.getVersion())));
+			providedCapabilities
+					.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
+							packageExport.getName(), PublisherHelper.fromOSGiVersion(packageExport.getVersion())));
 		}
 
 		// Process generic capabilities
 
-		// TODO 
-		// IProvidedCapability may have to be extended to contain the OSGi directives as well which may be needed for 
+		// TODO
+		// IProvidedCapability may have to be extended to contain the OSGi directives as
+		// well which may be needed for
 		// Bug 360659, Bug 525368. E.g. with IProvidedCapability.getDirectives()
 
 		// TODO
-		// It may be possible map the "osgi.identity" capability to elements of the IU like the id, the license, etc.
+		// It may be possible map the "osgi.identity" capability to elements of the IU
+		// like the id, the license, etc.
 		// It may be better to derive it at runtime.
 
 		int capNo = 0;
@@ -245,7 +272,8 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// If needed add an additional capability to identify this as an OSGi fragment
 		if (isFragment) {
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT,
+					bd.getHost().getName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
 		}
 
 		if (manifestLocalizations != null) {
@@ -298,11 +326,13 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	@Deprecated
-	protected void addImportPackageRequirement(ArrayList<IRequirement> reqsDeps, ImportPackageSpecification importSpec, ManifestElement[] rawImportPackageHeader) {
+	protected void addImportPackageRequirement(ArrayList<IRequirement> reqsDeps, ImportPackageSpecification importSpec,
+			ManifestElement[] rawImportPackageHeader) {
 		addImportPackageRequirement((List<IRequirement>) reqsDeps, importSpec, rawImportPackageHeader);
 	}
 
-	protected void addImportPackageRequirement(List<IRequirement> reqsDeps, ImportPackageSpecification importSpec, ManifestElement[] rawImportPackageHeader) {
+	protected void addImportPackageRequirement(List<IRequirement> reqsDeps, ImportPackageSpecification importSpec,
+			ManifestElement[] rawImportPackageHeader) {
 		VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
 		final boolean optional = isOptional(importSpec);
 		final boolean greedy;
@@ -311,28 +341,36 @@ public class BundlesAction extends AbstractPublisherAction {
 		} else {
 			greedy = true;
 		}
-		//TODO this needs to be refined to take into account all the attribute handled by imports
-		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional, false, greedy));
+		// TODO this needs to be refined to take into account all the attribute handled
+		// by imports
+		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(),
+				versionRange, null, optional, false, greedy));
 	}
 
 	@Deprecated
-	protected void addRequireBundleRequirement(ArrayList<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
+	protected void addRequireBundleRequirement(ArrayList<IRequirement> reqsDeps, BundleSpecification requiredBundle,
+			ManifestElement[] rawRequireBundleHeader) {
 		addRequireBundleRequirement((List<IRequirement>) reqsDeps, requiredBundle, rawRequireBundleHeader);
 	}
 
-	protected void addRequireBundleRequirement(List<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
+	protected void addRequireBundleRequirement(List<IRequirement> reqsDeps, BundleSpecification requiredBundle,
+			ManifestElement[] rawRequireBundleHeader) {
 		final boolean optional = requiredBundle.isOptional();
 		final boolean greedy;
 		if (optional) {
-			greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(requiredBundle.getName(), rawRequireBundleHeader));
+			greedy = INSTALLATION_GREEDY
+					.equals(getInstallationDirective(requiredBundle.getName(), rawRequireBundleHeader));
 		} else {
 			greedy = true;
 		}
-		reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundle.getName(), PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange()), null, optional ? 0 : 1, 1, greedy));
+		reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundle.getName(),
+				PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange()), null, optional ? 0 : 1, 1,
+				greedy));
 	}
 
 	// TODO Handle the "effective:=" directive somehow?
-	protected void addRequirement(List<IRequirement> reqsDeps, GenericSpecification requireCapSpec, ManifestElement[] rawRequireCapabilities) {
+	protected void addRequirement(List<IRequirement> reqsDeps, GenericSpecification requireCapSpec,
+			ManifestElement[] rawRequireCapabilities) {
 		BundleRequirement req = requireCapSpec.getRequirement();
 
 		String namespace = req.getNamespace();
@@ -342,28 +380,55 @@ public class BundlesAction extends AbstractPublisherAction {
 		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
 		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
 
-		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1, greedy);
+		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1,
+				greedy);
 		reqsDeps.add(requireCap);
 	}
 
-	protected void addCapability(List<IProvidedCapability> caps, GenericDescription provideCapDesc, InstallableUnitDescription iu, int capNo) {
+	protected void addRequirement(List<IRequirement> reqsDeps, GenericSpecification requireCapSpec,
+			ManifestElement[] rawRequireCapabilities, BundleDescription bd) {
+		BundleRequirement req = requireCapSpec.getRequirement();
+
+		String namespace = req.getNamespace();
+		Map<String, String> directives = req.getDirectives();
+
+		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
+		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
+		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
+
+		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1,
+				greedy, bd.getSymbolicName());
+		reqsDeps.add(requireCap);
+	}
+
+	protected void addCapability(List<IProvidedCapability> caps, GenericDescription provideCapDesc,
+			InstallableUnitDescription iu, int capNo) {
 		// Convert the values to String, Version, List of String or Version
-		Map<String, Object> capAttrs = provideCapDesc.getDeclaredAttributes().entrySet().stream().collect(toMap(Entry::getKey, e -> convertAttribute(e.getValue())));
+		Map<String, Object> capAttrs = provideCapDesc.getDeclaredAttributes().entrySet().stream()
+				.collect(toMap(Entry::getKey, e -> convertAttribute(e.getValue())));
 
 		// Resolve the namespace
 		String capNs = provideCapDesc.getType();
 
 		// Resolve the mandatory p2 name
-		// By convention OSGi capabilities have an attribute named like the capability namespace.
-		// If this is not the case synthesize a unique name (e.g. "osgi.service" has an "objectClass" attribute instead).
-		// TODO If present but not a String log a warning somehow that it is ignored? Or fail the publication?
-		capAttrs.compute(capNs, (k, v) -> (v instanceof String) ? v : String.format("%s_%s-%s", iu.getId(), iu.getVersion(), capNo)); //$NON-NLS-1$
+		// By convention OSGi capabilities have an attribute named like the capability
+		// namespace.
+		// If this is not the case synthesize a unique name (e.g. "osgi.service" has an
+		// "objectClass" attribute instead).
+		// TODO If present but not a String log a warning somehow that it is ignored? Or
+		// fail the publication?
+		capAttrs.compute(capNs,
+				(k, v) -> (v instanceof String) ? v : String.format("%s_%s-%s", iu.getId(), iu.getVersion(), capNo)); //$NON-NLS-1$
 
 		// Resolve the mandatory p2 version
-		// By convention versioned OSGi capabilities have a "version" attribute containing the OSGi Version object
-		// If this is not the case use an empty version (e.g. "osgi.ee" has a list of versions).
-		// TODO If present but not a Version log a warning somehow that it is ignored? Or fail the publication?
-		capAttrs.compute(IProvidedCapability.PROPERTY_VERSION, (k, v) -> (v instanceof Version) ? v : Version.emptyVersion);
+		// By convention versioned OSGi capabilities have a "version" attribute
+		// containing the OSGi Version object
+		// If this is not the case use an empty version (e.g. "osgi.ee" has a list of
+		// versions).
+		// TODO If present but not a Version log a warning somehow that it is ignored?
+		// Or fail the publication?
+		capAttrs.compute(IProvidedCapability.PROPERTY_VERSION,
+				(k, v) -> (v instanceof Version) ? v : Version.emptyVersion);
 
 		caps.add(MetadataFactory.createProvidedCapability(capNs, capAttrs));
 	}
@@ -378,7 +443,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	private Object convertScalarAttribute(Object attr) {
 		if (attr instanceof org.osgi.framework.Version) {
 			org.osgi.framework.Version osgiVer = (org.osgi.framework.Version) attr;
-			return Version.createOSGi(osgiVer.getMajor(), osgiVer.getMinor(), osgiVer.getMicro(), osgiVer.getQualifier());
+			return Version.createOSGi(osgiVer.getMajor(), osgiVer.getMinor(), osgiVer.getMicro(),
+					osgiVer.getQualifier());
 		}
 		return attr.toString();
 	}
@@ -393,8 +459,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		return updateRange;
 	}
 
-	private IInstallableUnitFragment createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues) {
-		Map<Locale, Map<String, String>> hostLocalizations = getHostLocalizations(new File(bd.getLocation()), hostBundleManifestValues);
+	private IInstallableUnitFragment createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd,
+			String hostId, String[] hostBundleManifestValues) {
+		Map<Locale, Map<String, String>> hostLocalizations = getHostLocalizations(new File(bd.getLocation()),
+				hostBundleManifestValues);
 		if (hostLocalizations == null || hostLocalizations.isEmpty())
 			return null;
 		return createLocalizationFragmentOfHost(bd, hostId, hostBundleManifestValues, hostLocalizations);
@@ -402,25 +470,33 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	/*
 	 * @param hostId
+	 * 
 	 * @param bd
+	 * 
 	 * @param locale
+	 * 
 	 * @param localizedStrings
+	 * 
 	 * @return installableUnitFragment
 	 */
-	private static IInstallableUnitFragment createLocalizationFragmentOfHost(BundleDescription bd, String hostId, String[] hostManifestValues, Map<Locale, Map<String, String>> hostLocalizations) {
+	private static IInstallableUnitFragment createLocalizationFragmentOfHost(BundleDescription bd, String hostId,
+			String[] hostManifestValues, Map<Locale, Map<String, String>> hostLocalizations) {
 		InstallableUnitFragmentDescription fragment = new MetadataFactory.InstallableUnitFragmentDescription();
 		String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
 		fragment.setId(fragmentId);
 		fragment.setVersion(PublisherHelper.fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
 
 		HostSpecification hostSpec = bd.getHost();
-		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), PublisherHelper.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
+		IRequirement[] hostReqs = new IRequirement[] {
+				MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(),
+						PublisherHelper.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false) };
 		fragment.setHost(hostReqs);
 
 		fragment.setSingleton(true);
 		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 
-		// Create a provided capability for each locale and add the translated properties.
+		// Create a provided capability for each locale and add the translated
+		// properties.
 		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>(hostLocalizations.keySet().size());
 		providedCapabilities.add(PublisherHelper.createSelfCapability(fragmentId, fragment.getVersion()));
 		for (Entry<Locale, Map<String, String>> localeEntry : hostLocalizations.entrySet()) {
@@ -438,8 +514,8 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	/**
 	 * @param id
-	 * @return the id for the iu fragment containing localized properties
-	 * 		   for the fragment with the given id.
+	 * @return the id for the iu fragment containing localized properties for the
+	 *         fragment with the given id.
 	 */
 	private static String makeHostLocalizationFragmentId(String id) {
 		return id + ".translated_host_properties"; //$NON-NLS-1$
@@ -468,7 +544,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		return createConfigScript(configInfo, false);
 	}
 
-	public static IInstallableUnit createDefaultBundleConfigurationUnit(GeneratorBundleInfo configInfo, GeneratorBundleInfo unconfigInfo, String configurationFlavor) {
+	public static IInstallableUnit createDefaultBundleConfigurationUnit(GeneratorBundleInfo configInfo,
+			GeneratorBundleInfo unconfigInfo, String configurationFlavor) {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configUnitId = PublisherHelper.createDefaultConfigUnitId(OSGI_BUNDLE_CLASSIFIER, configurationFlavor);
 		cu.setId(configUnitId);
@@ -477,10 +554,15 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Add capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
+		cu.setCapabilities(
+				new IProvidedCapability[] { PublisherHelper.createSelfCapability(configUnitId, configUnitVersion),
+						MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_FLAVOR, configurationFlavor,
+								Version.createOSGi(1, 0, 0)) });
 
 		// Create a required capability on bundles
-		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
+		IRequirement[] reqs = new IRequirement[] {
+				MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE,
+						VersionRange.emptyRange, null, false, true, false) };
 		cu.setHost(reqs);
 		Map<String, String> touchpointData = new HashMap<>();
 
@@ -515,22 +597,28 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private static boolean isDynamicImport(ImportPackageSpecification importedPackage) {
-		return importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_DYNAMIC);
+		return importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE)
+				.equals(ImportPackageSpecification.RESOLUTION_DYNAMIC);
 	}
 
 	protected static boolean isOptional(ImportPackageSpecification importedPackage) {
-		return importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL);
+		return importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE)
+				.equals(ImportPackageSpecification.RESOLUTION_OPTIONAL);
 	}
 
 	private static String toManifestString(Map<String, String> p) {
 		if (p == null)
 			return null;
 		StringBuilder result = new StringBuilder();
-		// See https://bugs.eclipse.org/329386. We are trying to reduce the size of the manifest data in
-		// the eclipse touchpoint. We've removed the code that requires it but in order for old clients
-		// to still be able to use recent repositories, we're going to keep around the manifest properties
+		// See https://bugs.eclipse.org/329386. We are trying to reduce the size of the
+		// manifest data in
+		// the eclipse touchpoint. We've removed the code that requires it but in order
+		// for old clients
+		// to still be able to use recent repositories, we're going to keep around the
+		// manifest properties
 		// they need.
-		final String[] interestingKeys = new String[] {Constants.BUNDLE_SYMBOLICNAME, Constants.BUNDLE_VERSION, Constants.FRAGMENT_HOST};
+		final String[] interestingKeys = new String[] { Constants.BUNDLE_SYMBOLICNAME, Constants.BUNDLE_VERSION,
+				Constants.FRAGMENT_HOST };
 		for (String key : interestingKeys) {
 			String value = p.get(key);
 			if (value != null)
@@ -542,19 +630,25 @@ public class BundlesAction extends AbstractPublisherAction {
 	// Return a map from locale to property set for the manifest localizations
 	// from the given bundle directory and given bundle localization path/name
 	// manifest property value.
-	private static Map<Locale, Map<String, String>> getManifestLocalizations(Map<String, String> manifest, File bundleLocation) {
+	private static Map<Locale, Map<String, String>> getManifestLocalizations(Map<String, String> manifest,
+			File bundleLocation) {
 		Map<Locale, Map<String, String>> localizations;
 		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
 		String[] bundleManifestValues = getManifestCachedValues(manifest);
-		String bundleLocalization = bundleManifestValues[BUNDLE_LOCALIZATION_INDEX]; // Bundle localization is the last one in the list
+		String bundleLocalization = bundleManifestValues[BUNDLE_LOCALIZATION_INDEX]; // Bundle localization is the last
+																						// one in the list
 
 		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
-			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
-			//localizations = getJarManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, bundleLocalization,
+					defaultLocale, bundleManifestValues);
+			// localizations = getJarManifestLocalization(bundleLocation,
+			// bundleLocalization, defaultLocale, bundleManifestValues);
 		} else {
-			localizations = LocalizationHelper.getDirPropertyLocalizations(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
-			// localizations = getDirManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			localizations = LocalizationHelper.getDirPropertyLocalizations(bundleLocation, bundleLocalization,
+					defaultLocale, bundleManifestValues);
+			// localizations = getDirManifestLocalization(bundleLocation,
+			// bundleLocalization, defaultLocale, bundleManifestValues);
 		}
 
 		return localizations;
@@ -564,12 +658,14 @@ public class BundlesAction extends AbstractPublisherAction {
 		String[] result = new String[PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length];
 		int j = 0;
 		for (int i = 1; i < BUNDLE_IU_PROPERTY_MAP.length - 1; i += 2) {
-			if (iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]) != null && iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).length() > 0 && iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).charAt(0) == '%')
+			if (iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]) != null
+					&& iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).length() > 0
+					&& iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).charAt(0) == '%')
 				result[j++] = iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).substring(1);
 			else
 				j++;
 		}
-		// The last string is the location 
+		// The last string is the location
 		result[BUNDLE_LOCALIZATION_INDEX] = iu.getProperty(IInstallableUnit.PROP_BUNDLE_LOCALIZATION);
 
 		return result;
@@ -593,7 +689,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	// Return a map from locale to property set for the manifest localizations
 	// from the given bundle directory and given bundle localization path/name
 	// manifest property value.
-	public static Map<Locale, Map<String, String>> getHostLocalizations(File bundleLocation, String[] hostBundleManifestValues) {
+	public static Map<Locale, Map<String, String>> getHostLocalizations(File bundleLocation,
+			String[] hostBundleManifestValues) {
 		Map<Locale, Map<String, String>> localizations;
 		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
 		String hostBundleLocalization = hostBundleManifestValues[BUNDLE_LOCALIZATION_INDEX];
@@ -602,23 +699,34 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
-			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
-			//localizations = getJarManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, hostBundleLocalization,
+					defaultLocale, hostBundleManifestValues);
+			// localizations = getJarManifestLocalization(bundleLocation,
+			// hostBundleLocalization, defaultLocale, hostBundleManifestValues);
 		} else {
-			localizations = LocalizationHelper.getDirPropertyLocalizations(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
-			// localizations = getDirManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			localizations = LocalizationHelper.getDirPropertyLocalizations(bundleLocation, hostBundleLocalization,
+					defaultLocale, hostBundleManifestValues);
+			// localizations = getDirManifestLocalization(bundleLocation,
+			// hostBundleLocalization, defaultLocale, hostBundleManifestValues);
 		}
 
 		return localizations;
 	}
 
-	public static BundleDescription createBundleDescription(Dictionary<String, String> enhancedManifest, File bundleLocation) {
+	public static BundleDescription createBundleDescription(Dictionary<String, String> enhancedManifest,
+			File bundleLocation) {
 		try {
-			BundleDescription descriptor = StateObjectFactory.defaultFactory.createBundleDescription(null, enhancedManifest, bundleLocation == null ? null : bundleLocation.getAbsolutePath(), 1); //TODO Do we need to have a real bundle id
+			BundleDescription descriptor = StateObjectFactory.defaultFactory.createBundleDescription(null,
+					enhancedManifest, bundleLocation == null ? null : bundleLocation.getAbsolutePath(), 1); // TODO Do
+																											// we need
+																											// to have a
+																											// real
+																											// bundle id
 			descriptor.setUserObject(enhancedManifest);
 			return descriptor;
 		} catch (BundleException e) {
-			String message = NLS.bind(Messages.exception_stateAddition, bundleLocation == null ? null : bundleLocation.getAbsoluteFile());
+			String message = NLS.bind(Messages.exception_stateAddition,
+					bundleLocation == null ? null : bundleLocation.getAbsoluteFile());
 			IStatus status = new Status(IStatus.WARNING, Activator.ID, message, e);
 			LogHelper.log(status);
 			return null;
@@ -673,7 +781,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		Dictionary<String, String> manifest = basicLoadManifest(bundleLocation);
 		if (manifest == null)
 			return null;
-		// if the bundle itself does not define its shape, infer the shape from the current form
+		// if the bundle itself does not define its shape, infer the shape from the
+		// current form
 		if (manifest.get(BUNDLE_SHAPE) == null)
 			manifest.put(BUNDLE_SHAPE, bundleLocation.isDirectory() ? DIR : JAR);
 		return manifest;
@@ -695,7 +804,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
-	public static Dictionary<String, String> basicLoadManifest(File bundleLocation) throws IOException, BundleException {
+	public static Dictionary<String, String> basicLoadManifest(File bundleLocation)
+			throws IOException, BundleException {
 		InputStream manifestStream = null;
 		ZipFile jarFile = null;
 		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && bundleLocation.isFile()) { //$NON-NLS-1$
@@ -720,7 +830,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				if (jarFile != null)
 					jarFile.close();
 			} catch (IOException e2) {
-				//Ignore
+				// Ignore
 			}
 		}
 
@@ -729,13 +839,17 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * @return the same result as {@link Headers#parseManifest(InputStream)}, but with a modifiable {@link Headers} instance
+	 * @return the same result as {@link Headers#parseManifest(InputStream)}, but
+	 *         with a modifiable {@link Headers} instance
 	 */
-	private static Headers<String, String> parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(InputStream manifestStream) throws IOException, BundleException {
-		return (Headers<String, String>) ManifestElement.parseBundleManifest(manifestStream, new Headers<String, String>(10));
+	private static Headers<String, String> parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(
+			InputStream manifestStream) throws IOException, BundleException {
+		return (Headers<String, String>) ManifestElement.parseBundleManifest(manifestStream,
+				new Headers<String, String>(10));
 	}
 
-	private static ManifestElement[] parseManifestHeader(String header, Map<String, String> manifest, String bundleLocation) {
+	private static ManifestElement[] parseManifestHeader(String header, Map<String, String> manifest,
+			String bundleLocation) {
 		try {
 			return ManifestElement.parseHeader(header, manifest.get(header));
 		} catch (BundleException e) {
@@ -788,7 +902,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
-	protected void publishArtifact(IArtifactDescriptor descriptor, File base, File[] inclusions, IPublisherInfo publisherInfo) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File base, File[] inclusions,
+			IPublisherInfo publisherInfo) {
 		IArtifactRepository destination = publisherInfo.getArtifactRepository();
 		if (descriptor == null || destination == null)
 			return;
@@ -812,11 +927,13 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// if we are assimilating pack200 files then add the packed descriptor
 		// into the repo assuming it does not already exist.
-		boolean reuse = "true".equals(destination.getProperties().get(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS)); //$NON-NLS-1$
+		boolean reuse = "true" //$NON-NLS-1$
+				.equals(destination.getProperties().get(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS));
 		if (reuse && (publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
 			File packFile = new Path(jarFile.getAbsolutePath()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
 			if (packFile.exists()) {
-				IArtifactDescriptor ad200 = createPack200ArtifactDescriptor(descriptor.getArtifactKey(), packFile, descriptor.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
+				IArtifactDescriptor ad200 = createPack200ArtifactDescriptor(descriptor.getArtifactKey(), packFile,
+						descriptor.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
 				publishArtifact(ad200, packFile, publisherInfo);
 			}
 		}
@@ -833,11 +950,11 @@ public class BundlesAction extends AbstractPublisherAction {
 			return;
 		for (File location : list) {
 			if (location.isDirectory()) {
-				// if the location is itself a bundle, just add it.  Otherwise r down
+				// if the location is itself a bundle, just add it. Otherwise r down
 				if (new File(location, JarFile.MANIFEST_NAME).exists())
 					result.add(location);
 				else if (new File(location, "plugin.xml").exists() || new File(location, "fragment.xml").exists()) //$NON-NLS-1$ //$NON-NLS-2$
-					result.add(location); //old style bundle without manifest
+					result.add(location); // old style bundle without manifest
 				else
 					expandLocations(location.listFiles(), result);
 			} else {
@@ -847,30 +964,38 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Publishes bundle IUs to the p2 metadata and artifact repositories. 
+	 * Publishes bundle IUs to the p2 metadata and artifact repositories.
 	 * 
-	 * @param bundleDescriptions Equinox framework descriptions of the bundles to publish. 
-	 * @param result Used to attach status for the publication operation.
-	 * @param monitor Used to fire progress events.
+	 * @param bundleDescriptions Equinox framework descriptions of the bundles to
+	 *                           publish.
+	 * @param result             Used to attach status for the publication
+	 *                           operation.
+	 * @param monitor            Used to fire progress events.
 	 * 
-	 * @deprecated Use {@link #generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor)} with
-	 * {@link IPublisherInfo} set to <code>null</code>
+	 * @deprecated Use
+	 *             {@link #generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor)}
+	 *             with {@link IPublisherInfo} set to <code>null</code>
 	 */
 	@Deprecated
-	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherResult result, IProgressMonitor monitor) {
+	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherResult result,
+			IProgressMonitor monitor) {
 		generateBundleIUs(bundleDescriptions, null, result, monitor);
 	}
 
 	/**
-	 * Publishes bundle IUs to the p2 metadata and artifact repositories. 
+	 * Publishes bundle IUs to the p2 metadata and artifact repositories.
 	 * 
-	 * @param bundleDescriptions Equinox framework descriptions of the bundles to publish. 
-	 * @param info Configuration and publication advice information.
-	 * @param result Used to attach status for the publication operation.
-	 * @param monitor Used to fire progress events.
+	 * @param bundleDescriptions Equinox framework descriptions of the bundles to
+	 *                           publish.
+	 * @param info               Configuration and publication advice information.
+	 * @param result             Used to attach status for the publication
+	 *                           operation.
+	 * @param monitor            Used to fire progress events.
 	 */
-	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor) {
-		// This assumes that hosts are processed before fragments because for each fragment the host
+	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info,
+			IPublisherResult result, IProgressMonitor monitor) {
+		// This assumes that hosts are processed before fragments because for each
+		// fragment the host
 		// is queried for the strings that should be translated.
 		for (BundleDescription bd : bundleDescriptions) {
 			if (monitor.isCanceled()) {
@@ -881,8 +1006,9 @@ public class BundlesAction extends AbstractPublisherAction {
 				continue;
 			}
 
-			//First check to see if there is already an IU around for this
-			IInstallableUnit bundleIU = queryForIU(result, bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion()));
+			// First check to see if there is already an IU around for this
+			IInstallableUnit bundleIU = queryForIU(result, bd.getSymbolicName(),
+					PublisherHelper.fromOSGiVersion(bd.getVersion()));
 			IArtifactKey bundleArtKey = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 			if (bundleIU == null) {
 				createAdviceFileAdvice(bd, info);
@@ -938,14 +1064,17 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (location == null)
 			return;
 
-		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), PublisherHelper.fromOSGiVersion(bundleDescription.getVersion()), new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
+		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(),
+				PublisherHelper.fromOSGiVersion(bundleDescription.getVersion()), new Path(location),
+				AdviceFileAdvice.BUNDLE_ADVICE_FILE);
 		if (advice.containsAdvice())
 			publisherInfo.addAdvice(advice);
 
 	}
 
 	private static boolean isDir(BundleDescription bundle, IPublisherInfo info) {
-		Collection<IBundleShapeAdvice> advice = info.getAdvice(null, true, bundle.getSymbolicName(), PublisherHelper.fromOSGiVersion(bundle.getVersion()), IBundleShapeAdvice.class);
+		Collection<IBundleShapeAdvice> advice = info.getAdvice(null, true, bundle.getSymbolicName(),
+				PublisherHelper.fromOSGiVersion(bundle.getVersion()), IBundleShapeAdvice.class);
 		// if the advice has a shape, use it
 		if (advice != null && !advice.isEmpty()) {
 			// we know there is some advice but if there is more than one, take the first.
@@ -953,7 +1082,8 @@ public class BundlesAction extends AbstractPublisherAction {
 			if (shape != null)
 				return shape.equals(IBundleShapeAdvice.DIR);
 		}
-		// otherwise go with whatever we figured out from the manifest or the shape on disk
+		// otherwise go with whatever we figured out from the manifest or the shape on
+		// disk
 		@SuppressWarnings("unchecked")
 		Map<String, String> manifest = (Map<String, String>) bundle.getUserObject();
 		String format = manifest.get(BUNDLE_SHAPE);
@@ -987,6 +1117,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private void addPublishingErrorToFinalStatus(Throwable t, File bundleLocation) {
-		finalStatus.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.exception_errorPublishingBundle, bundleLocation, t.getMessage()), t));
+		finalStatus.add(new Status(IStatus.ERROR, Activator.ID,
+				NLS.bind(Messages.exception_errorPublishingBundle, bundleLocation, t.getMessage()), t));
 	}
 }
