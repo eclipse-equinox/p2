@@ -86,7 +86,7 @@ public class CopyAction extends ProvisioningAction {
 			copiedFileNameBuffer.append(copiedFile.getAbsolutePath()).append(ActionConstants.PIPE);
 		}
 
-		profile.setInstallableUnitProperty(iu, "copied" + ActionConstants.PIPE + originalSource + ActionConstants.PIPE + target, copiedFileNameBuffer.toString()); //$NON-NLS-1$
+		profile.setInstallableUnitProperty(iu, "copied " + ActionConstants.PIPE + originalSource + ActionConstants.PIPE + target, copiedFileNameBuffer.toString()); //$NON-NLS-1$
 
 		return Status.OK_STATUS;
 	}
@@ -119,7 +119,7 @@ public class CopyAction extends ProvisioningAction {
 	 */
 	private static void xcopy(ArrayList<File> copiedFiles, File source, File target, boolean overwrite, IBackupStore backupStore) throws IOException {
 		if (!source.exists())
-			throw new IOException("Source: " + source + "does not exists"); //$NON-NLS-1$//$NON-NLS-2$
+			throw new IOException("Source: " + source + " does not exists"); //$NON-NLS-1$//$NON-NLS-2$
 
 		if (source.isDirectory()) {
 			if (target.exists() && target.isFile()) {
@@ -152,7 +152,7 @@ public class CopyAction extends ProvisioningAction {
 		} catch (IOException e) {
 			// get the original IOException to the log
 			e.printStackTrace();
-			throw new IOException("Error while copying:" + source.getAbsolutePath()); //$NON-NLS-1$
+			throw new IOException("Error while copying: " + source.getAbsolutePath()); //$NON-NLS-1$
 		}
 		copiedFiles.add(target);
 	}
