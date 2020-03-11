@@ -15,7 +15,9 @@
 package org.eclipse.equinox.p2.tests.testserver.helper;
 
 import java.security.cert.Certificate;
-import junit.framework.*;
+import junit.framework.Protectable;
+import junit.framework.TestCase;
+import junit.framework.TestResult;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.UIServices;
@@ -41,11 +43,11 @@ public class AbstractTestServerClientCase extends TestCase {
 	 * Returns a URL string part consisting of http://localhost:<port>
 	 * @return String with first part of URL
 	 */
-	protected String getBaseURL() {
+	public String getBaseURL() {
 		return "http://localhost:" + System.getProperty(TestServerController.PROP_TESTSERVER_PORT, "8080");
 	}
 
-	protected static IProvisioningAgent getAgent() {
+	public static IProvisioningAgent getAgent() {
 		//get the global agent for the currently running system
 		return ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.class);
 	}

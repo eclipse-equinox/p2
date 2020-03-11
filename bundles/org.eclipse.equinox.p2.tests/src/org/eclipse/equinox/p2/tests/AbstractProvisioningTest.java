@@ -902,7 +902,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return repo;
 	}
 
-	protected static IProvisioningAgent getAgent() {
+	public static IProvisioningAgent getAgent() {
 		//get the global agent for the currently running system
 		return ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.class);
 	}
@@ -925,7 +925,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return getAgent().getService(IProfileRegistry.class);
 	}
 
-	protected Transport getTransport() {
+	public Transport getTransport() {
 		return getAgent().getService(Transport.class);
 	}
 

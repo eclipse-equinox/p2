@@ -168,7 +168,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	}
 
 	private final static String PROFILE_TEST_TARGET = "profileTest";
-	private final static Version PROFILE_TEST_VERSION = Version.create("0.0.1");
+	final static Version PROFILE_TEST_VERSION = Version.create("0.0.1");
 
 	private final static String PROFILE_TEST_ELEMENT = "test";
 	public static final String PROFILES_ELEMENT = "profiles"; //$NON-NLS-1$
@@ -240,7 +240,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 			}
 		}
 
-		private final class TestHandler extends RootHandler {
+		final class TestHandler extends RootHandler {
 
 			private ProfilesHandler profilesHandler;
 			IProfile[] profiles;

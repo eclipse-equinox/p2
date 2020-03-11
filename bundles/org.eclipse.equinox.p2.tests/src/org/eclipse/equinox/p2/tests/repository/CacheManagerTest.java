@@ -35,7 +35,7 @@ import org.osgi.framework.ServiceReference;
 public class CacheManagerTest {
 
 	private static final int ONE_HOUR = 3600000;
-	private URI repositoryLocation;
+	URI repositoryLocation;
 	private File contentXmlFile;
 	private CacheManager cacheManager;
 	private final String cachePrefix = "content"; //$NON-NLS-1$
@@ -111,7 +111,7 @@ public class CacheManagerTest {
 		return repository.toURI();
 	}
 
-	private class AgentLocationMock implements IAgentLocation {
+	class AgentLocationMock implements IAgentLocation {
 
 		@Override
 		public URI getDataArea(final String namespace) {

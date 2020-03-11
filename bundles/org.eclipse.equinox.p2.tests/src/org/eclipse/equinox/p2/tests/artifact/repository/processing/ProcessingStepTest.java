@@ -32,8 +32,8 @@ import org.junit.Test;
 public class ProcessingStepTest {
 
 	private ProcessingStep ps;
-	private boolean flushed;
-	private boolean closed;
+	boolean flushed;
+	boolean closed;
 
 	@Before
 	public void setUp() throws Exception {

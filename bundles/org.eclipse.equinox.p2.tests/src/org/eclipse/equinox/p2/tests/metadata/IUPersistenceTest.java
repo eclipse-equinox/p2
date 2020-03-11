@@ -174,7 +174,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private final static String IU_TEST_TARGET = "installableUnitTest";
 
-	private final static Version IU_TEST_VERSION = Version.create("0.0.1");
+	final static Version IU_TEST_VERSION = Version.create("0.0.1");
 
 	// Randomly chose org.eclipse.osgi.services as the IU for testing persistence
 	// but 'enhanced' it for better coverage.
