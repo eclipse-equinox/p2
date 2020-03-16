@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2020 Cloudsmith Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,9 +14,16 @@
 
 package org.eclipse.equinox.p2.tests.repository;
 
-import java.io.*;
-import java.net.*;
-import org.eclipse.core.runtime.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ConnectException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCase;
 
@@ -54,7 +61,9 @@ public class FileReaderTest extends AbstractTestServerClientCase {
 		URI toDownload = new URI(getBaseURL() + "/public/index.html");
 		final NullProgressMonitor monitor = new NullProgressMonitor();
 		try (InputStream stream = transport.stream(toDownload, monitor)) {
-			//
+			// Avoid unused variable error
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=561134
+			stream.toString();
 		}
 		assertFalse("1.0", monitor.isCanceled());
 	}
