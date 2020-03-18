@@ -497,7 +497,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Create a provided capability for each locale and add the translated
 		// properties.
-		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>(hostLocalizations.keySet().size());
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<>(hostLocalizations.size());
 		providedCapabilities.add(PublisherHelper.createSelfCapability(fragmentId, fragment.getVersion()));
 		for (Entry<Locale, Map<String, String>> localeEntry : hostLocalizations.entrySet()) {
 			Locale locale = localeEntry.getKey();
