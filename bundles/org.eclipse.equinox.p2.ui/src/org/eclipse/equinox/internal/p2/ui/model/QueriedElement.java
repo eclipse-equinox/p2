@@ -107,15 +107,19 @@ public abstract class QueriedElement extends ProvElement {
 		Collection<?> results = queryDescriptor.performQuery(monitor);
 		cachedChildren = Collections.unmodifiableCollection(results);
 		if (results.size() > 0) {
-			Collection<Object> returnedChildren = new HashSet<>();
-			returnedChildren.addAll(results);
-			Object[] siblings = getSiblings();
-			for (Object sibling : siblings) {
-				returnedChildren.remove(sibling);
-			}
-			return returnedChildren.toArray();
+			return getFilteredChildren(results);
 		}
 		return new Object[0];
+	}
+
+	protected Object[] getFilteredChildren(Collection<?> results) {
+		Collection<Object> returnedChildren = new HashSet<>();
+		returnedChildren.addAll(results);
+		Object[] siblings = getSiblings();
+		for (Object sibling : siblings) {
+			returnedChildren.remove(sibling);
+		}
+		return returnedChildren.toArray();
 	}
 
 	public void setQueryable(IQueryable<?> queryable) {
