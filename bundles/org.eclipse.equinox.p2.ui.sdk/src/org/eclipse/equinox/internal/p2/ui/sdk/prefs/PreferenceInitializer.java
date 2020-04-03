@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
@@ -62,6 +62,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		// default values
 		node.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true);
 		node.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.PROMPT);
+		node.putBoolean(PreferenceConstants.PREF_CHECK_AGAINST_CURRENT_JRE, true);
 	}
 
 	private static IAgentLocation getDefaultAgentLocation() {

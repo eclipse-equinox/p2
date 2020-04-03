@@ -17,17 +17,24 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.eclipse.core.commands.*;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
-import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -35,6 +42,7 @@ import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
@@ -42,6 +50,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 /**
  * Generic provisioning UI utility and policy methods.
@@ -307,6 +317,111 @@ public class ProvUI {
 	 */
 	public static IProvisioningEventBus getProvisioningEventBus(ProvisioningSession session) {
 		return session.getProvisioningAgent().getService(IProvisioningEventBus.class);
+	}
+
+	public static IProvisioningPlan toCompabilityWithCurrentJREProvisioningPlan(
+			ProfileChangeOperation referenceOperation, IProgressMonitor monitor) {
+		IInstallableUnit currentJREUnit = createCurrentJavaSEUnit();
+		IProfileChangeRequest compatibilityWithCurrentRequest = toCurrentJREOperation(referenceOperation,
+				currentJREUnit);
+		IPlanner planner = referenceOperation.getProvisioningPlan().getProfile().getProvisioningAgent()
+				.getService(IPlanner.class);
+		IProvisioningPlan res = planner.getProvisioningPlan(compatibilityWithCurrentRequest,
+				referenceOperation.getProvisioningContext(), monitor);
+		return res;
+	}
+
+	private static IProfileChangeRequest toCurrentJREOperation(ProfileChangeOperation operation,
+			IInstallableUnit currnetJREUnit) {
+		IProfileChangeRequest initialRequest = operation.getProfileChangeRequest();
+		if (initialRequest == null) {
+			throw new IllegalStateException("operation plan must be resolved"); //$NON-NLS-1$
+		}
+		IProfileChangeRequest res = ((ProfileChangeRequest) initialRequest).clone();
+		res.addExtraRequirements(Collections.singleton(MetadataFactory
+				.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "a.jre.javase", null, null, 0, 0, false))); //$NON-NLS-1$
+		operation.getProvisioningPlan().getProfile().query(QueryUtil.createIUQuery("a.jre.javase"), null) //$NON-NLS-1$
+				.forEach(res::remove);
+		res.add(currnetJREUnit);
+		return res;
+	}
+
+	private static IInstallableUnit createCurrentJavaSEUnit() {
+		InstallableUnitDescription desc = new InstallableUnitDescription();
+		desc.setId("currently-running-execution-environement-do-not-actually-install"); //$NON-NLS-1$
+		Version eeVersion = getCurrentJavaSEVersion();
+		desc.setVersion(eeVersion);
+		desc.addProvidedCapabilities(Collections
+				.singletonList(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, desc.getId(), eeVersion)));
+		desc.addProvidedCapabilities(parseSystemCapabilities(Constants.FRAMEWORK_SYSTEMCAPABILITIES));
+		desc.addProvidedCapabilities(parseSystemCapabilities(Constants.FRAMEWORK_SYSTEMCAPABILITIES_EXTRA));
+		desc.addProvidedCapabilities(toJavaPackageCapabilities(Constants.FRAMEWORK_SYSTEMPACKAGES));
+		desc.addProvidedCapabilities(toJavaPackageCapabilities(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA));
+		return MetadataFactory.createInstallableUnit(desc);
+	}
+
+	private static List<IProvidedCapability> toJavaPackageCapabilities(String systemPropertyName) {
+		String packages = System.getProperty(systemPropertyName);
+		if (packages != null && !packages.trim().isEmpty()) {
+			try {
+				return Arrays.stream(ManifestElement.parseHeader(systemPropertyName, packages)) //
+						.map(jrePackage -> {
+							String packageName = jrePackage.getValue();
+							Version packageVersion = Version.create(jrePackage.getAttribute("version")); //$NON-NLS-1$
+							return MetadataFactory.createProvidedCapability("java.package", packageName, //$NON-NLS-1$
+									packageVersion);
+						}).collect(Collectors.toList());
+			} catch (BundleException e) {
+				ProvUIActivator.getDefault().getLog()
+						.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e));
+			}
+		}
+		return Collections.emptyList();
+	}
+
+	private static Version getCurrentJavaSEVersion() {
+		String[] segments = System.getProperty("java.version").split("\\."); //$NON-NLS-1$ //$NON-NLS-2$
+		if ("1".equals(segments[0])) { //$NON-NLS-1$
+			return Version.create(segments[0] + '.' + segments[1] + ".0"); //$NON-NLS-1$
+		}
+		return Version.create(segments[0] + ".0.0"); //$NON-NLS-1$
+	}
+
+	static Collection<IProvidedCapability> parseSystemCapabilities(String systemProperty) {
+		String systemCapabilities = System.getProperty(systemProperty);
+		if (systemCapabilities == null || systemCapabilities.trim().isEmpty()) {
+			return Collections.emptyList();
+		}
+		try {
+			return Arrays.stream(ManifestElement.parseHeader(systemProperty, systemCapabilities)) //
+					.flatMap(eeCapability -> {
+						String eeName = eeCapability.getAttribute("osgi.ee"); //$NON-NLS-1$
+						if (eeName == null) {
+							return Stream.empty();
+						}
+						return parseEECapabilityVersion(eeCapability) //
+								.map(version -> MetadataFactory.createProvidedCapability("osgi.ee", eeName, version)); //$NON-NLS-1$
+					}).collect(Collectors.toList());
+		} catch (BundleException e) {
+			ProvUIActivator.getDefault().getLog()
+					.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e));
+			return Collections.emptyList();
+		}
+	}
+
+	private static Stream<Version> parseEECapabilityVersion(ManifestElement eeCapability) {
+		String singleVersion = eeCapability.getAttribute("version:Version"); //$NON-NLS-1$
+		String[] multipleVersions = ManifestElement
+				.getArrayFromList(eeCapability.getAttribute("version:List<Version>")); //$NON-NLS-1$
+
+		if (singleVersion == null && multipleVersions == null) {
+			return Stream.empty();
+		} else if (singleVersion == null) {
+			return Arrays.stream(multipleVersions).map(Version::parseVersion);
+		} else if (multipleVersions == null) {
+			return Stream.of(singleVersion).map(Version::parseVersion);
+		}
+		return Stream.empty();
 	}
 
 }

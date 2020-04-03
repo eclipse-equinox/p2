@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ import org.osgi.service.prefs.Preferences;
 
 /**
  * Preference page for general provisioning preferences.
- * 
+ *
  * @since 3.4
  */
 
@@ -38,6 +38,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 	private Group browsingGroup, validateGroup;
 	private Button showLatestRadio, showAllRadio;
 	private Button alwaysShowFailedPlan, neverShowFailedPlan, promptOnFailedPlan;
+	private Button checkAgainstCurrentCheckbox;
 
 	@Override
 	protected Control createContents(Composite parent) {
@@ -96,6 +97,9 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		gd.horizontalSpan = 3;
 		promptOnFailedPlan.setLayoutData(gd);
 
+		checkAgainstCurrentCheckbox = new Button(container, SWT.CHECK);
+		checkAgainstCurrentCheckbox.setText(ProvSDKMessages.ProvisioningPreferencePage_checkCompatibleWithCurrentJRE);
+
 		//Link to installed software page
 		//See https://bugs.eclipse.org/bugs/show_bug.cgi?id=313242
 		Link link = new Link(container, SWT.PUSH);
@@ -117,6 +121,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		alwaysShowFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.ALWAYS));
 		neverShowFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.NEVER));
 		promptOnFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.PROMPT));
+		checkAgainstCurrentCheckbox.setSelection(pref.getBoolean(PreferenceConstants.PREF_CHECK_AGAINST_CURRENT_JRE));
 	}
 
 	@Override
@@ -129,6 +134,8 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		alwaysShowFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.ALWAYS));
 		neverShowFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.NEVER));
 		promptOnFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.PROMPT));
+		checkAgainstCurrentCheckbox
+				.setSelection(pref.getBoolean(PreferenceConstants.PREF_CHECK_AGAINST_CURRENT_JRE, false));
 	}
 
 	@Override
@@ -141,7 +148,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.NEVER);
 		else
 			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.PROMPT);
-
+		pref.setValue(PreferenceConstants.PREF_CHECK_AGAINST_CURRENT_JRE, checkAgainstCurrentCheckbox.getSelection());
 		ProvSDKUIActivator.getDefault().savePreferences();
 		return true;
 	}

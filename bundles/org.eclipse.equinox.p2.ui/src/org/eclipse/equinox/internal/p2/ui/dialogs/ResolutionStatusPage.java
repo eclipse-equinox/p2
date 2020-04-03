@@ -16,6 +16,7 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.operations.ResolutionResult;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
@@ -29,8 +30,8 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * A wizard page that presents a check box list of IUs and allows the user
- * to select and deselect them.  Typically the first page in a provisioning
+ * A wizard page that presents a check box list of IUs and allows the user to
+ * select and deselect them. Typically the first page in a provisioning
  * operation wizard, and usually it is the page used to report resolution errors
  * before advancing to resolution detail.
  *
@@ -54,7 +55,9 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 	/**
 	 * Update the caches associated with this page.
-	 * @param root the new root, or <code>null</code> if the root should not be updated.
+	 *
+	 * @param root              the new root, or <code>null</code> if the root
+	 *                          should not be updated.
 	 * @param resolvedOperation the new operation
 	 */
 	protected abstract void updateCaches(IUElementListRoot root, ProfileChangeOperation resolvedOperation);
@@ -70,10 +73,11 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	/**
 	 * Update the status area of the wizard to report the results of the operation.
 	 *
-	 * @param newRoot the root that describes the root IUs involved in creating the plan.
-	 * 		This can be <code>null</code> if the root should not be updated.
+	 * @param newRoot the root that describes the root IUs involved in creating the
+	 *                plan. This can be <code>null</code> if the root should not be
+	 *                updated.
 	 *
-	 * @param op the ProfileChangeOperation that describes the operation
+	 * @param op      the ProfileChangeOperation that describes the operation
 	 */
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		IStatus currentStatus = getProvisioningWizard().getCurrentStatus();
@@ -157,11 +161,14 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 		// We either haven't resolved, or we failed to resolve and reported some error
 		// while doing so.
-		if (resolvedOperation == null || !resolvedOperation.hasResolved() || getProvisioningWizard().statusOverridesOperation()) {
+		if (resolvedOperation == null || !resolvedOperation.hasResolved()
+				|| getProvisioningWizard().statusOverridesOperation()) {
 			// See if the wizard status knows something more about it.
 			IStatus currentStatus = getProvisioningWizard().getCurrentStatus();
 			if (!currentStatus.isOK()) {
-				detail = currentStatus.getMessage();
+				ResolutionResult result = new ResolutionResult();
+				result.addSummaryStatus(currentStatus);
+				detail = result.getSummaryReport();
 				detailsGroup.enablePropertyLink(false);
 			} else if (selectedIU != null) {
 				detail = getIUDescription(selectedElement);
@@ -174,7 +181,8 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 			return;
 		}
 
-		// An IU is selected and we have resolved.  Look for information about the specific IU.
+		// An IU is selected and we have resolved. Look for information about the
+		// specific IU.
 		if (selectedIU != null) {
 			detail = resolvedOperation.getResolutionDetails(selectedIU);
 			if (detail != null) {
@@ -182,7 +190,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 				detailsGroup.setDetailText(detail);
 				return;
 			}
-			// No specific error about this IU.  Show the overall error if it is in error.
+			// No specific error about this IU. Show the overall error if it is in error.
 			if (resolvedOperation.getResolutionResult().getSeverity() == IStatus.ERROR) {
 				detail = resolvedOperation.getResolutionDetails();
 				if (detail != null) {
@@ -192,14 +200,14 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 				}
 			}
 
-			// The overall status is not an error, or else there was no explanatory text for an error.
+			// The overall status is not an error, or else there was no explanatory text for
+			// an error.
 			// We may as well just show info about this iu.
 			detailsGroup.enablePropertyLink(true);
 			detailsGroup.setDetailText(getIUDescription(selectedElement));
 			return;
 		}
-
-		//No IU is selected, give the overall report
+		// No IU is selected, give the overall report
 		detail = resolvedOperation.getResolutionDetails();
 		detailsGroup.enablePropertyLink(false);
 		if (detail == null)
@@ -301,11 +309,14 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	protected IUColumnConfig[] getColumnConfig() {
 		// We intentionally use the IU's id as one of the columns, because
 		// resolution errors are reported by ID.
-		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH);
-		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
-		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
+		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME,
+				ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH);
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION,
+				ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
+		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID,
+				ILayoutConstants.DEFAULT_COLUMN_WIDTH);
 		getColumnWidthsFromSettings();
-		return new IUColumnConfig[] {nameColumn, versionColumn, idColumn};
+		return new IUColumnConfig[] { nameColumn, versionColumn, idColumn };
 	}
 
 	private boolean isLocked(AvailableIUElement elementToBeUpdated) {

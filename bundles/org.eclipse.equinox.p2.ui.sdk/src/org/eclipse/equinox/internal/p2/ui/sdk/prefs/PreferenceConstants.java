@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB (Hamdan Msheik) - Bug 396420 - Control Install dialog through preference customization
@@ -27,4 +27,5 @@ public class PreferenceConstants {
 	public static final String PREF_HIDE_INSTALLED = "hideAlreadyInstalled"; //$NON-NLS-1$
 	public static final String PREF_OPEN_WIZARD_ON_ERROR_PLAN = "allowNonOKPlan"; //$NON-NLS-1$
 	public static final String PREF_LICENSE_DIGESTS = "licenseDigestList"; //$NON-NLS-1$
+	public static final String PREF_CHECK_AGAINST_CURRENT_JRE = "checkAgainstCurrentJRE"; //$NON-NLS-1$
 }

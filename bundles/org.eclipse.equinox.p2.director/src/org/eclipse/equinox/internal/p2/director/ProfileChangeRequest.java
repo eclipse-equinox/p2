@@ -208,7 +208,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Object clone() {
+	public ProfileChangeRequest clone() {
 		ProfileChangeRequest result = new ProfileChangeRequest(profile);
 		result.iusToRemove = iusToRemove == null ? null : (ArrayList<IInstallableUnit>) iusToRemove.clone();
 		result.iusToAdd = iusToAdd == null ? null : (ArrayList<IInstallableUnit>) iusToAdd.clone();

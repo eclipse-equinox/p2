@@ -28,70 +28,69 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * The Policy class is used to specify application specific policies that
- * should be used in the standard p2 UI class libraries.   The default policy
- * is acquired using the OSGi service model.
+ * The Policy class is used to specify application specific policies that should
+ * be used in the standard p2 UI class libraries. The default policy is acquired
+ * using the OSGi service model.
  *
- * Policy allows clients to specify things such as how repositories
- * are manipulated in the standard wizards and dialogs, and how the repositories
- * or the installation itself should be traversed when displaying content.
+ * Policy allows clients to specify things such as how repositories are
+ * manipulated in the standard wizards and dialogs, and how the repositories or
+ * the installation itself should be traversed when displaying content.
  *
- * In some cases, the Policy is used only to define a default value that can
- * be overridden by user choice and subsequently stored in dialog settings.
+ * In some cases, the Policy is used only to define a default value that can be
+ * overridden by user choice and subsequently stored in dialog settings.
  *
- * Client applications should ensure that their Policy is registered before
- * any of the p2 UI objects access the default Policy.
+ * Client applications should ensure that their Policy is registered before any
+ * of the p2 UI objects access the default Policy.
  *
  * @since 2.0
  */
 public class Policy {
 
 	/**
-	 * A constant indicating that restart should be forced (without
-	 * confirmation) immediately after completion of a provisioning operation.
+	 * A constant indicating that restart should be forced (without confirmation)
+	 * immediately after completion of a provisioning operation.
 	 *
 	 */
 	public static final int RESTART_POLICY_FORCE = 1;
 
 	/**
-	 * A constant indicating that the changes should be applied dynamically
-	 * to the profile (without confirmation) immediately after completion of
-	 * a provisioning operation.
+	 * A constant indicating that the changes should be applied dynamically to the
+	 * profile (without confirmation) immediately after completion of a provisioning
+	 * operation.
 	 */
 	public static final int RESTART_POLICY_FORCE_APPLY = 2;
 
 	/**
-	 * A constant indicating that the user should be prompted to
-	 * restart after completion of a provisioning operation.
+	 * A constant indicating that the user should be prompted to restart after
+	 * completion of a provisioning operation.
 	 */
 	public static final int RESTART_POLICY_PROMPT = 3;
 
 	/**
-	 * A constant indicating that, where possible, the user should
-	 * be given the option to restart or dynamically apply the changes
-	 * after completion of a provisioning operation.
+	 * A constant indicating that, where possible, the user should be given the
+	 * option to restart or dynamically apply the changes after completion of a
+	 * provisioning operation.
 	 */
 	public static final int RESTART_POLICY_PROMPT_RESTART_OR_APPLY = 4;
 
 	/**
-	 * A constant indicating that the user should be presented with an
-	 * update wizard that shows a list of IUs that can be updated.
-	 * Even when only one update is available, a list showing the single
-	 * update will be used.  This option is recommended when the user's view
-	 * of the system is a set of component updates and the user is expected
-	 * to have knowledge of the composition of the system.
+	 * A constant indicating that the user should be presented with an update wizard
+	 * that shows a list of IUs that can be updated. Even when only one update is
+	 * available, a list showing the single update will be used. This option is
+	 * recommended when the user's view of the system is a set of component updates
+	 * and the user is expected to have knowledge of the composition of the system.
 	 *
 	 * @since 2.1
 	 */
 	public static final int UPDATE_STYLE_MULTIPLE_IUS = 1;
 
 	/**
-	 * A constant indicating that the user should be presented with an
-	 * update wizard that shows detail about a single IU that can be
-	 * updated.  If more than one IU can be updated, the user will be shown
-	 * a list; however, this option is recommended to be used only when
-	 * the user's view of the system is a single application that can be
-	 * updated, and only one IU is expected to be available for update.
+	 * A constant indicating that the user should be presented with an update wizard
+	 * that shows detail about a single IU that can be updated. If more than one IU
+	 * can be updated, the user will be shown a list; however, this option is
+	 * recommended to be used only when the user's view of the system is a single
+	 * application that can be updated, and only one IU is expected to be available
+	 * for update.
 	 *
 	 * @since 2.1
 	 */
@@ -111,16 +110,18 @@ public class Policy {
 	private boolean filterOnEnv = false;
 	private int updateWizardStyle = UPDATE_STYLE_MULTIPLE_IUS;
 	private Point wizardDetailsPreferredSize = null;
+	private boolean checkAgainstCurrentExecutionEnvironment;
 
 	/**
-	 * Answer a boolean indicating whether the caller should continue to work with the
-	 * specified operation.  This method is used when an operation has been resolved, but
-	 * the UI may have further restrictions on continuing with it.
+	 * Answer a boolean indicating whether the caller should continue to work with
+	 * the specified operation. This method is used when an operation has been
+	 * resolved, but the UI may have further restrictions on continuing with it.
 	 *
-	 * @param operation the operation in question.  It must already be resolved.
-	 * @param shell the shell to use for any interaction with the user
-	 * @return <code>true</code> if processing of the operation should continue, <code>false</code> if
-	 * not.  It is up to the implementor to report any errors to the user when answering <code>false</code>.
+	 * @param operation the operation in question. It must already be resolved.
+	 * @param shell     the shell to use for any interaction with the user
+	 * @return <code>true</code> if processing of the operation should continue,
+	 *         <code>false</code> if not. It is up to the implementor to report any
+	 *         errors to the user when answering <code>false</code>.
 	 */
 	public boolean continueWorkingWithOperation(ProfileChangeOperation operation, Shell shell) {
 		Assert.isTrue(operation.getResolutionResult() != null);
@@ -135,7 +136,7 @@ public class Policy {
 			return false;
 		}
 
-		// there is no plan, so we can't continue.  Report any reason found
+		// there is no plan, so we can't continue. Report any reason found
 		if (operation.getProvisioningPlan() == null && !status.isOK()) {
 			StatusManager.getManager().handle(status, StatusManager.LOG | StatusManager.SHOW);
 			return false;
@@ -146,18 +147,19 @@ public class Policy {
 	}
 
 	/**
-	 * Return a status that can be used to describe the failure to
-	 * retrieve a profile.
-	 * @return a status describing a failure to retrieve a profile,
-	 * or <code>null</code> if there is no such status.
+	 * Return a status that can be used to describe the failure to retrieve a
+	 * profile.
+	 *
+	 * @return a status describing a failure to retrieve a profile, or
+	 *         <code>null</code> if there is no such status.
 	 */
 	public IStatus getNoProfileChosenStatus() {
 		return null;
 	}
 
 	/**
-	 * Return a query that can be used to obtain the IInstallableUnits that
-	 * should be presented to the user from the software repositories.
+	 * Return a query that can be used to obtain the IInstallableUnits that should
+	 * be presented to the user from the software repositories.
 	 *
 	 * @return the query used to retrieve user visible available IUs
 	 */
@@ -166,8 +168,8 @@ public class Policy {
 	}
 
 	/**
-	 * Set the query that can be used to obtain the IInstallableUnits that
-	 * should be presented to the user.
+	 * Set the query that can be used to obtain the IInstallableUnits that should be
+	 * presented to the user.
 	 *
 	 * @param query the query used to retrieve user visible available IUs
 	 */
@@ -176,8 +178,8 @@ public class Policy {
 	}
 
 	/**
-	 * Return a query that can be used to obtain the IInstallableUnits in
-	 * the profile that should be presented to the user.
+	 * Return a query that can be used to obtain the IInstallableUnits in the
+	 * profile that should be presented to the user.
 	 *
 	 * @return the query used to retrieve user visible installed IUs
 	 */
@@ -186,8 +188,8 @@ public class Policy {
 	}
 
 	/**
-	 * Set the query that can be used to obtain the IInstallableUnits in
-	 * the profile that should be presented to the user.
+	 * Set the query that can be used to obtain the IInstallableUnits in the profile
+	 * that should be presented to the user.
 	 *
 	 * @param query the query used to retrieve user visible installed IUs
 	 */
@@ -226,68 +228,68 @@ public class Policy {
 	}
 
 	/**
-	 * Return a boolean indicating whether the repositories should
-	 * be visible to the user, such that the user can add, remove, and
-	 * otherwise manipulate the software site list.
+	 * Return a boolean indicating whether the repositories should be visible to the
+	 * user, such that the user can add, remove, and otherwise manipulate the
+	 * software site list.
 	 *
-	 * @return <code>true</code> if repositories are visible to the end
-	 * user, <code>false</code> if they are not.
+	 * @return <code>true</code> if repositories are visible to the end user,
+	 *         <code>false</code> if they are not.
 	 */
 	public boolean getRepositoriesVisible() {
 		return repositoriesVisible;
 	}
 
 	/**
-	 * Set a boolean indicating whether the repositories should
-	 * be visible to the user, such that the user can add, remove, and
-	 * otherwise manipulate the software site list.
+	 * Set a boolean indicating whether the repositories should be visible to the
+	 * user, such that the user can add, remove, and otherwise manipulate the
+	 * software site list.
 	 *
-	 * @param visible <code>true</code> if repositories are visible to the end
-	 * user, <code>false</code> if they are not.
+	 * @param visible <code>true</code> if repositories are visible to the end user,
+	 *                <code>false</code> if they are not.
 	 */
 	public void setRepositoriesVisible(boolean visible) {
 		this.repositoriesVisible = visible;
 	}
 
 	/**
-	 * Return a boolean indicating whether only the latest versions of
-	 * updates and available software should be shown to the user.
+	 * Return a boolean indicating whether only the latest versions of updates and
+	 * available software should be shown to the user.
 	 *
 	 * @return <code>true</code> if only the latest versions are shown,
-	 * <code>false</code> if all versions should be shown.
+	 *         <code>false</code> if all versions should be shown.
 	 */
 	public boolean getShowLatestVersionsOnly() {
 		return showLatestVersionsOnly;
 	}
 
 	/**
-	 * Set a boolean indicating whether only the latest versions of
-	 * updates and available software should be shown to the user.
+	 * Set a boolean indicating whether only the latest versions of updates and
+	 * available software should be shown to the user.
 	 *
 	 * @param showLatest <code>true</code> if only the latest versions are shown,
-	 * <code>false</code> if all versions should be shown.
+	 *                   <code>false</code> if all versions should be shown.
 	 */
 	public void setShowLatestVersionsOnly(boolean showLatest) {
 		this.showLatestVersionsOnly = showLatest;
 	}
 
 	/**
-	 * Return a boolean indicating whether the user should be allowed drill
-	 * down from a visible update or installed item into the requirements.
+	 * Return a boolean indicating whether the user should be allowed drill down
+	 * from a visible update or installed item into the requirements.
 	 *
-	 * @return <code>true</code> if drilldown is allowed,
-	 * <code>false</code> if it is not.
+	 * @return <code>true</code> if drilldown is allowed, <code>false</code> if it
+	 *         is not.
 	 */
 	public boolean getShowDrilldownRequirements() {
 		return allowDrilldown;
 	}
 
 	/**
-	 * Set a boolean indicating whether the user should be allowed drill
-	 * down from a visible update or installed item into the requirements.
+	 * Set a boolean indicating whether the user should be allowed drill down from a
+	 * visible update or installed item into the requirements.
 	 *
 	 * @param drilldown <code>true</code> if drilldown is allowed,
-	 * <code>false</code> if it is not.
+	 *                  <code>false</code> if it is not.
 	 */
 	public void setShowDrilldownRequirements(boolean drilldown) {
 		this.allowDrilldown = drilldown;
@@ -297,8 +299,8 @@ public class Policy {
 	 * Return a boolean value indicating whether or not the list of available
 	 * software should be filtered based on the environment settings of the profile.
 	 *
-	 * @return <code>true</code> if the results should be filtered
-	 * and <code>false</code> otherwise.
+	 * @return <code>true</code> if the results should be filtered and
+	 *         <code>false</code> otherwise.
 	 * @since 2.1
 	 */
 	public boolean getFilterOnEnv() {
@@ -306,11 +308,11 @@ public class Policy {
 	}
 
 	/**
-	 * Set a boolean value indicating whether or not the list of available
-	 * software should be filtered based on the environment settings of the profile.
+	 * Set a boolean value indicating whether or not the list of available software
+	 * should be filtered based on the environment settings of the profile.
 	 *
-	 * @param filterOnEnv <code>true</code> if the results should be filtered
-	 * and <code>false</code> otherwise.
+	 * @param filterOnEnv <code>true</code> if the results should be filtered and
+	 *                    <code>false</code> otherwise.
 	 * @since 2.1
 	 */
 	public void setFilterOnEnv(boolean filterOnEnv) {
@@ -318,44 +320,44 @@ public class Policy {
 	}
 
 	/**
-	 * Return a boolean indicating whether available software should be
-	 * grouped by category.
+	 * Return a boolean indicating whether available software should be grouped by
+	 * category.
 	 *
 	 * @return <code>true</code> if items should be grouped by category,
-	 * <code>false</code> if categories should not be shown.
+	 *         <code>false</code> if categories should not be shown.
 	 */
 	public boolean getGroupByCategory() {
 		return groupByCategory;
 	}
 
 	/**
-	 * Set a boolean indicating whether available software should be
-	 * grouped by category.
+	 * Set a boolean indicating whether available software should be grouped by
+	 * category.
 	 *
 	 * @param group <code>true</code> if items should be grouped by category,
-	 * <code>false</code> if categories should not be shown.
+	 *              <code>false</code> if categories should not be shown.
 	 */
 	public void setGroupByCategory(boolean group) {
 		this.groupByCategory = group;
 	}
 
 	/**
-	 * Get the id of the preference page that should be used to link to the
-	 * software sites page.
+	 * Get the id of the preference page that should be used to link to the software
+	 * sites page.
 	 *
 	 * @return the preference page id, or <code>null</code> if there is no
-	 * preference page id showing the software sites.
+	 *         preference page id showing the software sites.
 	 */
 	public String getRepositoryPreferencePageId() {
 		return repoPrefPageId;
 	}
 
 	/**
-	 * Set the id of the preference page that should be used to link to the
-	 * software sites page.
+	 * Set the id of the preference page that should be used to link to the software
+	 * sites page.
 	 *
 	 * @param id the preference page id, or <code>null</code> if there is no
-	 * preference page id showing the software sites.
+	 *           preference page id showing the software sites.
 	 */
 
 	public void setRepositoryPreferencePageId(String id) {
@@ -367,7 +369,7 @@ public class Policy {
 	 * links to the software sites page.
 	 *
 	 * @return the preference page name, or <code>null</code> if there is no
-	 * preference page.
+	 *         preference page.
 	 */
 	public String getRepositoryPreferencePageName() {
 		return repoPrefPageName;
@@ -375,11 +377,11 @@ public class Policy {
 
 	/**
 	 * Set the localized name of the preference page that should be displayed in
-	 * links to the software sites page.  This name is ignored if no id is specified
+	 * links to the software sites page. This name is ignored if no id is specified
 	 * for the preference page.
 	 *
 	 * @param name the preference page name, or <code>null</code> if there is no
-	 * preference page.
+	 *             preference page.
 	 *
 	 * @see Policy#setRepositoryPreferencePageId(String)
 	 */
@@ -389,8 +391,8 @@ public class Policy {
 	}
 
 	/**
-	 * Get the update wizard style that should be used to determine
-	 * what to show the user when updates are available.
+	 * Get the update wizard style that should be used to determine what to show the
+	 * user when updates are available.
 	 *
 	 * @return an integer constant describing the update wizard style
 	 *
@@ -405,10 +407,11 @@ public class Policy {
 	}
 
 	/**
-	 * Get the update wizard style that should be used to determine
-	 * what to show the user when updates are available.
+	 * Get the update wizard style that should be used to determine what to show the
+	 * user when updates are available.
 	 *
-	 * @param updateWizardStyle an integer constant describing the update wizard style
+	 * @param updateWizardStyle an integer constant describing the update wizard
+	 *                          style
 	 *
 	 * @see #UPDATE_STYLE_SINGLE_IUS
 	 * @see #UPDATE_STYLE_MULTIPLE_IUS
@@ -421,11 +424,12 @@ public class Policy {
 	}
 
 	/**
-	 * Get a point describing the preferred size of the details area
-	 * shown in single IU update wizards.  This value may be null, in which case
-	 * the wizard may compute a default size.
+	 * Get a point describing the preferred size of the details area shown in single
+	 * IU update wizards. This value may be null, in which case the wizard may
+	 * compute a default size.
 	 *
-	 * @return a Point describing the preferred size of the update wizard details area.
+	 * @return a Point describing the preferred size of the update wizard details
+	 *         area.
 	 *
 	 * @see #UPDATE_STYLE_SINGLE_IUS
 	 *
@@ -438,9 +442,8 @@ public class Policy {
 
 	/**
 	 * Set the preferred size of the details area shown in update wizards which
-	 * notify the user of a single update.  Clients can use this value to ensure
-	 * that their product's branded update notifier is sized to fit the expected
-	 * content.
+	 * notify the user of a single update. Clients can use this value to ensure that
+	 * their product's branded update notifier is sized to fit the expected content.
 	 *
 	 * @param preferredSize a Point describing the preferred size
 	 *
@@ -457,7 +460,7 @@ public class Policy {
 	 * Get a boolean value indicating whether to contact all sites.
 	 *
 	 * @return <code>true</code> true if all sites need to be contacted,
-	 * <code>false</code> otherwise.
+	 *         <code>false</code> otherwise.
 	 *
 	 * @since 2.3
 	 */
@@ -469,7 +472,7 @@ public class Policy {
 	 * Set a boolean indicating whether all sites need to be contacted.
 	 *
 	 * @param contactAll <code>true</code> if all sites need to be contacted,
-	 * <code>false</code> otherwise.
+	 *                   <code>false</code> otherwise.
 	 *
 	 * @since 2.3
 	 */
@@ -481,7 +484,7 @@ public class Policy {
 	 * Get a boolean value indicating whether to hide already installed units.
 	 *
 	 * @return <code>true</code> if already installed units are to be hidden,
-	 * <code>false</code> otherwise.
+	 *         <code>false</code> otherwise.
 	 *
 	 * @since 2.3
 	 */
@@ -493,11 +496,37 @@ public class Policy {
 	 * Set a boolean indicating whether to hide already installed units.
 	 *
 	 * @param hide <code>true</code> if already installed units need to be hidden,
-	 * <code>false</code> otherwise.
+	 *             <code>false</code> otherwise.
 	 *
 	 * @since 2.3
 	 */
 	public void setHideAlreadyInstalled(boolean hide) {
 		this.hideAlreadyInstalled = hide;
+	}
+
+	/**
+	 * Get a boolean value indicating whether the provisioning operation should
+	 * check compatibility with current execution environment
+	 *
+	 * @return <code>true</code> if operation should check compatibility with
+	 *         current execution environment, <code>false</code> otherwise.
+	 *
+	 * @since 2.6
+	 */
+	public boolean getCheckAgainstCurrentExecutionEnvironment() {
+		return this.checkAgainstCurrentExecutionEnvironment;
+	}
+
+	/**
+	 * Set a boolean indicating whether the provisioning operation should check
+	 * compatibility with current execution environment.
+	 *
+	 * @param check code>true</code> if operation should check compatibility with
+	 *              current execution environment, <code>false</code> otherwise.
+	 *
+	 * @since 2.6
+	 */
+	public void setCheckAgainstCurrentExecutionEnvironment(boolean check) {
+		this.checkAgainstCurrentExecutionEnvironment = check;
 	}
 }

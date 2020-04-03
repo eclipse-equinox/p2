@@ -17,8 +17,8 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Message class for provisioning UI messages.  
- * 
+ * Message class for provisioning UI messages.
+ *
  * @since 3.4
  */
 public class ProvSDKMessages extends NLS {
@@ -39,6 +39,7 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvisioningPreferencePage_OpenWizardIfInvalid;
 	public static String ProvisioningPreferencePage_PromptToOpenWizard;
 	public static String ProvisioningPreferencePage_UninstallUpdateLink;
+	public static String ProvisioningPreferencePage_checkCompatibleWithCurrentJRE;
 	public static String ProvSDKUIActivator_ErrorSavingPrefs;
 	public static String ProvSDKUIActivator_NoSelfProfile;
 	public static String ProvSDKUIActivator_OpenWizardAnyway;

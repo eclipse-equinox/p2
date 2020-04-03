@@ -54,7 +54,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	/**
 	 * Returns the singleton plugin instance
-	 * 
+	 *
 	 * @return the instance
 	 */
 	public static ProvSDKUIActivator getDefault() {
@@ -64,7 +64,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	/**
 	 * Returns an image descriptor for the image file at the given plug-in
 	 * relative path
-	 * 
+	 *
 	 * @param path
 	 *            the path
 	 * @return the image descriptor
@@ -135,6 +135,10 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		value = store.getString(PreferenceConstants.PREF_GROUP_BY_CATEGORY);
 		policy.setGroupByCategory(!IPreferenceStore.STRING_DEFAULT_DEFAULT.equals(value) ? store.getBoolean(PreferenceConstants.PREF_GROUP_BY_CATEGORY) : policy.getGroupByCategory());
 
+		value = store.getString(PreferenceConstants.PREF_CHECK_AGAINST_CURRENT_JRE);
+		policy.setCheckAgainstCurrentExecutionEnvironment(!IPreferenceStore.STRING_DEFAULT_DEFAULT.equals(value)
+				? store.getBoolean(PreferenceConstants.PREF_CHECK_AGAINST_CURRENT_JRE)
+				: policy.getCheckAgainstCurrentExecutionEnvironment());
 	}
 
 	/*
