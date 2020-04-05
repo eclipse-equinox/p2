@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2018 compeople AG and others.
+* Copyright (c) 2007, 2020 compeople AG and others.
 *
 * This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,12 @@
 *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository.processing;
 
+import static org.eclipse.equinox.p2.tests.AbstractProvisioningTest.getAgent;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,23 +41,26 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.junit.Test;
 
-public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
+public class ProcessingStepHandlerTest {
 
 	//	private static final int BUFFER_SIZE = 8 * 1024;
 
 	ProcessingStepHandler handler = new ProcessingStepHandler();
 	IProgressMonitor monitor = new NullProgressMonitor();
 
+	@Test
 	public void testCanProcess_Ok() {
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
-		descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
+		descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {
+				new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", null, true) });
 
 		assertTrue(ProcessingStepHandler.canProcess(descriptor));
 	}
 
+	@Test
 	public void testCanProcess_FailNoSuchStep() {
 		String noSuchStepId = "org.eclipse.equinox.p2.processing.test.Dummy";
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
@@ -61,6 +69,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertFalse(ProcessingStepHandler.canProcess(descriptor));
 	}
 
+	@Test
 	public void testCanProcess_FailAlwaysDisabled() {
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
 		String processorId = "org.eclipse.equinox.p2.processing.AlwaysDisabled";
@@ -69,6 +78,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertFalse(ProcessingStepHandler.canProcess(descriptor));
 	}
 
+	@Test
 	public void testCanProcess_OkOptionalAlwaysDisabled() {
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
 		String processorId = "org.eclipse.equinox.p2.processing.AlwaysDisabled";
@@ -77,6 +87,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue("Not enabled optional step should not block processing", ProcessingStepHandler.canProcess(descriptor));
 	}
 
+	@Test
 	public void testCanProcess_FailMultipleSteps() {
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(ArtifactKey.parse("classifier,id,1.0.0"));
 		String processorId = "org.eclipse.equinox.p2.processing.MultipleSteps";
@@ -85,15 +96,18 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertFalse(String.format("Multiple step attributes in %s are not supported", processorId), ProcessingStepHandler.canProcess(descriptor));
 	}
 
+	@Test
 	public void testExecuteNoPSs() throws IOException {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[0];
 		OutputStream result = new ByteArrayOutputStream(10);
-		try (OutputStream testStream = handler.createAndLink(getAgent(), descriptors, null, result, monitor)) {
+		try (OutputStream testStream = handler.createAndLink(getAgent(), descriptors, null,
+				result, monitor)) {
 			testStream.write("Test".getBytes());
 		}
 		assertEquals("Test", result.toString());
 	}
 
+	@Test
 	public void testExecuteOneByteShifterPS() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new ByteShifter(1)};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
@@ -103,6 +117,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue(Arrays.equals(new byte[] {2}, result.toByteArray()));
 	}
 
+	@Test
 	public void testExecuteTwoByteShifterPSs() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new ByteShifter(1), new ByteShifter(2)};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
@@ -112,6 +127,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue(Arrays.equals(new byte[] {8}, result.toByteArray()));
 	}
 
+	@Test
 	public void testExecuteOneMD5VerifierPSOk() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new MD5Verifier("0cbc6611f5540bd0809a388dc95a615b")};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
@@ -121,6 +137,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertEquals("Test", result.toString());
 	}
 
+	@Test
 	public void testExecuteOneMD5VerifierPSFails() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new MD5Verifier("9cbc6611f5540bd0809a388dc95a615b")};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
@@ -135,6 +152,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		}
 	}
 
+	@Test
 	public void testExecuteOneByteShifterAndOneMD5VerifierPSOk() throws IOException {
 		// Order of PSs is important!!
 		ProcessingStep[] steps = new ProcessingStep[] {new ByteShifter(1), new MD5Verifier("ceeee507e8db83294600218b4e198897")};
@@ -145,6 +163,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue(Arrays.equals(new byte[] {2, 4, 6, 8, 10}, result.toByteArray()));
 	}
 
+	@Test
 	public void testExecuteOneByteShifterAndOneMD5VerifierPSFailWrongOrder() throws IOException {
 		// Order of PSs is important - here it wrong!!
 		ProcessingStep[] steps = new ProcessingStep[] {new MD5Verifier("af476bbaf152a4c39ca4e5c498a88aa0"), new ByteShifter(1)};
@@ -160,6 +179,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		}
 	}
 
+	@Test
 	public void testAssureOrderingOfPSs1() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new Adder(1), new Multiplier(2)};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
@@ -169,6 +189,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue(Arrays.equals(new byte[] {4, 6, 8, 10, 12}, result.toByteArray()));
 	}
 
+	@Test
 	public void testAssureOrderingOfPSs2() throws IOException {
 		ProcessingStep[] steps = new ProcessingStep[] {new Multiplier(2), new Adder(1)};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
@@ -180,6 +201,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 
 	}
 
+	@Test
 	public void testExecuteOnePack200UnpackerPS() throws IOException {
 		//this test is only applicable if pack200 is available
 		if (!PackStep.canPack())
@@ -196,6 +218,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertEquals(35062, result.size());
 	}
 
+	@Test
 	public void testCreateByteShifterPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)};
 		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
@@ -205,6 +228,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 	}
 
 	@SuppressWarnings("deprecation")
+	@Test
 	public void testCreateMD5VerifierPS() {
 		String processorId = "org.eclipse.equinox.p2.processing.MD5Verifier";
 		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor(processorId, "1", true)};
@@ -215,6 +239,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertEquals(IStatus.ERROR, steps[0].getStatus().getSeverity());
 	}
 
+	@Test
 	public void testCreateChecksumVerifierPS() {
 		ProcessingStepDescriptor processingStepDescriptor = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ChecksumVerifier", "1", true);
 		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {processingStepDescriptor};
@@ -224,6 +249,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertEquals(IStatus.ERROR, steps[0].getStatus().getSeverity());
 	}
 
+	@Test
 	public void testCreateAdderPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true)};
 		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
@@ -232,6 +258,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertEquals(Adder.class, steps[0].getClass());
 	}
 
+	@Test
 	public void testCreateMultiplierPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true)};
 		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
@@ -240,6 +267,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertEquals(Multiplier.class, steps[0].getClass());
 	}
 
+	@Test
 	public void testCreatePack200UnpackerPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
 		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
@@ -248,6 +276,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertEquals(Pack200ProcessorStep.class, steps[0].getClass());
 	}
 
+	@Test
 	public void testCreatePSsAndAssureOrderingOfPSs1() throws IOException {
 		IProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
 		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
@@ -260,6 +289,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue(Arrays.equals(new byte[] {4, 6, 8, 10, 12}, result.toByteArray()));
 	}
 
+	@Test
 	public void testCreatePSsAndAssureOrderingOfPSs2() throws IOException {
 		IProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
 		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
@@ -272,6 +302,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue(Arrays.equals(new byte[] {3, 5, 7, 9, 11}, result.toByteArray()));
 	}
 
+	@Test
 	public void testLinkPSs() throws IOException {
 		IProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
 		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
@@ -283,6 +314,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue(Arrays.equals(new byte[] {4, 6, 8, 10, 12}, result.toByteArray()));
 	}
 
+	@Test
 	public void testPSHgetStatusOK() {
 		ProcessingStep ok1, ok2;
 		ok1 = new ProcessingStep() {
@@ -306,6 +338,7 @@ public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 		assertTrue(!errStatus.isMultiStatus());
 	}
 
+	@Test
 	public void testPSHgetStatus() {
 		ProcessingStep ok, info, warning, error;
 		ok = new ProcessingStep() {
