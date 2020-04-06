@@ -48,10 +48,18 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 	@Override
 	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
+		boolean isJava14 = false;
+		if (System.getProperty("java.specification.version").compareTo("14") >= 0) { //$NON-NLS-1$ //$NON-NLS-2$
+			isJava14 = true;
+		}
+
 		if (!isEnabled()) {
 			IStatus status = null;
+			// Missing pack200 executable is fine on Java 14+
+			int statusCode = isJava14 ? IStatus.OK : IStatus.ERROR;
 			if (detailedResult) {
-				status = new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, "Unpack facility not configured.", null); //$NON-NLS-1$
+				status = new Status(statusCode, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR,
+						"Unpack facility not configured.", null); //$NON-NLS-1$
 				detailedResult = true;
 			} else {
 				String[] locations = Utils.getPack200Commands("unpack200"); //$NON-NLS-1$
@@ -59,7 +67,9 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 				for (String location : locations) {
 					locationTried.append(location).append(", "); //$NON-NLS-1$
 				}
-				status = new Status(IStatus.ERROR, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR, "Unpack facility not configured. The locations searched for unpack200 are: " + locationTried, null); //$NON-NLS-1$
+				status = new Status(statusCode, Activator.ID, MirrorRequest.ARTIFACT_PROCESSING_ERROR,
+						"Unpack facility not configured. The locations searched for unpack200 are: " + locationTried, //$NON-NLS-1$
+						null);
 			}
 			setStatus(status);
 		}

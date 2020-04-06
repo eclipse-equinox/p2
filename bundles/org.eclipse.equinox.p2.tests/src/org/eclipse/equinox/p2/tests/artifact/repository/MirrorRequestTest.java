@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2017 IBM Corporation and others.
+ *  Copyright (c) 2005, 2020 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -60,6 +60,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	File targetLocation;
 	IArtifactRepository targetRepository, sourceRepository;
 	URI destination, failedOptimized, pakedRepositoryLocation;
+	boolean isJava14;
 
 	@Override
 	public void setUp() throws Exception {
@@ -74,6 +75,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		failedOptimized = URIUtil.toJarURI(getTestData("Error loading test data", "testData/mirror/invalidPackedMissingCanonical.zip").toURI(), null);
 		pakedRepositoryLocation = getTestData("Error loading packed repository", "testData/mirror/mirrorPackedRepo").toURI();
 		destination = getTempFolder().toURI();
+		isJava14 = System.getProperty("java.specification.version").compareTo("14") >= 0 ? true : false; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -118,7 +120,12 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		assertTrue(request.getResult().toString(), request.getResult().isOK());
 		assertTrue(String.format("Target does not contain artifact %s", key), targetRepository.contains(key));
-		assertEquals("Exact number of downloads", 2, src.downloadCount);
+		if (isJava14) {
+			// Pack200 tools are gone in Java14+ thus pack.gz file is not downloaded
+			assertEquals("Exact number of downloads", 1, src.downloadCount);
+		} else {
+			assertEquals("Exact number of downloads", 2, src.downloadCount);
+		}
 	}
 
 	/**
@@ -192,7 +199,12 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
 
-		assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
+		if (isJava14) {
+			// packed artifact is ignored as Java 14 removed pack200
+			assertEquals("Expected ERROR status", IStatus.ERROR, req.getResult().getSeverity());
+		} else {
+			assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
+		}
 
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key, new NullProgressMonitor());
@@ -203,7 +215,12 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
 
-		assertEquals("Expected INFO status", IStatus.INFO, req.getResult().getSeverity());
+		if (isJava14) {
+			// packed artifact is ignored as Java 14 removed pack200
+			assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
+		} else {
+			assertEquals("Expected INFO status", IStatus.INFO, req.getResult().getSeverity());
+		}
 
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key, new NullProgressMonitor());
@@ -212,14 +229,22 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
-
-		assertEquals("Expected OK status", IStatus.OK, req.getResult().getSeverity());
+		if (isJava14) {
+			// packed artifact is ignored as Java 14 removed pack200
+			assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
+		} else {
+			assertEquals("Expected OK status", IStatus.OK, req.getResult().getSeverity());
+		}
 	}
 
 	/*
 	 *
 	 */
 	public void testFailedOptimizedMissingCanonical() {
+		if (isJava14) {
+			// Java 14 doesn't have pack/unpack tools
+			return;
+		}
 
 		try {
 			IArtifactRepository source = new AbstractWrappedArtifactRepository(getArtifactRepositoryManager().loadRepository(failedOptimized, new NullProgressMonitor())) {
