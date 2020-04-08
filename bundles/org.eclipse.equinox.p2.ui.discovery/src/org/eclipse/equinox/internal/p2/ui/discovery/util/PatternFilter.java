@@ -14,7 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.discovery.util;
 
-import com.ibm.icu.text.BreakIterator;
+import java.text.BreakIterator;
 import java.util.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.ui.internal.misc.StringMatcher;

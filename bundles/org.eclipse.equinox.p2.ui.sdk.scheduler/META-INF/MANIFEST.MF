@@ -15,8 +15,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.equinox.p2.repository;bundle-version="2.3.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Import-Package: com.ibm.icu.util;version="4.0.1",
- org.eclipse.equinox.internal.p2.core.helpers,
+Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.engine,
  org.eclipse.equinox.internal.p2.engine.phases,
  org.eclipse.equinox.internal.p2.garbagecollector,

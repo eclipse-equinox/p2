@@ -16,10 +16,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import com.ibm.icu.util.Calendar;
 import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.Dialog;
@@ -58,7 +56,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 	@Override
 	protected Control createContents(Composite parent) {
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IAutomaticUpdaterHelpContextIds.AUTOMATIC_UPDATES_PREFERENCE_PAGE);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent,
+				IAutomaticUpdaterHelpContextIds.AUTOMATIC_UPDATES_PREFERENCE_PAGE);
 
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
@@ -71,7 +70,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		createSpacer(container, 1);
 
 		updateScheduleGroup = new Group(container, SWT.NONE);
-		updateScheduleGroup.setText(NLS.bind(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_UpdateSchedule, lastCheckForUpdateDateString()));
+		updateScheduleGroup.setText(NLS.bind(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_UpdateSchedule,
+				lastCheckForUpdateDateString()));
 		layout = new GridLayout();
 		layout.numColumns = 3;
 		updateScheduleGroup.setLayout(layout);
@@ -80,8 +80,10 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 		onStartupRadio = new Button(updateScheduleGroup, SWT.RADIO);
 		IProduct product = Platform.getProduct();
-		String productName = product != null && product.getName() != null ? product.getName() : AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_GenericProductName;
-		onStartupRadio.setText(NLS.bind(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_findOnStart, productName));
+		String productName = product != null && product.getName() != null ? product.getName()
+				: AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_GenericProductName;
+		onStartupRadio
+				.setText(NLS.bind(AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_findOnStart, productName));
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		onStartupRadio.setLayoutData(gd);
@@ -172,12 +174,14 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	}
 
 	private static String lastCheckForUpdateDateString() {
-		Date lastCheckDate = new LastAutoCheckForUpdateMemo(AutomaticUpdatePlugin.getDefault().getAgentLocation()).read();
+		Date lastCheckDate = new LastAutoCheckForUpdateMemo(AutomaticUpdatePlugin.getDefault().getAgentLocation())
+				.read();
 		if (lastCheckDate == null) {
 			return AutomaticUpdateMessages.AutomaticUpdatesPreferencePage_never;
 		}
 
-		DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT, Locale.getDefault());
+		DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT,
+				Locale.getDefault());
 		return formatter.format(lastCheckDate);
 	}
 
@@ -197,7 +201,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 		remindScheduleRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
 		remindOnceRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
-		remindElapseCombo.setText(AutomaticUpdatesPopup.getElapsedTimeString(pref.getString(PreferenceConstants.PREF_REMIND_ELAPSED)));
+		remindElapseCombo.setText(
+				AutomaticUpdatesPopup.getElapsedTimeString(pref.getString(PreferenceConstants.PREF_REMIND_ELAPSED)));
 		searchOnlyRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		searchAndDownloadRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		showUpdateWizard.setSelection(pref.getBoolean(PreferenceConstants.PREF_SHOW_UPDATE_WIZARD));
@@ -239,7 +244,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 		remindOnceRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
 		remindScheduleRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
-		remindElapseCombo.setText(AutomaticUpdatesPopup.getElapsedTimeString(pref.getDefaultString(PreferenceConstants.PREF_REMIND_ELAPSED)));
+		remindElapseCombo.setText(AutomaticUpdatesPopup
+				.getElapsedTimeString(pref.getDefaultString(PreferenceConstants.PREF_REMIND_ELAPSED)));
 
 		searchOnlyRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		searchAndDownloadRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
@@ -259,15 +265,18 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		if (onStartupRadio.getSelection()) {
 			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
 		} else if (onFuzzyScheduleRadio.getSelection()) {
-			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_FUZZY_SCHEDULE);
-			new LastAutoCheckForUpdateMemo(AutomaticUpdatePlugin.getDefault().getAgentLocation()).readAndStoreIfAbsent(Calendar.getInstance().getTime());
+			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE,
+					PreferenceConstants.PREF_UPDATE_ON_FUZZY_SCHEDULE);
+			new LastAutoCheckForUpdateMemo(AutomaticUpdatePlugin.getDefault().getAgentLocation())
+					.readAndStoreIfAbsent(Calendar.getInstance().getTime());
 		} else {
 			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_SCHEDULE);
 		}
 
 		if (remindScheduleRadio.getSelection()) {
 			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
-			pref.setValue(PreferenceConstants.PREF_REMIND_ELAPSED, AutomaticUpdatesPopup.ELAPSED_VALUES[remindElapseCombo.getSelectionIndex()]);
+			pref.setValue(PreferenceConstants.PREF_REMIND_ELAPSED,
+					AutomaticUpdatesPopup.ELAPSED_VALUES[remindElapseCombo.getSelectionIndex()]);
 		} else {
 			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
 		}
@@ -284,7 +293,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	}
 
 	private int getFuzzyRecurrence(IPreferenceStore pref, boolean useDefault) {
-		String day = useDefault ? pref.getDefaultString(AutomaticUpdateScheduler.P_FUZZY_RECURRENCE) : pref.getString(AutomaticUpdateScheduler.P_FUZZY_RECURRENCE);
+		String day = useDefault ? pref.getDefaultString(AutomaticUpdateScheduler.P_FUZZY_RECURRENCE)
+				: pref.getString(AutomaticUpdateScheduler.P_FUZZY_RECURRENCE);
 		for (int i = 0; i < AutomaticUpdateScheduler.FUZZY_RECURRENCE.length; i++)
 			if (AutomaticUpdateScheduler.FUZZY_RECURRENCE[i].equals(day))
 				return i;
