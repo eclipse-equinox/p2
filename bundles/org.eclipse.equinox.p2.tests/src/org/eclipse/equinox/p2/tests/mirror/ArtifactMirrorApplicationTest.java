@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2017, 2020 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -882,6 +882,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Verifies that the mirror application executes processing steps correctly
 	 */
 	public void testArtifactProcessingSteps() {
+		if (System.getProperty("java.specification.version").compareTo("14") >= 0) {
+			// Test explicitly uses pack200 artifacts which are not supported on Java 14+
+			return;
+		}
 		//Setup: load the repository containing packed data
 		File packedRepoLocation = getTestData("27.0", "/testData/mirror/mirrorPackedRepo");
 		IArtifactRepository packedRepo = null;
