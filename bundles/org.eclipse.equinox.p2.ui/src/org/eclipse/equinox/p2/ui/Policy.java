@@ -521,7 +521,7 @@ public class Policy {
 	 * Set a boolean indicating whether the provisioning operation should check
 	 * compatibility with current execution environment.
 	 *
-	 * @param check code>true</code> if operation should check compatibility with
+	 * @param check <code>true</code> if operation should check compatibility with
 	 *              current execution environment, <code>false</code> otherwise.
 	 *
 	 * @since 2.6
