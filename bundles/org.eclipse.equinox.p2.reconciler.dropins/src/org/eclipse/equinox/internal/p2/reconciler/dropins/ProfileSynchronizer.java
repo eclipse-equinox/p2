@@ -218,7 +218,7 @@ public class ProfileSynchronizer {
 		}
 
 		// We are now creating a backup of the original request that will be used to create the final plan (where no optional magic is used)
-		ProfileChangeRequest finalRequest = (ProfileChangeRequest) request.clone();
+		ProfileChangeRequest finalRequest = request.clone();
 
 		// otherwise collect the roots, pretend they are optional, and see
 		// if the resulting plan affects them
