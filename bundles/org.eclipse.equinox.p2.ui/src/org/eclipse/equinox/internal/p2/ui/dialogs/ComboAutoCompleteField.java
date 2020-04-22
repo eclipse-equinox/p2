@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corporation and others.
+ * Copyright (c) 2009, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,7 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.ArrayList;
-import org.eclipse.equinox.internal.p2.ui.misc.StringMatcher;
+import org.eclipse.core.text.StringMatcher;
 import org.eclipse.jface.fieldassist.*;
 import org.eclipse.swt.widgets.Combo;
 

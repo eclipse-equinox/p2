@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2018 IBM Corporation and others.
+ *  Copyright (c) 2008, 2020 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -17,10 +17,10 @@
 package org.eclipse.equinox.p2.ui;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.text.StringMatcher;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.actions.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.p2.ui.misc.StringMatcher;
 import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2016 EclipseSource and others.
+* Copyright (c) 2009, 2020 EclipseSource and others.
  *
  * This
 * program and the accompanying materials are made available under the terms of
@@ -15,9 +15,9 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.core.text.StringMatcher;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.PropertyDialogAction;
-import org.eclipse.equinox.internal.p2.ui.misc.StringMatcher;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
