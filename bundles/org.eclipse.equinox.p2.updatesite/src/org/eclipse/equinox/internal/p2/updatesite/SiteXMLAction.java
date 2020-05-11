@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Code 9 and others.
+ * Copyright (c) 2008, 2020 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -511,9 +511,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 					URI associateLocation = new URI(siteLocation);
 					String label = associatedSite.getAnnotation();
 					refs.add(new RepositoryReference(associateLocation, label, IRepository.TYPE_METADATA,
-						IRepository.ENABLED));
+							IRepository.ENABLED));
 					refs.add(new RepositoryReference(associateLocation, label, IRepository.TYPE_ARTIFACT,
-						IRepository.ENABLED));
+							IRepository.ENABLED));
 				} catch (URISyntaxException e) {
 					String message = "Invalid site reference: " + siteLocation; //$NON-NLS-1$
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
@@ -613,7 +613,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				return 0;
 			}
 		};
-		Collections.sort(categories, isNestedCategoryComparator);
+		categories.sort(isNestedCategoryComparator);
 
 		// Then create categories in the right order
 		Map<String, IInstallableUnit> nameToCategoryIU = new HashMap<>();

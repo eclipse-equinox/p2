@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2020 IBM Corporation and others.
  * All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which accompanies this distribution,
@@ -449,7 +449,7 @@ public class ProfileSynchronizer {
 			OSGiInstallArea = URIUtil.toURI(installArea).toString() + Constants.EXTENSION_LOCATION;
 			// Sort the repositories so the extension location at the OSGi install folder is first.
 			// See https://bugs.eclipse.org/246310.
-			Collections.sort(repositories, (left, right) -> {
+			repositories.sort((left, right) -> {
 				if (OSGiInstallArea.equals(left))
 					return -1;
 				if (OSGiInstallArea.equals(right))

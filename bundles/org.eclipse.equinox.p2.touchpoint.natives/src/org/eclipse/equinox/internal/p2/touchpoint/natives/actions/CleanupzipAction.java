@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -89,7 +89,8 @@ public class CleanupzipAction extends ProvisioningAction {
 					try {
 						store.backup(file);
 					} catch (IOException e) {
-						return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.backup_file_failed, file.getPath()), e);
+						return new Status(IStatus.ERROR, Activator.ID, IStatus.OK,
+								NLS.bind(Messages.backup_file_failed, file.getPath()), e);
 					}
 				else
 					file.delete();
@@ -97,7 +98,7 @@ public class CleanupzipAction extends ProvisioningAction {
 		}
 		// sort directories by path length longest path is in top
 		// this will make sure that a sub folder will be removed before its parent
-		Collections.sort(directories, (f1, f2) -> {
+		directories.sort((f1, f2) -> {
 			if (f1 == f2)
 				return 0;
 			if (f1 != null && f2 == null)
@@ -119,7 +120,8 @@ public class CleanupzipAction extends ProvisioningAction {
 					try {
 						store.backupDirectory(directory);
 					} catch (IOException e) {
-						return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.backup_file_failed, directory.getPath()), e);
+						return new Status(IStatus.ERROR, Activator.ID, IStatus.OK,
+								NLS.bind(Messages.backup_file_failed, directory.getPath()), e);
 					}
 			} else
 				directory.delete();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2020 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,15 +32,12 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 		attribute(TIMESTAMP_ATTRIBUTE, Long.toString(profile.getTimestamp()));
 		writeProperties(profile.getProperties());
 		ArrayList<IInstallableUnit> ius = new ArrayList<>(profile.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet());
-		Collections.sort(ius, new Comparator<IInstallableUnit>() {
-			@Override
-			public int compare(IInstallableUnit iu1, IInstallableUnit iu2) {
-				int IdCompare = iu1.getId().compareTo(iu2.getId());
-				if (IdCompare != 0)
-					return IdCompare;
+		ius.sort((iu1, iu2) -> {
+			int IdCompare = iu1.getId().compareTo(iu2.getId());
+			if (IdCompare != 0)
+				return IdCompare;
 
-				return iu1.getVersion().compareTo(iu2.getVersion());
-			}
+			return iu1.getVersion().compareTo(iu2.getVersion());
 		});
 		writeInstallableUnits(ius.iterator(), ius.size());
 		writeInstallableUnitsProperties(ius.iterator(), ius.size(), profile);

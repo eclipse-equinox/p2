@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -715,7 +715,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			}
 		}
 
-		Collections.sort(allRoots);
+		allRoots.sort(null);
 
 		String formattedString = listFormat.format(allRoots);
 		System.out.println(formattedString);
@@ -1290,7 +1290,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		Map<String, String> tags = registry.getProfileStateProperties(profile.getProfileId(), IProfile.STATE_PROP_TAG);
 		//Sort the tags from the most recent to the oldest
 		List<String> timeStamps = new ArrayList<>(tags.keySet());
-		Collections.sort(timeStamps, Collections.reverseOrder());
+		timeStamps.sort(Collections.reverseOrder());
 		for (String timestamp : timeStamps) {
 			System.out.println(tags.get(timestamp));
 		}

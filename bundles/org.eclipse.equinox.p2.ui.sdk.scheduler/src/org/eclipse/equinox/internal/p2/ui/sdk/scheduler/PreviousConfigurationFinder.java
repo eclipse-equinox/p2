@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2017 Ericsson AB and others.
+ * Copyright (c) 2013, 2020 Ericsson AB and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,7 +38,8 @@ public class PreviousConfigurationFinder {
 		}
 
 		/**
-		 * @throws NumberFormatException if cannot parse the major and minor version components
+		 * @throws NumberFormatException if cannot parse the major and minor version
+		 *                               components
 		 */
 		Identifier(String versionString) {
 			super();
@@ -58,18 +59,14 @@ public class PreviousConfigurationFinder {
 					service = Integer.parseInt(tokenizer.nextToken());
 			} catch (NumberFormatException nfe) {
 				// ignore the service qualifier in that case and default to 0
-				// this will allow us to tolerate other non-conventional version numbers 
+				// this will allow us to tolerate other non-conventional version numbers
 			}
 		}
 
 		/**
-		 * Returns true if this id is considered to be greater than or equal to the given baseline.
-		 * e.g. 
-		 * 1.2.9 >= 1.3.1 -> false
-		 * 1.3.0 >= 1.3.1 -> false
-		 * 1.3.1 >= 1.3.1 -> true
-		 * 1.3.2 >= 1.3.1 -> true
-		 * 2.0.0 >= 1.3.1 -> true
+		 * Returns true if this id is considered to be greater than or equal to the
+		 * given baseline. e.g. 1.2.9 >= 1.3.1 -> false 1.3.0 >= 1.3.1 -> false 1.3.1 >=
+		 * 1.3.1 -> true 1.3.2 >= 1.3.1 -> true 2.0.0 >= 1.3.1 -> true
 		 */
 		boolean isGreaterEqualTo(Identifier minimum) {
 			if (major < minimum.major)
@@ -132,7 +129,8 @@ public class PreviousConfigurationFinder {
 		File configFolder;
 		String os_ws_arch;
 
-		public ConfigurationDescriptor(String productId, Identifier version, String installPathHashcode, String platformConfig, File configFolder) {
+		public ConfigurationDescriptor(String productId, Identifier version, String installPathHashcode,
+				String platformConfig, File configFolder) {
 			this.productId = productId;
 			this.version = version;
 			this.installPathHashcode = installPathHashcode;
@@ -163,7 +161,8 @@ public class PreviousConfigurationFinder {
 
 	public static class ConfigurationDescriptorComparator implements Comparator<ConfigurationDescriptor> {
 
-		// compare ConfigurationDescriptor according to their versions and when equals according to their lastModified field
+		// compare ConfigurationDescriptor according to their versions and when equals
+		// according to their lastModified field
 		@Override
 		public int compare(ConfigurationDescriptor o1, ConfigurationDescriptor o2) {
 			int result = -1;
@@ -198,7 +197,8 @@ public class PreviousConfigurationFinder {
 		Matcher m = path.matcher(candidate.getName());
 		if (!m.matches())
 			return null;
-		return new ConfigurationDescriptor(m.group(1), new Identifier(m.group(2)), m.group(3), m.group(5), candidate.getAbsoluteFile());
+		return new ConfigurationDescriptor(m.group(1), new Identifier(m.group(2)), m.group(3), m.group(5),
+				candidate.getAbsoluteFile());
 	}
 
 	public IProvisioningAgent findPreviousInstalls(File searchRoot, File installFolder) {
@@ -206,14 +206,16 @@ public class PreviousConfigurationFinder {
 		ConfigurationDescriptor runningConfiguration = getConfigdataFromProductFile(installFolder);
 		if (runningConfiguration == null)
 			return null;
-		ConfigurationDescriptor match = findMostRelevantConfigurationFromInstallHashDir(potentialConfigurations, runningConfiguration);
+		ConfigurationDescriptor match = findMostRelevantConfigurationFromInstallHashDir(potentialConfigurations,
+				runningConfiguration);
 		if (match == null)
 			match = findMostRelevantConfigurationFromProductId(potentialConfigurations, runningConfiguration);
 		if (match == null)
 			match = findSpecifiedConfiguration(searchRoot);
 		if (match == null)
 			return null;
-		return AgentFromInstall.createAgentFrom(AutomaticUpdatePlugin.getDefault().getAgentProvider(), null, new File(match.getConfig(), "configuration"), null); //$NON-NLS-1$
+		return AgentFromInstall.createAgentFrom(AutomaticUpdatePlugin.getDefault().getAgentProvider(), null,
+				new File(match.getConfig(), "configuration"), null); //$NON-NLS-1$
 
 	}
 
@@ -240,13 +242,17 @@ public class PreviousConfigurationFinder {
 
 	private ConfigurationDescriptor getConfigdataFromProductFile(File installFolder) {
 		Object[] productFileInfo = loadEclipseProductFile(installFolder);
-		//Contrarily  to the runtime, when the .eclipseproduct can't be found, we don't fallback to org.eclipse.platform. 
+		// Contrarily to the runtime, when the .eclipseproduct can't be found, we don't
+		// fallback to org.eclipse.platform.
 		if (productFileInfo.length == 0)
 			return null;
-		return new ConfigurationDescriptor((String) productFileInfo[0], (Identifier) productFileInfo[1], getInstallDirHash(installFolder), Platform.getOS() + '_' + Platform.getWS() + '_' + Platform.getOSArch(), null);
+		return new ConfigurationDescriptor((String) productFileInfo[0], (Identifier) productFileInfo[1],
+				getInstallDirHash(installFolder),
+				Platform.getOS() + '_' + Platform.getWS() + '_' + Platform.getOSArch(), null);
 	}
 
-	public ConfigurationDescriptor findMostRelevantConfigurationFromInstallHashDir(List<ConfigurationDescriptor> configurations, ConfigurationDescriptor configToMatch) {
+	public ConfigurationDescriptor findMostRelevantConfigurationFromInstallHashDir(
+			List<ConfigurationDescriptor> configurations, ConfigurationDescriptor configToMatch) {
 		ConfigurationDescriptor bestMatch = null;
 		int numberOfcriteriaMet = 0;
 		for (ConfigurationDescriptor candidate : configurations) {
@@ -259,7 +265,7 @@ public class PreviousConfigurationFinder {
 			if (configToMatch.getProductId().equals(candidate.getProductId()) && //
 					configToMatch.getPlatformConfig().equals(candidate.getPlatformConfig()) && //
 					(!candidate.getVersion().isGreaterEqualTo(configToMatch.getVersion()))) {
-				//We have a match
+				// We have a match
 				criteriaMet++;
 			}
 
@@ -282,30 +288,34 @@ public class PreviousConfigurationFinder {
 		return bestMatch;
 	}
 
-	//Out of a set of configuration, find the one with the most similar product info.
-	public ConfigurationDescriptor findMostRelevantConfigurationFromProductId(List<ConfigurationDescriptor> configurations, ConfigurationDescriptor configToMatch) {
+	// Out of a set of configuration, find the one with the most similar product
+	// info.
+	public ConfigurationDescriptor findMostRelevantConfigurationFromProductId(
+			List<ConfigurationDescriptor> configurations, ConfigurationDescriptor configToMatch) {
 		ConfigurationDescriptor bestMatch = null;
 
 		List<ConfigurationDescriptor> candidates = new ArrayList<>();
 		List<ConfigurationDescriptor> candidatesWithUnkonwArchitecture = new ArrayList<>();
 		for (ConfigurationDescriptor candidate : configurations) {
-			if (configToMatch.getProductId().equals(candidate.getProductId()) && configToMatch.getVersion().isGreaterEqualTo(candidate.getVersion())) {
+			if (configToMatch.getProductId().equals(candidate.getProductId())
+					&& configToMatch.getVersion().isGreaterEqualTo(candidate.getVersion())) {
 				if (configToMatch.getPlatformConfig().equals(candidate.getPlatformConfig())) {
 					candidates.add(candidate);
-				} else { //candidate.getPlatformConfig() returns null in legacy installation prior to 4.x.x releases
+				} else { // candidate.getPlatformConfig() returns null in legacy installation prior to
+							// 4.x.x releases
 					candidatesWithUnkonwArchitecture.add(candidate);
 				}
 			}
 		}
 
 		if (!candidates.isEmpty()) {
-			Collections.sort(candidates, new ConfigurationDescriptorComparator());
+			candidates.sort(new ConfigurationDescriptorComparator());
 			bestMatch = candidates.get(candidates.size() - 1);
 		}
 
 		if (bestMatch == null) {
 			if (!candidatesWithUnkonwArchitecture.isEmpty()) {
-				Collections.sort(candidatesWithUnkonwArchitecture, new ConfigurationDescriptorComparator());
+				candidatesWithUnkonwArchitecture.sort(new ConfigurationDescriptorComparator());
 				bestMatch = candidatesWithUnkonwArchitecture.get(candidatesWithUnkonwArchitecture.size() - 1);
 			}
 		}
@@ -313,7 +323,8 @@ public class PreviousConfigurationFinder {
 		return bestMatch;
 	}
 
-	//Load the .eclipseproduct file in the base of the installation. This logic is very similar to the one found in the launcher
+	// Load the .eclipseproduct file in the base of the installation. This logic is
+	// very similar to the one found in the launcher
 	private Object[] loadEclipseProductFile(File installDir) {
 		final String ECLIPSE = "eclipse"; //$NON-NLS-1$
 		final String PRODUCT_SITE_MARKER = ".eclipseproduct"; //$NON-NLS-1$
@@ -341,10 +352,11 @@ public class PreviousConfigurationFinder {
 		} else {
 			return new String[0];
 		}
-		return new Object[] {appId, appVersion};
+		return new Object[] { appId, appVersion };
 	}
 
-	//Iterate through a folder to look for potential configuration folders and reify them.
+	// Iterate through a folder to look for potential configuration folders and
+	// reify them.
 	public List<ConfigurationDescriptor> readPreviousConfigurations(File configurationFolder) {
 		File[] candidates = configurationFolder.listFiles();
 		List<ConfigurationDescriptor> configurations = new ArrayList<>(candidates.length);
@@ -360,8 +372,8 @@ public class PreviousConfigurationFinder {
 		return configurations;
 	}
 
-	//This code computes the hashCode of the install location. 
-	//This is a simplified version of the code that the launcher executes.
+	// This code computes the hashCode of the install location.
+	// This is a simplified version of the code that the launcher executes.
 	private String getInstallDirHash(File installFolder) {
 		try {
 			return Integer.toString(installFolder.getCanonicalPath().hashCode());

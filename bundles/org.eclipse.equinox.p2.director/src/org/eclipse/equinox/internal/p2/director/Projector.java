@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2020 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -232,7 +232,7 @@ public class Projector {
 					dependencyHelper = new DependencyHelper<>(solver);
 			}
 			List<IInstallableUnit> iusToOrder = new ArrayList<>(queryResult.toSet());
-			Collections.sort(iusToOrder);
+			iusToOrder.sort(null);
 			for (IInstallableUnit iu : iusToOrder) {
 				if (monitor.isCanceled()) {
 					result.merge(Status.CANCEL_STATUS);
@@ -1009,7 +1009,7 @@ public class Projector {
 
 	private void printSolution(Collection<IInstallableUnit> state) {
 		ArrayList<IInstallableUnit> l = new ArrayList<>(state);
-		Collections.sort(l);
+		l.sort(null);
 		Tracing.debug("Solution:"); //$NON-NLS-1$
 		Tracing.debug("Numbers of IUs selected: " + l.size()); //$NON-NLS-1$
 		for (IInstallableUnit s : l) {

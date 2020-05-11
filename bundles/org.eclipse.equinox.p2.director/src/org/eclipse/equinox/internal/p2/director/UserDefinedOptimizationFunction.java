@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Daniel Le Berre and others.
+ * Copyright (c) 2009, 2020 Daniel Le Berre and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -152,8 +152,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(req.getMatches());
 			IQueryResult<IInstallableUnit> matches = picker.query(query, null);
 			List<IInstallableUnit> toSort = new ArrayList<>(matches.toUnmodifiableSet());
-			Collections.sort(toSort, Collections.reverseOrder());
-			if (toSort.size() == 0)
+			toSort.sort(Collections.reverseOrder());
+			if (toSort.isEmpty())
 				continue;
 
 			Projector.AbstractVariable abs = new Projector.AbstractVariable();

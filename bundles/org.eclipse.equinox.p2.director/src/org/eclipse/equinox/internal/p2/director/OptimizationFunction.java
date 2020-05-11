@@ -73,7 +73,7 @@ public class OptimizationFunction {
 			}
 
 			// Set the weight such that things that are already installed are not updated
-			Collections.sort(conflictingEntries, Collections.reverseOrder());
+			conflictingEntries.sort(Collections.reverseOrder());
 			BigInteger weight = POWER;
 			// have we already found a version that is already installed?
 			boolean foundInstalled = false;

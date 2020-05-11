@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2020 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -403,7 +403,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		if (top == 1)
 			return operands.get(0);
 
-		Collections.sort(operands);
+		operands.sort(null);
 		List<Compacter> splits = new ArrayList<>();
 		int reverseOp = op == TYPE_AND ? TYPE_OR : TYPE_AND;
 
@@ -421,7 +421,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		if (top == 1)
 			return operands.get(0);
 
-		Collections.sort(operands);
+		operands.sort(null);
 		Expression[] expArray = operands.toArray(new Expression[top]);
 		return op == TYPE_AND ? new And(expArray) : new Or(expArray);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2018 EclipseSource and others.
+* Copyright (c) 2009, 2020 EclipseSource and others.
  *
  * This
 * program and the accompanying materials are made available under the terms of
@@ -62,7 +62,7 @@ public class AggregateQueryTest {
 				while (iterator.hasNext()) {
 					list.add(iterator.next());
 				}
-				Collections.sort(list);
+				list.sort(null);
 				result.accept(list.get(list.size() - 1));
 				return result;
 			}
@@ -114,7 +114,7 @@ public class AggregateQueryTest {
 				while (iterator.hasNext()) {
 					list.add(iterator.next());
 				}
-				Collections.sort(list);
+				list.sort(null);
 				result.accept(list.get(list.size() - 1));
 				return result;
 			}

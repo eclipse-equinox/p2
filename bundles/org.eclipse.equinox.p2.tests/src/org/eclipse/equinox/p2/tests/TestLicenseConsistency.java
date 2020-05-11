@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 IBM Corporation and others.
+ * Copyright (c) 2010, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,9 @@ package org.eclipse.equinox.p2.tests;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -79,7 +81,7 @@ public class TestLicenseConsistency extends AbstractProvisioningTest {
 	}
 
 	private List<IInstallableUnit> sort(List<IInstallableUnit> noLicense) {
-		Collections.sort(noLicense);
+		noLicense.sort(null);
 		return noLicense;
 	}
 

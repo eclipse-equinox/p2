@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2020 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -36,10 +36,10 @@ public class OperationGenerator {
 		tmpTo.removeAll(intersection);
 
 		List<IInstallableUnit> from = new ArrayList<>(tmpFrom);
-		Collections.sort(from);
+		from.sort(null);
 
 		List<IInstallableUnit> to = new ArrayList<>(tmpTo);
-		Collections.sort(to);
+		to.sort(null);
 
 		generateUpdates(from, to);
 		generateInstallUninstall(from, to);
