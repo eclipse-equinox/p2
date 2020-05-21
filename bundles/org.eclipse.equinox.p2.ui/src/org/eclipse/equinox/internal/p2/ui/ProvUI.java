@@ -384,7 +384,7 @@ public class ProvUI {
 		if ("1".equals(segments[0])) { //$NON-NLS-1$
 			return Version.create(segments[0] + '.' + segments[1] + ".0"); //$NON-NLS-1$
 		}
-		return Version.create(segments[0] + ".0.0"); //$NON-NLS-1$
+		return Version.create(segments[0].split("-")[0] + ".0.0"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	static Collection<IProvidedCapability> parseSystemCapabilities(String systemProperty) {
