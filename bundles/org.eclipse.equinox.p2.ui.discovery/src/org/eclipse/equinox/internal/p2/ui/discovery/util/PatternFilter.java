@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.eclipse.jface.viewers.*;
-import org.eclipse.ui.internal.misc.StringMatcher;
+import org.eclipse.ui.internal.misc.TextMatcher;
 
 /**
  * A filter used in conjunction with <code>FilteredTree</code>. In order to
@@ -53,7 +53,7 @@ public class PatternFilter extends ViewerFilter {
 	/**
 	 * The string pattern matcher used for this pattern filter.
 	 */
-	private StringMatcher matcher;
+	private TextMatcher matcher;
 
 	private boolean useEarlyReturnIfMatcherIsNull = true;
 
@@ -171,7 +171,7 @@ public class PatternFilter extends ViewerFilter {
 			if (includeLeadingWildcard) {
 				pattern = "*" + pattern; //$NON-NLS-1$
 			}
-			matcher = new StringMatcher(pattern, true, false);
+			matcher = new TextMatcher(pattern, true, false);
 		}
 	}
 
