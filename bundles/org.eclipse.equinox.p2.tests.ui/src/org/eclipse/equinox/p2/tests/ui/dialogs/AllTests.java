@@ -22,7 +22,8 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ InstallWizardTest.class, InstalledSoftwarePageTest.class, InstallWithRemediationTest.class,
 		InstallationHistoryPageTest.class, UpdateWizardTest.class, UninstallWizardTest.class,
-		RepositoryManipulationPageTest.class, IUPropertyPagesTest.class, PreferencePagesTest.class })
+		RepositoryManipulationPageTest.class, IUPropertyPagesTest.class, PreferencePagesTest.class,
+		EECompatibilityTest.class })
 public class AllTests {
 	// test suite
 }

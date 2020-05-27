@@ -18,6 +18,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.stream.Stream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -69,12 +70,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		setNeedsProgressMonitor(true);
 		if (operation != null) {
 			provisioningContext = operation.getProvisioningContext();
-			if (operation.hasResolved() && getPolicy().getCheckAgainstCurrentExecutionEnvironment()) {
-				this.localJRECheckPlan = ProvUI.toCompabilityWithCurrentJREProvisioningPlan(operation, null);
-				if (!localJRECheckPlan.getStatus().isOK()) {
-					couldNotResolveStatus = localJRECheckPlan.getStatus();
-				}
-			}
 		}
 	}
 
@@ -136,6 +131,13 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				getContainer().run(true, true, monitor -> {
 					remediationOperation.setCurrentRemedy(remediationPage.getRemediationGroup().getCurrentRemedy());
 					remediationOperation.resolveModal(monitor);
+					if (getPolicy().getCheckAgainstCurrentExecutionEnvironment()) {
+						this.localJRECheckPlan = ProvUI
+								.toCompabilityWithCurrentJREProvisioningPlan(remediationOperation, monitor);
+						if (!compatibleWithCurrentEE()) {
+							couldNotResolveStatus = localJRECheckPlan.getStatus();
+						}
+					}
 				});
 			} catch (InterruptedException e) {
 				// Nothing to report if thread was interrupted
@@ -147,6 +149,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			initializeResolutionModelElements(ElementUtils.requestToElement(
 					((RemediationOperation) operation).getCurrentRemedy(), !(this instanceof UpdateWizard)));
 			planChanged();
+			if (getPolicy().getCheckAgainstCurrentExecutionEnvironment() && !compatibleWithCurrentEE()) {
+				return errorPage;
+			}
 			return resolutionPage;
 		} else if (page == mainPage || page == errorPage) {
 			ISelectableIUsPage currentPage = (ISelectableIUsPage) page;
@@ -160,8 +165,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				initializeResolutionModelElements(planSelections);
 			}
 			IStatus status = operation.getResolutionResult();
-			if (status.getSeverity() != IStatus.ERROR && localJRECheckPlan != null
-					&& !localJRECheckPlan.getStatus().isOK()) {
+			if (getPolicy().getCheckAgainstCurrentExecutionEnvironment() && !compatibleWithCurrentEE()) {
+				// skip remediation for EE compatibility issues
 				return errorPage;
 			}
 			if (status == null || status.getSeverity() == IStatus.ERROR) {
@@ -187,6 +192,40 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			}
 		}
 		return super.getNextPage(page);
+	}
+
+	private boolean compatibleWithCurrentEE() {
+		if (operation == null || !getPolicy().getCheckAgainstCurrentExecutionEnvironment()) {
+			return true;
+		}
+		if (localJRECheckPlan == null) {
+			try {
+				getContainer().run(true, true, monitor -> {
+					if (!operation.hasResolved()) {
+						operation.resolveModal(monitor);
+					}
+					if (operation.hasResolved()) {
+						this.localJRECheckPlan = ProvUI.toCompabilityWithCurrentJREProvisioningPlan(operation, null);
+						if (!compatibleWithCurrentEE()) {
+							couldNotResolveStatus = localJRECheckPlan.getStatus();
+						}
+					}
+				});
+			} catch (InvocationTargetException | InterruptedException e) {
+				return false;
+			}
+		}
+		IStatus currentEEPlanStatus = localJRECheckPlan.getStatus();
+		if (currentEEPlanStatus.getSeverity() != IStatus.ERROR) {
+			return true;
+		}
+		return Stream.of(currentEEPlanStatus).filter(status -> status.getSeverity() == IStatus.ERROR)
+				.flatMap(status -> status.isMultiStatus() ? Stream.of(status.getChildren()) : Stream.of(status))
+				.filter(status -> status.getSeverity() == IStatus.ERROR)
+				.flatMap(status -> status.isMultiStatus() ? Stream.of(status.getChildren()) : Stream.of(status))
+				.filter(status -> status.getSeverity() == IStatus.ERROR)
+				.flatMap(status -> status.isMultiStatus() ? Stream.of(status.getChildren()) : Stream.of(status))
+				.map(IStatus::getMessage).noneMatch(message -> message.contains("osgi.ee")); //$NON-NLS-1$
 	}
 
 	/**
@@ -300,7 +339,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 					operation.resolveModal(monitor);
 					if (getPolicy().getCheckAgainstCurrentExecutionEnvironment()) {
 						this.localJRECheckPlan = ProvUI.toCompabilityWithCurrentJREProvisioningPlan(operation, monitor);
-						if (!localJRECheckPlan.getStatus().isOK()) {
+						if (!compatibleWithCurrentEE()) {
 							couldNotResolveStatus = localJRECheckPlan.getStatus();
 						}
 					}
@@ -348,10 +387,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		if (statusOverridesOperation())
 			return couldNotResolveStatus;
 		if (operation != null && operation.getResolutionResult() != null) {
-			if (!operation.getResolutionResult().isOK() || localJRECheckPlan == null
-					|| localJRECheckPlan.getStatus().isOK()) {
+			if (!operation.getResolutionResult().isOK() || localJRECheckPlan == null || compatibleWithCurrentEE()) {
 				return operation.getResolutionResult();
-			} else if (localJRECheckPlan != null) {
+			} else if (!compatibleWithCurrentEE()) {
 				return localJRECheckPlan.getStatus();
 			}
 		}
@@ -460,7 +498,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public boolean statusOverridesOperation() {
 		return operation != null && operation.getResolutionResult() != null
 				&& operation.getResolutionResult().getSeverity() < IStatus.ERROR
-				&& (localJRECheckPlan != null && !localJRECheckPlan.getStatus().isOK());
+				&& (localJRECheckPlan != null && !compatibleWithCurrentEE());
 	}
 
 	public void setRelaxedResolution(boolean value) {
