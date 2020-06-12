@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010, 2018 IBM Corporation and others.
+ *  Copyright (c) 2010, 2020 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -288,6 +288,11 @@ public class FilterTest {
 		@Override
 		public Dictionary<String, Object> getProperties() {
 			return new Hashtable<>(dictionary);
+		}
+
+		@Override
+		public Object adapt(Class type) {
+			return null;
 		}
 	}
 }
