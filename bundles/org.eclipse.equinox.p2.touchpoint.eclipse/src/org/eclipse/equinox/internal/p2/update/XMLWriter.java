@@ -25,6 +25,8 @@ import java.util.Map;
 public class XMLWriter extends PrintWriter {
 	protected int tab;
 
+	static final boolean useWhitespace = Boolean.getBoolean("p2.useWhitespace"); //$NON-NLS-1$
+
 	/* constants */
 	protected static final String XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"; //$NON-NLS-1$
 
@@ -69,9 +71,9 @@ public class XMLWriter extends PrintWriter {
 				sb.append("\""); //$NON-NLS-1$
 			}
 		sb.append(">"); //$NON-NLS-1$
-		if (shouldTab)
+		if (shouldTab && useWhitespace)
 			printTabulation();
-		if (newLine)
+		if (newLine && useWhitespace)
 			println(sb.toString());
 		else
 			print(sb.toString());

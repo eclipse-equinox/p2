@@ -22,6 +22,8 @@ import org.eclipse.equinox.p2.metadata.Version;
 
 public class XMLWriter implements XMLConstants {
 
+	static final boolean useWhitespace = Boolean.getBoolean("p2.useWhitespace"); //$NON-NLS-1$
+
 	public static class ProcessingInstruction {
 
 		private String target;
@@ -82,7 +84,9 @@ public class XMLWriter implements XMLConstants {
 		if (this.open) {
 			println('>');
 		}
-		indent();
+		if (useWhitespace) {
+			indent();
+		}
 		print('<');
 		print(name);
 		this.elements.push(name);
@@ -308,15 +312,25 @@ public class XMLWriter implements XMLConstants {
 	}
 
 	private void println(char c) {
-		this.pw.println(c);
+		if (useWhitespace) {
+			this.pw.println(c);
+		} else {
+			this.pw.print(c);
+		}
 	}
 
 	private void println(String s) {
-		this.pw.println(s);
+		if (useWhitespace) {
+			this.pw.println(s);
+		} else {
+			this.pw.print(s);
+		}
 	}
 
 	private void println() {
-		this.pw.println();
+		if (useWhitespace) {
+			this.pw.println();
+		}
 	}
 
 	private void print(char c) {
@@ -331,14 +345,18 @@ public class XMLWriter implements XMLConstants {
 		if (s.length() == 0) {
 			println();
 		} else {
-			indent();
+			if (useWhitespace) {
+				indent();
+			}
 			println(escape ? escape(s) : s);
 		}
 	}
 
 	private void indent() {
-		for (int i = this.elements.size(); i > 0; i -= 1) {
-			print(this.indent);
+		if (useWhitespace) {
+			for (int i = this.elements.size(); i > 0; i -= 1) {
+				print(this.indent);
+			}
 		}
 	}
 
