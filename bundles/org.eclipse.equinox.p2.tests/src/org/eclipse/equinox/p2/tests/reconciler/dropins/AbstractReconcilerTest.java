@@ -120,6 +120,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			exe = new File(output, getExeFolder() + "eclipse");
 			if (!exe.exists())
 				fail("Executable file: " + exe.getAbsolutePath() + "(or .exe) not found after extracting: " + file.getAbsolutePath() + " to: " + output);
+			if (!exe.canExecute()) {
+				// Try first to set --x--x--x, then --x------ if we can't do the former
+				if (!exe.setExecutable(true, false) || !exe.setExecutable(true, true)) {
+					fail("Executable file: " + exe.getAbsolutePath() + " is not executable");
+				}
+			}
 		}
 		initialized = true;
 	}
@@ -476,7 +482,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
 	public Configuration loadConfiguration(File configLocation, File installLocation) {
 		try {
-			return Configuration.load(configLocation, installLocation.toURL());
+			return Configuration.load(configLocation, installLocation.toURI().toURL());
 		} catch (ProvisionException e) {
 			fail("Error while reading configuration from " + configLocation);
 		} catch (MalformedURLException e) {
@@ -494,7 +500,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File configLocation = new File(output, getRootFolder() + "configuration/org.eclipse.update/platform.xml");
 		File installLocation = new File(output, getRootFolder());
 		try {
-			configuration.save(configLocation, installLocation.toURL());
+			configuration.save(configLocation, installLocation.toURI().toURL());
 		} catch (ProvisionException e) {
 			fail(message, e);
 		} catch (MalformedURLException e) {

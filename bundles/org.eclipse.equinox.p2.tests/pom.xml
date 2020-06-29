@@ -22,9 +22,6 @@
 	<properties>
 		<testSuite>${project.artifactId}</testSuite>
 		<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
-		<!-- despite best inentions I was not able to add automatiz detection here -->
-		<!-- Linux is default because Hudson runs those tests on Linux -->
-		<dropinsProduct>org.eclipse.equinox.p2.reconciler-linux.gtk.x86_64.tar.gz</dropinsProduct>
 	</properties>
 
 	<build>
@@ -49,4 +46,54 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>mac_x86_64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<properties>
+					<dropinsProduct>org.eclipse.equinox.p2.reconciler-macosx.cocoa.x86_64.zip</dropinsProduct>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux_amd64</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+					<dropinsProduct>org.eclipse.equinox.p2.reconciler-linux.gtk.x86_64.tar.gz</dropinsProduct>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux_ppc64le</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>ppc64le</arch>
+				</os>
+			</activation>
+			<properties>
+					<dropinsProduct>org.eclipse.equinox.p2.reconciler-linux.gtk.ppc64le.tar.gz</dropinsProduct>
+			</properties>
+		</profile>
+		<profile>
+			<id>win_x86_64</id>
+			<activation>
+				<os>
+					<family>win</family>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<properties>
+					<dropinsProduct>org.eclipse.equinox.p2.reconciler-win32.win32.x86_64.zip</dropinsProduct>
+			</properties>
+		</profile>
+	</profiles>
 </project>
