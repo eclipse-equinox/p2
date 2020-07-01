@@ -41,7 +41,6 @@ import org.osgi.framework.Constants;
  */
 public class ConfigCUsAction extends AbstractPublisherAction {
 
-	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 	protected static final String DEFAULT_START_LEVEL = "osgi.bundles.defaultStartLevel"; //$NON-NLS-1$
 	private static Collection<String> PROPERTIES_TO_SKIP;
 	private static HashSet<String> PROGRAM_ARGS_TO_SKIP;
@@ -347,14 +346,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			// If there is no host, or the filters don't match, skip this one.
 			if (iu == null || !filterMatches(iu.getFilter(), configSpec))
 				continue;
-			// TODO need to factor this out into its own action
-			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
-				bundle.setStartLevel(BundleInfo.NO_LEVEL);
-				bundle.setMarkedAsStarted(false);
-				bundle.setSpecialConfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:false);"); //$NON-NLS-1$
-				bundle.setSpecialUnconfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:);"); //$NON-NLS-1$
-			} else if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
-				// this bundle does not require any particular configuration, the plug-in default IU will handle installing it
+			if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
+				// this bundle does not require any particular configuration, the plug-in
+				// default IU will handle installing it
 				continue;
 			}
 			IInstallableUnit cu = null;
