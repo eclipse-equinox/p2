@@ -114,8 +114,6 @@
     <module>bundles/org.eclipse.equinox.frameworkadmin</module>
     <module>bundles/org.eclipse.equinox.frameworkadmin.equinox</module>
     <module>bundles/org.eclipse.equinox.frameworkadmin.test</module>
-    <module>bundles/org.eclipse.equinox.p2.artifact.optimizers</module>
-    <module>bundles/org.eclipse.equinox.p2.artifact.processors</module>
     <module>bundles/org.eclipse.equinox.p2.artifact.repository</module>
     <module>bundles/org.eclipse.equinox.p2.console</module>
     <module>bundles/org.eclipse.equinox.p2.core</module>
@@ -136,7 +134,6 @@
     <module>bundles/org.eclipse.equinox.p2.reconciler.dropins</module>
     <module>bundles/org.eclipse.equinox.p2.repository</module>
     <module>bundles/org.eclipse.equinox.p2.repository.tools</module>
-    <module>bundles/org.eclipse.equinox.p2.sar</module>
     <module>bundles/org.eclipse.equinox.p2.touchpoint.eclipse</module>
     <module>bundles/org.eclipse.equinox.p2.touchpoint.natives</module>
     <module>bundles/org.eclipse.equinox.p2.transport.ecf</module>
@@ -160,7 +157,6 @@
     <module>features/org.eclipse.equinox.p2.user.ui</module>
 
     <module>bundles/org.eclipse.equinox.p2.tests.reconciler.product</module>
-    <module>bundles/org.eclipse.equinox.p2.tests.optimizers</module>
     <module>bundles/org.eclipse.equinox.p2.tests</module>
     <module>bundles/org.eclipse.equinox.p2.tests.discovery</module>
     <module>bundles/org.eclipse.equinox.p2.tests.ui</module>
