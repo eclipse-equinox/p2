@@ -2504,7 +2504,6 @@
       </provides>
       <requires size='5'>
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='[3.2.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.100,4.0.0)'/>
         <required namespace='java.package' name='javax.xml.parsers' range='0.0.0'/>
         <required namespace='java.package' name='org.xml.sax' range='0.0.0'/>
         <required namespace='java.package' name='org.xml.sax.helpers' range='0.0.0'/>
@@ -2516,7 +2515,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.core.internal.plugins.CompatibilityActivator&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.core.runtime.compatibility; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.xml.sax,org.xml.sax.helpers&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.0.v20090413&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.core.boot,org.eclipse.core.internal.boot;x-internal:=true,org.eclipse.core.internal.compatibility;x-internal:=true,org.eclipse.core.internal.model;x-internal:=true,org.eclipse.core.internal.plugins;x-internal:=true,org.eclipse.core.runtime.model&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.2.0,4.0.0)&quot;;visibility:=reexport,org.eclipse.update.configurator;bundle-version=&quot;[3.1.100,4.0.0)&quot;;visibility:=reexport
+            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.core.internal.plugins.CompatibilityActivator&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.core.runtime.compatibility; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.xml.sax,org.xml.sax.helpers&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.0.v20090413&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.core.boot,org.eclipse.core.internal.boot;x-internal:=true,org.eclipse.core.internal.compatibility;x-internal:=true,org.eclipse.core.internal.model;x-internal:=true,org.eclipse.core.internal.plugins;x-internal:=true,org.eclipse.core.runtime.model&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.2.0,4.0.0)&quot;;visibility:=reexport
           </instruction>
         </instructions>
       </touchpointData>
@@ -10840,7 +10839,6 @@
         <required namespace='osgi.bundle' name='org.eclipse.core.resources' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.jdt.core' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.team.core' range='[3.2.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.text' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.jdt.launching' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.core.filebuffers' range='[3.2.0,4.0.0)'/>
@@ -10868,7 +10866,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-Name: %name&#xA;Bundle-Version: 3.6.0.v20100115&#xA;Eclipse-LazyStart: true&#xA;Import-Package: com.ibm.icu.util&#xA;Bundle-Activator: org.eclipse.pde.internal.core.PDECore&#xA;Bundle-Vendor: %provider-name&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.core.resources;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.core;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.team.core;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.update.configurator;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.text;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.jdt.launching;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.filebuffers;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.variables;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.pde.build;bundle-version=&quot;[3.2.0,4.1.0)&quot;,org.eclipse.ant.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.equinox.simpleconfigurator.manipulator;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.frameworkadmin;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.debug.core;bundle-version=&quot;[3.5.0,4.0.0)&quot;,org.eclipse.equinox.p2.engine;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.core;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.metadata;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.director;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.artifact.repository;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.repository;bundle-version=&quot;[2.0.0,3.0.0]&quot;,org.eclipse.equinox.p2.metadata.repository;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.garbagecollector;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.touchpoint.eclipse&#xA;Export-Package: org.eclipse.pde.core,org.eclipse.pde.core.build,org.eclipse.pde.core.plugin,org.eclipse.pde.core.project,org.eclipse.pde.internal.core;x-friends:=&quot;org.eclipse.pde.ui,org.eclipse.pde.runtime,org.eclipse.pde.launching&quot;,org.eclipse.pde.internal.core.build;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.builders;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.bundle;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.content;x-internal:=true,org.eclipse.pde.internal.core.converter;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.exports;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.feature;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.ibundle;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.ifeature;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.iproduct;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.ischema;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.isite;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.natures;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.plugin;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.product;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.project;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.schema;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.search;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.site;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.target;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.target.provisional;x-friends:=&quot;org.eclipse.pde.ui,org.eclipse.pde.api.tools.ui&quot;,org.eclipse.pde.internal.core.text; x-friends:=&quot;org.eclipse.pde.ui,  org.eclipse.pde.ds.core,  org.eclipse.pde.ua.core,  org.eclipse.pde.ds.ui,  org.eclipse.pde.ua.ui&quot;,org.eclipse.pde.internal.core.text.build;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.text.bundle;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.text.plugin;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.util;x-friends:=&quot;org.eclipse.pde.ui,org.eclipse.pde.ua.ui,org.eclipse.pde.launching&quot;,org.eclipse.pde.internal.core.variables;x-internal:=true&#xA;Bundle-SymbolicName: org.eclipse.pde.core; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.4&#xA;Bundle-Localization: plugin
+            Bundle-Name: %name&#xA;Bundle-Version: 3.6.0.v20100115&#xA;Eclipse-LazyStart: true&#xA;Import-Package: com.ibm.icu.util&#xA;Bundle-Activator: org.eclipse.pde.internal.core.PDECore&#xA;Bundle-Vendor: %provider-name&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.core.resources;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.core;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.team.core;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.text;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.jdt.launching;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.filebuffers;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.variables;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.pde.build;bundle-version=&quot;[3.2.0,4.1.0)&quot;,org.eclipse.ant.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.equinox.simpleconfigurator.manipulator;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.frameworkadmin;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.debug.core;bundle-version=&quot;[3.5.0,4.0.0)&quot;,org.eclipse.equinox.p2.engine;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.core;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.metadata;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.director;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.artifact.repository;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.repository;bundle-version=&quot;[2.0.0,3.0.0]&quot;,org.eclipse.equinox.p2.metadata.repository;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.garbagecollector;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.touchpoint.eclipse&#xA;Export-Package: org.eclipse.pde.core,org.eclipse.pde.core.build,org.eclipse.pde.core.plugin,org.eclipse.pde.core.project,org.eclipse.pde.internal.core;x-friends:=&quot;org.eclipse.pde.ui,org.eclipse.pde.runtime,org.eclipse.pde.launching&quot;,org.eclipse.pde.internal.core.build;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.builders;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.bundle;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.content;x-internal:=true,org.eclipse.pde.internal.core.converter;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.exports;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.feature;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.ibundle;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.ifeature;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.iproduct;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.ischema;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.isite;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.natures;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.plugin;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.product;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.project;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.schema;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.search;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.site;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.target;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.target.provisional;x-friends:=&quot;org.eclipse.pde.ui,org.eclipse.pde.api.tools.ui&quot;,org.eclipse.pde.internal.core.text; x-friends:=&quot;org.eclipse.pde.ui,  org.eclipse.pde.ds.core,  org.eclipse.pde.ua.core,  org.eclipse.pde.ds.ui,  org.eclipse.pde.ua.ui&quot;,org.eclipse.pde.internal.core.text.build;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.text.bundle;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.text.plugin;x-friends:=&quot;org.eclipse.pde.ui&quot;,org.eclipse.pde.internal.core.util;x-friends:=&quot;org.eclipse.pde.ui,org.eclipse.pde.ua.ui,org.eclipse.pde.launching&quot;,org.eclipse.pde.internal.core.variables;x-internal:=true&#xA;Bundle-SymbolicName: org.eclipse.pde.core; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.4&#xA;Bundle-Localization: plugin
           </instruction>
         </instructions>
       </touchpointData>
@@ -11729,7 +11727,6 @@
         <required namespace='osgi.bundle' name='org.eclipse.jdt.junit' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui.intro' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui.cheatsheets' range='[3.2.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui.views.log' range='[1.0.0,2.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ltk.core.refactoring' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.core.variables' range='[3.1.0,4.0.0)'/>
@@ -11760,7 +11757,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-Name: %name&#xA;Bundle-Version: 3.6.0.v20100115&#xA;Eclipse-LazyStart: true&#xA;Import-Package: com.ibm.icu.text,org.eclipse.jdt.debug.core&#xA;Bundle-Activator: org.eclipse.pde.internal.ui.PDEPlugin&#xA;Bundle-Vendor: %provider-name&#xA;Require-Bundle: org.eclipse.pde.core;bundle-version=&quot;[3.6.0,4.0.0)&quot;;visibility:=reexport,org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui.ide;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.views;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jface.text;bundle-version=&quot;[3.5.0,4.0.0)&quot;,org.eclipse.ui.workbench.texteditor;bundle-version=&quot;[3.5.0,4.0.0)&quot;,org.eclipse.ui.editors;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.debug.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.core;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.debug.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.launching;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.pde.build;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.search;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.team.core;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.5.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui.forms;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ant.ui;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.jdt.junit;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.intro;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.cheatsheets;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.update.configurator;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui.views.log;bundle-version=&quot;[1.0.0,2.0.0)&quot;,org.eclipse.ltk.core.refactoring;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.variables;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.compare;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.filesystem;bundle-version=&quot;[1.0.0,2.0.0)&quot;,org.eclipse.ltk.ui.refactoring;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.expressions;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.navigator.resources;bundle-version=&quot;[3.3.100,4.0.0)&quot;,org.eclipse.equinox.p2.ui;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.metadata;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.engine;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.core;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.director;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.artifact.repository;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.metadata.repository;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.operations;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.repository;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.frameworkadmin;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.frameworkadmin.equinox;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.pde.launching;bundle-version=&quot;[3.6.0,4.0.0)&quot;;visibility:=reexport&#xA;Export-Package: org.eclipse.pde.internal.ui;x-internal:=true,org.eclipse.pde.internal.ui.build;x-internal:=true,org.eclipse.pde.internal.ui.commands;x-internal:=true,org.eclipse.pde.internal.ui.compare;x-internal:=true,org.eclipse.pde.internal.ui.correction;x-internal:=true,org.eclipse.pde.internal.ui.correction.java;x-internal:=true,org.eclipse.pde.internal.ui.dialogs;x-internal:=true,org.eclipse.pde.internal.ui.editor;x-friends:=&quot;org.eclipse.pde.ds.ui,org.eclipse.pde.ua.ui&quot;,org.eclipse.pde.internal.ui.editor.actions;x-internal:=true,org.eclipse.pde.internal.ui.editor.build;x-internal:=true,org.eclipse.pde.internal.ui.editor.category;x-internal:=true,org.eclipse.pde.internal.ui.editor.contentassist;x-internal:=true,org.eclipse.pde.internal.ui.editor.contentassist.display;x-internal:=true,org.eclipse.pde.internal.ui.editor.context;x-internal:=true,org.eclipse.pde.internal.ui.editor.feature;x-internal:=true,org.eclipse.pde.internal.ui.editor.outline;x-internal:=true,org.eclipse.pde.internal.ui.editor.plugin;x-friends:=&quot;org.eclipse.pde.runtime&quot;,org.eclipse.pde.internal.ui.editor.plugin.rows;x-internal:=true,org.eclipse.pde.internal.ui.editor.product;x-internal:=true,org.eclipse.pde.internal.ui.editor.schema;x-internal:=true,org.eclipse.pde.internal.ui.editor.site;x-internal:=true,org.eclipse.pde.internal.ui.editor.targetdefinition;x-internal:=true,org.eclipse.pde.internal.ui.editor.text;x-internal:=true,org.eclipse.pde.internal.ui.editor.validation;x-internal:=true,org.eclipse.pde.internal.ui.elements;x-internal:=true,org.eclipse.pde.internal.ui.launcher;x-internal:=true,org.eclipse.pde.internal.ui.nls;x-internal:=true,org.eclipse.pde.internal.ui.parts;x-internal:=true,org.eclipse.pde.internal.ui.preferences;x-internal:=true,org.eclipse.pde.internal.ui.properties;x-internal:=true,org.eclipse.pde.internal.ui.refactoring;x-internal:=true,org.eclipse.pde.internal.ui.samples;x-internal:=true,org.eclipse.pde.internal.ui.search;x-internal:=true,org.eclipse.pde.internal.ui.search.dependencies;x-internal:=true,org.eclipse.pde.internal.ui.search.dialogs;x-internal:=true,org.eclipse.pde.internal.ui.shared.target;x-internal:=true,org.eclipse.pde.internal.ui.util;x-internal:=true,org.eclipse.pde.internal.ui.views.dependencies;x-internal:=true,org.eclipse.pde.internal.ui.views.plugins;x-internal:=true,org.eclipse.pde.internal.ui.views.target;x-internal:=true,org.eclipse.pde.internal.ui.wizards;x-internal:=true,org.eclipse.pde.internal.ui.wizards.category;x-internal:=true,org.eclipse.pde.internal.ui.wizards.exports;x-internal:=true,org.eclipse.pde.internal.ui.wizards.extension;x-internal:=true,org.eclipse.pde.internal.ui.wizards.feature;x-internal:=true,org.eclipse.pde.internal.ui.wizards.imports;x-internal:=true,org.eclipse.pde.internal.ui.wizards.plugin;x-internal:=true,org.eclipse.pde.internal.ui.wizards.product;x-friends:=&quot;org.eclipse.pde.ui.templates&quot;,org.eclipse.pde.internal.ui.wizards.site;x-internal:=true,org.eclipse.pde.internal.ui.wizards.target;x-internal:=true,org.eclipse.pde.internal.ui.wizards.templates;x-internal:=true,org.eclipse.pde.internal.ui.wizards.tools;x-internal:=true,org.eclipse.pde.ui,org.eclipse.pde.ui.launcher,org.eclipse.pde.ui.templates&#xA;Bundle-SymbolicName: org.eclipse.pde.ui; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.4&#xA;Bundle-Localization: plugin
+            Bundle-Name: %name&#xA;Bundle-Version: 3.6.0.v20100115&#xA;Eclipse-LazyStart: true&#xA;Import-Package: com.ibm.icu.text,org.eclipse.jdt.debug.core&#xA;Bundle-Activator: org.eclipse.pde.internal.ui.PDEPlugin&#xA;Bundle-Vendor: %provider-name&#xA;Require-Bundle: org.eclipse.pde.core;bundle-version=&quot;[3.6.0,4.0.0)&quot;;visibility:=reexport,org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui.ide;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.views;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jface.text;bundle-version=&quot;[3.5.0,4.0.0)&quot;,org.eclipse.ui.workbench.texteditor;bundle-version=&quot;[3.5.0,4.0.0)&quot;,org.eclipse.ui.editors;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.debug.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.core;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.debug.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.launching;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.jdt.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.pde.build;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.search;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.team.core;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.5.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui.forms;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ant.ui;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.jdt.junit;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.intro;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.cheatsheets;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.views.log;bundle-version=&quot;[1.0.0,2.0.0)&quot;,org.eclipse.ltk.core.refactoring;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.variables;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.compare;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.filesystem;bundle-version=&quot;[1.0.0,2.0.0)&quot;,org.eclipse.ltk.ui.refactoring;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.expressions;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.navigator.resources;bundle-version=&quot;[3.3.100,4.0.0)&quot;,org.eclipse.equinox.p2.ui;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.metadata;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.engine;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.core;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.director;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.artifact.repository;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.metadata.repository;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.p2.operations;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.p2.repository;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.eclipse.equinox.frameworkadmin;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.equinox.frameworkadmin.equinox;bundle-version=&quot;[1.0.100,2.0.0)&quot;,org.eclipse.pde.launching;bundle-version=&quot;[3.6.0,4.0.0)&quot;;visibility:=reexport&#xA;Export-Package: org.eclipse.pde.internal.ui;x-internal:=true,org.eclipse.pde.internal.ui.build;x-internal:=true,org.eclipse.pde.internal.ui.commands;x-internal:=true,org.eclipse.pde.internal.ui.compare;x-internal:=true,org.eclipse.pde.internal.ui.correction;x-internal:=true,org.eclipse.pde.internal.ui.correction.java;x-internal:=true,org.eclipse.pde.internal.ui.dialogs;x-internal:=true,org.eclipse.pde.internal.ui.editor;x-friends:=&quot;org.eclipse.pde.ds.ui,org.eclipse.pde.ua.ui&quot;,org.eclipse.pde.internal.ui.editor.actions;x-internal:=true,org.eclipse.pde.internal.ui.editor.build;x-internal:=true,org.eclipse.pde.internal.ui.editor.category;x-internal:=true,org.eclipse.pde.internal.ui.editor.contentassist;x-internal:=true,org.eclipse.pde.internal.ui.editor.contentassist.display;x-internal:=true,org.eclipse.pde.internal.ui.editor.context;x-internal:=true,org.eclipse.pde.internal.ui.editor.feature;x-internal:=true,org.eclipse.pde.internal.ui.editor.outline;x-internal:=true,org.eclipse.pde.internal.ui.editor.plugin;x-friends:=&quot;org.eclipse.pde.runtime&quot;,org.eclipse.pde.internal.ui.editor.plugin.rows;x-internal:=true,org.eclipse.pde.internal.ui.editor.product;x-internal:=true,org.eclipse.pde.internal.ui.editor.schema;x-internal:=true,org.eclipse.pde.internal.ui.editor.site;x-internal:=true,org.eclipse.pde.internal.ui.editor.targetdefinition;x-internal:=true,org.eclipse.pde.internal.ui.editor.text;x-internal:=true,org.eclipse.pde.internal.ui.editor.validation;x-internal:=true,org.eclipse.pde.internal.ui.elements;x-internal:=true,org.eclipse.pde.internal.ui.launcher;x-internal:=true,org.eclipse.pde.internal.ui.nls;x-internal:=true,org.eclipse.pde.internal.ui.parts;x-internal:=true,org.eclipse.pde.internal.ui.preferences;x-internal:=true,org.eclipse.pde.internal.ui.properties;x-internal:=true,org.eclipse.pde.internal.ui.refactoring;x-internal:=true,org.eclipse.pde.internal.ui.samples;x-internal:=true,org.eclipse.pde.internal.ui.search;x-internal:=true,org.eclipse.pde.internal.ui.search.dependencies;x-internal:=true,org.eclipse.pde.internal.ui.search.dialogs;x-internal:=true,org.eclipse.pde.internal.ui.shared.target;x-internal:=true,org.eclipse.pde.internal.ui.util;x-internal:=true,org.eclipse.pde.internal.ui.views.dependencies;x-internal:=true,org.eclipse.pde.internal.ui.views.plugins;x-internal:=true,org.eclipse.pde.internal.ui.views.target;x-internal:=true,org.eclipse.pde.internal.ui.wizards;x-internal:=true,org.eclipse.pde.internal.ui.wizards.category;x-internal:=true,org.eclipse.pde.internal.ui.wizards.exports;x-internal:=true,org.eclipse.pde.internal.ui.wizards.extension;x-internal:=true,org.eclipse.pde.internal.ui.wizards.feature;x-internal:=true,org.eclipse.pde.internal.ui.wizards.imports;x-internal:=true,org.eclipse.pde.internal.ui.wizards.plugin;x-internal:=true,org.eclipse.pde.internal.ui.wizards.product;x-friends:=&quot;org.eclipse.pde.ui.templates&quot;,org.eclipse.pde.internal.ui.wizards.site;x-internal:=true,org.eclipse.pde.internal.ui.wizards.target;x-internal:=true,org.eclipse.pde.internal.ui.wizards.templates;x-internal:=true,org.eclipse.pde.internal.ui.wizards.tools;x-internal:=true,org.eclipse.pde.ui,org.eclipse.pde.ui.launcher,org.eclipse.pde.ui.templates&#xA;Bundle-SymbolicName: org.eclipse.pde.ui; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.4&#xA;Bundle-Localization: plugin
           </instruction>
         </instructions>
       </touchpointData>
@@ -12772,7 +12769,6 @@
             (&amp;(osgi.os=macosx)(osgi.ws=cocoa))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.update.configurator' range='[3.3.100.v20090813,3.3.100.v20090813]'/>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.simpleconfigurator' range='[1.0.200.v20101015-0947,1.0.200.v20101015-0947]'/>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.swt.win32.win32.x86' range='[3.6.0.v3627,3.6.0.v3627]'>
           <filter>
@@ -13092,7 +13088,6 @@
             (&amp;(osgi.os=macosx)(osgi.ws=cocoa))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.update.configurator.source' range='[3.3.100.v20090813,3.3.100.v20090813]'/>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.simpleconfigurator.source' range='[1.0.200.v20101015-0947,1.0.200.v20101015-0947]'/>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.swt.win32.win32.x86.source' range='[3.6.0.v3627,3.6.0.v3627]'>
           <filter>
@@ -15674,71 +15669,6 @@
         </instructions>
       </touchpointData>
     </unit>
-    <unit id='org.eclipse.update.configurator' version='3.3.100.v20090813'>
-      <update id='org.eclipse.update.configurator' range='[0.0.0,3.3.100.v20090813)' severity='0'/>
-      <properties size='5'>
-        <property name='df_LT.providerName' value='Eclipse.org'/>
-        <property name='df_LT.pluginName' value='Install/Update Configurator'/>
-        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
-        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
-        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
-      </properties>
-      <provides size='7'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.update.configurator' version='3.3.100.v20090813'/>
-        <provided namespace='osgi.bundle' name='org.eclipse.update.configurator' version='3.3.100.v20090813'/>
-        <provided namespace='java.package' name='org.eclipse.update.configurator' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.update.internal.configurator' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.update.internal.configurator.branding' version='0.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
-      </provides>
-      <requires size='6'>
-        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='[3.2.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.osgi' range='[3.2.0,4.0.0)'/>
-        <required namespace='java.package' name='javax.xml.parsers' range='0.0.0'/>
-        <required namespace='java.package' name='org.w3c.dom' range='0.0.0'/>
-        <required namespace='java.package' name='org.xml.sax' range='0.0.0'/>
-        <required namespace='java.package' name='org.xml.sax.helpers' range='0.0.0'/>
-      </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.eclipse.update.configurator' version='3.3.100.v20090813'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='manifest'>
-            Bundle-Name: %pluginName&#xA;Bundle-Version: 3.3.100.v20090813&#xA;Eclipse-LazyStart: true&#xA;Import-Package: javax.xml.parsers,org.w3c.dom,org.xml.sax,org.xml.sax.helpers&#xA;Bundle-Activator: org.eclipse.update.internal.configurator.ConfigurationActivator&#xA;Bundle-Vendor: %providerName&#xA;Require-Bundle: org.eclipse.equinox.common;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.osgi;bundle-version=&quot;[3.2.0,4.0.0)&quot;&#xA;Export-Package: org.eclipse.update.configurator,org.eclipse.update.internal.configurator;x-friends:=&quot;org.eclipse.update.core&quot;,org.eclipse.update.internal.configurator.branding;x-friends:=&quot;org.eclipse.update.core&quot;&#xA;Bundle-SymbolicName: org.eclipse.update.configurator; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Service-Component: OSGI-INF/bundleGroup.xml&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Localization: plugin
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
-    <unit id='org.eclipse.update.configurator.source' version='3.3.100.v20090813' singleton='false'>
-      <update id='org.eclipse.update.configurator.source' range='[0.0.0,3.3.100.v20090813)' severity='0'/>
-      <properties size='5'>
-        <property name='df_LT.providerName' value='Eclipse.org'/>
-        <property name='df_LT.pluginName' value='Install/Update Configurator Source'/>
-        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
-        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
-        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
-      </properties>
-      <provides size='4'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.update.configurator.source' version='3.3.100.v20090813'/>
-        <provided namespace='osgi.bundle' name='org.eclipse.update.configurator.source' version='3.3.100.v20090813'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='source' version='1.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
-      </provides>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.eclipse.update.configurator.source' version='3.3.100.v20090813'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Bundle-Version: 3.3.100.v20090813&#xA;Manifest-Version: 1.0&#xA;Bundle-SymbolicName: org.eclipse.update.configurator.source&#xA;Bundle-Name: %pluginName&#xA;Bundle-Localization: plugin&#xA;Eclipse-SourceBundle: org.eclipse.update.configurator;version=&quot;3.3.100.v20090813&quot;;roots:=&quot;.&quot;&#xA;Bundle-Vendor: %providerName
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
     <unit id='org.eclipse.update.core' version='3.2.300.v20090525'>
       <update id='org.eclipse.update.core' range='[0.0.0,3.2.300.v20090525)' severity='0'/>
       <properties size='5'>
@@ -15901,7 +15831,6 @@
         <required namespace='osgi.bundle' name='org.eclipse.update.core' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.update.ui' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui' range='[3.2.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.100,4.0.0)'/>
       </requires>
       <artifacts size='1'>
         <artifact classifier='osgi.bundle' id='org.eclipse.update.scheduler' version='3.2.200.v20081127'/>
@@ -15910,7 +15839,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Export-Package: org.eclipse.update.internal.scheduler;x-internal:=true,org.eclipse.update.internal.scheduler.preferences;x-internal:=true&#xA;Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Localization: plugin&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.ui;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.update.configurator;bundle-version=&quot;[3.1.100,4.0.0)&quot;&#xA;Bundle-Activator: org.eclipse.update.internal.scheduler.UpdateSchedulerPlugin&#xA;Bundle-Name: %pluginName&#xA;Bundle-Version: 3.2.200.v20081127&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.scheduler; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Eclipse-LazyStart: true
+            Bundle-ManifestVersion: 2&#xA;Export-Package: org.eclipse.update.internal.scheduler;x-internal:=true,org.eclipse.update.internal.scheduler.preferences;x-internal:=true&#xA;Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Localization: plugin&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.ui;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;&#xA;Bundle-Activator: org.eclipse.update.internal.scheduler.UpdateSchedulerPlugin&#xA;Bundle-Name: %pluginName&#xA;Bundle-Version: 3.2.200.v20081127&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.scheduler; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Eclipse-LazyStart: true
           </instruction>
         </instructions>
       </touchpointData>
@@ -15970,7 +15899,6 @@
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.update.core' range='[3.1.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui.forms' range='[3.2.0,4.0.0)'/>
         <required namespace='java.package' name='javax.xml.parsers' range='0.0.0'/>
         <required namespace='java.package' name='org.w3c.dom' range='0.0.0'/>
@@ -15983,7 +15911,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.update.internal.ui.UpdateUI&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.ui; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.w3c.dom,org.xml.sax&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.300.v20090813&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.update.internal.ui;x-friends:=&quot;org.eclipse.update.scheduler&quot;,org.eclipse.update.internal.ui.model;x-internal:=true,org.eclipse.update.internal.ui.parts;x-internal:=true,org.eclipse.update.internal.ui.preferences;x-internal:=true,org.eclipse.update.internal.ui.properties;x-internal:=true,org.eclipse.update.internal.ui.security;x-internal:=true,org.eclipse.update.internal.ui.views;x-internal:=true,org.eclipse.update.internal.ui.wizards;x-friends:=&quot;org.eclipse.update.scheduler&quot;,org.eclipse.update.ui&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.configurator;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui.forms;bundle-version=&quot;[3.2.0,4.0.0)&quot;
+            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.update.internal.ui.UpdateUI&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.ui; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.w3c.dom,org.xml.sax&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.300.v20090813&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.update.internal.ui;x-friends:=&quot;org.eclipse.update.scheduler&quot;,org.eclipse.update.internal.ui.model;x-internal:=true,org.eclipse.update.internal.ui.parts;x-internal:=true,org.eclipse.update.internal.ui.preferences;x-internal:=true,org.eclipse.update.internal.ui.properties;x-internal:=true,org.eclipse.update.internal.ui.security;x-internal:=true,org.eclipse.update.internal.ui.views;x-internal:=true,org.eclipse.update.internal.ui.wizards;x-friends:=&quot;org.eclipse.update.scheduler&quot;,org.eclipse.update.ui&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui.forms;bundle-version=&quot;[3.2.0,4.0.0)&quot;
           </instruction>
         </instructions>
       </touchpointData>
@@ -16757,11 +16685,6 @@
             (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=x86_64))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.linux.ppcorg.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=ppc))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingmotif.hpux.ia64_32org.eclipse.core.runtime' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=motif)(osgi.os=hpux)(osgi.arch=ia64_32))
@@ -16812,11 +16735,6 @@
             (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=x86))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingmotif.hpux.ia64_32org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=motif)(osgi.os=hpux)(osgi.arch=ia64_32))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingorg.eclipse.sdk.ide.ini.carbon.macosx.ppc' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=carbon)(osgi.os=macosx)(osgi.arch=ppc))
@@ -16833,11 +16751,6 @@
           </filter>
         </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.solaris.sparcorg.eclipse.equinox.event' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=sparc))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.solaris.sparcorg.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=sparc))
           </filter>
@@ -16887,11 +16800,6 @@
             (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=x86))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingcocoa.macosx.x86_64org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=cocoa)(osgi.os=macosx)(osgi.arch=x86_64))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.linux.ppc64org.eclipse.equinox.ds' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=ppc64))
@@ -16900,11 +16808,6 @@
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.linux.ppc64org.eclipse.equinox.event' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=ppc64))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingwin32.win32.x86_64org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86_64))
           </filter>
         </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingmotif.linux.x86org.eclipse.equinox.p2.reconciler.dropins' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
@@ -16962,11 +16865,6 @@
             (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=sparc))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.solaris.x86org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=x86))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingwpf.win32.x86org.eclipse.equinox.p2.reconciler.dropins' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=wpf)(osgi.os=win32)(osgi.arch=x86))
@@ -17000,11 +16898,6 @@
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingcocoa.macosx.x86org.eclipse.core.runtime' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=cocoa)(osgi.os=macosx)(osgi.arch=x86))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.linux.x86_64org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=x86_64))
           </filter>
         </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingcocoa.macosx.x86org.eclipse.equinox.p2.reconciler.dropins' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
@@ -17045,11 +16938,6 @@
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingorg.eclipse.sdk.ide.config.cocoa.macosx.x86' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=cocoa)(osgi.os=macosx)(osgi.arch=x86))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingcarbon.macosx.x86org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=carbon)(osgi.os=macosx)(osgi.arch=x86))
           </filter>
         </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingorg.eclipse.sdk.ide.ini.motif.linux.x86' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
@@ -17162,11 +17050,6 @@
             (&amp; (osgi.ws=motif)(osgi.os=linux)(osgi.arch=x86))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingmotif.aix.ppcorg.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=motif)(osgi.os=aix)(osgi.arch=ppc))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.linux.x86org.eclipse.equinox.p2.reconciler.dropins' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=x86))
@@ -17182,11 +17065,6 @@
             (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=x86))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.linux.x86org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=x86))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingwin32.win32.x86org.eclipse.equinox.common' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))
@@ -17200,11 +17078,6 @@
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingwin32.win32.x86org.eclipse.equinox.ds' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingwpf.win32.x86org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=wpf)(osgi.os=win32)(osgi.arch=x86))
           </filter>
         </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingorg.eclipse.sdk.ide.ini.gtk.linux.x86_64' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
@@ -17235,11 +17108,6 @@
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.solaris.x86org.eclipse.equinox.p2.reconciler.dropins' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=x86))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingcarbon.macosx.ppcorg.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=carbon)(osgi.os=macosx)(osgi.arch=ppc))
           </filter>
         </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolingorg.eclipse.sdk.ide.config.carbon.macosx.ppc' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
@@ -17317,11 +17185,6 @@
             (&amp; (osgi.ws=wpf)(osgi.os=win32)(osgi.arch=x86))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingwin32.win32.x86org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.solaris.x86org.eclipse.equinox.event' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=x86))
@@ -17360,11 +17223,6 @@
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.solaris.sparcorg.eclipse.equinox.common' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=sparc))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingmotif.linux.x86org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=motif)(osgi.os=linux)(osgi.arch=x86))
           </filter>
         </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.linux.x86org.eclipse.equinox.ds' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
@@ -17442,11 +17300,6 @@
             (&amp; (osgi.ws=cocoa)(osgi.os=macosx)(osgi.arch=x86))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.linux.ppc64org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=ppc64))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.linux.x86_64org.eclipse.equinox.common' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=gtk)(osgi.os=linux)(osgi.arch=x86_64))
@@ -17465,11 +17318,6 @@
         <required namespace='org.eclipse.equinox.p2.iu' name='toolinggtk.solaris.sparcorg.eclipse.core.runtime' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
           <filter>
             (&amp; (osgi.ws=gtk)(osgi.os=solaris)(osgi.arch=sparc))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='toolingcocoa.macosx.x86org.eclipse.update.configurator' range='[3.6.0.I20100115-1100,3.6.0.I20100115-1100]'>
-          <filter>
-            (&amp; (osgi.ws=cocoa)(osgi.os=macosx)(osgi.arch=x86))
           </filter>
         </required>
       </requires>
@@ -17716,43 +17564,6 @@
           </instruction>
           <instruction key='configure'>
             setStartLevel(startLevel:1);markStarted(started: true);
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
-    <unit id='toolingwin32.win32.x86org.eclipse.update.configurator' version='3.6.0.I20100115-1100' singleton='false'>
-      <hostRequirements size='2'>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='3.3.100.v20090813'/>
-        <required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='[1.0.0,2.0.0)' greedy='false'/>
-      </hostRequirements>
-      <properties size='1'>
-        <property name='org.eclipse.equinox.p2.type.fragment' value='true'/>
-      </properties>
-      <provides size='2'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='toolingwin32.win32.x86org.eclipse.update.configurator' version='3.6.0.I20100115-1100'/>
-        <provided namespace='org.eclipse.equinox.p2.flavor' name='toolingwin32.win32.x86' version='1.0.0'/>
-      </provides>
-      <requires size='2'>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='3.3.100.v20090813'/>
-        <required namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' range='[1.0.0,2.0.0)' greedy='false'/>
-      </requires>
-      <filter>
-        (&amp; (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))
-      </filter>
-      <touchpoint id='null' version='0.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='4'>
-          <instruction key='install'>
-            installBundle(bundle:${artifact})
-          </instruction>
-          <instruction key='uninstall'>
-            uninstallBundle(bundle:${artifact})
-          </instruction>
-          <instruction key='unconfigure'>
-            setProgramProperty(propName:org.eclipse.update.reconcile, propValue:);
-          </instruction>
-          <instruction key='configure'>
-            setProgramProperty(propName:org.eclipse.update.reconcile, propValue:false);
           </instruction>
         </instructions>
       </touchpointData>

@@ -1119,7 +1119,6 @@
       </provides>
       <requires size='5'>
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='[3.2.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.100,4.0.0)'/>
         <required namespace='java.package' name='javax.xml.parsers' range='0.0.0'/>
         <required namespace='java.package' name='org.xml.sax' range='0.0.0'/>
         <required namespace='java.package' name='org.xml.sax.helpers' range='0.0.0'/>
@@ -1131,7 +1130,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.core.internal.plugins.CompatibilityActivator&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.core.runtime.compatibility; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.xml.sax,org.xml.sax.helpers&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.0.v20071008&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.core.boot,org.eclipse.core.internal.boot;x-internal:=true,org.eclipse.core.internal.compatibility;x-internal:=true,org.eclipse.core.internal.model;x-internal:=true,org.eclipse.core.internal.plugins;x-internal:=true,org.eclipse.core.runtime.model&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.2.0,4.0.0)&quot;;visibility:=reexport,org.eclipse.update.configurator;bundle-version=&quot;[3.1.100,4.0.0)&quot;;visibility:=reexport&#xA;
+            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.core.internal.plugins.CompatibilityActivator&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.core.runtime.compatibility; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.xml.sax,org.xml.sax.helpers&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.0.v20071008&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.core.boot,org.eclipse.core.internal.boot;x-internal:=true,org.eclipse.core.internal.compatibility;x-internal:=true,org.eclipse.core.internal.model;x-internal:=true,org.eclipse.core.internal.plugins;x-internal:=true,org.eclipse.core.runtime.model&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.2.0,4.0.0)&quot;;visibility:=reexport&#xA;
           </instruction>
         </instructions>
       </touchpointData>
@@ -2445,7 +2444,6 @@
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.update.core' range='[3.1.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui.forms' range='[3.2.0,4.0.0)'/>
         <required namespace='java.package' name='javax.xml.parsers' range='0.0.0'/>
         <required namespace='java.package' name='org.w3c.dom' range='0.0.0'/>
@@ -2458,7 +2456,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.update.internal.ui.UpdateUI&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.ui; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.w3c.dom,org.xml.sax&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.101.R34x_v20081128&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.update.internal.ui;x-friends:=&quot;org.eclipse.update.scheduler&quot;,org.eclipse.update.internal.ui.model;x-internal:=true,org.eclipse.update.internal.ui.parts;x-internal:=true,org.eclipse.update.internal.ui.preferences;x-internal:=true,org.eclipse.update.internal.ui.properties;x-internal:=true,org.eclipse.update.internal.ui.security;x-internal:=true,org.eclipse.update.internal.ui.views;x-internal:=true,org.eclipse.update.internal.ui.wizards;x-friends:=&quot;org.eclipse.update.scheduler&quot;,org.eclipse.update.ui&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.configurator;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui.forms;bundle-version=&quot;[3.2.0,4.0.0)&quot;&#xA;
+            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.update.internal.ui.UpdateUI&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.ui; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.w3c.dom,org.xml.sax&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.101.R34x_v20081128&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.update.internal.ui;x-friends:=&quot;org.eclipse.update.scheduler&quot;,org.eclipse.update.internal.ui.model;x-internal:=true,org.eclipse.update.internal.ui.parts;x-internal:=true,org.eclipse.update.internal.ui.preferences;x-internal:=true,org.eclipse.update.internal.ui.properties;x-internal:=true,org.eclipse.update.internal.ui.security;x-internal:=true,org.eclipse.update.internal.ui.views;x-internal:=true,org.eclipse.update.internal.ui.wizards;x-friends:=&quot;org.eclipse.update.scheduler&quot;,org.eclipse.update.ui&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui.forms;bundle-version=&quot;[3.2.0,4.0.0)&quot;&#xA;
           </instruction>
         </instructions>
       </touchpointData>
@@ -2539,7 +2537,6 @@
             (&amp;(osgi.os=macosx)(osgi.ws=carbon))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.update.configurator' range='[3.2.201.R34x_v20080819,3.2.201.R34x_v20080819]'/>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.simpleconfigurator' range='[1.0.0.v20080604,1.0.0.v20080604]'/>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.swt.win32.win32.x86' range='[3.4.1.v3452b,3.4.1.v3452b]'>
           <filter>
@@ -3687,7 +3684,6 @@
         <required namespace='osgi.bundle' name='org.eclipse.update.core' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.update.ui' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui' range='[3.2.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.100,4.0.0)'/>
       </requires>
       <artifacts size='1'>
         <artifact classifier='osgi.bundle' id='org.eclipse.update.scheduler' version='3.2.100.v20080404'/>
@@ -3696,7 +3692,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Export-Package: org.eclipse.update.internal.scheduler;x-internal:=true,org.eclipse.update.internal.scheduler.preferences;x-internal:=true&#xA;Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Localization: plugin&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.ui;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.update.configurator;bundle-version=&quot;[3.1.100,4.0.0)&quot;&#xA;Bundle-Activator: org.eclipse.update.internal.scheduler.UpdateSchedulerPlugin&#xA;Bundle-Name: %pluginName&#xA;Bundle-Version: 3.2.100.v20080404&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.scheduler; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Eclipse-LazyStart: true&#xA;
+            Bundle-ManifestVersion: 2&#xA;Export-Package: org.eclipse.update.internal.scheduler;x-internal:=true,org.eclipse.update.internal.scheduler.preferences;x-internal:=true&#xA;Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Localization: plugin&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.ui;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.2.0,4.0.0)&quot;&#xA;Bundle-Activator: org.eclipse.update.internal.scheduler.UpdateSchedulerPlugin&#xA;Bundle-Name: %pluginName&#xA;Bundle-Version: 3.2.100.v20080404&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.scheduler; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Eclipse-LazyStart: true&#xA;
           </instruction>
         </instructions>
       </touchpointData>
@@ -3837,7 +3833,6 @@
       </provides>
       <requires size='7'>
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='[3.1.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.core.net' range='[1.0.0,2.0.0)'/>
         <required namespace='java.package' name='javax.xml.parsers' range='0.0.0'/>
         <required namespace='java.package' name='org.w3c.dom' range='0.0.0'/>
@@ -3851,7 +3846,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.update.internal.core.UpdateCore&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.core; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.w3c.dom,org.xml.sax,org.xml.sax.helpers&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.202.R34x_v20081128&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.update.configuration,org.eclipse.update.core,org.eclipse.update.core.model,org.eclipse.update.internal.core;x-friends:=&quot;org.eclipse.update.ui,org.eclipse.update.scheduler,org.eclipse.pde.build&quot;,org.eclipse.update.internal.core.connection;x-internal:=true,org.eclipse.update.internal.jarprocessor;x-friends:=&quot;org.eclipse.pde.build&quot;,org.eclipse.update.internal.mirror;x-internal:=true,org.eclipse.update.internal.model;x-friends:=&quot;org.eclipse.update.ui&quot;,org.eclipse.update.internal.operations;x-friends:=&quot;org.eclipse.update.ui,org.eclipse.update.scheduler&quot;,org.eclipse.update.internal.provisional;x-internal:=true,org.eclipse.update.internal.search;x-friends:=&quot;org.eclipse.update.ui&quot;,org.eclipse.update.internal.security;x-internal:=true,org.eclipse.update.internal.verifier;x-internal:=true,org.eclipse.update.operations,org.eclipse.update.search,org.eclipse.update.standalone&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.update.configurator;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.core.net;bundle-version=&quot;[1.0.0,2.0.0)&quot;&#xA;
+            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.update.internal.core.UpdateCore&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.core; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.w3c.dom,org.xml.sax,org.xml.sax.helpers&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.202.R34x_v20081128&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.update.configuration,org.eclipse.update.core,org.eclipse.update.core.model,org.eclipse.update.internal.core;x-friends:=&quot;org.eclipse.update.ui,org.eclipse.update.scheduler,org.eclipse.pde.build&quot;,org.eclipse.update.internal.core.connection;x-internal:=true,org.eclipse.update.internal.jarprocessor;x-friends:=&quot;org.eclipse.pde.build&quot;,org.eclipse.update.internal.mirror;x-internal:=true,org.eclipse.update.internal.model;x-friends:=&quot;org.eclipse.update.ui&quot;,org.eclipse.update.internal.operations;x-friends:=&quot;org.eclipse.update.ui,org.eclipse.update.scheduler&quot;,org.eclipse.update.internal.provisional;x-internal:=true,org.eclipse.update.internal.search;x-friends:=&quot;org.eclipse.update.ui&quot;,org.eclipse.update.internal.security;x-internal:=true,org.eclipse.update.internal.verifier;x-internal:=true,org.eclipse.update.operations,org.eclipse.update.search,org.eclipse.update.standalone&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;[3.1.0,4.0.0)&quot;,org.eclipse.core.net;bundle-version=&quot;[1.0.0,2.0.0)&quot;&#xA;
           </instruction>
         </instructions>
       </touchpointData>
@@ -4150,7 +4145,6 @@
         <required namespace='osgi.bundle' name='org.eclipse.help' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui' range='[3.4.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui.views' range='[3.2.0,4.0.0)' optional='true'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.100,4.0.0)' optional='true'/>
         <required namespace='osgi.bundle' name='org.eclipse.update.core' range='[3.1.100,4.0.0)' optional='true'/>
         <required namespace='osgi.bundle' name='org.eclipse.update.ui' range='[3.1.100,4.0.0)' optional='true'/>
         <required namespace='osgi.bundle' name='org.eclipse.jface.text' range='[3.2.0,4.0.0)'/>
@@ -4164,7 +4158,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-Name: %Plugin.name&#xA;Bundle-ClassPath: .&#xA;Bundle-Version: 3.4.2.M20090127-1700&#xA;Import-Package: com.ibm.icu.text&#xA;Bundle-Activator: org.eclipse.ui.internal.ide.IDEWorkbenchPlugin&#xA;Bundle-Vendor: %Plugin.providerName&#xA;Require-Bundle: org.eclipse.core.resources;bundle-version=&quot;[3.2.0,4.0.0)&quot;;resolution:=optional,org.eclipse.core.runtime;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.filesystem;bundle-version=&quot;[1.0.0,2.0.0)&quot;,org.eclipse.help;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.4.0,4.0.0)&quot;,org.eclipse.ui.views;bundle-version=&quot;[3.2.0,4.0.0)&quot;;resolution:=optional,org.eclipse.update.configurator;bundle-version=&quot;[3.1.100,4.0.0)&quot;;resolution:=optional,org.eclipse.update.core;bundle-version=&quot;[3.1.100,4.0.0)&quot;;resolution:=optional,org.eclipse.update.ui;bundle-version=&quot;[3.1.100,4.0.0)&quot;;resolution:=optional,org.eclipse.jface.text;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.forms;bundle-version=&quot;[3.3.0,4.0.0)&quot;;resolution:=optional&#xA;Export-Package: org.eclipse.ui,org.eclipse.ui.actions,org.eclipse.ui.dialogs,org.eclipse.ui.ide,org.eclipse.ui.ide.dialogs,org.eclipse.ui.ide.fileSystem,org.eclipse.ui.ide.undo,org.eclipse.ui.internal.ide;x-friends:=&quot;org.eclipse.ui.ide.application&quot;,org.eclipse.ui.internal.ide.actions;x-internal:=true,org.eclipse.ui.internal.ide.commands;x-internal:=true,org.eclipse.ui.internal.ide.dialogs;x-friends:=&quot;org.eclipse.ui.ide.application&quot;,org.eclipse.ui.internal.ide.filesystem;x-internal:=true,org.eclipse.ui.internal.ide.handlers;x-internal:=true,org.eclipse.ui.internal.ide.misc;x-internal:=true,org.eclipse.ui.internal.ide.model;x-friends:=&quot;org.eclipse.ui.ide.application&quot;,org.eclipse.ui.internal.ide.registry;x-internal:=true,org.eclipse.ui.internal.ide.undo;x-friends:=&quot;org.eclipse.ui.ide.application&quot;,org.eclipse.ui.internal.ide.update;x-internal:=true,org.eclipse.ui.internal.views.bookmarkexplorer;x-internal:=true,org.eclipse.ui.internal.views.framelist;x-internal:=true,org.eclipse.ui.internal.views.markers;x-internal:=true,org.eclipse.ui.internal.views.navigator;x-internal:=true,org.eclipse.ui.internal.views.properties;x-internal:=true,org.eclipse.ui.internal.views.tasklist;x-internal:=true,org.eclipse.ui.internal.wizards.datatransfer;x-internal:=true,org.eclipse.ui.internal.wizards.newresource;x-internal:=true,org.eclipse.ui.model,org.eclipse.ui.part,org.eclipse.ui.views.bookmarkexplorer,org.eclipse.ui.views.framelist,org.eclipse.ui.views.markers,org.eclipse.ui.views.markers.internal;x-internal:=true,org.eclipse.ui.views.navigator,org.eclipse.ui.views.properties,org.eclipse.ui.views.tasklist,org.eclipse.ui.wizards.datatransfer,org.eclipse.ui.wizards.newresource&#xA;Bundle-SymbolicName: org.eclipse.ui.ide; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.4&#xA;Bundle-Localization: plugin&#xA;
+            Bundle-Name: %Plugin.name&#xA;Bundle-ClassPath: .&#xA;Bundle-Version: 3.4.2.M20090127-1700&#xA;Import-Package: com.ibm.icu.text&#xA;Bundle-Activator: org.eclipse.ui.internal.ide.IDEWorkbenchPlugin&#xA;Bundle-Vendor: %Plugin.providerName&#xA;Require-Bundle: org.eclipse.core.resources;bundle-version=&quot;[3.2.0,4.0.0)&quot;;resolution:=optional,org.eclipse.core.runtime;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.filesystem;bundle-version=&quot;[1.0.0,2.0.0)&quot;,org.eclipse.help;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.4.0,4.0.0)&quot;,org.eclipse.ui.views;bundle-version=&quot;[3.2.0,4.0.0)&quot;;resolution:=optional,org.eclipse.update.core;bundle-version=&quot;[3.1.100,4.0.0)&quot;;resolution:=optional,org.eclipse.update.ui;bundle-version=&quot;[3.1.100,4.0.0)&quot;;resolution:=optional,org.eclipse.jface.text;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui.forms;bundle-version=&quot;[3.3.0,4.0.0)&quot;;resolution:=optional&#xA;Export-Package: org.eclipse.ui,org.eclipse.ui.actions,org.eclipse.ui.dialogs,org.eclipse.ui.ide,org.eclipse.ui.ide.dialogs,org.eclipse.ui.ide.fileSystem,org.eclipse.ui.ide.undo,org.eclipse.ui.internal.ide;x-friends:=&quot;org.eclipse.ui.ide.application&quot;,org.eclipse.ui.internal.ide.actions;x-internal:=true,org.eclipse.ui.internal.ide.commands;x-internal:=true,org.eclipse.ui.internal.ide.dialogs;x-friends:=&quot;org.eclipse.ui.ide.application&quot;,org.eclipse.ui.internal.ide.filesystem;x-internal:=true,org.eclipse.ui.internal.ide.handlers;x-internal:=true,org.eclipse.ui.internal.ide.misc;x-internal:=true,org.eclipse.ui.internal.ide.model;x-friends:=&quot;org.eclipse.ui.ide.application&quot;,org.eclipse.ui.internal.ide.registry;x-internal:=true,org.eclipse.ui.internal.ide.undo;x-friends:=&quot;org.eclipse.ui.ide.application&quot;,org.eclipse.ui.internal.ide.update;x-internal:=true,org.eclipse.ui.internal.views.bookmarkexplorer;x-internal:=true,org.eclipse.ui.internal.views.framelist;x-internal:=true,org.eclipse.ui.internal.views.markers;x-internal:=true,org.eclipse.ui.internal.views.navigator;x-internal:=true,org.eclipse.ui.internal.views.properties;x-internal:=true,org.eclipse.ui.internal.views.tasklist;x-internal:=true,org.eclipse.ui.internal.wizards.datatransfer;x-internal:=true,org.eclipse.ui.internal.wizards.newresource;x-internal:=true,org.eclipse.ui.model,org.eclipse.ui.part,org.eclipse.ui.views.bookmarkexplorer,org.eclipse.ui.views.framelist,org.eclipse.ui.views.markers,org.eclipse.ui.views.markers.internal;x-internal:=true,org.eclipse.ui.views.navigator,org.eclipse.ui.views.properties,org.eclipse.ui.views.tasklist,org.eclipse.ui.wizards.datatransfer,org.eclipse.ui.wizards.newresource&#xA;Bundle-SymbolicName: org.eclipse.ui.ide; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.4&#xA;Bundle-Localization: plugin&#xA;
           </instruction>
         </instructions>
       </touchpointData>
@@ -4285,45 +4279,6 @@
         <instructions size='1'>
           <instruction key='manifest'>
             Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 2.0.0.v200806031607&#xA;Export-Package: javax.servlet.jsp; version=2.0,javax.servlet.jsp.el; version=2.0,javax.servlet.jsp.resources; version=2.0,javax.servlet.jsp.tagext; version=2.0&#xA;Bundle-SymbolicName: javax.servlet.jsp&#xA;Import-Package: javax.servlet; version=2.4,javax.servlet.http; version=2.4,javax.servlet.resources; version=2.4&#xA;Bundle-Localization: plugin&#xA;Bundle-Name: %bundleName&#xA;Bundle-Vendor: %bundleProvider&#xA;
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
-    <unit id='org.eclipse.update.configurator' version='3.2.201.R34x_v20080819'>
-      <update id='org.eclipse.update.configurator' range='[0.0.0,3.2.201.R34x_v20080819)' severity='0'/>
-      <properties size='6'>
-        <property name='df_LT.providerName' value='Eclipse.org'/>
-        <property name='df_LT.pluginName' value='Install/Update Configurator'/>
-        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
-        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
-        <property name='file.name' value='C:\Program Files\IBM\SDP70Shared\plugins\org.eclipse.update.configurator_3.2.201.R34x_v20080819.jar'/>
-        <property name='file.lastModified' value='1239159904980'/>
-      </properties>
-      <provides size='7'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.update.configurator' version='3.2.201.R34x_v20080819'/>
-        <provided namespace='osgi.bundle' name='org.eclipse.update.configurator' version='3.2.201.R34x_v20080819'/>
-        <provided namespace='java.package' name='org.eclipse.update.configurator' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.update.internal.configurator' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.update.internal.configurator.branding' version='0.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
-      </provides>
-      <requires size='6'>
-        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='[3.2.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.osgi' range='[3.2.0,4.0.0)'/>
-        <required namespace='java.package' name='javax.xml.parsers' range='0.0.0'/>
-        <required namespace='java.package' name='org.w3c.dom' range='0.0.0'/>
-        <required namespace='java.package' name='org.xml.sax' range='0.0.0'/>
-        <required namespace='java.package' name='org.xml.sax.helpers' range='0.0.0'/>
-      </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.eclipse.update.configurator' version='3.2.201.R34x_v20080819'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='manifest'>
-            Bundle-RequiredExecutionEnvironment: J2SE-1.4,CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.update.internal.configurator.ConfigurationActivator&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.update.configurator; singleton:=true&#xA;Import-Package: javax.xml.parsers,org.w3c.dom,org.xml.sax,org.xml.sax.helpers&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.2.201.R34x_v20080819&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.update.configurator,org.eclipse.update.internal.configurator;x-friends:=&quot;org.eclipse.update.core&quot;,org.eclipse.update.internal.configurator.branding;x-friends:=&quot;org.eclipse.update.core&quot;&#xA;Require-Bundle: org.eclipse.equinox.common;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.osgi;bundle-version=&quot;[3.2.0,4.0.0)&quot;&#xA;
           </instruction>
         </instructions>
       </touchpointData>
@@ -5110,7 +5065,6 @@
         <required namespace='osgi.bundle' name='org.eclipse.ui.ide' range='[3.4.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='[3.2.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.core.resources' range='[3.2.0,4.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.update.configurator' range='[3.1.100,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui' range='[3.3.0,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.ui.navigator.resources' range='[3.2.100,4.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.core.net' range='[1.0.0,2.0.0)'/>
@@ -5124,7 +5078,7 @@
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.4&#xA;Require-Bundle: org.eclipse.ui.ide;bundle-version=&quot;[3.4.0,4.0.0)&quot;,org.eclipse.core.runtime;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.resources;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.update.configurator;bundle-version=&quot;[3.1.100,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.3.0,4.0.0)&quot;,org.eclipse.ui.navigator.resources;bundle-version=&quot;[3.2.100,4.0.0)&quot;,org.eclipse.core.net;bundle-version=&quot;[1.0.0,2.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.100,4.0.0)&quot;,com.ibm.icu;bundle-version=&quot;3.8.1&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 1.0.1.M20090204-0800&#xA;Export-Package: org.eclipse.ui.internal.ide.application;x-internal:=true,org.eclipse.ui.internal.ide.application.dialogs;x-internal:=true&#xA;Bundle-SymbolicName: org.eclipse.ui.ide.application;singleton:=true&#xA;Bundle-Localization: plugin&#xA;Bundle-Name: %Plugin.name&#xA;Bundle-Vendor: %Plugin.providerName&#xA;
+            Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.4&#xA;Require-Bundle: org.eclipse.ui.ide;bundle-version=&quot;[3.4.0,4.0.0)&quot;,org.eclipse.core.runtime;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.core.resources;bundle-version=&quot;[3.2.0,4.0.0)&quot;,org.eclipse.ui;bundle-version=&quot;[3.3.0,4.0.0)&quot;,org.eclipse.ui.navigator.resources;bundle-version=&quot;[3.2.100,4.0.0)&quot;,org.eclipse.core.net;bundle-version=&quot;[1.0.0,2.0.0)&quot;,org.eclipse.update.core;bundle-version=&quot;[3.1.100,4.0.0)&quot;,com.ibm.icu;bundle-version=&quot;3.8.1&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 1.0.1.M20090204-0800&#xA;Export-Package: org.eclipse.ui.internal.ide.application;x-internal:=true,org.eclipse.ui.internal.ide.application.dialogs;x-internal:=true&#xA;Bundle-SymbolicName: org.eclipse.ui.ide.application;singleton:=true&#xA;Bundle-Localization: plugin&#xA;Bundle-Name: %Plugin.name&#xA;Bundle-Vendor: %Plugin.providerName&#xA;
           </instruction>
         </instructions>
       </touchpointData>
@@ -7823,13 +7777,6 @@
       </properties>
     </iuProperties>
     <iuProperties id='javax.servlet.jsp' version='2.0.0.v200806031607'>
-      <properties size='3'>
-        <property name='org.eclipse.equinox.p2.type.lock' value='1'/>
-        <property name='org.eclipse.equinox.p2.internal.inclusion.rules' value='OPTIONAL'/>
-        <property name='org.eclipse.equinox.p2.reconciler.dropins' value='true'/>
-      </properties>
-    </iuProperties>
-    <iuProperties id='org.eclipse.update.configurator' version='3.2.201.R34x_v20080819'>
       <properties size='3'>
         <property name='org.eclipse.equinox.p2.type.lock' value='1'/>
         <property name='org.eclipse.equinox.p2.internal.inclusion.rules' value='OPTIONAL'/>

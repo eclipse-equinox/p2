@@ -139,13 +139,6 @@
          unpack="false"/>     
          
    <plugin
-         id="org.eclipse.update.configurator"
-         download-size="0"
-         install-size="0"
-         version="3.2.100.v20070615"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.swt.win32.win32.x86"
          os="win32"
          ws="win32"
