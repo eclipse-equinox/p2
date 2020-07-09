@@ -32,8 +32,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.eclipse.osgi.util.NLS;
@@ -197,6 +196,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		clearNotFound(location);
 		boolean wasEnabled = isEnabled(location);
 		String nick = getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		String system = getRepositoryProperty(location, IRepository.PROP_SYSTEM);
 		//remove the repository so  event is broadcast and repositories can clear their caches
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
@@ -205,6 +205,11 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			IRepository<T> result = loadRepository(location, monitor, null, 0);
 			loaded = true;
 			setEnabled(location, wasEnabled);
+			if (result instanceof ICompositeRepository<?>) {
+				for (URI childLocation : ((ICompositeRepository<?>) result).getChildren()) {
+					basicRefreshRepository(childLocation, monitor);
+				}
+			}
 			return result;
 		} finally {
 			//if we failed to load, make sure the repository is not lost
@@ -212,6 +217,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				addRepository(location, wasEnabled, true);
 			if (nick != null)
 				setRepositoryProperty(location, IRepository.PROP_NICKNAME, nick);
+			if (system != null) {
+				setRepositoryProperty(location, IRepository.PROP_SYSTEM, system);
+			}
 		}
 	}
 
