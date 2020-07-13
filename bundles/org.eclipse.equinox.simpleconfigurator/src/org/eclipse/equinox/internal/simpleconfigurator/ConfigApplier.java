@@ -101,12 +101,24 @@ class ConfigApplier {
 			if (toUninstall != null)
 				toRefresh.addAll(uninstallBundles(toUninstall));
 		}
-		refreshPackages(toRefresh.toArray(new Bundle[toRefresh.size()]), manipulatingContext);
-		if (toRefresh.size() > 0) {
-			Bundle[] additionalRefresh = getAdditionalRefresh(prevouslyResolved, toRefresh);
-			if (additionalRefresh.length > 0)
-				refreshPackages(additionalRefresh, manipulatingContext);
+		if (!toRefresh.isEmpty()) {
+			if (manipulatingContext.getBundle().getState() == Bundle.STARTING) {
+				// This is the startup of simple configurator.
+				// Do the full refresh of all bundles to force re-resolve
+				refreshAllBundles();
+			} else {
+				// In this case the platform is up, we should try to do an incremental resolve
+				// TODO consider removing this case because it can cause inconsistent results.
+				refreshPackages(toRefresh.toArray(new Bundle[toRefresh.size()]), manipulatingContext);
+				if (toRefresh.size() > 0) {
+					Bundle[] additionalRefresh = getAdditionalRefresh(prevouslyResolved, toRefresh);
+					if (additionalRefresh.length > 0)
+						refreshPackages(additionalRefresh, manipulatingContext);
+				}
 		}
+
+		}
+
 		startBundles(toStart.toArray(new Bundle[toStart.size()]));
 	}
 
@@ -213,6 +225,47 @@ class ConfigApplier {
 			if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
 				resolved.add(bundle);
 		return resolved;
+	}
+
+	private void refreshAllBundles() {
+		Set<Bundle> toRefresh = new HashSet<>(frameworkWiring.getRemovalPendingBundles());
+		Set<Bundle> doNotRefresh = getDoNotRefresh();
+		for (Bundle bundle : manipulatingContext.getBundles()) {
+			if (!doNotRefresh.contains(bundle)) {
+				toRefresh.add(bundle);
+			}
+		}
+
+		CountDownLatch latch = new CountDownLatch(1);
+		FrameworkListener listener = event -> {
+			if (event.getType() == FrameworkEvent.PACKAGES_REFRESHED) {
+				latch.countDown();
+			}
+		};
+		frameworkWiring.refreshBundles(toRefresh, listener);
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			// ignore
+		}
+	}
+
+	private Set<Bundle> getDoNotRefresh() {
+		Set<Bundle> doNotRefresh = new HashSet<>();
+		doNotRefresh.add(manipulatingContext.getBundle());
+		Bundle systemBundle = manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION);
+		doNotRefresh.add(systemBundle);
+		BundleWiring systemWiring = systemBundle.adapt(BundleWiring.class);
+		if (systemWiring != null) {
+			for (BundleWire hostWire : systemWiring.getProvidedWires(HostNamespace.HOST_NAMESPACE)) {
+				Bundle systemFragment = hostWire.getRequirer().getBundle();
+				if (systemFragment.getState() != Bundle.UNINSTALLED
+						&& systemFragment.adapt(BundleWiring.class) != null) {
+					doNotRefresh.add(systemFragment);
+				}
+			}
+		}
+		return doNotRefresh;
 	}
 
 	private Collection<Bundle> uninstallBundles(HashSet<BundleInfo> toUninstall) {
