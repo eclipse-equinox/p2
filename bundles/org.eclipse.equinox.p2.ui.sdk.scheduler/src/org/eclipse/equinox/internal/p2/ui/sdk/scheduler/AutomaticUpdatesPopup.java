@@ -128,7 +128,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 
 	@Override
 	public int open() {
-		prefListener = event -> handlePreferenceChange(event);
+		prefListener = this::handlePreferenceChange;
 		prefs.addPropertyChangeListener(prefListener);
 		return super.open();
 	}

@@ -201,7 +201,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	public static void reallyReadOnly(File folder, boolean recurse) {
 		reallyReadOnly(folder);
 		if (folder.exists() && recurse) {
-			File[] dirs = folder.listFiles((FileFilter) pathname -> pathname.isDirectory());
+			File[] dirs = folder.listFiles((FileFilter) File::isDirectory);
 			for (File dir : dirs) {
 				reallyReadOnly(dir, true);
 			}
@@ -228,7 +228,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	public static void removeReallyReadOnly(File folder, boolean recurse) {
 		removeReallyReadOnly(folder);
 		if (folder.exists() && recurse) {
-			File[] dirs = folder.listFiles((FileFilter) pathname -> pathname.isDirectory());
+			File[] dirs = folder.listFiles((FileFilter) File::isDirectory);
 			for (File dir : dirs) {
 				removeReallyReadOnly(dir, true);
 			}

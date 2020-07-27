@@ -113,12 +113,9 @@ public class ExecutablesDescriptor {
 	}
 
 	private static ExecutablesDescriptor createMacDescriptor(String os, String executable, File location) {
-		File files[] = location.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				int length = name.length();
-				return length > 3 && name.substring(length - 4, length).equalsIgnoreCase(".app"); //$NON-NLS-1$
-			}
+		File files[] = location.listFiles((FilenameFilter) (dir, name) -> {
+			int length = name.length();
+			return length > 3 && name.substring(length - 4, length).equalsIgnoreCase(".app"); //$NON-NLS-1$
 		});
 		ExecutablesDescriptor result = new ExecutablesDescriptor(os, executable, location, files);
 		result.iniFile = new File(location, executable + ".ini"); //$NON-NLS-1$

@@ -126,7 +126,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 							computeRemediationOperation(operation, ui, monitor);
 						}
 					}
-					Display.getDefault().asyncExec(() -> planChanged());
+					Display.getDefault().asyncExec(this::planChanged);
 				});
 			} catch (InterruptedException e) {
 				operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent), new ArrayList<IInstallableUnit>()) {

@@ -229,7 +229,7 @@ public class InstallWizard extends WizardWithLicenses {
 							new String[] { ProvUIMessages.LaunchUpdateManagerButton, IDialogConstants.CANCEL_LABEL },
 							0);
 					if (dialog.open() == 0)
-						BusyIndicator.showWhile(shell.getDisplay(), () -> UpdateManagerCompatibility.openInstaller());
+						BusyIndicator.showWhile(shell.getDisplay(), UpdateManagerCompatibility::openInstaller);
 				});
 			}
 			return installHandlerStatus;

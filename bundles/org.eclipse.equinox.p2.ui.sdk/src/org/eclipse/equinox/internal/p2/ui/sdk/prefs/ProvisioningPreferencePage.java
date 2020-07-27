@@ -104,7 +104,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		//See https://bugs.eclipse.org/bugs/show_bug.cgi?id=313242
 		Link link = new Link(container, SWT.PUSH);
 		link.setText(ProvSDKMessages.ProvisioningPreferencePage_UninstallUpdateLink);
-		link.addListener(SWT.Selection, event -> ProvUI.openInstallationDialog(event));
+		link.addListener(SWT.Selection, ProvUI::openInstallationDialog);
 
 		initialize();
 

@@ -67,7 +67,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 			// Log the detailed message
 			StatusManager.getManager().handle(ProvSDKUIActivator.getNoSelfProfileStatus());
 		} else {
-			BusyIndicator.showWhile(getShell().getDisplay(), () -> doExecuteAndLoad());
+			BusyIndicator.showWhile(getShell().getDisplay(), this::doExecuteAndLoad);
 		}
 		return null;
 	}

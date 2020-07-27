@@ -38,7 +38,7 @@ public abstract class RefreshAction extends ProvisioningAction {
 	}
 
 	private void hookKeyListener(Control control) {
-		control.addKeyListener(KeyListener.keyReleasedAdapter(e -> handleKeyReleased(e)));
+		control.addKeyListener(KeyListener.keyReleasedAdapter(this::handleKeyReleased));
 	}
 
 	@Override

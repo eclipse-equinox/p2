@@ -113,7 +113,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 		if (!status.isOK() || operation.getPossibleUpdates() == null || operation.getPossibleUpdates().length == 0) {
 			if (PlatformUI.isWorkbenchRunning()) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> clearUpdateAffordances());
+				PlatformUI.getWorkbench().getDisplay().asyncExec(this::clearUpdateAffordances);
 			}
 			return;
 		}

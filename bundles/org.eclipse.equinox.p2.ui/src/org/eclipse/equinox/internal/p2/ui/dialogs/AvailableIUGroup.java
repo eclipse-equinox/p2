@@ -339,7 +339,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// to make a repo visible.
 		if (!(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO)) {
 			if (Display.getCurrent() == null)
-				display.asyncExec(() -> updateAvailableViewState());
+				display.asyncExec(this::updateAvailableViewState);
 			else
 				updateAvailableViewState();
 			return;
