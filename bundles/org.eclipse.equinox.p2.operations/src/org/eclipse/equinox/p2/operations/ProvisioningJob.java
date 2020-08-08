@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,7 +25,7 @@ import org.eclipse.osgi.util.NLS;
  * can be run in the background by scheduling them, or they can
  * be run by a client in a modal context.  An additional progress monitor
  * can be set into the job for progress reporting.
- * 
+ *
  * @since 2.0
  */
 public abstract class ProvisioningJob extends Job {
@@ -51,8 +51,7 @@ public abstract class ProvisioningJob extends Job {
 		@Override
 		public void clearBlocked() {
 			super.clearBlocked();
-			if (additionalMonitor instanceof IProgressMonitorWithBlocking)
-				((IProgressMonitorWithBlocking) additionalMonitor).clearBlocked();
+			additionalMonitor.clearBlocked();
 		}
 
 		@Override
@@ -77,8 +76,7 @@ public abstract class ProvisioningJob extends Job {
 		@Override
 		public void setBlocked(IStatus reason) {
 			super.setBlocked(reason);
-			if (additionalMonitor instanceof IProgressMonitorWithBlocking)
-				((IProgressMonitorWithBlocking) additionalMonitor).setBlocked(reason);
+			additionalMonitor.setBlocked(reason);
 		}
 
 		@Override
@@ -108,9 +106,9 @@ public abstract class ProvisioningJob extends Job {
 
 	/**
 	 * Constant which indicates that the job does not require a restart
-	 * upon completion.  This constant is typically used for operations that 
+	 * upon completion.  This constant is typically used for operations that
 	 * do not modify the running profile.
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final int RESTART_NONE = 1;
@@ -120,16 +118,16 @@ public abstract class ProvisioningJob extends Job {
 	 * restart or apply the configuration changes in order to pick up the
 	 * changes performed by the job.  This constant is typically used for
 	 * operations that modify the running profile.
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final int RESTART_OR_APPLY = 2;
 	/**
 	 * Constant which indicates that the job requires the user to restart
 	 * in order to pick up the changes performed by the job.  This constant
-	 * is typically used for operations that modify the running profile but don't 
+	 * is typically used for operations that modify the running profile but don't
 	 * handle dynamic changes without restarting the workbench.
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final int RESTART_ONLY = 3;
@@ -141,7 +139,7 @@ public abstract class ProvisioningJob extends Job {
 	 * Create a provisioning job with the given name that uses the
 	 * provided provisioning session for retrieving any services
 	 * needed.
-	 * 
+	 *
 	 * @param name the name of the job
 	 * @param session the session providing the services
 	 */
@@ -153,7 +151,7 @@ public abstract class ProvisioningJob extends Job {
 	/**
 	 * Return the provisioning session that is used by the receiver
 	 * when retrieving necessary provisioning services.
-	 * 
+	 *
 	 * @return the session
 	 * @see ProvisioningSession
 	 */
@@ -177,10 +175,10 @@ public abstract class ProvisioningJob extends Job {
 	 * Executes this job.  Returns the result of the execution.
 	 * This method is overridden to look for a wrapped progress monitor for
 	 * reporting progress.
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
-	 * 
+	 *
 	 */
 	@Override
 	public final IStatus run(IProgressMonitor monitor) {
@@ -199,20 +197,20 @@ public abstract class ProvisioningJob extends Job {
 	 * the current thread.  This method can be called directly by
 	 * clients, or in the course of running the job in the
 	 * background.
-	 * 
+	 *
 	 * @param monitor
 	 *            the progress monitor to use for the operation
-	 *            
+	 *
 	 * @return a status indicating the result of the operation.
-	 * 
+	 *
 	 */
 	public abstract IStatus runModal(IProgressMonitor monitor);
 
 	/**
 	 * Return the restart policy that is appropriate for this job.
-	 * 
+	 *
 	 * @return a constant indicating the restart policy
-	 * 
+	 *
 	 * @see #RESTART_NONE
 	 * @see #RESTART_ONLY
 	 * @see #RESTART_OR_APPLY
@@ -223,7 +221,7 @@ public abstract class ProvisioningJob extends Job {
 
 	/**
 	 * Return an error status that can be used to report the specified exception.
-	 * 
+	 *
 	 * @param message the message that should be used in the status
 	 * @param e the exception to be reported
 	 * @return a status that can be used to describe the exception
