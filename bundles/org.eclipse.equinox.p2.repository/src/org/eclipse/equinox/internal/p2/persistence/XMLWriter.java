@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 
 public class XMLWriter implements XMLConstants {
 
-	static final boolean useWhitespace = Boolean.getBoolean("p2.useWhitespace"); //$NON-NLS-1$
+	static final boolean ignoreWhitespace = Boolean.getBoolean("p2.ignoreWhitespace"); //$NON-NLS-1$
 
 	public static class ProcessingInstruction {
 
@@ -84,7 +84,7 @@ public class XMLWriter implements XMLConstants {
 		if (this.open) {
 			println('>');
 		}
-		if (useWhitespace) {
+		if (!ignoreWhitespace) {
 			indent();
 		}
 		print('<');
@@ -312,23 +312,23 @@ public class XMLWriter implements XMLConstants {
 	}
 
 	private void println(char c) {
-		if (useWhitespace) {
-			this.pw.println(c);
-		} else {
+		if (ignoreWhitespace) {
 			this.pw.print(c);
+		} else {
+			this.pw.println(c);
 		}
 	}
 
 	private void println(String s) {
-		if (useWhitespace) {
-			this.pw.println(s);
-		} else {
+		if (ignoreWhitespace) {
 			this.pw.print(s);
+		} else {
+			this.pw.println(s);
 		}
 	}
 
 	private void println() {
-		if (useWhitespace) {
+		if (!ignoreWhitespace) {
 			this.pw.println();
 		}
 	}
@@ -345,7 +345,7 @@ public class XMLWriter implements XMLConstants {
 		if (s.length() == 0) {
 			println();
 		} else {
-			if (useWhitespace) {
+			if (!ignoreWhitespace) {
 				indent();
 			}
 			println(escape ? escape(s) : s);
@@ -353,7 +353,7 @@ public class XMLWriter implements XMLConstants {
 	}
 
 	private void indent() {
-		if (useWhitespace) {
+		if (!ignoreWhitespace) {
 			for (int i = this.elements.size(); i > 0; i -= 1) {
 				print(this.indent);
 			}

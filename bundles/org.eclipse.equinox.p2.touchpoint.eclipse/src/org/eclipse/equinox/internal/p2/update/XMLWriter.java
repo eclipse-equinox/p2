@@ -25,7 +25,7 @@ import java.util.Map;
 public class XMLWriter extends PrintWriter {
 	protected int tab;
 
-	static final boolean useWhitespace = Boolean.getBoolean("p2.useWhitespace"); //$NON-NLS-1$
+	static final boolean ignoreWhitespace = Boolean.getBoolean("p2.ignoreWhitespace"); //$NON-NLS-1$
 
 	/* constants */
 	protected static final String XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"; //$NON-NLS-1$
@@ -71,9 +71,9 @@ public class XMLWriter extends PrintWriter {
 				sb.append("\""); //$NON-NLS-1$
 			}
 		sb.append(">"); //$NON-NLS-1$
-		if (shouldTab && useWhitespace)
+		if (shouldTab && !ignoreWhitespace)
 			printTabulation();
-		if (newLine && useWhitespace)
+		if (newLine && !ignoreWhitespace)
 			println(sb.toString());
 		else
 			print(sb.toString());
@@ -110,16 +110,16 @@ public class XMLWriter extends PrintWriter {
 		// Encode special XML characters into the equivalent character references.
 		// These five are defined by default for all XML documents.
 		switch (c) {
-			case '<' :
-				return "lt"; //$NON-NLS-1$
-			case '>' :
-				return "gt"; //$NON-NLS-1$
-			case '"' :
-				return "quot"; //$NON-NLS-1$
-			case '\'' :
-				return "apos"; //$NON-NLS-1$
-			case '&' :
-				return "amp"; //$NON-NLS-1$
+		case '<':
+			return "lt"; //$NON-NLS-1$
+		case '>':
+			return "gt"; //$NON-NLS-1$
+		case '"':
+			return "quot"; //$NON-NLS-1$
+		case '\'':
+			return "apos"; //$NON-NLS-1$
+		case '&':
+			return "amp"; //$NON-NLS-1$
 		}
 		return null;
 	}
