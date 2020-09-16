@@ -446,8 +446,10 @@ public class BundlesActionTest extends ActionTest {
 	}
 
 	private void expectOtherAdviceQueries(String bundleName, Version bundleVersion) {
-		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST);
-		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST);
+		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, ICapabilityAdvice.class))
+				.andReturn(Collections.emptyList());
+		expect(publisherInfo.getAdvice(null, false, bundleName, bundleVersion, IAdditionalInstallableUnitAdvice.class))
+				.andReturn(Collections.emptyList());
 		expect(publisherInfo.getAdvice(null, true, bundleName, bundleVersion, IBundleShapeAdvice.class)).andReturn(null);
 	}
 

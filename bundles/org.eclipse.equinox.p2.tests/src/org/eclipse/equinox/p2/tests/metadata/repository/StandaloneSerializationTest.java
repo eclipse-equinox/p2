@@ -45,7 +45,7 @@ public class StandaloneSerializationTest {
 	public void testNothingToWrite() throws IOException {
 		File f = File.createTempFile(name.getMethodName(), "iu");
 		try (OutputStream os = new FileOutputStream(f)) {
-			new IUSerializer(os).write(Collections.EMPTY_LIST);
+			new IUSerializer(os).write(Collections.emptyList());
 		}
 		assertTrue(f.length() > 0);
 		f.delete();
@@ -56,7 +56,7 @@ public class StandaloneSerializationTest {
 		// Write file w/o content
 		File f = File.createTempFile(name.getMethodName(), "iu");
 		try (OutputStream os = new FileOutputStream(f)) {
-			new IUSerializer(os).write(Collections.EMPTY_LIST);
+			new IUSerializer(os).write(Collections.emptyList());
 		}
 
 		// Read file written
