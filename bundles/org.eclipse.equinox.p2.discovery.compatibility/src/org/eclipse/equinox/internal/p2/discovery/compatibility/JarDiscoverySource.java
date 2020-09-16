@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2020 Tasktop Technologies and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,8 +14,8 @@
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
 
 /**
@@ -42,10 +42,8 @@ public class JarDiscoverySource extends AbstractCatalogSource {
 		try {
 			String prefix = jarFile.toURI().toURL().toExternalForm();
 
-			return new URL("jar:" + prefix + "!/" + URLEncoder.encode(resourceName, "utf-8")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return new URL("jar:" + prefix + "!/" + URLEncoder.encode(resourceName, StandardCharsets.UTF_8)); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (MalformedURLException e) {
-			throw new IllegalStateException(e);
-		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}
 	}
