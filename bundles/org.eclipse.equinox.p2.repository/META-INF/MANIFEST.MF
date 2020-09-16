@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.repository;singleton:=true
-Bundle-Version: 2.4.800.qualifier
+Bundle-Version: 2.5.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.repository.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -39,10 +39,9 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;
  org.eclipse.equinox.p2.repository.spi;version="2.0.0"
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry;bundle-version="3.3.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.crypto,
- javax.xml.parsers,
  org.eclipse.core.runtime.jobs,
  org.eclipse.core.runtime.preferences;version="3.2.0",
  org.eclipse.equinox.internal.p2.core,
@@ -61,8 +60,6 @@ Import-Package: javax.crypto,
  org.osgi.framework;version="1.6.0",
  org.osgi.service.packageadmin;version="1.2.0",
  org.osgi.service.prefs;version="1.0.0",
- org.osgi.util.tracker;version="1.4.0",
- org.xml.sax,
- org.xml.sax.helpers
+ org.osgi.util.tracker;version="1.4.0"
 Service-Component: OSGI-INF/cacheManager.xml
 Automatic-Module-Name: org.eclipse.equinox.p2.repository

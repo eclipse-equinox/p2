@@ -14,9 +14,9 @@
 package org.eclipse.equinox.internal.p2.repository;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -92,22 +92,7 @@ public class Credentials {
 	 */
 	public static UIServices.AuthenticationInfo forLocation(URI location, boolean prompt, UIServices.AuthenticationInfo lastUsed) throws LoginCanceledException, CoreException {
 		String host = uriToHost(location);
-		String nodeKey;
-		try {
-			nodeKey = URLEncoder.encode(host, "UTF-8"); //$NON-NLS-1$
-		} catch (UnsupportedEncodingException e2) {
-			// fall back to default platform encoding
-			try {
-				// Uses getProperty "file.encoding" instead of using deprecated URLEncoder.encode(String location)
-				// which does the same, but throws NPE on missing property.
-				String enc = System.getProperty("file.encoding");//$NON-NLS-1$
-				if (enc == null)
-					throw new UnsupportedEncodingException("No UTF-8 encoding and missing system property: file.encoding"); //$NON-NLS-1$
-				nodeKey = URLEncoder.encode(host, enc);
-			} catch (UnsupportedEncodingException e) {
-				throw internalError(e);
-			}
-		}
+		String nodeKey = URLEncoder.encode(host, StandardCharsets.UTF_8);
 		if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 			DebugHelper.debug("Credentials", "forLocation:ENTER", // //$NON-NLS-1$ //$NON-NLS-2$
 					new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
