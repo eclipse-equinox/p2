@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 SAP SE and others.
+ * Copyright (c) 2015, 2020 SAP SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,9 @@
 package org.eclipse.equinox.p2.tests;
 
 import java.util.Collection;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public class AdditionalCoreMatchers {
 
@@ -24,7 +26,7 @@ public class AdditionalCoreMatchers {
 	 * @see CoreMatchers#hasItem(Matcher)
 	 */
 	public static <T> Matcher<Collection<? extends T>> hasSize(final int size) {
-		return new TypeSafeMatcher<Collection<? extends T>>() {
+		return new TypeSafeMatcher<>() {
 
 			@Override
 			public void describeTo(Description description) {

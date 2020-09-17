@@ -148,7 +148,7 @@ public class AggregateQueryTest {
 
 	@Test
 	public void testIntersection() {
-		IQuery<String> ABC = new MatchQuery<String>() {
+		IQuery<String> ABC = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(String candidate) {
 				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
@@ -157,7 +157,7 @@ public class AggregateQueryTest {
 			}
 		};
 
-		IQuery<String> BCDE = new MatchQuery<String>() {
+		IQuery<String> BCDE = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(String candidate) {
 				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))
@@ -210,7 +210,7 @@ public class AggregateQueryTest {
 
 	@Test
 	public void testUnion() {
-		IQuery<String> ABC = new MatchQuery<String>() {
+		IQuery<String> ABC = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(String candidate) {
 				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
@@ -219,7 +219,7 @@ public class AggregateQueryTest {
 			}
 		};
 
-		IQuery<String> BCDE = new MatchQuery<String>() {
+		IQuery<String> BCDE = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(String candidate) {
 				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))

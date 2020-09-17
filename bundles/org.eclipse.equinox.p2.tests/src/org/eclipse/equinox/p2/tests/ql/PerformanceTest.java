@@ -58,7 +58,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IQuery<IInstallableUnit> expressionQuery = QueryUtil.createMatchQuery("id ~= /com.ibm.*/");
-		IQuery<IInstallableUnit> matchQuery = new MatchQuery<IInstallableUnit>() {
+		IQuery<IInstallableUnit> matchQuery = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(IInstallableUnit candidate) {
 				return candidate.getId().startsWith("com.ibm.");
@@ -93,7 +93,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IQuery<IInstallableUnit> expressionQuery = QueryUtil.createMatchQuery("id == 'org.eclipse.core.resources'");
-		IQuery<IInstallableUnit> matchQuery = new MatchQuery<IInstallableUnit>() {
+		IQuery<IInstallableUnit> matchQuery = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(IInstallableUnit candidate) {
 				return candidate.getId().equals("org.eclipse.core.resources");
@@ -128,7 +128,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IQuery<IInstallableUnit> expressionQuery = QueryUtil.createMatchQuery("providedCapabilities.exists(x | x.namespace == 'org.eclipse.equinox.p2.iu' && x.name == 'org.eclipse.core.resources')");
-		IQuery<IInstallableUnit> matchQuery = new MatchQuery<IInstallableUnit>() {
+		IQuery<IInstallableUnit> matchQuery = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(IInstallableUnit candidate) {
 				for (IProvidedCapability capability : candidate.getProvidedCapabilities())
@@ -165,7 +165,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
-		IQuery<IInstallableUnit> matchQuery = new MatchQuery<IInstallableUnit>() {
+		IQuery<IInstallableUnit> matchQuery = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(IInstallableUnit candidate) {
 				return candidate.getId().startsWith("org.eclipse.");
@@ -180,7 +180,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				IQueryResult<IInstallableUnit> everything = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
-				Iterator<IInstallableUnit> matchIter = new MatchIteratorFilter<IInstallableUnit>(everything.iterator()) {
+				Iterator<IInstallableUnit> matchIter = new MatchIteratorFilter<>(everything.iterator()) {
 					@Override
 					protected boolean isMatch(IInstallableUnit candidate) {
 						return candidate.getId().startsWith("org.eclipse.");

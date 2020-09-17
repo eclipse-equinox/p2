@@ -71,7 +71,7 @@ public class CompoundQueryableTest {
 		return Arrays.asList(array).iterator();
 	}
 
-	IQueryable<Integer> queryable1 = new IQueryable<Integer>() {
+	IQueryable<Integer> queryable1 = new IQueryable<>() {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5};
 
 		@Override
@@ -88,7 +88,7 @@ public class CompoundQueryableTest {
 		}
 	};
 
-	IQueryable<Integer> queryable2 = new IQueryable<Integer>() {
+	IQueryable<Integer> queryable2 = new IQueryable<>() {
 		Integer[] elements = new Integer[] {4, 6, 8, 10, 12};
 
 		@Override
@@ -105,7 +105,7 @@ public class CompoundQueryableTest {
 		}
 	};
 
-	IQueryable<Integer> queryable3 = new IQueryable<Integer>() {
+	IQueryable<Integer> queryable3 = new IQueryable<>() {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 
 		@Override
@@ -122,7 +122,7 @@ public class CompoundQueryableTest {
 		}
 	};
 
-	IQuery<Integer> matchQuery = new MatchQuery<Integer>() {
+	IQuery<Integer> matchQuery = new MatchQuery<>() {
 
 		@Override
 		public boolean isMatch(Integer candidate) {
@@ -133,7 +133,7 @@ public class CompoundQueryableTest {
 		}
 	};
 
-	IQuery<Integer> matchMod4query = new MatchQuery<Integer>() {
+	IQuery<Integer> matchMod4query = new MatchQuery<>() {
 		@Override
 		public boolean isMatch(Integer candidate) {
 			int x = candidate.intValue();
@@ -143,7 +143,7 @@ public class CompoundQueryableTest {
 		}
 	};
 
-	IQuery<Integer> contextQuery = new ContextQuery<Integer>() {
+	IQuery<Integer> contextQuery = new ContextQuery<>() {
 
 		@Override
 		public Collector<Integer> perform(Iterator<Integer> iterator) {
@@ -159,7 +159,7 @@ public class CompoundQueryableTest {
 
 	};
 
-	IQuery<Integer> greatestNumberQuery = new ContextQuery<Integer>() {
+	IQuery<Integer> greatestNumberQuery = new ContextQuery<>() {
 		@Override
 		public Collector<Integer> perform(Iterator<Integer> iterator) {
 			Collector<Integer> result = new Collector<>();

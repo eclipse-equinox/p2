@@ -242,7 +242,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 
 	public static Matcher<IPublisherResult> containsIU(final String id) {
 		final IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id);
-		return new TypeSafeMatcher<IPublisherResult>() {
+		return new TypeSafeMatcher<>() {
 
 			@Override
 			public void describeTo(Description description) {
@@ -259,7 +259,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 
 	public static Matcher<IPublisherResult> containsUniqueIU(final String id) {
 		final IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id);
-		return new TypeSafeMatcher<IPublisherResult>() {
+		return new TypeSafeMatcher<>() {
 
 			@Override
 			public void describeTo(Description description) {
