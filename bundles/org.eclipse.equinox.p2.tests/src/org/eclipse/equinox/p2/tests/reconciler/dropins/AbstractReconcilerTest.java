@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2020 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -112,6 +112,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			} catch (IOException e) {
 				fail("0.99", e);
 			}
+		} else if (file.getName().toLowerCase().endsWith(".dmg")) {
+			extractDmg("1.1", file);
 		} else {
 			untar("1.0", file);
 		}
@@ -180,6 +182,17 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		run(message, new String[] {"cp", file.getAbsolutePath(), gzFile.getAbsolutePath()});
 		run(message, new String[] {"tar", "-zpxf", gzFile.getAbsolutePath()});
 		gzFile.delete();
+	}
+
+	/*
+	 * extract dmg given file in the output directory.
+	 */
+	private void extractDmg(String message, File file) {
+		output.mkdirs();
+		run(message, new String[] { "hdiutil", "attach", file.getAbsolutePath() });
+		run(message, new String[] { "cp", "-r", "/Volumes/Eclipse/Eclipse.app", output.getAbsolutePath() + "/" });
+		run(message, new String[] { "hdiutil", "detach", "/Volumes/Eclipse" });
+		run(message, new String[] { "xattr", "-rc", output.getAbsolutePath() + "/Eclipse.app" });
 	}
 
 	/*
