@@ -31,7 +31,8 @@ public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 		// use test query provider
 		// This is really not how the default policy should be used in practice,
 		// but we need to reset it for the tests.
-		//		ProvUI.setQueryProvider(new MockQueryProvider(getMockQuery(), ProvisioningUI.getDefaultUI()));
+		// ProvUI.setQueryProvider(new MockQueryProvider(getMockQuery(),
+		// ProvisioningUI.getDefaultUI()));
 		// some of the test repos are set up as system repos so we need to
 		// query all repos, not just non-system repos
 		// TODO consider evolving these tests to distinguish between system
@@ -47,11 +48,11 @@ public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 		RepositoryTracker manipulator = ProvisioningUI.getDefaultUI().getRepositoryTracker();
 		manipulator.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		manipulator.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
-		//		ProvUI.setQueryProvider(null);
+		// ProvUI.setQueryProvider(null);
 	}
 
 	protected IQuery<?> getMockQuery() {
-		return new MatchQuery<Object>() {
+		return new MatchQuery<>() {
 			@Deprecated
 			@Override
 			public boolean isMatch(Object candidate) {
