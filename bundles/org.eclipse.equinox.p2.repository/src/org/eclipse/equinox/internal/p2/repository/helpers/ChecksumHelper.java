@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2015, 2018 Mykola Nikishov
+ *  Copyright (c) 2015, 2020 Mykola Nikishov
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -46,10 +46,7 @@ public class ChecksumHelper {
 						.substring(property.length()) // ".sha3"
 						.substring(1); // "sha3"
 				String checksumValue = Objects.requireNonNull(p.getValue());
-				String duplicatedChecksum = checksumsByAlgo.put(checksumAlgorithmId, checksumValue);
-				if (duplicatedChecksum != null)
-					// should never happen - duplicated checksum
-					;
+				checksumsByAlgo.put(checksumAlgorithmId, checksumValue);
 			}
 		}
 
