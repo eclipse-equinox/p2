@@ -59,4 +59,20 @@ public class IUDetail implements IAdaptable {
 	public int hashCode() {
 		return iu.hashCode();
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if (iu != null) {
+			sb.append("iu="); //$NON-NLS-1$
+			sb.append(iu);
+			sb.append(", "); //$NON-NLS-1$
+		}
+		if (referredRepo != null) {
+			sb.append("referredRepo="); //$NON-NLS-1$
+			sb.append(referredRepo);
+		}
+		sb.append("]"); //$NON-NLS-1$
+		return sb.toString();
+	}
 }

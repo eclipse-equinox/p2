@@ -328,27 +328,32 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	public Object[] getCheckedIUElements() {
 		Object[] checked = viewer.getCheckedElements();
 		List<IUDetail> checkedFeatures = new ArrayList<>(checked.length);
+		boolean useLatest = installLatest.getSelection();
 		for (Object checked1 : checked) {
 			IUDetail feature = (IUDetail) checked1;
 			IUDetail[] existingFeatures = newProposedFeature.get(feature);
-			if (existingFeatures == null)
+			if (existingFeatures == null) {
 				checkedFeatures.add(feature);
-			else {
+			} else {
 				IUDetail matchPolicy = null;
 				for (IUDetail f : existingFeatures) {
-					if (matchPolicy == null)
+					if (matchPolicy == null) {
 						matchPolicy = f;
-					// here use exact match
-					else if (matchPolicy.getIU().getVersion().compareTo(f.getIU().getVersion()) < 0) {
-						if (installLatest.getSelection())
-							matchPolicy = f;
-						else
-							continue;
-					} else
-						matchPolicy = f;
+					} else {
+						if (matchPolicy.getIU().getVersion().compareTo(f.getIU().getVersion()) < 0) {
+							if (useLatest) {
+								matchPolicy = f;
+							}
+						} else {
+							if (!useLatest) {
+								matchPolicy = f;
+							}
+						}
+					}
 				}
-				if (matchPolicy != null)
+				if (matchPolicy != null) {
 					checkedFeatures.add(matchPolicy);
+				}
 			}
 		}
 		return checkedFeatures.toArray(new IUDetail[checkedFeatures.size()]);
