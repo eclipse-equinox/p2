@@ -748,14 +748,14 @@ public class IconExe {
 	}
 
 	static long read8(RandomAccessFile raf) throws IOException {
-		int b0 = raf.readByte() & 0xFF;
-		int b1 = raf.readByte() & 0xFF;
-		int b2 = raf.readByte() & 0xFF;
-		int b3 = raf.readByte() & 0xFF;
-		int b4 = raf.readByte() & 0xFF;
-		int b5 = raf.readByte() & 0xFF;
-		int b6 = raf.readByte() & 0xFF;
-		int b7 = raf.readByte() & 0xFF;
+		long b0 = raf.readByte() & 0xFF;
+		long b1 = raf.readByte() & 0xFF;
+		long b2 = raf.readByte() & 0xFF;
+		long b3 = raf.readByte() & 0xFF;
+		long b4 = raf.readByte() & 0xFF;
+		long b5 = raf.readByte() & 0xFF;
+		long b6 = raf.readByte() & 0xFF;
+		long b7 = raf.readByte() & 0xFF;
 		return b7 << 56 | b6 << 48 | b5 << 40 | b4 << 32 | b3 << 24 | b2 << 16 | b1 << 8 | b0;
 	}
 
