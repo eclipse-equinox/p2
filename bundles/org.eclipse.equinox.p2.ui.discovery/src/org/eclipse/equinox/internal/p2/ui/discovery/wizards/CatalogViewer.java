@@ -275,7 +275,7 @@ public class CatalogViewer extends FilteredViewer {
 			return null;
 		}
 		String regex = filterText;
-		regex.replace("\\", "\\\\").replace("?", ".").replace("*", ".*?"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		regex = regex.replace("\\", "\\\\").replace("?", ".").replace("*", ".*?"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 		return Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	}
 
