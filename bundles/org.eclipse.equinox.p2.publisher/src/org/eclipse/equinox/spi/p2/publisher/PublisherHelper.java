@@ -224,7 +224,7 @@ public class PublisherHelper {
 		if (version == null) {
 			return Version.MAX_VERSION;
 		}
-		if (version.getMajor() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE) {
+		if (version.getMajor() == Integer.MAX_VALUE && version.getMinor() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE) {
 			return Version.MAX_VERSION;
 		}
 		return Version.createOSGi(version.getMajor(), version.getMinor(), version.getMicro(), version.getQualifier());
