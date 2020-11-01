@@ -93,6 +93,11 @@ public class PreviousConfigurationFinder {
 		}
 
 		@Override
+		public int hashCode() {
+			return Objects.hash(major, minor, service);
+		}
+
+		@Override
 		public String toString() {
 			return "" + major + '.' + minor + '.' + service; //$NON-NLS-1$
 		}
