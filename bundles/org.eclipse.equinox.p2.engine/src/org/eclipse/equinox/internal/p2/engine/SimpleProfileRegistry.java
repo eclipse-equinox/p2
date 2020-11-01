@@ -905,7 +905,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			return false;
 		}
 
-		long currentTimestamp = (timestamps.length == 0) ? -1 : timestamps[timestamps.length - 1];
+		long currentTimestamp = timestamps[timestamps.length - 1];
 		if (profile.getTimestamp() != currentTimestamp) {
 			if (DebugHelper.DEBUG_PROFILE_REGISTRY)
 				DebugHelper.debug(PROFILE_REGISTRY, "check timestamp: expected " + profile.getTimestamp() + " but was " + currentTimestamp); //$NON-NLS-1$ //$NON-NLS-2$
