@@ -367,7 +367,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 	@Override
 	public void setCheckedElements(Object[] elements) {
-		new UnsupportedOperationException();
+		throw new UnsupportedOperationException();
 	}
 
 	public ProvisioningContext getProvisioningContext() {

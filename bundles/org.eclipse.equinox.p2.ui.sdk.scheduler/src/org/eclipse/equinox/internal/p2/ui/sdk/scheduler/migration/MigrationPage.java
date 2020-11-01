@@ -815,7 +815,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 
 	@Override
 	public void setCheckedElements(Object[] elements) {
-		new UnsupportedOperationException();
+		throw new UnsupportedOperationException();
 	}
 
 	// Look for update of the current selected installation units and replace the

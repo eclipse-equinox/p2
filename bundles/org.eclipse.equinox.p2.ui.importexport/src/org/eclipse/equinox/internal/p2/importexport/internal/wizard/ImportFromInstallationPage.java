@@ -418,7 +418,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 	@Override
 	public void setCheckedElements(Object[] elements) {
-		new UnsupportedOperationException();
+		throw new UnsupportedOperationException();
 	}
 
 	public ProvisioningContext getProvisioningContext() {
