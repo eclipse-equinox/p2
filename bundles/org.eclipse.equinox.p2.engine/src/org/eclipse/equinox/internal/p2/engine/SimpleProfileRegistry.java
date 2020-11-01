@@ -527,6 +527,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		// protect against NPE
 		if (profileDirectories == null) {
 			parser.getProfileMap();
+			return Collections.emptyMap();
 		}
 		for (File profileDirectorie : profileDirectories) {
 			String directoryName = profileDirectorie.getName();
