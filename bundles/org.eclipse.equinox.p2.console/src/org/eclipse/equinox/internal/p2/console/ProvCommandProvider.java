@@ -705,7 +705,7 @@ public class ProvCommandProvider implements CommandProvider {
 	 * messages for all commands (if command is not specified)
 	 */
 	private String getHelp(String commandName) {
-		StringBuffer help = new StringBuffer();
+		StringBuilder help = new StringBuilder();
 
 		if (commandsHelp == null) {
 			initializeCommandsHelp();
@@ -733,14 +733,14 @@ public class ProvCommandProvider implements CommandProvider {
 		return help.toString();
 	}
 
-	private void addHeader(String header, StringBuffer help) {
+	private void addHeader(String header, StringBuilder help) {
 		help.append("---"); //$NON-NLS-1$
 		help.append(header);
 		help.append("---"); //$NON-NLS-1$
 		help.append(NEW_LINE);
 	}
 
-	private void addCommand(String command, String description, StringBuffer help) {
+	private void addCommand(String command, String description, StringBuilder help) {
 		help.append(TAB);
 		help.append(command);
 		help.append(" "); //$NON-NLS-1$
