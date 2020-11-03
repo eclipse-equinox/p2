@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 /**
  * ResolutionResult describes problems in a provisioning plan in a structured
  * way that can be presented to a user.
- * 
+ *
  * @since 2.0
  */
 public class ResolutionResult {
@@ -71,7 +71,7 @@ public class ResolutionResult {
 
 	public String getSummaryReport() {
 		if (summaryStatus != null) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			appendDetailText(summaryStatus, buffer, -1, false);
 			return buffer.toString();
 		}
@@ -80,7 +80,7 @@ public class ResolutionResult {
 
 	// Answers null if there is nothing to say about the ius
 	public String getDetailedReport(IInstallableUnit[] ius) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (IInstallableUnit iu : ius) {
 			MultiStatus iuStatus = iuToStatusMap.get(iu);
 			if (iuStatus != null)
@@ -92,7 +92,7 @@ public class ResolutionResult {
 		return report;
 	}
 
-	void appendDetailText(IStatus status, StringBuffer buffer, int indent, boolean includeTopLevelMessage) {
+	void appendDetailText(IStatus status, StringBuilder buffer, int indent, boolean includeTopLevelMessage) {
 		if (includeTopLevelMessage) {
 			for (int i = 0; i < indent; i++)
 				buffer.append(NESTING_INDENT);
