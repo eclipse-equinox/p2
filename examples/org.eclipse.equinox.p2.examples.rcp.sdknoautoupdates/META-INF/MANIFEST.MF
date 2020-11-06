@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Sdknoautoupdates
 Bundle-SymbolicName: org.eclipse.equinox.p2.examples.rcp.sdknoautoupdates; singleton:=true
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Activator: org.eclipse.equinox.p2.examples.rcp.sdknoautoupdates.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -23,5 +23,5 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ecf.provider.filetransfer.httpclient45;bundle-version="1.0.0",
  org.eclipse.equinox.p2.ui.sdk;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: org.eclipse.equinox.p2.examples.rcp.sdknoautoupdates
