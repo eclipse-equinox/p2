@@ -11,7 +11,4 @@
   <artifactId>org.eclipse.equinox.p2.artifact.checksums.bouncycastle</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
-  <properties>
-    <skipAPIAnalysis>true</skipAPIAnalysis>
-  </properties>
 </project>
