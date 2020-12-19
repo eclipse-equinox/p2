@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2020 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Prashant Deva - Bug 194674 [prov] Provide write access to metadata repository
+ *    Christoph Läubrich - Bug 481443 - CLassCastException While Downloading Repository that loads fine in RCP target
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
@@ -296,11 +297,14 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 					return oldValue;
 				save();
 			}
-			//force repository manager to reload this repository because it caches properties
-			MetadataRepositoryManager manager = (MetadataRepositoryManager) getProvisioningAgent()
+			IMetadataRepositoryManager manager = getProvisioningAgent()
 					.getService(IMetadataRepositoryManager.class);
-			if (manager.removeRepository(getLocation()))
-				manager.addRepository(this);
+			if (manager instanceof MetadataRepositoryManager) {
+				// force repository manager to reload this repository because it caches
+				// properties
+				if (manager.removeRepository(getLocation()))
+					((MetadataRepositoryManager) manager).addRepository(this);
+			}
 			return oldValue;
 		} finally {
 			if (monitor != null)

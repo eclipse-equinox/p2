@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,7 @@
  *     Ray Braithwood (ray@genuitec.com) - fix for bug 220605
  *     Code 9 - ongoing development
  *     Sonatype, Inc. - transport split
+ *     Christoph Läubrich - Bug 481443 - CLassCastException While Downloading Repository that loads fine in RCP target
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
@@ -60,7 +61,11 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 		try {
 			initializeRepository(repository, location, monitor);
 		} catch (Exception e) {
-			resetCache(repository);
+			try {
+				resetCache(repository);
+			} catch (RuntimeException rte) {
+				e.addSuppressed(rte);
+			}
 			if (e instanceof ProvisionException)
 				throw (ProvisionException) e;
 			if (e instanceof OperationCanceledException)
