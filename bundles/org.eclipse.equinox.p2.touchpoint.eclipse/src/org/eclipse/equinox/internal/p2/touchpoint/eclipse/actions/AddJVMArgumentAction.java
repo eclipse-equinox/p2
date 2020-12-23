@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2020 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -10,6 +10,7 @@
  * SPDX-License-Identifier: EPL-2.0
  * 
  * Contributors: IBM Corporation - initial API and implementation
+ * Christoph Läubrich - Bug 569891
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
@@ -59,11 +60,11 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		File storageArea = (File) parameters.get(ActionConstants.PARM_PROFILE_DATA_DIRECTORY);
 		try {
 			if (arg.startsWith(XMS))
-				addByteArg(arg, XMS, launcherData, storageArea);
+				addByteArg(arg.trim(), XMS, launcherData, storageArea);
 			else if (arg.startsWith(XMX))
-				addByteArg(arg, XMX, launcherData, storageArea);
+				addByteArg(arg.trim(), XMX, launcherData, storageArea);
 			else if (arg.startsWith(XX_MAX_PERM_SIZE))
-				addByteArg(arg, XX_MAX_PERM_SIZE, launcherData, storageArea);
+				addByteArg(arg.trim(), XX_MAX_PERM_SIZE, launcherData, storageArea);
 			else
 				// Argument with a non-byte value, no special handling
 				launcherData.addJvmArg(arg);
