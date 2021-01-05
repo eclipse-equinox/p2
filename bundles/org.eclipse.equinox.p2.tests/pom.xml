@@ -44,6 +44,19 @@
 					</dependencies>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-p2-extras-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>compare-attached-artifacts-with-release</id>
+						<configuration>
+						<!-- this bundle has intentionally corrupt zips inside that make content comparison fail, so let's skip it -->
+							<skip>true</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>

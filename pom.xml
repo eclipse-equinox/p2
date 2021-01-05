@@ -161,8 +161,6 @@
     <module>bundles/org.eclipse.equinox.p2.tests.ui</module>
     <module>bundles/org.eclipse.equinox.p2.tests.verifier</module>
 
-    <module>bundles/org.eclipse.equinox.p2.artifact.checksums.bouncycastle</module>
-
     <module>examples</module>
   </modules>
 
