@@ -16,8 +16,7 @@ package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.osgi.framework.*;
 
@@ -54,34 +53,37 @@ public class Mapper {
 		}
 	}
 
-	public URI map(URI repositoryLocation, String classifier, String id, String version, String format) {
+	public URI map(URI repositoryLocation, String classifier, String id, String version, String format,
+			Map<String, String> properties) {
 		String locationString = URIUtil.toUnencodedString(repositoryLocation);
-		Dictionary<String, Object> values = new Hashtable<>(5);
-		if (repositoryLocation != null)
-			values.put(REPOURL, locationString);
-
-		if (classifier != null)
-			values.put(CLASSIFIER, classifier);
-
-		if (id != null)
-			values.put(ID, id);
-
-		if (version != null)
-			values.put(VERSION, version);
-
-		if (format != null)
-			values.put(FORMAT, format);
+		Dictionary<String, String> allProperties = new Hashtable<>(properties.size() + 4);
+		if (repositoryLocation != null) {
+			allProperties.put(REPOURL, locationString);
+		}
+		if (classifier != null) {
+			allProperties.put(CLASSIFIER, classifier);
+		}
+		if (id != null) {
+			allProperties.put(ID, id);
+		}
+		if (version != null) {
+			allProperties.put(VERSION, version);
+		}
+		if (format != null) {
+			allProperties.put(FORMAT, format);
+		}
 
 		for (int i = 0; i < filters.length; i++) {
-			if (filters[i].match(values))
-				return doReplacement(outputStrings[i], locationString, classifier, id, version, format);
+			if (filters[i].match(allProperties))
+				return doReplacement(outputStrings[i], locationString, classifier, id, version, format, properties);
 		}
 		return null;
 	}
 
-	private URI doReplacement(String pattern, String repoLocation, String classifier, String id, String version, String format) {
+	private URI doReplacement(String pattern, String repoLocation, String classifier, String id, String version,
+			String format, Map<String, String> properties) {
 		try {
-			// currently our mapping rules assume the repo URL is not "/" terminated. 
+			// currently our mapping rules assume the repo URL is not "/" terminated.
 			// This may be the case for repoURLs in the root of a URL space e.g. root of a jar file or file:/c:/
 			if (repoLocation.endsWith("/")) //$NON-NLS-1$
 				repoLocation = repoLocation.substring(0, repoLocation.length() - 1);
@@ -109,6 +111,8 @@ public class Mapper {
 					varValue = repoLocation;
 				} else if (varName.equalsIgnoreCase(FORMAT)) {
 					varValue = format;
+				} else if (properties.containsKey(varName)) {
+					varValue = properties.get(varName);
 				}
 				if (varValue == null)
 					varValue = ""; //$NON-NLS-1$
