@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26,7 +26,7 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
+import org.eclipse.equinox.p2.internal.repository.comparator.ArtifactChecksumComparator;
 import org.eclipse.equinox.p2.internal.repository.mirroring.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -38,6 +38,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class MirrorApplication extends AbstractApplication implements IApplication, IExecutableExtension {
+	private static final String MD5_COMPARATOR = ArtifactChecksumComparator.COMPARATOR_ID + ".md5"; //$NON-NLS-1$
 	private static final String LOG_ROOT = "p2.mirror"; //$NON-NLS-1$
 	private static final String MIRROR_MODE = "metadataOrArtifacts"; //$NON-NLS-1$
 
@@ -97,8 +98,10 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	}
 
 	/*
-	 * The old "org.eclipse.equinox.p2.artifact.repository.mirrorApplication" application only does artifacts
-	 * Similary, "org.eclipse.equinox.p2.metadata.repository.mirrorApplication" only does metadata
+	 * The old "org.eclipse.equinox.p2.artifact.repository.mirrorApplication"
+	 * application only does artifacts Similary,
+	 * "org.eclipse.equinox.p2.metadata.repository.mirrorApplication" only does
+	 * metadata
 	 */
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) {
@@ -141,8 +144,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			else if (args[i].equalsIgnoreCase("-properties")) //$NON-NLS-1$
 				mirrorProperties = true;
 
-			// check for args with parameters. If we are at the last argument or 
-			// if the next one has a '-' as the first character, then we can't have 
+			// check for args with parameters. If we are at the last argument or
+			// if the next one has a '-' as the first character, then we can't have
 			// an arg with a param so continue.
 			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
 				continue;
@@ -153,7 +156,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 				comparatorID = arg;
 			else if (args[i - 1].equalsIgnoreCase("-comparatorLog")) //$NON-NLS-1$
 				comparatorLogLocation = new File(arg);
-			else if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$	
+			else if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$
 				destination.setName(arg);
 			else if (args[i - 1].equalsIgnoreCase("-writeMode")) { //$NON-NLS-1$
 				if (args[i].equalsIgnoreCase("clean")) //$NON-NLS-1$
@@ -237,7 +240,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 		Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, raw);
 		mirror.setCompare(compare);
-		mirror.setComparatorId(comparatorID == null ? MD5ArtifactComparator.MD5_COMPARATOR_ID : comparatorID);
+		mirror.setComparatorId(comparatorID == null ? MD5_COMPARATOR : comparatorID);
 		mirror.setBaseline(initializeBaseline());
 		mirror.setValidate(validate);
 		mirror.setCompareExclusions(compareExclusions);
@@ -245,7 +248,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		mirror.setIncludePacked(includePacked);
 		mirror.setMirrorProperties(mirrorProperties);
 
-		// If IUs have been specified then only they should be mirrored, otherwise mirror everything.
+		// If IUs have been specified then only they should be mirrored, otherwise
+		// mirror everything.
 		if (iusSpecified)
 			mirror.setArtifactKeys(keys.toArray(new IArtifactKey[keys.size()]));
 
@@ -275,9 +279,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	/*
 	 * Ensure all mandatory parameters have been set. Throw an exception if there
-	 * are any missing. We don't require the user to specify the artifact repository here,
-	 * we will default to the ones already registered in the manager. (callers are free
-	 * to add more if they wish)
+	 * are any missing. We don't require the user to specify the artifact repository
+	 * here, we will default to the ones already registered in the manager. (callers
+	 * are free to add more if they wish)
 	 */
 	private void validate() throws ProvisionException {
 		if (sourceRepositories.isEmpty())
@@ -299,7 +303,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			for (String rootIU : rootIUs) {
 				String[] segments = getArrayArgsFromString(rootIU, "/"); //$NON-NLS-1$
 				VersionRange range = segments.length > 1 ? VersionRange.create(segments[1]) : null;
-				Iterator<IInstallableUnit> queryResult = metadataRepo.query(QueryUtil.createIUQuery(segments[0], range), null).iterator();
+				Iterator<IInstallableUnit> queryResult = metadataRepo
+						.query(QueryUtil.createIUQuery(segments[0], range), null).iterator();
 				while (queryResult.hasNext())
 					sourceIUs.add(queryResult.next());
 			}
@@ -369,8 +374,12 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		if (slicingOptions.getInstallTimeLikeResolution())
 			return performResolution(monitor);
 
-		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(), slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(), slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly(), slicingOptions.followOnlyFilteredRequirements());
-		IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
+		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(),
+				slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(),
+				slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly(),
+				slicingOptions.followOnlyFilteredRequirements());
+		IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]),
+				monitor);
 
 		if (slice != null && slicingOptions.latestVersionOnly()) {
 			IQueryResult<IInstallableUnit> queryResult = slice.query(QueryUtil.createLatestIUQuery(), monitor);
@@ -406,14 +415,16 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	}
 
 	/*
-	 * Set whether or not the application should be calling a comparator when mirroring.
+	 * Set whether or not the application should be calling a comparator when
+	 * mirroring.
 	 */
 	public void setCompare(boolean value) {
 		compare = value;
 	}
 
 	/*
-	 * Set whether or not we should ignore errors when running the mirror application.
+	 * Set whether or not we should ignore errors when running the mirror
+	 * application.
 	 */
 	public void setIgnoreErrors(boolean value) {
 		failOnError = !value;
@@ -441,7 +452,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	}
 
 	/*
-	 * Set the location of the log for mirroring. 
+	 * Set the location of the log for mirroring.
 	 */
 	public void setLog(File mirrorLog) {
 		this.mirrorLogFile = mirrorLog;

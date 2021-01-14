@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2020 IBM Corporation and others.
+ *  Copyright (c) 2008, 2021 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -39,7 +39,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
+import org.eclipse.equinox.p2.internal.repository.comparator.ArtifactChecksumComparator;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
@@ -1162,7 +1162,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	@DataPoints
-	public static String[] defaultComparator = {null, MD5ArtifactComparator.MD5_COMPARATOR_ID};
+	public static String[] defaultComparator = { null, ArtifactChecksumComparator.COMPARATOR_ID + ".md5" };
 
 	@Theory
 	public void testCompareUsingMD5Comparator(String comparator) {
