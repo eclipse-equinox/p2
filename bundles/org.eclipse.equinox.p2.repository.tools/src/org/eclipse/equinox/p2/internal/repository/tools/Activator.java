@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2021 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -51,8 +51,8 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
-	 * Construct and return a URI from the given String. Log
-	 * and return null if there was a problem.
+	 * Construct and return a URI from the given String. Log and return null if
+	 * there was a problem.
 	 */
 	public static URI getURI(String spec) {
 		if (spec == null)
@@ -76,10 +76,11 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
-	 * Return the artifact repository manager. Throw an exception if it cannot be obtained.
+	 * Return the artifact repository manager. Throw an exception if it cannot be
+	 * obtained.
 	 */
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = getAgent().getService(IArtifactRepositoryManager.class);
 		if (manager == null)
 			throw new ProvisionException(Messages.no_artifactRepo_manager);
 		return manager;
@@ -89,17 +90,18 @@ public class Activator implements BundleActivator {
 	 * Return the profile registry. Throw an exception if it cannot be found.
 	 */
 	static IProfileRegistry getProfileRegistry() throws ProvisionException {
-		IProfileRegistry registry = (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = getAgent().getService(IProfileRegistry.class);
 		if (registry == null)
 			throw new ProvisionException(Messages.no_profile_registry);
 		return registry;
 	}
 
 	/*
-	 * Return the metadata repository manager. Throw an exception if it cannot be obtained.
+	 * Return the metadata repository manager. Throw an exception if it cannot be
+	 * obtained.
 	 */
 	public static IMetadataRepositoryManager getMetadataRepositoryManager() throws ProvisionException {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
 		if (manager == null)
 			throw new ProvisionException(Messages.no_metadataRepo_manager);
 		return manager;

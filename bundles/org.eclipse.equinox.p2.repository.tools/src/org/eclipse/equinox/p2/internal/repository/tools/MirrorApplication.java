@@ -353,7 +353,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		IProfileRegistry registry = Activator.getProfileRegistry();
 		String profileId = "MirrorApplication-" + System.currentTimeMillis(); //$NON-NLS-1$
 		IProfile profile = registry.addProfile(profileId, slicingOptions.getFilter());
-		IPlanner planner = (IPlanner) Activator.getAgent().getService(IPlanner.SERVICE_NAME);
+		IPlanner planner = Activator.getAgent().getService(IPlanner.class);
 		if (planner == null)
 			throw new IllegalStateException();
 		IProfileChangeRequest pcr = planner.createChangeRequest(profile);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -35,7 +35,7 @@ import org.osgi.framework.ServiceReference;
 public abstract class AbstractApplication {
 	protected boolean removeAddedRepositories = true;
 
-	protected List<RepositoryDescriptor> sourceRepositories = new ArrayList<>(); //List of repository descriptors
+	protected List<RepositoryDescriptor> sourceRepositories = new ArrayList<>(); // List of repository descriptors
 	protected List<URI> artifactReposToRemove = new ArrayList<>();
 	protected List<URI> metadataReposToRemove = new ArrayList<>();
 	protected List<IInstallableUnit> sourceIUs = new ArrayList<>();
@@ -59,22 +59,24 @@ public abstract class AbstractApplication {
 	}
 
 	private void setupAgent() throws ProvisionException {
-		//note if we ever wanted these applications to act on a different agent than
-		//the currently running system we would need to set it here
-		ServiceReference<IProvisioningAgent> agentRef = Activator.getBundleContext().getServiceReference(IProvisioningAgent.class);
+		// note if we ever wanted these applications to act on a different agent than
+		// the currently running system we would need to set it here
+		ServiceReference<IProvisioningAgent> agentRef = Activator.getBundleContext()
+				.getServiceReference(IProvisioningAgent.class);
 		if (agentRef != null) {
 			agent = Activator.getBundleContext().getService(agentRef);
 			if (agent != null)
 				return;
 		}
-		//there is no agent around so we need to create one
-		ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getBundleContext().getServiceReference(IProvisioningAgentProvider.class);
+		// there is no agent around so we need to create one
+		ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getBundleContext()
+				.getServiceReference(IProvisioningAgentProvider.class);
 		if (providerRef == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
 		IProvisioningAgentProvider provider = Activator.getBundleContext().getService(providerRef);
 		if (provider == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
-		//obtain agent for currently running system
+		// obtain agent for currently running system
 		agent = provider.createAgent(null);
 		Activator.getBundleContext().ungetService(providerRef);
 	}
@@ -101,11 +103,11 @@ public abstract class AbstractApplication {
 	}
 
 	protected IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		return agent.getService(IMetadataRepositoryManager.class);
 	}
 
 	protected IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		return agent.getService(IArtifactRepositoryManager.class);
 	}
 
 	public void initializeRepos(IProgressMonitor progress) throws ProvisionException {
@@ -136,21 +138,26 @@ public abstract class AbstractApplication {
 		processDestinationRepos(artifactRepositoryManager, metadataRepositoryManager);
 	}
 
-	//Helper to add a repository. It takes care of adding the repos to the deletion list and loading it 
-	protected IMetadataRepository addRepository(IMetadataRepositoryManager manager, URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+	// Helper to add a repository. It takes care of adding the repos to the deletion
+	// list and loading it
+	protected IMetadataRepository addRepository(IMetadataRepositoryManager manager, URI location, int flags,
+			IProgressMonitor monitor) throws ProvisionException {
 		if (!manager.contains(location))
 			metadataReposToRemove.add(location);
 		return manager.loadRepository(location, flags, monitor);
 	}
 
-	//Helper to add a repository. It takes care of adding the repos to the deletion list and loading it
-	protected IArtifactRepository addRepository(IArtifactRepositoryManager manager, URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+	// Helper to add a repository. It takes care of adding the repos to the deletion
+	// list and loading it
+	protected IArtifactRepository addRepository(IArtifactRepositoryManager manager, URI location, int flags,
+			IProgressMonitor monitor) throws ProvisionException {
 		if (!manager.contains(location))
 			artifactReposToRemove.add(location);
 		return manager.loadRepository(location, flags, monitor);
 	}
 
-	private void processDestinationRepos(IArtifactRepositoryManager artifactRepositoryManager, IMetadataRepositoryManager metadataRepositoryManager) throws ProvisionException {
+	private void processDestinationRepos(IArtifactRepositoryManager artifactRepositoryManager,
+			IMetadataRepositoryManager metadataRepositoryManager) throws ProvisionException {
 		RepositoryDescriptor artifactRepoDescriptor = null;
 		RepositoryDescriptor metadataRepoDescriptor = null;
 
@@ -180,13 +187,15 @@ public abstract class AbstractApplication {
 		return destinationArtifactRepository;
 	}
 
-	protected IMetadataRepository initializeDestination(RepositoryDescriptor toInit, IMetadataRepositoryManager mgr) throws ProvisionException {
+	protected IMetadataRepository initializeDestination(RepositoryDescriptor toInit, IMetadataRepositoryManager mgr)
+			throws ProvisionException {
 		try {
-			IMetadataRepository repository = addRepository(mgr, toInit.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
+			IMetadataRepository repository = addRepository(mgr, toInit.getRepoLocation(),
+					IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
 			if (initDestinationRepository(repository, toInit))
 				return repository;
 		} catch (ProvisionException e) {
-			//fall through and create a new repository below
+			// fall through and create a new repository below
 		}
 
 		IMetadataRepository source = null;
@@ -194,45 +203,57 @@ public abstract class AbstractApplication {
 			if (toInit.getFormat() != null)
 				source = mgr.loadRepository(toInit.getFormat(), 0, null);
 		} catch (ProvisionException e) {
-			//Ignore.
+			// Ignore.
 		}
-		//This code assumes source has been successfully loaded before this point
-		//No existing repository; create a new repository at destinationLocation but with source's attributes.
+		// This code assumes source has been successfully loaded before this point
+		// No existing repository; create a new repository at destinationLocation but
+		// with source's attributes.
 		try {
-			IMetadataRepository result = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : toInit.getRepoLocation().toString()), IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
+			IMetadataRepository result = mgr.createRepository(toInit.getRepoLocation(),
+					toInit.getName() != null ? toInit.getName()
+							: (source != null ? source.getName() : toInit.getRepoLocation().toString()),
+					IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
 			if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED))
 				result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
 			return (IMetadataRepository) RepositoryHelper.validDestinationRepository(result);
 		} catch (UnsupportedOperationException e) {
-			throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()), e.getCause());
+			throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()),
+					e.getCause());
 		}
 	}
 
-	protected IArtifactRepository initializeDestination(RepositoryDescriptor toInit, IArtifactRepositoryManager mgr) throws ProvisionException {
+	protected IArtifactRepository initializeDestination(RepositoryDescriptor toInit, IArtifactRepositoryManager mgr)
+			throws ProvisionException {
 		try {
-			IArtifactRepository repository = addRepository(mgr, toInit.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
+			IArtifactRepository repository = addRepository(mgr, toInit.getRepoLocation(),
+					IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
 			if (initDestinationRepository(repository, toInit))
 				return repository;
 		} catch (ProvisionException e) {
-			//fall through and create a new repository below
+			// fall through and create a new repository below
 		}
 		IArtifactRepository source = null;
 		try {
 			if (toInit.getFormat() != null)
 				source = mgr.loadRepository(toInit.getFormat(), 0, null);
 		} catch (ProvisionException e) {
-			//Ignore.
+			// Ignore.
 		}
-		//This code assumes source has been successfully loaded before this point
-		//No existing repository; create a new repository at destinationLocation but with source's attributes.
+		// This code assumes source has been successfully loaded before this point
+		// No existing repository; create a new repository at destinationLocation but
+		// with source's attributes.
 		// TODO for now create a Simple repo by default.
 		try {
-			IArtifactRepository result = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : toInit.getRepoLocation().toString()), IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
+			IArtifactRepository result = mgr.createRepository(toInit.getRepoLocation(),
+					toInit.getName() != null ? toInit.getName()
+							: (source != null ? source.getName() : toInit.getRepoLocation().toString()),
+					IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
 			if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED))
 				result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
 			return (IArtifactRepository) RepositoryHelper.validDestinationRepository(result);
 		} catch (UnsupportedOperationException e) {
-			throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()), e.getCause());
+			throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()),
+					e.getCause());
 		}
 	}
 
