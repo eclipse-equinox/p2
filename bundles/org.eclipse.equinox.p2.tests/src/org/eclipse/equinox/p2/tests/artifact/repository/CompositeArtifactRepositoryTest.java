@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2021 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -53,7 +53,7 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
+import org.eclipse.equinox.p2.internal.repository.comparator.ArtifactChecksumComparator;
 import org.eclipse.equinox.p2.internal.repository.tools.ArtifactRepositoryValidator;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -71,6 +71,7 @@ import org.eclipse.equinox.p2.tests.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
+	private static final String COMPARATOR_ID = ArtifactChecksumComparator.COMPARATOR_ID + ".md5";
 	private static final String TEST_KEY = "TestKey";
 	private static final String TEST_VALUE = "TestValue";
 	//artifact repository to remove on tear down
@@ -756,7 +757,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		compRepo.addChild(repo2Location.toURI());
 
 		//validate using the MD5 Comparator
-		ArtifactRepositoryValidator validator = new ArtifactRepositoryValidator(MD5ArtifactComparator.MD5_COMPARATOR_ID);
+		ArtifactRepositoryValidator validator = new ArtifactRepositoryValidator(
+				COMPARATOR_ID);
 		assertFalse("Running verify on invalid repository", validator.validateComposite(compRepo).isOK());
 	}
 
@@ -791,7 +793,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//Add conflicting repositories
-		ArtifactRepositoryValidator validator = new ArtifactRepositoryValidator(MD5ArtifactComparator.MD5_COMPARATOR_ID);
+		ArtifactRepositoryValidator validator = new ArtifactRepositoryValidator(
+				COMPARATOR_ID);
 		assertTrue(validator.validateComposite(compRepo, repo1).isOK());
 		compRepo.addChild(repo1Location.toURI());
 		assertFalse(validator.validateComposite(compRepo, repo2).isOK());
