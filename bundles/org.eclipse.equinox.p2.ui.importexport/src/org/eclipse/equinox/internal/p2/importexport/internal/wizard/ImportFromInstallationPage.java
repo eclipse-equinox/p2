@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2021 WindRiver Corporation and others.
  *
  * This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License 2.0
@@ -112,7 +112,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 		boolean rt;
 		if (Display.findDisplay(Thread.currentThread()) == null) {
-			Callable<Boolean> getSuperValidateDest = new Callable<Boolean>() {
+			Callable<Boolean> getSuperValidateDest = new Callable<>() {
 				Boolean validated;
 
 				@Override
@@ -139,7 +139,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 			try {
 				String destination;
 				if (Display.findDisplay(Thread.currentThread()) == null) {
-					Callable<String> getDestinationValue = new Callable<String>() {
+					Callable<String> getDestinationValue = new Callable<>() {
 						String des;
 
 						@Override
