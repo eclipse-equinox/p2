@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 IBM Corporation and others.
+ * Copyright (c) 2010, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,9 +13,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
@@ -57,7 +69,7 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 				"org.eclipse.ecf.ssl", //
 				"org.eclipse.equinox.app", //
 				"org.eclipse.equinox.common", //
-				"org.eclipse.equinox.ds", //
+				"org.apache.felix.scr", //
 				"org.eclipse.equinox.frameworkadmin", //
 				"org.eclipse.equinox.frameworkadmin.equinox", //
 				"org.eclipse.equinox.p2.artifact.repository", //
