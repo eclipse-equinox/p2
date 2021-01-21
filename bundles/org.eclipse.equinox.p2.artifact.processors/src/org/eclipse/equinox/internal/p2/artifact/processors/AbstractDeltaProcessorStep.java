@@ -49,7 +49,7 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 			return;
 		IArtifactRepositoryManager repoMgr = agent.getService(IArtifactRepositoryManager.class);
 		if (repoMgr == null) {
-			setStatus(new Status(IStatus.ERROR, Activator.ID, "Could not get artifact repository manager."));
+			setStatus(new Status(IStatus.ERROR, BundleInfo.ID, "Could not get artifact repository manager."));
 			return;
 		}
 
@@ -65,7 +65,7 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 				// just skip unreadable repositories
 			}
 		}
-		setStatus(new Status(IStatus.ERROR, Activator.ID, "No repository available containing key " + key));
+		setStatus(new Status(IStatus.ERROR, BundleInfo.ID, "No repository available containing key " + key));
 	}
 
 }

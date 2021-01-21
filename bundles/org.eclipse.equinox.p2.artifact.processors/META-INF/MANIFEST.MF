@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.artifact.processors;singleton:=true
 Bundle-Version: 1.1.0.qualifier
-Bundle-Activator: org.eclipse.equinox.internal.p2.artifact.processors.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.artifact.processors;x-internal:=true,

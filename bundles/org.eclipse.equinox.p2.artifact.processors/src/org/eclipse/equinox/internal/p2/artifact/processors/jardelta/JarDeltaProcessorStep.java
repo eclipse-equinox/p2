@@ -17,7 +17,7 @@ import java.io.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.processors.AbstractDeltaProcessorStep;
-import org.eclipse.equinox.internal.p2.artifact.processors.Activator;
+import org.eclipse.equinox.internal.p2.artifact.processors.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
@@ -55,7 +55,7 @@ public class JarDeltaProcessorStep extends AbstractDeltaProcessorStep {
 				InputStream resultStream = new BufferedInputStream(new FileInputStream(resultFile));
 				FileUtils.copyStream(resultStream, true, getDestination(), false);
 			} else {
-				setStatus(new Status(IStatus.ERROR, Activator.ID, "Empty optimized file: " + resultFile)); //$NON-NLS-1$
+				setStatus(new Status(IStatus.ERROR, BundleInfo.ID, "Empty optimized file: " + resultFile)); //$NON-NLS-1$
 			}
 		} finally {
 			if (resultFile != null)
