@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 IBM Corporation and others.
+ * Copyright (c) 2008, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,15 +22,13 @@ import java.util.zip.ZipFile;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 
 /**
- * 	Helper functions supporting the processing of localized
- * 	property files.
+ * Helper functions supporting the processing of localized property files.
  *
  */
 public final class LocalizationHelper {
 
 	private static final String PROPERTIES_FILE_EXTENSION = ".properties"; //$NON-NLS-1$
 	private static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
-	private static LocalizationHelper instance = new LocalizationHelper();
 
 	// Extract the locale string from the properties file with the given filename
 	// where the locale string follows the given prefix. For example, return "zh_HK"
@@ -39,7 +37,8 @@ public final class LocalizationHelper {
 		String localeString = null;
 		if (filename.startsWith(prefix) && filename.endsWith(PROPERTIES_FILE_EXTENSION)) {
 			if (filename.length() > prefix.length() + PROPERTIES_FILE_EXTENSION.length()) {
-				localeString = filename.substring(prefix.length() + 1, filename.length() - PROPERTIES_FILE_EXTENSION.length());
+				localeString = filename.substring(prefix.length() + 1,
+						filename.length() - PROPERTIES_FILE_EXTENSION.length());
 			} else {
 				localeString = ""; //$NON-NLS-1$
 			}
@@ -58,9 +57,11 @@ public final class LocalizationHelper {
 		return locale;
 	}
 
-	// For the given root directory and path to localization files within that directory
+	// For the given root directory and path to localization files within that
+	// directory
 	// get a map from locale to property set for the localization property files.
-	public static Map<Locale, Map<String, String>> getDirPropertyLocalizations(File root, String localizationPath, Locale defaultLocale, String[] propertyKeys) {
+	public static Map<Locale, Map<String, String>> getDirPropertyLocalizations(File root, String localizationPath,
+			Locale defaultLocale, String[] propertyKeys) {
 		File fullPath = new File(root, localizationPath);
 		File localizationDir = fullPath.getParentFile();
 		final String localizationFile = fullPath.getName();
@@ -91,7 +92,8 @@ public final class LocalizationHelper {
 		return localizations;
 	}
 
-	public static Map<Locale, Map<String, String>> getJarPropertyLocalizations(File root, String localizationPath, Locale defaultLocale, String[] propertyKeys) {
+	public static Map<Locale, Map<String, String>> getJarPropertyLocalizations(File root, String localizationPath,
+			Locale defaultLocale, String[] propertyKeys) {
 		Map<Locale, Map<String, String>> localizations = new HashMap<>(4);
 		try (ZipFile jarFile = new ZipFile(root, ZipFile.OPEN_READ)) {
 			for (Enumeration<? extends ZipEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
@@ -103,7 +105,8 @@ public final class LocalizationHelper {
 					Locale nextLocale = LocalizationHelper.getLocale(localeString);
 					try (InputStream stream = jarFile.getInputStream(nextEntry)) {
 						Map<String, String> properties = CollectionUtils.loadProperties(stream);
-						Map<String, String> localizedStrings = LocalizationHelper.getLocalizedProperties(propertyKeys, properties);
+						Map<String, String> localizedStrings = LocalizationHelper.getLocalizedProperties(propertyKeys,
+								properties);
 						if (localizedStrings.size() > 0) {
 							localizations.put(nextLocale, localizedStrings);
 							if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
@@ -128,7 +131,8 @@ public final class LocalizationHelper {
 				if (root.isDirectory())
 					propertyStream = new FileInputStream(new File(root, propertyFilename));
 				else {
-					URLConnection connection = new URL("jar:" + root.toURL().toExternalForm() + "!/" + propertyFilename).openConnection(); //$NON-NLS-1$ //$NON-NLS-2$
+					URLConnection connection = new URL("jar:" + root.toURL().toExternalForm() + "!/" + propertyFilename) //$NON-NLS-1$ //$NON-NLS-2$
+							.openConnection();
 					connection.setUseCaches(false);
 					propertyStream = connection.getInputStream();
 				}
@@ -158,22 +162,8 @@ public final class LocalizationHelper {
 	}
 
 	public static String[] getLocalizationFiles(File localizationDir, final String filenamePrefix) {
-		return localizationDir.list(instance.new FileFilter() {
-			@Override
-			public boolean accept(File directory, String filename) {
-				return (getLocaleString(filename, filenamePrefix) != null ? true : false);
-			}
-		});
-	}
-
-	private abstract class FileFilter implements FilenameFilter {
-
-		public FileFilter() {
-			// Nothing to do
-		}
-
-		@Override
-		public abstract boolean accept(File directory, String filename);
+		return localizationDir
+				.list((directory, filename) -> (getLocaleString(filename, filenamePrefix) != null ? true : false));
 	}
 
 	private LocalizationHelper() {
