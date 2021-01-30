@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.p2.publisher;singleton:=true
-Bundle-Version: 1.5.400.qualifier
+Bundle-Version: 1.5.500.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.publisher.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -16,12 +16,10 @@ Export-Package: org.eclipse.equinox.internal.p2.publisher;
   x-friends:="org.eclipse.equinox.p2.directorywatcher,
    org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.p2.updatesite,
-   org.eclipse.pde.publishing,
    org.eclipse.equinox.p2.publisher.eclipse",
  org.eclipse.equinox.p2.publisher.actions;
   x-friends:="org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.directorywatcher,
-   org.eclipse.pde.publishing,
    org.eclipse.equinox.p2.publisher.eclipse",
  org.eclipse.equinox.spi.p2.publisher;x-friends:="org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.publisher.eclipse"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)",
