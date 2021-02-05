@@ -24,7 +24,6 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
-import org.eclipse.osgi.service.environment.Constants;
 
 /**
  * Create CUs for all Equinox launcher related IUs for the given set of configurations
@@ -63,12 +62,7 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 		for (String configSpec : configSpecs) {
 			String[] specs = Utils.getTokens(configSpec, "."); //$NON-NLS-1$
 			if (specs.length > 0 && !AbstractPublisherAction.CONFIG_ANY.equalsIgnoreCase(specs[0])) {
-				if (specs.length > 2 && Constants.OS_MACOSX.equals(specs[1]) && !Constants.ARCH_X86_64.equals(specs[2])) {
-					//launcher fragment for mac only has arch for x86_64
-					id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + specs[0] + '.' + specs[1];
-				} else {
-					id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + configSpec;
-				}
+				id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + configSpec;
 				publishCU(id, configSpec, results);
 			}
 		}
