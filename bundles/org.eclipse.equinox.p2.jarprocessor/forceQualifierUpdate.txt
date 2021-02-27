@@ -4,3 +4,4 @@ Bug 465620 - jar processor needs 'touch'
 Bug 534597 - Unanticipated comparator errors in I20180511-2000
 comparator errors on new infra
 Bug 566668 - Comparator errors in I20200904-0210
+Bug 571555 - Comparator errors in I20210226-1800
