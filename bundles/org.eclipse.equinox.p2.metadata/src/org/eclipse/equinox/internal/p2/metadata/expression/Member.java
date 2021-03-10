@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2021 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,24 +13,30 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import java.lang.reflect.*;
-import java.util.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionVisitor;
+import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 
 /**
- * <p>An expression that performs member calls to obtain some value
- * from some object instance. It uses standard bean semantics so
- * that an attempt to obtain &quot;value&quot; will cause an
- * attempt to call <code>getValue()</code> and if no such method
- * exists, <code>isValue()</code> and if that doesn't work either,
- * <code>value()</code>.</p>
+ * <p>
+ * An expression that performs member calls to obtain some value from some
+ * object instance. It uses standard bean semantics so that an attempt to obtain
+ * &quot;value&quot; will cause an attempt to call <code>getValue()</code> and
+ * if no such method exists, <code>isValue()</code> and if that doesn't work
+ * either, <code>value()</code>.
+ * </p>
  */
 public abstract class Member extends Unary {
 
 	public static final class DynamicMember extends Member {
 		private static final String GET_PREFIX = "get"; //$NON-NLS-1$
 		private static final String IS_PREFIX = "is"; //$NON-NLS-1$
-		private static final Class<?>[] NO_ARG_TYPES = new Class[0];
 
 		private Class<?> lastClass;
 
@@ -65,7 +71,7 @@ public abstract class Member extends Unary {
 					Method m;
 					for (;;) {
 						try {
-							m = c.getMethod(methodName, NO_ARG_TYPES);
+							m = c.getMethod(methodName);
 							if (!Modifier.isPublic(m.getModifiers()))
 								throw new NoSuchMethodException();
 							break;
@@ -77,7 +83,8 @@ public abstract class Member extends Unary {
 								// Switch from using isXxx() to xxx()
 								methodName = name;
 							else
-								throw new IllegalArgumentException("Cannot find a public member \'" + name + "\' in a " + self.getClass().getName()); //$NON-NLS-1$//$NON-NLS-2$
+								throw new IllegalArgumentException("Cannot find a public member \'" + name + "\' in a " //$NON-NLS-1$//$NON-NLS-2$
+										+ self.getClass().getName());
 						}
 					}
 
@@ -90,7 +97,7 @@ public abstract class Member extends Unary {
 
 				Exception checked;
 				try {
-					return method.invoke(self, NO_ARGS);
+					return method.invoke(self);
 				} catch (IllegalArgumentException e) {
 					throw e;
 				} catch (IllegalAccessException e) {
@@ -103,7 +110,8 @@ public abstract class Member extends Unary {
 						throw (Error) cause;
 					checked = (Exception) cause;
 				}
-				throw new RuntimeException("Problem invoking " + methodName + " on a " + self.getClass().getName(), checked); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new RuntimeException("Problem invoking " + methodName + " on a " + self.getClass().getName(), //$NON-NLS-1$ //$NON-NLS-2$
+						checked);
 			}
 		}
 	}
@@ -152,8 +160,6 @@ public abstract class Member extends Unary {
 			return Boolean.valueOf(empty);
 		}
 	}
-
-	static final Object[] NO_ARGS = new Object[0];
 
 	static Member createDynamicMember(Expression operand, String name) {
 		return new DynamicMember(operand, name);
