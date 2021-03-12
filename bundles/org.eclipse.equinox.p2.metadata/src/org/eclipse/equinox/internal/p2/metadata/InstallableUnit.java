@@ -41,7 +41,7 @@ import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 
 public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	@SuppressWarnings("serial")
-	private static final Map<IFilterExpression, IMatchExpression<IInstallableUnit>> filterCache = new LinkedHashMap<IFilterExpression, IMatchExpression<IInstallableUnit>>() {
+	private static final Map<IFilterExpression, IMatchExpression<IInstallableUnit>> filterCache = new LinkedHashMap<>() {
 		@Override
 		public boolean removeEldestEntry(Map.Entry<IFilterExpression, IMatchExpression<IInstallableUnit>> expr) {
 			return size() > 64;
@@ -73,7 +73,8 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 
 	static {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		filterWrap = factory.matches(factory.member(factory.thisVariable(), MEMBER_PROPERTIES), factory.indexedParameter(0));
+		filterWrap = factory.matches(factory.member(factory.thisVariable(), MEMBER_PROPERTIES),
+				factory.indexedParameter(0));
 	}
 
 	private IArtifactKey[] artifacts = NO_ARTIFACTS;
@@ -108,7 +109,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	public void addTouchpointData(ITouchpointData newData) {
 		int tl = touchpointData.length;
 		if (tl == 0)
-			touchpointData = new ITouchpointData[] {newData};
+			touchpointData = new ITouchpointData[] { newData };
 		else {
 			ITouchpointData[] newDatas = new ITouchpointData[tl + 1];
 			System.arraycopy(touchpointData, 0, newDatas, 0, tl);
@@ -168,8 +169,8 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	}
 
 	/**
-	 * Get an <i>unmodifiable copy</i> of the properties
-	 * associated with the installable unit.
+	 * Get an <i>unmodifiable copy</i> of the properties associated with the
+	 * installable unit.
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
@@ -310,7 +311,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		if (capabilities.length == 0) {
 			this.requires = NO_REQUIRES;
 		} else {
-			//copy array for safety
+			// copy array for safety
 			this.requires = capabilities.clone();
 		}
 	}
@@ -388,7 +389,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		if (metaReqs.length == 0) {
 			this.metaRequires = NO_REQUIRES;
 		} else {
-			//copy array for safety
+			// copy array for safety
 			this.metaRequires = metaReqs.clone();
 		}
 	}

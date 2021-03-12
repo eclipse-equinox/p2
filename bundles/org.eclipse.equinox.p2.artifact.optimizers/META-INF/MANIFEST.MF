@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.artifact.optimizers;singleton:=true
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.artifact.optimizers.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -11,7 +11,7 @@ Export-Package: org.eclipse.equinox.internal.p2.artifact.optimizers;x-friends:="
  org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;x-internal:=true
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.p2.artifact.repository
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.app;version="1.0.0",
  org.eclipse.equinox.internal.p2.core.helpers,

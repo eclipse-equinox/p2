@@ -580,7 +580,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		categories.add(this.defaultCategory);
 		// sort category so they are processed in reverse order of dependency
 		// (Nested categories go first)
-		Comparator<SiteCategory> isNestedCategoryComparator = new Comparator<SiteCategory>() {
+		Comparator<SiteCategory> isNestedCategoryComparator = new Comparator<>() {
 			@Override
 			public int compare(SiteCategory category1, SiteCategory category2) {
 				Set<SiteCategory> childrenOfCategory1 = categoryToNestedCategories.get(category1);
