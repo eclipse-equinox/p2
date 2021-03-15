@@ -35,7 +35,7 @@ public class DownloadManager {
 	 * TODO: This is copied from the ProvisioningContext class. Can we combine them?
 	 * See https://bugs.eclipse.org/335153.
 	 */
-	private static final Comparator<IArtifactRepository> LOCAL_FIRST_COMPARATOR = new Comparator<IArtifactRepository>() {
+	private static final Comparator<IArtifactRepository> LOCAL_FIRST_COMPARATOR = new Comparator<>() {
 		private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 
 		@Override

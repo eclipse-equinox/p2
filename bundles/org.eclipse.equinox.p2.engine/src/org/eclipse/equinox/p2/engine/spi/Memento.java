@@ -51,7 +51,7 @@ public final class Memento {
 	}
 
 	public Enumeration<String> getKeys() {
-		return new Enumeration<String>() {
+		return new Enumeration<>() {
 			Iterator<String> keysIterator = mementoMap.keySet().iterator();
 
 			@Override
