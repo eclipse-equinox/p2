@@ -70,7 +70,7 @@ public class CollectionUtils {
 		 */
 		@Override
 		public ListIterator<E> listIterator() {
-			return new ListIterator<E>() {
+			return new ListIterator<>() {
 				private int index = 0;
 
 				@Override

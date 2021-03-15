@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin;singleton:=true
-Bundle-Version: 2.1.400.qualifier
+Bundle-Version: 2.2.0.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Import-Package: org.eclipse.osgi.service.pluginconversion;version="1.0.0",
@@ -23,7 +23,7 @@ Export-Package: org.eclipse.equinox.frameworkadmin;version="2.0.0",
    org.eclipse.pde.core,
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.publisher.eclipse"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: org.eclipse.equinox.frameworkadmin

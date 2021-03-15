@@ -75,7 +75,7 @@ public class TarFile implements Closeable {
 	 * @return enumeration of all files in the archive
 	 */
 	public Enumeration<TarEntry> entries() {
-		return new Enumeration<TarEntry>() {
+		return new Enumeration<>() {
 			@Override
 			public boolean hasMoreElements() {
 				return (curEntry != null);
