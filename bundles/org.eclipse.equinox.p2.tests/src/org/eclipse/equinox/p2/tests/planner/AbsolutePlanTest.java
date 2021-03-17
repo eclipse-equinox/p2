@@ -52,6 +52,7 @@ public class AbsolutePlanTest extends AbstractProvisioningTest {
 		for (Operand op : ops) {
 			if (op instanceof InstallableUnitPropertyOperand) {
 				found = true;
+				break;
 			}
 		}
 		assertTrue(found);
