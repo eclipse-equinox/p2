@@ -22,6 +22,13 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 
+/**
+ * @noextend This class is not intended to be subclassed by clients.
+ * @noreference This class is not intended to be referenced by clients.
+ * 
+ * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+ */
+@Deprecated(forRemoval = true, since = "1.2.0")
 public class Application extends OptimizerApplication {
 	// Application return code
 	private static final Integer NON_WRITTABLE_REPOSITORY = -1;

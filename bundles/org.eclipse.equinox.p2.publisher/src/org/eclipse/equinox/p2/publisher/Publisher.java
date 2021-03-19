@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -37,18 +37,21 @@ public class Publisher {
 	private IPublisherResult results;
 
 	/**
-	 * Returns a metadata repository that corresponds to the given settings.  If a repository at the 
-	 * given location already exists, it is updated with the settings and returned.  If no repository
-	 * is found then a new Simple repository is created, configured and returned
-	 * @param agent the provisioning agent to use when creating the repository
+	 * Returns a metadata repository that corresponds to the given settings. If a
+	 * repository at the given location already exists, it is updated with the
+	 * settings and returned. If no repository is found then a new Simple repository
+	 * is created, configured and returned
+	 *
+	 * @param agent    the provisioning agent to use when creating the repository
 	 * @param location the URL location of the repository
-	 * @param name the name of the repository
-	 * @param append whether or not the repository should appended or cleared
+	 * @param name     the name of the repository
+	 * @param append   whether or not the repository should appended or cleared
 	 * @param compress whether or not to compress the repository index
 	 * @return the discovered or created repository
 	 * @throws ProvisionException
 	 */
-	public static IMetadataRepository createMetadataRepository(IProvisioningAgent agent, URI location, String name, boolean append, boolean compress) throws ProvisionException {
+	public static IMetadataRepository createMetadataRepository(IProvisioningAgent agent, URI location, String name,
+			boolean append, boolean compress) throws ProvisionException {
 		try {
 			IMetadataRepository result = loadMetadataRepository(agent, location, true, true);
 			if (result != null && result.isModifiable()) {
@@ -58,54 +61,75 @@ public class Publisher {
 				return result;
 			}
 		} catch (ProvisionException e) {
-			//fall through and create a new repository
+			// fall through and create a new repository
 		}
 
-		// 	the given repo location is not an existing repo so we have to create something
+		// the given repo location is not an existing repo so we have to create
+		// something
 		IMetadataRepositoryManager manager = getService(agent, IMetadataRepositoryManager.SERVICE_NAME);
 		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IMetadataRepository result = manager.createRepository(location, repositoryName,
+				IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		if (result != null) {
 			manager.removeRepository(result.getLocation());
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$
 			return result;
 		}
-		// I don't think we can really get here, but just in case, we better throw a provisioning exception
+		// I don't think we can really get here, but just in case, we better throw a
+		// provisioning exception
 		String msg = org.eclipse.equinox.internal.p2.metadata.repository.Messages.repoMan_internalError;
-		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
+		throw new ProvisionException(
+				new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
 	}
 
 	/**
 	 * Load a metadata repository from the given location.
-	 * @param location the URI location of the repository
-	 * @param modifiable whether to ask the manager for a modifiable repository
-	 * @param removeFromManager remove the loaded repository from the manager if it wasn't already loaded
+	 *
+	 * @param location          the URI location of the repository
+	 * @param modifiable        whether to ask the manager for a modifiable
+	 *                          repository
+	 * @param removeFromManager remove the loaded repository from the manager if it
+	 *                          wasn't already loaded
 	 * @return the loaded repository
 	 * @throws ProvisionException
 	 */
-	public static IMetadataRepository loadMetadataRepository(IProvisioningAgent agent, URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
+	public static IMetadataRepository loadMetadataRepository(IProvisioningAgent agent, URI location, boolean modifiable,
+			boolean removeFromManager) throws ProvisionException {
 		IMetadataRepositoryManager manager = getService(agent, IMetadataRepositoryManager.SERVICE_NAME);
 		boolean existing = manager.contains(location);
 
-		IMetadataRepository result = manager.loadRepository(location, modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
+		IMetadataRepository result = manager.loadRepository(location,
+				modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
 		if (!existing && removeFromManager)
 			manager.removeRepository(location);
 		return result;
 	}
 
 	/**
-	 * Returns an artifact repository that corresponds to the given settings.  If a repository at the 
-	 * given location already exists, it is updated with the settings and returned.  If no repository
-	 * is found then a new Simple repository is created, configured and returned
-	 * @param agent the provisioning agent to use when creating the repository
-	 * @param location the URL location of the repository
-	 * @param name the name of the repository
-	 * @param compress whether or not to compress the repository index
-	 * @param reusePackedFiles whether or not to include discovered Pack200 files in the repository
+	 * Returns an artifact repository that corresponds to the given settings. If a
+	 * repository at the given location already exists, it is updated with the
+	 * settings and returned. If no repository is found then a new Simple repository
+	 * is created, configured and returned
+	 *
+	 * @param agent            the provisioning agent to use when creating the
+	 *                         repository
+	 * @param location         the URL location of the repository
+	 * @param name             the name of the repository
+	 * @param compress         whether or not to compress the repository index
+	 * @param reusePackedFiles whether or not to include discovered Pack200 files in
+	 *                         the repository
 	 * @return the discovered or created repository
 	 * @throws ProvisionException
+	 *
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details. Use
+	 *             {@link #createArtifactRepository(IprovisioningAgent, URI, String, boolean)}
+	 *             instead.
 	 */
-	public static IArtifactRepository createArtifactRepository(IProvisioningAgent agent, URI location, String name, boolean compress, boolean reusePackedFiles) throws ProvisionException {
+	@Deprecated(forRemoval = true, since = "2.3.0")
+	public static IArtifactRepository createArtifactRepository(IProvisioningAgent agent, URI location, String name,
+			boolean compress, boolean reusePackedFiles) throws ProvisionException {
 		try {
 			IArtifactRepository result = loadArtifactRepository(agent, location, true, true);
 			if (result != null && result.isModifiable()) {
@@ -115,12 +139,13 @@ public class Publisher {
 				return result;
 			}
 		} catch (ProvisionException e) {
-			//fall through and create a new repository
+			// fall through and create a new repository
 		}
 
 		IArtifactRepositoryManager manager = getService(agent, IArtifactRepositoryManager.SERVICE_NAME);
 		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IArtifactRepository result = manager.createRepository(location, repositoryName,
+				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		if (result != null) {
 			manager.removeRepository(result.getLocation());
 			if (reusePackedFiles)
@@ -128,24 +153,73 @@ public class Publisher {
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 			return result;
 		}
-		// I don't think we can really get here, but just in case, we better throw a provisioning exception
+		// I don't think we can really get here, but just in case, we better throw a
+		// provisioning exception
 		String msg = org.eclipse.equinox.internal.p2.artifact.repository.Messages.repoMan_internalError;
-		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
+		throw new ProvisionException(
+				new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
+	}
+
+	/**
+	 * Returns an artifact repository that corresponds to the given settings. If a
+	 * repository at the given location already exists, it is updated with the
+	 * settings and returned. If no repository is found then a new Simple repository
+	 * is created, configured and returned
+	 *
+	 * @param agent    the provisioning agent to use when creating the repository
+	 * @param location the URL location of the repository
+	 * @param name     the name of the repository
+	 * @param compress whether or not to compress the repository index
+	 * @return the discovered or created repository
+	 * @throws ProvisionException
+	 */
+	@Deprecated(forRemoval = true, since = "2.3.0")
+	public static IArtifactRepository createArtifactRepository(IProvisioningAgent agent, URI location, String name,
+			boolean compress) throws ProvisionException {
+		try {
+			IArtifactRepository result = loadArtifactRepository(agent, location, true, true);
+			if (result != null && result.isModifiable()) {
+				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
+				return result;
+			}
+		} catch (ProvisionException e) {
+			// fall through and create a new repository
+		}
+
+		IArtifactRepositoryManager manager = getService(agent, IArtifactRepositoryManager.SERVICE_NAME);
+		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
+		IArtifactRepository result = manager.createRepository(location, repositoryName,
+				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		if (result != null) {
+			manager.removeRepository(result.getLocation());
+			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
+			return result;
+		}
+		// I don't think we can really get here, but just in case, we better throw a
+		// provisioning exception
+		String msg = org.eclipse.equinox.internal.p2.artifact.repository.Messages.repoMan_internalError;
+		throw new ProvisionException(
+				new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
 	}
 
 	/**
 	 * Load an artifact repository from the given location.
-	 * @param location the URI location of the repository
-	 * @param modifiable whether to ask the manager for a modifiable repository
-	 * @param removeFromManager remove the loaded repository from the manager if it wasn't already loaded
+	 *
+	 * @param location          the URI location of the repository
+	 * @param modifiable        whether to ask the manager for a modifiable
+	 *                          repository
+	 * @param removeFromManager remove the loaded repository from the manager if it
+	 *                          wasn't already loaded
 	 * @return the loaded repository
 	 * @throws ProvisionException
 	 */
-	public static IArtifactRepository loadArtifactRepository(IProvisioningAgent agent, URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
+	public static IArtifactRepository loadArtifactRepository(IProvisioningAgent agent, URI location, boolean modifiable,
+			boolean removeFromManager) throws ProvisionException {
 		IArtifactRepositoryManager manager = getService(agent, IArtifactRepositoryManager.SERVICE_NAME);
 		boolean existing = manager.contains(location);
 
-		IArtifactRepository result = manager.loadRepository(location, modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
+		IArtifactRepository result = manager.loadRepository(location,
+				modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
 		if (!existing && removeFromManager)
 			manager.removeRepository(location);
 		return result;
@@ -157,12 +231,13 @@ public class Publisher {
 	}
 
 	/**
-	 * Obtains a service from the agent, waiting for a reasonable timeout period
-	 * if the service is not yet available. This method never returns <code>null</code>;
-	 * an exception is thrown if the service could not be obtained.
-	 * 
-	 * @param <T> The type of the service to return
-	 * @param agent The agent to obtain the service from
+	 * Obtains a service from the agent, waiting for a reasonable timeout period if
+	 * the service is not yet available. This method never returns
+	 * <code>null</code>; an exception is thrown if the service could not be
+	 * obtained.
+	 *
+	 * @param <T>         The type of the service to return
+	 * @param agent       The agent to obtain the service from
 	 * @param serviceName The name of the service to obtain
 	 * @return The service instance
 	 */
@@ -176,13 +251,13 @@ public class Publisher {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				//ignore and keep waiting
+				// ignore and keep waiting
 			}
 			service = (T) agent.getService(serviceName);
 			if (service != null)
 				return service;
 		} while ((System.currentTimeMillis() - start) < SERVICE_TIMEOUT);
-		//could not obtain the service
+		// could not obtain the service
 		throw new IllegalStateException("Unable to obtain required service: " + serviceName); //$NON-NLS-1$
 	}
 
@@ -236,7 +311,7 @@ public class Publisher {
 			if (info.getArtifactRepository() != null) {
 				finalStatus = info.getArtifactRepository().executeBatch(artifactProcess, sub);
 				if (!finalStatus.matches(IStatus.ERROR | IStatus.CANCEL))
-					// If the batch process didn't report any errors, then 
+					// If the batch process didn't report any errors, then
 					// Use the status from our actions
 					finalStatus = artifactProcess.getStatus();
 			} else {

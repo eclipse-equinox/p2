@@ -65,10 +65,12 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		IArtifactRepositoryManager repositoryManager = getArtifactRepositoryManager();
 		removeArtifactRepo = !repositoryManager.contains(repoLocation);
 
-		IArtifactRepository repository = repositoryManager.loadRepository(repoLocation, IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, monitor);
+		IArtifactRepository repository = repositoryManager.loadRepository(repoLocation,
+				IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, monitor);
 
 		if (repository == null || !repository.isModifiable())
-			throw new ProvisionException(NLS.bind(Messages.exception_destinationNotModifiable, repository.getLocation()));
+			throw new ProvisionException(
+					NLS.bind(Messages.exception_destinationNotModifiable, repository.getLocation()));
 		if (!(repository instanceof IFileArtifactRepository))
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 
@@ -99,10 +101,11 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 	private void recreateRepository(IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
-		//add pack200 mappings, the existing repoProperties is not modifiable 
+		// add pack200 mappings, the existing repoProperties is not modifiable
 		Map<String, String> newProperties = new HashMap<>(repoProperties);
 		newProperties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-		IArtifactRepository repository = manager.createRepository(repoLocation, repoName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, newProperties);
+		IArtifactRepository repository = manager.createRepository(repoLocation, repoName,
+				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, newProperties);
 		if (!(repository instanceof IFileArtifactRepository))
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 
@@ -130,7 +133,8 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 					// TODO handle errors in some way
 					LogHelper.log(status);
 
-				Map<String, String> checksumsToProperties = ChecksumUtilities.checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums);
+				Map<String, String> checksumsToProperties = ChecksumUtilities
+						.checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums);
 				newDescriptor.addProperties(checksumsToProperties);
 
 				File temp = new File(artifactFile.getParentFile(), artifactFile.getName() + ".pack.gz"); //$NON-NLS-1$
@@ -148,13 +152,15 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		}
 	}
 
+	@Deprecated(forRemoval = true, since = "2.3.0")
 	private ArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File packFile, String installSize) {
 
 		if (packFile != null && packFile.exists()) {
 			ArtifactDescriptor result = new ArtifactDescriptor(key);
 			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(packFile.length()));
-			IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+			IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {
+					new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
 			result.setProcessingSteps(steps);
 			result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 			return result;

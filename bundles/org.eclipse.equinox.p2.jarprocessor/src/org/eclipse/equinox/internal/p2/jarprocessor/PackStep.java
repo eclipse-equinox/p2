@@ -17,6 +17,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * @noreference This class is not intended to be referenced by clients.
+ * @noextend This class is not intended to be subclassed by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+ */
+@Deprecated(forRemoval = true, since = "1.2.0")
 public class PackStep extends CommandStep {
 
 	protected static String packCommand = null;
@@ -40,7 +47,7 @@ public class PackStep extends CommandStep {
 			if (location == null) {
 				continue;
 			}
-			result = execute(new String[]{location, "-V"}); //$NON-NLS-1$
+			result = execute(new String[] { location, "-V" }); //$NON-NLS-1$
 			if (result == 0) {
 				packCommand = location;
 				canPack = Boolean.TRUE;
@@ -98,7 +105,7 @@ public class PackStep extends CommandStep {
 	}
 
 	protected boolean shouldPack(File input, List<Properties> containers, Properties inf) {
-		//1: exclude by containers
+		// 1: exclude by containers
 		// innermost jar is first on the list, it can override outer jars
 		for (Properties container : containers) {
 			if (container.containsKey(Utils.MARK_EXCLUDE_CHILDREN_PACK)) {
@@ -111,8 +118,9 @@ public class PackStep extends CommandStep {
 			}
 		}
 
-		//2: excluded by self
-		if (inf != null && inf.containsKey(Utils.MARK_EXCLUDE_PACK) && Boolean.parseBoolean(inf.getProperty(Utils.MARK_EXCLUDE_PACK))) {
+		// 2: excluded by self
+		if (inf != null && inf.containsKey(Utils.MARK_EXCLUDE_PACK)
+				&& Boolean.parseBoolean(inf.getProperty(Utils.MARK_EXCLUDE_PACK))) {
 			if (verbose)
 				System.out.println("Excluding " + input.getName() + " from " + getStepName()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
@@ -121,7 +129,8 @@ public class PackStep extends CommandStep {
 		return true;
 	}
 
-	protected String[] getCommand(File input, File outputFile, Properties inf, List<Properties> containers) throws IOException {
+	protected String[] getCommand(File input, File outputFile, Properties inf, List<Properties> containers)
+			throws IOException {
 		String[] cmd = null;
 		String arguments = getArguments(input, inf, containers);
 		if (arguments != null && arguments.length() > 0) {
@@ -132,32 +141,32 @@ public class PackStep extends CommandStep {
 			cmd[cmd.length - 2] = outputFile.getCanonicalPath();
 			cmd[cmd.length - 1] = input.getCanonicalPath();
 		} else {
-			cmd = new String[] {packCommand, outputFile.getCanonicalPath(), input.getCanonicalPath()};
+			cmd = new String[] { packCommand, outputFile.getCanonicalPath(), input.getCanonicalPath() };
 		}
 		return cmd;
 	}
 
 	protected String getArguments(File input, Properties inf, List<Properties> containers) {
-		//1: Explicitly marked in our .inf file
+		// 1: Explicitly marked in our .inf file
 		if (inf != null && inf.containsKey(Utils.PACK_ARGS)) {
 			return inf.getProperty(Utils.PACK_ARGS);
 		}
 
-		//2: Defaults set in one of our containing jars
+		// 2: Defaults set in one of our containing jars
 		for (Properties container : containers) {
 			if (container.containsKey(Utils.DEFAULT_PACK_ARGS)) {
 				return container.getProperty(Utils.DEFAULT_PACK_ARGS);
 			}
 		}
 
-		//3: Set by name in outside pack.properties file
+		// 3: Set by name in outside pack.properties file
 		Properties options = getOptions();
 		String argsKey = input.getName() + Utils.PACK_ARGS_SUFFIX;
 		if (options.containsKey(argsKey)) {
 			return options.getProperty(argsKey);
 		}
 
-		//4: Set by default in outside pack.properties file
+		// 4: Set by default in outside pack.properties file
 		if (options.containsKey(Utils.DEFAULT_PACK_ARGS)) {
 			return options.getProperty(Utils.DEFAULT_PACK_ARGS);
 		}
@@ -175,7 +184,7 @@ public class PackStep extends CommandStep {
 		if (input == null || inf == null)
 			return false;
 
-		//don't be verbose to check if we should mark the inf
+		// don't be verbose to check if we should mark the inf
 		boolean v = verbose;
 		verbose = false;
 		if (!shouldPack(input, containers, inf)) {
@@ -184,12 +193,13 @@ public class PackStep extends CommandStep {
 		}
 		verbose = v;
 
-		//mark as conditioned if not previously marked.  A signed jar is assumed to be previously conditioned.
+		// mark as conditioned if not previously marked. A signed jar is assumed to be
+		// previously conditioned.
 		if (inf.getProperty(Utils.MARK_PROPERTY) != null)
 			return false;
 
 		inf.put(Utils.MARK_PROPERTY, "true"); //$NON-NLS-1$
-		//record arguments used
+		// record arguments used
 		String arguments = inf.getProperty(Utils.PACK_ARGS);
 		if (arguments == null) {
 			arguments = getArguments(input, inf, containers);

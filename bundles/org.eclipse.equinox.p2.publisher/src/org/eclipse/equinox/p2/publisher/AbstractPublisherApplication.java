@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
@@ -37,14 +37,19 @@ import org.osgi.framework.ServiceReference;
 
 public abstract class AbstractPublisherApplication implements IApplication {
 
-	// The mapping rules for in-place generation need to construct paths into the structure
-	// of an eclipse installation; in the future the default artifact mapping declared in
-	// SimpleArtifactRepository may change, for example, to not have a 'bundles' directory
-	// instead of a 'plugins' directory, so a separate constant is defined and used here.
-	static final protected String[][] INPLACE_MAPPING_RULES = {{"(& (classifier=osgi.bundle) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
+	// The mapping rules for in-place generation need to construct paths into the
+	// structure
+	// of an eclipse installation; in the future the default artifact mapping
+	// declared in
+	// SimpleArtifactRepository may change, for example, to not have a 'bundles'
+	// directory
+	// instead of a 'plugins' directory, so a separate constant is defined and used
+	// here.
+	static final protected String[][] INPLACE_MAPPING_RULES = {
+			{ "(& (classifier=osgi.bundle) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz" }, //$NON-NLS-1$//$NON-NLS-2$
+			{ "(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar" }, //$NON-NLS-1$//$NON-NLS-2$
+			{ "(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}" }, //$NON-NLS-1$//$NON-NLS-2$
+			{ "(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar" } }; //$NON-NLS-1$//$NON-NLS-2$
 
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
@@ -56,7 +61,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected String artifactRepoName;
 	protected URI[] contextMetadataRepositories;
 	protected URI[] contextArtifactRepositories;
-	//whether repository xml files should be compressed
+	// whether repository xml files should be compressed
 	protected boolean compress = false;
 	protected boolean inplace = false;
 	protected boolean append = false;
@@ -69,8 +74,8 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected IProvisioningAgent agent;
 
 	/**
-	 * Returns the error message for this application, or the empty string
-	 * if the application terminated successfully.
+	 * Returns the error message for this application, or the empty string if the
+	 * application terminated successfully.
 	 */
 	public IStatus getStatus() {
 		return status;
@@ -83,7 +88,8 @@ public abstract class AbstractPublisherApplication implements IApplication {
 				metadataLocation = location.toURI();
 			if (artifactLocation == null)
 				artifactLocation = location.toURI();
-			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
+			publisherInfo.setArtifactOptions(
+					publisherInfo.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 		}
 		initializeRepositories(publisherInfo);
 	}
@@ -99,14 +105,17 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	protected void initializeRepositories(PublisherInfo publisherInfo) throws ProvisionException {
 		if (artifactLocation != null) {
-			IArtifactRepository repo = Publisher.createArtifactRepository(agent, artifactLocation, artifactRepoName, compress, reusePackedFiles);
+			IArtifactRepository repo = Publisher.createArtifactRepository(agent, artifactLocation, artifactRepoName,
+					compress, reusePackedFiles);
 			if (!append && !isEmpty(repo)) {
 				File repoLocation = URIUtil.toFile(artifactLocation);
 				if (repoLocation != null && source != null) {
 					if (repoLocation.isFile())
 						repoLocation = repoLocation.getParentFile();
 					if (repoLocation.equals(new File(source)))
-						throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, URIUtil.toUnencodedString(artifactLocation)));
+						throw new IllegalArgumentException(
+								NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput,
+										URIUtil.toUnencodedString(artifactLocation)));
 				}
 				repo.removeAll(new NullProgressMonitor());
 			}
@@ -115,7 +124,8 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noArtifactRepo));
 		if (metadataLocation == null)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));
-		publisherInfo.setMetadataRepository(Publisher.createMetadataRepository(agent, metadataLocation, metadataRepoName, append, compress));
+		publisherInfo.setMetadataRepository(
+				Publisher.createMetadataRepository(agent, metadataLocation, metadataRepoName, append, compress));
 
 		if (contextMetadataRepositories != null && contextMetadataRepositories.length > 0) {
 			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite(agent);
@@ -147,8 +157,10 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			// check for args without parameters (i.e., a flag arg)
 			processFlag(args[i], publisherInfo);
 
-			// check for args with parameters. If we are at the last argument or if the next one
-			// has a '-' as the first character, then we can't have an arg with a parm so continue.
+			// check for args with parameters. If we are at the last argument or if the next
+			// one
+			// has a '-' as the first character, then we can't have an arg with a parm so
+			// continue.
 			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
 				continue;
 			processParameter(args[i], args[++i], publisherInfo);
@@ -157,9 +169,11 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	/**
 	 * Process application arguments.
+	 *
 	 * @throws URISyntaxException thrown by subclasses
 	 */
-	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
+	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo)
+			throws URISyntaxException {
 		try {
 			if (arg.equalsIgnoreCase("-metadataRepository") || arg.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
 				metadataLocation = URIUtil.fromString(parameter);
@@ -174,8 +188,10 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			metadataRepoName = parameter;
 
 		if (arg.equalsIgnoreCase("-source")) { //$NON-NLS-1$
-			// check here to see if the location actually exists so we can fail gracefully now rather than unpredictably later
-			// see bug 272956 where we would fail with an NPE if someone gave us a URL instead of a file-system path
+			// check here to see if the location actually exists so we can fail gracefully
+			// now rather than unpredictably later
+			// see bug 272956 where we would fail with an NPE if someone gave us a URL
+			// instead of a file-system path
 			if (!new File(parameter).exists())
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_sourcePath, parameter));
 			source = parameter;
@@ -204,7 +220,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			for (String uri : list) {
 				try {
 					result.add(URIUtil.fromString(uri));
-				}catch (URISyntaxException e) {
+				} catch (URISyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -220,7 +236,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (arg.equalsIgnoreCase("-publishArtifactRepository") || arg.equalsIgnoreCase("-par")) //$NON-NLS-1$ //$NON-NLS-2$
 			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_INDEX);
 
-		if (arg.equalsIgnoreCase("-overwriteArtifacts")) //$NON-NLS-1$ 
+		if (arg.equalsIgnoreCase("-overwriteArtifacts")) //$NON-NLS-1$
 			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_OVERWRITE);
 
 		if (arg.equalsIgnoreCase("-append")) //$NON-NLS-1$
@@ -243,13 +259,14 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			if (agent != null)
 				return;
 		}
-		ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.class);
+		ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getContext()
+				.getServiceReference(IProvisioningAgentProvider.class);
 		if (providerRef == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
 		IProvisioningAgentProvider provider = Activator.getContext().getService(providerRef);
 		if (provider == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
-		//obtain agent for currently running system
+		// obtain agent for currently running system
 		agent = provider.createAgent(null);
 		Activator.getContext().ungetService(providerRef);
 	}
@@ -304,7 +321,8 @@ public abstract class AbstractPublisherApplication implements IApplication {
 				}
 			}
 			if (!result.matches(IStatus.ERROR | IStatus.CANCEL)) {
-				System.out.println(NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
+				System.out.println(
+						NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
 				return IApplication.EXIT_OK;
 			}
 		} catch (ProvisionException e) {
@@ -343,6 +361,11 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		this.metadataLocation = location;
 	}
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.6.0")
 	public boolean reuseExistingPack200Files() {
 		return reusePackedFiles;
 	}

@@ -18,6 +18,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * @noreference This class is not intended to be referenced by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
+ * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+ */
+@Deprecated(forRemoval = true, since = "1.2.0")
 public class UnpackStep extends CommandStep {
 	public static final String UNPACKER_PROPERTY = "org.eclipse.update.jarprocessor.Unpacker"; //$NON-NLS-1$
 	private static Boolean canUnpack = null;
@@ -39,7 +46,7 @@ public class UnpackStep extends CommandStep {
 			if (location == null) {
 				continue;
 			}
-			result = execute(new String[]{location, "-V"}); //$NON-NLS-1$
+			result = execute(new String[] { location, "-V" }); //$NON-NLS-1$
 			if (result == 0) {
 				unpackCommand = location;
 				canUnpack = Boolean.TRUE;
@@ -82,9 +89,10 @@ public class UnpackStep extends CommandStep {
 					String options = getOptions().getProperty(input.getName() + ".unpack.args"); //$NON-NLS-1$
 					String[] cmd = null;
 					if (options != null) {
-						cmd = new String[] {unpackCommand, options, input.getCanonicalPath(), unpacked.getCanonicalPath()};
+						cmd = new String[] { unpackCommand, options, input.getCanonicalPath(),
+								unpacked.getCanonicalPath() };
 					} else {
-						cmd = new String[] {unpackCommand, input.getCanonicalPath(), unpacked.getCanonicalPath()};
+						cmd = new String[] { unpackCommand, input.getCanonicalPath(), unpacked.getCanonicalPath() };
 					}
 					int result = execute(cmd, verbose);
 					if (result != 0 && verbose)

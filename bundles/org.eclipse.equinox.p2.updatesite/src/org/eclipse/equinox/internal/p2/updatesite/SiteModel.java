@@ -62,8 +62,8 @@ public class SiteModel {
 	}
 
 	/**
-	 * Adds an archive reference model to site.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Adds an archive reference model to site. Throws a runtime exception if this
+	 * object is marked read-only.
 	 * 
 	 * @param archiveReference archive reference model
 	 * @since 2.0
@@ -157,11 +157,11 @@ public class SiteModel {
 	}
 
 	/**
-	 * Returns an array of plug-in and non-plug-in archive reference models
-	 * on this site
+	 * Returns an array of plug-in and non-plug-in archive reference models on this
+	 * site
 	 * 
 	 * @return an array of archive reference models, or an empty array if there are
-	 * no archives known to this site.
+	 *         no archives known to this site.
 	 * @since 2.0
 	 */
 	public URLEntry[] getArchives() {
@@ -189,6 +189,7 @@ public class SiteModel {
 
 	/**
 	 * Returns the category with the given name.
+	 * 
 	 * @return the category with the given name, or <code>null</code>
 	 */
 	public SiteCategory getCategory(String name) {
@@ -280,8 +281,8 @@ public class SiteModel {
 	}
 
 	/**
-	 * Gets the localizations for the site as a map from locale
-	 * to the set of translated properties for that locale.
+	 * Gets the localizations for the site as a map from locale to the set of
+	 * translated properties for that locale.
 	 * 
 	 * @return a map from locale to property set
 	 * @since 3.4
@@ -300,7 +301,7 @@ public class SiteModel {
 			try {
 				locationURI = new URI(locationURIString);
 			} catch (URISyntaxException e) {
-				//ignore and return null
+				// ignore and return null
 			}
 		}
 		return locationURI;
@@ -333,7 +334,7 @@ public class SiteModel {
 		return mirrorsURIString;
 	}
 
-	/** 
+	/**
 	 * Returns the site type.
 	 * 
 	 * @return site type, or <code>null</code>.
@@ -343,6 +344,11 @@ public class SiteModel {
 		return type;
 	}
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public boolean isPack200Supported() {
 		return supportsPack200;
 	}
@@ -358,8 +364,8 @@ public class SiteModel {
 	}
 
 	/**
-	 * Sets the localizations for the site as a map from locale
-	 * to the set of translated properties for that locale.
+	 * Sets the localizations for the site as a map from locale to the set of
+	 * translated properties for that locale.
 	 * 
 	 * @param localizations as a map from locale to property set
 	 * @since 3.4
@@ -395,9 +401,9 @@ public class SiteModel {
 	}
 
 	/**
-	 * Sets the mirrors url. Mirror sites will then be obtained from this mirror url later.
-	 * This method is complementary to setMirrorsiteEntryModels(), and only one of these 
-	 * methods should be called.
+	 * Sets the mirrors url. Mirror sites will then be obtained from this mirror url
+	 * later. This method is complementary to setMirrorsiteEntryModels(), and only
+	 * one of these methods should be called.
 	 * 
 	 * @param mirrorsURI additional update site mirrors
 	 * @since 3.1
@@ -406,13 +412,14 @@ public class SiteModel {
 		this.mirrorsURIString = mirrorsURI;
 	}
 
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void setSupportsPack200(boolean value) {
 		this.supportsPack200 = value;
 	}
 
 	/**
-	 * Sets the site type.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Sets the site type. Throws a runtime exception if this object is marked
+	 * read-only.
 	 * 
 	 * @param type site type
 	 * @since 2.0
@@ -439,7 +446,7 @@ public class SiteModel {
 	}
 
 	/**
-	 * Sets the URI of the stats repository used to track downloads. 
+	 * Sets the URI of the stats repository used to track downloads.
 	 * 
 	 * @param statsURI a String describing the stats URI
 	 */

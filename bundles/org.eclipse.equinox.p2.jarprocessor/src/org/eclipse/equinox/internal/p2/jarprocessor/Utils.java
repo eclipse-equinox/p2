@@ -30,51 +30,107 @@ public class Utils {
 	/*
 	 * Properties found in outer pack.properties file
 	 */
-	//comma separated list of jars to exclude from sigining
+	// comma separated list of jars to exclude from sigining
 	public static final String SIGN_EXCLUDES = "sign.excludes"; //$NON-NLS-1$
-	//comma separated list of jars to exlclude from packing
+	// comma separated list of jars to exlclude from packing
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final String PACK_EXCLUDES = "pack.excludes"; //$NON-NLS-1$
-	//Suffix used when specifying arguments to use when running pack200 on a jar
+	// Suffix used when specifying arguments to use when running pack200 on a jar
+
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final String PACK_ARGS_SUFFIX = ".pack.args"; //$NON-NLS-1$
 
 	/*
 	 * Properties found in both pack.properties and eclipse.inf
 	 */
-	//	Default arguments to use when running pack200.
-	// Affects all jars when specified in pack.properties, affects children when specified in eclipse.inf
+	// Default arguments to use when running pack200.
+	// Affects all jars when specified in pack.properties, affects children when
+	// specified in eclipse.inf
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final String DEFAULT_PACK_ARGS = "pack200.default.args"; //$NON-NLS-1$
 
 	/*
 	 * Properties found in eclipse.inf file
 	 */
-	//This jar has been conditioned with pack200
+	// This jar has been conditioned with pack200
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final String MARK_PROPERTY = "pack200.conditioned"; //$NON-NLS-1$
-	//Exclude this jar from processing
+	// Exclude this jar from processing
 	public static final String MARK_EXCLUDE = "jarprocessor.exclude"; //$NON-NLS-1$
-	//Exclude this jar from pack200
+	// Exclude this jar from pack200
 	public static final String MARK_EXCLUDE_PACK = "jarprocessor.exclude.pack"; //$NON-NLS-1$
-	//Exclude this jar from signing
+	// Exclude this jar from signing
 	public static final String MARK_EXCLUDE_SIGN = "jarprocessor.exclude.sign"; //$NON-NLS-1$
-	//Exclude this jar's children from processing
+	// Exclude this jar's children from processing
 	public static final String MARK_EXCLUDE_CHILDREN = "jarprocessor.exclude.children"; //$NON-NLS-1$
-	//Exclude this jar's children from pack200
+	// Exclude this jar's children from pack200
 	public static final String MARK_EXCLUDE_CHILDREN_PACK = "jarprocessor.exclude.children.pack"; //$NON-NLS-1$
-	//Exclude this jar's children from signing
+	// Exclude this jar's children from signing
 	public static final String MARK_EXCLUDE_CHILDREN_SIGN = "jarprocessor.exclude.children.sign"; //$NON-NLS-1$
-	//Arguments used in pack200 for this jar
+	// Arguments used in pack200 for this jar
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final String PACK_ARGS = "pack200.args"; //$NON-NLS-1$
-
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final String PACK200_PROPERTY = "org.eclipse.update.jarprocessor.pack200"; //$NON-NLS-1$
 	public static final String JRE = "@jre"; //$NON-NLS-1$
 	public static final String PATH = "@path"; //$NON-NLS-1$
 	public static final String NONE = "@none"; //$NON-NLS-1$
-
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
 	public static final String JAR_SUFFIX = ".jar"; //$NON-NLS-1$
 
 	public static final FileFilter JAR_FILTER = pathname -> pathname.isFile() && pathname.getName().endsWith(".jar"); //$NON-NLS-1$
-
-	public static final FileFilter PACK_GZ_FILTER = pathname -> pathname.isFile() && pathname.getName().endsWith(JarProcessor.PACKED_SUFFIX);
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
+	public static final FileFilter PACK_GZ_FILTER = pathname -> pathname.isFile()
+			&& pathname.getName().endsWith(JarProcessor.PACKED_SUFFIX);
 
 	public static void close(Object stream) {
 		if (stream != null) {
@@ -86,46 +142,54 @@ public class Utils {
 				else if (stream instanceof JarFile)
 					((JarFile) stream).close();
 			} catch (IOException e) {
-				//ignore
+				// ignore
 			}
 		}
 	}
 
 	/**
-	 * get the set of commands to try to execute pack/unpack 
+	 * get the set of commands to try to execute pack/unpack
+	 * 
 	 * @param cmd the command, either "pack200" or "unpack200"
 	 * @return String [] or null
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
 	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static String[] getPack200Commands(String cmd) {
 		String[] locations = null;
 		String prop = System.getProperty(PACK200_PROPERTY);
 		String javaHome = System.getProperty("java.home"); //$NON-NLS-1$
 		if (null == prop) {
-			locations = new String[] {javaHome + "/bin/" + cmd, cmd}; //$NON-NLS-1$ 
-		} else switch (prop) {
+			locations = new String[] { javaHome + "/bin/" + cmd, cmd }; //$NON-NLS-1$
+		} else
+			switch (prop) {
 			case NONE:
 				return null;
 			case JRE:
-				locations = new String[] {javaHome + "/bin/" + cmd}; //$NON-NLS-1$
+				locations = new String[] { javaHome + "/bin/" + cmd }; //$NON-NLS-1$
 				break;
 			case PATH:
-				locations = new String[] {cmd};
+				locations = new String[] { cmd };
 				break;
 			default:
-				locations = new String[] {prop + "/" + cmd}; //$NON-NLS-1$
+				locations = new String[] { prop + "/" + cmd }; //$NON-NLS-1$
 				break;
-		}
+			}
 		return locations;
 	}
 
 	/**
-	 * Transfers all available bytes from the given input stream to the given
-	 * output stream. Closes both streams if close == true, regardless of failure. 
-	 * Flushes the destination stream if close == false
+	 * Transfers all available bytes from the given input stream to the given output
+	 * stream. Closes both streams if close == true, regardless of failure. Flushes
+	 * the destination stream if close == false
 	 * 
 	 * @param source
 	 * @param destination
-	 * @param close 
+	 * @param close
 	 * @throws IOException
 	 */
 	public static void transferStreams(InputStream source, OutputStream destination, boolean close) throws IOException {
@@ -151,9 +215,9 @@ public class Utils {
 
 	/**
 	 * Deletes all the files and directories from the given root down (inclusive).
-	 * Returns false if we could not delete some file or an exception occurred
-	 * at any point in the deletion.
-	 * Even if an exception occurs, a best effort is made to continue deleting.
+	 * Returns false if we could not delete some file or an exception occurred at
+	 * any point in the deletion. Even if an exception occurs, a best effort is made
+	 * to continue deleting.
 	 */
 	public static boolean clear(java.io.File root) {
 		boolean result = clearChildren(root);
@@ -167,26 +231,32 @@ public class Utils {
 	}
 
 	/**
-	 * Deletes all the files and directories from the given root down, except for 
-	 * the root itself.
-	 * Returns false if we could not delete some file or an exception occurred
-	 * at any point in the deletion.
-	 * Even if an exception occurs, a best effort is made to continue deleting.
+	 * Deletes all the files and directories from the given root down, except for
+	 * the root itself. Returns false if we could not delete some file or an
+	 * exception occurred at any point in the deletion. Even if an exception occurs,
+	 * a best effort is made to continue deleting.
 	 */
 	public static boolean clearChildren(java.io.File root) {
 		boolean result = true;
 		if (root.isDirectory()) {
 			String[] list = root.list();
-			// for some unknown reason, list() can return null.  
+			// for some unknown reason, list() can return null.
 			// Just skip the children If it does.
 			if (list != null)
 				for (String list1 : list) {
 					result &= clear(new java.io.File(root, list1));
-			}
+				}
 		}
 		return result;
 	}
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static Set<String> getPackExclusions(Properties properties) {
 		if (properties == null)
 			return Collections.emptySet();
@@ -239,8 +309,10 @@ public class Utils {
 	}
 
 	/**
-	 * Get the properties from the eclipse.inf file from the given jar.  If the file is not a jar, null is returned.
-	 * If the file is a jar, but does not contain an eclipse.inf file, an empty Properties object is returned.
+	 * Get the properties from the eclipse.inf file from the given jar. If the file
+	 * is not a jar, null is returned. If the file is a jar, but does not contain an
+	 * eclipse.inf file, an empty Properties object is returned.
+	 * 
 	 * @param jarFile
 	 * @return The eclipse.inf properties for the given jar file
 	 */
@@ -263,7 +335,7 @@ public class Utils {
 			}
 			return new Properties();
 		} catch (ZipException e) {
-			//not a jar, don't bother logging this.
+			// not a jar, don't bother logging this.
 			return null;
 		} catch (IOException e) {
 			if (verbose) {
@@ -279,27 +351,29 @@ public class Utils {
 	public static boolean shouldSkipJar(File input, boolean processAll, boolean verbose) {
 		Properties inf = getEclipseInf(input, verbose);
 		if (inf == null) {
-			//not a jar, could be a pack.gz
+			// not a jar, could be a pack.gz
 			return false;
 		}
 		String exclude = inf.getProperty(MARK_EXCLUDE);
 
-		//was marked as exclude, we should skip
+		// was marked as exclude, we should skip
 		if (exclude != null && Boolean.parseBoolean(exclude))
 			return true;
 
-		//process all was set, don't skip
+		// process all was set, don't skip
 		if (processAll)
 			return false;
 
-		//otherwise, we skip if not marked marked
+		// otherwise, we skip if not marked marked
 		String marked = inf.getProperty(MARK_PROPERTY);
 		return !Boolean.parseBoolean(marked);
 	}
 
 	/**
-	 * Stores the given properties in the output stream.  We store the properties 
-	 * in sorted order so that the signing hash doesn't change if the properties didn't change. 
+	 * Stores the given properties in the output stream. We store the properties in
+	 * sorted order so that the signing hash doesn't change if the properties didn't
+	 * change.
+	 * 
 	 * @param props
 	 * @param stream
 	 */

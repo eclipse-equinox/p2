@@ -19,6 +19,11 @@ import java.util.jar.*;
 import org.eclipse.equinox.internal.p2.jarprocessor.*;
 
 public class JarProcessor {
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final String PACKED_SUFFIX = "pack.gz"; //$NON-NLS-1$
 
 	private List<IProcessStep> steps = new ArrayList<>();
@@ -28,6 +33,11 @@ public class JarProcessor {
 	private boolean processAll = false;
 	private LinkedList<Properties> containingInfs = new LinkedList<>();
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	static public JarProcessor getUnpackProcessor(Properties properties) {
 		if (!canPerformUnpack())
 			throw new UnsupportedOperationException();
@@ -36,6 +46,11 @@ public class JarProcessor {
 		return processor;
 	}
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	static public JarProcessor getPackProcessor(Properties properties) {
 		if (!canPerformPack())
 			throw new UnsupportedOperationException();
@@ -44,10 +59,20 @@ public class JarProcessor {
 		return processor;
 	}
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	static public boolean canPerformPack() {
 		return PackStep.canPack();
 	}
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	static public boolean canPerformUnpack() {
 		return UnpackStep.canUnpack();
 	}
@@ -82,21 +107,24 @@ public class JarProcessor {
 	}
 
 	/**
-	 * Recreate a jar file.  The replacements map specifies entry names to be replaced, the replacements are
-	 * expected to be found in directory.
+	 * Recreate a jar file. The replacements map specifies entry names to be
+	 * replaced, the replacements are expected to be found in directory.
 	 * 
-	 * @param jar - The input jar
-	 * @param outputJar - the output
+	 * @param jar          - The input jar
+	 * @param outputJar    - the output
 	 * @param replacements - map of entryName -> new entryName
-	 * @param directory - location to find file for new entryName
+	 * @param directory    - location to find file for new entryName
 	 * @throws IOException
 	 */
-	private void recreateJar(JarFile jar, JarOutputStream outputJar, Map<String, String> replacements, File directory, Properties inf) throws IOException {
+	private void recreateJar(JarFile jar, JarOutputStream outputJar, Map<String, String> replacements, File directory,
+			Properties inf) throws IOException {
 		InputStream in = null;
 		boolean marked = false;
 		try {
 			Enumeration<JarEntry> entries = jar.entries();
-			for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
+			for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements()
+					? (JarEntry) entries.nextElement()
+					: null) {
 				File replacement = null;
 				JarEntry newEntry = null;
 				if (replacements.containsKey(entry.getName())) {
@@ -110,11 +138,13 @@ public class JarProcessor {
 							} catch (Exception e) {
 								if (verbose) {
 									e.printStackTrace();
-									System.out.println("Warning: Problem reading " + replacement.getPath() + ", using " + jar.getName() + File.separator + entry.getName() + " instead."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+									System.out.println("Warning: Problem reading " + replacement.getPath() + ", using " //$NON-NLS-1$ //$NON-NLS-2$
+											+ jar.getName() + File.separator + entry.getName() + " instead."); //$NON-NLS-1$
 								}
 							}
 						} else if (verbose) {
-							System.out.println("Warning: " + replacement.getPath() + " not found, using " + jar.getName() + File.separator + entry.getName() + " instead."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							System.out.println("Warning: " + replacement.getPath() + " not found, using " //$NON-NLS-1$ //$NON-NLS-2$
+									+ jar.getName() + File.separator + entry.getName() + " instead."); //$NON-NLS-1$
 						}
 					}
 				}
@@ -133,7 +163,8 @@ public class JarProcessor {
 				newEntry.setTime(entry.getTime());
 				outputJar.putNextEntry(newEntry);
 				if (entry.getName().equals(Utils.MARK_FILE_NAME)) {
-					//The eclipse.inf file was read in earlier, don't need to reread it, just write it out now
+					// The eclipse.inf file was read in earlier, don't need to reread it, just write
+					// it out now
 					Utils.storeProperties(inf, outputJar);
 					marked = true;
 				} else {
@@ -142,7 +173,7 @@ public class JarProcessor {
 				outputJar.closeEntry();
 				in.close();
 
-				//delete the nested jar file
+				// delete the nested jar file
 				if (replacement != null) {
 					replacement.delete();
 				}
@@ -170,9 +201,10 @@ public class JarProcessor {
 		return result;
 	}
 
-	private void extractEntries(JarFile jar, File tempDir, Map<String, String> data, Properties inf) throws IOException {
+	private void extractEntries(JarFile jar, File tempDir, Map<String, String> data, Properties inf)
+			throws IOException {
 		if (inf != null) {
-			//skip if excluding children
+			// skip if excluding children
 			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN)) {
 				String excludeChildren = inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN);
 				if (Boolean.parseBoolean(excludeChildren))
@@ -187,7 +219,9 @@ public class JarProcessor {
 
 		Enumeration<JarEntry> entries = jar.entries();
 		if (entries.hasMoreElements()) {
-			for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
+			for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements()
+					? (JarEntry) entries.nextElement()
+					: null) {
 				String name = entry.getName();
 				String newName = recursionEffect(name);
 				if (newName != null) {
@@ -196,7 +230,7 @@ public class JarProcessor {
 							System.out.print("  "); //$NON-NLS-1$
 						System.out.println("Processing nested file: " + name); //$NON-NLS-1$
 					}
-					//extract entry to temp directory
+					// extract entry to temp directory
 					File extracted = ZipProcessor.createSubPathFile(tempDir, name);
 					File parentDir = extracted.getParentFile();
 					if (!parentDir.exists())
@@ -207,14 +241,14 @@ public class JarProcessor {
 					try {
 						in = jar.getInputStream(entry);
 						out = new BufferedOutputStream(new FileOutputStream(extracted));
-						Utils.transferStreams(in, out, true); //this will close both streams
+						Utils.transferStreams(in, out, true); // this will close both streams
 					} finally {
 						Utils.close(in);
 						Utils.close(out);
 					}
 					extracted.setLastModified(entry.getTime());
 
-					//recurse
+					// recurse
 					String dir = getWorkingDirectory();
 					try {
 						containingInfs.addFirst(inf);
@@ -227,7 +261,7 @@ public class JarProcessor {
 						containingInfs.removeFirst();
 					}
 
-					//delete the extracted item leaving the recursion result
+					// delete the extracted item leaving the recursion result
 					if (!name.equals(newName))
 						extracted.delete();
 				}
@@ -277,7 +311,7 @@ public class JarProcessor {
 				if (skip)
 					System.out.println("Skipping " + input.getPath()); //$NON-NLS-1$
 				else {
-					System.out.print("Running "); //$NON-NLS-1$ 
+					System.out.print("Running "); //$NON-NLS-1$
 					for (IProcessStep step : steps) {
 						System.out.print(step.getStepName() + " "); //$NON-NLS-1$
 					}
@@ -286,14 +320,15 @@ public class JarProcessor {
 			}
 
 			if (skip) {
-				//This jar was not marked as conditioned, and we are only processing conditioned jars, so do nothing
+				// This jar was not marked as conditioned, and we are only processing
+				// conditioned jars, so do nothing
 				return input;
 			}
 
-			//pre
+			// pre
 			File workingFile = preProcess(input, workingDir);
 
-			//Extract entries from jar and recurse on them
+			// Extract entries from jar and recurse on them
 			if (depth == 0) {
 				tempDir = new File(workingDir, "temp." + workingFile.getName()); //$NON-NLS-1$
 			} else {
@@ -312,8 +347,9 @@ public class JarProcessor {
 				if (inf != null)
 					infAdjusted = adjustInf(workingFile, inf);
 
-				//Recreate the jar with replacements. 
-				//This is not strictly necessary if we didn't change the inf file and didn't change any content
+				// Recreate the jar with replacements.
+				// This is not strictly necessary if we didn't change the inf file and didn't
+				// change any content
 				if (!replacements.isEmpty() || infAdjusted) {
 					File tempJar = null;
 					tempJar = new File(tempDir, workingFile.getName());
@@ -338,10 +374,10 @@ public class JarProcessor {
 				Utils.close(jar);
 			}
 
-			//post
+			// post
 			File result = postProcess(workingFile, workingDir);
 
-			//have to normalize after the post steps
+			// have to normalize after the post steps
 			normalize(result, workingDir);
 
 			// If the original input is where we ended up, just return it
@@ -369,7 +405,7 @@ public class JarProcessor {
 
 	private void normalize(File input, File directory) {
 		if (input.getName().endsWith(JarProcessor.PACKED_SUFFIX)) {
-			//not a jar
+			// not a jar
 			return;
 		}
 		try {
@@ -381,7 +417,9 @@ public class JarProcessor {
 				jar = new JarFile(input, false);
 				jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
 				Enumeration<JarEntry> entries = jar.entries();
-				for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (JarEntry) entries.nextElement() : null) {
+				for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements()
+						? (JarEntry) entries.nextElement()
+						: null) {
 					JarEntry newEntry = new JarEntry(entry.getName());
 					newEntry.setTime(entry.getTime());
 					jarIn = new BufferedInputStream(jar.getInputStream(entry));
@@ -391,7 +429,7 @@ public class JarProcessor {
 					jarIn.close();
 				}
 			} catch (JarException e) {
-				//not a jar
+				// not a jar
 				return;
 			} finally {
 				Utils.close(jarOut);

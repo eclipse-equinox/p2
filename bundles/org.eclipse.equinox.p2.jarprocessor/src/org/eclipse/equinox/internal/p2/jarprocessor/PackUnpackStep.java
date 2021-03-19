@@ -18,9 +18,12 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * @author aniefer@ca.ibm.com
- *
+ * @noreference This class is not intended to be referenced by clients.
+ * @noextend This class is not intended to be subclassed by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
  */
+@Deprecated(forRemoval = true, since = "1.2.0")
 public class PackUnpackStep extends PackStep {
 	private Set<String> exclusions = null;
 

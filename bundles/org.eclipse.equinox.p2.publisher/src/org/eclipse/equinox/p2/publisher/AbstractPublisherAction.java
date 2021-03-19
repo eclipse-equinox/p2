@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others. 
+ * Copyright (c) 2008, 2017 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP - ongoing development
@@ -63,6 +63,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 	/**
 	 * Returns a string array of { ws, os, arch } as parsed from the given string
+	 *
 	 * @param configSpec the string to parse
 	 * @return the ws, os, arch form of the given string
 	 */
@@ -85,10 +86,11 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 	/**
 	 * Returns the canonical form of config spec with the given ws, os and arch.
-	 * Note that the result is intended to be machine readable (i.e., parseConfigSpec
-	 * will parse the the result).
-	 * @param ws the window system
-	 * @param os the operating system
+	 * Note that the result is intended to be machine readable (i.e.,
+	 * parseConfigSpec will parse the the result).
+	 *
+	 * @param ws   the window system
+	 * @param os   the operating system
 	 * @param arch the machine architecture
 	 * @return the machine readable format of the given config spec
 	 */
@@ -97,15 +99,16 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	protected void addSelfCapability(InstallableUnitDescription root) {
-		root.setCapabilities(new IProvidedCapability[] {createSelfCapability(root.getId(), root.getVersion())});
+		root.setCapabilities(new IProvidedCapability[] { createSelfCapability(root.getId(), root.getVersion()) });
 	}
 
 	/**
-	 * Returns the LDAP filter form that matches the given config spec.  Returns
-	 * an empty String if the spec does not identify an ws, os or arch.
+	 * Returns the LDAP filter form that matches the given config spec. Returns an
+	 * empty String if the spec does not identify an ws, os or arch.
+	 *
 	 * @param configSpec a config spec to filter
-	 * @return the LDAP filter for the given spec.  <code>null</code> if the given spec does not 
-	 * parse into a filter.
+	 * @return the LDAP filter for the given spec. <code>null</code> if the given
+	 *         spec does not parse into a filter.
 	 */
 	protected IMatchExpression<IInstallableUnit> createFilterSpec(String configSpec) {
 		String ldap = createLDAPString(configSpec);
@@ -117,9 +120,15 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	protected String createLDAPString(String configSpec) {
 		String[] config = parseConfigSpec(configSpec);
 		if (config[0] != null || config[1] != null || config[2] != null) {
-			String filterWs = config[0] != null && !CONFIG_ANY.equalsIgnoreCase(config[0]) ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterOs = config[1] != null && !CONFIG_ANY.equalsIgnoreCase(config[1]) ? "(osgi.os=" + config[1] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterArch = config[2] != null && !CONFIG_ANY.equalsIgnoreCase(config[2]) ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterWs = config[0] != null && !CONFIG_ANY.equalsIgnoreCase(config[0])
+					? "(osgi.ws=" + config[0] + ")" //$NON-NLS-1$ //$NON-NLS-2$
+					: ""; //$NON-NLS-1$
+			String filterOs = config[1] != null && !CONFIG_ANY.equalsIgnoreCase(config[1])
+					? "(osgi.os=" + config[1] + ")" //$NON-NLS-1$ //$NON-NLS-2$
+					: ""; //$NON-NLS-1$
+			String filterArch = config[2] != null && !CONFIG_ANY.equalsIgnoreCase(config[2])
+					? "(osgi.arch=" + config[2] + ")" //$NON-NLS-1$ //$NON-NLS-2$
+					: ""; //$NON-NLS-1$
 			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0)
 				return null;
 			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -136,9 +145,10 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
-	 * Returns the normalized string form of the given config spec.  This is useful for putting
-	 * in IU ids etc. Note that the result is not intended to be machine readable (i.e., parseConfigSpec
-	 * may not work on the result).
+	 * Returns the normalized string form of the given config spec. This is useful
+	 * for putting in IU ids etc. Note that the result is not intended to be machine
+	 * readable (i.e., parseConfigSpec may not work on the result).
+	 *
 	 * @param configSpec the config spec to format
 	 * @return the readable format of the given config spec
 	 */
@@ -152,9 +162,10 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
-	 * Creates and returns a collection of RequiredCapabilities for the IUs represented
-	 * by the given collection.  The collection may include a mixture of IInstallableUnits
-	 * or VersionedNames.
+	 * Creates and returns a collection of RequiredCapabilities for the IUs
+	 * represented by the given collection. The collection may include a mixture of
+	 * IInstallableUnits or VersionedNames.
+	 *
 	 * @param children descriptions of the IUs on which requirements are to be made
 	 * @return a collection of RequiredCapabilities representing the given IUs
 	 */
@@ -164,12 +175,15 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			if (next instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) next;
 				VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : iu.getFilter(), false, false));
+				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range,
+						iu.getFilter() == null ? null : iu.getFilter(), false, false));
 			} else {
 				Version version = next.getVersion();
-				VersionRange range = (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange : new VersionRange(version, true, version, true);
+				VersionRange range = (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange
+						: new VersionRange(version, true, version, true);
 				IMatchExpression<IInstallableUnit> filter = getFilterAdvice(next);
-				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), range, filter, false, false));
+				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), range,
+						filter, false, false));
 			}
 		}
 		return result;
@@ -178,7 +192,8 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	private IMatchExpression<IInstallableUnit> getFilterAdvice(IVersionedId name) {
 		if (info == null)
 			return null;
-		Collection<IFilterAdvice> filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(), IFilterAdvice.class);
+		Collection<IFilterAdvice> filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(),
+				IFilterAdvice.class);
 		for (IFilterAdvice advice : filterAdvice) {
 			IMatchExpression<IInstallableUnit> result = advice.getFilter(name.getId(), name.getVersion(), false);
 			if (result != null)
@@ -194,43 +209,55 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		return root;
 	}
 
-	protected IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
-		ArtifactDescriptor result = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info, key, pathOnDisk);
-		//TODO this size calculation is bogus
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 */
+	@Deprecated(forRemoval = true, since = "1.6.0")
+	protected IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk,
+			String installSize) {
+		ArtifactDescriptor result = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info, key,
+				pathOnDisk);
+		// TODO this size calculation is bogus
 		if (pathOnDisk != null) {
 			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
 			// TODO - this is wrong but I'm testing a work-around for bug 205842
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 		}
-		IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+		IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {
+				new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
 		result.setProcessingSteps(steps);
 		result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 		return result;
 	}
 
-	protected InstallableUnitDescription createParentIU(Collection<? extends IVersionedId> children, String id, Version version) {
+	protected InstallableUnitDescription createParentIU(Collection<? extends IVersionedId> children, String id,
+			Version version) {
 		InstallableUnitDescription root = createIUShell(id, version);
 		root.addRequirements(createIURequirements(children));
 		addSelfCapability(root);
 		return root;
 	}
 
-	//This is to hide FileUtils from other actions
+	// This is to hide FileUtils from other actions
 	protected IPathComputer createParentPrefixComputer(int segmentsToKeep) {
 		return FileUtils.createParentPrefixComputer(segmentsToKeep);
 	}
 
-	//This is to hide FileUtils from other actions
+	// This is to hide FileUtils from other actions
 	protected IPathComputer createRootPrefixComputer(final File root) {
 		return FileUtils.createRootPathComputer(root);
 	}
 
 	protected IProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
-		return MetadataFactory.createProvidedCapability(PublisherHelper.IU_NAMESPACE, installableUnitId, installableUnitVersion);
+		return MetadataFactory.createProvidedCapability(PublisherHelper.IU_NAMESPACE, installableUnitId,
+				installableUnitVersion);
 	}
 
-	protected static InstallableUnitDescription[] processAdditionalInstallableUnitsAdvice(IInstallableUnit iu, IPublisherInfo publisherInfo) {
-		Collection<IAdditionalInstallableUnitAdvice> advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), IAdditionalInstallableUnitAdvice.class);
+	protected static InstallableUnitDescription[] processAdditionalInstallableUnitsAdvice(IInstallableUnit iu,
+			IPublisherInfo publisherInfo) {
+		Collection<IAdditionalInstallableUnitAdvice> advice = publisherInfo.getAdvice(null, false, iu.getId(),
+				iu.getVersion(), IAdditionalInstallableUnitAdvice.class);
 		if (advice.isEmpty())
 			return null;
 
@@ -244,16 +271,20 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
-	 * Add all of the advised artifact properties for the given IU and artifact descriptor.
-	 * @param iu the IU
+	 * Add all of the advised artifact properties for the given IU and artifact
+	 * descriptor.
+	 *
+	 * @param iu         the IU
 	 * @param descriptor the descriptor to decorate
-	 * @param info the publisher info supplying the advice
+	 * @param info       the publisher info supplying the advice
 	 */
-	protected static void processArtifactPropertiesAdvice(IInstallableUnit iu, IArtifactDescriptor descriptor, IPublisherInfo info) {
+	protected static void processArtifactPropertiesAdvice(IInstallableUnit iu, IArtifactDescriptor descriptor,
+			IPublisherInfo info) {
 		if (!(descriptor instanceof SimpleArtifactDescriptor))
 			return;
 
-		Collection<IPropertyAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
+		Collection<IPropertyAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(),
+				IPropertyAdvice.class);
 		for (IPropertyAdvice entry : advice) {
 			Map<String, String> props = entry.getArtifactProperties(iu, descriptor);
 			if (props == null)
@@ -266,11 +297,13 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 	/**
 	 * Add all of the advised IU properties for the given IU.
-	 * @param iu the IU to decorate
+	 *
+	 * @param iu   the IU to decorate
 	 * @param info the publisher info supplying the advice
 	 */
 	protected static void processInstallableUnitPropertiesAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
-		Collection<IPropertyAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
+		Collection<IPropertyAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(),
+				IPropertyAdvice.class);
 		for (IPropertyAdvice entry : advice) {
 			Map<String, String> props = entry.getInstallableUnitProperties(iu);
 			if (props == null)
@@ -283,17 +316,19 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 	/**
 	 * Add any update descriptor advice to the given IU
-	 * @param iu the IU to decorate
+	 *
+	 * @param iu   the IU to decorate
 	 * @param info the publisher info supplying the advice
 	 */
 	protected static void processUpdateDescriptorAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
-		Collection<IUpdateDescriptorAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IUpdateDescriptorAdvice.class);
+		Collection<IUpdateDescriptorAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(),
+				IUpdateDescriptorAdvice.class);
 
 		if (advice.isEmpty())
 			return;
 
 		for (IUpdateDescriptorAdvice entry : advice) {
-			//process the IU Descriptor
+			// process the IU Descriptor
 			IUpdateDescriptor updateDescriptor = entry.getUpdateDescriptor(iu);
 			if (updateDescriptor != null) {
 				iu.setUpdateDescriptor(updateDescriptor);
@@ -302,23 +337,27 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
-	 * Add all of the advised provided and required capabilities for the given installable unit.
-	 * @param iu the IU to decorate
+	 * Add all of the advised provided and required capabilities for the given
+	 * installable unit.
+	 *
+	 * @param iu   the IU to decorate
 	 * @param info the publisher info supplying the advice
 	 */
 	protected static void processCapabilityAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
-		Collection<ICapabilityAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ICapabilityAdvice.class);
+		Collection<ICapabilityAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(),
+				ICapabilityAdvice.class);
 		if (advice.isEmpty())
 			return;
 
 		for (ICapabilityAdvice entry : advice) {
-			//process required capabilities
+			// process required capabilities
 			IRequirement[] requiredAdvice = entry.getRequiredCapabilities(iu);
 			if (requiredAdvice != null) {
 				List<IRequirement> current = iu.getRequirements();
 				Set<IRequirement> resultRequiredCapabilities = new HashSet<>(current);
 
-				// remove current required capabilities that match (same name and namespace) advice.
+				// remove current required capabilities that match (same name and namespace)
+				// advice.
 				for (IRequirement currReq : current) {
 					IRequiredCapability currentRequiredCapability = toRequiredCapability(currReq);
 					if (currentRequiredCapability == null) {
@@ -331,7 +370,8 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 							continue;
 						}
 
-						if (requiredCapability.getNamespace().equals(currentRequiredCapability.getNamespace()) && requiredCapability.getName().equals(currentRequiredCapability.getName())) {
+						if (requiredCapability.getNamespace().equals(currentRequiredCapability.getNamespace())
+								&& requiredCapability.getName().equals(currentRequiredCapability.getName())) {
 							resultRequiredCapabilities.remove(currentRequiredCapability);
 							break;
 						}
@@ -339,16 +379,18 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				}
 				// add all advice
 				resultRequiredCapabilities.addAll(Arrays.asList(requiredAdvice));
-				iu.setRequirements(resultRequiredCapabilities.toArray(new IRequirement[resultRequiredCapabilities.size()]));
+				iu.setRequirements(
+						resultRequiredCapabilities.toArray(new IRequirement[resultRequiredCapabilities.size()]));
 			}
 
-			//process meta required capabilities
+			// process meta required capabilities
 			IRequirement[] metaRequiredAdvice = entry.getMetaRequiredCapabilities(iu);
 			if (metaRequiredAdvice != null) {
 				Collection<IRequirement> current = iu.getMetaRequirements();
 				Set<IRequirement> resultMetaRequiredCapabilities = new HashSet<>(current);
 
-				// remove current meta-required capabilities that match (same name and namespace) advice.
+				// remove current meta-required capabilities that match (same name and
+				// namespace) advice.
 				for (IRequirement currMetaReq : current) {
 					IRequiredCapability currentMetaRequiredCapability = toRequiredCapability(currMetaReq);
 					if (currentMetaRequiredCapability == null) {
@@ -361,7 +403,8 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 							continue;
 						}
 
-						if (metaRequiredCapability.getNamespace().equals(currentMetaRequiredCapability.getNamespace()) && metaRequiredCapability.getName().equals(currentMetaRequiredCapability.getName())) {
+						if (metaRequiredCapability.getNamespace().equals(currentMetaRequiredCapability.getNamespace())
+								&& metaRequiredCapability.getName().equals(currentMetaRequiredCapability.getName())) {
 							resultMetaRequiredCapabilities.remove(currentMetaRequiredCapability);
 							break;
 						}
@@ -370,24 +413,27 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 				// add all advice
 				resultMetaRequiredCapabilities.addAll(Arrays.asList(metaRequiredAdvice));
-				iu.setMetaRequirements(resultMetaRequiredCapabilities.toArray(new IRequirement[resultMetaRequiredCapabilities.size()]));
+				iu.setMetaRequirements(resultMetaRequiredCapabilities
+						.toArray(new IRequirement[resultMetaRequiredCapabilities.size()]));
 			}
 
-			//process provided capabilities
+			// process provided capabilities
 			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
 				Collection<IProvidedCapability> current = iu.getProvidedCapabilities();
 				Set<IProvidedCapability> resultProvidedCapabilities = new HashSet<>(current);
 				for (IProvidedCapability currentProvidedCapability : current) {
 					for (IProvidedCapability providedCapability : providedAdvice) {
-						if (providedCapability.getNamespace().equals(currentProvidedCapability.getNamespace()) && providedCapability.getName().equals(currentProvidedCapability.getName())) {
+						if (providedCapability.getNamespace().equals(currentProvidedCapability.getNamespace())
+								&& providedCapability.getName().equals(currentProvidedCapability.getName())) {
 							resultProvidedCapabilities.remove(currentProvidedCapability);
 							break;
 						}
 					}
 				}
 				resultProvidedCapabilities.addAll(Arrays.asList(providedAdvice));
-				iu.setCapabilities(resultProvidedCapabilities.toArray(new IProvidedCapability[resultProvidedCapabilities.size()]));
+				iu.setCapabilities(
+						resultProvidedCapabilities.toArray(new IProvidedCapability[resultProvidedCapabilities.size()]));
 			}
 		}
 	}
@@ -407,16 +453,21 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 	/**
 	 * Adds all applicable touchpoint advice to the given installable unit.
-	 * @param iu The installable unit to add touchpoint advice to
-	 * @param currentInstructions The set of touchpoint instructions assembled for this IU so far
-	 * @param info The publisher info
+	 *
+	 * @param iu                  The installable unit to add touchpoint advice to
+	 * @param currentInstructions The set of touchpoint instructions assembled for
+	 *                            this IU so far
+	 * @param info                The publisher info
 	 */
-	protected static void processTouchpointAdvice(InstallableUnitDescription iu, Map<String, ? extends Object> currentInstructions, IPublisherInfo info) {
+	protected static void processTouchpointAdvice(InstallableUnitDescription iu,
+			Map<String, ? extends Object> currentInstructions, IPublisherInfo info) {
 		processTouchpointAdvice(iu, currentInstructions, info, null);
 	}
 
-	protected static void processTouchpointAdvice(InstallableUnitDescription iu, Map<String, ? extends Object> currentInstructions, IPublisherInfo info, String configSpec) {
-		Collection<ITouchpointAdvice> advice = info.getAdvice(configSpec, false, iu.getId(), iu.getVersion(), ITouchpointAdvice.class);
+	protected static void processTouchpointAdvice(InstallableUnitDescription iu,
+			Map<String, ? extends Object> currentInstructions, IPublisherInfo info, String configSpec) {
+		Collection<ITouchpointAdvice> advice = info.getAdvice(configSpec, false, iu.getId(), iu.getVersion(),
+				ITouchpointAdvice.class);
 		if (currentInstructions == null) {
 			if (advice == null || advice.isEmpty())
 				return;
@@ -433,10 +484,13 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
-	 * Publishes the artifact by zipping the <code>files</code> using <code>root</code>
-	 * as a base for relative paths. Then copying the zip into the repository.
-	 * @param descriptor used to identify the zip.
-	 * @param inclusion the file to be published. files can be <code>null</code> but no action is taken.
+	 * Publishes the artifact by zipping the <code>files</code> using
+	 * <code>root</code> as a base for relative paths. Then copying the zip into the
+	 * repository.
+	 *
+	 * @param descriptor    used to identify the zip.
+	 * @param inclusion     the file to be published. files can be <code>null</code>
+	 *                      but no action is taken.
 	 * @param publisherInfo the publisher info.
 	 */
 	protected void publishArtifact(IArtifactDescriptor descriptor, File inclusion, IPublisherInfo publisherInfo) {
@@ -448,13 +502,15 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (destination == null || destination.contains(descriptor))
 			return;
 
-		// if all we are doing is indexing things then add the descriptor and get on with it
+		// if all we are doing is indexing things then add the descriptor and get on
+		// with it
 		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
 			destination.addDescriptor(descriptor, new NullProgressMonitor());
 			return;
 		}
 
-		// if the file is already in the same location the repo will put it, just add the descriptor and exit
+		// if the file is already in the same location the repo will put it, just add
+		// the descriptor and exit
 		if (destination instanceof IFileArtifactRepository) {
 			File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
 			if (inclusion.equals(descriptorFile)) {
@@ -477,15 +533,20 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
-	 * Publishes the artifact by zipping the <code>files</code> using <code>root</code>
-	 * as a base for relative paths. Then copying the zip into the repository.
-	 * @param descriptor used to identify the zip.
-	 * @param inclusions and folders to be included in the zip. files can be null.
-	 * @param exclusions and folders to be excluded in the zip. files can be null.
-	 * @param publisherInfo the publisher info.
+	 * Publishes the artifact by zipping the <code>files</code> using
+	 * <code>root</code> as a base for relative paths. Then copying the zip into the
+	 * repository.
+	 *
+	 * @param descriptor     used to identify the zip.
+	 * @param inclusions     and folders to be included in the zip. files can be
+	 *                       null.
+	 * @param exclusions     and folders to be excluded in the zip. files can be
+	 *                       null.
+	 * @param publisherInfo  the publisher info.
 	 * @param prefixComputer
 	 */
-	protected void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions, IPublisherInfo publisherInfo, IPathComputer prefixComputer) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions,
+			IPublisherInfo publisherInfo, IPathComputer prefixComputer) {
 		// no files to publish so this is done.
 		if (inclusions == null || inclusions.length < 1)
 			return;
@@ -493,15 +554,18 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		IArtifactRepository destination = publisherInfo.getArtifactRepository();
 		if (destination == null || destination.contains(descriptor))
 			return;
-		// if all we are doing is indexing things then add the descriptor and get on with it
+		// if all we are doing is indexing things then add the descriptor and get on
+		// with it
 		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
 			destination.addDescriptor(descriptor, new NullProgressMonitor());
 			return;
 		}
 
 		// TODO need to implement the overwrite story in the repos
-		//		boolean overwrite = (info.getArtifactOptions() & IPublisherInfo.A_OVERWRITE) > 0;
-		// if there is just one file and the mode is as-is, just copy the file into the repo
+		// boolean overwrite = (info.getArtifactOptions() & IPublisherInfo.A_OVERWRITE)
+		// > 0;
+		// if there is just one file and the mode is as-is, just copy the file into the
+		// repo
 		// otherwise, zip up the files and copy the zip into the repo
 		File tempFile = null;
 		try {
@@ -525,9 +589,10 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
-	 * Loop over the known metadata repositories looking for the given IU.
-	 * Return the first IU found.
-	 * @param iuId  the id of the IU to look for
+	 * Loop over the known metadata repositories looking for the given IU. Return
+	 * the first IU found.
+	 *
+	 * @param iuId the id of the IU to look for
 	 * @return the first matching IU or <code>null</code> if none.
 	 */
 	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
@@ -549,13 +614,16 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
-	 * Loop over the known metadata repositories looking for the given IU within a particular range
+	 * Loop over the known metadata repositories looking for the given IU within a
+	 * particular range
+	 *
 	 * @param publisherResult
-	 * @param iuId the id of the IU to look for
-	 * @param versionRange the version range to consider
+	 * @param iuId            the id of the IU to look for
+	 * @param versionRange    the version range to consider
 	 * @return The the IUs with the matching ids in the given range
 	 */
-	protected IQueryResult<IInstallableUnit> queryForIUs(IPublisherResult publisherResult, String iuId, VersionRange versionRange) {
+	protected IQueryResult<IInstallableUnit> queryForIUs(IPublisherResult publisherResult, String iuId,
+			VersionRange versionRange) {
 		IQuery<IInstallableUnit> query = null;
 		IQueryResult<IInstallableUnit> queryResult = Collector.emptyCollector();
 		query = QueryUtil.createIUQuery(iuId, versionRange);
