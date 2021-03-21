@@ -292,6 +292,10 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 			File newFile = new File(file.getParentFile(), "eclipse.exe"); //$NON-NLS-1$
 			file.renameTo(newFile);
 			descriptor.replace(file, newFile);
+		} else if (file.getName().equals("launcherc.exe")) { //$NON-NLS-1$
+			File newFile = new File(file.getParentFile(), "eclipsec.exe"); //$NON-NLS-1$
+			file.renameTo(newFile);
+			descriptor.replace(file, newFile);
 		}
 	}
 }

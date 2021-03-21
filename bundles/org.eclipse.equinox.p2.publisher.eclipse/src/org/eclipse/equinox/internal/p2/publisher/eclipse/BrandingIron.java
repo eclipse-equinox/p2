@@ -315,9 +315,11 @@ public class BrandingIron {
 		descriptor.addFile(targetLauncher);
 	}
 
-	private File findLauncher(File root) {
-		for (String launcherName : new String[] { "launcher", "eclipse" }) { //$NON-NLS-1$ //$NON-NLS-2$
-			File launcher = new File(root, launcherName);
+	private File findLauncher(File root, String... candidates) {
+		if (candidates.length == 0)
+			candidates = new String[] { "launcher", "eclipse" }; //$NON-NLS-1$ //$NON-NLS-2$
+		for (String candidate : candidates) {
+			File launcher = new File(root, candidate);
 			if (launcher.exists())
 				return launcher;
 		}
@@ -359,26 +361,38 @@ public class BrandingIron {
 
 	private void brandWindows(ExecutablesDescriptor descriptor) throws Exception {
 		File root = descriptor.getLocation();
-		File templateLauncher = new File(root, name + ".exe"); //$NON-NLS-1$
-		if (!templateLauncher.exists())
-			templateLauncher = new File(root, "launcher.exe"); //$NON-NLS-1$
-		if (!templateLauncher.exists())
-			templateLauncher = new File(root, "eclipse.exe"); //$NON-NLS-1$
-		if (brandIcons) {
-			if (templateLauncher.exists()) {
+		String binary = name + ".exe"; //$NON-NLS-1$
+		File templateLauncher = findLauncher(root, binary, "launcher.exe", "eclipse.exe"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (templateLauncher != null) {
+			if (brandIcons) {
 				String[] args = new String[icons.length + 1];
 				args[0] = templateLauncher.getAbsolutePath();
 				System.arraycopy(icons, 0, args, 1, icons.length);
 				IconExe.main(args);
-			} else {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Could not find executable to brand", null)); //$NON-NLS-1$
 			}
+
+			if (!templateLauncher.getName().equals(binary)) {
+				File targetLauncher = new File(root, binary);
+				templateLauncher.renameTo(targetLauncher);
+				descriptor.replace(templateLauncher, targetLauncher);
+			}
+		} else {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Could not find executable to brand", null)); //$NON-NLS-1$
 		}
-		File targetLauncher = new File(root, name + ".exe"); //$NON-NLS-1$
-		if (templateLauncher.exists() && !templateLauncher.getName().equals(name + ".exe")) { //$NON-NLS-1$
-			templateLauncher.renameTo(targetLauncher);
-			descriptor.replace(templateLauncher, targetLauncher);
+
+		// Handle console application
+		binary = name + "c.exe"; //$NON-NLS-1$
+		templateLauncher = findLauncher(root, binary, "launcherc.exe", "eclipsec.exe"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (templateLauncher != null) {
+			if (!templateLauncher.getName().equals(binary)) {
+				File targetLauncher = new File(root, binary);
+				templateLauncher.renameTo(targetLauncher);
+				descriptor.replace(templateLauncher, targetLauncher);
+			}
+		} else {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Could not find console executable to brand", null)); //$NON-NLS-1$
 		}
+
 		descriptor.setExecutableName(name, true);
 	}
 

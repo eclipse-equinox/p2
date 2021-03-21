@@ -245,10 +245,6 @@ public class ExecutablesDescriptor {
 	private void updateExecutableName(String newName) {
 		if (newName.equalsIgnoreCase(executableName))
 			return;
-		String targetIni = executableName + ".ini"; //$NON-NLS-1$
-		String targetExecutable = executableName;
-		String executableExtension = Constants.OS_WIN32.equals(os) ? ".exe" : ""; //$NON-NLS-1$ //$NON-NLS-2$
-		targetExecutable = executableName + executableExtension;
 		Set<File> filesCopy = new HashSet<>(files);
 		for (File file : filesCopy) {
 			String base = file.getParent();
@@ -257,9 +253,13 @@ public class ExecutablesDescriptor {
 			base = base == null ? "" : base + "/"; //$NON-NLS-1$ //$NON-NLS-2$
 			if (Constants.OS_MACOSX.equals(os) && base.startsWith(executableName + ".app")) //$NON-NLS-1$
 				base = newName + ".app" + base.substring(executableName.length() + 4); //$NON-NLS-1$
-			if (file.getName().equalsIgnoreCase(targetExecutable))
-				replace(file, new File(base + newName + executableExtension));
-			else if (file.getName().equalsIgnoreCase(targetIni))
+			if (file.getName().equalsIgnoreCase(executableName))
+				replace(file, new File(base + newName));
+			else if (file.getName().equalsIgnoreCase(executableName + ".exe")) //$NON-NLS-1$
+				replace(file, new File(base + newName + ".exe")); //$NON-NLS-1$
+			else if (file.getName().equalsIgnoreCase(executableName + "c.exe")) //$NON-NLS-1$
+				replace(file, new File(base + newName + "c.exe")); //$NON-NLS-1$
+			else if (file.getName().equalsIgnoreCase(executableName + ".ini")) //$NON-NLS-1$
 				replace(file, new File(base + newName + ".ini")); //$NON-NLS-1$
 			else if (Constants.OS_MACOSX.equals(os))
 				replace(file, new File(base + file.getName()));
