@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,9 +21,8 @@ import org.apache.tools.ant.types.FileSet;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
 /**
- * This task provides massaging facilities for jar files.
- * It supports: signing, unsigning, normalization, packing
- * 	- 
+ * This task provides massaging facilities for jar files. It supports: signing,
+ * unsigning, normalization, packing -
  */
 public class JarProcessorTask extends Task {
 	private final Options options = new Options();
@@ -66,11 +65,15 @@ public class JarProcessorTask extends Task {
 			signArgs.setProperty(KEYPASS, keypass);
 	}
 
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void setPack(boolean pack) {
+		log("Support for pack200 is scheduled for removal after June 2023.", Project.MSG_WARN); //$NON-NLS-1$
 		options.pack = pack;
 	}
 
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void setNormalize(boolean normalize) {
+		log("Support for pack200 is scheduled for removal after June 2023.", Project.MSG_WARN); //$NON-NLS-1$
 		options.repack = normalize;
 	}
 
@@ -89,11 +92,11 @@ public class JarProcessorTask extends Task {
 	}
 
 	private void adjustAndValidateConfiguration() {
-		//Sign and pack implies a normalization
+		// Sign and pack implies a normalization
 		if (options.signCommand != null && options.pack)
 			options.repack = true;
 
-		//Check that alias, and storepass are set
+		// Check that alias, and storepass are set
 		if (options.signCommand != null && signArgs.getProperty(UNSIGN) == null) {
 			if (signArgs.getProperty(ALIAS) == null)
 				throw new BuildException("Alias must be set"); //$NON-NLS-1$

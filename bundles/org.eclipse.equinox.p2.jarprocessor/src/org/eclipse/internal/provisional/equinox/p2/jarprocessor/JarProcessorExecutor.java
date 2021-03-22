@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,8 +24,11 @@ public class JarProcessorExecutor {
 	public static class Options {
 		public String outputDir = "."; //$NON-NLS-1$
 		public String signCommand = null;
+		@Deprecated(forRemoval = true, since = "1.2.0")
 		public boolean pack = false;
+		@Deprecated(forRemoval = true, since = "1.2.0")
 		public boolean repack = false;
+		@Deprecated(forRemoval = true, since = "1.2.0")
 		public boolean unpack = false;
 		public boolean verbose = false;
 		public boolean processAll = false;

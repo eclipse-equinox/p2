@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,8 +17,7 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
+import org.apache.tools.ant.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.jarprocessor.ant.JarProcessorTask;
@@ -64,6 +63,7 @@ public class ProcessRepoTask extends Task {
 	private SigningOptions signing = null;
 	private JarProcessorTask jarProcessor = null;
 
+	@SuppressWarnings("removal")
 	@Override
 	public void execute() throws BuildException {
 		File file = URIUtil.toFile(repository);
@@ -112,11 +112,15 @@ public class ProcessRepoTask extends Task {
 		}
 	}
 
+	@Deprecated(forRemoval = true, since = "2.3.0")
 	public void setPack(boolean pack) {
+		log("Support for pack200 is scheduled for removal after June 2023.", Project.MSG_WARN); //$NON-NLS-1$
 		this.pack = pack;
 	}
 
+	@Deprecated(forRemoval = true, since = "2.3.0")
 	public void setNormalize(boolean normalize) {
+		log("Support for pack200 is scheduled for removal after June 2023.", Project.MSG_WARN); //$NON-NLS-1$
 		this.repack = normalize;
 	}
 
