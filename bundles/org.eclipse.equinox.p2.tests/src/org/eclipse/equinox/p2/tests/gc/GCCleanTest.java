@@ -23,7 +23,10 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -31,6 +34,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
  * Tests for the sweep (clean) phase of the garbage collection
  */
 public class GCCleanTest extends AbstractProvisioningTest {
+	@SuppressWarnings("removal")
 	private IArtifactRepository createRepository(File location) throws ProvisionException {
 		URI repositoryURI = location.toURI();
 

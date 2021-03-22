@@ -27,8 +27,8 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Parses a site.xml file.
- * This class was initially copied from org.eclipse.update.core.model.DefaultSiteParser.
+ * Parses a site.xml file. This class was initially copied from
+ * org.eclipse.update.core.model.DefaultSiteParser.
  */
 public class DefaultSiteParser extends DefaultHandler {
 
@@ -155,13 +155,14 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle character text
+	 * 
 	 * @see DefaultHandler#characters(char[], int, int)
 	 * @since 2.0
 	 */
 	@Override
 	public void characters(char[] ch, int start, int length) {
 		String text = new String(ch, start, length);
-		//only push if description
+		// only push if description
 		int state = stateStack.peek().intValue();
 		if (state == STATE_DESCRIPTION_SITE || state == STATE_DESCRIPTION_CATEGORY_DEF)
 			objectStack.push(text);
@@ -170,6 +171,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle end of element tags
+	 * 
 	 * @see DefaultHandler#endElement(String, String, String)
 	 * @since 2.0
 	 */
@@ -181,108 +183,109 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		int state = stateStack.peek().intValue();
 		switch (state) {
-			case STATE_IGNORED_ELEMENT :
-			case STATE_ARCHIVE :
-			case STATE_CATEGORY :
-				stateStack.pop();
-				break;
+		case STATE_IGNORED_ELEMENT:
+		case STATE_ARCHIVE:
+		case STATE_CATEGORY:
+			stateStack.pop();
+			break;
 
-			case STATE_INITIAL :
-				internalError(Messages.DefaultSiteParser_ParsingStackBackToInitialState);
-				break;
+		case STATE_INITIAL:
+			internalError(Messages.DefaultSiteParser_ParsingStackBackToInitialState);
+			break;
 
-			case STATE_SITE :
-				stateStack.pop();
-				if (objectStack.peek() instanceof String) {
-					text = (String) objectStack.pop();
-					SiteModel site = (SiteModel) objectStack.peek();
-					site.getDescription().setAnnotation(text);
-				}
-				//do not pop the object
-				break;
+		case STATE_SITE:
+			stateStack.pop();
+			if (objectStack.peek() instanceof String) {
+				text = (String) objectStack.pop();
+				SiteModel site = (SiteModel) objectStack.peek();
+				site.getDescription().setAnnotation(text);
+			}
+			// do not pop the object
+			break;
 
-			case STATE_FEATURE :
-				stateStack.pop();
-				objectStack.pop();
-				break;
+		case STATE_FEATURE:
+			stateStack.pop();
+			objectStack.pop();
+			break;
 
-			case STATE_BUNDLE :
-				stateStack.pop();
-				objectStack.pop();
-				break;
+		case STATE_BUNDLE:
+			stateStack.pop();
+			objectStack.pop();
+			break;
 
-			case STATE_CATEGORY_DEF :
-				stateStack.pop();
-				if (objectStack.peek() instanceof String) {
-					text = (String) objectStack.pop();
-					SiteCategory category = (SiteCategory) objectStack.peek();
-					category.setDescription(text);
-				}
-				objectStack.pop();
-				break;
-
-			case STATE_DESCRIPTION_SITE :
-				stateStack.pop();
-				text = ""; //$NON-NLS-1$
-				while (objectStack.peek() instanceof String) {
-					// add text, preserving at most one space between text fragments
-					String newText = (String) objectStack.pop();
-					if (trailingSpace(newText) && !leadingSpace(text)) {
-						text = " " + text; //$NON-NLS-1$
-					}
-					text = newText.trim() + text;
-					if (leadingSpace(newText) && !leadingSpace(text)) {
-						text = " " + text; //$NON-NLS-1$
-					}
-				}
-				text = text.trim();
-
-				info = (URLEntry) objectStack.pop();
-				if (text != null)
-					info.setAnnotation(text);
-
-				SiteModel siteModel = (SiteModel) objectStack.peek();
-				// override description.
-				// do not raise error as previous description may be default one
-				// when parsing site tag
-				if (DESCRIPTION_SITE_ALREADY_SEEN)
-					debug(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet, (new String[] {getState(state)})));
-				siteModel.setDescription(info);
-				DESCRIPTION_SITE_ALREADY_SEEN = true;
-				break;
-
-			case STATE_DESCRIPTION_CATEGORY_DEF :
-				stateStack.pop();
-				text = ""; //$NON-NLS-1$
-				while (objectStack.peek() instanceof String) {
-					// add text, preserving at most one space between text fragments
-					String newText = (String) objectStack.pop();
-					if (trailingSpace(newText) && !leadingSpace(text)) {
-						text = " " + text; //$NON-NLS-1$
-					}
-					text = newText.trim() + text;
-					if (leadingSpace(newText) && !leadingSpace(text)) {
-						text = " " + text; //$NON-NLS-1$
-					}
-				}
-				text = text.trim();
-
-				info = (URLEntry) objectStack.pop();
-				if (text != null)
-					info.setAnnotation(text);
-
+		case STATE_CATEGORY_DEF:
+			stateStack.pop();
+			if (objectStack.peek() instanceof String) {
+				text = (String) objectStack.pop();
 				SiteCategory category = (SiteCategory) objectStack.peek();
-				if (category.getDescription() != null)
-					internalError(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet, (new String[] {getState(state), category.getLabel()})));
-				else {
-					checkTranslated(info.getAnnotation());
-					category.setDescription(info.getAnnotation());
-				}
-				break;
+				category.setDescription(text);
+			}
+			objectStack.pop();
+			break;
 
-			default :
-				internalError(NLS.bind(Messages.DefaultSiteParser_UnknownEndState, (new String[] {getState(state)})));
-				break;
+		case STATE_DESCRIPTION_SITE:
+			stateStack.pop();
+			text = ""; //$NON-NLS-1$
+			while (objectStack.peek() instanceof String) {
+				// add text, preserving at most one space between text fragments
+				String newText = (String) objectStack.pop();
+				if (trailingSpace(newText) && !leadingSpace(text)) {
+					text = " " + text; //$NON-NLS-1$
+				}
+				text = newText.trim() + text;
+				if (leadingSpace(newText) && !leadingSpace(text)) {
+					text = " " + text; //$NON-NLS-1$
+				}
+			}
+			text = text.trim();
+
+			info = (URLEntry) objectStack.pop();
+			if (text != null)
+				info.setAnnotation(text);
+
+			SiteModel siteModel = (SiteModel) objectStack.peek();
+			// override description.
+			// do not raise error as previous description may be default one
+			// when parsing site tag
+			if (DESCRIPTION_SITE_ALREADY_SEEN)
+				debug(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet, (new String[] { getState(state) })));
+			siteModel.setDescription(info);
+			DESCRIPTION_SITE_ALREADY_SEEN = true;
+			break;
+
+		case STATE_DESCRIPTION_CATEGORY_DEF:
+			stateStack.pop();
+			text = ""; //$NON-NLS-1$
+			while (objectStack.peek() instanceof String) {
+				// add text, preserving at most one space between text fragments
+				String newText = (String) objectStack.pop();
+				if (trailingSpace(newText) && !leadingSpace(text)) {
+					text = " " + text; //$NON-NLS-1$
+				}
+				text = newText.trim() + text;
+				if (leadingSpace(newText) && !leadingSpace(text)) {
+					text = " " + text; //$NON-NLS-1$
+				}
+			}
+			text = text.trim();
+
+			info = (URLEntry) objectStack.pop();
+			if (text != null)
+				info.setAnnotation(text);
+
+			SiteCategory category = (SiteCategory) objectStack.peek();
+			if (category.getDescription() != null)
+				internalError(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet,
+						(new String[] { getState(state), category.getLabel() })));
+			else {
+				checkTranslated(info.getAnnotation());
+				category.setDescription(info.getAnnotation());
+			}
+			break;
+
+		default:
+			internalError(NLS.bind(Messages.DefaultSiteParser_UnknownEndState, (new String[] { getState(state) })));
+			break;
 		}
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
@@ -290,8 +293,8 @@ public class DefaultSiteParser extends DefaultHandler {
 	}
 
 	/*
-	 * Handles an error state specified by the status.  The collection of all logged status
-	 * objects can be accessed using <code>getStatus()</code>.
+	 * Handles an error state specified by the status. The collection of all logged
+	 * status objects can be accessed using <code>getStatus()</code>.
 	 *
 	 * @param error a status detailing the error condition
 	 */
@@ -308,6 +311,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle errors
+	 * 
 	 * @see DefaultHandler#error(SAXParseException)
 	 * @since 2.0
 	 */
@@ -318,6 +322,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle fatal errors
+	 * 
 	 * @see DefaultHandler#fatalError(SAXParseException)
 	 * @exception SAXException
 	 * @since 2.0
@@ -334,38 +339,38 @@ public class DefaultSiteParser extends DefaultHandler {
 	private String getState(int state) {
 
 		switch (state) {
-			case STATE_IGNORED_ELEMENT :
-				return "Ignored"; //$NON-NLS-1$
+		case STATE_IGNORED_ELEMENT:
+			return "Ignored"; //$NON-NLS-1$
 
-			case STATE_INITIAL :
-				return "Initial"; //$NON-NLS-1$
+		case STATE_INITIAL:
+			return "Initial"; //$NON-NLS-1$
 
-			case STATE_SITE :
-				return "Site"; //$NON-NLS-1$
+		case STATE_SITE:
+			return "Site"; //$NON-NLS-1$
 
-			case STATE_FEATURE :
-				return "Feature"; //$NON-NLS-1$
+		case STATE_FEATURE:
+			return "Feature"; //$NON-NLS-1$
 
-			case STATE_BUNDLE :
-				return "Bundle"; //$NON-NLS-1$
+		case STATE_BUNDLE:
+			return "Bundle"; //$NON-NLS-1$
 
-			case STATE_ARCHIVE :
-				return "Archive"; //$NON-NLS-1$
+		case STATE_ARCHIVE:
+			return "Archive"; //$NON-NLS-1$
 
-			case STATE_CATEGORY :
-				return "Category"; //$NON-NLS-1$
+		case STATE_CATEGORY:
+			return "Category"; //$NON-NLS-1$
 
-			case STATE_CATEGORY_DEF :
-				return "Category Def"; //$NON-NLS-1$
+		case STATE_CATEGORY_DEF:
+			return "Category Def"; //$NON-NLS-1$
 
-			case STATE_DESCRIPTION_CATEGORY_DEF :
-				return "Description / Category Def"; //$NON-NLS-1$
+		case STATE_DESCRIPTION_CATEGORY_DEF:
+			return "Description / Category Def"; //$NON-NLS-1$
 
-			case STATE_DESCRIPTION_SITE :
-				return "Description / Site"; //$NON-NLS-1$
+		case STATE_DESCRIPTION_SITE:
+			return "Description / Site"; //$NON-NLS-1$
 
-			default :
-				return Messages.DefaultSiteParser_UnknownState;
+		default:
+			return Messages.DefaultSiteParser_UnknownState;
 		}
 	}
 
@@ -381,113 +386,117 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	private void handleCategoryDefState(String elementName, Attributes attributes) {
 		switch (elementName) {
-			case FEATURE:
-				stateStack.push(Integer.valueOf(STATE_FEATURE));
-				processFeature(attributes);
-				break;
-			case BUNDLE:
-				stateStack.push(Integer.valueOf(STATE_BUNDLE));
-				processBundle(attributes);
-				break;
-			case ARCHIVE:
-				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-				processArchive(attributes);
-				break;
-			case CATEGORY_DEF:
-				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-				processCategoryDef(attributes);
-				break;
-			case DESCRIPTION:
-				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_CATEGORY_DEF));
-				processInfo(attributes);
-				break;
-			default:
-				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
-				break;
+		case FEATURE:
+			stateStack.push(Integer.valueOf(STATE_FEATURE));
+			processFeature(attributes);
+			break;
+		case BUNDLE:
+			stateStack.push(Integer.valueOf(STATE_BUNDLE));
+			processBundle(attributes);
+			break;
+		case ARCHIVE:
+			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+			processArchive(attributes);
+			break;
+		case CATEGORY_DEF:
+			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+			processCategoryDef(attributes);
+			break;
+		case DESCRIPTION:
+			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_CATEGORY_DEF));
+			processInfo(attributes);
+			break;
+		default:
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement,
+					(new String[] { elementName, getState(currentState) })));
+			break;
 		}
 	}
 
 	private void handleCategoryState(String elementName, Attributes attributes) {
 		switch (elementName) {
-			case DESCRIPTION:
-				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
-				processInfo(attributes);
-				break;
-			case FEATURE:
-				stateStack.push(Integer.valueOf(STATE_FEATURE));
-				processFeature(attributes);
-				break;
-			case BUNDLE:
-				stateStack.push(Integer.valueOf(STATE_BUNDLE));
-				processBundle(attributes);
-				break;
-			case ARCHIVE:
-				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-				processArchive(attributes);
-				break;
-			case CATEGORY_DEF:
-				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-				processCategoryDef(attributes);
-				break;
-			case CATEGORY:
-				stateStack.push(Integer.valueOf(STATE_CATEGORY));
-				processCategory(attributes);
-				break;
-			default:
-				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
-				break;
+		case DESCRIPTION:
+			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
+			processInfo(attributes);
+			break;
+		case FEATURE:
+			stateStack.push(Integer.valueOf(STATE_FEATURE));
+			processFeature(attributes);
+			break;
+		case BUNDLE:
+			stateStack.push(Integer.valueOf(STATE_BUNDLE));
+			processBundle(attributes);
+			break;
+		case ARCHIVE:
+			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+			processArchive(attributes);
+			break;
+		case CATEGORY_DEF:
+			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+			processCategoryDef(attributes);
+			break;
+		case CATEGORY:
+			stateStack.push(Integer.valueOf(STATE_CATEGORY));
+			processCategory(attributes);
+			break;
+		default:
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement,
+					(new String[] { elementName, getState(currentState) })));
+			break;
 		}
 	}
 
 	private void handleFeatureState(String elementName, Attributes attributes) {
 		switch (elementName) {
-			case DESCRIPTION:
-				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
-				processInfo(attributes);
-				break;
-			case FEATURE:
-				stateStack.push(Integer.valueOf(STATE_FEATURE));
-				processFeature(attributes);
-				break;
-			case ARCHIVE:
-				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-				processArchive(attributes);
-				break;
-			case CATEGORY_DEF:
-				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-				processCategoryDef(attributes);
-				break;
-			case CATEGORY:
-				stateStack.push(Integer.valueOf(STATE_CATEGORY));
-				processCategory(attributes);
-				break;
-			default:
-				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
-				break;
+		case DESCRIPTION:
+			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
+			processInfo(attributes);
+			break;
+		case FEATURE:
+			stateStack.push(Integer.valueOf(STATE_FEATURE));
+			processFeature(attributes);
+			break;
+		case ARCHIVE:
+			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+			processArchive(attributes);
+			break;
+		case CATEGORY_DEF:
+			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+			processCategoryDef(attributes);
+			break;
+		case CATEGORY:
+			stateStack.push(Integer.valueOf(STATE_CATEGORY));
+			processCategory(attributes);
+			break;
+		default:
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement,
+					(new String[] { elementName, getState(currentState) })));
+			break;
 		}
 	}
 
 	private void handleBundleState(String elementName, Attributes attributes) {
 		switch (elementName) {
-			case DESCRIPTION:
-				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
-				processInfo(attributes);
-				break;
-			case ARCHIVE:
-				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-				processArchive(attributes);
-				break;
-			case CATEGORY_DEF:
-				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-				processCategoryDef(attributes);
-				break;
-			case CATEGORY:
-				stateStack.push(Integer.valueOf(STATE_CATEGORY));
-				processCategory(attributes);
-				break;
-			default:
-				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
-				break;
+		case DESCRIPTION:
+			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
+			processInfo(attributes);
+			break;
+		case ARCHIVE:
+			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+			processArchive(attributes);
+			break;
+		case CATEGORY_DEF:
+			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+			processCategoryDef(attributes);
+			break;
+		case CATEGORY:
+			stateStack.push(Integer.valueOf(STATE_CATEGORY));
+			processCategory(attributes);
+			break;
+		default:
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement,
+					(new String[] { elementName, getState(currentState) })));
+			break;
 		}
 	}
 
@@ -496,7 +505,8 @@ public class DefaultSiteParser extends DefaultHandler {
 			stateStack.push(Integer.valueOf(STATE_SITE));
 			processSite(attributes);
 		} else {
-			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement,
+					(new String[] { elementName, getState(currentState) })));
 			// what we received was not a site.xml, no need to continue
 			throw new SAXException(Messages.DefaultSiteParser_InvalidXMLStream);
 		}
@@ -505,29 +515,30 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	private void handleSiteState(String elementName, Attributes attributes) {
 		switch (elementName) {
-			case DESCRIPTION:
-				stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
-				processInfo(attributes);
-				break;
-			case FEATURE:
-				stateStack.push(Integer.valueOf(STATE_FEATURE));
-				processFeature(attributes);
-				break;
-			case BUNDLE:
-				stateStack.push(Integer.valueOf(STATE_BUNDLE));
-				processBundle(attributes);
-				break;
-			case ARCHIVE:
-				stateStack.push(Integer.valueOf(STATE_ARCHIVE));
-				processArchive(attributes);
-				break;
-			case CATEGORY_DEF:
-				stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
-				processCategoryDef(attributes);
-				break;
-			default:
-				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState)})));
-				break;
+		case DESCRIPTION:
+			stateStack.push(Integer.valueOf(STATE_DESCRIPTION_SITE));
+			processInfo(attributes);
+			break;
+		case FEATURE:
+			stateStack.push(Integer.valueOf(STATE_FEATURE));
+			processFeature(attributes);
+			break;
+		case BUNDLE:
+			stateStack.push(Integer.valueOf(STATE_BUNDLE));
+			processBundle(attributes);
+			break;
+		case ARCHIVE:
+			stateStack.push(Integer.valueOf(STATE_ARCHIVE));
+			processArchive(attributes);
+			break;
+		case CATEGORY_DEF:
+			stateStack.push(Integer.valueOf(STATE_CATEGORY_DEF));
+			processCategoryDef(attributes);
+			break;
+		default:
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement,
+					(new String[] { elementName, getState(currentState) })));
+			break;
 		}
 	}
 
@@ -566,14 +577,15 @@ public class DefaultSiteParser extends DefaultHandler {
 		String msg;
 		if (name.equals("")) //$NON-NLS-1$
 			name = siteLocation.toString();
-		String[] values = new String[] {name, Integer.toString(ex.getLineNumber()), Integer.toString(ex.getColumnNumber()), ex.getMessage()};
+		String[] values = new String[] { name, Integer.toString(ex.getLineNumber()),
+				Integer.toString(ex.getColumnNumber()), ex.getMessage() };
 		msg = NLS.bind(Messages.DefaultSiteParser_ErrorlineColumnMessage, values);
 		error(new Status(IStatus.ERROR, PLUGIN_ID, msg, ex));
 	}
 
 	/**
-	 * Parses the specified input steam and constructs a site model.
-	 * The input stream is not closed as part of this operation.
+	 * Parses the specified input steam and constructs a site model. The input
+	 * stream is not closed as part of this operation.
 	 * 
 	 * @param in input stream
 	 * @return site model
@@ -597,24 +609,26 @@ public class DefaultSiteParser extends DefaultHandler {
 		while (iter.hasNext()) {
 			stack = stack + iter.next().toString() + "\r\n"; //$NON-NLS-1$
 		}
-		throw new SAXException(NLS.bind(Messages.DefaultSiteParser_WrongParsingStack, (new String[] {stack})));
+		throw new SAXException(NLS.bind(Messages.DefaultSiteParser_WrongParsingStack, (new String[] { stack })));
 	}
 
-	/* 
+	/*
 	 * process archive info
 	 */
 	private void processArchive(Attributes attributes) {
 		URLEntry archive = new URLEntry();
 		String id = attributes.getValue("path"); //$NON-NLS-1$
 		if (id == null || id.trim().equals("")) { //$NON-NLS-1$
-			internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"path", getState(currentState)}))); //$NON-NLS-1$
+			internalError(
+					NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] { "path", getState(currentState) }))); //$NON-NLS-1$
 		}
 
 		archive.setAnnotation(id);
 
 		String url = attributes.getValue("url"); //$NON-NLS-1$
 		if (url == null || url.trim().equals("")) { //$NON-NLS-1$
-			internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"archive", getState(currentState)}))); //$NON-NLS-1$
+			internalError(
+					NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] { "archive", getState(currentState) }))); //$NON-NLS-1$
 		} else {
 			archive.setURL(url);
 
@@ -626,8 +640,8 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	}
 
-	/* 
-	 * process the Category  info
+	/*
+	 * process the Category info
 	 */
 	private void processCategory(Attributes attributes) {
 		String category = attributes.getValue("name"); //$NON-NLS-1$
@@ -644,7 +658,7 @@ public class DefaultSiteParser extends DefaultHandler {
 			debug("End processing Category: name:" + category); //$NON-NLS-1$
 	}
 
-	/* 
+	/*
 	 * process category def info
 	 */
 	private void processCategoryDef(Attributes attributes) {
@@ -663,7 +677,7 @@ public class DefaultSiteParser extends DefaultHandler {
 			debug("End processing CategoryDef: name:" + name + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	/* 
+	/*
 	 * process feature info
 	 */
 	private void processFeature(Attributes attributes) {
@@ -682,10 +696,11 @@ public class DefaultSiteParser extends DefaultHandler {
 		// We need to have id and version, or the url, or both.
 		if (noURL) {
 			if (noId || noVersion)
-				internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState)}))); //$NON-NLS-1$
+				internalError(
+						NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] { "url", getState(currentState) }))); //$NON-NLS-1$
 			else
 				// default url
-				urlInfo = FEATURES + id + '_' + ver; // 
+				urlInfo = FEATURES + id + '_' + ver; //
 		}
 
 		feature.setURLString(urlInfo);
@@ -695,7 +710,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		// if one is null, and not the other
 		if (noId ^ noVersion) {
-			String[] values = new String[] {id, ver, getState(currentState)};
+			String[] values = new String[] { id, ver, getState(currentState) };
 			log(NLS.bind(Messages.DefaultFeatureParser_IdOrVersionInvalid, values));
 		} else {
 			feature.setFeatureIdentifier(id);
@@ -727,7 +742,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		String arch = attributes.getValue("arch"); //$NON-NLS-1$
 		feature.setArch(arch);
 
-		//patch
+		// patch
 		String patch = attributes.getValue("patch"); //$NON-NLS-1$
 		feature.setPatch(patch);
 
@@ -742,7 +757,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	}
 
-	/* 
+	/*
 	 * process feature info
 	 */
 	private void processBundle(Attributes attributes) {
@@ -761,10 +776,11 @@ public class DefaultSiteParser extends DefaultHandler {
 		// We need to have id and version, or the url, or both.
 		if (noURL) {
 			if (noId || noVersion)
-				internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState)}))); //$NON-NLS-1$
+				internalError(
+						NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] { "url", getState(currentState) }))); //$NON-NLS-1$
 			else
 				// default url
-				urlInfo = PLUGINS + id + '_' + ver; // 
+				urlInfo = PLUGINS + id + '_' + ver; //
 		}
 
 		bundle.setURLString(urlInfo);
@@ -774,7 +790,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		// if one is null, and not the other
 		if (noId ^ noVersion) {
-			String[] values = new String[] {id, ver, getState(currentState)};
+			String[] values = new String[] { id, ver, getState(currentState) };
 			log(NLS.bind(Messages.DefaultFeatureParser_IdOrVersionInvalid, values));
 		} else {
 			bundle.setBundleIdentifier(id);
@@ -806,7 +822,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		String arch = attributes.getValue("arch"); //$NON-NLS-1$
 		bundle.setArch(arch);
 
-		//patch
+		// patch
 		String patch = attributes.getValue("patch"); //$NON-NLS-1$
 		bundle.setPatch(patch);
 
@@ -821,7 +837,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	}
 
-	/* 
+	/*
 	 * process URL info with element text
 	 */
 	private void processInfo(Attributes attributes) {
@@ -835,9 +851,10 @@ public class DefaultSiteParser extends DefaultHandler {
 		objectStack.push(inf);
 	}
 
-	/* 
+	/*
 	 * process site info
 	 */
+	@SuppressWarnings("removal")
 	private void processSite(Attributes attributes) {
 		// create site map
 		SiteModel site = new SiteModel();
@@ -853,7 +870,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		}
 
 		// provide default description URL
-		// If <description> is specified, for the site,  it takes precedence		
+		// If <description> is specified, for the site, it takes precedence
 		URLEntry description = new URLEntry();
 		description.setURL(DEFAULT_INFO_URL);
 		site.setDescription(description);
@@ -867,13 +884,13 @@ public class DefaultSiteParser extends DefaultHandler {
 		// get mirrors, if any
 		String mirrorsURL = attributes.getValue("mirrorsURL"); //$NON-NLS-1$
 		if (mirrorsURL != null && mirrorsURL.trim().length() > 0) {
-			//			URLEntry[] mirrors = getMirrors(mirrorsURL);
-			//			if (mirrors != null)
-			//				site.setMirrors(mirrors);
-			//			else
+			// URLEntry[] mirrors = getMirrors(mirrorsURL);
+			// if (mirrors != null)
+			// site.setMirrors(mirrors);
+			// else
 
-			//Since we are parsing the site at p2 generation time and the 
-			//mirrors may change, there is no point doing the mirror expansion now
+			// Since we are parsing the site at p2 generation time and the
+			// mirrors may change, there is no point doing the mirror expansion now
 			site.setMirrorsURIString(mirrorsURL);
 		}
 
@@ -887,20 +904,24 @@ public class DefaultSiteParser extends DefaultHandler {
 			site.setDigestURIString(digestURL);
 
 		// TODO: Digest locales
-		//			if ((attributes.getValue("availableLocales") != null) && (!attributes.getValue("availableLocales").trim().equals(""))) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-		//				StringTokenizer locals = new StringTokenizer(attributes.getValue("availableLocales"), ","); //$NON-NLS-1$//$NON-NLS-2$
-		//				String[] availableLocals = new String[locals.countTokens()];
-		//				int i = 0;
-		//				while (locals.hasMoreTokens()) {
-		//					availableLocals[i++] = locals.nextToken();
-		//				}
-		//								extendedSite.setAvailableLocals(availableLocals);
-		//			}
-		//		}
+		// if ((attributes.getValue("availableLocales") != null) &&
+		// (!attributes.getValue("availableLocales").trim().equals(""))) {
+		// //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		// StringTokenizer locals = new
+		// StringTokenizer(attributes.getValue("availableLocales"), ",");
+		// //$NON-NLS-1$//$NON-NLS-2$
+		// String[] availableLocals = new String[locals.countTokens()];
+		// int i = 0;
+		// while (locals.hasMoreTokens()) {
+		// availableLocals[i++] = locals.nextToken();
+		// }
+		// extendedSite.setAvailableLocals(availableLocals);
+		// }
+		// }
 		//
 		final String associateURL = attributes.getValue(ASSOCIATE_SITES_URL);
 		if (associateURL != null) {
-			//resolve the URI relative to the site location
+			// resolve the URI relative to the site location
 			URI resolvedLocation = siteLocation.resolve(associateURL);
 			site.setAssociateSites(getAssociateSites(resolvedLocation.toString()));
 		}
@@ -914,6 +935,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle start of element tags
+	 * 
 	 * @see DefaultHandler#startElement(String, String, String, Attributes)
 	 * @since 2.0
 	 */
@@ -926,48 +948,50 @@ public class DefaultSiteParser extends DefaultHandler {
 		}
 
 		switch (currentState) {
-			case STATE_IGNORED_ELEMENT :
-				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {localName, getState(currentState)})));
-				break;
-			case STATE_INITIAL :
-				handleInitialState(localName, attributes);
-				break;
+		case STATE_IGNORED_ELEMENT:
+			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement,
+					(new String[] { localName, getState(currentState) })));
+			break;
+		case STATE_INITIAL:
+			handleInitialState(localName, attributes);
+			break;
 
-			case STATE_SITE :
-				handleSiteState(localName, attributes);
-				break;
+		case STATE_SITE:
+			handleSiteState(localName, attributes);
+			break;
 
-			case STATE_FEATURE :
-				handleFeatureState(localName, attributes);
-				break;
+		case STATE_FEATURE:
+			handleFeatureState(localName, attributes);
+			break;
 
-			case STATE_BUNDLE :
-				handleBundleState(localName, attributes);
-				break;
+		case STATE_BUNDLE:
+			handleBundleState(localName, attributes);
+			break;
 
-			case STATE_ARCHIVE :
-				handleSiteState(localName, attributes);
-				break;
+		case STATE_ARCHIVE:
+			handleSiteState(localName, attributes);
+			break;
 
-			case STATE_CATEGORY :
-				handleCategoryState(localName, attributes);
-				break;
+		case STATE_CATEGORY:
+			handleCategoryState(localName, attributes);
+			break;
 
-			case STATE_CATEGORY_DEF :
-				handleCategoryDefState(localName, attributes);
-				break;
+		case STATE_CATEGORY_DEF:
+			handleCategoryDefState(localName, attributes);
+			break;
 
-			case STATE_DESCRIPTION_SITE :
-				handleSiteState(localName, attributes);
-				break;
+		case STATE_DESCRIPTION_SITE:
+			handleSiteState(localName, attributes);
+			break;
 
-			case STATE_DESCRIPTION_CATEGORY_DEF :
-				handleSiteState(localName, attributes);
-				break;
+		case STATE_DESCRIPTION_CATEGORY_DEF:
+			handleSiteState(localName, attributes);
+			break;
 
-			default :
-				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownStartState, (new String[] {getState(currentState)})));
-				break;
+		default:
+			internalErrorUnknownTag(
+					NLS.bind(Messages.DefaultSiteParser_UnknownStartState, (new String[] { getState(currentState) })));
+			break;
 		}
 		int newState = stateStack.peek().intValue();
 		if (newState != STATE_IGNORED_ELEMENT)

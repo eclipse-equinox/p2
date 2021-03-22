@@ -128,6 +128,7 @@ public class Utils {
 	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
 	 *             for details.
 	 */
+	@SuppressWarnings("removal")
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final FileFilter PACK_GZ_FILTER = pathname -> pathname.isFile()
 			&& pathname.getName().endsWith(JarProcessor.PACKED_SUFFIX);

@@ -932,6 +932,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (reuse && (publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
 			File packFile = new Path(jarFile.getAbsolutePath()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
 			if (packFile.exists()) {
+				@SuppressWarnings("removal")
 				IArtifactDescriptor ad200 = createPack200ArtifactDescriptor(descriptor.getArtifactKey(), packFile,
 						descriptor.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
 				publishArtifact(ad200, packFile, publisherInfo);

@@ -114,6 +114,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		generateArtifactDescriptors(updateSite, repository, monitor);
 	}
 
+	@SuppressWarnings("removal")
 	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository,
 			IProgressMonitor monitor) throws ProvisionException {
 		final String PACK_EXT = ".pack.gz"; //$NON-NLS-1$
@@ -123,7 +124,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			Feature[] features = updateSite.loadFeatures(monitor);
 			for (Feature feature : features) {
 				IArtifactKey featureKey = FeaturesAction.createFeatureArtifactKey(feature.getId(),
-					feature.getVersion());
+						feature.getVersion());
 				SimpleArtifactDescriptor featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
 				URI featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
 				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString());
@@ -133,12 +134,12 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 					featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
 					featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
 					featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE,
-						featureURL.toString() + PACK_EXT);
+							featureURL.toString() + PACK_EXT);
 					IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] { new ProcessingStepDescriptor(
-						"org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
+							"org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
 					featureArtifactDescriptor.setProcessingSteps(steps);
 					featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT,
-						IArtifactDescriptor.FORMAT_PACKED);
+							IArtifactDescriptor.FORMAT_PACKED);
 					allSiteArtifacts.add(featureArtifactDescriptor);
 				}
 				FeatureEntry[] featureEntries = feature.getEntries();
@@ -156,13 +157,13 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 							artifactDescriptor = new SimpleArtifactDescriptor(key);
 							pluginURL = updateSite.getPluginURI(entry);
 							artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE,
-								pluginURL.toString() + PACK_EXT);
+									pluginURL.toString() + PACK_EXT);
 							IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {
-								new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", //$NON-NLS-1$
-									null, true) };
+									new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", //$NON-NLS-1$
+											null, true) };
 							artifactDescriptor.setProcessingSteps(steps);
 							artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT,
-								IArtifactDescriptor.FORMAT_PACKED);
+									IArtifactDescriptor.FORMAT_PACKED);
 							allSiteArtifacts.add(artifactDescriptor);
 						}
 					}
@@ -173,7 +174,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			BundleDescription[] bundles = updateSite.loadBundles(monitor);
 			for (BundleDescription bundle : bundles) {
 				IArtifactKey bundleKey = BundlesAction.createBundleArtifactKey(bundle.getSymbolicName(),
-					bundle.getVersion().toString());
+						bundle.getVersion().toString());
 				SimpleArtifactDescriptor bundleArtifactDescriptor = new SimpleArtifactDescriptor(bundleKey);
 				URI bundleURI = updateSite.getBundleURI(bundle.getSymbolicName(), bundle.getVersion().toString());
 				bundleArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, bundleURI.toString());
@@ -184,9 +185,9 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 					bundleArtifactDescriptor = new SimpleArtifactDescriptor(bundleKey);
 					bundleURI = updateSite.getBundleURI(bundle.getSymbolicName(), bundle.getVersion().toString());
 					bundleArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE,
-						bundleURI.toString() + PACK_EXT);
+							bundleURI.toString() + PACK_EXT);
 					IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] { new ProcessingStepDescriptor(
-						"org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
+							"org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
 					bundleArtifactDescriptor.setProcessingSteps(steps);
 					bundleArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 					allSiteArtifacts.add(bundleArtifactDescriptor);

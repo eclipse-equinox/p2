@@ -105,6 +105,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	protected void initializeRepositories(PublisherInfo publisherInfo) throws ProvisionException {
 		if (artifactLocation != null) {
+			@SuppressWarnings("removal")
 			IArtifactRepository repo = Publisher.createArtifactRepository(agent, artifactLocation, artifactRepoName,
 					compress, reusePackedFiles);
 			if (!append && !isEmpty(repo)) {
@@ -363,7 +364,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
 	 */
 	@Deprecated(forRemoval = true, since = "1.6.0")
 	public boolean reuseExistingPack200Files() {

@@ -256,6 +256,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	/*
 	 * Test that the appropriate location for a packed feature is returned.
 	 */
+	@Deprecated(forRemoval = true)
 	public void testProperPackedFeatureLocation() {
 		try {
 			repositoryFile = getTempFolder();
@@ -423,6 +424,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		System.out.println("Total time: " + (end - start));
 	}
 
+	@SuppressWarnings("removal")
 	public void testQuery() throws Exception {
 		File folder = getTestFolder("ArtifactRepository_testQuery");
 		repositoryURI = folder.toURI();

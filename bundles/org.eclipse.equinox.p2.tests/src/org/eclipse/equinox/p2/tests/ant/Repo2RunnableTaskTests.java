@@ -14,7 +14,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ant;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -22,7 +25,9 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractAntProvisioningTest;
 
@@ -130,6 +135,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 	/*
 	 * Ensure that the output repository is of the expected type
 	 */
+	@SuppressWarnings("removal")
 	protected boolean expectedFormat(URI location) {
 		IArtifactRepository repo = null;
 		try {

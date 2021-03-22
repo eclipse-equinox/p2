@@ -899,6 +899,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * for compatibility with the format used in optimized update sites.  We call
 	 * this arrangement "flat but packed".
 	 */
+	@SuppressWarnings("removal")
 	private boolean flatButPackedEnabled(IArtifactDescriptor descriptor) {
 		return Boolean.TRUE.toString().equals(getProperties().get(PUBLISH_PACK_FILES_AS_SIBLINGS)) && IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}

@@ -800,6 +800,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 
 		// Should have a packed & canonical version
 		assertEquals(2, descriptors.length);
+		@SuppressWarnings("removal")
 		IArtifactDescriptor desc = IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT)) ? descriptors[0] : descriptors[1];
 		try (OutputStream out = new FileOutputStream(output)) {
 
@@ -815,6 +816,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
+	@SuppressWarnings("removal")
 	public void testMirrors() {
 		String testDataLocation = "/testData/updatesite/packedSiteWithMirror";
 		File targetLocation = null;

@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
+import static org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor.FORMAT_PACKED;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
@@ -901,7 +902,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		for (IArtifactKey key : packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null)) {
 			for (IArtifactDescriptor srcDescriptor : packedRepo.getArtifactDescriptors(key)) {
-				if (!(srcDescriptor.getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptor.getProperty(IArtifactDescriptor.FORMAT).equals(IArtifactDescriptor.FORMAT_PACKED)) {
+				if (!(srcDescriptor.getProperty(IArtifactDescriptor.FORMAT) == null)
+						&& srcDescriptor.getProperty(IArtifactDescriptor.FORMAT).equals(FORMAT_PACKED)) {
 					//if we have a packed artifact
 					IArtifactDescriptor newDescriptor = new ArtifactDescriptor(key);
 					Map<String, String> properties = new OrderedProperties();

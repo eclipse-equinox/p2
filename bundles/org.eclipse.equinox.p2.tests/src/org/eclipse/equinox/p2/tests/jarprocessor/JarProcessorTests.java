@@ -13,7 +13,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.jarprocessor;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
 import org.eclipse.equinox.internal.p2.jarprocessor.verifier.Verifier;
@@ -78,6 +82,7 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 
 	}
 
+	@Deprecated(forRemoval = true)
 	public void testPackUnpackVerify() throws Exception {
 		if (!PackStep.canPack() || !VerifyStep.canVerify())
 			return;

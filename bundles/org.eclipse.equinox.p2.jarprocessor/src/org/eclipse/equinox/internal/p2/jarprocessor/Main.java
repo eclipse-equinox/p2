@@ -35,6 +35,7 @@ public class Main {
 		System.out.println("-verbose        verbose mode "); //$NON-NLS-1$
 	}
 
+	@SuppressWarnings("removal")
 	public static JarProcessorExecutor.Options processArguments(String[] args) {
 		if (args.length == 0) {
 			printUsage();
@@ -64,9 +65,9 @@ public class Main {
 				options.outputDir = args[++i];
 			} else if (args[i].equals("-verbose")) { //$NON-NLS-1$
 				options.verbose = true;
-			}  else if (args[i].equals("-processAll")) { //$NON-NLS-1$
+			} else if (args[i].equals("-processAll")) { //$NON-NLS-1$
 				options.processAll = true;
-			} 
+			}
 		}
 
 		options.input = new File(args[i]);
@@ -76,19 +77,19 @@ public class Main {
 		if (options.unpack) {
 			if (!JarProcessor.canPerformUnpack()) {
 				problemMessage = "The unpack200 command cannot be found."; //$NON-NLS-1$
-			} else 	if (options.input.isFile() && !inputName.endsWith(".zip") && !inputName.endsWith(".pack.gz")) { //$NON-NLS-1$ //$NON-NLS-2$
+			} else if (options.input.isFile() && !inputName.endsWith(".zip") && !inputName.endsWith(".pack.gz")) { //$NON-NLS-1$ //$NON-NLS-2$
 				problemMessage = "Input file is not a pack.gz file."; //$NON-NLS-1$
-			} else 	if (options.pack || options.repack || options.signCommand != null) {
+			} else if (options.pack || options.repack || options.signCommand != null) {
 				problemMessage = "Pack, repack or sign cannot be specified with unpack."; //$NON-NLS-1$
 			}
 		} else {
 			if (options.input.isFile() && !inputName.endsWith(".zip") && !inputName.endsWith(".jar")) { //$NON-NLS-1$ //$NON-NLS-2$
 				problemMessage = "Input file is not a jar file."; //$NON-NLS-1$
-			} else	if ((options.pack || options.repack) && !JarProcessor.canPerformPack()) {
+			} else if ((options.pack || options.repack) && !JarProcessor.canPerformPack()) {
 				problemMessage = "The pack200 command can not be found."; //$NON-NLS-1$
 			}
 		}
-		if(problemMessage != null){
+		if (problemMessage != null) {
 			System.out.println(problemMessage);
 			System.out.println();
 			printUsage();
@@ -97,7 +98,7 @@ public class Main {
 
 		return options;
 	}
-	
+
 	/**
 	 * @param args
 	 */

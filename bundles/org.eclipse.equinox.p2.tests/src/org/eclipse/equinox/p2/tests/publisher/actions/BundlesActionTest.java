@@ -218,6 +218,7 @@ public class BundlesActionTest extends ActionTest {
 		verifyArtifactRepository();
 	}
 
+	@SuppressWarnings("removal")
 	private void verifyArtifactRepository() throws Exception {
 		IArtifactKey key2 = ArtifactKey.parse("osgi.bundle,test2,1.0.0.qualifier");//$NON-NLS-1$
 		IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key2);

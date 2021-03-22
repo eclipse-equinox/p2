@@ -41,10 +41,10 @@ public abstract class AbstractPublishTask extends Task {
 
 	/**
 	 * Support nested repository elements that looking something like
-	 *    <repo location="file:/foo" metadata="true" artifact="true" />
-	 * Both metadata and artifact are optional:
-	 *  1) if neither are set, the repo is used for both metadata and artifacts
-	 *  2) if only one is true, the repo is that type and not the other 
+	 * <repo location="file:/foo" metadata="true" artifact="true" /> Both metadata
+	 * and artifact are optional: 1) if neither are set, the repo is used for both
+	 * metadata and artifacts 2) if only one is true, the repo is that type and not
+	 * the other
 	 */
 	static public class RepoEntry {
 		private URI repoLocation;
@@ -52,7 +52,7 @@ public abstract class AbstractPublishTask extends Task {
 		private Boolean artifact = null;
 
 		/**
-		 * If not set, default is true if we aren't set as an artifact repo 
+		 * If not set, default is true if we aren't set as an artifact repo
 		 */
 		public boolean isMetadataRepository() {
 			if (metadata != null)
@@ -61,7 +61,7 @@ public abstract class AbstractPublishTask extends Task {
 		}
 
 		/**
-		 * If not set, default is true if we aren't set as a metadata repo 
+		 * If not set, default is true if we aren't set as a metadata repo
 		 */
 		public boolean isArtifactRepository() {
 			if (artifact != null)
@@ -117,14 +117,18 @@ public abstract class AbstractPublishTask extends Task {
 
 	protected void initializeRepositories(PublisherInfo info) throws ProvisionException {
 		if (artifactLocation != null) {
-			IArtifactRepository repo = Publisher.createArtifactRepository(getProvisioningAgent(), artifactLocation, artifactRepoName, compress, reusePackedFiles);
+			@SuppressWarnings("removal")
+			IArtifactRepository repo = Publisher.createArtifactRepository(getProvisioningAgent(), artifactLocation,
+					artifactRepoName, compress, reusePackedFiles);
 			if (!append && !isEmpty(repo)) {
 				File repoLocation = URIUtil.toFile(artifactLocation);
 				if (repoLocation != null && source != null) {
 					if (repoLocation.isFile())
 						repoLocation = repoLocation.getParentFile();
 					if (repoLocation.equals(new File(source)))
-						throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, URIUtil.toUnencodedString(artifactLocation)));
+						throw new IllegalArgumentException(
+								NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput,
+										URIUtil.toUnencodedString(artifactLocation)));
 				}
 				repo.removeAll(new NullProgressMonitor());
 			}
@@ -133,11 +137,14 @@ public abstract class AbstractPublishTask extends Task {
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noArtifactRepo));
 		if (metadataLocation == null)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));
-		info.setMetadataRepository(Publisher.createMetadataRepository(getProvisioningAgent(), metadataLocation, metadataRepoName, append, compress));
+		info.setMetadataRepository(Publisher.createMetadataRepository(getProvisioningAgent(), metadataLocation,
+				metadataRepoName, append, compress));
 
 		if (contextRepositories.size() > 0) {
-			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite(getProvisioningAgent());
-			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite(getProvisioningAgent());
+			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository
+					.createMemoryComposite(getProvisioningAgent());
+			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository
+					.createMemoryComposite(getProvisioningAgent());
 
 			for (RepoEntry entry : contextRepositories) {
 				if (contextMetadata != null && entry.isMetadataRepository())

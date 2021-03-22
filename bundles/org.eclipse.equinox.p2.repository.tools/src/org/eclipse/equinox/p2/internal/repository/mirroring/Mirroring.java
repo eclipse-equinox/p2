@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *  	Compeople AG (Stefan Liebig) - various ongoing maintenance
@@ -90,9 +90,11 @@ public class Mirroring {
 
 	public MultiStatus run(boolean failOnError, boolean verbose) {
 		if (!destination.isModifiable())
-			throw new IllegalStateException(NLS.bind(Messages.exception_destinationNotModifiable, destination.getLocation()));
+			throw new IllegalStateException(
+					NLS.bind(Messages.exception_destinationNotModifiable, destination.getLocation()));
 		if (compare)
-			getComparator(); //initialize the comparator. Only needed if we're comparing. Used to force error if comparatorID is invalid.
+			getComparator(); // initialize the comparator. Only needed if we're comparing. Used to force
+								// error if comparatorID is invalid.
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_mirroringStatus, null);
 		Iterator<IArtifactKey> keys = null;
 		if (keysToMirror != null)
@@ -103,7 +105,8 @@ public class Mirroring {
 		}
 
 		if (compareExclusionQuery != null) {
-			IQueryResult<IArtifactDescriptor> exclusions = source.descriptorQueryable().query(compareExclusionQuery, null);
+			IQueryResult<IArtifactDescriptor> exclusions = source.descriptorQueryable().query(compareExclusionQuery,
+					null);
 			compareExclusions = exclusions.toUnmodifiableSet();
 		}
 
@@ -112,10 +115,10 @@ public class Mirroring {
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(key);
 			for (IArtifactDescriptor descriptor : descriptors) {
 				IStatus result = mirror(descriptor, verbose);
-				//Only log INFO and WARNING if we want verbose logging. Always log ERRORs
+				// Only log INFO and WARNING if we want verbose logging. Always log ERRORs
 				if (!result.isOK() && (verbose || result.getSeverity() == IStatus.ERROR))
 					multiStatus.add(result);
-				//stop mirroring as soon as we have an error
+				// stop mirroring as soon as we have an error
 				if (failOnError && multiStatus.getSeverity() == IStatus.ERROR)
 					return multiStatus;
 			}
@@ -146,23 +149,26 @@ public class Mirroring {
 		return multiStatus;
 	}
 
+	@SuppressWarnings("removal")
 	private IStatus mirror(IArtifactDescriptor sourceDescriptor, boolean verbose) {
-		if (!includePacked && IArtifactDescriptor.FORMAT_PACKED.equals(sourceDescriptor.getProperty(IArtifactDescriptor.FORMAT)))
+		if (!includePacked
+				&& IArtifactDescriptor.FORMAT_PACKED.equals(sourceDescriptor.getProperty(IArtifactDescriptor.FORMAT)))
 			return Status.OK_STATUS;
 
 		IArtifactDescriptor targetDescriptor = raw ? sourceDescriptor : new ArtifactDescriptor(sourceDescriptor);
 		IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(sourceDescriptor);
 
 		if (verbose)
-			System.out.println("Mirroring: " + sourceDescriptor.getArtifactKey() + " (Descriptor: " + sourceDescriptor + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			System.out.println(
+					"Mirroring: " + sourceDescriptor.getArtifactKey() + " (Descriptor: " + sourceDescriptor + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 		MultiStatus compareStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
 		boolean comparing = compare && !compareExclusions.contains(sourceDescriptor);
 		if (comparing) {
 			if (baselineDescriptor != null) {
-				//compare source & baseline
+				// compare source & baseline
 				compareStatus.add(compare(baseline, baselineDescriptor, source, sourceDescriptor));
-				//compare baseline & destination
+				// compare baseline & destination
 				if (destination.contains(baselineDescriptor)) {
 					compareStatus.add(compareToDestination(baselineDescriptor));
 					return compareStatus;
@@ -173,13 +179,13 @@ public class Mirroring {
 			}
 		}
 
-		//from source or baseline
+		// from source or baseline
 		IArtifactRepository sourceRepository = baselineDescriptor != null ? baseline : source;
 		sourceDescriptor = baselineDescriptor != null ? baselineDescriptor : sourceDescriptor;
 		targetDescriptor = baselineDescriptor != null ? baselineDescriptor : targetDescriptor;
 		IStatus status = null;
 		if (!destination.contains(targetDescriptor))
-			//actual download
+			// actual download
 			status = downloadArtifact(sourceRepository, targetDescriptor, sourceDescriptor);
 		else {
 			String message = NLS.bind(Messages.mirror_alreadyExists, sourceDescriptor, destination);
@@ -194,10 +200,13 @@ public class Mirroring {
 	}
 
 	/**
-	 * Takes an IArtifactDescriptor descriptor and the ProvisionException that was thrown when destination.getOutputStream(descriptor)
-	 * and compares descriptor to the duplicate descriptor in the destination.
-	 * 
-	 * Callers should verify the ProvisionException was thrown due to the artifact existing in the destination before invoking this method.
+	 * Takes an IArtifactDescriptor descriptor and the ProvisionException that was
+	 * thrown when destination.getOutputStream(descriptor) and compares descriptor
+	 * to the duplicate descriptor in the destination.
+	 *
+	 * Callers should verify the ProvisionException was thrown due to the artifact
+	 * existing in the destination before invoking this method.
+	 *
 	 * @param descriptor
 	 * @return the status of the compare
 	 */
@@ -209,12 +218,15 @@ public class Mirroring {
 				destDescriptor = destDescriptors[i];
 		}
 		if (destDescriptor == null)
-			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, Messages.Mirroring_noMatchingDescriptor, null);
+			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS,
+					Messages.Mirroring_noMatchingDescriptor, null);
 		return compare(source, descriptor, destination, destDescriptor);
 	}
 
-	private IStatus compare(IArtifactRepository sourceRepository, IArtifactDescriptor sourceDescriptor, IArtifactRepository destRepository, IArtifactDescriptor destDescriptor) {
-		IStatus comparison = getComparator().compare(sourceRepository, sourceDescriptor, destRepository, destDescriptor);
+	private IStatus compare(IArtifactRepository sourceRepository, IArtifactDescriptor sourceDescriptor,
+			IArtifactRepository destRepository, IArtifactDescriptor destDescriptor) {
+		IStatus comparison = getComparator().compare(sourceRepository, sourceDescriptor, destRepository,
+				destDescriptor);
 		if (comparatorLog != null && !comparison.isOK())
 			comparatorLog.log(sourceDescriptor, comparison);
 		return comparison;
@@ -223,7 +235,8 @@ public class Mirroring {
 	/*
 	 * Create, and execute a MirrorRequest for a given descriptor.
 	 */
-	private IStatus downloadArtifact(IArtifactRepository sourceRepo, IArtifactDescriptor destDescriptor, IArtifactDescriptor srcDescriptor) {
+	private IStatus downloadArtifact(IArtifactRepository sourceRepo, IArtifactDescriptor destDescriptor,
+			IArtifactDescriptor srcDescriptor) {
 		RawMirrorRequest request = new RawMirrorRequest(srcDescriptor, destDescriptor, destination, transport);
 		request.perform(sourceRepo, new NullProgressMonitor());
 
@@ -235,7 +248,7 @@ public class Mirroring {
 	}
 
 	/*
-	 *  Get the equivalent descriptor from the baseline repository
+	 * Get the equivalent descriptor from the baseline repository
 	 */
 	private IArtifactDescriptor getBaselineDescriptor(IArtifactDescriptor descriptor) {
 		if (baseline == null || !baseline.contains(descriptor))
@@ -250,8 +263,9 @@ public class Mirroring {
 		return null;
 	}
 
-	/* 
-	 * Simple validation of a mirror to see if all source descriptors are present in the destination
+	/*
+	 * Simple validation of a mirror to see if all source descriptors are present in
+	 * the destination
 	 */
 	private IStatus validateMirror(boolean verbose) {
 		MultiStatus status = new MultiStatus(Activator.ID, 0, Messages.Mirroring_ValidationError, null);
@@ -280,7 +294,8 @@ public class Mirroring {
 						// Missing an artifact
 						if (verbose)
 							System.out.println(NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src]));
-						status.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src++])));
+						status.add(new Status(IStatus.ERROR, Activator.ID,
+								NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src++])));
 					} else {
 						// Its okay if there are extra descriptors in the destination
 						dest++;
@@ -294,7 +309,8 @@ public class Mirroring {
 						if (baselineDescriptor != null)
 							srcProperties = baselineDescriptor.getProperties();
 					}
-					// Baseline not set, or could not find descriptor so we'll use the source descriptor
+					// Baseline not set, or could not find descriptor so we'll use the source
+					// descriptor
 					if (srcProperties == null)
 						srcProperties = srcDescriptors[src].getProperties();
 
@@ -302,8 +318,12 @@ public class Mirroring {
 					for (String key : srcProperties.keySet()) {
 						if (!srcProperties.get(key).equals(destMap.get(key))) {
 							if (verbose)
-								System.out.println(NLS.bind(Messages.Mirroring_differentDescriptorProperty, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)}));
-							status.add(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Mirroring_differentDescriptorProperty, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)})));
+								System.out.println(NLS.bind(Messages.Mirroring_differentDescriptorProperty,
+										new Object[] { destDescriptors[dest], key, srcProperties.get(key),
+												destMap.get(key) }));
+							status.add(new Status(IStatus.WARNING, Activator.ID,
+									NLS.bind(Messages.Mirroring_differentDescriptorProperty, new Object[] {
+											destDescriptors[dest], key, srcProperties.get(key), destMap.get(key) })));
 						}
 					}
 					src++;
@@ -311,11 +331,13 @@ public class Mirroring {
 				}
 			}
 
-			// If there are still source descriptors they're missing from the destination repository 
+			// If there are still source descriptors they're missing from the destination
+			// repository
 			while (src < srcDescriptors.length) {
 				if (verbose)
 					System.out.println(NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src]));
-				status.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src++])));
+				status.add(new Status(IStatus.ERROR, Activator.ID,
+						NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src++])));
 			}
 		}
 

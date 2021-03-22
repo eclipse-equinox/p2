@@ -940,6 +940,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Verifies that the mirror application executes processing steps correctly
 	 */
+	@SuppressWarnings("removal")
 	@Test
 	public void testArtifactProcessingSteps() {
 		if (System.getProperty("java.specification.version").compareTo("14") >= 0) {

@@ -51,6 +51,7 @@ public class ZipProcessor {
 		return options.repack || (options.pack && options.signCommand != null);
 	}
 
+	@SuppressWarnings("removal")
 	public void processZip(File zipFile) throws ZipException, IOException {
 		if (options.verbose)
 			System.out.println("Processing " + zipFile.getPath()); //$NON-NLS-1$
@@ -74,7 +75,9 @@ public class ZipProcessor {
 			try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(outputFile))) {
 				Enumeration<? extends ZipEntry> entries = zip.entries();
 				if (entries.hasMoreElements()) {
-					for (ZipEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements() ? (ZipEntry) entries.nextElement() : null) {
+					for (ZipEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements()
+							? (ZipEntry) entries.nextElement()
+							: null) {
 						String name = entry.getName();
 
 						InputStream entryStream = zip.getInputStream(entry);
@@ -98,14 +101,15 @@ public class ZipProcessor {
 
 							boolean skip = Utils.shouldSkipJar(extractedFile, options.processAll, options.verbose);
 							if (skip) {
-								//skipping this file 
+								// skipping this file
 								entryStream = new FileInputStream(extractedFile);
 								if (options.verbose)
 									System.out.println(entry.getName() + " is not marked, skipping."); //$NON-NLS-1$
 							} else {
 								if (options.unpack) {
 									File result = processor.processJar(extractedFile);
-									name = name.substring(0, name.length() - extractedFile.getName().length()) + result.getName();
+									name = name.substring(0, name.length() - extractedFile.getName().length())
+											+ result.getName();
 									extractedFile = result;
 								} else {
 									if (repack || sign) {
@@ -122,22 +126,27 @@ public class ZipProcessor {
 										File modifiedFile = processor.processJar(extractedFile);
 										if (modifiedFile.exists()) {
 											try {
-												String newName = name.substring(0, name.length() - extractedFile.getName().length()) + modifiedFile.getName();
+												String newName = name.substring(0,
+														name.length() - extractedFile.getName().length())
+														+ modifiedFile.getName();
 												if (options.verbose) {
-													System.out.println("Adding " + newName + " to " + outputFile.getPath()); //$NON-NLS-1$ //$NON-NLS-2$
+													System.out.println(
+															"Adding " + newName + " to " + outputFile.getPath()); //$NON-NLS-1$ //$NON-NLS-2$
 													System.out.println();
 												}
 												ZipEntry zipEntry = new ZipEntry(newName);
 												entryStream = new FileInputStream(modifiedFile);
 												zipOut.putNextEntry(zipEntry);
-												Utils.transferStreams(entryStream, zipOut, false); //we want to keep zipOut open
+												Utils.transferStreams(entryStream, zipOut, false); // we want to keep
+																									// zipOut open
 												entryStream.close();
 												Utils.clear(modifiedFile);
 											} catch (IOException e) {
 												Utils.close(entryStream);
 												if (options.verbose) {
 													e.printStackTrace();
-													System.out.println("Warning: Problem reading " + modifiedFile.getPath() + "."); //$NON-NLS-1$//$NON-NLS-2$
+													System.out.println(
+															"Warning: Problem reading " + modifiedFile.getPath() + "."); //$NON-NLS-1$//$NON-NLS-2$
 												}
 											}
 											entryStream = null;
@@ -152,7 +161,8 @@ public class ZipProcessor {
 									} catch (IOException e) {
 										if (options.verbose) {
 											e.printStackTrace();
-											System.out.println("Warning: Problem reading " + extractedFile.getPath() + "."); //$NON-NLS-1$//$NON-NLS-2$
+											System.out.println(
+													"Warning: Problem reading " + extractedFile.getPath() + "."); //$NON-NLS-1$//$NON-NLS-2$
 										}
 									}
 								}
@@ -170,7 +180,8 @@ public class ZipProcessor {
 								zipOut.closeEntry();
 							} catch (ZipException e) {
 								if (options.verbose) {
-									System.out.println("Warning: " + name + " already exists in " + outputFile.getName() + ".  Skipping."); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+									System.out.println("Warning: " + name + " already exists in " + outputFile.getName() //$NON-NLS-1$//$NON-NLS-2$
+											+ ".  Skipping."); //$NON-NLS-1$
 								}
 							}
 							entryStream.close();
@@ -205,6 +216,7 @@ public class ZipProcessor {
 		return result;
 	}
 
+	@SuppressWarnings("removal")
 	private void initialize(ZipFile zip) {
 		ZipEntry entry = zip.getEntry("pack.properties"); //$NON-NLS-1$
 		properties = new Properties();
