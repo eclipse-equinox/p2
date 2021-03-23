@@ -91,6 +91,7 @@ public class JarProcessorTask extends Task {
 		}
 	}
 
+	@SuppressWarnings("removal")
 	private void adjustAndValidateConfiguration() {
 		// Sign and pack implies a normalization
 		if (options.signCommand != null && options.pack)

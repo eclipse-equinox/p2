@@ -44,6 +44,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.junit.Test;
 
+@SuppressWarnings("removal")
 public class ProcessingStepHandlerTest {
 
 	//	private static final int BUFFER_SIZE = 8 * 1024;

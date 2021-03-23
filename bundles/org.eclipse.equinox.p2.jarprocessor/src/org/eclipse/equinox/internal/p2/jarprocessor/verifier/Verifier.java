@@ -120,6 +120,7 @@ public class Verifier extends JarProcessorExecutor {
 	}
 
 	@Override
+	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void addPackStep(JarProcessor processor, Properties properties,
 			JarProcessorExecutor.Options processOptions) {
 		processor.addProcessStep(new VerifyStep(properties, processOptions.verbose));

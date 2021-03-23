@@ -883,6 +883,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * Verifies that the mirror application executes processing steps correctly
 	 */
+	@SuppressWarnings("removal")
 	public void testArtifactProcessingSteps() {
 		if (System.getProperty("java.specification.version").compareTo("14") >= 0) {
 			// Test explicitly uses pack200 artifacts which are not supported on Java 14+

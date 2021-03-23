@@ -19,6 +19,7 @@ import org.junit.runners.Suite;
 /**
  * Performs all automated director tests.
  */
+@SuppressWarnings("removal")
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ Pack200ProcessorTest.class, ZipVerifierProcessorTest.class, ChecksumVerifierTest.class,
 		ChecksumUtilitiesTest.class })

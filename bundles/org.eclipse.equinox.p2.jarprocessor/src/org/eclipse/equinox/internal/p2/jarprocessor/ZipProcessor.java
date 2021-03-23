@@ -47,6 +47,7 @@ public class ZipProcessor {
 		return workingDirectory;
 	}
 
+	@SuppressWarnings("removal")
 	private boolean repacking() {
 		return options.repack || (options.pack && options.signCommand != null);
 	}

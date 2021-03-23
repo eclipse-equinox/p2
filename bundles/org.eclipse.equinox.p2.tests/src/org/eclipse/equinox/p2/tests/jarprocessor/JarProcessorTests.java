@@ -37,6 +37,7 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 		File workingDir = getTestFolder("testVerifyStep");
 
 		Verifier verifier = new Verifier() {
+			@SuppressWarnings("removal")
 			@Override
 			public void verify(File workingDirectory, String[] input) {
 				options = new Options();
