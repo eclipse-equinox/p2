@@ -28,7 +28,6 @@ public class OptimizationFunction {
 	private IQueryable<IInstallableUnit> picker;
 	private IInstallableUnit selectionContext;
 	protected Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
-	private int numberOfInstalledIUs; //TODO this should be renamed to consideredIUs or sliceSize
 	private IQueryable<IInstallableUnit> lastState;
 	private List<AbstractVariable> optionalRequirementVariable;
 
@@ -42,7 +41,7 @@ public class OptimizationFunction {
 
 	//Create an optimization function favoring the highest version of each IU
 	public List<WeightedObject<? extends Object>> createOptimizationFunction(IInstallableUnit metaIu, Collection<IInstallableUnit> newRoots) {
-		numberOfInstalledIUs = sizeOf(lastState);
+		int numberOfInstalledIUs = sizeOf(lastState);
 		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<>();
 
 		Set<IInstallableUnit> transitiveClosure; //The transitive closure of the IUs we are adding (this also means updating)

@@ -77,7 +77,6 @@ public class ClassFileReader extends ClassFileStruct {
 	private InnerClassesAttribute innerClassesAttribute;
 	private int[] interfaceIndexes;
 	private char[][] interfaceNames;
-	private int interfacesCount;
 	private int magicNumber;
 	private int majorVersion;
 	private MethodInfo[] methods;
@@ -199,21 +198,21 @@ public class ClassFileReader extends ClassFileStruct {
 			}
 
 			// Read the interfaces, use exception handlers to catch bad format
-			this.interfacesCount = u2At(classFileBytes, readOffset, 0);
+			int interfacesCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
 			this.interfaceNames = NO_INTERFACES_NAMES;
 			this.interfaceIndexes = Utility.EMPTY_INT_ARRAY;
-			if (this.interfacesCount != 0) {
+			if (interfacesCount != 0) {
 				if ((decodingFlags & SUPER_INTERFACES) != CONSTANT_POOL) {
-					this.interfaceNames = new char[this.interfacesCount][];
-					this.interfaceIndexes = new int[this.interfacesCount];
-					for (int i = 0; i < this.interfacesCount; i++) {
+					this.interfaceNames = new char[interfacesCount][];
+					this.interfaceIndexes = new int[interfacesCount];
+					for (int i = 0; i < interfacesCount; i++) {
 						this.interfaceIndexes[i] = u2At(classFileBytes, readOffset, 0);
 						this.interfaceNames[i] = getConstantClassNameAt(classFileBytes, constantPoolOffsets, this.interfaceIndexes[i]);
 						readOffset += 2;
 					}
 				} else {
-					readOffset += (2 * this.interfacesCount);
+					readOffset += (2 * interfacesCount);
 				}
 			}
 			// Read the this.fields, use exception handlers to catch bad format
