@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.jarprocessor.UnpackStep;
 import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.*;
 
+@SuppressWarnings("removal")
 public class Verifier extends JarProcessorExecutor {
 
 	private static void printUsage() {
@@ -78,7 +79,6 @@ public class Verifier extends JarProcessorExecutor {
 			workingDir.deleteOnExit();
 	}
 
-	@SuppressWarnings("removal")
 	public void verify(final File workingDirectory, String[] input) {
 		options = new Options();
 		options.verbose = false;

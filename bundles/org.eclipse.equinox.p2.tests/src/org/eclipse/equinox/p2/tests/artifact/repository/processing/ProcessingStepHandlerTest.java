@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2020 compeople AG and others.
+* Copyright (c) 2007, 2021 compeople AG and others.
 *
 * This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
@@ -195,7 +195,6 @@ public class ProcessingStepHandlerTest {
 		assertArrayEquals(new byte[] { 3, 5, 7, 9, 11 }, result.toByteArray());
 	}
 
-	@SuppressWarnings("removal")
 	@Test
 	public void testExecuteOnePack200UnpackerPS() throws IOException {
 		//this test is only applicable if pack200 is available
@@ -262,7 +261,6 @@ public class ProcessingStepHandlerTest {
 		assertEquals(Multiplier.class, steps[0].getClass());
 	}
 
-	@SuppressWarnings("removal")
 	@Test
 	public void testCreatePack200UnpackerPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};

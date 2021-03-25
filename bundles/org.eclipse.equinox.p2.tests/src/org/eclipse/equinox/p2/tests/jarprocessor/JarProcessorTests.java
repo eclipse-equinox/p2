@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2017 IBM Corporation and others.
+ *  Copyright (c) 2005, 2021 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -27,6 +27,7 @@ import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
+@SuppressWarnings("removal")
 public class JarProcessorTests extends AbstractProvisioningTest {
 
 	public void testVerifyStep() throws Exception {
@@ -37,7 +38,6 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 		File workingDir = getTestFolder("testVerifyStep");
 
 		Verifier verifier = new Verifier() {
-			@SuppressWarnings("removal")
 			@Override
 			public void verify(File workingDirectory, String[] input) {
 				options = new Options();
