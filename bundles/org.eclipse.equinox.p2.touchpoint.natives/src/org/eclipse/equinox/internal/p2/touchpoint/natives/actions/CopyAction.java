@@ -26,12 +26,12 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Copies from PARM_COPY_SOURCE to PARAM_COPY_TARGET
- * The optional parameter PARAM_COPY_OVERWRITE overwrites and existing file if set to true, else
- * and existing file with the same name is an error. The default is false.
- * If the source is a directory, a merge copy to the target is performed.
- * Copy will copy files and directories (recursively).
- *  
+ * Copies from PARM_COPY_SOURCE to PARAM_COPY_TARGET The optional parameter
+ * PARAM_COPY_OVERWRITE overwrites and existing file if set to true, else and
+ * existing file with the same name is an error. The default is false. If the
+ * source is a directory, a merge copy to the target is performed. Copy will
+ * copy files and directories (recursively).
+ * 
  */
 public class CopyAction extends ProvisioningAction {
 	public static final String ID = "cp"; //$NON-NLS-1$
@@ -41,10 +41,11 @@ public class CopyAction extends ProvisioningAction {
 		return copy(parameters, true);
 	}
 
-	/** Perform the copy.
+	/**
+	 * Perform the copy.
 	 * 
-	 * @param parameters action parameters
-	 * @param restoreable  flag indicating if the operation should be backed up
+	 * @param parameters  action parameters
+	 * @param restoreable flag indicating if the operation should be backed up
 	 * @return status
 	 */
 	public static IStatus copy(Map<String, Object> parameters, boolean restoreable) {
@@ -52,11 +53,13 @@ public class CopyAction extends ProvisioningAction {
 		IBackupStore backupStore = restoreable ? (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP) : null;
 
 		if (target == null)
-			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, ActionConstants.PARM_COPY_TARGET, ID), null);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK,
+					NLS.bind(Messages.param_not_set, ActionConstants.PARM_COPY_TARGET, ID), null);
 
 		String source = (String) parameters.get(ActionConstants.PARM_COPY_SOURCE);
 		if (source == null)
-			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, ActionConstants.PARM_COPY_SOURCE, ID), null);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK,
+					NLS.bind(Messages.param_not_set, ActionConstants.PARM_COPY_SOURCE, ID), null);
 
 		String overwrite = (String) parameters.get(ActionConstants.PARM_COPY_OVERWRITE);
 		Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
@@ -78,7 +81,8 @@ public class CopyAction extends ProvisioningAction {
 		try {
 			copiedFiles = mergeCopy(sourceFile, targetFile, Boolean.parseBoolean(overwrite), backupStore);
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.copy_failed, sourceFile.getPath()), e);
+			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK,
+					NLS.bind(Messages.copy_failed, sourceFile.getPath()), e);
 		}
 		// keep copied file in the profile as memento for CleanupCopy
 		StringBuffer copiedFileNameBuffer = new StringBuffer();
@@ -86,9 +90,14 @@ public class CopyAction extends ProvisioningAction {
 			copiedFileNameBuffer.append(copiedFile.getAbsolutePath()).append(ActionConstants.PIPE);
 		}
 
-		profile.setInstallableUnitProperty(iu, "copied " + ActionConstants.PIPE + originalSource + ActionConstants.PIPE + target, copiedFileNameBuffer.toString()); //$NON-NLS-1$
+		profile.setInstallableUnitProperty(iu, buildCopiedFileIUPropertyKey(target, originalSource),
+				copiedFileNameBuffer.toString());
 
 		return Status.OK_STATUS;
+	}
+
+	static String buildCopiedFileIUPropertyKey(String target, String originalSource) {
+		return "copied" + ActionConstants.PIPE + originalSource + ActionConstants.PIPE + target; //$NON-NLS-1$
 	}
 
 	@Override
@@ -98,12 +107,14 @@ public class CopyAction extends ProvisioningAction {
 
 	/**
 	 * Merge-copy file or directory.
+	 * 
 	 * @param source
 	 * @param target
 	 * @param overwrite
 	 * @throws IOException
 	 */
-	private static File[] mergeCopy(File source, File target, boolean overwrite, IBackupStore backupStore) throws IOException {
+	private static File[] mergeCopy(File source, File target, boolean overwrite, IBackupStore backupStore)
+			throws IOException {
 		ArrayList<File> copiedFiles = new ArrayList<>();
 		xcopy(copiedFiles, source, target, overwrite, backupStore);
 		return copiedFiles.toArray(new File[copiedFiles.size()]);
@@ -111,13 +122,15 @@ public class CopyAction extends ProvisioningAction {
 
 	/**
 	 * Merge-copy file or directory.
+	 * 
 	 * @param copiedFiles - ArrayList where copied files are collected
 	 * @param source
 	 * @param target
 	 * @param overwrite
 	 * @throws IOException
 	 */
-	private static void xcopy(ArrayList<File> copiedFiles, File source, File target, boolean overwrite, IBackupStore backupStore) throws IOException {
+	private static void xcopy(ArrayList<File> copiedFiles, File source, File target, boolean overwrite,
+			IBackupStore backupStore) throws IOException {
 		if (!source.exists())
 			throw new IOException("Source: " + source + " does not exists"); //$NON-NLS-1$//$NON-NLS-2$
 

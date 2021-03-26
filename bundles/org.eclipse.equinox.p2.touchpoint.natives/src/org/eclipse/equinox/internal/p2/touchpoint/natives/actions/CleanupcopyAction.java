@@ -40,7 +40,8 @@ public class CleanupcopyAction extends ProvisioningAction {
 
 	/**
 	 * Perform a cleanup of a previously made copy action.
-	 * @param parameters action parameters
+	 * 
+	 * @param parameters  action parameters
 	 * @param restoreable flag indicating if the operation should be backed up
 	 * @return status
 	 */
@@ -56,7 +57,7 @@ public class CleanupcopyAction extends ProvisioningAction {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 
-		String copied = profile.getInstallableUnitProperty(iu, "copied" + ActionConstants.PIPE + source + ActionConstants.PIPE + target); //$NON-NLS-1$
+		String copied = profile.getInstallableUnitProperty(iu, CopyAction.buildCopiedFileIUPropertyKey(target, source));
 
 		if (copied == null)
 			return Status.OK_STATUS;
@@ -69,8 +70,8 @@ public class CleanupcopyAction extends ProvisioningAction {
 			if (!file.exists())
 				continue;
 
-			//directories need to be deleted from the bottom-up, but directories are listed 
-			//in traversal order during copy, so we need to reverse the directory list
+			// directories need to be deleted from the bottom-up, but directories are listed
+			// in traversal order during copy, so we need to reverse the directory list
 			if (file.isDirectory())
 				directories.add(0, file);
 			else {
