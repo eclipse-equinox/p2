@@ -1273,8 +1273,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			boolean found = false;
 			IStatus[] stepStatusChildren = stepStatus.getChildren();
 			for (int i = 0; i < stepStatusChildren.length && !found; i++)
-				if (stepStatusChildren[i] == status)
+				if (stepStatusChildren[i] == status) {
 					found = true;
+					break;
+				}
 			if (!found)
 				result.merge(status);
 		}
