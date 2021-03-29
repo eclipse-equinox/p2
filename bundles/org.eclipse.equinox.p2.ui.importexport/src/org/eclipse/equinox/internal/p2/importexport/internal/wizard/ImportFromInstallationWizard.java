@@ -15,7 +15,8 @@ package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
 import java.util.Collection;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.equinox.internal.p2.importexport.internal.*;
+import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
+import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
 import org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
@@ -27,8 +28,8 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IImportWizard;
-import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.*;
+import org.osgi.framework.FrameworkUtil;
 
 public class ImportFromInstallationWizard extends InstallWizard implements IImportWizard {
 
@@ -36,9 +37,12 @@ public class ImportFromInstallationWizard extends InstallWizard implements IImpo
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 	}
 
-	public ImportFromInstallationWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
+	public ImportFromInstallationWizard(ProvisioningUI ui, InstallOperation operation,
+			Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
-		IDialogSettings workbenchSettings = ImportExportActivator.getDefault().getDialogSettings();
+		IDialogSettings workbenchSettings = PlatformUI
+				.getDialogSettingsProvider(FrameworkUtil.getBundle(ImportFromInstallationWizard.class))
+				.getDialogSettings();
 		String sectionName = "ImportFromInstallationWizard"; //$NON-NLS-1$
 		IDialogSettings section = workbenchSettings.getSection(sectionName);
 		if (section == null) {
@@ -50,7 +54,8 @@ public class ImportFromInstallationWizard extends InstallWizard implements IImpo
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		setWindowTitle(Messages.ImportWizard_WINDOWTITLE);
-		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(Constants.Bundle_ID).getEntry("icons/wizban/install_wiz.png"))); //$NON-NLS-1$
+		setDefaultPageImageDescriptor(ImageDescriptor
+				.createFromURL(Platform.getBundle(Constants.Bundle_ID).getEntry("icons/wizban/install_wiz.png"))); //$NON-NLS-1$
 		setNeedsProgressMonitor(true);
 	}
 

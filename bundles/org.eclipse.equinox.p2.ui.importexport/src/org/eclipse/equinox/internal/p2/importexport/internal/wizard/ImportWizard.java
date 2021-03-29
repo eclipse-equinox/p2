@@ -19,7 +19,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.importexport.internal.*;
+import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
+import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
@@ -36,9 +37,9 @@ import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IImportWizard;
-import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.*;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.framework.FrameworkUtil;
 
 public class ImportWizard extends InstallWizard implements IImportWizard {
 
@@ -46,9 +47,12 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 		this(ProvisioningUI.getDefaultUI(), null, null, null);
 	}
 
-	public ImportWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
+	public ImportWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections,
+			LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
-		IDialogSettings workbenchSettings = ImportExportActivator.getDefault().getDialogSettings();
+		IDialogSettings workbenchSettings = PlatformUI
+				.getDialogSettingsProvider(FrameworkUtil.getBundle(ImportFromInstallationWizard.class))
+				.getDialogSettings();
 		String sectionName = "ImportWizard"; //$NON-NLS-1$
 		IDialogSettings section = workbenchSettings.getSection(sectionName);
 		if (section == null) {
@@ -60,7 +64,8 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		setWindowTitle(Messages.ImportWizard_WINDOWTITLE);
-		setDefaultPageImageDescriptor(ImageDescriptor.createFromURL(Platform.getBundle(Constants.Bundle_ID).getEntry("icons/wizban/install_wiz.png"))); //$NON-NLS-1$
+		setDefaultPageImageDescriptor(ImageDescriptor
+				.createFromURL(Platform.getBundle(Constants.Bundle_ID).getEntry("icons/wizban/install_wiz.png"))); //$NON-NLS-1$
 		setNeedsProgressMonitor(true);
 	}
 
@@ -80,8 +85,9 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 	}
 
 	/**
-	 * Recompute the provisioning plan based on the items in the IUElementListRoot and the given provisioning context.
-	 * Report progress using the specified runnable context.  This method may be called before the page is created.
+	 * Recompute the provisioning plan based on the items in the IUElementListRoot
+	 * and the given provisioning context. Report progress using the specified
+	 * runnable context. This method may be called before the page is created.
 	 *
 	 * @param runnableContext
 	 */
@@ -98,9 +104,11 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 						ProvisioningContext context = getProvisioningContext();
 						initializeResolutionModelElements(getOperationSelections());
 						if (planSelections.length == 0) {
-							operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent), new ArrayList<IInstallableUnit>()) {
+							operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent),
+									new ArrayList<IInstallableUnit>()) {
 								@Override
-								protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor progressMonitor) {
+								protected void computeProfileChangeRequest(MultiStatus status,
+										IProgressMonitor progressMonitor) {
 									progressMonitor.done();
 								}
 
@@ -108,7 +116,8 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 								public IStatus getResolutionResult() {
 									if (sub.isCanceled())
 										return Status.CANCEL_STATUS;
-									return new Status(IStatus.ERROR, Constants.Bundle_ID, Messages.ImportWizard_CannotQuerySelection);
+									return new Status(IStatus.ERROR, Constants.Bundle_ID,
+											Messages.ImportWizard_CannotQuerySelection);
 								}
 							};
 						} else {
@@ -129,7 +138,8 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 					Display.getDefault().asyncExec(this::planChanged);
 				});
 			} catch (InterruptedException e) {
-				operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent), new ArrayList<IInstallableUnit>()) {
+				operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent),
+						new ArrayList<IInstallableUnit>()) {
 
 					@Override
 					public IStatus getResolutionResult() {
@@ -149,7 +159,8 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 		if (message != null) {
 			couldNotResolveStatus = new Status(IStatus.ERROR, Constants.Bundle_ID, message, null);
 		} else {
-			couldNotResolveStatus = new Status(IStatus.ERROR, Constants.Bundle_ID, ProvUIMessages.ProvisioningOperationWizard_UnexpectedFailureToResolve, null);
+			couldNotResolveStatus = new Status(IStatus.ERROR, Constants.Bundle_ID,
+					ProvUIMessages.ProvisioningOperationWizard_UnexpectedFailureToResolve, null);
 		}
 		StatusManager.getManager().handle(couldNotResolveStatus, StatusManager.LOG);
 	}
