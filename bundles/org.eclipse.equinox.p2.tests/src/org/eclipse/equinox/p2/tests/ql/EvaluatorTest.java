@@ -62,6 +62,32 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 	private static final IExpressionParser parser = ExpressionUtil.getParser();
 	private static final IExpressionFactory factory = ExpressionUtil.getFactory();
 
+	public void testQueryTouchpointSetJvm() throws Exception {
+		IMetadataRepository repo = getMDR("/testData/bug571836");
+		{
+			IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createMatchQuery(//
+					"touchpointType != null && touchpointType.id == 'org.eclipse.equinox.p2.osgi' && touchpointData.exists(t | t.instructions.exists(entry | entry.value.body ~= /*org.eclipse.equinox.p2.touchpoint.eclipse.setJvm*/))"),
+					new NullProgressMonitor());
+			assertEquals("Found wrong number of touchpoints with SetJVM action", 1, queryResultSize(result));
+			Iterator<?> iterator = result.iterator();
+			while (iterator.hasNext()) {
+				Object r = iterator.next();
+				System.out.println(r.getClass() + " : " + r);
+			}
+		}
+		{
+			IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createQuery(//
+					"everything.select(x | x.touchpointType != null && x.touchpointType.id == 'org.eclipse.equinox.p2.osgi' && x.touchpointData.exists(t | t.instructions.exists(entry | entry.value.body ~= /*org.eclipse.equinox.p2.touchpoint.eclipse.setJvm*/)))"),
+					new NullProgressMonitor());
+			assertEquals("Found wrong number of touchpoints with SetJVM action", 1, queryResultSize(result));
+			Iterator<?> iterator = result.iterator();
+			while (iterator.hasNext()) {
+				Object r = iterator.next();
+				System.out.println(r.getClass() + " : " + r);
+			}
+		}
+	}
+
 	public void testArguments() throws Exception {
 		IExpression expr = parser.parse("'a' == $0 && 'b' == $1 && 'c' == $2");
 		assertEquals(Boolean.TRUE, expr.evaluate(factory.createContext("a", "b", "c")));
@@ -281,7 +307,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		assertEquals(queryResultSize(result), 497);
 	}
 
-	static class MyObject {
+	public static class MyObject {
 		String id;
 		Map<String, String> properties = new HashMap<>();
 
