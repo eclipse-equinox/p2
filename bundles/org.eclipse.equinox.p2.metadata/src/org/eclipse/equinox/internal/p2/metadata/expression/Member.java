@@ -15,10 +15,14 @@ package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionVisitor;
 import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
@@ -38,10 +42,7 @@ public abstract class Member extends Unary {
 		private static final String GET_PREFIX = "get"; //$NON-NLS-1$
 		private static final String IS_PREFIX = "is"; //$NON-NLS-1$
 
-		private Class<?> lastClass;
-
-		private transient Method method;
-		private transient String methodName;
+		private transient Method lastMethod;
 
 		DynamicMember(Expression operand, String name) {
 			super(operand, name, Expression.emptyArray);
@@ -59,42 +60,11 @@ public abstract class Member extends Unary {
 			if (self == null)
 				throw new IllegalArgumentException("Cannot access member \'" + name + "\' in null"); //$NON-NLS-1$//$NON-NLS-2$
 
-			Class<?> c = self.getClass();
 			synchronized (this) {
-				if (methodName == null) {
-					String n = name;
-					if (!(n.startsWith(GET_PREFIX) || n.startsWith(IS_PREFIX)))
-						n = GET_PREFIX + Character.toUpperCase(n.charAt(0)) + n.substring(1);
-					methodName = n;
-				}
-				if (lastClass == null || !lastClass.isAssignableFrom(c)) {
-					Method m;
-					for (;;) {
-						try {
-							m = c.getMethod(methodName);
-							if (!Modifier.isPublic(m.getModifiers()))
-								throw new NoSuchMethodException();
-							break;
-						} catch (NoSuchMethodException e) {
-							if (methodName.startsWith(GET_PREFIX))
-								// Switch from using getXxx() to isXxx()
-								methodName = IS_PREFIX + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-							else if (methodName.startsWith(IS_PREFIX))
-								// Switch from using isXxx() to xxx()
-								methodName = name;
-							else
-								throw new IllegalArgumentException("Cannot find a public member \'" + name + "\' in a " //$NON-NLS-1$//$NON-NLS-2$
-										+ self.getClass().getName());
-						}
-					}
-
-					// Since we already checked that it's public. This will speed
-					// up the calls a bit.
-					m.setAccessible(true);
-					lastClass = c;
-					method = m;
-				}
-
+				final Method method = (lastMethod != null && lastMethod.getDeclaringClass().isInstance(self))
+						? lastMethod
+						: findAccessibleMethod(self, name);
+				this.lastMethod = method;
 				Exception checked;
 				try {
 					return method.invoke(self);
@@ -110,9 +80,54 @@ public abstract class Member extends Unary {
 						throw (Error) cause;
 					checked = (Exception) cause;
 				}
-				throw new RuntimeException("Problem invoking " + methodName + " on a " + self.getClass().getName(), //$NON-NLS-1$ //$NON-NLS-2$
+				throw new RuntimeException(
+						"Problem invoking " + method.getName() + " on a " + self.getClass().getName(), //$NON-NLS-1$ //$NON-NLS-2$
 						checked);
 			}
+		}
+
+		private Collection<String> getMethodNames(String propertyName) {
+			Collection<String> res = new ArrayList<>(3);
+			String n = propertyName;
+			res.add(propertyName); // obj.value()
+			if (!(n.startsWith(GET_PREFIX) || n.startsWith(IS_PREFIX))) {
+				res.add(GET_PREFIX + Character.toUpperCase(n.charAt(0)) + n.substring(1)); // obj.getValue()
+				res.add(IS_PREFIX + Character.toUpperCase(n.charAt(0)) + n.substring(1)); // obj.isValue()
+			}
+			return res;
+		}
+
+		private Method findAccessibleMethod(Object self, String propertyName) {
+			Collection<String> methodNamesToTry = getMethodNames(propertyName);
+			Queue<Class<?>> typesToTry = new LinkedList<>();
+			typesToTry.add(self.getClass());
+			while (!typesToTry.isEmpty()) {
+				Class<?> currentClass = typesToTry.poll();
+				for (String methodName : methodNamesToTry) {
+					try {
+						Method m = currentClass.getMethod(methodName);
+						if (!m.canAccess(self)) {
+							try {
+								// force accessible if possible.
+								// this seems necessary when invoking objects from
+								// nested class and "downstream" bundles
+								m.setAccessible(true);
+							} catch (Exception e) {
+								// ignore possible non-blocking case
+							}
+						}
+						if (m.canAccess(self)) {
+							return m;
+						}
+					} catch (NoSuchMethodException e) {
+						// ignore not found method
+					}
+				}
+				Optional.ofNullable(currentClass.getSuperclass()).ifPresent(typesToTry::add);
+				typesToTry.addAll(Arrays.asList(currentClass.getInterfaces()));
+			}
+			throw new IllegalArgumentException("Cannot find accessor method for property \'" + name + "\' in a " //$NON-NLS-1$//$NON-NLS-2$
+					+ self.getClass().getName());
 		}
 	}
 
