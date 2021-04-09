@@ -290,13 +290,8 @@ public class Utils {
 	}
 
 	public static String concat(String[] array) {
-		StringBuilder buffer = new StringBuilder();
-		for (int i = 0; i < array.length; i++) {
-			if (i > 0)
-				buffer.append(' ');
-			buffer.append(array[i]);
-		}
-		return buffer.toString();
+		String buffer = String.join(String.valueOf(' '), array);
+		return buffer;
 	}
 
 	public static String[] toStringArray(String input, String separator) {
