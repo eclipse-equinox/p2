@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.Transport;
@@ -151,7 +152,7 @@ public class MirrorRequest extends ArtifactRequest {
 			return;
 		}
 
-		IArtifactDescriptor destinationDescriptor = getDestinationDescriptor(descriptor);
+		IArtifactDescriptor destinationDescriptor = getDestinationDescriptor(descriptor, descriptor == canonical);
 		IStatus status = transfer(destinationDescriptor, descriptor, monitor);
 		// if ok, cancelled or transfer has already been done with the canonical form return with status set
 		if (status.getSeverity() == IStatus.CANCEL) {
@@ -176,7 +177,7 @@ public class MirrorRequest extends ArtifactRequest {
 			return;
 		}
 
-		IStatus canonicalStatus = transfer(getDestinationDescriptor(canonical), canonical, monitor);
+		IStatus canonicalStatus = transfer(getDestinationDescriptor(canonical, true), canonical, monitor);
 		// To prevent the optimized transfer status severity from dominating the canonical, only merge
 		// if the canonical severity is equal to or higher than the optimized transfer severity.
 		if (canonicalStatus.getSeverity() < status.getSeverity())
@@ -185,7 +186,7 @@ public class MirrorRequest extends ArtifactRequest {
 			setResult(new MultiStatus(Activator.ID, canonicalStatus.getCode() != 0 ? canonicalStatus.getCode() : status.getCode(), new IStatus[] {status, canonicalStatus}, Messages.MirrorRequest_multipleDownloadProblems, null));
 	}
 
-	private IArtifactDescriptor getDestinationDescriptor(IArtifactDescriptor sourceDescriptor) {
+	private IArtifactDescriptor getDestinationDescriptor(IArtifactDescriptor sourceDescriptor, boolean isCanonical) {
 		// Get the descriptor to use to store the artifact
 		// Since we are mirroring, ensure we clear out data from the original descriptor that may
 		// not apply in the new repo location.
@@ -200,6 +201,14 @@ public class MirrorRequest extends ArtifactRequest {
 			((ArtifactDescriptor) destinationDescriptor).addProperties(targetDescriptorProperties);
 		if (targetRepositoryProperties != null && destinationDescriptor instanceof SimpleArtifactDescriptor)
 			((SimpleArtifactDescriptor) destinationDescriptor).addRepositoryProperties(targetRepositoryProperties);
+		if (isCanonical && destinationDescriptor instanceof ArtifactDescriptor) {
+			// keep some safety properties
+			if (sourceDescriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME) != null) {
+				((ArtifactDescriptor) destinationDescriptor)
+						.addProperties(Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME,
+								sourceDescriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME)));
+			}
+		}
 		return destinationDescriptor;
 	}
 

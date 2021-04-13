@@ -13,16 +13,25 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 import java.nio.file.Files;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.junit.Before;
 import org.junit.Test;
 
 public class PGPTest extends AbstractProvisioningTest {
 	IArtifactRepository targetRepo = null;
 	IArtifactRepository sourceRepo = null;
+
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+		PGPSignatureVerifier.discardKnownKeys();
+	}
 
 	private void loadPGPTestRepo(String repoName) throws Exception {
 		sourceRepo = getArtifactRepositoryManager().loadRepository(

@@ -21,11 +21,15 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.function.Function;
+import org.bouncycastle.bcpg.ArmoredOutputStream;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
+import org.eclipse.equinox.internal.provisional.security.ui.X500PrincipalHelper;
 import org.eclipse.equinox.internal.provisional.security.ui.X509CertificateViewDialog;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -45,27 +49,49 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 	private Object inputElement;
 	private IStructuredContentProvider contentProvider;
-	private ILabelProvider labelProvider;
 
-	private final static int SIZING_SELECTION_WIDGET_HEIGHT = 250;
-	private final static int SIZING_SELECTION_WIDGET_WIDTH = 300;
+	private static final int SIZING_SELECTION_WIDGET_HEIGHT = 250;
+	private static final int SIZING_SELECTION_WIDGET_WIDTH = 300;
 
 	CheckboxTableViewer listViewer;
 
 	private TreeViewer certificateChainViewer;
-	private Button detailsButton;
 	protected TreeNode parentElement;
 	protected Object selectedCertificate;
+	private Button detailsButton;
 
-	public TrustCertificateDialog(Shell parentShell, Object input, ILabelProvider labelProvider,
-			ITreeContentProvider contentProvider) {
+	public TrustCertificateDialog(Shell parentShell, Object input) {
 		super(parentShell);
 		inputElement = input;
-		this.contentProvider = contentProvider;
-		this.labelProvider = labelProvider;
+		this.contentProvider = new TreeNodeContentProvider();
 		setTitle(ProvUIMessages.TrustCertificateDialog_Title);
 		setMessage(ProvUIMessages.TrustCertificateDialog_Message);
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | getDefaultOrientation());
+	}
+
+	private static class PGPOrX509ColumnLabelProvider extends ColumnLabelProvider {
+		private Function<PGPPublicKey, String> pgpMap;
+		private Function<X509Certificate, String> x509map;
+
+		public PGPOrX509ColumnLabelProvider(Function<PGPPublicKey, String> pgpMap,
+				Function<X509Certificate, String> x509map) {
+			this.pgpMap = pgpMap;
+			this.x509map = x509map;
+		}
+
+		@Override
+		public String getText(Object element) {
+			if (element instanceof TreeNode) {
+				element = ((TreeNode) element).getValue();
+			}
+			if (element instanceof PGPPublicKey) {
+				return pgpMap.apply((PGPPublicKey) element);
+			}
+			if (element instanceof X509Certificate) {
+				return x509map.apply((X509Certificate) element);
+			}
+			return super.getText(element);
+		}
 	}
 
 	@Override
@@ -94,6 +120,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		listViewer.addDoubleClickListener(getDoubleClickListener());
 		listViewer.addSelectionChangedListener(getParentSelectionListener());
 		createButtons(composite);
+		detailsButton.setEnabled(selectedCertificate instanceof X509Certificate);
 		return composite;
 	}
 
@@ -140,11 +167,12 @@ public class TrustCertificateDialog extends SelectionDialog {
 				if (selectedCertificate instanceof TreeNode) {
 					o = ((TreeNode) selectedCertificate).getValue();
 				}
+				FileDialog destination = new FileDialog(detailsButton.getShell(), SWT.SAVE);
+				destination.setText(ProvUIMessages.TrustCertificateDialog_Export);
 				if (o instanceof X509Certificate) {
 					X509Certificate cert = (X509Certificate) o;
-					FileDialog destination = new FileDialog(detailsButton.getShell(), SWT.SAVE);
 					destination.setFilterExtensions(new String[] { "*.der" }); //$NON-NLS-1$
-					destination.setText(ProvUIMessages.TrustCertificateDialog_Export);
+					destination.setFileName(cert.getSerialNumber().toString() + ".der"); //$NON-NLS-1$
 					String path = destination.open();
 					if (path == null) {
 						return;
@@ -156,6 +184,21 @@ public class TrustCertificateDialog extends SelectionDialog {
 						ProvUIActivator.getDefault().getLog()
 								.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ex.getMessage(), ex));
 					}
+				} else if (o instanceof PGPPublicKey) {
+					PGPPublicKey key = (PGPPublicKey) o;
+					destination.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
+					destination.setFileName(key.getKeyID() + ".asc"); //$NON-NLS-1$
+					String path = destination.open();
+					if (path == null) {
+						return;
+					}
+					File destinationFile = new File(path);
+					try (OutputStream output = new ArmoredOutputStream(new FileOutputStream(destinationFile))) {
+						output.write(key.getEncoded());
+					} catch (IOException ex) {
+						ProvUIActivator.getDefault().getLog()
+								.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ex.getMessage(), ex));
+					}
 				}
 			}
 
@@ -163,6 +206,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			public void widgetSelected(SelectionEvent e) {
 				widgetDefaultSelected(e);
 			}
+
 		});
 	}
 
@@ -177,8 +221,29 @@ public class TrustCertificateDialog extends SelectionDialog {
 		data.widthHint = SIZING_SELECTION_WIDGET_WIDTH;
 		listViewer.getTable().setLayoutData(data);
 
-		listViewer.setLabelProvider(labelProvider);
 		listViewer.setContentProvider(contentProvider);
+		TableViewerColumn typeColumn = new TableViewerColumn(listViewer, SWT.NONE);
+		typeColumn.getColumn().setWidth(80);
+		typeColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_ObjectType);
+		typeColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(key -> "PGP", cert -> "x509")); //$NON-NLS-1$ //$NON-NLS-2$
+		TableViewerColumn idColumn = new TableViewerColumn(listViewer, SWT.NONE);
+		idColumn.getColumn().setWidth(200);
+		idColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_Id);
+		idColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(key -> Long.toString(key.getKeyID()),
+				cert -> cert.getSerialNumber().toString()));
+		TableViewerColumn signerColumn = new TableViewerColumn(listViewer, SWT.NONE);
+		signerColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_Name);
+		signerColumn.getColumn().setWidth(400);
+		signerColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(pgp -> {
+			java.util.List<String> users = new ArrayList<>();
+			pgp.getUserIDs().forEachRemaining(users::add);
+			return String.join(",", users); //$NON-NLS-1$
+		}, x509 -> {
+			X500PrincipalHelper principalHelper = new X500PrincipalHelper(x509.getSubjectX500Principal());
+			return principalHelper.getCN() + "; " + principalHelper.getOU() + "; " //$NON-NLS-1$ //$NON-NLS-2$
+					+ principalHelper.getO();
+		}));
+		listViewer.getTable().setHeaderVisible(true);
 
 		addSelectionButtons(composite);
 
@@ -242,6 +307,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			ISelection selection = event.getSelection();
 			if (selection instanceof StructuredSelection) {
 				selectedCertificate = ((StructuredSelection) selection).getFirstElement();
+				detailsButton.setEnabled(selectedCertificate instanceof X509Certificate);
 			}
 		};
 	}

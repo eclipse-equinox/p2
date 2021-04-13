@@ -14,7 +14,9 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.engine.phases.CheckTrust;
@@ -65,7 +67,7 @@ public class CheckTrustActionTest extends AbstractProvisioningTest {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(CheckTrust.PARM_ARTIFACT_FILES, new ArrayList<>());
+		parameters.put(CheckTrust.PARM_ARTIFACTS, new HashMap<>());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
@@ -73,13 +75,13 @@ public class CheckTrustActionTest extends AbstractProvisioningTest {
 		touchpoint.initializeOperand(profile, parameters);
 		parameters = Collections.unmodifiableMap(parameters);
 
-		assertFalse(((List<?>) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
+		assertFalse(((Map<?, File>) parameters.get(CheckTrust.PARM_ARTIFACTS)).values().contains(osgiTarget));
 		CheckTrustAction action = new CheckTrustAction();
 		action.execute(parameters);
-		assertTrue(((List<?>) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
+		assertTrue(((Map<?, File>) parameters.get(CheckTrust.PARM_ARTIFACTS)).values().contains(osgiTarget));
 		// does nothing so should not alter parameters
 		action.undo(parameters);
-		assertTrue(((List<?>) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));
+		assertTrue(((Map<?, File>) parameters.get(CheckTrust.PARM_ARTIFACTS)).values().contains(osgiTarget));
 	}
 
 }

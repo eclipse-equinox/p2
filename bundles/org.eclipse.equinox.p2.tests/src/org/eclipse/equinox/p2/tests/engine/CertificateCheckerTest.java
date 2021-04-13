@@ -16,11 +16,15 @@ package org.eclipse.equinox.p2.tests.engine;
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.Certificate;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.phases.CertificateChecker;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.UIServices;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -80,7 +84,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 			//if the service is consulted it will say no
 			serviceUI.unsignedReturnValue = false;
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_ALLOW);
-			checker.add(unsigned);
+			checker.add(Map.of(new ArtifactDescriptor(new ArtifactKey("what", "ever", Version.create("1"))), unsigned));
 			IStatus result = checker.start();
 			assertEquals("1.0", IStatus.OK, result.getSeverity());
 		} finally {
@@ -94,7 +98,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 	public void testPolicyFail() {
 		try {
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_FAIL);
-			checker.add(unsigned);
+			checker.add(Map.of(new ArtifactDescriptor(new ArtifactKey("what", "ever", Version.create("1"))), unsigned));
 			IStatus result = checker.start();
 			assertEquals("1.0", IStatus.ERROR, result.getSeverity());
 
@@ -110,7 +114,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 		try {
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
 			serviceUI.unsignedReturnValue = true;
-			checker.add(unsigned);
+			checker.add(Map.of(new ArtifactDescriptor(new ArtifactKey("what", "ever", Version.create("1"))), unsigned));
 			IStatus result = checker.start();
 			assertEquals("1.0", IStatus.OK, result.getSeverity());
 			assertTrue("1.1", serviceUI.wasPrompted);
@@ -125,7 +129,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 	public void testPolicyDefault() {
 		System.getProperties().remove(EngineActivator.PROP_UNSIGNED_POLICY);
 		serviceUI.unsignedReturnValue = true;
-		checker.add(unsigned);
+		checker.add(Map.of(new ArtifactDescriptor(new ArtifactKey("what", "ever", Version.create("1"))), unsigned));
 		IStatus result = checker.start();
 		assertEquals("1.0", IStatus.OK, result.getSeverity());
 		assertTrue("1.1", serviceUI.wasPrompted);
@@ -138,7 +142,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 		try {
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
 			serviceUI.unsignedReturnValue = false;
-			checker.add(unsigned);
+			checker.add(Map.of(new ArtifactDescriptor(new ArtifactKey("what", "ever", Version.create("1"))), unsigned));
 			IStatus result = checker.start();
 			assertEquals("1.0", IStatus.CANCEL, result.getSeverity());
 			assertTrue("1.1", serviceUI.wasPrompted);
@@ -156,7 +160,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 		try {
 			// Intentionally replace our service with a null service
 			testAgent.registerService(UIServices.SERVICE_NAME, null);
-			checker.add(unsigned);
+			checker.add(Map.of(new ArtifactDescriptor(new ArtifactKey("what", "ever", Version.create("1"))), unsigned));
 			// TODO need to add some untrusted files here, too.  To prove that we treated them as trusted temporarily
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
 			IStatus result = checker.start();
@@ -165,4 +169,5 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 			System.getProperties().remove(EngineActivator.PROP_UNSIGNED_POLICY);
 		}
 	}
+
 }

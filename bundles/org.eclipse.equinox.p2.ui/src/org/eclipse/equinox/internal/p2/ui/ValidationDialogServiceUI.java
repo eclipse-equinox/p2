@@ -16,15 +16,17 @@ package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URL;
 import java.security.cert.Certificate;
+import java.util.*;
+import java.util.List;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
 import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
-import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.*;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.TreeNode;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -34,17 +36,19 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * The default GUI-based implementation of {@link UIServices}.
- * The service declaration is made in the serviceui_component.xml file.
-
+ * The default GUI-based implementation of {@link UIServices}. The service
+ * declaration is made in the serviceui_component.xml file.
+ *
  */
 public class ValidationDialogServiceUI extends UIServices {
 
 	static final class MessageDialogWithLink extends MessageDialog {
 		private final String linkText;
 
-		MessageDialogWithLink(Shell parentShell, String dialogTitle, Image dialogTitleImage, String dialogMessage, int dialogImageType, String[] dialogButtonLabels, int defaultIndex, String linkText) {
-			super(parentShell, dialogTitle, dialogTitleImage, dialogMessage, dialogImageType, dialogButtonLabels, defaultIndex);
+		MessageDialogWithLink(Shell parentShell, String dialogTitle, Image dialogTitleImage, String dialogMessage,
+				int dialogImageType, String[] dialogButtonLabels, int defaultIndex, String linkText) {
+			super(parentShell, dialogTitle, dialogTitleImage, dialogMessage, dialogImageType, dialogButtonLabels,
+					defaultIndex);
 			this.linkText = linkText;
 		}
 
@@ -73,7 +77,8 @@ public class ValidationDialogServiceUI extends UIServices {
 	 */
 	static class OkCancelErrorDialog extends ErrorDialog {
 
-		public OkCancelErrorDialog(Shell parentShell, String dialogTitle, String message, IStatus status, int displayMask) {
+		public OkCancelErrorDialog(Shell parentShell, String dialogTitle, String message, IStatus status,
+				int displayMask) {
 			super(parentShell, dialogTitle, message, status, displayMask);
 		}
 
@@ -94,7 +99,8 @@ public class ValidationDialogServiceUI extends UIServices {
 			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
 				Shell shell = ProvUI.getDefaultParentShell();
 				String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
-				UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
+				UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired,
+						null, message);
 				int dialogCode = dialog.open();
 				if (dialogCode == Window.OK) {
 					result[0] = dialog.getResult();
@@ -116,23 +122,37 @@ public class ValidationDialogServiceUI extends UIServices {
 
 	@Override
 	public TrustInfo getTrustInfo(Certificate[][] untrustedChains, final String[] unsignedDetail) {
+		return getTrustInfo(untrustedChains, Collections.emptyList(), unsignedDetail);
+	}
+
+	@Override
+	public TrustInfo getTrustInfo(Certificate[][] untrustedChains, Collection<PGPPublicKey> untrustedPublicKeys,
+			final String[] unsignedDetail) {
+		if (untrustedChains == null) {
+			untrustedChains = new Certificate[][] {};
+		}
 		boolean trustUnsigned = true;
 		boolean persistTrust = false;
-		Certificate[] trusted = new Certificate[0];
-		// Some day we may summarize all of this in one UI, or perhaps we'll have a preference to honor regarding
-		// unsigned content.  For now we prompt separately first as to whether unsigned detail should be trusted
+		List<Certificate> trustedCertificates = new ArrayList<>();
+		List<PGPPublicKey> trustedKeys = new ArrayList<>();
+		// Some day we may summarize all of this in one UI, or perhaps we'll have a
+		// preference to honor regarding
+		// unsigned content. For now we prompt separately first as to whether unsigned
+		// detail should be trusted
 		if (!isHeadless() && unsignedDetail != null && unsignedDetail.length > 0) {
-			final boolean[] result = new boolean[] {false};
+			final boolean[] result = new boolean[] { false };
 			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
-					OkCancelErrorDialog dialog = new OkCancelErrorDialog(shell, ProvUIMessages.ServiceUI_warning_title, null, createStatus(), IStatus.WARNING);
+					OkCancelErrorDialog dialog = new OkCancelErrorDialog(shell, ProvUIMessages.ServiceUI_warning_title,
+							null, createStatus(), IStatus.WARNING);
 					result[0] = dialog.open() == IDialogConstants.OK_ID;
 				}
 
 				private IStatus createStatus() {
-					MultiStatus parent = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ServiceUI_unsigned_message, null);
+					MultiStatus parent = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0,
+							ProvUIMessages.ServiceUI_unsigned_message, null);
 					for (String element : unsignedDetail) {
 						parent.add(new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, element));
 					}
@@ -141,46 +161,56 @@ public class ValidationDialogServiceUI extends UIServices {
 			});
 			trustUnsigned = result[0];
 		}
-		// For now, there is no need to show certificates if there was unsigned content and we don't trust it.
+		// For now, there is no need to show certificates if there was unsigned content
+		// and we don't trust it.
 		if (!trustUnsigned)
-			return new TrustInfo(trusted, persistTrust, trustUnsigned);
+			return new TrustInfo(trustedCertificates, trustedKeys, persistTrust, trustUnsigned);
 
-		// We've established trust for unsigned content, now examine the untrusted chains
-		if (!isHeadless() && untrustedChains != null && untrustedChains.length > 0) {
-
-			final Object[] result = new Object[1];
-			final TreeNode[] input = createTreeNodes(untrustedChains);
-
+		// We've established trust for unsigned content, now examine the untrusted
+		// chains
+		if (!isHeadless() && (untrustedChains.length > 0 || !untrustedPublicKeys.isEmpty())) {
+			final TrustCertificateDialog[] dialog = new TrustCertificateDialog[1];
+			final TreeNode[] input = createTreeNodes(untrustedChains, untrustedPublicKeys);
 			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
 				Shell shell = ProvUI.getDefaultParentShell();
-				ILabelProvider labelProvider = new CertificateLabelProvider();
-				TreeNodeContentProvider contentProvider = new TreeNodeContentProvider();
-				TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input, labelProvider, contentProvider);
+				TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input);
+				dialog[0] = trustCertificateDialog;
 				trustCertificateDialog.open();
-				Certificate[] values = new Certificate[trustCertificateDialog.getResult() == null ? 0 : trustCertificateDialog.getResult().length];
-				for (int i = 0; i < values.length; i++) {
-					values[i] = (Certificate) ((TreeNode) trustCertificateDialog.getResult()[i]).getValue();
-				}
-				result[0] = values;
 			});
 			persistTrust = true;
-			trusted = (Certificate[]) result[0];
+			if (dialog[0].getResult() != null) {
+				for (Object o : dialog[0].getResult()) {
+					if (o instanceof TreeNode) {
+						o = ((TreeNode) o).getValue();
+					}
+					if (o instanceof Certificate) {
+						trustedCertificates.add((Certificate) o);
+					} else if (o instanceof PGPPublicKey) {
+						trustedKeys.add((PGPPublicKey) o);
+					}
+				}
+			}
 		}
-		return new TrustInfo(trusted, persistTrust, trustUnsigned);
+		return new TrustInfo(trustedCertificates, trustedKeys, persistTrust, trustUnsigned);
 	}
 
-	private TreeNode[] createTreeNodes(Certificate[][] certificates) {
-		TreeNode[] children = new TreeNode[certificates.length];
-		for (int i = 0; i < certificates.length; i++) {
+	private TreeNode[] createTreeNodes(Certificate[][] certificates, Collection<PGPPublicKey> untrustedPublicKeys) {
+		TreeNode[] children = new TreeNode[certificates.length + untrustedPublicKeys.size()];
+		int i = 0;
+		for (i = 0; i < certificates.length; i++) {
 			TreeNode head = new TreeNode(certificates[i][0]);
 			TreeNode parent = head;
 			children[i] = head;
 			for (int j = 0; j < certificates[i].length; j++) {
 				TreeNode node = new TreeNode(certificates[i][j]);
 				node.setParent(parent);
-				parent.setChildren(new TreeNode[] {node});
+				parent.setChildren(new TreeNode[] { node });
 				parent = node;
 			}
+		}
+		for (PGPPublicKey key : untrustedPublicKeys) {
+			children[i] = new TreeNode(key);
+			i++;
 		}
 		return children;
 	}
@@ -197,7 +227,8 @@ public class ValidationDialogServiceUI extends UIServices {
 				else
 					message = NLS.bind(ProvUIMessages.ProvUIMessages_NotAccepted_EnterFor_0, location);
 
-				UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell, ProvUIMessages.ServiceUI_LoginRequired, null, message);
+				UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell,
+						ProvUIMessages.ServiceUI_LoginRequired, null, message);
 				int dialogCode = dialog.open();
 				if (dialogCode == Window.OK) {
 					result[0] = dialog.getResult();
@@ -216,14 +247,15 @@ public class ValidationDialogServiceUI extends UIServices {
 			return;
 		}
 		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
-			MessageDialog dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), title, null, text, MessageDialog.INFORMATION, new String[] {IDialogConstants.OK_LABEL}, 0, linkText);
+			MessageDialog dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), title, null, text,
+					MessageDialog.INFORMATION, new String[] { IDialogConstants.OK_LABEL }, 0, linkText);
 			dialog.open();
 		});
 	}
 
 	private boolean isHeadless() {
 		// If there is no UI available and we are still the IServiceUI,
-		// assume that the operation should proceed.  See
+		// assume that the operation should proceed. See
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291049
 		return !PlatformUI.isWorkbenchRunning();
 	}

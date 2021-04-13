@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.engine.phases.CheckTrust;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -26,6 +27,8 @@ import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 
 /**
  * This action collects the set of bundle files on which the signature trust
@@ -47,14 +50,21 @@ public class CheckTrustAction extends ProvisioningAction {
 		if (!profile.available(QueryUtil.createIUQuery(iu), null).isEmpty())
 			return null;
 		@SuppressWarnings("unchecked")
-		Collection<File> bundleFiles = (Collection<File>) parameters.get(ActionConstants.PARM_ARTIFACT_FILES);
+		Map<IArtifactDescriptor, File> bundleFiles = (Map<IArtifactDescriptor, File>) parameters
+				.get(CheckTrust.PARM_ARTIFACTS);
 		Collection<IArtifactKey> artifacts = iu.getArtifacts();
-		if (artifacts == null)
+		if (artifacts == null) {
 			return null;
+		}
+		IFileArtifactRepository repo = Util.getAggregatedBundleRepository(agent, profile);
 		for (IArtifactKey key : artifacts) {
-			File bundleFile = Util.getArtifactFile(agent, key, profile);
-			if (!bundleFiles.contains(bundleFile))
-				bundleFiles.add(bundleFile);
+			for (IArtifactDescriptor descriptor : repo.getArtifactDescriptors(key)) {
+				IFileArtifactRepository currentRepo = descriptor.getRepository() instanceof IFileArtifactRepository
+						? (IFileArtifactRepository) descriptor.getRepository()
+						: repo;
+				File artifactFile = currentRepo.getArtifactFile(descriptor);
+				bundleFiles.put(descriptor, artifactFile);
+			}
 		}
 		return null;
 	}

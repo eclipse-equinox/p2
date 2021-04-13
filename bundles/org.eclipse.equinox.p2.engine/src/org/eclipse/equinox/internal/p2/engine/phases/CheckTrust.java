@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.engine.PhaseSetFactory;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 /**
  * An install phase that checks if the certificates used to sign the artifacts
@@ -32,7 +33,13 @@ import org.eclipse.equinox.p2.metadata.ITouchpointType;
  */
 public class CheckTrust extends InstallableUnitPhase {
 
-	public static final String PARM_ARTIFACT_FILES = "artifactFiles"; //$NON-NLS-1$
+	/**
+	 * Parameter used to populate/get artifacts to check trust. The value for this
+	 * property is <code>Map&lt;IArtifactDescriptor, File></code>.
+	 *
+	 * @see org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.CheckTrustAction
+	 */
+	public static final String PARM_ARTIFACTS = "artifacts"; //$NON-NLS-1$
 
 	public CheckTrust(int weight) {
 		super(PhaseSetFactory.PHASE_CHECK_TRUST, weight);
@@ -46,15 +53,14 @@ public class CheckTrust extends InstallableUnitPhase {
 	@Override
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		@SuppressWarnings("unchecked")
-		Collection<File> artifactRequests = (Collection<File>) parameters.get(PARM_ARTIFACT_FILES);
+		Map<IArtifactDescriptor, File> artifactRequests = (Map<IArtifactDescriptor, File>) parameters
+				.get(PARM_ARTIFACTS);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 
 		// Instantiate a check trust manager
 		CertificateChecker certificateChecker = new CertificateChecker(agent);
-		certificateChecker.add(artifactRequests.toArray());
-		IStatus status = certificateChecker.start();
-
-		return status;
+		certificateChecker.add(artifactRequests);
+		return certificateChecker.start();
 	}
 
 	@Override
@@ -86,7 +92,7 @@ public class CheckTrust extends InstallableUnitPhase {
 
 	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
-		parameters.put(PARM_ARTIFACT_FILES, new ArrayList<File>());
+		parameters.put(PARM_ARTIFACTS, new HashMap<IArtifactDescriptor, File>());
 		return super.initializePhase(monitor, profile, parameters);
 	}
 

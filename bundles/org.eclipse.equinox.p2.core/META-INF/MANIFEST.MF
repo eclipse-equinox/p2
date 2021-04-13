@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.core;singleton:=true
-Bundle-Version: 2.7.0.qualifier
+Bundle-Version: 2.8.0.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.equinox.internal.p2.core.Activator
 Bundle-Vendor: %providerName
@@ -64,13 +64,15 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.director.app,
    org.eclipse.equinox.p2.transport.ecf",
- org.eclipse.equinox.p2.core;version="2.0.0",
+ org.eclipse.equinox.p2.core;version="2.7.0",
  org.eclipse.equinox.p2.core.spi;version="2.1.0"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/eventBus.xml, OSGI-INF/agentProvider.xml
-Import-Package: org.eclipse.osgi.framework.eventmgr;version="1.2.0",
+Import-Package: org.bouncycastle.bcpg;version="1.65.0",
+ org.bouncycastle.openpgp;version="1.65.0",
+ org.eclipse.osgi.framework.eventmgr;version="1.2.0",
  org.eclipse.osgi.framework.log;version="1.0.0",
  org.eclipse.osgi.service.debug;version="1.0.0",
  org.eclipse.osgi.util;version="1.0.0",

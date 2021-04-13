@@ -277,6 +277,9 @@ public class ProvUIMessages extends NLS {
 	public static String TrustCertificateDialog_AcceptSelectedButtonLabel;
 	public static String TrustCertificateDialog_SelectAll;
 	public static String TrustCertificateDialog_DeselectAll;
+	public static String TrustCertificateDialog_ObjectType;
+	public static String TrustCertificateDialog_Id;
+	public static String TrustCertificateDialog_Name;
 	// Operations
 	public static String UpdateManagerCompatibility_ExportSitesTitle;
 	public static String UpdateManagerCompatibility_ImportSitesTitle;

@@ -27,7 +27,7 @@ public class InstallableUnitOperand extends Operand {
 	 * Creates a new operand that represents replacing an installable unit
 	 * with another. At least one of the provided installable units must be
 	 * non-null.
-	 * 
+	 *
 	 * @param first The installable unit being removed, or <code>null</code>
 	 * @param second The installable unit being added, or <code>null</code>
 	 */
@@ -38,10 +38,17 @@ public class InstallableUnitOperand extends Operand {
 		this.second = second;
 	}
 
+	/**
+	 *
+	 * @return The installable unit being removed, or <code>null</code>
+	 */
 	public IInstallableUnit first() {
 		return first;
 	}
 
+	/**
+	 * @return The installable unit being added, or <code>null</code>
+	 */
 	public IInstallableUnit second() {
 		return second;
 	}

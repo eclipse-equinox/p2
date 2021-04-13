@@ -15,6 +15,9 @@
 package org.eclipse.equinox.p2.core;
 
 import java.security.cert.Certificate;
+import java.util.Collection;
+import java.util.Collections;
+import org.bouncycastle.openpgp.PGPPublicKey;
 
 /**
  * Service used for prompting for user information from within lower level code.
@@ -74,11 +77,30 @@ public abstract class UIServices {
 	 */
 	public static class TrustInfo {
 		private final Certificate[] trustedCertificates;
+		private final Collection<PGPPublicKey> trustedPGPKeys;
 		private final boolean saveTrustedCertificates;
 		private final boolean trustUnsigned;
 
 		public TrustInfo(Certificate[] trusted, boolean save, boolean trustUnsigned) {
 			this.trustedCertificates = trusted;
+			this.trustedPGPKeys = Collections.emptyList();
+			this.saveTrustedCertificates = save;
+			this.trustUnsigned = trustUnsigned;
+		}
+
+		/**
+		 *
+		 * @param trusted
+		 * @param trustedPGPKeys
+		 * @param save
+		 * @param trustUnsigned
+		 * @since 2.8
+		 */
+		public TrustInfo(Collection<Certificate> trustedCertificates, Collection<PGPPublicKey> trustedPGPKeys,
+				boolean save,
+				boolean trustUnsigned) {
+			this.trustedCertificates = trustedCertificates.toArray(Certificate[]::new);
+			this.trustedPGPKeys = trustedPGPKeys;
 			this.saveTrustedCertificates = save;
 			this.trustUnsigned = trustUnsigned;
 		}
@@ -92,6 +114,15 @@ public abstract class UIServices {
 		 */
 		public Certificate[] getTrustedCertificates() {
 			return trustedCertificates;
+		}
+
+		/**
+		 *
+		 * @return the trusted PGP keys
+		 * @since 2.8
+		 */
+		public Collection<PGPPublicKey> getTrustedPGPKeys() {
+			return trustedPGPKeys;
 		}
 
 		/**
@@ -159,5 +190,25 @@ public abstract class UIServices {
 	 */
 	public void showInformationMessage(String title, String text, String linkText) {
 		System.out.println(text);
+	}
+
+	/**
+	 * Opens a UI prompt to capture information about trusted content.
+	 *
+	 * @param untrustedChain   - an array of certificate chains for which there is
+	 *                         no current trust anchor. May be <code>null</code>,
+	 *                         which means there are no untrusted certificate
+	 *                         chains.
+	 * @param untrustedPGPKeys
+	 * @param unsignedDetail   - an array of strings, where each String describes
+	 *                         content that is not signed. May be <code>null</code>,
+	 *                         which means there is no unsigned content
+	 * @return the TrustInfo that describes the user's choices for trusting
+	 *         certificates and unsigned content.
+	 * @since 2.8
+	 */
+	public TrustInfo getTrustInfo(Certificate[][] unTrustedCertificateChains, Collection<PGPPublicKey> untrustedPGPKeys,
+			String[] details) {
+		return getTrustInfo(unTrustedCertificateChains, details);
 	}
 }
