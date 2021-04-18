@@ -22,7 +22,7 @@ import org.junit.runners.Suite;
 @SuppressWarnings("removal")
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ Pack200ProcessorTest.class, ZipVerifierProcessorTest.class, ChecksumVerifierTest.class,
-		ChecksumUtilitiesTest.class })
+		ChecksumUtilitiesTest.class, PGPSignatureVerifierTest.class })
 public class AllTests {
 // test suite
 }

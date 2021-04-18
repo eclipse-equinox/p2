@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.2.0'?>
+<repository name='file:/home/mistria/sandbox/repo/ - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1618433231272'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <units size='2'>
+    <unit id='blah' version='1.0.0.123456' singleton='false'>
+      <update id='blah' range='[0.0.0,1.0.0.123456)' severity='0'/>
+      <provides size='4'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='blah' version='1.0.0.123456'/>
+        <provided namespace='osgi.bundle' name='blah' version='1.0.0.123456'/>
+        <provided namespace='osgi.identity' name='blah' version='1.0.0.123456'>
+          <properties size='1'>
+            <property name='type' value='osgi.bundle'/>
+          </properties>
+        </provided>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='blah' version='1.0.0.123456'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='2'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: blah&#xA;Bundle-Version: 1.0.0.qualifier&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='Category' version='0.0.0'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.type.category' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='Category' version='0.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='blah' range='[1.0.0.123456,1.0.0.123456]'/>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+  </units>
+</repository>

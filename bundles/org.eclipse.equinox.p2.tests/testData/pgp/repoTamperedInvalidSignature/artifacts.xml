@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='file:/home/mistria/sandbox/repo/ - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='3'>
+    <property name='p2.timestamp' value='1618433231272'/>
+    <property name='p2.compressed' value='false'/>
+    <!-- See PGPSignatureVerifierTest about this public key-->
+    <property name='pgp.publicKeys' value='-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=JYpC
+-----END PGP PUBLIC KEY BLOCK-----
+'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='1'>
+    <artifact classifier='osgi.bundle' id='blah' version='1.0.0.123456'>
+      <properties size='1'>
+        <!-- gpg -u signer1@fakeuser.eclipse.org -a -detach-sig plugins/blah_1.0.0.123456.jar -->
+        <property name='pgp.signatures' value='-----BEGIN PGP SIGNATURE-----
+
+iQHRBAABCAA7FiEE6ZbGcKp/ZUCb9dtWE5442Q3tEfAFAmB4Bf8dHHNpZ25lcjFA
+ZmFrZXVzZXIuZWNsaXBzZS5vcmcACgkQE5442Q3tEfBPuAwAhE4zA7BswKFhEtzm
+DS3EbyRr/U13sV01YxqGtxYDCfrOt8TGVPXJSvo0AVP4vLFc5b+0jtVFoarFJNBu
+xhbVuyC72YdqudNbncSlW6KG5SgeWIM//ThKfl95pOWRWvJEoKJhmDwbDqhZYtL5
+SECegnWG____TAMPERED_____________________________________COsN4Ys
+3uN+GEdoXGvv1DFg/xZPvwCOhZGsSQfkl1jmUwVltgKrw9OCFbdfYz7H6dbGWhRu
+2XpuKxPXGavKfpSvssVQIZ6aWi5W6wp5lZAQQddZvYAv3Gi5CZZcUT7ayFJYdD23
+p9jz76G7MXm0f0uNT9B57T72QryokUIEIJYsCb6lNjWUQB4cd0+JesM7sHwweOQ3
+7iTFc+WgVJkP0e695mm1tcvtQHUPbIItYJUsndyLgGInzglxN8+F4U4k8uapydI9
+RmV2NVAifYp8z95Am5AnlG8lqjwrWk5bMbJH82QsQESrNT/h
+=8Vrn
+-----END PGP SIGNATURE-----
+'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>
