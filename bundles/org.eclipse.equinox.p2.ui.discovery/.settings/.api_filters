@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.ui.discovery" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter comment="This version was already bumped by mistake before API warning, and it's too dangerous to move version backwards." id="931135546">
+            <message_arguments>
+                <message_argument value="1.2.200"/>
+                <message_argument value="1.2.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
