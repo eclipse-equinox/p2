@@ -29,7 +29,6 @@ import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
-import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -49,7 +48,8 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
-import org.eclipse.equinox.p2.repository.artifact.spi.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
@@ -478,22 +478,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		Set<String> skipChecksums = ARTIFACT_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumHelper.MD5);
 		addChecksumVerifiers(descriptor, steps, skipChecksums, IArtifactDescriptor.ARTIFACT_CHECKSUM);
-		addPGPSignatureVerifier(descriptor, steps);
 
 		if (steps.isEmpty())
 			return destination;
 		ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 		// TODO should probably be using createAndLink here
 		return handler.link(stepArray, destination, monitor);
-	}
-
-	private void addPGPSignatureVerifier(IArtifactDescriptor descriptor, ArrayList<ProcessingStep> steps) {
-		if (descriptor.getProperties().containsKey(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME)) {
-			PGPSignatureVerifier step = new PGPSignatureVerifier();
-			ProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor(PGPSignatureVerifier.ID, null, true);
-			step.initialize(getProvisioningAgent(), stepDescriptor, descriptor);
-			steps.add(step);
-		}
 	}
 
 	private OutputStream addPreSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {

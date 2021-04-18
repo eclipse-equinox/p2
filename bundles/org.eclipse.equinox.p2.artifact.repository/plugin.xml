@@ -52,10 +52,4 @@
 			id="sha-256">
 		</artifactChecksum>
 	</extension>
-
-	<extension
-			id="org.eclipse.equinox.p2.processing.PGPSignatureCheck"
-			point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
-		<step class="org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier"/>
-   </extension>
 </plugin>
