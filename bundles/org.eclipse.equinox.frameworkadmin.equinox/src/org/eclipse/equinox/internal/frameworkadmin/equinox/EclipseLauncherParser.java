@@ -34,7 +34,7 @@ public class EclipseLauncherParser {
 	//this figures out the location of the data area on partial data read from the <eclipse>.ini
 	private URI getOSGiInstallArea(List<String> lines, URI base, LauncherData launcherData) {
 		//does the eclipse.ini say anything for osgi.install.area?
-		File osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, null, base);
+		File osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, null, launcherData.getLauncher(), base);
 		if (osgiInstallArea == null) {
 			//otherwise use the launcherData to figure it out
 			osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, null, launcherData);
@@ -49,12 +49,13 @@ public class EclipseLauncherParser {
 			ParserUtils.removeArgument(EquinoxConstants.OPTION_INSTALL, lines);
 			return;
 		}
+		File folder = ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath());
 		if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
-			if (!new File(ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()), "../MacOS").equals(launcherFolder)) {
-				ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, launcherFolder.getAbsolutePath().replace('\\', '/'), lines);
-			}
-		} else if (!ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()).equals(launcherFolder)) {
-			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, launcherFolder.getAbsolutePath().replace('\\', '/'), lines);
+			folder = new File(folder, "../MacOS");
+		}
+		if (!folder.equals(launcherFolder)) {
+			// Launcher will replace "@launcher.dir" with actual path. See bug 572890.
+			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, "@launcher.dir/", lines);
 		}
 	}
 

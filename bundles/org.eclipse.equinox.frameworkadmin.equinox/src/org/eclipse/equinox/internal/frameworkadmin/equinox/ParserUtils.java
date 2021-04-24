@@ -28,6 +28,7 @@ import org.osgi.service.log.LogService;
 
 public class ParserUtils {
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+	private static final String LAUNCHER_DIR = "@launcher.dir"; //$NON-NLS-1$
 
 	public static File getOSGiInstallArea(List<String> programArgs, Properties properties, LauncherData launcherData) {
 		if (launcherData == null)
@@ -38,7 +39,7 @@ public class ParserUtils {
 			base = launcherData.getLauncher().getParentFile().toURI();
 		else if (launcherData.getHome() != null)
 			base = launcherData.getHome().toURI();
-		File result = getOSGiInstallArea(programArgs, properties, base);
+		File result = getOSGiInstallArea(programArgs, properties, launcherData.getLauncher(), base);
 		if (result != null)
 			return result;
 
@@ -84,7 +85,7 @@ public class ParserUtils {
 	}
 
 	//This method should only be used to determine the osgi install area when reading the eclipse.ini
-	public static File getOSGiInstallArea(List<String> args, Properties properties, URI base) {
+	public static File getOSGiInstallArea(List<String> args, Properties properties, File launcherFile, URI base) {
 		if (args == null)
 			return null;
 		String install = getValueForArgument(EquinoxConstants.OPTION_INSTALL, args);
@@ -94,6 +95,8 @@ public class ParserUtils {
 		if (install != null) {
 			if (install.startsWith(FILE_PROTOCOL))
 				install = install.substring(FILE_PROTOCOL.length() + 1);
+			if (install.startsWith(LAUNCHER_DIR))
+				install = install.replaceAll(LAUNCHER_DIR, launcherFile.getParent().toString());
 			File installFile = new File(install);
 			if (installFile.isAbsolute())
 				return installFile;
