@@ -16,9 +16,14 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.io.*;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.internal.provisional.security.ui.X509CertificateViewDialog;
@@ -28,14 +33,13 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.SelectionDialog;
 
 /**
- * A dialog that displays a certificate chain and asks the user if they
- * trust the certificate providers.
+ * A dialog that displays a certificate chain and asks the user if they trust
+ * the certificate providers.
  */
 public class TrustCertificateDialog extends SelectionDialog {
 
@@ -53,7 +57,8 @@ public class TrustCertificateDialog extends SelectionDialog {
 	protected TreeNode parentElement;
 	protected Object selectedCertificate;
 
-	public TrustCertificateDialog(Shell parentShell, Object input, ILabelProvider labelProvider, ITreeContentProvider contentProvider) {
+	public TrustCertificateDialog(Shell parentShell, Object input, ILabelProvider labelProvider,
+			ITreeContentProvider contentProvider) {
 		super(parentShell);
 		inputElement = input;
 		this.contentProvider = contentProvider;
@@ -81,7 +86,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			Object[] nodes = (Object[]) inputElement;
 			if (nodes.length > 0) {
 				selection = new StructuredSelection(nodes[0]);
-				certificateChainViewer.setInput(new TreeNode[] {(TreeNode) nodes[0]});
+				certificateChainViewer.setInput(new TreeNode[] { (TreeNode) nodes[0] });
 				selectedCertificate = nodes[0];
 			}
 			listViewer.setSelection(selection);
@@ -94,22 +99,63 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, IDialogConstants.OK_ID, ProvUIMessages.TrustCertificateDialog_AcceptSelectedButtonLabel, true);
+		createButton(parent, IDialogConstants.OK_ID, ProvUIMessages.TrustCertificateDialog_AcceptSelectedButtonLabel,
+				true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 		super.getOkButton().setEnabled(false);
 	}
 
 	private void createButtons(Composite composite) {
+		Composite buttonComposite = new Composite(composite, SWT.NONE);
+		buttonComposite.setLayout(new RowLayout());
 		// Details button to view certificate chain
-		detailsButton = new Button(composite, SWT.NONE);
+		detailsButton = new Button(buttonComposite, SWT.NONE);
 		detailsButton.setText(ProvUIMessages.TrustCertificateDialog_Details);
 		detailsButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				if (selectedCertificate != null) {
-					X509Certificate cert = (X509Certificate) ((TreeNode) selectedCertificate).getValue();
+				Object o = selectedCertificate;
+				if (selectedCertificate instanceof TreeNode) {
+					o = ((TreeNode) selectedCertificate).getValue();
+				}
+				if (o instanceof X509Certificate) {
+					X509Certificate cert = (X509Certificate) o;
 					X509CertificateViewDialog certificateDialog = new X509CertificateViewDialog(getShell(), cert);
 					certificateDialog.open();
+				}
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				widgetDefaultSelected(e);
+			}
+		});
+
+		Button exportButton = new Button(buttonComposite, SWT.NONE);
+		exportButton.setText(ProvUIMessages.TrustCertificateDialog_Export);
+		exportButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				Object o = selectedCertificate;
+				if (selectedCertificate instanceof TreeNode) {
+					o = ((TreeNode) selectedCertificate).getValue();
+				}
+				if (o instanceof X509Certificate) {
+					X509Certificate cert = (X509Certificate) o;
+					FileDialog destination = new FileDialog(detailsButton.getShell(), SWT.SAVE);
+					destination.setFilterExtensions(new String[] { "*.der" }); //$NON-NLS-1$
+					destination.setText(ProvUIMessages.TrustCertificateDialog_Export);
+					String path = destination.open();
+					if (path == null) {
+						return;
+					}
+					File destinationFile = new File(path);
+					try (FileOutputStream output = new FileOutputStream(destinationFile)) {
+						output.write(cert.getEncoded());
+					} catch (IOException | CertificateEncodingException ex) {
+						ProvUIActivator.getDefault().getLog()
+								.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ex.getMessage(), ex));
+					}
 				}
 			}
 
@@ -160,6 +206,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 	/**
 	 * Add the selection and deselection buttons to the dialog.
+	 *
 	 * @param composite org.eclipse.swt.widgets.Composite
 	 */
 	private void addSelectionButtons(Composite composite) {
@@ -171,7 +218,8 @@ public class TrustCertificateDialog extends SelectionDialog {
 		buttonComposite.setLayout(layout);
 		buttonComposite.setLayoutData(new GridData(SWT.END, SWT.TOP, true, false));
 
-		Button selectButton = createButton(buttonComposite, IDialogConstants.SELECT_ALL_ID, ProvUIMessages.TrustCertificateDialog_SelectAll, false);
+		Button selectButton = createButton(buttonComposite, IDialogConstants.SELECT_ALL_ID,
+				ProvUIMessages.TrustCertificateDialog_SelectAll, false);
 
 		SelectionListener listener = widgetSelectedAdapter(e -> {
 			listViewer.setAllChecked(true);
@@ -179,7 +227,8 @@ public class TrustCertificateDialog extends SelectionDialog {
 		});
 		selectButton.addSelectionListener(listener);
 
-		Button deselectButton = createButton(buttonComposite, IDialogConstants.DESELECT_ALL_ID, ProvUIMessages.TrustCertificateDialog_DeselectAll, false);
+		Button deselectButton = createButton(buttonComposite, IDialogConstants.DESELECT_ALL_ID,
+				ProvUIMessages.TrustCertificateDialog_DeselectAll, false);
 
 		listener = widgetSelectedAdapter(e -> {
 			listViewer.setAllChecked(false);
@@ -208,7 +257,8 @@ public class TrustCertificateDialog extends SelectionDialog {
 			if (selectedElement instanceof TreeNode) {
 				TreeNode treeNode = (TreeNode) selectedElement;
 				// create and open dialog for certificate chain
-				X509CertificateViewDialog certificateViewDialog = new X509CertificateViewDialog(getShell(), (X509Certificate) treeNode.getValue());
+				X509CertificateViewDialog certificateViewDialog = new X509CertificateViewDialog(getShell(),
+						(X509Certificate) treeNode.getValue());
 				certificateViewDialog.open();
 			}
 		};
@@ -219,7 +269,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			ISelection selection = event.getSelection();
 			if (selection instanceof StructuredSelection) {
 				TreeNode firstElement = (TreeNode) ((StructuredSelection) selection).getFirstElement();
-				getCertificateChainViewer().setInput(new TreeNode[] {firstElement});
+				getCertificateChainViewer().setInput(new TreeNode[] { firstElement });
 				getOkButton().setEnabled(listViewer.getChecked(firstElement));
 				getCertificateChainViewer().refresh();
 			}
