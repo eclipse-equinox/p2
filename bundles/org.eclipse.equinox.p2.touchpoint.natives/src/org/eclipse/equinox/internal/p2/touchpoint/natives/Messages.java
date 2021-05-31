@@ -26,10 +26,10 @@ public class Messages extends NLS {
 	}
 
 	public static String BackupStore_0_of_1_items_restored;
-	public static String BackupStore_backupCopy_closed_store;
-	public static String BackupStore_can_not_close_tcp_port;
+	public static String BackupStore_externally_modified_0_of_1_restored;
+	public static String BackupStore_errors_while_restoring_see_log;
 	public static String BackupStore_can_not_copy_directory;
-	public static String BackupStore_can_not_create_dummy;
+	public static String BackupStore_can_not_create_placeholder;
 	public static String BackupStore_can_not_delete_after_copy_0;
 	public static String BackupStore_can_not_delete_tmp_file;
 	public static String BackupStore_can_not_remove;
@@ -37,14 +37,12 @@ public class Messages extends NLS {
 	public static String BackupStore_can_not_remove_bu_file;
 	public static String BackupStore_directory_file_mismatch;
 	public static String BackupStore_directory_not_empty;
-	public static String BackupStore_errors_while_restoring_see_log;
-	public static String BackupStore_externally_modified_0_of_1_restored;
 	public static String BackupStore_file_directory_mismatch;
 	public static String BackupStore_file_not_found;
 	public static String BackupStore_manual_restore_needed;
 	public static String BackupStore_missing_backup_directory;
 	public static String BackupStore_not_a_directory;
-	public static String BackupStore_restore_closed_store;
+	public static String BackupStore_closed_store;
 	public static String BlockMacUpdate_0;
 	public static String BlockMacUpdate_1;
 

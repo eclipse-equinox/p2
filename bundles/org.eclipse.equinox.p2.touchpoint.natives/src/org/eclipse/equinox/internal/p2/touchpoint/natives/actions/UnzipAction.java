@@ -44,19 +44,22 @@ public class UnzipAction extends ProvisioningAction {
 	/**
 	 * Unzip as directed by parameters.
 	 * Record what was zipped in the profile.
+	 *
 	 * @param parameters
 	 * @param restoreable - if the unzip should be backed up
 	 * @return status
 	 */
 	public IStatus unzip(Map<String, Object> parameters, boolean restoreable) {
 		String source = (String) parameters.get(ActionConstants.PARM_SOURCE);
-		if (source == null)
+		if (source == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_SOURCE, ACTION_UNZIP));
+		}
 
 		String originalSource = source;
 		String target = (String) parameters.get(ActionConstants.PARM_TARGET);
-		if (target == null)
+		if (target == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_TARGET, ACTION_UNZIP));
+		}
 
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
 		Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
@@ -87,7 +90,9 @@ public class UnzipAction extends ProvisioningAction {
 			unzippedFileNameBuffer.append(unzippedFile.getAbsolutePath()).append(ActionConstants.PIPE);
 		}
 
-		profile.setInstallableUnitProperty(iu, "unzipped" + ActionConstants.PIPE + originalSource + ActionConstants.PIPE + target, unzippedFileNameBuffer.toString()); //$NON-NLS-1$
+		profile.setInstallableUnitProperty(iu,
+				"unzipped" + ActionConstants.PIPE + originalSource + ActionConstants.PIPE + target, //$NON-NLS-1$
+				unzippedFileNameBuffer.toString());
 
 		return Status.OK_STATUS;
 	}
@@ -96,18 +101,23 @@ public class UnzipAction extends ProvisioningAction {
 	 * Unzips a source zip into the given destination. Any existing contents in the destination
 	 * are backed up in the provided backup store.
 	 */
-	private static File[] unzip(String source, String destination, String path, String includePattern, String excludePattern, IBackupStore store) {
+	private static File[] unzip(String source, String destination, String path, String includePattern,
+			String excludePattern, IBackupStore store) {
 		File zipFile = new File(source);
 		if (zipFile == null || !zipFile.exists()) {
-			Util.log(UnzipAction.class.getName() + " the files to be unzipped is not here"); //$NON-NLS-1$
+			Util.logError(UnzipAction.class.getName() + " the files to be unzipped is not here", null); //$NON-NLS-1$
 		}
 		try {
 			String taskName = NLS.bind(Messages.unzipping, source);
 			String[] includes = includePattern == null ? null : includePattern.split("\\s+"); //$NON-NLS-1$
 			String[] excludes = excludePattern == null ? null : excludePattern.split("\\s+"); //$NON-NLS-1$
-			return Util.unzipFile(zipFile, new File(destination), path, includes, excludes, store, taskName, new NullProgressMonitor());
+			return Util.unzipFile(zipFile, new File(destination), path, includes, excludes, store, taskName,
+					new NullProgressMonitor());
 		} catch (IOException e) {
-			Util.log(UnzipAction.class.getName() + " error unzipping zipfile: " + zipFile.getAbsolutePath() + "destination: " + destination); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.logError(
+					UnzipAction.class.getName() + " error unzipping zipfile: " + zipFile.getAbsolutePath() //$NON-NLS-1$
+							+ "destination: " + destination, //$NON-NLS-1$
+					null);
 		}
 		return new File[0];
 	}

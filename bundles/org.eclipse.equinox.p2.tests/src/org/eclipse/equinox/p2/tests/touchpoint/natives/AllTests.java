@@ -23,7 +23,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
 		ChmodActionTest.class, CleanupzipActionTest.class, CollectActionTest.class, LinkActionTest.class,
 		MkdirActionTest.class, NativeTouchpointTest.class, RmdirActionTest.class, UnzipActionTest.class,
-		CopyActionTest.class, RemoveActionTest.class, BackupStoreTest.class,
+		CopyActionTest.class, RemoveActionTest.class, SimpleBackupStoreTest.class,
 		CheckAndPromptNativePackageWindowsRegistryTest.class
 })
 public class AllTests {

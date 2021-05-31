@@ -21,7 +21,7 @@ import java.io.IOException;
  * when needed.
  */
 public class LazyBackupStore implements IBackupStore {
-	private BackupStore delegate;
+	private SimpleBackupStore delegate;
 	private final String prefix;
 
 	/**
@@ -61,7 +61,7 @@ public class LazyBackupStore implements IBackupStore {
 	private void loadDelegate() {
 		if (delegate != null)
 			return;
-		delegate = new BackupStore(null, prefix);
+		delegate = new SimpleBackupStore(null, prefix);
 	}
 
 	@Override

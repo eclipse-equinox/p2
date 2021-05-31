@@ -31,10 +31,9 @@ import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.osgi.util.NLS;
 
 public class Util {
-
-	public static void log(String message) {
-		LogHelper.log(createError(message));
-	}
+	/*
+	 * Logging
+	 */
 
 	public static IStatus createError(String message) {
 		return new Status(IStatus.ERROR, Activator.ID, message);
@@ -43,6 +42,34 @@ public class Util {
 	public static IStatus createError(String message, Throwable exception) {
 		return new Status(IStatus.ERROR, Activator.ID, message, exception);
 	}
+
+	public static void logError(String message, Throwable exception) {
+		LogHelper.log(createError(message, exception));
+	}
+
+	public static void logError(String message) {
+		LogHelper.log(createError(message));
+	}
+
+	public static IStatus createWarning(String message) {
+		return new Status(IStatus.WARNING, Activator.ID, message);
+	}
+
+	public static IStatus createWarning(String message, Throwable exception) {
+		return new Status(IStatus.WARNING, Activator.ID, message, exception);
+	}
+
+	public static void logWarning(String message, Throwable exception) {
+		LogHelper.log(createWarning(message, exception));
+	}
+
+	public static void logWarning(String message) {
+		LogHelper.log(createWarning(message));
+	}
+
+	/*
+	 * Locations and caches
+	 */
 
 	public static String getInstallFolder(IProfile profile) {
 		return profile.getProperty(IProfile.PROP_INSTALL_FOLDER);
@@ -58,11 +85,13 @@ public class Util {
 
 	public static IFileArtifactRepository getDownloadCacheRepo(IProvisioningAgent agent) throws ProvisionException {
 		URI location = getDownloadCacheLocation(agent);
-		if (location == null)
+		if (location == null) {
 			throw new IllegalStateException(Messages.could_not_obtain_download_cache);
+		}
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
-		if (manager == null)
+		if (manager == null) {
 			throw new IllegalStateException(Messages.artifact_repo_not_found);
+		}
 		IArtifactRepository repository;
 		try {
 			repository = manager.loadRepository(location, null);
@@ -76,17 +105,23 @@ public class Util {
 		}
 
 		IFileArtifactRepository downloadCache = repository.getAdapter(IFileArtifactRepository.class);
-		if (downloadCache == null)
+		if (downloadCache == null) {
 			throw new ProvisionException(NLS.bind(Messages.download_cache_not_writeable, location));
+		}
 		return downloadCache;
 	}
 
-	static private URI getDownloadCacheLocation(IProvisioningAgent agent) {
+	private static URI getDownloadCacheLocation(IProvisioningAgent agent) {
 		IAgentLocation location = getAgentLocation(agent);
-		if (location == null)
+		if (location == null) {
 			return null;
+		}
 		return URIUtil.append(location.getDataArea("org.eclipse.equinox.p2.core"), "cache/"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	/*
+	 * File operations
+	 */
 
 	/**
 	 * Unzip from a File to an output directory, with progress indication and
@@ -113,9 +148,8 @@ public class Util {
 					monitor);
 		} catch (IOException e) {
 			// add the file name to the message
-			IOException ioException = new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
-			ioException.initCause(e);
-			throw ioException;
+			IOException ioExc = new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()), e);
+			throw ioExc;
 		}
 	}
 
@@ -150,8 +184,9 @@ public class Util {
 				throw new IOException(Messages.Util_Invalid_Zip_File_Format);
 			}
 
-			if (path != null && path.trim().length() == 0)
+			if (path != null && path.trim().length() == 0) {
 				path = null;
+			}
 			Pattern pathRegex = path == null ? null : createAntStylePattern("(" + path + ")(*)"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			Collection<Pattern> includeRegexp = new ArrayList<>();
@@ -177,8 +212,9 @@ public class Util {
 					boolean unzip = includeRegexp.isEmpty();
 					for (Pattern pattern : includeRegexp) {
 						unzip = pattern.matcher(name).matches();
-						if (unzip)
+						if (unzip) {
 							break;
+						}
 					}
 					if (unzip && !excludeRegexp.isEmpty()) {
 						for (Pattern pattern : excludeRegexp) {
@@ -193,8 +229,9 @@ public class Util {
 							Matcher matcher = pathRegex.matcher(name);
 							if (matcher.matches()) {
 								name = matcher.group(2);
-								if (name.startsWith("/")) //$NON-NLS-1$
+								if (name.startsWith("/")) { //$NON-NLS-1$
 									name = name.substring(1);
+								}
 							}
 						}
 						File outFile = createSubPathFile(outputDir, name);
@@ -203,10 +240,11 @@ public class Util {
 							outFile.mkdirs();
 						} else {
 							if (outFile.exists()) {
-								if (store != null)
+								if (store != null) {
 									store.backup(outFile);
-								else
+								} else {
 									outFile.delete();
+								}
 							} else {
 								outFile.getParentFile().mkdirs();
 							}
