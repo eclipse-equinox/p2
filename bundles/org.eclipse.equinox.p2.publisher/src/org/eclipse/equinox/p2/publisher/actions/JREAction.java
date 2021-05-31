@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Code 9 and others.
+ * Copyright (c) 2008, 2021 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -17,7 +17,10 @@
 package org.eclipse.equinox.p2.publisher.actions;
 
 import java.io.*;
+import java.lang.module.ModuleDescriptor;
+import java.lang.module.ModuleDescriptor.Exports;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
@@ -38,8 +41,8 @@ import org.osgi.framework.*;
 
 public class JREAction extends AbstractPublisherAction {
 	private static final String DEFAULT_JRE_NAME = "a.jre"; //$NON-NLS-1$
-	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion("9.0"); //$NON-NLS-1$
-	private static final String DEFAULT_PROFILE = "JavaSE-9"; //$NON-NLS-1$
+	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion("11.0"); //$NON-NLS-1$
+	private static final String DEFAULT_PROFILE = "JavaSE-11"; //$NON-NLS-1$
 	private static final String PROFILE_LOCATION = "jre.action.profile.location"; //$NON-NLS-1$
 	private static final String PROFILE_NAME = "osgi.java.profile.name"; //$NON-NLS-1$
 	private static final String PROFILE_TARGET_VERSION = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
@@ -297,8 +300,22 @@ public class JREAction extends AbstractPublisherAction {
 	}
 
 	private void initialize(IPublisherInfo publisherInfo) {
+		File runtimeProfile = null;
 		this.info = publisherInfo;
-
+		if (jreLocation == null && environment == null) {
+			// create a runtime profile
+			StringBuilder buffer = createDefaultProfileFromRunningJvm();
+			try {
+				File tempDirectory = Files.createTempDirectory("JREAction").toFile(); //$NON-NLS-1$
+				runtimeProfile = new File(tempDirectory, DEFAULT_PROFILE + ".profile"); //$NON-NLS-1$
+				try (FileWriter writer = new FileWriter(runtimeProfile)) {
+					writer.write(buffer.toString());
+				}
+				jreLocation = runtimeProfile;
+			} catch (IOException e) {
+				// ignore
+			}
+		}
 		if (jreLocation != null) {
 
 			File javaProfile = null;
@@ -322,6 +339,122 @@ public class JREAction extends AbstractPublisherAction {
 			URL profileURL = getResouceFromSystemBundle(profileFile);
 			profileProperties = loadProfile(profileURL);
 		}
+		if (runtimeProfile != null) {
+			runtimeProfile.delete();
+			runtimeProfile.getParentFile().delete();
+		}
+	}
+
+	/*
+	 * Copied from org.eclipse.osgi.storage.Storage.calculateVMPackages and adopted
+	 * to Java 11
+	 */
+	private String calculateVMPackages() {
+		try {
+			List<String> packages = new ArrayList<>();
+			ModuleLayer bootLayer = ModuleLayer.boot();
+			Set<Module> bootModules = bootLayer.modules();
+			for (Module m : bootModules) {
+				ModuleDescriptor descriptor = m.getDescriptor();
+				if (descriptor.isAutomatic()) {
+					/*
+					 * Automatic modules are supposed to export all their packages. However,
+					 * java.lang.module.ModuleDescriptor::exports returns an empty set for them. Add
+					 * all their packages (as returned by
+					 * java.lang.module.ModuleDescriptor::packages) to the list of VM supplied
+					 * packages.
+					 */
+					packages.addAll(descriptor.packages());
+				} else {
+					for (Exports export : descriptor.exports()) {
+						String pkg = export.source();
+						if (!export.isQualified()) {
+							packages.add(pkg);
+						}
+					}
+				}
+			}
+			Collections.sort(packages);
+			StringBuilder result = new StringBuilder();
+			for (String pkg : packages) {
+				if (result.length() != 0) {
+					result.append(',').append(' ');
+				}
+				result.append(pkg);
+			}
+			return result.toString();
+		} catch (Exception e) {
+
+			return null;
+		}
+	}
+
+	/**
+	 * Creates default profile with minumum version as stated by
+	 * {@link #DEFAULT_PROFILE} and adds packages observed on currently used JVM.
+	 *
+	 * @return generated profile content
+	 */
+	@SuppressWarnings("nls")
+	private StringBuilder createDefaultProfileFromRunningJvm() {
+		StringBuilder buffer = new StringBuilder();
+		final String NEWLINE = System.lineSeparator();
+		// add systempackages
+		buffer.append("org.osgi.framework.system.packages = \\");
+		buffer.append(NEWLINE);
+		buffer.append(' ');
+		String calculateVMPackages = calculateVMPackages();
+		if (calculateVMPackages != null) {
+			String[] pack;
+			pack = calculateVMPackages.split(",");
+			for (int i = 0; i < pack.length; i++) {
+				buffer.append(pack[i]);
+				if (i != pack.length - 1) {
+					buffer.append(',');
+					buffer.append("\\");
+				}
+				buffer.append(NEWLINE);
+			}
+		}
+		// add EE
+		buffer.append("org.osgi.framework.executionenvironment = \\\n" + " OSGi/Minimum-1.0,\\\n"
+				+ " OSGi/Minimum-1.1,\\\n" + " OSGi/Minimum-1.2,\\\n" + " JavaSE/compact1-1.8,\\\n"
+				+ " JavaSE/compact2-1.8,\\\n" + " JavaSE/compact3-1.8,\\\n" + " JRE-1.1,\\\n" + " J2SE-1.2,\\\n"
+				+ " J2SE-1.3,\\\n" + " J2SE-1.4,\\\n" + " J2SE-1.5,\\\n" + " JavaSE-1.6,\\\n" + " JavaSE-1.7,\\\n"
+				+ " JavaSE-1.8,\\\n");
+		String version = DEFAULT_PROFILE.substring(DEFAULT_PROFILE.indexOf('-') + 1);
+		int ver = Integer.parseInt(version);
+		for (int i = 9; i < ver; i++) {
+			buffer.append(" JavaSE-" + String.valueOf(i) + ",\\\n");
+		}
+		buffer.append(" JavaSE-" + String.valueOf(ver));
+		buffer.append(NEWLINE);
+
+		// add capabilities
+		StringBuilder versionList = new StringBuilder();
+		versionList.append("1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8");
+		for (int i = 9; i <= ver; i++) {
+			versionList.append(", " + String.valueOf(i) + ".0");
+		}
+		buffer.append("org.osgi.framework.system.capabilities = \\\n"
+				+ " osgi.ee; osgi.ee=\"OSGi/Minimum\"; version:List<Version>=\"1.0, 1.1, 1.2\",\\\n"
+				+ " osgi.ee; osgi.ee=\"JRE\"; version:List<Version>=\"1.0, 1.1\",\\\n"
+				+ " osgi.ee; osgi.ee=\"JavaSE\"; version:List<Version>=\"" + versionList.toString() + "\",\\\n"
+				+ " osgi.ee; osgi.ee=\"JavaSE/compact1\"; version:List<Version>=\"1.8," + String.valueOf(ver)
+				+ ".0\",\\\n" + " osgi.ee; osgi.ee=\"JavaSE/compact2\"; version:List<Version>=\"1.8,"
+				+ String.valueOf(ver) + ".0\",\\\n"
+				+ " osgi.ee; osgi.ee=\"JavaSE/compact3\"; version:List<Version>=\"1.8," + String.valueOf(ver) + ".0\"");
+		buffer.append(NEWLINE);
+
+		// add profile name and compiler options
+		buffer.append("osgi.java.profile.name = " + DEFAULT_PROFILE + "\n" + "org.eclipse.jdt.core.compiler.compliance="
+				+ String.valueOf(ver) + "\n" + "org.eclipse.jdt.core.compiler.source=" + String.valueOf(ver) + "\n"
+				+ "org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled\n"
+				+ "org.eclipse.jdt.core.compiler.codegen.targetPlatform=" + String.valueOf(ver) + "\n"
+				+ "org.eclipse.jdt.core.compiler.problem.assertIdentifier=error\n"
+				+ "org.eclipse.jdt.core.compiler.problem.enumIdentifier=error");
+		buffer.append(NEWLINE);
+		return buffer;
 	}
 
 	private static URL getResouceFromSystemBundle(String entry) {

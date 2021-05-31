@@ -20,11 +20,13 @@ import static org.easymock.EasyMock.expect;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.okStatus;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -134,7 +136,7 @@ public class JREActionTest extends ActionTest {
 		performAction(new JREAction((String) null));
 
 		// these assertions need to be changed each time the default java profile, hardcoded in o.e.e.p2.publisher.actions.JREAction, is changed;
-		verifyMetadataIU("a.jre.javase", 226, 21, Version.parseVersion("9.0.0"));
+		verifyMetadataIU("a.jre.javase", 228, 23, Version.parseVersion("11.0.0"));
 		// verifyConfigIU(DEFAULT_JRE_NAME, DEFAULT_JRE_VERSION); // TODO config IU is not needed!?
 	}
 
@@ -204,7 +206,8 @@ public class JREActionTest extends ActionTest {
 
 		// check provided capabilities
 		Collection<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
-		assertThat(fooProvidedCapabilities.size(), is(1 + expectedProvidedPackages + expectedProvidedEEs));
+		int expected = expectedProvidedPackages + expectedProvidedEEs;
+		assertThat(fooProvidedCapabilities.size(), anyOf(is(expected), greaterThan(expected)));
 	}
 
 	private void verifyConfigIU(String id, Version jreVersion) {
