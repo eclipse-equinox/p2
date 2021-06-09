@@ -20,6 +20,6 @@
   </parent>
   <groupId>org.eclipse.equinox</groupId>
   <artifactId>org.eclipse.equinox.p2.sdk</artifactId>
-  <version>3.11.1200-SNAPSHOT</version>
+  <version>3.11.1300-SNAPSHOT</version>
   <packaging>eclipse-feature</packaging>
 </project>
