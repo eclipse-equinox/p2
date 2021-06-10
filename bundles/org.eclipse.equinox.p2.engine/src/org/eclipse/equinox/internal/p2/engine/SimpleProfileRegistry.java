@@ -56,6 +56,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	//Internal constant used to keep track of the newly created timestamp
 	private static final String SERVICE_SHARED_INSTALL_NEW_TIMESTAMP = IProfileRegistry.class.getName() + '_' + "NEW_SELF_TIMESTAMP"; //$NON-NLS-1$
 
+	private static long lastTimeMillis = System.currentTimeMillis();
+
 	protected final IProvisioningAgent agent;
 
 	/**
@@ -589,9 +591,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		profileDirectory.mkdir();
 
 		long previousTimestamp = profile.getTimestamp();
-		long currentTimestamp = System.currentTimeMillis();
-		if (currentTimestamp <= previousTimestamp)
-			currentTimestamp = previousTimestamp + 1;
+		long currentTimestamp = currentTimeInMillis(lastTimeMillis);
+		if (currentTimestamp <= previousTimestamp) {
+			currentTimestamp = currentTimeInMillis(previousTimestamp);
+		}
 		boolean shouldGzipFile = shouldGzipFile(profile);
 		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + (shouldGzipFile ? PROFILE_GZ_EXT : PROFILE_EXT));
 
@@ -621,6 +624,16 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				// ignore
 			}
 		}
+	}
+
+	/**
+	 * Returns current time in millis that is guaranteed to grow and higher as given
+	 * value
+	 */
+	private static synchronized long currentTimeInMillis(long lastCurrentTime) {
+		long newTime = Math.max(lastCurrentTime + 1, lastTimeMillis + 1);
+		lastTimeMillis = Math.max(newTime, System.currentTimeMillis());
+		return lastTimeMillis;
 	}
 
 	public void setEventBus(IProvisioningEventBus bus) {
