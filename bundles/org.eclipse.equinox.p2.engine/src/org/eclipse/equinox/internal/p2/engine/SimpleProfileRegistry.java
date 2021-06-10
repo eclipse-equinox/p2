@@ -489,7 +489,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (profiles != null) {
 			IProfile profile = getProfile(id);
 			if (profile != null && profile.getTimestamp() == timestamp)
-				throw new ProvisionException(Messages.SimpleProfileRegistry_CannotRemoveCurrentSnapshot);
+				throw new ProvisionException(
+						NLS.bind(Messages.SimpleProfileRegistry_CannotRemoveCurrentSnapshot, profile));
 		}
 
 		File profileDirectory = getProfileFolder(id);

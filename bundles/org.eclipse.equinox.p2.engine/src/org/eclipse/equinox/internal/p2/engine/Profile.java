@@ -8,11 +8,11 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *    IBM Corporation - initial API and implementation
  *    Cloudsmith Inc. - query indexes
- * 
+ *
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -407,6 +407,6 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	 */
 	@Override
 	public String toString() {
-		return "Profile(" + getProfileId() + ')'; //$NON-NLS-1$
+		return "Profile(" + getProfileId() + '/' + getTimestamp() + ')'; //$NON-NLS-1$
 	}
 }
