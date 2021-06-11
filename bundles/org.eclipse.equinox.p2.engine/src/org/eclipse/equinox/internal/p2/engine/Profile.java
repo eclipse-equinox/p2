@@ -407,6 +407,6 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	 */
 	@Override
 	public String toString() {
-		return "Profile(" + getProfileId() + '/' + getTimestamp() + ')'; //$NON-NLS-1$
+		return "Profile(" + getProfileId() + ", timestamp: " + getTimestamp() + ')'; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
