@@ -15,25 +15,44 @@ package org.eclipse.equinox.internal.p2.repository;
  */
 public class RepositoryPreferences {
 
+	/** See bug 574173: allow to retry download if specified */
+	private static boolean retryOnSocketTimeout = Boolean.getBoolean("p2.RepositoryPreferences.retryOnSocketTimeout"); //$NON-NLS-1$
+
+	/** See bug 574173 */
+	private static int connectionRetryCount = Integer.getInteger("p2.RepositoryPreferences.connectionRetryCount", 1); //$NON-NLS-1$
+
+	/** See bug 574173 */
+	private static int connectionMsRetryDelay = Integer.getInteger("p2.RepositoryPreferences.connectionMsRetryDelay", //$NON-NLS-1$
+			200);
+
 	/**
-	 * Number of attempts to connect (with same credentials) before giving up.
-	 * Note that newer ECF using apache HTTPclient has retry by default.
-	 * TODO - make this configurable via a property.
-	 * TODO - consider removing this option
+	 * Number of attempts to connect (with same credentials) before giving up. Note
+	 * that newer ECF using apache HTTPclient has retry by default. TODO - consider
+	 * removing this option
+	 *
 	 * @return the value 1
 	 */
 	public static int getConnectionRetryCount() {
-		return 1;
+		return connectionRetryCount;
 	}
 
 	/**
 	 * Reconnect delay after failure to connect (with same credentials)- in milliseconds.
 	 * Current implementation returns 200ms.
-	 * TODO - make this configurable via a property
 	 * @return the value 200
 	 */
 	public static long getConnectionMsRetryDelay() {
-		return 200;
+		return connectionMsRetryDelay;
+	}
+
+	/**
+	 * Whether an attempt should be made to retry download if the connection was
+	 * terminated by SocketTimeoutException
+	 *
+	 * @return {@code false} by default
+	 */
+	public static boolean getRetryOnSocketTimeout() {
+		return retryOnSocketTimeout;
 	}
 
 	/**

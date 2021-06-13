@@ -108,6 +108,8 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	private ProgressStatistics statistics;
 	private final int connectionRetryCount;
 	private final long connectionRetryDelay;
+	/** See bug 574173: allow to retry download if specified */
+	private final boolean retryOnSocketTimeout;
 	private final IConnectContext connectContext;
 	private URI requestUri;
 	protected IFileTransferConnectStartEvent connectEvent;
@@ -130,6 +132,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		setUser(false);
 		connectionRetryCount = RepositoryPreferences.getConnectionRetryCount();
 		connectionRetryDelay = RepositoryPreferences.getConnectionMsRetryDelay();
+		retryOnSocketTimeout = RepositoryPreferences.getRetryOnSocketTimeout();
 		connectContext = aConnectContext;
 		this.agent = aAgent;
 	}
@@ -512,11 +515,14 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			if (t instanceof CoreException)
 				throw RepositoryStatusHelper.unwindCoreException((CoreException) t);
 
-			// not meaningful to try 'timeout again' - if a server is that busy, we
-			// need to wait for quite some time before retrying- it is not likely it is
-			// just a temporary network thing.
-			if (t instanceof SocketTimeoutException)
-				throw RepositoryStatusHelper.wrap(t);
+			if (!retryOnSocketTimeout) {
+				// not meaningful to try 'timeout again' - if a server is that busy, we
+				// need to wait for quite some time before retrying- it is not likely it is
+				// just a temporary network thing.
+				if (t instanceof SocketTimeoutException) {
+					throw RepositoryStatusHelper.wrap(t);
+				}
+			}
 
 			if (t instanceof IOException && attemptCounter < connectionRetryCount) {
 				// TODO: Retry only certain exceptions or filter out
