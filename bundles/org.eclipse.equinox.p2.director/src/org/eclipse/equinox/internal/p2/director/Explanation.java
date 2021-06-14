@@ -89,7 +89,8 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public String toString() {
-			return NLS.bind(Messages.Explanation_hardDependency, iu, req);
+			return NLS.bind(req.getMax() == 0 ? Messages.Explanation_hardDependencyNegative
+					: Messages.Explanation_hardDependency, iu, req);
 		}
 
 		@Override
