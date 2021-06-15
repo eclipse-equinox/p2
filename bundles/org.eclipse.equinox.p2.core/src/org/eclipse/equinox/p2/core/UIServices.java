@@ -81,6 +81,14 @@ public abstract class UIServices {
 		private final boolean saveTrustedCertificates;
 		private final boolean trustUnsigned;
 
+		/**
+		 *
+		 * @param trusted
+		 * @param save
+		 * @param trustUnsigned
+		 * @deprecated use other constructor
+		 */
+		@Deprecated
 		public TrustInfo(Certificate[] trusted, boolean save, boolean trustUnsigned) {
 			this.trustedCertificates = trusted;
 			this.trustedPGPKeys = Collections.emptyList();
@@ -90,7 +98,7 @@ public abstract class UIServices {
 
 		/**
 		 *
-		 * @param trusted
+		 * @param trustedCertificates
 		 * @param trustedPGPKeys
 		 * @param save
 		 * @param trustUnsigned
@@ -169,12 +177,16 @@ public abstract class UIServices {
 	/**
 	 * Opens a UI prompt to capture information about trusted content.
 	 *
-	 * @param untrustedChain - an array of certificate chains for which there is no current trust anchor.  May be
-	 * <code>null</code>, which means there are no untrusted certificate chains.
-	 * @param unsignedDetail - an array of strings, where each String describes content that is not signed.
-	 * May be <code>null</code>, which means there is no unsigned content
-	 * @return  the TrustInfo that describes the user's choices for trusting certificates and
-	 * unsigned content.
+	 * @param untrustedChain - an array of certificate chains for which there is no
+	 *                       current trust anchor. May be <code>null</code>, which
+	 *                       means there are no untrusted certificate chains.
+	 * @param unsignedDetail - an array of strings, where each String describes
+	 *                       content that is not signed. May be <code>null</code>,
+	 *                       which means there is no unsigned content
+	 * @return the TrustInfo that describes the user's choices for trusting
+	 *         certificates and unsigned content.
+	 * @implSpec Implementors should also override
+	 *           {@link #getTrustInfo(Certificate[][], Collection, String[])}.
 	 */
 	public abstract TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail);
 
