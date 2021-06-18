@@ -83,9 +83,11 @@ public abstract class UIServices {
 
 		/**
 		 *
-		 * @param trusted
-		 * @param save
-		 * @param trustUnsigned
+		 * @param trusted       Trusted certificates
+		 * @param save          Whether to store trusted certificates or not
+		 * @param trustUnsigned Whether to trust unsigned. <code>true</code> if
+		 *                      installation should continue despite unsigned content;
+		 *                      <code>false</code> otherwise.
 		 * @deprecated use other constructor
 		 */
 		@Deprecated
@@ -98,10 +100,13 @@ public abstract class UIServices {
 
 		/**
 		 *
-		 * @param trustedCertificates
-		 * @param trustedPGPKeys
-		 * @param save
-		 * @param trustUnsigned
+		 * @param trustedCertificates Trusted certificates
+		 * @param trustedPGPKeys      Trusted PGP public keys
+		 * @param save                Whether to store trusted certificates and keys or
+		 *                            not.
+		 * @param trustUnsigned       Whether to trust unsigned. <code>true</code> if
+		 *                            installation should continue despite unsigned
+		 *                            content; <code>false</code> otherwise.
 		 * @since 2.8
 		 */
 		public TrustInfo(Collection<Certificate> trustedCertificates, Collection<PGPPublicKey> trustedPGPKeys,
@@ -207,20 +212,22 @@ public abstract class UIServices {
 	/**
 	 * Opens a UI prompt to capture information about trusted content.
 	 *
-	 * @param untrustedChain   - an array of certificate chains for which there is
-	 *                         no current trust anchor. May be <code>null</code>,
-	 *                         which means there are no untrusted certificate
-	 *                         chains.
-	 * @param untrustedPGPKeys
-	 * @param unsignedDetail   - an array of strings, where each String describes
-	 *                         content that is not signed. May be <code>null</code>,
-	 *                         which means there is no unsigned content
+	 * @param unTrustedCertificateChains - an array of certificate chains for which
+	 *                                   there is no current trust anchor. May be
+	 *                                   <code>null</code>, which means there are no
+	 *                                   untrusted certificate chains.
+	 * @param untrustedPGPKeys           Collection of PGP signer keys that are not
+	 *                                   trusted
+	 * @param unsignedDetail             - an array of strings, where each String
+	 *                                   describes content that is not signed. May
+	 *                                   be <code>null</code>, which means there is
+	 *                                   no unsigned content
 	 * @return the TrustInfo that describes the user's choices for trusting
 	 *         certificates and unsigned content.
 	 * @since 2.8
 	 */
 	public TrustInfo getTrustInfo(Certificate[][] unTrustedCertificateChains, Collection<PGPPublicKey> untrustedPGPKeys,
-			String[] details) {
-		return getTrustInfo(unTrustedCertificateChains, details);
+			String[] unsignedDetail) {
+		return getTrustInfo(unTrustedCertificateChains, unsignedDetail);
 	}
 }
