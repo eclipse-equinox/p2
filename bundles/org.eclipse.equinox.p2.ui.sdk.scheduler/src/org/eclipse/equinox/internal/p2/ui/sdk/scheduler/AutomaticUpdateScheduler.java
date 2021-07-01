@@ -19,8 +19,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import java.util.Date;
 import java.util.Random;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
@@ -52,8 +51,8 @@ public class AutomaticUpdateScheduler implements IStartup {
 	private static final int ONE_HOUR_IN_MS = 60 * 60 * 1000;
 	private static final int ONE_DAY_IN_MS = 24 * ONE_HOUR_IN_MS;
 
-	private IUpdateListener listener = null;
-	private IUpdateChecker checker = null;
+	private IUpdateListener listener;
+	private IUpdateChecker checker;
 
 	private IProvisioningAgent agent;
 
@@ -61,21 +60,32 @@ public class AutomaticUpdateScheduler implements IStartup {
 	public void earlyStartup() {
 		AutomaticUpdatePlugin.getDefault().setScheduler(this);
 
-		Job updateJob = Job.create("Update Job", e -> { //$NON-NLS-1$
-			agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
-			IProfileRegistry registry = agent.getService(IProfileRegistry.class);
-			IProfile currentProfile = registry.getProfile(IProfileRegistry.SELF);
-			if (currentProfile != null && new MigrationSupport().performMigration(agent, registry, currentProfile)) {
-				return;
+		Job updateJob = new Job("Update Job") { //$NON-NLS-1$
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
+				IProfileRegistry registry = agent.getService(IProfileRegistry.class);
+				IProfile currentProfile = registry.getProfile(IProfileRegistry.SELF);
+				if (currentProfile != null
+						&& new MigrationSupport().performMigration(agent, registry, currentProfile)) {
+					return Status.OK_STATUS;
+				}
+
+				removeUnusedPlugins(registry);
+				scheduleUpdate();
+				return Status.OK_STATUS;
 			}
 
-			removeUnusedPlugins(registry);
-			scheduleUpdate();
-		});
+			@Override
+			public boolean belongsTo(Object family) {
+				return AutomaticUpdateScheduler.class == family;
+			}
+		};
+
 		updateJob.setSystem(true);
 		// allow the system to settle
 		updateJob.schedule(20000);
-
 	}
 
 	/**
@@ -139,7 +149,12 @@ public class AutomaticUpdateScheduler implements IStartup {
 			}
 		};
 
-		checker = agent.getService(IUpdateChecker.class);
+		IProvisioningAgent pagent = agent;
+		if (pagent == null) {
+			// Job not executed yet
+			pagent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
+		}
+		checker = pagent.getService(IUpdateChecker.class);
 		if (checker == null) {
 			// Something did not initialize properly
 			IStatus status = new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID,
