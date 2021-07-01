@@ -182,7 +182,7 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 
 	private static Node parse(String pattern, int pos) {
 		int top = pattern.length();
-		StringBuffer bld = null;
+		StringBuilder bld = null;
 		Node parsedNode = null;
 		while (pos < top) {
 			char c = pattern.charAt(pos);
@@ -201,7 +201,7 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 					// fall through
 				default :
 					if (bld == null)
-						bld = new StringBuffer();
+						bld = new StringBuilder();
 					bld.append(c);
 					++pos;
 					continue;

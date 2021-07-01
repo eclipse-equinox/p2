@@ -438,7 +438,7 @@ public class SiteBundle {
 	 */
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(getClass().toString() + " :"); //$NON-NLS-1$
 		buffer.append(" at "); //$NON-NLS-1$
 		if (url != null)

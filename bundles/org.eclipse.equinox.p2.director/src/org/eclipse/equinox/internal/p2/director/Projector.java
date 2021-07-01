@@ -299,7 +299,7 @@ public class Projector {
 		if (weightedObjects == null)
 			return;
 		if (DEBUG) {
-			StringBuffer b = new StringBuffer();
+			StringBuilder b = new StringBuilder();
 			for (WeightedObject<? extends Object> object : weightedObjects) {
 				if (b.length() > 0)
 					b.append(", "); //$NON-NLS-1$
@@ -926,7 +926,7 @@ public class Projector {
 
 	private void createAtMostOne(IInstallableUnit[] ius) throws ContradictionException {
 		if (DEBUG) {
-			StringBuffer b = new StringBuffer();
+			StringBuilder b = new StringBuilder();
 			for (IInstallableUnit iu : ius) {
 				b.append(iu.toString());
 			}
