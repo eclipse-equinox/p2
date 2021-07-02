@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,17 +11,21 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
+ *     Hannes Wellmann - Bug 574622: Persist remembered accepted licenses
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.util.HashSet;
-import java.util.StringTokenizer;
+import java.util.Set;
+import java.util.regex.Pattern;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.equinox.p2.metadata.ILicense;
 import org.eclipse.equinox.p2.ui.LicenseManager;
+import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 /**
@@ -32,8 +36,8 @@ import org.osgi.service.prefs.Preferences;
  * @since 3.6
  */
 public class SimpleLicenseManager extends LicenseManager {
-	java.util.Set<String> accepted = new HashSet<>();
-	String profileId;
+	private final Set<String> accepted = new HashSet<>();
+	private final String profileId;
 
 	public SimpleLicenseManager(String profileId) {
 		super();
@@ -75,26 +79,25 @@ public class SimpleLicenseManager extends LicenseManager {
 		return new ProfileScope(location, profileId).getNode(ProvSDKUIActivator.PLUGIN_ID);
 	}
 
+	private static final Pattern DIGESTS_DELIMITER = Pattern.compile(","); //$NON-NLS-1$
+
 	private void initializeFromPreferences() {
 		Preferences pref = getPreferences();
 		if (pref != null) {
 			String digestList = pref.get(PreferenceConstants.PREF_LICENSE_DIGESTS, ""); //$NON-NLS-1$
-			StringTokenizer tokenizer = new StringTokenizer(digestList, ","); //$NON-NLS-1$
-			while (tokenizer.hasMoreTokens()) {
-				accepted.add(tokenizer.nextToken().trim());
-			}
+			DIGESTS_DELIMITER.splitAsStream(digestList).filter(s -> !s.isBlank()).map(String::strip)
+					.forEach(accepted::add);
 		}
 	}
 
 	private void updatePreferences() {
 		Preferences pref = getPreferences();
-		StringBuilder result = new StringBuilder();
-		Object[] indexedList = accepted.toArray();
-		for (int i = 0; i < indexedList.length; i++) {
-			if (i != 0)
-				result.append(","); //$NON-NLS-1$
-			result.append((String) indexedList[i]);
+		String acceptedLicenseDigests = String.join(",", accepted); //$NON-NLS-1$
+		pref.put(PreferenceConstants.PREF_LICENSE_DIGESTS, acceptedLicenseDigests);
+		try {
+			pref.flush();
+		} catch (BackingStoreException e) {
+			Platform.getLog(SimpleLicenseManager.class).error("Persisting remembered licenses failed", e); //$NON-NLS-1$
 		}
-		pref.put(PreferenceConstants.PREF_LICENSE_DIGESTS, result.toString());
 	}
 }
