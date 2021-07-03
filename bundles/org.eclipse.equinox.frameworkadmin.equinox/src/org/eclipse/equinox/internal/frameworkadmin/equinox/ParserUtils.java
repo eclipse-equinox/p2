@@ -96,7 +96,7 @@ public class ParserUtils {
 			if (install.startsWith(FILE_PROTOCOL))
 				install = install.substring(FILE_PROTOCOL.length() + 1);
 			if (install.startsWith(LAUNCHER_DIR))
-				install = install.replaceAll(LAUNCHER_DIR, launcherFile.getParent().toString());
+				install = install.replace(LAUNCHER_DIR, launcherFile.getParent().toString());
 			File installFile = new File(install);
 			if (installFile.isAbsolute())
 				return installFile;
