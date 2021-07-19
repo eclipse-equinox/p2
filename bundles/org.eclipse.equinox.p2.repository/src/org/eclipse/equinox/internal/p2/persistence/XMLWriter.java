@@ -122,7 +122,7 @@ public class XMLWriter implements XMLConstants {
 	}
 
 	public static String escape(String txt) {
-		StringBuffer buffer = null;
+		StringBuilder buffer = null;
 		for (int i = 0; i < txt.length(); ++i) {
 			String replace;
 			char c = txt.charAt(i);
@@ -162,7 +162,7 @@ public class XMLWriter implements XMLConstants {
 					replace = Character.isWhitespace(c) ? " " : null; //$NON-NLS-1$
 			}
 			if (buffer == null) {
-				buffer = new StringBuffer(txt.length() + 16);
+				buffer = new StringBuilder(txt.length() + 16);
 				buffer.append(txt.substring(0, i));
 			}
 			if (replace != null)
