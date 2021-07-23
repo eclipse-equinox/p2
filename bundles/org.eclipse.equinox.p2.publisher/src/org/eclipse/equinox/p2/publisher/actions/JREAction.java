@@ -105,7 +105,8 @@ public class JREAction extends AbstractPublisherAction {
 		cu.setId(configId);
 		cu.setVersion(iu.getVersion());
 		VersionRange range = iu.getVersion() == Version.emptyVersion ? VersionRange.emptyRange : new VersionRange(iu.getVersion(), true, Version.MAX_VERSION, true);
-		cu.setHost(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, null, false, false)});
+		cu.setHost(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, null, false,
+				false));
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configId, iu.getVersion())});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
@@ -198,10 +199,8 @@ public class JREAction extends AbstractPublisherAction {
 			for (String namespace : namespaces) {
 				if (NAMESPACE_OSGI_EE.equals(namespace)) { // this is the OSGi capability namespace "osgi.ee"
 					parseEECapability(systemCapability, parsingStatus, parsingResult);
-
 				} else {
 					parsingStatus.add(newWarningStatus(NLS.bind(Messages.message_eeIgnoringNamespace, namespace)));
-					continue;
 				}
 			}
 		}
