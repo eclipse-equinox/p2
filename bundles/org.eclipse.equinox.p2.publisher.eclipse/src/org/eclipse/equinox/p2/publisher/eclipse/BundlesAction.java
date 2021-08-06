@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Code 9 and others.
+ * Copyright (c) 2008, 2021 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -14,6 +14,7 @@
  *   IBM - ongoing development
  *   SAP AG - make optional dependencies non-greedy by default; allow setting greedy through directive (bug 247099)
  *   Red Hat Inc. - Bug 460967 
+ *   Christoph Läubrich - Bug 574952 p2 should distinguish between "product plugins" and "configuration plugins" (gently sponsored by Compart AG)
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -136,6 +137,13 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static IInstallableUnit createBundleConfigurationUnit(String hostId, Version cuVersion,
 			boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor,
 			IMatchExpression<IInstallableUnit> filter) {
+		return createBundleConfigurationUnit(hostId, cuVersion, isBundleFragment, configInfo, configurationFlavor,
+				filter, false);
+	}
+
+	static IInstallableUnit createBundleConfigurationUnit(String hostId, Version cuVersion,
+			boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor,
+			IMatchExpression<IInstallableUnit> filter, boolean configOnly) {
 		if (configInfo == null)
 			return null;
 
@@ -145,7 +153,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		cu.setVersion(cuVersion);
 
 		// Indicate the IU to which this CU apply
-		Version hostVersion = Version.parseVersion(configInfo.getVersion());
+		Version hostVersion = configOnly ? Version.emptyVersion : Version.parseVersion(configInfo.getVersion());
 		VersionRange range = hostVersion == Version.emptyVersion ? VersionRange.emptyRange
 				: new VersionRange(hostVersion, true, Version.MAX_VERSION, true);
 		cu.setHost(new IRequirement[] { //

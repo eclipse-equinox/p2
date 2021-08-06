@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others.
+ * Copyright (c) 2008, 2021 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -13,12 +13,14 @@
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   Rapicorp - ongoing development
+ *   Christoph Läubrich - Bug 574952 p2 should distinguish between "product plugins" and "configuration plugins" (gently sponsored by Compart AG)
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
@@ -106,7 +108,12 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			String configSpec = configSpec1;
 			Collection<IConfigAdvice> configAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IConfigAdvice.class);
 			BundleInfo[] bundles = fillInBundles(configAdvice, results);
-			publishBundleCUs(publisherInfo, bundles, configSpec, innerResult);
+			Set<String> configBundles = configAdvice.stream().filter(ProductFileAdvice.class::isInstance)
+					.map(ProductFileAdvice.class::cast).flatMap(pca -> pca.getBundles(true))
+					.map(BundleInfo::getSymbolicName).filter(Objects::nonNull)
+					.distinct()
+					.collect(Collectors.toSet());
+			publishBundleCUs(publisherInfo, bundles, configSpec, innerResult, configBundles);
 			publishConfigIUs(configAdvice, innerResult, configSpec);
 			Collection<IExecutableAdvice> launchingAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IExecutableAdvice.class);
 			publishIniIUs(launchingAdvice, innerResult, configSpec);
@@ -324,10 +331,13 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Publish the CUs related to the given set of bundles.  This generally covers the start-level and 
-	 * and whether or not the bundle is to be started.
+	 * Publish the CUs related to the given set of bundles. This generally covers
+	 * the start-level and and whether or not the bundle is to be started.
+	 * 
+	 * @param configBundles
 	 */
-	protected void publishBundleCUs(IPublisherInfo publisherInfo, BundleInfo[] bundles, String configSpec, IPublisherResult result) {
+	protected void publishBundleCUs(IPublisherInfo publisherInfo, BundleInfo[] bundles, String configSpec,
+			IPublisherResult result, Set<String> configBundles) {
 		if (bundles == null)
 			return;
 
@@ -338,24 +348,28 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			filter = createFilterSpec(configSpec);
 		}
 
-		for (BundleInfo bundle1 : bundles) {
-			GeneratorBundleInfo bundle = createGeneratorBundleInfo(bundle1, result);
-			if (bundle == null)
+		for (BundleInfo bundleInfo : bundles) {
+			GeneratorBundleInfo generatorBundle = createGeneratorBundleInfo(bundleInfo, result);
+			if (generatorBundle == null)
 				continue;
-			IInstallableUnit iu = bundle.getIU();
+			IInstallableUnit iu = generatorBundle.getIU();
 			// If there is no host, or the filters don't match, skip this one.
 			if (iu == null || !filterMatches(iu.getFilter(), configSpec))
 				continue;
-			if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
+			if (generatorBundle.getStartLevel() == BundleInfo.NO_LEVEL && !generatorBundle.isMarkedAsStarted()) {
 				// this bundle does not require any particular configuration, the plug-in
 				// default IU will handle installing it
 				continue;
 			}
-			IInstallableUnit cu = null;
-			if (this.version != null && !this.version.equals(Version.emptyVersion))
-				cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), this.version, false, bundle, flavor + cuIdPrefix, filter);
-			else
-				cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.parseVersion(bundle.getVersion()), false, bundle, flavor + cuIdPrefix, filter);
+			IInstallableUnit cu;
+			if (configBundles.contains(bundleInfo.getSymbolicName())) {
+				cu = BundlesAction.createBundleConfigurationUnit(generatorBundle.getSymbolicName(), this.version, false, generatorBundle,
+						flavor + cuIdPrefix, filter, true);
+			} else if (this.version != null && !this.version.equals(Version.emptyVersion)) {
+				cu = BundlesAction.createBundleConfigurationUnit(generatorBundle.getSymbolicName(), this.version, false, generatorBundle, flavor + cuIdPrefix, filter);
+			} else {
+				cu = BundlesAction.createBundleConfigurationUnit(generatorBundle.getSymbolicName(), Version.parseVersion(generatorBundle.getVersion()), false, generatorBundle, flavor + cuIdPrefix, filter);
+			}
 			if (cu != null) {
 				// Product Query will run against the repo, make sure these CUs are in before then
 				// TODO review the aggressive addition to the metadata repo.  perhaps the query can query the result as well.
