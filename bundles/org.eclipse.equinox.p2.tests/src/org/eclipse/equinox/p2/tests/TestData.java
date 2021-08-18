@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 compeople AG and others.
+ * Copyright (c) 2007, 2021 compeople AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -146,20 +145,20 @@ public class TestData {
 			ZipEntry entry1 = (ZipEntry) file1[0];
 			ZipEntry entry2 = (ZipEntry) file2[0];
 			// compare the entries
-			Assert.assertTrue(entry1.getName().equals(entry2.getName()));
-			Assert.assertTrue(entry1.getSize() == entry2.getSize());
+			Assert.assertEquals(entry1.getName(), entry2.getName());
+			Assert.assertEquals(entry1.getSize(), entry2.getSize());
 			//	TODO for now skip over the timestamp as they seem to be different
 			// assertTrue(entry1.getTime() == entry2.getTime());
-			Assert.assertTrue(entry1.isDirectory() == entry2.isDirectory());
-			Assert.assertTrue(entry1.getCrc() == entry2.getCrc());
-			Assert.assertTrue(entry1.getMethod() == entry2.getMethod());
+			Assert.assertEquals(entry1.isDirectory(), entry2.isDirectory());
+			Assert.assertEquals(entry1.getCrc(), entry2.getCrc());
+			Assert.assertEquals(entry1.getMethod(), entry2.getMethod());
 
 			// check the content of the entries
-			Assert.assertTrue(Arrays.equals((byte[]) file1[1], (byte[]) file2[1]));
+			Assert.assertArrayEquals((byte[]) file1[1], (byte[]) file2[1]);
 		}
 
 		// ensure that we have consumed all of the entries in the second JAR
-		Assert.assertTrue(jar2.size() == 0);
+		Assert.assertEquals(0, jar2.size());
 	}
 
 	/**
@@ -181,11 +180,11 @@ public class TestData {
 
 			File entry1 = (File) file1[0];
 			ZipEntry entry2 = (ZipEntry) file2[0];
-			Assert.assertTrue(entry1.isDirectory() == entry2.isDirectory());
+			Assert.assertEquals(entry1.isDirectory(), entry2.isDirectory());
 
 			// check the content of the entries
 			if (compareContent)
-				Assert.assertTrue(Arrays.equals((byte[]) file1[1], (byte[]) file2[1]));
+				Assert.assertArrayEquals((byte[]) file1[1], (byte[]) file2[1]);
 		}
 	}
 

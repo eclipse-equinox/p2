@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Code 9 and others.
+ * Copyright (c) 2008, 2021 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -59,7 +59,12 @@ import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
+@RunWith(JUnit4.class)
 public class JREActionTest extends ActionTest {
 
 	private File J14 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.4/"); //$NON-NLS-1$
@@ -72,12 +77,14 @@ public class JREActionTest extends ActionTest {
 	protected TestMetadataRepository metadataRepository;
 
 	@Override
+	@Before
 	public void setUp() throws Exception {
 		setupPublisherInfo();
 		setupPublisherResult();
 	}
 
 	// TODO this name is misleading: the test doesn't test the real Java 1.4 JRE IU but a broken local copy of the 1.4 profile
+	@Test
 	public void test14() throws Exception {
 		performAction(new JREAction(J14));
 
@@ -87,6 +94,7 @@ public class JREActionTest extends ActionTest {
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.j2se,1.4.0"), J14, "J2SE-1.4.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Test
 	public void test15() throws Exception {
 		performAction(new JREAction(J15));
 
@@ -96,6 +104,7 @@ public class JREActionTest extends ActionTest {
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.j2se,1.5.0"), J15, "J2SE-1.5.profile"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Test
 	public void test16() throws Exception {
 		performAction(new JREAction(J16));
 
@@ -105,6 +114,7 @@ public class JREActionTest extends ActionTest {
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.javase,1.6.0"), J16, "JavaSE-1.6.profile"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
+	@Test
 	public void testOSGiMin() throws Exception {
 		performAction(new JREAction("OSGi/Minimum-1.2"));
 
@@ -113,6 +123,7 @@ public class JREActionTest extends ActionTest {
 		// verifyConfigIU("a.jre.osgi.minimum", jreVersion); // TODO config IU is not needed!?
 	}
 
+	@Test
 	public void testPackageVersionsFromJreFolder() throws Exception {
 		performAction(new JREAction(jreWithPackageVersionsFolder));
 
@@ -123,6 +134,7 @@ public class JREActionTest extends ActionTest {
 		verifyArtifactRepository(ArtifactKey.parse("binary,a.jre.test,1.0.0"), jreWithPackageVersionsFolder, "test-1.0.0.profile"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
+	@Test
 	public void testPackageVersionsFromJavaProfile() throws Exception {
 		// introduced for bug 334519: directly point to a profile file
 		performAction(new JREAction(jreWithPackageVersionsProfile));
@@ -132,6 +144,7 @@ public class JREActionTest extends ActionTest {
 		assertThat(providedCapabilities, hasItem(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, "my.package", Version.create("1.0.0"))));
 	}
 
+	@Test
 	public void testDefaultJavaProfile() throws Exception {
 		performAction(new JREAction((String) null));
 
@@ -140,19 +153,13 @@ public class JREActionTest extends ActionTest {
 		// verifyConfigIU(DEFAULT_JRE_NAME, DEFAULT_JRE_VERSION); // TODO config IU is not needed!?
 	}
 
+	@Test(expected = IllegalArgumentException.class)
 	public void testNonExistingJreLocation() {
 		File nonExistingProfile = new File(jreWithPackageVersionsFolder, "no.profile");
-		try {
-			performAction(new JREAction(nonExistingProfile));
-			fail("Expected failure when the JRE location does not exists.");
-			// TODO shouldn't this be an error status?
-		} catch (IllegalArgumentException e) {
-			// test is successful
-		} catch (Exception e) {
-			fail("Expected IllegalArgumentException when the JRE location does not exists, caught " + e.getClass().getName());
-		}
+		performAction(new JREAction(nonExistingProfile));
 	}
 
+	@Test
 	public void testOsgiEECapabilities() {
 		// added for bug 388566
 		performAction(new JREAction("J2SE-1.5"));
@@ -165,6 +172,7 @@ public class JREActionTest extends ActionTest {
 		assertThat(capabilities, not(hasItem(createEECapability("J2SE", "1.5"))));
 	}
 
+	@Test
 	public void testSingleOsgiEECapability() {
 		// contains a single version:Version attribute instead of the common version:List<Version>
 		performAction(new JREAction("OSGi/Minimum-1.0"));
@@ -174,6 +182,7 @@ public class JREActionTest extends ActionTest {
 		assertThat(capabilities, hasItem(createEECapability("OSGi/Minimum", "1.0")));
 	}
 
+	@Test
 	public void testInvalidOsgiEECapabilitySpec() {
 		testAction = new JREAction(new File(TestActivator.getTestDataFolder(), "JREActionTest/invalidOsgiEE/ee-capability-syntax-test.profile"));
 		IStatus status = testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
@@ -186,7 +195,7 @@ public class JREActionTest extends ActionTest {
 		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("Syntax error in version '1.a.invalidversion'"))));
 		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("Ignoring unknown capability namespace 'other.namespace'"))));
 		assertThat(Arrays.asList(eeStatus.getChildren()), hasItem(statusWithMessageWhich(containsString("Cannot specify both 'version:Version' and 'version:List<Version>'"))));
-		assertThat(eeStatus.getChildren().length, is(5));
+		assertEquals(5, eeStatus.getChildren().length);
 	}
 
 	private void performAction(JREAction jreAction) {
@@ -198,11 +207,11 @@ public class JREActionTest extends ActionTest {
 		IInstallableUnit foo = getPublishedUnit(id);
 
 		// check version
-		assertTrue(foo.getVersion().equals(jreVersion));
+		assertEquals(jreVersion, foo.getVersion());
 
 		// check touchpointType
 		assertTrue(foo.getTouchpointType().getId().equalsIgnoreCase("org.eclipse.equinox.p2.native")); //$NON-NLS-1$
-		assertTrue(foo.getTouchpointType().getVersion().equals(Version.create("1.0.0"))); //$NON-NLS-1$
+		assertEquals(Version.create("1.0.0"), foo.getTouchpointType().getVersion()); //$NON-NLS-1$
 
 		// check provided capabilities
 		Collection<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
@@ -214,19 +223,21 @@ public class JREActionTest extends ActionTest {
 		IInstallableUnit bar = getPublishedUnit("config." + id);
 
 		Map<?, ?> instructions = bar.getTouchpointData().iterator().next().getInstructions();
-		assertTrue(((ITouchpointInstruction) instructions.get("install")).getBody().equals("unzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("unzip(source:@artifact, target:${installFolder});", //$NON-NLS-1$
+				((ITouchpointInstruction) instructions.get("install")).getBody()); //$NON-NLS-1$
+		assertEquals("cleanupzip(source:@artifact, target:${installFolder});", //$NON-NLS-1$
+				((ITouchpointInstruction) instructions.get("uninstall")).getBody()); //$NON-NLS-1$
 		assertTrue(bar instanceof IInstallableUnitFragment);
 		Collection<IRequirement> requiredCapability = ((IInstallableUnitFragment) bar).getHost();
 		verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(jreVersion, true, Version.MAX_VERSION, true));
-		assertTrue(requiredCapability.size() == 1);
+		assertEquals(1, requiredCapability.size());
 
 		Collection<IProvidedCapability> providedCapability = bar.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, "config." + id, jreVersion); //$NON-NLS-1$
-		assertTrue(providedCapability.size() == 1);
+		assertEquals(1, providedCapability.size());
 
-		assertTrue(bar.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(bar.getVersion().equals(jreVersion));
+		assertEquals("true", bar.getProperty("org.eclipse.equinox.p2.type.fragment")); //$NON-NLS-1$//$NON-NLS-2$
+		assertEquals(jreVersion, bar.getVersion());
 	}
 
 	private void verifyArtifactRepository(IArtifactKey key, File JRELocation, final String fileName) throws IOException {
@@ -244,13 +255,13 @@ public class JREActionTest extends ActionTest {
 
 	private IInstallableUnit getPublishedUnit(String id) {
 		Collection<IInstallableUnit> units = publisherResult.getIUs(id, IPublisherResult.ROOT);
-		assertThat(units.size(), is(1));
+		assertEquals(1, units.size());
 		return units.iterator().next();
 	}
 
 	private Collection<IProvidedCapability> getPublishedCapabilitiesOf(String id) {
 		Collection<IInstallableUnit> ius = publisherResult.getIUs(id, IPublisherResult.ROOT);
-		assertThat(ius.size(), is(1));
+		assertEquals(1, ius.size());
 		IInstallableUnit iu = ius.iterator().next();
 		return iu.getProvidedCapabilities();
 	}
