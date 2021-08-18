@@ -129,6 +129,9 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		if (value == null) {
 			return null;
 		}
+		if (value.contains("\n") || value.contains("\r")) { //$NON-NLS-1$ //$NON-NLS-2$
+			return value;
+		}
 		return value.replace(' ', '\n').replace("-----BEGIN\nPGP\nSIGNATURE-----", "-----BEGIN PGP SIGNATURE-----") //$NON-NLS-1$ //$NON-NLS-2$
 				.replace("-----END\nPGP\nSIGNATURE-----", "-----END PGP SIGNATURE-----") //$NON-NLS-1$ //$NON-NLS-2$
 				.replace("-----BEGIN\nPGP\nPUBLIC\nKEY\nBLOCK-----", "-----BEGIN PGP PUBLIC KEY BLOCK-----") //$NON-NLS-1$ //$NON-NLS-2$

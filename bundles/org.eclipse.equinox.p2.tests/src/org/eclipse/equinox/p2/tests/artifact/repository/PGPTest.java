@@ -46,6 +46,12 @@ public class PGPTest extends AbstractProvisioningTest {
 		assertOK(mirrorStatus);
 	}
 
+	@Test
+	public void testAllGoodWithEncodedProperties() throws Exception {
+		IStatus mirrorStatus = performMirrorFrom("repoPGPOK_encoded");
+		assertOK(mirrorStatus);
+	}
+
 	private IStatus performMirrorFrom(String repoName) throws Exception {
 		loadPGPTestRepo(repoName);
 		ArtifactKey key = new ArtifactKey("osgi.bundle", "blah", Version.create("1.0.0.123456"));
