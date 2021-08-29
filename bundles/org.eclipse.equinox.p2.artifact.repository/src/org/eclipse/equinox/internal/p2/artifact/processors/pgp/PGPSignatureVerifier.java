@@ -14,11 +14,10 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.bouncycastle.bcpg.ArmoredInputStream;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.*;
-import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
-import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
-import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
+import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
+import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
+import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -60,12 +59,12 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		}
 		List<PGPSignature> res = new ArrayList<>();
 		try (InputStream in = new ArmoredInputStream(new ByteArrayInputStream(signatureText.getBytes()))) {
-			JcaPGPObjectFactory pgpFactory = new JcaPGPObjectFactory(in);
+			PGPObjectFactory pgpFactory = new BcPGPObjectFactory(in);
 			Object o = pgpFactory.nextObject();
 			PGPSignatureList signatureList = new PGPSignatureList(new PGPSignature[0]);
 			if (o instanceof PGPCompressedData) {
 				PGPCompressedData pgpCompressData = (PGPCompressedData) o;
-				pgpFactory = new JcaPGPObjectFactory(pgpCompressData.getDataStream());
+				pgpFactory = new BcPGPObjectFactory(pgpCompressData.getDataStream());
 				signatureList = (PGPSignatureList) pgpFactory.nextObject();
 			} else if (o instanceof PGPSignatureList) {
 				signatureList = (PGPSignatureList) o;
@@ -108,8 +107,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 				return;
 			}
 			try {
-				signature.init(new JcaPGPContentVerifierBuilderProvider().setProvider(new BouncyCastleProvider()),
-						publicKey);
+				signature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
 			} catch (PGPException ex) {
 				setStatus(new Status(IStatus.ERROR, Activator.ID, ex.getMessage(), ex));
 				return;
@@ -145,7 +143,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		Map<Long, PGPPublicKey> res = new HashMap<>();
 		try (InputStream stream = PGPUtil
 				.getDecoderStream(new ByteArrayInputStream(unnormalizedPGPProperty(armoredPublicKeyring).getBytes()))) {
-			PGPPublicKeyRingCollection pgpPub = new JcaPGPPublicKeyRingCollection(stream);
+			PGPPublicKeyRingCollection pgpPub = new BcPGPPublicKeyRingCollection(stream);
 
 			pgpPub.getKeyRings().forEachRemaining(kRing ->
 				kRing.getPublicKeys().forEachRemaining(key -> res.put(key.getKeyID(), key))
