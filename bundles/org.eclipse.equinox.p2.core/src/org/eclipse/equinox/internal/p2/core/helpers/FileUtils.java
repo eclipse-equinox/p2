@@ -25,8 +25,7 @@ public class FileUtils {
 	private static File[] untarFile(File source, File outputDir) throws IOException, TarException {
 		List<File> untarredFiles = new ArrayList<>();
 		try (TarFile tarFile = new TarFile(source)) {
-			for (Enumeration<TarEntry> e = tarFile.entries(); e.hasMoreElements();) {
-				TarEntry entry = e.nextElement();
+			for (TarEntry entry : tarFile.entries()) {
 				try (InputStream input = tarFile.getInputStream(entry)) {
 					File outFile = createSubPathFile(outputDir, entry.getName());
 					outFile = outFile.getCanonicalFile(); //bug 266844

@@ -14,7 +14,8 @@
 package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.io.*;
-import java.util.Enumeration;
+import java.util.Objects;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -23,9 +24,7 @@ import java.util.zip.GZIPInputStream;
 public class TarFile implements Closeable {
 	private File file;
 	private TarInputStream entryEnumerationStream;
-	private TarEntry curEntry;
 	private TarInputStream entryStream;
-
 	private InputStream internalEntryStream;
 
 	/**
@@ -54,7 +53,6 @@ public class TarFile implements Closeable {
 			in.close();
 			throw ex;
 		}
-		curEntry = entryEnumerationStream.getNextEntry();
 	}
 
 	/**
@@ -74,26 +72,15 @@ public class TarFile implements Closeable {
 	 *
 	 * @return enumeration of all files in the archive
 	 */
-	public Enumeration<TarEntry> entries() {
-		return new Enumeration<>() {
-			@Override
-			public boolean hasMoreElements() {
-				return (curEntry != null);
+	public Iterable<TarEntry> entries() throws TarException, IOException {
+		TarEntry first = entryEnumerationStream.getNextEntry(); // throws if stream is empty
+		return Stream.iterate(first, Objects::nonNull, e -> {
+			try {
+				return entryEnumerationStream.getNextEntry();
+			} catch (TarException | IOException e1) {
+				return null;
 			}
-
-			@Override
-			public TarEntry nextElement() {
-				TarEntry oldEntry = curEntry;
-				try {
-					curEntry = entryEnumerationStream.getNextEntry();
-				} catch (TarException e) {
-					curEntry = null;
-				} catch (IOException e) {
-					curEntry = null;
-				}
-				return oldEntry;
-			}
-		};
+		})::iterator;
 	}
 
 	/**

@@ -51,19 +51,7 @@ public final class Memento {
 	}
 
 	public Enumeration<String> getKeys() {
-		return new Enumeration<>() {
-			Iterator<String> keysIterator = mementoMap.keySet().iterator();
-
-			@Override
-			public boolean hasMoreElements() {
-				return keysIterator.hasNext();
-			}
-
-			@Override
-			public String nextElement() {
-				return keysIterator.next();
-			}
-		};
+		return Collections.enumeration(mementoMap.keySet());
 	}
 
 	private static void validateValue(Object value) {
