@@ -6,3 +6,4 @@ comparator errors on new infra
 Bug 566668 - Comparator errors in I20200904-0210
 Bug 571555 - Comparator errors in I20210226-1800
 Bug 571731 - Comparator errors in I20210305-0820
+Bug 575841 - Comparator errors in I20210906-1000
