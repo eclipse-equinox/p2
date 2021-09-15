@@ -379,11 +379,11 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * cache is updated when it becomes stale.
 	 */
 	public void testMetadataCachingRemoteRepo() throws URISyntaxException, ProvisionException {
-		URI repoLocation = new URI("http://download.eclipse.org/eclipse/updates/3.4milestones/");
+		URI repoLocation = new URI("https://download.eclipse.org/eclipse/updates/4.21/R-4.21-202109060500/");
 		if (!repoAvailable(repoLocation))
 			return;
 		IAgentLocation agentLocation = ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.class);
-		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
+		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.repository/cache/");
 		File dataAreaFile = URIUtil.toFile(dataArea);
 		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
 		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");

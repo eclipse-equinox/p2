@@ -41,7 +41,8 @@ public class TransferTest extends AbstractProvisioningTest {
 		} catch (BundleException e) {
 			fail("1.5", e);
 		}
-		final URI toDownload = new URI("http://download.eclipse.org/eclipse/updates/4.11/R-4.11-201903070500/plugins/javax.servlet.jsp_2.2.0.v201112011158.jar.pack.gz");
+		final URI toDownload = new URI(
+				"https://download.eclipse.org/eclipse/updates/4.11/R-4.11-201903070500/plugins/javax.servlet.jsp_2.2.0.v201112011158.jar.pack.gz");
 		IStatus s = getTransport().download(toDownload, fos, new NullProgressMonitor());
 		assertOK("2.0", s);
 		int httpSize = -1;
