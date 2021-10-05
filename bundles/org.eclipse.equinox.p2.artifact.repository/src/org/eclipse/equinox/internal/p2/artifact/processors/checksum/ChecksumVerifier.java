@@ -33,12 +33,14 @@ final public class ChecksumVerifier extends MessageDigestProcessingStep {
 	final private String algorithmName;
 	final private String providerName;
 	final private String algorithmId;
+	private final boolean insecureAlgorithm;
 
 	// public to access from tests
-	public ChecksumVerifier(String digestAlgorithm, String providerName, String algorithmId) {
+	public ChecksumVerifier(String digestAlgorithm, String providerName, String algorithmId, boolean insecure) {
 		this.algorithmName = digestAlgorithm;
 		this.providerName = providerName;
 		this.algorithmId = algorithmId;
+		this.insecureAlgorithm = insecure;
 		basicInitialize(null);
 	}
 
@@ -91,4 +93,7 @@ final public class ChecksumVerifier extends MessageDigestProcessingStep {
 		return algorithmId;
 	}
 
+	public boolean isInsecureAlgorithm() {
+		return insecureAlgorithm;
+	}
 }

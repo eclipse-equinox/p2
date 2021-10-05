@@ -26,7 +26,6 @@ import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtil
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumVerifier;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.OSGiVersion;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.junit.Before;
@@ -70,10 +69,11 @@ public class ChecksumUtilitiesTest {
 
 	@Test
 	public void testChecksumProperty() {
-		Collection<ProcessingStep> checksumVerifiers = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor, propertyType, emptySet());
+		Collection<ChecksumVerifier> checksumVerifiers = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor,
+				propertyType, emptySet());
 
 		assertEquals(format("Verifier for property=%s", property), 1, checksumVerifiers.size());
-		ChecksumVerifier verifier = (ChecksumVerifier) checksumVerifiers.iterator().next();
+		ChecksumVerifier verifier = checksumVerifiers.iterator().next();
 		assertEquals(digestAlgorithm, verifier.getAlgorithmName());
 		assertEquals(algorithmId, verifier.getAlgorithmId());
 		assertEquals(value, verifier.getExpectedChecksum());
@@ -82,7 +82,8 @@ public class ChecksumUtilitiesTest {
 
 	@Test
 	public void testChecksumsToSkip() {
-		Collection<ProcessingStep> checksumVerifiers = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor, propertyType, singleton(algorithmId));
+		Collection<ChecksumVerifier> checksumVerifiers = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor,
+				propertyType, singleton(algorithmId));
 
 		assertEquals(emptyList(), checksumVerifiers);
 	}

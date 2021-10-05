@@ -76,6 +76,14 @@ As other tools will rely on this id, consider using some well-defined value (i.e
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="warnInsecure" type="boolean">
+            <annotation>
+               <documentation>
+                  Since 1.4.300
+Set to true if this algorithm is now considered as insecure. A warning will be logged when this algorithm is used. An artifact that has no checksums or checksums only for insecure algorithms will emit a warning to user.
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

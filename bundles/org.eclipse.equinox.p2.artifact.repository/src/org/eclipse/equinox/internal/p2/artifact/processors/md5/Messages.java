@@ -23,6 +23,8 @@ public class Messages extends NLS {
 	public static String Error_MD5_unavailable;
 	public static String Error_unexpected_hash;
 
+	public static String MD5_deprecated;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

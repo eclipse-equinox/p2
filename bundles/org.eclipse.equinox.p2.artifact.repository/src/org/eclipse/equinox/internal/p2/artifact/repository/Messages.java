@@ -71,6 +71,8 @@ public class Messages extends NLS {
 	public static String calculateChecksum_ok;
 	public static String calculateChecksum_error;
 	public static String calculateChecksum_providerError;
+	public static String onlyInsecureDigestAlgorithmUsed;
+	public static String noDigestAlgorithmToVerifyDownload;
 
 	static {
 		// initialize resource bundles

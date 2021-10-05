@@ -41,8 +41,9 @@
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.artifactChecksums">
 		<artifactChecksum
-			algorithm="MD5"
-			id="md5">
+        algorithm="MD5"
+        id="md5"
+        warnInsecure="true">
 		</artifactChecksum>
 	</extension>
 	<extension

@@ -70,7 +70,7 @@ public class ChecksumVerifierTest {
 		expect(processingStepDescriptor.getData()).andReturn(checksum);
 		replay(processingStepDescriptor);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId);
+		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false);
 
 		verifier.initialize(null, processingStepDescriptor, null);
 
@@ -93,7 +93,7 @@ public class ChecksumVerifierTest {
 		expect(artifactDescriptor.getProperties()).andReturn(properties);
 		replay(artifactDescriptor);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId);
+		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false);
 
 		verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
 
@@ -116,7 +116,7 @@ public class ChecksumVerifierTest {
 		expect(artifactDescriptor.getProperty(not(eq(artifactProperty)))).andReturn(null).times(1, 2);
 		replay(artifactDescriptor);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId);
+		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false);
 
 		verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
 

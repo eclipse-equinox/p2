@@ -70,7 +70,9 @@ public class MD5Verifier extends MessageDigestProcessingStep {
 	@Override
 	protected void onClose(String digestString) {
 		// if the hashes don't line up set the status to error.
-		if (!digestString.equals(expectedMD5))
+		if (!digestString.equals(expectedMD5)) {
 			setStatus(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_MD5_NOT_MATCH, NLS.bind(Messages.Error_unexpected_hash, expectedMD5, digestString), null));
+		}
+		setStatus(new Status(IStatus.WARNING, Activator.ID, Messages.MD5_deprecated));
 	}
 }

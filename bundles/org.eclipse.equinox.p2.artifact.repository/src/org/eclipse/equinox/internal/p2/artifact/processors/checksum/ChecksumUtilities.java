@@ -19,12 +19,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
@@ -43,8 +44,9 @@ public class ChecksumUtilities {
 	 * @throws IllegalArgumentException if property neither {@link IArtifactDescriptor#ARTIFACT_CHECKSUM} nor {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}
 	 * @see ChecksumHelper#getChecksums(IArtifactDescriptor, String)
 	 */
-	public static Collection<ProcessingStep> getChecksumVerifiers(IArtifactDescriptor descriptor, String property, Set<String> checksumsToSkip) throws IllegalArgumentException {
-		Collection<ProcessingStep> steps = new ArrayList<>();
+	public static Collection<ChecksumVerifier> getChecksumVerifiers(IArtifactDescriptor descriptor,
+			String property, Set<String> checksumsToSkip) throws IllegalArgumentException {
+		Collection<ChecksumVerifier> steps = new ArrayList<>();
 		Map<String, String> checksums = ChecksumHelper.getChecksums(descriptor, property);
 
 		IConfigurationElement[] checksumVerifierConfigurations = getChecksumComparatorConfigurations();
@@ -58,15 +60,23 @@ public class ChecksumUtilities {
 				if (checksumEntry.getKey().equals(checksumId)) {
 					String checksumAlgorithm = checksumVerifierConfiguration.getAttribute("algorithm"); //$NON-NLS-1$
 					String providerName = checksumVerifierConfiguration.getAttribute("providerName"); //$NON-NLS-1$
-					ChecksumVerifier checksumVerifier = new ChecksumVerifier(checksumAlgorithm, providerName, checksumId);
+					boolean insecure = Boolean.parseBoolean(checksumVerifierConfiguration.getAttribute("warnInsecure")); //$NON-NLS-1$
+					ChecksumVerifier checksumVerifier = new ChecksumVerifier(checksumAlgorithm, providerName, checksumId, insecure);
 					checksumVerifier.initialize(null, new ProcessingStepDescriptor(null, checksumEntry.getValue(), true), descriptor);
-					if (checksumVerifier.getStatus().isOK())
+					if (checksumVerifier.getStatus().isOK()) {
 						steps.add(checksumVerifier);
-					else
-						// TODO log something?
-						continue;
+					} else {
+						LogHelper.log(checksumVerifier.getStatus());
+					}
 				}
 			}
+		}
+
+		if (!steps.isEmpty() && steps.stream().allMatch(ChecksumVerifier::isInsecureAlgorithm)) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+					NLS.bind(Messages.onlyInsecureDigestAlgorithmUsed,
+							steps.stream().map(ChecksumVerifier::getAlgorithmId).collect(Collectors.joining(",")), //$NON-NLS-1$
+							descriptor.getArtifactKey())));
 		}
 
 		return steps;

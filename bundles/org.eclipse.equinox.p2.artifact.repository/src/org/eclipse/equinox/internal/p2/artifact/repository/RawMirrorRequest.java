@@ -20,7 +20,10 @@ import java.util.Collection;
 import java.util.Collections;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
+import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
@@ -57,7 +60,7 @@ public class RawMirrorRequest extends MirrorRequest {
 		}
 		IStatus status = transfer(targetDescriptor, sourceDescriptor, monitor);
 
-		// if ok, cancelled or transfer has already been done with the canonical form return with status set 
+		// if ok, cancelled or transfer has already been done with the canonical form return with status set
 		if (status.getSeverity() == IStatus.CANCEL) {
 			setResult(status);
 			return;
@@ -85,9 +88,13 @@ public class RawMirrorRequest extends MirrorRequest {
 	// Perform the mirror operation without any processing steps
 	@Override
 	protected IStatus getArtifact(IArtifactDescriptor artifactDescriptor, OutputStream destination, IProgressMonitor monitor) {
-
 		if (SimpleArtifactRepository.CHECKSUMS_ENABLED) {
-			Collection<ProcessingStep> steps = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor, IArtifactDescriptor.DOWNLOAD_CHECKSUM, Collections.emptySet());
+			Collection<ChecksumVerifier> steps = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor,
+					IArtifactDescriptor.DOWNLOAD_CHECKSUM, Collections.emptySet());
+			if (steps.isEmpty()) {
+				LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+						NLS.bind(Messages.noDigestAlgorithmToVerifyDownload, artifactDescriptor.getArtifactKey())));
+			}
 			ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 			// TODO should probably be using createAndLink here
 			ProcessingStepHandler handler = new ProcessingStepHandler();
