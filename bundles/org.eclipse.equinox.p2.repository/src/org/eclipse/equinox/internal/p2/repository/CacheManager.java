@@ -33,7 +33,7 @@ import org.eclipse.osgi.util.NLS;
 /**
  * A class to manage metadata cache files. Creating the cache files will place
  * the file in the AgentData location in a cache directory.
- * 
+ *
  * Using the bus listeners will allow the manager to listen for repository
  * events. When a repository is removed, it will remove the cache file if one
  * was created for the repository.
@@ -95,6 +95,7 @@ public class CacheManager {
 		if (!isURL(remoteFile)) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_CannotLoadNonUrlLocation, remoteFile), null));
 		}
+		checkLocationIsSecure(remoteFile);
 
 		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
 		try {
@@ -145,13 +146,13 @@ public class CacheManager {
 	/**
 	 * Returns a local cache file with the contents of the given remote location,
 	 * or <code>null</code> if a local cache could not be created.
-	 * 
+	 *
 	 * @param repositoryLocation The remote location to be cached
 	 * @param prefix The prefix to use when creating the cache file
 	 * @param monitor a progress monitor
 	 * @return A {@link File} object pointing to the cache file or <code>null</code>
 	 * if the location is not a repository.
-	 * @throws FileNotFoundException if neither jar nor xml index file exists at given location 
+	 * @throws FileNotFoundException if neither jar nor xml index file exists at given location
 	 * @throws AuthenticationFailedException if jar not available and xml causes authentication fail
 	 * @throws IOException on general IO errors
 	 * @throws ProvisionException on any error (e.g. user cancellation, unknown host, malformed address, connection refused, etc.)
@@ -161,7 +162,7 @@ public class CacheManager {
 		if (!isURL(repositoryLocation)) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_CannotLoadNonUrlLocation, repositoryLocation), null));
 		}
-
+		checkLocationIsSecure(repositoryLocation);
 		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
 		try {
 			knownPrefixes.add(prefix);
@@ -170,7 +171,7 @@ public class CacheManager {
 			URI xmlLocation = URIUtil.append(repositoryLocation, prefix + XML_EXTENSION);
 			int hashCode = computeHash(repositoryLocation);
 
-			// Knowing if cache is stale is complicated by the fact that a jar could have been 
+			// Knowing if cache is stale is complicated by the fact that a jar could have been
 			// produced after an xml index (and vice versa), and by the need to capture any
 			// errors, as these needs to be reported to the user as something meaningful - instead of
 			// just a general "can't read repository".
@@ -228,7 +229,7 @@ public class CacheManager {
 				// when checking for the jar may not be correct).
 				try {
 					lastModifiedRemote = getLastModified(xmlLocation, submonitor.newChild(1));
-					// if lastModifiedRemote is 0 - something is wrong in the communication stack, as 
+					// if lastModifiedRemote is 0 - something is wrong in the communication stack, as
 					// a FileNotFound exception should have been thrown.
 					// bug 269588 - server may return 0 when file exists - site is not correctly configured
 					if (lastModifiedRemote <= 0)
@@ -265,6 +266,12 @@ public class CacheManager {
 			return cacheFile;
 		} finally {
 			submonitor.done();
+		}
+	}
+
+	private void checkLocationIsSecure(URI repositoryLocation) {
+		if ("http".equals(repositoryLocation.getScheme())) { //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.unsafeHttp, repositoryLocation)));
 		}
 	}
 
@@ -405,7 +412,7 @@ public class CacheManager {
 		if (!downloadDir.exists())
 			downloadDir.mkdir();
 		File tempFile = new File(downloadDir, cacheFile.getName());
-		// Ensure that the file from a previous download attempt is removed 
+		// Ensure that the file from a previous download attempt is removed
 		if (tempFile.exists())
 			safeDelete(tempFile);
 
