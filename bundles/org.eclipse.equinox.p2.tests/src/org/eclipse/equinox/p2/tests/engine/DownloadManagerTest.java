@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,7 +17,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.engine.DownloadManager;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -177,7 +180,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
 		manager.add(requests);
 		IStatus result = manager.start(null);
-		assertTrue("1.0", result.isOK());
+		assertTrue(result.getMessage(), result.isOK());
 
 		// Right now the provisioning context adds these to the manager so
 		// we have to remove them so as not to affect other tests.
@@ -197,7 +200,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
 		manager.add(requests);
 		IStatus result = manager.start(null);
-		assertTrue("1.0", result.isOK());
+		assertTrue(result.getMessage(), result.isOK());
 
 		// Right now the provisioning context adds these to the manager so
 		// we have to remove them so as not to affect other tests.
@@ -224,7 +227,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
 		manager.add(requests);
 		IStatus result = manager.start(null);
-		assertTrue("1.0", result.isOK());
+		assertTrue(result.getMessage(), result.isOK());
 
 		// Right now the provisioning context adds these to the manager so
 		// we have to remove them so as not to affect other tests.
