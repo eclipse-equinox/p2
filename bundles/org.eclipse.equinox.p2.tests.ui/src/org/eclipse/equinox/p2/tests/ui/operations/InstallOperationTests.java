@@ -36,17 +36,19 @@ import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 public class InstallOperationTests extends AbstractProvisioningUITest {
 	public void testInstallerPlan() throws ProvisionException {
 		URI uri = getTestData("InstallHandler", "testData/installPlan").toURI();
-		Set<IInstallableUnit> ius = getMetadataRepositoryManager().loadRepository(uri, getMonitor()).query(QueryUtil.createIUQuery("A"), getMonitor()).toSet();
-		assertTrue("One IU", ius.size() == 1);
+		Set<IInstallableUnit> ius = getMetadataRepositoryManager().loadRepository(uri, getMonitor())
+				.query(QueryUtil.createIUQuery("A"), getMonitor()).toSet();
+		assertEquals("One IU", 1, ius.size());
 		InstallOperation op = new InstallOperation(getSession(), ius);
 		op.setProfileId(TESTPROFILE);
 		ProvisioningContext pc = new ProvisioningContext(getAgent());
-		pc.setArtifactRepositories(new URI[] {uri});
-		pc.setMetadataRepositories(new URI[] {uri});
+		pc.setArtifactRepositories(new URI[] { uri });
+		pc.setMetadataRepositories(new URI[] { uri });
 		op.setProvisioningContext(pc);
 		assertTrue("Should resolve", op.resolveModal(getMonitor()).isOK());
 		assertTrue("Should install", op.getProvisioningJob(null).runModal(getMonitor()).isOK());
-		assertFalse("Action1 should have been installed", getProfile(TESTPROFILE).query(QueryUtil.createIUQuery("Action1"), getMonitor()).isEmpty());
+		assertFalse("Action1 should have been installed",
+				getProfile(TESTPROFILE).query(QueryUtil.createIUQuery("Action1"), getMonitor()).isEmpty());
 	}
 
 	public void testDetectMissingRequirement() throws ProvisionException, OperationCanceledException {
@@ -59,35 +61,43 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 
 		repoA = getMetadataRepositoryManager().loadRepository(uriA, getMonitor());
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=305565
-		repoA.addReferences(Collections.singletonList(new RepositoryReference(uriA, null, IRepository.TYPE_ARTIFACT, IRepository.ENABLED)));
+		repoA.addReferences(Collections
+				.singletonList(new RepositoryReference(uriA, null, IRepository.TYPE_ARTIFACT, IRepository.ENABLED)));
 
 		// now create a second set of repos and refer from the first
 		repoB = getMetadataRepositoryManager().loadRepository(uriB, getMonitor());
-		repoB.addReferences(Collections.singletonList(new RepositoryReference(uriB, null, IRepository.TYPE_ARTIFACT, IRepository.ENABLED)));
-		repoA.addReferences(Collections.singletonList(new RepositoryReference(repoB.getLocation(), null, IRepository.TYPE_METADATA, IRepository.ENABLED)));
+		repoB.addReferences(Collections
+				.singletonList(new RepositoryReference(uriB, null, IRepository.TYPE_ARTIFACT, IRepository.ENABLED)));
+		repoA.addReferences(Collections.singletonList(
+				new RepositoryReference(repoB.getLocation(), null, IRepository.TYPE_METADATA, IRepository.ENABLED)));
 
 		// this repo is referred by the previous one
 		repoC = getMetadataRepositoryManager().loadRepository(uriC, getMonitor());
-		repoC.addReferences(Collections.singletonList(new RepositoryReference(uriC, null, IRepository.TYPE_ARTIFACT, IRepository.ENABLED)));
-		repoB.addReferences(Collections.singletonList(new RepositoryReference(repoC.getLocation(), null, IRepository.TYPE_METADATA, IRepository.ENABLED)));
+		repoC.addReferences(Collections
+				.singletonList(new RepositoryReference(uriC, null, IRepository.TYPE_ARTIFACT, IRepository.ENABLED)));
+		repoB.addReferences(Collections.singletonList(
+				new RepositoryReference(repoC.getLocation(), null, IRepository.TYPE_METADATA, IRepository.ENABLED)));
 
 		String id = "TestProfileIDForMissingRequirement";
 		createProfile(id);
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {repoA.getLocation()});
+		context.setMetadataRepositories(new URI[] { repoA.getLocation() });
 		context.setArtifactRepositories(new URI[0]);
-		IInstallableUnit[] units = repoA.query(QueryUtil.createIUQuery("A"), getMonitor()).toArray(IInstallableUnit.class);
+		IInstallableUnit[] units = repoA.query(QueryUtil.createIUQuery("A"), getMonitor())
+				.toArray(IInstallableUnit.class);
 		assertTrue("should find A in main repo", units.length > 0);
 
 		// NOW WE CAN TEST!
-		assertNull("ProvisioningContext does not follow by default", context.getProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES));
+		assertNull("ProvisioningContext does not follow by default",
+				context.getProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES));
 
 		InstallOperation op = new InstallOperation(getSession(), Collections.singleton(units[0]));
 		op.setProvisioningContext(context);
 		op.setProfileId(id);
 		assertTrue("Should resolve", op.resolveModal(getMonitor()).isOK());
 
-		assertNotNull("Context was reset to follow", context.getProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES));
+		assertNotNull("Context was reset to follow",
+				context.getProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES));
 
 		getArtifactRepositoryManager().removeRepository(uriA);
 		getArtifactRepositoryManager().removeRepository(uriB);
@@ -99,7 +109,7 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 	}
 
 	public void testUpdateWithNamespaceChange() {
-		//Create the IU that will be detected as an update
+		// Create the IU that will be detected as an update
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("NewB");
 		iud.setVersion(Version.create("1.0.0"));
@@ -110,14 +120,15 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 
 		Collection<IMatchExpression<IInstallableUnit>> updateExpression = new ArrayList<>();
 		updateExpression.add(matchExpression);
-		iud.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateExpression, IUpdateDescriptor.HIGH, (String) null, (URI) null));
+		iud.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateExpression, IUpdateDescriptor.HIGH,
+				(String) null, (URI) null));
 		IInstallableUnit newIUB = MetadataFactory.createInstallableUnit(iud);
 
-		//create the IU being updated
+		// create the IU being updated
 		IInstallableUnit installed = createIU("B");
 
-		//Setup the profile
-		installAsRoots(profile, new IInstallableUnit[] {installed}, true, createPlanner(), createEngine());
+		// Setup the profile
+		installAsRoots(profile, new IInstallableUnit[] { installed }, true, createPlanner(), createEngine());
 
 		List<IInstallableUnit> ius = new ArrayList<>();
 		ius.add(newIUB);
@@ -126,6 +137,7 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 
 		IStatus resolutionStatus = op.resolveModal(getMonitor());
 		assertEquals(IStatusCodes.PROFILE_CHANGE_ALTERED, ((MultiStatus) resolutionStatus).getChildren()[0].getCode());
-		assertEquals(IStatusCodes.ALTERED_IMPLIED_UPDATE, ((MultiStatus) (((MultiStatus) resolutionStatus).getChildren()[0])).getChildren()[0].getCode());
+		assertEquals(IStatusCodes.ALTERED_IMPLIED_UPDATE,
+				((MultiStatus) (((MultiStatus) resolutionStatus).getChildren()[0])).getChildren()[0].getCode());
 	}
 }

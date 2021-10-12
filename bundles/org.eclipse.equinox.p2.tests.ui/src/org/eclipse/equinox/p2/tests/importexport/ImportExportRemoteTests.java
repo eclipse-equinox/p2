@@ -78,7 +78,7 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 			try (InputStream input = new FileInputStream(testFile)) {
 				List<IUDetail> ius = importexportService.importP2F(input);
 				assertEquals("Exported the number of features is not expected.", 1, ius.size());
-				assertTrue("Exported feature is not expected.", iu.equals(ius.get(0).getIU()));
+				assertEquals("Exported feature is not expected.", iu, ius.get(0).getIU());
 				assertEquals("Exported the number of referred repositories is not expected.", 1,
 						ius.get(0).getReferencedRepositories().size());
 				assertEquals("Exported referred repository is not expected.", uri,
@@ -128,7 +128,7 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 			try (InputStream input = new FileInputStream(testFile)) {
 				List<IUDetail> ius = importexportService.importP2F(input);
 				assertEquals("Exported the number of features is not expected.", 1, ius.size());
-				assertTrue("Exported feature is not expected.", iu.equals(ius.get(0).getIU()));
+				assertEquals("Exported feature is not expected.", iu, ius.get(0).getIU());
 				assertEquals("Exported the number of referred repositories is not expected.", 1,
 						ius.get(0).getReferencedRepositories().size());
 				assertEquals("Exported referred repository is not expected.", uri,

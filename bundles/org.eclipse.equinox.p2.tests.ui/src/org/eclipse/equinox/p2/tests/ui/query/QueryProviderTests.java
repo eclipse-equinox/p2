@@ -40,12 +40,16 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		categoryProperties.put("org.eclipse.equinox.p2.type.category", "true");
 		HashMap<String, String> groupProperties = new HashMap<>();
 		groupProperties.put("org.eclipse.equinox.p2.type.group", "true");
-		category = createIU(CAT, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, NESTED), categoryProperties, true);
-		nestedCategory = createIU(NESTED, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, A), categoryProperties, true);
-		a = createIU(A, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, B), groupProperties, true);
-		b = createIU(B, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, C), groupProperties, true);
+		category = createIU(CAT, Version.create("1.0.0"),
+				createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, NESTED), categoryProperties, true);
+		nestedCategory = createIU(NESTED, Version.create("1.0.0"),
+				createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, A), categoryProperties, true);
+		a = createIU(A, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, B),
+				groupProperties, true);
+		b = createIU(B, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, C),
+				groupProperties, true);
 		c = createIU(C, Version.create("1.0.0"), NO_REQUIRES, NO_PROPERTIES, true);
-		testRepo = createTestMetdataRepository(new IInstallableUnit[] {category, nestedCategory, a, b, c});
+		testRepo = createTestMetdataRepository(new IInstallableUnit[] { category, nestedCategory, a, b, c });
 	}
 
 	public void testNestedCategories() {
@@ -69,8 +73,9 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 
 	public void testInstallDrilldown() {
 		IUElementListRoot root = new IUElementListRoot();
-		AvailableIUElement element = new AvailableIUElement(root, a, TESTPROFILE, getPolicy().getShowDrilldownRequirements());
-		root.setChildren(new Object[] {element});
+		AvailableIUElement element = new AvailableIUElement(root, a, TESTPROFILE,
+				getPolicy().getShowDrilldownRequirements());
+		root.setChildren(new Object[] { element });
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a);
 		InstallOperation op = new InstallOperation(getSession(), iusInvolved);
@@ -79,7 +84,7 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		IQueryable<IInstallableUnit> queryable = op.getProvisioningPlan().getAdditions();
 		element.setQueryable(queryable);
 		Object[] children = element.getChildren(element);
-		assertTrue("1.1", children.length == 1);
+		assertEquals("1.1", 1, children.length);
 	}
 
 }

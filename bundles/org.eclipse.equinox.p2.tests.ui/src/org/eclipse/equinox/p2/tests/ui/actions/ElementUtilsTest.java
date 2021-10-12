@@ -14,6 +14,8 @@
 
 package org.eclipse.equinox.p2.tests.ui.actions;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 	}
 
 	public void testInvalid() {
-		assertTrue(ElementUtils.elementsToIUs(getInvalidSelection()).size() == 0);
+		assertTrue(ElementUtils.elementsToIUs(getInvalidSelection()).isEmpty());
 	}
 
 	public void testIUs() {
@@ -47,7 +49,7 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 	}
 
 	public void testMixedIUsAndNonIUs() {
-		assertTrue(getMixedIUsAndNonIUs().length != ElementUtils.elementsToIUs(getMixedIUsAndNonIUs()).size());
+		assertNotEquals(getMixedIUsAndNonIUs().length, ElementUtils.elementsToIUs(getMixedIUsAndNonIUs()).size());
 	}
 
 	public void testMixedIUsAndElements() {
@@ -83,7 +85,7 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		URI uri3 = new URI("http://example.com/3");
 		manager.addRepository(uri3);
 
-		// Now update the repo using the elements.  
+		// Now update the repo using the elements.
 		// We expect known2 to get added because it was in the elements
 		// We expect uri3 to get removed (as if it had been removed from a pref page)
 		// System repos shouldn't be touched

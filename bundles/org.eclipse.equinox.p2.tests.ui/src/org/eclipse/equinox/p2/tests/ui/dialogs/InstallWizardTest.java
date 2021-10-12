@@ -52,10 +52,11 @@ public class InstallWizardTest extends WizardTest {
 		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, "true");
 		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setSingleton(true);
-		iu.setLicenses(new ILicense[] {new License(null, "There is a license to accept!", null)});
-		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
+		iu.setLicenses(new ILicense[] { new License(null, "There is a license to accept!", null) });
+		iu.setCapabilities(new IProvidedCapability[] {
+				MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion()) });
 		toInstall = MetadataFactory.createInstallableUnit(iu);
-		createTestMetdataRepository(new IInstallableUnit[] {toInstall});
+		createTestMetdataRepository(new IInstallableUnit[] { toInstall });
 	}
 
 	public void testInstallWizardResolved() {
@@ -79,7 +80,8 @@ public class InstallWizardTest extends WizardTest {
 			// we should be ok
 			assertTrue("1.1", page.isPageComplete());
 
-			// if another operation is scheduled for this profile, we should not be allowed to proceed
+			// if another operation is scheduled for this profile, we should not be allowed
+			// to proceed
 			longOp = getLongTestOperation();
 			getProvisioningUI().schedule(longOp, StatusManager.LOG);
 			// causes recalculation of plan and status
@@ -125,7 +127,8 @@ public class InstallWizardTest extends WizardTest {
 			// get the operation
 			Field opField = ResolutionResultsWizardPage.class.getDeclaredField("resolvedOperation");
 			opField.setAccessible(true);
-			assertTrue("Expected instance of MyNewInstallOperation", opField.get(page) instanceof MyNewInstallOperation);
+			assertTrue("Expected instance of MyNewInstallOperation",
+					opField.get(page) instanceof MyNewInstallOperation);
 		} finally {
 			dialog.getShell().close();
 			if (longOp != null)
@@ -154,7 +157,8 @@ public class InstallWizardTest extends WizardTest {
 
 			assertFalse("License page bypass flag must be false", wizard.isBypassLicensePage());
 			IWizardPage licensePage = installWizardPage.getNextPage();
-			assertTrue("Expected instance of AcceptLicensesWizardPage", licensePage instanceof AcceptLicensesWizardPage);
+			assertTrue("Expected instance of AcceptLicensesWizardPage",
+					licensePage instanceof AcceptLicensesWizardPage);
 
 		} finally {
 			dialog.getShell().close();
@@ -219,15 +223,17 @@ public class InstallWizardTest extends WizardTest {
 			AvailableIUsPage page1 = (AvailableIUsPage) wizard.getPage(AVAILABLE_SOFTWARE_PAGE);
 
 			// test initial wizard state
-			assertTrue("1.0", page1.getSelectedIUs().size() == 0);
+			assertTrue("1.0", page1.getSelectedIUs().isEmpty());
 			assertFalse("1.1", page1.isPageComplete());
 
 			// Start reaching in...
 			AvailableIUGroup group = page1.testGetAvailableIUGroup();
 			group.setRepositoryFilter(AvailableIUGroup.AVAILABLE_ALL, null);
-			// Now manipulate the tree itself.  we are reaching way in.
-			// We are trying to select everything in the repo apart from the IU we know is broken
-			DeferredQueryContentProvider provider = (DeferredQueryContentProvider) group.getCheckboxTreeViewer().getContentProvider();
+			// Now manipulate the tree itself. we are reaching way in.
+			// We are trying to select everything in the repo apart from the IU we know is
+			// broken
+			DeferredQueryContentProvider provider = (DeferredQueryContentProvider) group.getCheckboxTreeViewer()
+					.getContentProvider();
 			provider.setSynchronous(true);
 			group.getCheckboxTreeViewer().refresh();
 			group.getCheckboxTreeViewer().expandAll();
@@ -252,7 +258,8 @@ public class InstallWizardTest extends WizardTest {
 			dialog.showPage(page);
 			assertTrue("3.0", page.isPageComplete());
 
-			// if another operation is scheduled for this profile, we should not be allowed to proceed
+			// if another operation is scheduled for this profile, we should not be allowed
+			// to proceed
 			longOp = getLongTestOperation();
 			getProvisioningUI().schedule(longOp, StatusManager.LOG);
 			// causes recalculation of plan and status

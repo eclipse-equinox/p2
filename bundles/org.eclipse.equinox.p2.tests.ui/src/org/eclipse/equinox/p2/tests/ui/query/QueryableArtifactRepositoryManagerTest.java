@@ -50,7 +50,7 @@ public class QueryableArtifactRepositoryManagerTest extends AbstractQueryTest {
 		QueryableArtifactRepositoryManager manager = getQueryableManager();
 
 		IQueryResult<URI> result = manager.locationsQueriable().query(new RepositoryLocationQuery(), getMonitor());
-		assertTrue(queryResultSize(result) == repoCount);
+		assertEquals(repoCount, queryResultSize(result));
 	}
 
 	private QueryableArtifactRepositoryManager getQueryableManager() {

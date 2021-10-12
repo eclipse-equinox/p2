@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.importexport;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,16 +69,16 @@ public class ImportExportTests extends AbstractProvisioningTest {
 
 		try (InputStream input = new FileInputStream(p2fFile)) {
 			List<IUDetail> iuDetails = importexportService.importP2F(input);
-			assertTrue("Should load two features from the p2f file.", iuDetails.size() == 2);
+			assertEquals("Should load two features from the p2f file.", 2, iuDetails.size());
 			int counter = 0;
 			for (IUDetail iu : iuDetails) {
 				if ("org.polarion.eclipse.team.svn.connector.feature.group".equals(iu.getIU().getId())) {
 					counter++;
-					assertTrue("Should have two referred repository.", iu.getReferencedRepositories().size() == 2);
+					assertEquals("Should have two referred repository.", 2, iu.getReferencedRepositories().size());
 				} else if ("org.polarion.eclipse.team.svn.connector.svnkit16.feature.group"
 						.equals(iu.getIU().getId())) {
 					counter++;
-					assertTrue("Should have one referred repository", iu.getReferencedRepositories().size() == 1);
+					assertEquals("Should have one referred repository", 1, iu.getReferencedRepositories().size());
 				}
 			}
 			assertEquals("Load unexpected content.", 2, counter);
@@ -96,10 +98,8 @@ public class ImportExportTests extends AbstractProvisioningTest {
 		File p2fFile = getTestData("Error load test file.", "testData/importexport/incompatible.p2f");
 
 		try (InputStream input = new FileInputStream(p2fFile)) {
-			importexportService.importP2F(input);
-			assertTrue("Didn't complain the given file is not supported by current version.", false);
-		} catch (VersionIncompatibleException e) {
-			// expected
+			assertThrows("Didn't complain the given file is not supported by current version.",
+					VersionIncompatibleException.class, () -> importexportService.importP2F(input));
 		}
 	}
 
