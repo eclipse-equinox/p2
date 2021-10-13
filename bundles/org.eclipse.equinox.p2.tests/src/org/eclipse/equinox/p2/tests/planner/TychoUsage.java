@@ -1,15 +1,28 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.net.URISyntaxException;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.director.Projector;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -20,7 +33,9 @@ public class TychoUsage extends AbstractProvisioningTest {
 
 	private void setupTopLevelIU() {
 		IRequirement[] reqPlatform1 = new IRequirement[1];
-		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.emf.sdk.feature.group", new VersionRange("[2.7.2.v20120130-0943, 2.7.2.v20120130-0943]"), null, false, false, true);
+		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+				"org.eclipse.emf.sdk.feature.group", new VersionRange("[2.27.0.v20210816-1137, 2.27.0.v20210816-1137]"),
+				null, false, false, true);
 		Map<String, String> p = new HashMap<>();
 		topLevelIU = createIU("topLevelIU", Version.create("1.0.0"), null, reqPlatform1, new IProvidedCapability[0], p, null, null, true);
 	}
@@ -32,7 +47,7 @@ public class TychoUsage extends AbstractProvisioningTest {
 	}
 
 	public void testEquivalentP2Call() throws ProvisionException, URISyntaxException {
-		loadMetadataRepository(URIUtil.fromString("http://download.eclipse.org/releases/indigo"));
+		loadMetadataRepository(URIUtil.fromString("https://download.eclipse.org/releases/2021-09"));
 		profile = createProfile("TestProfile." + getName());
 		IProfileChangeRequest pcr = getPlanner(getAgent()).createChangeRequest(profile);
 		pcr.add(topLevelIU);
@@ -42,8 +57,11 @@ public class TychoUsage extends AbstractProvisioningTest {
 	}
 
 	public void testTychoUsage() throws ProvisionException, URISyntaxException {
-		IMetadataRepository repo = loadMetadataRepository(URIUtil.fromString("http://download.eclipse.org/releases/indigo"));
-		IInstallableUnit newRoot1 = repo.query(QueryUtil.createIUQuery("org.eclipse.emf.sdk.feature.group", Version.create("2.7.2.v20120130-0943")), new NullProgressMonitor()).iterator().next();
+		IMetadataRepository repo = loadMetadataRepository(
+				URIUtil.fromString("https://download.eclipse.org/releases/2021-09"));
+		IInstallableUnit newRoot1 = repo.query(
+				QueryUtil.createIUQuery("org.eclipse.emf.sdk.feature.group", Version.create("2.27.0.v20210816-1137")),
+				new NullProgressMonitor()).iterator().next();
 		Collection<IInstallableUnit> newRoots = new ArrayList<>();
 		newRoots.add(newRoot1);
 

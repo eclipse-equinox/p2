@@ -243,7 +243,6 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 
 	@Test
 	public void testPauseAndResumeMoreThanOnce() throws ProvisionException, InterruptedException {
-		//		URI repoLoc = URI.create("http://download.eclipse.org/releases/indigo");
 		URI repoLoc = getTestData("Load test data.", "/testData/pausefeature").toURI();
 		final PhaseSet phaseSet = (PhaseSet) PhaseSetFactory.createDefaultPhaseSet();
 		final int threhold = 3;

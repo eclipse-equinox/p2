@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ResumeDownloadTest extends AbstractProvisioningTest {
-	private static String UPDATE_SITE = "http://download.eclipse.org/eclipse/updates/3.4";
+	private static String UPDATE_SITE = "https://download.eclipse.org/eclipse/updates/4.21";
 	private IMetadataRepositoryManager mgr;
 	private URI repoLoc;
 	private String originalResumeProp;

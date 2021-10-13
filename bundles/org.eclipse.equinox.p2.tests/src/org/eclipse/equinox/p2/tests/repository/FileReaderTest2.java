@@ -201,7 +201,7 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 	}
 
 	private void doFileReaderTest(final PauseJob pauseJob, IProgressMonitor monitor) throws IOException, CoreException {
-		final String testRemoteFileURL = "http://download.eclipse.org/releases/photon/201806271001/content.jar";
+		final String testRemoteFileURL = "https://download.eclipse.org/releases/2021-09/202109151000/content.jar";
 		File tmpFolder = getTempFolder();
 		File tmpFile = new File(tmpFolder, "testDownloadPauseResume.zip");
 		File tmpFile1 = new File(tmpFolder, "testDownloadWithoutPause.zip");

@@ -16,20 +16,31 @@ package org.eclipse.equinox.p2.tests.updatesite;
 import java.io.File;
 import java.io.PrintStream;
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.IPublisherAction;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.MergeResultsAction;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
+import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
 /**
  * Tests for {@link org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction}.
@@ -88,7 +99,7 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 		assertEquals("1.0", 2, references.size());
 		boolean metadataFound = false, artifactFound = false;
 		for (IRepositoryReference ref : references) {
-			assertEquals("1.1", "http://download.eclipse.org/eclipse/updates/3.5", ref.getLocation().toString());
+			assertEquals("1.1", "https://download.eclipse.org/eclipse/updates/4.21", ref.getLocation().toString());
 			assertEquals("1.2", IRepository.ENABLED, ref.getOptions());
 			assertEquals("1.3", "Eclipse Project Update Site", ref.getNickname());
 
@@ -103,7 +114,8 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 
 	public void testMirrorsURL() {
 		String mirrorsURL = metadataRepository.getProperties().get(IRepository.PROP_MIRRORS_URL);
-		assertEquals("1.0", "http://www.eclipse.org/downloads/download.php?file=/eclipse/updates/3.4&format=xml", mirrorsURL);
+		assertEquals("1.0", "https://www.eclipse.org/downloads/download.php?file=/eclipse/updates/4.21&format=xml",
+				mirrorsURL);
 	}
 
 	public void testBundleInCategory() {

@@ -59,7 +59,7 @@ public class End2EndTest35 extends AbstractEnd2EndTest {
 
 	@Override
 	protected URI getRepositoryLocation() {
-		return URI.create("http://download.eclipse.org/eclipse/updates/3.5");
+		return URI.create("https://download.eclipse.org/eclipse/updates/3.5");
 	}
 
 	@Override

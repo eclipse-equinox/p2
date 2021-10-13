@@ -394,7 +394,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IInstallableUnit envIU = InstallableUnit.contextIU(env);
 
 		CompositeMetadataRepository compositeMetadataRepository = CompositeMetadataRepository.createMemoryComposite(getMetadataRepositoryManager().getAgent());
-		compositeMetadataRepository.addChild(new URI("http://download.eclipse.org/releases/galileo"));
+		compositeMetadataRepository.addChild(new URI("https://download.eclipse.org/releases/galileo"));
 		IMetadataRepository repo = compositeMetadataRepository;
 		IQueryResult<IInstallableUnit> r = repo.query(QueryUtil.createIUQuery("org.eclipse.sdk.ide"), new NullProgressMonitor());
 		IInstallableUnit[] roots = r.toArray(IInstallableUnit.class);

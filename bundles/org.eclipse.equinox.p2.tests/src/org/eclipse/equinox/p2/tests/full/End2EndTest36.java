@@ -17,7 +17,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 
 /**
@@ -59,7 +62,7 @@ public class End2EndTest36 extends AbstractEnd2EndTest {
 
 	@Override
 	protected URI getRepositoryLocation() {
-		return URI.create("http://download.eclipse.org/eclipse/updates/3.6");
+		return URI.create("https://download.eclipse.org/eclipse/updates/3.6");
 	}
 
 	@Override

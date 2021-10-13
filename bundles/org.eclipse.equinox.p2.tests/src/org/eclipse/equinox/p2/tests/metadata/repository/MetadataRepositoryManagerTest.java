@@ -505,9 +505,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 			getEventBus().removeListener(referenceCollector);
 		}
 		assertEquals("1.0", 4, references.size());
-		assertTrue("1.1", references.contains(new URI("http://download.eclipse.org/url/with/spaces/a%20b")));
+		assertTrue("1.1", references.contains(new URI("https://download.eclipse.org/url/with/spaces/a%20b")));
 		assertTrue("1.2", references.contains(new URI("file:/c:/tmp/url%20with%20spaces/")));
-		assertTrue("1.3", references.contains(new URI("http://download.eclipse.org/uri/with/spaces/a%20b")));
+		assertTrue("1.3", references.contains(new URI("https://download.eclipse.org/uri/with/spaces/a%20b")));
 		assertTrue("1.4", references.contains(new URI("file:/c:/tmp/uri%20with%20spaces/")));
 	}
 

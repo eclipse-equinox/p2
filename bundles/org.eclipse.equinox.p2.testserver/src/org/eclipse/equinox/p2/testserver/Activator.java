@@ -45,9 +45,9 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<Http
 	private AlwaysFailContext alwaysFail;
 	private FlipFlopFailContext flipFlop;
 
-	private static final String SITE = "http://download.eclipse.org/eclipse/updates/3.4"; //$NON-NLS-1$
-	private static final String SITE2 = "http://www.eclipse.org/equinox/p2/testing/updateSite"; //$NON-NLS-1$
-	private static final String SITE3 = "http://download.eclipse.org/eclipse/updates/3.5-I-builds/"; //$NON-NLS-1$
+	private static final String SITE = "https://download.eclipse.org/eclipse/updates/3.4"; //$NON-NLS-1$
+	private static final String SITE2 = "https://www.eclipse.org/equinox/p2/testing/updateSite"; //$NON-NLS-1$
+	private static final String SITE3 = "https://download.eclipse.org/eclipse/updates/3.5-I-builds/"; //$NON-NLS-1$
 
 	@Override
 	public void start(BundleContext aContext) throws Exception {

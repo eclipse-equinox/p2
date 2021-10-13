@@ -35,7 +35,7 @@ public class ProvisioningAgentTest extends AbstractProvisioningTest {
 	 * @throws URISyntaxException
 	 */
 	public void testMultipleAgents() throws ProvisionException, URISyntaxException {
-		URI repoLocation = new URI("http://download.eclipse.org/eclipse/updates/3.6");
+		URI repoLocation = new URI("https://download.eclipse.org/eclipse/updates/latest");
 		URI p2location = getTempFolder().toURI();
 		String PROFILE_ID = "testMultipleAgents";
 

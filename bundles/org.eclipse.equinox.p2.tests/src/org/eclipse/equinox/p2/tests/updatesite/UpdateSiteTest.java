@@ -711,8 +711,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	public void _testFeatureSiteReferences() throws ProvisionException, URISyntaxException {
 		File site = getTestData("0.1", "/testData/updatesite/siteFeatureReferences");
 		URI siteURI = site.toURI();
-		URI testUpdateSite = new URI("http://download.eclipse.org/test/updatesite/");
-		URI testDiscoverySite = new URI("http://download.eclipse.org/test/discoverysite");
+		URI testUpdateSite = new URI("https://download.eclipse.org/test/updatesite/");
+		URI testDiscoverySite = new URI("https://download.eclipse.org/test/discoverysite");
 
 		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(manager);

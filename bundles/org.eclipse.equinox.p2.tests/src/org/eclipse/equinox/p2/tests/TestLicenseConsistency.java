@@ -27,13 +27,14 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 /**
- * Tests that licenses in the indigo repository are consistent with the platform feature license.
- * Note this test isn't intended to be included in automated tests. It produces a report
- * on stdout that can be used to identify features with inconsistent feature licenses.
+ * Tests that licenses in the latest release repository are consistent with the
+ * platform feature license. Note this test isn't intended to be included in
+ * automated tests. It produces a report on stdout that can be used to identify
+ * features with inconsistent feature licenses.
  */
 public class TestLicenseConsistency extends AbstractProvisioningTest {
 	public void testLicenses() throws URISyntaxException, ProvisionException, OperationCanceledException {
-		URI repoLocation = new URI("http://download.eclipse.org/releases/indigo/201103180900");
+		URI repoLocation = new URI("https://download.eclipse.org/releases/latest");
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(repoLocation, null);
 		IQueryResult<IInstallableUnit> allFeatures = repo.query(QueryUtil.createIUGroupQuery(), null);
 		IQueryResult<IInstallableUnit> platform = allFeatures.query(QueryUtil.createIUQuery("org.eclipse.platform.feature.group"), null);

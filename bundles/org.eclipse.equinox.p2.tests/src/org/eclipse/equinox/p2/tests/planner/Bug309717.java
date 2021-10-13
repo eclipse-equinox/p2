@@ -32,7 +32,8 @@ public class Bug309717 extends AbstractProvisioningTest {
 	public void testUpdate() throws ProvisionException, OperationCanceledException, URISyntaxException {
 		IProvisioningAgent agent = getAgentProvider().createAgent(getTestData("test data bug309717", "testData/bug309717/p2").toURI());
 
-		IMetadataRepository repo1 = agent.getService(IMetadataRepositoryManager.class).loadRepository(new URI("http://download.eclipse.org/releases/helios"), null);
+		IMetadataRepository repo1 = agent.getService(IMetadataRepositoryManager.class)
+				.loadRepository(new URI("https://download.eclipse.org/releases/2021-09"), null);
 		// assertFalse(repo1.query(QueryUtil.createIUQuery("org.eclipse.rap.jface.databinding"), new NullProgressMonitor()).isEmpty());
 		assertNotNull(repo1);
 
@@ -42,21 +43,13 @@ public class Bug309717 extends AbstractProvisioningTest {
 		URI jdojo = getTestData("repo for bug309717", "testData/bug309717/repo/jdojo").toURI();
 		IMetadataRepository repo3 = agent.getService(IMetadataRepositoryManager.class).loadRepository(jdojo, null);
 		assertNotNull(repo3);
-		IMetadataRepository repo4 = agent.getService(IMetadataRepositoryManager.class).loadRepository(new URI("http://download.eclipse.org/eclipse/updates/3.6"), null);
+		IMetadataRepository repo4 = agent.getService(IMetadataRepositoryManager.class)
+				.loadRepository(new URI("https://download.eclipse.org/eclipse/updates/4.21"), null);
 		// assertFalse(repo1.query(QueryUtil.createIUQuery("org.eclipse.rap.jface.databinding"), new NullProgressMonitor()).isEmpty());
 		assertNotNull(repo4);
 		IPlanner planner = getPlanner(agent);
 		IProfile profile = agent.getService(IProfileRegistry.class).getProfile("PlatformProfile");
 		IProfileChangeRequest request = planner.createChangeRequest(profile);
 		assertNotNull(request);
-		//		Set<IInstallableUnit> ius = repo2.query(QueryUtil.createIUQuery("org.eclipse.riena.toolbox.feature.feature.group", Version.create("2.0.0.201003181312")), new NullProgressMonitor()).toUnmodifiableSet();
-		//		request.addAll(ius);
-		//		ProvisioningContext ctx = new ProvisioningContext(getAgent());
-		//		ctx.setMetadataRepositories(new URI[] {new URI("http://download.eclipse.org/releases/helios"), rienaRepo});
-		//		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
-		//
-		//		assertOK("resolution failed", plan.getStatus());
-		//		assertEquals(0, plan.getAdditions().query(QueryUtil.createIUQuery("org.eclipse.rap.jface.databinding"), new NullProgressMonitor()).toUnmodifiableSet().size());
-		//		System.out.println(plan);
 	}
 }

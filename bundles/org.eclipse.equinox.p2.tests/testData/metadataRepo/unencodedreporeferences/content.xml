@@ -2,9 +2,9 @@
 <?metadataRepository class='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'?>
 <repository name='update site: file:/C:/1target/provmiddle/org.eclipse.equinox.p2.tests/testData/updatesite/site' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
   <references size='4'>
-    <repository url='http://download.eclipse.org/url/with/spaces/a b' type='0' options='0'/>
+    <repository url='https://download.eclipse.org/url/with/spaces/a b' type='0' options='0'/>
     <repository url='file:/c:/tmp/url with spaces/' type='1' options='0'/>
-    <repository uri='http://download.eclipse.org/uri/with/spaces/a%20b' type='0' options='0'/>
+    <repository uri='https://download.eclipse.org/uri/with/spaces/a%20b' type='0' options='0'/>
     <repository uri='file:/c:/tmp/uri%20with%20spaces/' type='1' options='0'/>
   </references>
   <properties size='3'>
