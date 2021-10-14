@@ -110,7 +110,12 @@ public class SimpleBackupStoreTest extends AbstractProvisioningTest {
 					super.move(a, b);
 				}
 				// Everything else - fail
-				else {
+				else if (a.getFileName().endsWith("eclipse.exe")) {
+					// Simulate what happens on Windows when moving a running executable between
+					// drives. In this case the file will be copied to the target but will not be
+					// removed from the source.
+					Files.copy(a, b);
+				} else {
 					throw new IOException("Test fail move: " + a + " -> " + b);
 				}
 			}

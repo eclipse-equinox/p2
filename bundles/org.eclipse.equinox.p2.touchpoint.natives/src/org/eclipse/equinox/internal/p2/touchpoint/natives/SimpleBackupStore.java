@@ -587,14 +587,15 @@ public class SimpleBackupStore implements IBackupStore {
 					NLS.bind(Messages.BackupStore_file_directory_mismatch, buPathDir.toAbsolutePath()), e);
 		}
 
-		try {
-			move(path, buPath);
-		} catch (IOException e) {
-			// TODO Log exception?
-			if (!isEclipseExe(path)) {
-				throw e;
-			}
-
+		move(path, buPath);
+		if (isEclipseExe(path) && Files.isRegularFile(path)) {
+			// The original is the launcher executable and it still exists at the original
+			// location although the move succeeded.
+			// This happens when it is the Windows executable that is locked because it's
+			// running and we are attempting to move it to a different drive.
+			// In this case the target will exist as a copy, so we should delete it.
+			// Then backup in place which will necessarily be on the same drive.
+			Files.delete(buPath);
 			Path inPlaceBuPath = toInPlaceBackupPath(path);
 			move(path, inPlaceBuPath);
 			buInPlace.add(inPlaceBuPath);
