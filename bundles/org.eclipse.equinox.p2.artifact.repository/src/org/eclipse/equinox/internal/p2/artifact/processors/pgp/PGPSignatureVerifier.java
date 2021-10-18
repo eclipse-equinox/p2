@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.artifact.processors.pgp;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
@@ -40,7 +39,38 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 	 */
 	public static final String ID = "org.eclipse.equinox.p2.processing.PGPSignatureCheck"; //$NON-NLS-1$
 
-	private static Map<Long, PGPPublicKey> knownKeys = new HashMap<>();
+	public static class PGPPublicKeyStore {
+		private Map<Long, PGPPublicKey> keys = new HashMap<>();
+
+		public PGPPublicKey addKey(PGPPublicKey key) {
+			if (key == null) {
+				return null;
+			}
+			PGPPublicKey alreadyStoredKey = keys.putIfAbsent(key.getKeyID(), key);
+			return alreadyStoredKey == null ? key : alreadyStoredKey;
+		}
+
+		public PGPPublicKey getKey(long id) {
+			return keys.get(id);
+		}
+
+		public void addKeys(String... armoredPublicKeys) {
+			for (String armoredKey : armoredPublicKeys) {
+				if (armoredKey != null) {
+					readPublicKeys(armoredKey).forEach(this::addKey);
+				}
+			}
+		}
+
+		/**
+		 * Test only
+		 */
+		public void clear() {
+			keys.clear();
+		}
+	}
+
+	public static final PGPPublicKeyStore keystore = new PGPPublicKeyStore();
 
 	public static final String PGP_SIGNER_KEYS_PROPERTY_NAME = "pgp.publicKeys"; //$NON-NLS-1$
 	public static final String PGP_SIGNATURES_PROPERTY_NAME = "pgp.signatures"; //$NON-NLS-1$
@@ -51,7 +81,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		link(nullOutputStream(), new NullProgressMonitor()); // this is convenience for tests
 	}
 
-	private static Collection<PGPSignature> getSignatures(IArtifactDescriptor artifact)
+	public static Collection<PGPSignature> getSignatures(IArtifactDescriptor artifact)
 			throws IOException, PGPException {
 		String signatureText = unnormalizedPGPProperty(artifact.getProperty(PGP_SIGNATURES_PROPERTY_NAME));
 		if (signatureText == null) {
@@ -97,10 +127,10 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		}
 
 		IArtifactRepository repository = context.getRepository();
-		knownKeys.putAll(readPublicKeys(context.getProperty(PGP_SIGNER_KEYS_PROPERTY_NAME),
-				repository != null ? repository.getProperty(PGP_SIGNER_KEYS_PROPERTY_NAME) : null));
+		keystore.addKeys(context.getProperty(PGP_SIGNER_KEYS_PROPERTY_NAME),
+				repository != null ? repository.getProperty(PGP_SIGNER_KEYS_PROPERTY_NAME) : null);
 		for (PGPSignature signature : signaturesToVerify) {
-			PGPPublicKey publicKey = knownKeys.get(signature.getKeyID());
+			PGPPublicKey publicKey = keystore.getKey(signature.getKeyID());
 			if (publicKey == null) {
 				setStatus(new Status(IStatus.ERROR, Activator.ID,
 						NLS.bind(Messages.Error_publicKeyNotFound, signature.getKeyID())));
@@ -119,50 +149,37 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 	 * See // https://www.w3.org/TR/1998/REC-xml-19980210#AVNormalize, newlines
 	 * replaced by spaces by parser, needs to be restored
 	 *
-	 * @param context
-	 * @param pgpSignaturesPropertyName
+	 * @param armoredPGPBlock the PGP block, in armored form
 	 * @return fixed PGP armored blocks
 	 */
-	private static String unnormalizedPGPProperty(String value) {
-		if (value == null) {
+	private static String unnormalizedPGPProperty(String armoredPGPBlock) {
+		if (armoredPGPBlock == null) {
 			return null;
 		}
-		if (value.contains("\n") || value.contains("\r")) { //$NON-NLS-1$ //$NON-NLS-2$
-			return value;
+		if (armoredPGPBlock.contains("\n") || armoredPGPBlock.contains("\r")) { //$NON-NLS-1$ //$NON-NLS-2$
+			return armoredPGPBlock;
 		}
-		return value.replace(' ', '\n').replace("-----BEGIN\nPGP\nSIGNATURE-----", "-----BEGIN PGP SIGNATURE-----") //$NON-NLS-1$ //$NON-NLS-2$
+		return armoredPGPBlock.replace(' ', '\n')
+				.replace("-----BEGIN\nPGP\nSIGNATURE-----", "-----BEGIN PGP SIGNATURE-----") //$NON-NLS-1$ //$NON-NLS-2$
 				.replace("-----END\nPGP\nSIGNATURE-----", "-----END PGP SIGNATURE-----") //$NON-NLS-1$ //$NON-NLS-2$
 				.replace("-----BEGIN\nPGP\nPUBLIC\nKEY\nBLOCK-----", "-----BEGIN PGP PUBLIC KEY BLOCK-----") //$NON-NLS-1$ //$NON-NLS-2$
 				.replace("-----END\nPGP\nPUBLIC\nKEY\nBLOCK-----", "-----END PGP PUBLIC KEY BLOCK-----"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private static Map<Long, PGPPublicKey> readPublicKeys(String armoredPublicKeyring) {
+	public static Set<PGPPublicKey> readPublicKeys(String armoredPublicKeyring) {
 		if (armoredPublicKeyring == null) {
-			return Collections.emptyMap();
+			return Set.of();
 		}
-		Map<Long, PGPPublicKey> res = new HashMap<>();
+		Set<PGPPublicKey> res = new HashSet<>();
 		try (InputStream stream = PGPUtil
 				.getDecoderStream(new ByteArrayInputStream(unnormalizedPGPProperty(armoredPublicKeyring).getBytes()))) {
 			PGPPublicKeyRingCollection pgpPub = new BcPGPPublicKeyRingCollection(stream);
-
-			pgpPub.getKeyRings().forEachRemaining(kRing ->
-				kRing.getPublicKeys().forEachRemaining(key -> res.put(key.getKeyID(), key))
-			);
+			pgpPub.getKeyRings().forEachRemaining(kRing -> kRing.getPublicKeys().forEachRemaining(res::add));
 		} catch (IOException | PGPException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 		}
 		return res;
 
-	}
-
-	private Map<Long, PGPPublicKey> readPublicKeys(String... armoredPublicKeys) {
-		Map<Long, PGPPublicKey> keys = new HashMap<>();
-		for (String armoredKey : armoredPublicKeys) {
-			if (armoredKey != null) {
-				keys.putAll(readPublicKeys(armoredKey));
-			}
-		}
-		return keys;
 	}
 
 	@Override
@@ -213,20 +230,4 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		setStatus(Status.OK_STATUS);
 	}
 
-	public static Collection<PGPPublicKey> getSigners(IArtifactDescriptor artifact) {
-		try {
-			return getSignatures(artifact).stream() //
-					.mapToLong(PGPSignature::getKeyID) //
-					.mapToObj(Long::valueOf) //
-					.map(knownKeys::get) //
-					.filter(Objects::nonNull).collect(Collectors.toSet());
-		} catch (IOException | PGPException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
-			return Collections.emptyList();
-		}
-	}
-
-	public static void discardKnownKeys() {
-		knownKeys.clear();
-	}
 }

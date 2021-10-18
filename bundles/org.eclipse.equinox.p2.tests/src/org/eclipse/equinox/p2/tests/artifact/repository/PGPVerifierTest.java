@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PGPTest extends AbstractProvisioningTest {
+public class PGPVerifierTest extends AbstractProvisioningTest {
 	IArtifactRepository targetRepo = null;
 	IArtifactRepository sourceRepo = null;
 
@@ -30,13 +30,13 @@ public class PGPTest extends AbstractProvisioningTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		PGPSignatureVerifier.discardKnownKeys();
+		PGPSignatureVerifier.keystore.clear();
 	}
 
 	private void loadPGPTestRepo(String repoName) throws Exception {
 		sourceRepo = getArtifactRepositoryManager().loadRepository(
 				getTestData("Test repository for PGP", "testData/pgp/" + repoName).toURI(), new NullProgressMonitor());
-		targetRepo = createArtifactRepository(Files.createTempDirectory(PGPTest.class.getSimpleName()).toUri(),
+		targetRepo = createArtifactRepository(Files.createTempDirectory(PGPVerifierTest.class.getSimpleName()).toUri(),
 				NO_PROPERTIES);
 	}
 
