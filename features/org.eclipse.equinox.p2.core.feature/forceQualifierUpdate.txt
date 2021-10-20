@@ -22,3 +22,4 @@ Bug 553238 - Unanticipated comparator errors in I20191119-1800
 Bug 477007 - Do not use whitespace in XML
 Bug 574602 - Eclipse 4.21 prerequisites: Orbit
 Bug 574602 - Eclipse 4.21 prerequisites: Orbit
+Bug 576389 - Touch bundle for org.bouncycastle.bcprov version update
