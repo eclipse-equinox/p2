@@ -28,13 +28,7 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.UIServices;
-import org.eclipse.equinox.p2.engine.IEngine;
-import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-import org.eclipse.equinox.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -287,37 +281,40 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testPGPSignedArtifactTrustedKeyInInstalledIU() throws ProvisionException, IOException {
-		try {
-			// create a test profile
-			testAgent.registerService("FORCED_SELF", IProfileRegistry.SELF);
-			testAgent
-					.registerService(IAgentLocation.SERVICE_NAME,
-							new AgentLocation(Files.createTempDirectory(
-									CertificateCheckerTest.class.getName() + "testPGPSignedArtifactTrustedKey-profile")
-									.toUri()));
-			IProfile testProfile = testAgent.getService(IProfileRegistry.class).addProfile(IProfileRegistry.SELF);
-			// install an IU that declares trusted keys
-			InstallableUnitDescription desc = new InstallableUnitDescription();
-			desc.setProperty(CertificateChecker.TRUSTED_KEY_STORE_PROPERTY, PGP_PUBLIC_KEY);
-			desc.setId("unitWithTrustedKeys");
-			desc.setVersion(Version.create("1.0.0"));
-			IEngine engine = testAgent.getService(IEngine.class);
-			IProvisioningPlan plan = engine.createPlan(testProfile, new ProvisioningContext(testAgent));
-			plan.addInstallableUnit(MetadataFactory.createInstallableUnit(desc));
-			assertTrue(engine.perform(plan, getMonitor()).isOK());
-
-			unsigned = TestData.getFile("pgp/repoPGPOK/plugins", "blah_1.0.0.123456.jar");
-			ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(
-					new ArtifactKey("what", "ever", Version.create("1")));
-			artifactDescriptor.addProperties(Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME, PGP_SIGNATURE));
-			checker.add(Map.of(artifactDescriptor, unsigned));
-			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
-			IStatus result = checker.start();
-			assertTrue(result.isOK());
-			assertFalse(serviceUI.wasPrompted);
-		} finally {
-			System.getProperties().remove(EngineActivator.PROP_UNSIGNED_POLICY);
-		}
-	}
+	//// SECURITY ISSUE: next lines become an attack vector as we have no guarantee
+	//// the metadata of those IUs is safe/were signed.
+	//// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576705#c4
+//	public void testPGPSignedArtifactTrustedKeyInInstalledIU() throws ProvisionException, IOException {
+//		try {
+//			// create a test profile
+//			testAgent.registerService("FORCED_SELF", IProfileRegistry.SELF);
+//			testAgent
+//					.registerService(IAgentLocation.SERVICE_NAME,
+//							new AgentLocation(Files.createTempDirectory(
+//									CertificateCheckerTest.class.getName() + "testPGPSignedArtifactTrustedKey-profile")
+//									.toUri()));
+//			IProfile testProfile = testAgent.getService(IProfileRegistry.class).addProfile(IProfileRegistry.SELF);
+//			// install an IU that declares trusted keys
+//			InstallableUnitDescription desc = new InstallableUnitDescription();
+//			desc.setProperty(CertificateChecker.TRUSTED_KEY_STORE_PROPERTY, PGP_PUBLIC_KEY);
+//			desc.setId("unitWithTrustedKeys");
+//			desc.setVersion(Version.create("1.0.0"));
+//			IEngine engine = testAgent.getService(IEngine.class);
+//			IProvisioningPlan plan = engine.createPlan(testProfile, new ProvisioningContext(testAgent));
+//			plan.addInstallableUnit(MetadataFactory.createInstallableUnit(desc));
+//			assertTrue(engine.perform(plan, getMonitor()).isOK());
+//
+//			unsigned = TestData.getFile("pgp/repoPGPOK/plugins", "blah_1.0.0.123456.jar");
+//			ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(
+//					new ArtifactKey("what", "ever", Version.create("1")));
+//			artifactDescriptor.addProperties(Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME, PGP_SIGNATURE));
+//			checker.add(Map.of(artifactDescriptor, unsigned));
+//			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
+//			IStatus result = checker.start();
+//			assertTrue(result.isOK());
+//			assertFalse(serviceUI.wasPrompted);
+//		} finally {
+//			System.getProperties().remove(EngineActivator.PROP_UNSIGNED_POLICY);
+//		}
+//	}
 }
