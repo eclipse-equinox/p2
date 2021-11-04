@@ -133,7 +133,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 			PGPPublicKey publicKey = keystore.getKey(signature.getKeyID());
 			if (publicKey == null) {
 				setStatus(new Status(IStatus.ERROR, Activator.ID,
-						NLS.bind(Messages.Error_publicKeyNotFound, signature.getKeyID())));
+						NLS.bind(Messages.Error_publicKeyNotFound, Long.toHexString(signature.getKeyID()))));
 				return;
 			}
 			try {

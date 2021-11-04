@@ -187,7 +187,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 				} else if (o instanceof PGPPublicKey) {
 					PGPPublicKey key = (PGPPublicKey) o;
 					destination.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
-					destination.setFileName(key.getKeyID() + ".asc"); //$NON-NLS-1$
+					destination.setFileName(Long.toHexString(key.getKeyID()) + ".asc"); //$NON-NLS-1$
 					String path = destination.open();
 					if (path == null) {
 						return;
@@ -229,7 +229,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		TableViewerColumn idColumn = new TableViewerColumn(listViewer, SWT.NONE);
 		idColumn.getColumn().setWidth(200);
 		idColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_Id);
-		idColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(key -> Long.toString(key.getKeyID()),
+		idColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(key -> Long.toHexString(key.getKeyID()),
 				cert -> cert.getSerialNumber().toString()));
 		TableViewerColumn signerColumn = new TableViewerColumn(listViewer, SWT.NONE);
 		signerColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_Name);

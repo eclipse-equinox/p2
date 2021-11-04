@@ -164,7 +164,7 @@ public class CertificateChecker {
 		if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED && !untrustedPGPKeys.isEmpty()) {
 			StringBuilder message = new StringBuilder("The following PGP Keys are untrusted:\n"); //$NON-NLS-1$
 			for (PGPPublicKey untrustedKey : untrustedPGPKeys) {
-				message.append(untrustedKey.getKeyID() + "\n"); //$NON-NLS-1$
+				message.append(Long.toHexString(untrustedKey.getKeyID()) + "\n"); //$NON-NLS-1$
 				message.append("  used by the following artifacts:\n"); //$NON-NLS-1$
 				for (Entry<IArtifactDescriptor, Collection<PGPPublicKey>> entry : untrustedPGPArtifacts.entrySet()) {
 					if (entry.getValue().stream().anyMatch(signer -> signer.getKeyID() == untrustedKey.getKeyID())) {
