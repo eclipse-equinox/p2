@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.p2.ui.sdk;singleton:=true
-Bundle-Version: 1.2.1.qualifier
+Bundle-Version: 1.2.2.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -12,8 +12,11 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
  org.eclipse.core.runtime,
  org.eclipse.equinox.p2.ui;bundle-version="2.6.0"
 Import-Package: javax.xml.parsers,
+ org.bouncycastle.bcpg;version="1.69.0",
+ org.bouncycastle.openpgp;version="1.69.0",
  org.eclipse.compare;resolution:=optional,
  org.eclipse.compare.structuremergeviewer;resolution:=optional,
+ org.eclipse.equinox.internal.p2.engine.phases,
  org.eclipse.equinox.p2.core;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.engine;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.engine.query;version="[2.0.0,3.0.0)",

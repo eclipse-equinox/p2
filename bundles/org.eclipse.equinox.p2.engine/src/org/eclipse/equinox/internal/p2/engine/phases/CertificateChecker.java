@@ -114,7 +114,7 @@ public class CertificateChecker {
 					Collection<PGPSignature> signatures = PGPSignatureVerifier.getSignatures(artifact.getKey());
 					if (!signatures.isEmpty()) {
 						if (trustedKeys == null) {
-							trustedKeys = buildTrustore();
+							trustedKeys = buildPGPTrustore();
 						}
 						if (trustedKeysIds.isEmpty() && !trustedKeys.isEmpty()) {
 							trustedKeysIds.addAll(trustedKeys.stream()
@@ -286,7 +286,7 @@ public class CertificateChecker {
 		artifacts.putAll(toAdd);
 	}
 
-	private Set<PGPPublicKey> buildTrustore() {
+	public Set<PGPPublicKey> buildPGPTrustore() {
 		IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
 		Set<PGPPublicKey> store = new HashSet<>(
 				PGPSignatureVerifier.readPublicKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY)));

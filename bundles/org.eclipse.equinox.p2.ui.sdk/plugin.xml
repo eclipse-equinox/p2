@@ -22,6 +22,14 @@
             <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </page>
 
+       <page
+            name="%trustPrefPage"
+            category="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"
+            class="org.eclipse.equinox.internal.p2.ui.sdk.TrustPreferencePage"
+            id="org.eclipse.equinox.internal.p2.ui.sdk.TrustPreferencePage">
+            <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.trust"/>
+      </page>
+
    </extension>
 
       <extension
@@ -29,6 +37,10 @@
       <keyword
             label="%preferenceKeywords.general"
             id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
+      <keyword
+            id="org.eclipse.equinox.p2.ui.sdk.updates.trust"
+            label="%preferenceKeywords.trust">
+      </keyword>
       </extension>
 
 

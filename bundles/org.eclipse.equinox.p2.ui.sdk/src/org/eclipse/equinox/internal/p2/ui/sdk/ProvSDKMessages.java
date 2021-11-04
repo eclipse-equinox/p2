@@ -50,5 +50,11 @@ public class ProvSDKMessages extends NLS {
 	public static String UpdateHandler_ProgressTaskName;
 	public static String RemediationOperation_ResolveJobName;
 	public static String RemediationOperation_ResolveJobTask;
+	public static String TrustPreferencePage_title;
+	public static String TrustPreferencePage_export;
+	public static String TrustPreferencePage_idColumn;
+	public static String TrustPreferencePage_userColumn;
+	public static String TrustPreferencePage_fileExportTitle;
+	public static String TrustPreferencePage_pgpIntro;
 
 }

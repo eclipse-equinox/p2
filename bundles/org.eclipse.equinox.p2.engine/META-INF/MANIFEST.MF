@@ -14,7 +14,7 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;
    org.eclipse.equinox.p2.ui.sdk.scheduler,
    org.eclipse.pde.build,
    org.eclipse.equinox.p2.director.app",
- org.eclipse.equinox.internal.p2.engine.phases;x-friends:="org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.repository.tools,org.eclipse.equinox.p2.ui.sdk.scheduler,org.eclipse.equinox.p2.touchpoint.eclipse",
+ org.eclipse.equinox.internal.p2.engine.phases;x-friends:="org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.repository.tools,org.eclipse.equinox.p2.ui.sdk,org.eclipse.equinox.p2.ui.sdk.scheduler,org.eclipse.equinox.p2.touchpoint.eclipse",
  org.eclipse.equinox.p2.engine;version="2.2.0",
  org.eclipse.equinox.p2.engine.query;version="2.0.0",
  org.eclipse.equinox.p2.engine.spi;version="2.0.0"
