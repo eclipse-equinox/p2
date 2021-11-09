@@ -15,11 +15,9 @@ import java.util.*;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
-import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -39,38 +37,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 	 */
 	public static final String ID = "org.eclipse.equinox.p2.processing.PGPSignatureCheck"; //$NON-NLS-1$
 
-	public static class PGPPublicKeyStore {
-		private Map<Long, PGPPublicKey> keys = new HashMap<>();
-
-		public PGPPublicKey addKey(PGPPublicKey key) {
-			if (key == null) {
-				return null;
-			}
-			PGPPublicKey alreadyStoredKey = keys.putIfAbsent(key.getKeyID(), key);
-			return alreadyStoredKey == null ? key : alreadyStoredKey;
-		}
-
-		public PGPPublicKey getKey(long id) {
-			return keys.get(id);
-		}
-
-		public void addKeys(String... armoredPublicKeys) {
-			for (String armoredKey : armoredPublicKeys) {
-				if (armoredKey != null) {
-					readPublicKeys(armoredKey).forEach(this::addKey);
-				}
-			}
-		}
-
-		/**
-		 * Test only
-		 */
-		public void clear() {
-			keys.clear();
-		}
-	}
-
-	public static final PGPPublicKeyStore keystore = new PGPPublicKeyStore();
+	public static final PGPPublicKeyStore KNOWN_KEYS = new PGPPublicKeyStore();
 
 	public static final String PGP_SIGNER_KEYS_PROPERTY_NAME = "pgp.publicKeys"; //$NON-NLS-1$
 	public static final String PGP_SIGNATURES_PROPERTY_NAME = "pgp.signatures"; //$NON-NLS-1$
@@ -127,10 +94,10 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		}
 
 		IArtifactRepository repository = context.getRepository();
-		keystore.addKeys(context.getProperty(PGP_SIGNER_KEYS_PROPERTY_NAME),
+		KNOWN_KEYS.addKeys(context.getProperty(PGP_SIGNER_KEYS_PROPERTY_NAME),
 				repository != null ? repository.getProperty(PGP_SIGNER_KEYS_PROPERTY_NAME) : null);
 		for (PGPSignature signature : signaturesToVerify) {
-			PGPPublicKey publicKey = keystore.getKey(signature.getKeyID());
+			PGPPublicKey publicKey = KNOWN_KEYS.getKey(signature.getKeyID());
 			if (publicKey == null) {
 				setStatus(new Status(IStatus.ERROR, Activator.ID,
 						NLS.bind(Messages.Error_publicKeyNotFound, Long.toHexString(signature.getKeyID()))));
@@ -152,7 +119,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 	 * @param armoredPGPBlock the PGP block, in armored form
 	 * @return fixed PGP armored blocks
 	 */
-	private static String unnormalizedPGPProperty(String armoredPGPBlock) {
+	static String unnormalizedPGPProperty(String armoredPGPBlock) {
 		if (armoredPGPBlock == null) {
 			return null;
 		}
@@ -164,22 +131,6 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 				.replace("-----END\nPGP\nSIGNATURE-----", "-----END PGP SIGNATURE-----") //$NON-NLS-1$ //$NON-NLS-2$
 				.replace("-----BEGIN\nPGP\nPUBLIC\nKEY\nBLOCK-----", "-----BEGIN PGP PUBLIC KEY BLOCK-----") //$NON-NLS-1$ //$NON-NLS-2$
 				.replace("-----END\nPGP\nPUBLIC\nKEY\nBLOCK-----", "-----END PGP PUBLIC KEY BLOCK-----"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	public static Set<PGPPublicKey> readPublicKeys(String armoredPublicKeyring) {
-		if (armoredPublicKeyring == null) {
-			return Set.of();
-		}
-		Set<PGPPublicKey> res = new HashSet<>();
-		try (InputStream stream = PGPUtil
-				.getDecoderStream(new ByteArrayInputStream(unnormalizedPGPProperty(armoredPublicKeyring).getBytes()))) {
-			PGPPublicKeyRingCollection pgpPub = new BcPGPPublicKeyRingCollection(stream);
-			pgpPub.getKeyRings().forEachRemaining(kRing -> kRing.getPublicKeys().forEachRemaining(res::add));
-		} catch (IOException | PGPException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
-		}
-		return res;
-
 	}
 
 	@Override

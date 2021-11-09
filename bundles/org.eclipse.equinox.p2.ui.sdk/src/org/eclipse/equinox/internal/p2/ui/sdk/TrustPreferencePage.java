@@ -17,6 +17,7 @@ import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPPublicKeyStore;
 import org.eclipse.equinox.internal.p2.engine.phases.CertificateChecker;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -32,6 +33,11 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class TrustPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+
+	private CertificateChecker certificateChecker;
+	private PGPPublicKeyStore trustedKeys;
+	private boolean dirty = false;
+	private TableViewer viewer;
 
 	public TrustPreferencePage() {
 		super(ProvSDKMessages.TrustPreferencePage_title);
@@ -51,7 +57,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 		pgpLabel.setText(ProvSDKMessages.TrustPreferencePage_pgpIntro);
 
 		res.setLayout(new GridLayout(2, false));
-		TableViewer viewer = new TableViewer(res);
+		viewer = new TableViewer(res);
 		viewer.getTable().setHeaderVisible(true);
 		viewer.setContentProvider(new ArrayContentProvider());
 		TableViewerColumn idColumn = new TableViewerColumn(viewer, SWT.NONE);
@@ -75,23 +81,19 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 		userColumn.getColumn().setWidth(400);
 		userColumn.getColumn().setText(ProvSDKMessages.TrustPreferencePage_userColumn);
 		viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		viewer.setInput(
-				new CertificateChecker(ProvSDKUIActivator.getDefault().getProvisioningAgent()).buildPGPTrustore());
+		certificateChecker = new CertificateChecker(ProvSDKUIActivator.getDefault().getProvisioningAgent());
+		trustedKeys = certificateChecker.buildPGPTrustore();
+		viewer.setInput(trustedKeys.all());
 		Composite buttonComposite = createVerticalButtonBar(res);
 		buttonComposite.setLayoutData(new GridData(SWT.DEFAULT, SWT.BEGINNING, false, false));
 		Button exportButton = new Button(buttonComposite, SWT.PUSH);
 		exportButton.setText(ProvSDKMessages.TrustPreferencePage_export);
 		setVerticalButtonLayoutData(exportButton);
 		exportButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
-			ISelection sel = viewer.getSelection();
-			if (!(sel instanceof IStructuredSelection)) {
+			PGPPublicKey key = getSelectedKey();
+			if (key == null) {
 				return;
 			}
-			Object o = ((IStructuredSelection)sel).getFirstElement();
-			if (!(o instanceof PGPPublicKey)) {
-				return;
-			}
-			PGPPublicKey key = (PGPPublicKey)o;
 			FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
 			dialog.setText(ProvSDKMessages.TrustPreferencePage_fileExportTitle);
 			dialog.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
@@ -108,9 +110,48 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 						.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ex.getMessage(), ex));
 			}
 		}));
-		viewer.addPostSelectionChangedListener(e -> exportButton.setEnabled(!e.getSelection().isEmpty()));
-		exportButton.setEnabled(!viewer.getSelection().isEmpty());
+		Button addButton = new Button(buttonComposite, SWT.PUSH);
+		addButton.setText(ProvSDKMessages.TrustPreferencePage_addPGPKeyButtonLabel);
+		addButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+			dialog.setText(ProvSDKMessages.TrustPreferencePage_fileImportTitle);
+			dialog.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
+			String path = dialog.open();
+			if (path == null) {
+				return;
+			}
+			trustedKeys.add(new File(path));
+			viewer.setInput(trustedKeys.all());
+			dirty = true;
+		}));
+		setVerticalButtonLayoutData(addButton);
+		Button removeButton = new Button(buttonComposite, SWT.PUSH);
+		removeButton.setText(ProvSDKMessages.TrustPreferencePage_removePGPKeyButtonLabel);
+		removeButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			trustedKeys.remove(getSelectedKey());
+			viewer.setInput(trustedKeys.all());
+			dirty = true;
+		}));
+		setVerticalButtonLayoutData(removeButton);
+		viewer.addPostSelectionChangedListener(e -> {
+			exportButton.setEnabled(getSelectedKey() != null);
+			removeButton.setEnabled(getSelectedKey() != null);
+		});
+		exportButton.setEnabled(getSelectedKey() != null);
+		removeButton.setEnabled(getSelectedKey() != null);
 		return res;
+	}
+
+	private PGPPublicKey getSelectedKey() {
+		ISelection sel = viewer.getSelection();
+		if (!(sel instanceof IStructuredSelection)) {
+			return null;
+		}
+		Object o = ((IStructuredSelection) sel).getFirstElement();
+		if (!(o instanceof PGPPublicKey)) {
+			return null;
+		}
+		return (PGPPublicKey) o;
 	}
 
 	private Composite createVerticalButtonBar(Composite parent) {
@@ -139,4 +180,13 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 		button.setLayoutData(data);
 		return data;
 	}
+
+	@Override
+	public boolean performOk() {
+		if (dirty) {
+			return certificateChecker.persistTrustedKeys(trustedKeys).isOK();
+		}
+		return true;
+	}
+
 }

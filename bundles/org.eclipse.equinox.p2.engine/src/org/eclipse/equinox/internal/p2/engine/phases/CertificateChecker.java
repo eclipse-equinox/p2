@@ -21,21 +21,21 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.bouncycastle.openpgp.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPPublicKeyStore;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.UIServices;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -54,7 +54,7 @@ public class CertificateChecker {
 	private Map<IArtifactDescriptor, File> artifacts = new HashMap<>();
 	private final IProvisioningAgent agent;
 
-	private Set<PGPPublicKey> trustedKeys;
+	private PGPPublicKeyStore trustedKeys;
 
 	public CertificateChecker() {
 		this(null);
@@ -117,7 +117,7 @@ public class CertificateChecker {
 							trustedKeys = buildPGPTrustore();
 						}
 						if (trustedKeysIds.isEmpty() && !trustedKeys.isEmpty()) {
-							trustedKeysIds.addAll(trustedKeys.stream()
+							trustedKeysIds.addAll(trustedKeys.all().stream()
 									.map(PGPPublicKey::getKeyID).map(Long::valueOf).collect(Collectors.toSet()));
 						}
 						if (signatures.stream().map(PGPSignature::getKeyID).noneMatch(trustedKeysIds::contains)) {
@@ -221,21 +221,33 @@ public class CertificateChecker {
 		}
 		// If we should persist the trusted certificates, add them to the trust engine
 		if (trustInfo.persistTrust()) {
-			return persistTrustedCertificates(trustedCertificates);
-			// do not persist PGP key at the moment
+			IStatus certifactesStatus = trustInfo.getTrustedCertificates().length == 0 ? null
+					: persistTrustedCertificates(trustedCertificates);
+			trustInfo.getTrustedPGPKeys().forEach(trustedKeys::addKey);
+			IStatus pgpStatus = trustInfo.getTrustedPGPKeys().isEmpty() ? null : persistTrustedKeys(trustedKeys);
+			if (pgpStatus == null) {
+				return certifactesStatus;
+			}
+			if (certifactesStatus == null) {
+				return pgpStatus;
+			}
+			return new MultiStatus(getClass(), IStatus.OK, new IStatus[] { pgpStatus, certifactesStatus },
+					pgpStatus.getMessage() + '\n' + certifactesStatus.getMessage(), null);
 		}
 
 		return status;
 	}
 
+
 	private PGPPublicKey findKey(long id, IArtifactDescriptor artifact) {
-		PGPPublicKey key = PGPSignatureVerifier.keystore.getKey(id);
+		PGPPublicKey key = PGPSignatureVerifier.KNOWN_KEYS.getKey(id);
 		if (key != null) {
 			return key;
 		}
 		// in case keys from artifact were not imported yet in keystore, add them
-		PGPSignatureVerifier.keystore.addKeys(artifact.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME));
-		return PGPSignatureVerifier.keystore.getKey(id);
+		PGPSignatureVerifier.KNOWN_KEYS
+				.addKeys(artifact.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME));
+		return PGPSignatureVerifier.KNOWN_KEYS.getKey(id);
 	}
 
 	private IStatus persistTrustedCertificates(Certificate[] trustedCertificates) {
@@ -286,19 +298,33 @@ public class CertificateChecker {
 		artifacts.putAll(toAdd);
 	}
 
-	public Set<PGPPublicKey> buildPGPTrustore() {
+	public PGPPublicKeyStore buildPGPTrustore() {
+		PGPPublicKeyStore trustStore = new PGPPublicKeyStore();
 		IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
-		Set<PGPPublicKey> store = new HashSet<>(
-				PGPSignatureVerifier.readPublicKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY)));
+		trustStore.addKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY));
+		ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class), profile.getProfileId());
+		trustStore.addKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null));
 		//// SECURITY ISSUE: next lines become an attack vector as we have no guarantee
 		//// the metadata of those IUs is safe/were signed.
 		//// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576705#c4
 		// profile.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).forEach(
 		// iu ->
 		// store.addAll(PGPSignatureVerifier.readPublicKeys(iu.getProperty(TRUSTED_KEY_STORE_PROPERTY))));
-		store.forEach(PGPSignatureVerifier.keystore::addKey);
-		return store;
+		trustStore.all().forEach(PGPSignatureVerifier.KNOWN_KEYS::addKey);
+		return trustStore;
 	}
 
+	public IStatus persistTrustedKeys(PGPPublicKeyStore trustStore) {
+		IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
+		ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class), profile.getProfileId());
+		IEclipsePreferences node = profileScope.getNode(EngineActivator.ID);
+		try {
+			node.put(TRUSTED_KEY_STORE_PROPERTY, trustStore.toArmoredString());
+			node.flush();
+			return Status.OK_STATUS;
+		} catch (IOException | BackingStoreException ex) {
+			return new Status(IStatus.ERROR, EngineActivator.ID, ex.getMessage(), ex);
+		}
+	}
 }
 

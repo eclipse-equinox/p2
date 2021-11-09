@@ -30,7 +30,7 @@ public class PGPVerifierTest extends AbstractProvisioningTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		PGPSignatureVerifier.keystore.clear();
+		PGPSignatureVerifier.KNOWN_KEYS.clear();
 	}
 
 	private void loadPGPTestRepo(String repoName) throws Exception {
