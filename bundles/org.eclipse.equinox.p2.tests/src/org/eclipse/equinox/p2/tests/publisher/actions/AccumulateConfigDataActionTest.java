@@ -26,7 +26,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
-import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.p2.publisher.eclipse.AccumulateConfigDataAction;
+import org.eclipse.equinox.p2.publisher.eclipse.ConfigAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.LaunchingAdvice;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class AccumulateConfigDataActionTest extends ActionTest {
@@ -46,8 +48,8 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 
 	@Override
 	public void setUp() throws Exception {
-		configAdviceCapture = new Capture<>();
-		launchingAdviceCapture = new Capture<>();
+		configAdviceCapture = Capture.newInstance();
+		launchingAdviceCapture = Capture.newInstance();
 		setupPublisherInfo();
 		setupPublisherResult();
 		testAction = new AccumulateConfigDataAction(publisherInfo, configSpec, configLocation, executableLocation);

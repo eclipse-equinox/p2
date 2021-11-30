@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
+import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -142,17 +144,17 @@ public class BundlesActionTest extends ActionTest {
 
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 
-	private MultiCapture<ITouchpointAdvice> tpAdvice1, tpAdvice2;
-	private MultiCapture<IUpdateDescriptorAdvice> udAdvice3;
-	private MultiCapture<ICapabilityAdvice> capAdvice5;
+	private Capture<ITouchpointAdvice> tpAdvice1, tpAdvice2;
+	private Capture<IUpdateDescriptorAdvice> udAdvice3;
+	private Capture<ICapabilityAdvice> capAdvice5;
 
 	@Override
 	public void setupPublisherInfo() {
-		tpAdvice1 = new MultiCapture<>();
-		tpAdvice2 = new MultiCapture<>();
+		tpAdvice1 = Capture.newInstance(CaptureType.ALL);
+		tpAdvice2 = Capture.newInstance(CaptureType.ALL);
 
-		udAdvice3 = new MultiCapture<>();
-		capAdvice5 = new MultiCapture<>();
+		udAdvice3 = Capture.newInstance(CaptureType.ALL);
+		capAdvice5 = Capture.newInstance(CaptureType.ALL);
 
 		super.setupPublisherInfo();
 	}
@@ -410,16 +412,16 @@ public class BundlesActionTest extends ActionTest {
 		expectOtherAdviceQueries(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		expectPropertyAdviceQuery(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, sarProperties);
 		expectUpdateDescriptorAdviceQuery(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, null);
-		expectTouchpointAdviceQuery(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, tpAdvice1);
+		expectTouchpointAdviceQuery(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, tpAdvice1.getValues());
 
 		expectOtherAdviceQueries(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION);
 		expectPropertyAdviceQuery(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION, sdkProperties);
 		expectUpdateDescriptorAdviceQuery(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION, null);
-		expectTouchpointAdviceQuery(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION, tpAdvice2);
+		expectTouchpointAdviceQuery(TEST2_PROV_BUNDLE_NAME, BUNDLE2_VERSION, tpAdvice2.getValues());
 
 		expectOtherAdviceQueries(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION);
 		expectPropertyAdviceQuery(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION, sarProperties);
-		expectUpdateDescriptorAdviceQuery(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION, udAdvice3);
+		expectUpdateDescriptorAdviceQuery(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION, udAdvice3.getValues());
 		expectTouchpointAdviceQuery(TEST3_PROV_BUNDLE_NAME, BUNDLE3_VERSION, null);
 
 		expectOtherAdviceQueries(TEST4_PROV_BUNDLE_NAME, BUNDLE4_VERSION);
@@ -427,7 +429,7 @@ public class BundlesActionTest extends ActionTest {
 		expectUpdateDescriptorAdviceQuery(TEST4_PROV_BUNDLE_NAME, BUNDLE4_VERSION, null);
 		expectTouchpointAdviceQuery(TEST4_PROV_BUNDLE_NAME, BUNDLE4_VERSION, null);
 
-		expectCapabilityAdviceQuery(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION, capAdvice5);
+		expectCapabilityAdviceQuery(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION, capAdvice5.getValues());
 		expectOtherAdviceQueries(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION);
 		expectPropertyAdviceQuery(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION, sarProperties);
 		expectUpdateDescriptorAdviceQuery(TEST5_PROV_BUNDLE_NAME, BUNDLE5_VERSION, null);

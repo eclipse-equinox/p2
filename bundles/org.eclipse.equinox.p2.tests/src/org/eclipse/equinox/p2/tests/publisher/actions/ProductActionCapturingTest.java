@@ -73,8 +73,8 @@ public class ProductActionCapturingTest extends ActionTest {
 
 	@Override
 	public void setUp() throws Exception {
-		rootIUAdviceCapture = new Capture<>();
-		productFileAdviceCapture = new Capture<>();
+		rootIUAdviceCapture = Capture.newInstance();
+		productFileAdviceCapture = Capture.newInstance();
 		setupPublisherInfo();
 		setupPublisherResult();
 	}

@@ -66,8 +66,8 @@ public class ProductActionTestMac extends ActionTest {
 	@Override
 	public void setUp() throws Exception {
 		configSpec = AbstractPublisherAction.createConfigSpec("carbon", "macosx", "x86");
-		rootIUAdviceCapture = new Capture<>();
-		productFileAdviceCapture = new Capture<>();
+		rootIUAdviceCapture = Capture.newInstance();
+		productFileAdviceCapture = Capture.newInstance();
 		setupPublisherInfo();
 		setupPublisherResult();
 	}

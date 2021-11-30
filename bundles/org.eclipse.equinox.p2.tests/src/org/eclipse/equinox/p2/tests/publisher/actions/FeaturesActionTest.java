@@ -80,7 +80,7 @@ public class FeaturesActionTest extends ActionTest {
 	@Override
 	public void setUp() throws Exception {
 		testAction = new FeaturesAction(new File[] {root});
-		tpAdvice = new Capture<>();
+		tpAdvice = Capture.newInstance();
 		setupPublisherInfo();
 		setupPublisherResult();
 	}
