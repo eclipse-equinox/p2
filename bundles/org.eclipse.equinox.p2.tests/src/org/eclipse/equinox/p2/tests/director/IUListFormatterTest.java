@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2014, 2017 SAP AG and others.
+ *  Copyright (c) 2014, 2021 SAP AG and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,22 +14,21 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import static java.util.Arrays.asList;
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.getCurrentArguments;
-import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.easymock.IAnswer;
 import org.eclipse.equinox.internal.p2.director.app.IUListFormatter;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class IUListFormatterTest {
 	@Test
@@ -75,37 +74,35 @@ public class IUListFormatterTest {
 	}
 
 	private static IInstallableUnit createIU(String id, String version, String name, String description) {
-		IInstallableUnit iu = createNiceMock(id, IInstallableUnit.class);
-		expect(iu.getId()).andStubReturn(id);
-		expect(iu.getVersion()).andStubReturn(Version.create(version));
+		IInstallableUnit iu = mock(IInstallableUnit.class);
+		when(iu.getId()).thenReturn(id);
+		when(iu.getVersion()).thenReturn(Version.create(version));
 
 		final Map<String, String> properties = new HashMap<>(3, 1);
 		properties.put(IInstallableUnit.PROP_NAME, name);
 		properties.put(IInstallableUnit.PROP_DESCRIPTION, description);
-		expect(iu.getProperties()).andStubReturn(properties);
-		expect(iu.getProperty((String) anyObject())).andStubAnswer(new MapAnswer<>(properties));
-		expect(iu.getProperty((String) anyObject(), (String) anyObject())).andStubAnswer(new MapAnswer<>(properties));
-		replay(iu);
+		when(iu.getProperties()).thenReturn(properties);
+		when(iu.getProperty(anyString())).thenAnswer(new MapAnswer<>(properties));
+		when(iu.getProperty(anyString(), anyString())).thenAnswer(new MapAnswer<>(properties));
 		return iu;
 	}
 
 	private static IInstallableUnit createIU(String id, String version, int propCount) {
-		IInstallableUnit iu = createNiceMock(id, IInstallableUnit.class);
-		expect(iu.getId()).andStubReturn(id);
-		expect(iu.getVersion()).andStubReturn(Version.create(version));
+		IInstallableUnit iu = mock(IInstallableUnit.class);
+		when(iu.getId()).thenReturn(id);
+		when(iu.getVersion()).thenReturn(Version.create(version));
 
 		final Map<String, String> properties = new HashMap<>(propCount, 1);
 		for (int i = 0; i < propCount; i++) {
 			properties.put("prop_" + i, "propValue_" + i);
 		}
-		expect(iu.getProperties()).andStubReturn(properties);
-		expect(iu.getProperty((String) anyObject())).andStubAnswer(new MapAnswer<>(properties));
-		expect(iu.getProperty((String) anyObject(), (String) anyObject())).andStubAnswer(new MapAnswer<>(properties));
-		replay(iu);
+		when(iu.getProperties()).thenReturn(properties);
+		when(iu.getProperty(anyString())).thenAnswer(new MapAnswer<>(properties));
+		when(iu.getProperty(anyString(), anyString())).thenAnswer(new MapAnswer<>(properties));
 		return iu;
 	}
 
-	private static final class MapAnswer<T> implements IAnswer<T> {
+	private static final class MapAnswer<T> implements Answer<T> {
 		private final Map<?, T> map;
 
 		MapAnswer(Map<?, T> map) {
@@ -113,8 +110,8 @@ public class IUListFormatterTest {
 		}
 
 		@Override
-		public T answer() throws Throwable {
-			return map.get(getCurrentArguments()[0]);
+		public T answer(InvocationOnMock arg) throws Throwable {
+			return map.get(arg.getArguments()[0]);
 		}
 	}
 

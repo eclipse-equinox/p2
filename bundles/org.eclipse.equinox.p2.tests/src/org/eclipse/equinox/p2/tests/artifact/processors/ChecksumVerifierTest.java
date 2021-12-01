@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2019 Mykola Nikishov.
+ * Copyright (c) 2015, 2021 Mykola Nikishov and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,12 +13,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.not;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.mockito.AdditionalMatchers.not;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -66,9 +64,8 @@ public class ChecksumVerifierTest {
 
 	@Test
 	public void testInitialize() throws IOException, IllegalArgumentException, SecurityException {
-		IProcessingStepDescriptor processingStepDescriptor = createMock(IProcessingStepDescriptor.class);
-		expect(processingStepDescriptor.getData()).andReturn(checksum);
-		replay(processingStepDescriptor);
+		IProcessingStepDescriptor processingStepDescriptor = mock(IProcessingStepDescriptor.class);
+		when(processingStepDescriptor.getData()).thenReturn(checksum);
 
 		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false);
 
@@ -77,21 +74,18 @@ public class ChecksumVerifierTest {
 		Assert.assertEquals(Status.OK_STATUS, verifier.getStatus());
 
 		verifier.close();
-		verify(processingStepDescriptor);
 	}
 
 	@Test
 	public void testInitialize_DownloadChecksum() throws IOException, IllegalArgumentException, SecurityException {
-		IProcessingStepDescriptor processingStepDescriptor = createMock(IProcessingStepDescriptor.class);
-		expect(processingStepDescriptor.getData()).andReturn(downloadProperty);
-		IArtifactDescriptor artifactDescriptor = createMock(IArtifactDescriptor.class);
-		replay(processingStepDescriptor);
-		expect(artifactDescriptor.getProperty(eq(downloadProperty))).andReturn(checksum);
-		expect(artifactDescriptor.getProperty(not(eq(downloadProperty)))).andReturn(null).times(1, 2);
+		IProcessingStepDescriptor processingStepDescriptor = mock(IProcessingStepDescriptor.class);
+		when(processingStepDescriptor.getData()).thenReturn(downloadProperty);
+		IArtifactDescriptor artifactDescriptor = mock(IArtifactDescriptor.class);
+		when(artifactDescriptor.getProperty(eq(downloadProperty))).thenReturn(checksum);
+		when(artifactDescriptor.getProperty(not(eq(downloadProperty)))).thenReturn(null);
 		HashMap<String, String> properties = new HashMap<>();
 		properties.put(downloadProperty, checksum);
-		expect(artifactDescriptor.getProperties()).andReturn(properties);
-		replay(artifactDescriptor);
+		when(artifactDescriptor.getProperties()).thenReturn(properties);
 
 		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false);
 
@@ -100,21 +94,18 @@ public class ChecksumVerifierTest {
 		Assert.assertEquals(Status.OK_STATUS, verifier.getStatus());
 
 		verifier.close();
-		verify(processingStepDescriptor);
 	}
 
 	@Test
 	public void testInitialize_ArtifactChecksum() throws IOException, IllegalArgumentException, SecurityException {
-		IProcessingStepDescriptor processingStepDescriptor = createMock(IProcessingStepDescriptor.class);
-		expect(processingStepDescriptor.getData()).andReturn(artifactProperty);
-		IArtifactDescriptor artifactDescriptor = createMock(IArtifactDescriptor.class);
-		replay(processingStepDescriptor);
-		expect(artifactDescriptor.getProperty(eq(artifactProperty))).andReturn(checksum);
+		IProcessingStepDescriptor processingStepDescriptor = mock(IProcessingStepDescriptor.class);
+		when(processingStepDescriptor.getData()).thenReturn(artifactProperty);
+		IArtifactDescriptor artifactDescriptor = mock(IArtifactDescriptor.class);
+		when(artifactDescriptor.getProperty(eq(artifactProperty))).thenReturn(checksum);
 		HashMap<String, String> properties = new HashMap<>();
 		properties.put(artifactProperty, checksum);
-		expect(artifactDescriptor.getProperties()).andReturn(properties);
-		expect(artifactDescriptor.getProperty(not(eq(artifactProperty)))).andReturn(null).times(1, 2);
-		replay(artifactDescriptor);
+		when(artifactDescriptor.getProperties()).thenReturn(properties);
+		when(artifactDescriptor.getProperty(not(eq(artifactProperty)))).thenReturn(null);
 
 		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false);
 
@@ -123,6 +114,5 @@ public class ChecksumVerifierTest {
 		Assert.assertEquals(Status.OK_STATUS, verifier.getStatus());
 
 		verifier.close();
-		verify(processingStepDescriptor);
 	}
 }
