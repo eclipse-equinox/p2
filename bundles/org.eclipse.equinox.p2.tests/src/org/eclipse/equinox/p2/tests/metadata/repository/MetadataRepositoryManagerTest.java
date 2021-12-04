@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2021 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,8 @@
  *     Red Hat Inc. - Bug 460967
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
+
+import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -403,7 +405,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		manager.removeRepository(repoLocation);
 		manager.loadRepository(repoLocation, null);
 		long lastModified = cacheFile.lastModified();
-		assertTrue(0 != lastModified);
+		assertNotEquals(0, lastModified);
 
 		// reload the repository and check that the cache was not updated
 		manager.loadRepository(repoLocation, null);
@@ -560,7 +562,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		try {
 			IMetadataRepository repoSlash = manager.loadRepository(locationSlash, null);
 			IMetadataRepository repoNoSlash = manager.loadRepository(locationNoSlash, null);
-			assertTrue("1.0", repoNoSlash == repoSlash);
+			assertSame("1.0", repoNoSlash, repoSlash);
 		} catch (ProvisionException e) {
 			fail("1.99", e);
 		}
