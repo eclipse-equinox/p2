@@ -387,17 +387,14 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		IAgentLocation agentLocation = ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.class);
 		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.repository/cache/");
 		File dataAreaFile = URIUtil.toFile(dataArea);
-		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
-		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
-		File cacheFile;
+		File cacheFile = new File(dataAreaFile,
+				Integer.toString(URIUtil.append(repoLocation, "content.xml.xz").hashCode())); // as implemented in
+																							// XZedSimpleMetadataRepository
+																							// and CacheManager
 
 		// load a remote repository and check that a local cache was created
 		manager.loadRepository(repoLocation, null);
-		assertTrue("Cache file was not created.", cacheFileXML.exists() || cacheFileJAR.exists());
-		if (cacheFileXML.exists())
-			cacheFile = cacheFileXML;
-		else
-			cacheFile = cacheFileJAR;
+		assertTrue("Cache file was not created.", cacheFile.exists());
 
 		// modify the last modified date to be older than the remote file
 		cacheFile.setLastModified(0);
