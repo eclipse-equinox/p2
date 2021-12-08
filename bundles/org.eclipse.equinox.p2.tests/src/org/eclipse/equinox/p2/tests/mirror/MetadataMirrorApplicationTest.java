@@ -14,7 +14,9 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
@@ -516,7 +518,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	public void testMetadataMirrorToInvalid() {
 		URI invalidDestRepository;
 		try {
-			invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
+			invalidDestRepository = new URI("https://eclipse.org/equinox/foobar/abcdefg");
 			basicRunMirrorApplication("14.1", sourceRepoLocation.toURL(), invalidDestRepository.toURL(), true);
 			//we expect an illegal state exception to be thrown and should never get here
 			fail("14.0 IllegalStateExpection not thrown");
@@ -535,7 +537,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		delete(invalidRepository);
 
 		try {
-			URI invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
+			URI invalidDestRepository = new URI("https://eclipse.org/equinox/foobar/abcdefg");
 			basicRunMirrorApplication("15.1", invalidRepository.toURL(), invalidDestRepository.toURL(), true);
 			//we expect a provisioning exception to be thrown and should never get here
 			fail("15.0 ProvisionExpection not thrown");
