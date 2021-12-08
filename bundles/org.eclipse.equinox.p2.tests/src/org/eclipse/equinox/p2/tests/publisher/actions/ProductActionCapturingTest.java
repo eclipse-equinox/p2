@@ -16,65 +16,35 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.anyBoolean;
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
-import java.util.Collections;
-import org.easymock.Capture;
-import org.easymock.EasyMock;
+import java.util.stream.Collectors;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
-import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.IConfigAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.IExecutableAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 public class ProductActionCapturingTest extends ActionTest {
 
 	File executablesFeatureLocation = null;
 	String source = "";
 
-	private Capture<RootIUAdvice> rootIUAdviceCapture;
-	private Capture<ProductFileAdvice> productFileAdviceCapture;
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 
 	@Override
-	protected IPublisherInfo createPublisherInfoMock() {
-		//override to create a nice mock, because we don't care about other method calls.
-		return createNiceMock(IPublisherInfo.class);
-	}
-
-	@Override
-	protected void insertPublisherInfoBehavior() {
-		// capture these calls for assertions
-		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(RootIUAdvice.class), EasyMock.capture(rootIUAdviceCapture)));
-		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(ProductFileAdvice.class), EasyMock.capture(productFileAdviceCapture)));
-
-		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
-		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();
-		//Return an empty list every time getAdvice is called
-		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class<IPublisherAdvice>) anyObject())).andReturn(Collections.emptyList());
-		expectLastCall().anyTimes();
-	}
-
-	@Override
 	public void setUp() throws Exception {
-		rootIUAdviceCapture = Capture.newInstance();
-		productFileAdviceCapture = Capture.newInstance();
 		setupPublisherInfo();
 		setupPublisherResult();
 	}
@@ -84,15 +54,18 @@ public class ProductActionCapturingTest extends ActionTest {
 	 * IConfigAdvice (start levels, auto-start).
 	 */
 	public void testSetBundleConfigData() throws Exception {
+		ArgumentCaptor<IPublisherAdvice> productFileAdviceCapture = ArgumentCaptor.forClass(IPublisherAdvice.class);
 		addContextIU("org.eclipse.rcp.feature.group", "3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t");
 
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "startLevel.product").toString());
-		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		testAction = Mockito.spy(new ProductAction(source, productFile, flavorArg, executablesFeatureLocation));
 
 		IStatus status = testAction.perform(publisherInfo, publisherResult, null);
+		verify(publisherInfo, Mockito.atLeastOnce()).addAdvice(productFileAdviceCapture.capture());
 		assertThat(status, is(okStatus()));
 
-		IConfigAdvice configAdvice = productFileAdviceCapture.getValue();
+		IConfigAdvice configAdvice = (IConfigAdvice) productFileAdviceCapture.getAllValues().stream()
+				.filter(IConfigAdvice.class::isInstance).collect(Collectors.toList()).get(0);
 		BundleInfo[] bundles = configAdvice.getBundles();
 		assertEquals("1.0", 2, bundles.length);
 		assertEquals("1.1", "org.eclipse.equinox.common", bundles[0].getSymbolicName());
@@ -110,14 +83,17 @@ public class ProductActionCapturingTest extends ActionTest {
 	 * Tests that correct advice is created for the org.eclipse.platform product.
 	 */
 	public void testPlatformProduct() throws Exception {
+		ArgumentCaptor<IPublisherAdvice> productFileAdviceCapture = ArgumentCaptor.forClass(IPublisherAdvice.class);
 		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "platform.product").toString());
 		addContextIU("org.eclipse.platform.feature.group", "1.2.3");
 
-		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		testAction = Mockito.spy(new ProductAction(source, productFile, flavorArg, executablesFeatureLocation));
 		IStatus status = testAction.perform(publisherInfo, publisherResult, null);
+		verify(publisherInfo, Mockito.atLeastOnce()).addAdvice(productFileAdviceCapture.capture());
 		assertThat(status, is(okStatus()));
 
-		IExecutableAdvice launchAdvice = productFileAdviceCapture.getValue();
+		IExecutableAdvice launchAdvice = (IExecutableAdvice) productFileAdviceCapture.getAllValues().stream()
+				.filter(ProductFileAdvice.class::isInstance).collect(Collectors.toList()).get(0);
 		assertEquals("1.0", "eclipse", launchAdvice.getExecutableName());
 
 		String[] programArgs = launchAdvice.getProgramArguments();

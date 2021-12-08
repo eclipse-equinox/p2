@@ -14,10 +14,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -118,9 +117,9 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		for (IRequirement act : actual) {
 			if (expected.getMatches().equals(act.getMatches())) {
 				String descr = "IRequirement " + expected.getMatches();
-				Assert.assertEquals("Min of " + descr, expected.getMin(), act.getMin());
-				Assert.assertEquals("Max of " + descr, expected.getMax(), act.getMax());
-				Assert.assertEquals("Greedy of " + descr, expected.isGreedy(), act.isGreedy());
+				assertEquals("Min of " + descr, expected.getMin(), act.getMin());
+				assertEquals("Max of " + descr, expected.getMax(), act.getMax());
+				assertEquals("Greedy of " + descr, expected.isGreedy(), act.isGreedy());
 				return;
 			}
 		}
@@ -128,13 +127,12 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	}
 
 	protected IInstallableUnit mockIU(String id, Version version) {
-		IInstallableUnit result = createMock(IInstallableUnit.class);
-		expect(result.getId()).andReturn(id).anyTimes();
+		IInstallableUnit result = mock(IInstallableUnit.class);
+		when(result.getId()).thenReturn(id);
 		if (version == null)
 			version = Version.emptyVersion;
-		expect(result.getVersion()).andReturn(version).anyTimes();
-		expect(result.getFilter()).andReturn(null).anyTimes();
-		replay(result);
+		when(result.getVersion()).thenReturn(version);
+		when(result.getFilter()).thenReturn(null);
 		return result;
 	}
 
@@ -170,31 +168,20 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	 * Call this method to setup Publisher Info, not <code>insertPublisherInfoBehavior</code>
 	 */
 	public void setupPublisherInfo() {
-		publisherInfo = createPublisherInfoMock();
+		publisherInfo = mock(IPublisherInfo.class);
 
 		String[] config = getArrayFromString(configSpec, COMMA_SEPARATOR);
-		expect(publisherInfo.getConfigurations()).andReturn(config).anyTimes();
+		when(publisherInfo.getConfigurations()).thenReturn(config);
 		insertPublisherInfoBehavior();
-		replay(publisherInfo);
-	}
-
-	/**
-	 * Creates the mock object for the IPublisherInfo. Subclasses
-	 * can override to create a nice or strict mock instead.
-	 * @return The publisher info mock
-	 * @see org.easymock.EasyMock#createNiceMock(Class)
-	 * @see org.easymock.EasyMock#createStrictMock(Class)
-	 */
-	protected IPublisherInfo createPublisherInfoMock() {
-		return createMock(IPublisherInfo.class);
 	}
 
 	/**
 	 * Do not call this method, it is called by <code>setupPublisherInfo</code>.
 	 */
 	protected void insertPublisherInfoBehavior() {
-		expect(publisherInfo.getMetadataRepository()).andReturn(createTestMetdataRepository(new IInstallableUnit[0])).anyTimes();
-		expect(publisherInfo.getContextMetadataRepository()).andReturn(createTestMetdataRepository(new IInstallableUnit[0])).anyTimes();
+		when(publisherInfo.getMetadataRepository()).thenReturn(createTestMetdataRepository(new IInstallableUnit[0]));
+		when(publisherInfo.getContextMetadataRepository())
+				.thenReturn(createTestMetdataRepository(new IInstallableUnit[0]));
 	}
 
 	public void cleanup() {

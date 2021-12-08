@@ -208,7 +208,7 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		configProperties.put("osgi.bundles", "org.eclipse.equinox.simpleconfigurator@1:start");
 		writeProperties(new File(rootFolder, "config.ini"), configProperties);
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("org.eclipse.equinox.common,3.5.100.v20090817,plugins/org.eclipse.equinox.common_3.5.100.v20090817.jar,2,true\n");
 		buffer.append("org.eclipse.equinox.simpleconfigurator,1.0.200.v20090729-1800,plugins/org.eclipse.equinox.simpleconfigurator_1.0.200.v20090729-1800.jar,1,true\n");
 		writeBuffer(new File(rootFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info"), buffer);
@@ -229,7 +229,7 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		File root = getTestFolder("configNullLauncher");
 		File testProduct = new File(root, "test.product");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("<product id=\"test.product\" version=\"1\" useFeatures=\"false\">	\n");
 		buffer.append("   <configIni use=\"default\">										\n");
 		buffer.append("      <win32>config.ini</win32>										\n");

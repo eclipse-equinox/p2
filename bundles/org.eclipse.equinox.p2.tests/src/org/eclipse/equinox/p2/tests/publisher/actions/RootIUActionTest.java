@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.expect;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -358,16 +358,22 @@ public class RootIUActionTest extends ActionTest {
 
 	@Override
 	public void insertPublisherInfoBehavior() {
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ICapabilityAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
-		expect(publisherInfo.getAdvice(null, true, null, null, IRootIUAdvice.class)).andReturn(rootIUAdviceCollection).anyTimes();
-		expect(publisherInfo.getAdvice(null, true, null, null, IVersionAdvice.class)).andReturn(null).anyTimes();
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ITouchpointAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IUpdateDescriptorAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IPropertyAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
-		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IAdditionalInstallableUnitAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
-		expect(publisherInfo.getAdvice(null, true, rootIU, versionArg, ILicenseAdvice.class)).andReturn(new ArrayList<>()).anyTimes();
-		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepository).anyTimes();
-		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
+		when(publisherInfo.getAdvice(null, false, rootIU, versionArg, ICapabilityAdvice.class))
+				.thenReturn(new ArrayList<>());
+		when(publisherInfo.getAdvice(null, true, null, null, IRootIUAdvice.class)).thenReturn(rootIUAdviceCollection);
+		when(publisherInfo.getAdvice(null, true, null, null, IVersionAdvice.class)).thenReturn(null);
+		when(publisherInfo.getAdvice(null, false, rootIU, versionArg, ITouchpointAdvice.class))
+				.thenReturn(new ArrayList<>());
+		when(publisherInfo.getAdvice(null, false, rootIU, versionArg, IUpdateDescriptorAdvice.class))
+				.thenReturn(new ArrayList<>());
+		when(publisherInfo.getAdvice(null, false, rootIU, versionArg, IPropertyAdvice.class))
+				.thenReturn(new ArrayList<>());
+		when(publisherInfo.getAdvice(null, false, rootIU, versionArg, IAdditionalInstallableUnitAdvice.class))
+				.thenReturn(new ArrayList<>());
+		when(publisherInfo.getAdvice(null, true, rootIU, versionArg, ILicenseAdvice.class))
+				.thenReturn(new ArrayList<>());
+		when(publisherInfo.getMetadataRepository()).thenReturn(metadataRepository);
+		when(publisherInfo.getContextMetadataRepository()).thenReturn(null);
 	}
 
 	@Override

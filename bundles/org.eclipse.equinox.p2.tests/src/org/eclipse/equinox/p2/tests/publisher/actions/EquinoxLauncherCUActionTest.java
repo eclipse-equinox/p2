@@ -15,9 +15,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,13 +55,12 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 	}
 
 	protected IInstallableUnit mockIU(String id, Version version, boolean fragment) {
-		IInstallableUnit result = createMock(IInstallableUnit.class);
-		expect(result.getId()).andReturn(id).anyTimes();
+		IInstallableUnit result = mock(IInstallableUnit.class);
+		when(result.getId()).thenReturn(id);
 		if (version == null)
 			version = Version.emptyVersion;
-		expect(result.getVersion()).andReturn(version).anyTimes();
-		expect(result.getFilter()).andReturn(null).anyTimes();
-		replay(result);
+		when(result.getVersion()).thenReturn(version);
+		when(result.getFilter()).thenReturn(null);
 		return result;
 	}
 
@@ -108,7 +106,10 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 
 		ArrayList<IVersionAdvice> versionList = new ArrayList<>();
 		versionList.add(versionAdvice);
-		expect(publisherInfo.getAdvice(null, true, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, null, IVersionAdvice.class)).andReturn(versionList);
-		expect(publisherInfo.getAdvice(configSpec, true, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + "." + configSpec, null, IVersionAdvice.class)).andReturn(versionList); //$NON-NLS-1$
+		when(publisherInfo.getAdvice(null, true, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, null,
+				IVersionAdvice.class)).thenReturn(versionList);
+		when(publisherInfo.getAdvice(configSpec, true,
+				EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + "." + configSpec, null, IVersionAdvice.class)) //$NON-NLS-1$
+						.thenReturn(versionList);
 	}
 }

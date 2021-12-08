@@ -15,19 +15,30 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.expect;
+import static org.mockito.Mockito.when;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.actions.*;
+import org.eclipse.equinox.p2.publisher.actions.IRootFilesAdvice;
+import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
+import org.eclipse.equinox.p2.publisher.actions.RootFilesAction;
+import org.eclipse.equinox.p2.publisher.actions.RootFilesAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -68,10 +79,13 @@ public class RootFilesActionTest extends ActionTest {
 
 	@Override
 	public void insertPublisherInfoBehavior() {
-		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
-		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
-		expect(publisherInfo.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class)).andReturn(adviceCollection).anyTimes();
-		expect(publisherInfo.getAdvice(configSpec, false, flavorArg + topArg, versionArg, ITouchpointAdvice.class)).andReturn(null).anyTimes();
+		when(publisherInfo.getArtifactRepository()).thenReturn(artifactRepository);
+		when(publisherInfo.getArtifactOptions())
+				.thenReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH);
+		when(publisherInfo.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class))
+				.thenReturn(adviceCollection);
+		when(publisherInfo.getAdvice(configSpec, false, flavorArg + topArg, versionArg, ITouchpointAdvice.class))
+				.thenReturn(null);
 	}
 
 	private void setupTestCase(int testArg) throws Exception {

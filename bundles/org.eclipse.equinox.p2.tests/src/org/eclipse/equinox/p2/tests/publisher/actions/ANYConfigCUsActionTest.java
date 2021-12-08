@@ -14,13 +14,17 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.expect;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.matches;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
@@ -212,7 +216,8 @@ public class ANYConfigCUsActionTest extends ActionTest {
 			fail("Unable to create product file advice", e); //$NON-NLS-1$
 		}
 
-		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IExecutableAdvice.class))).andReturn(launchingList).anyTimes();
+		when(publisherInfo.getAdvice(matches(configSpec), eq(false), anyString(), any(Version.class),
+				eq(IExecutableAdvice.class))).thenReturn(launchingList);
 
 		//configure IConfigAdvice
 		ConfigData configData = loader.getConfigData();
@@ -220,14 +225,15 @@ public class ANYConfigCUsActionTest extends ActionTest {
 		ArrayList<IConfigAdvice> configList = new ArrayList<>();
 		configList.add(configAdvice);
 		configList.add(productAdvice);
-		expect(publisherInfo.getAdvice(EasyMock.matches(configSpec), EasyMock.eq(false), (String) EasyMock.anyObject(), (Version) EasyMock.anyObject(), EasyMock.eq(IConfigAdvice.class))).andReturn(configList).anyTimes();
+		when(publisherInfo.getAdvice(matches(configSpec), eq(false), anyString(), any(Version.class),
+				eq(IConfigAdvice.class))).thenReturn(configList);
 
 		//setup metadata repository
 		IInstallableUnit[] ius = {mockIU("foo", null), mockIU("bar", null)}; //$NON-NLS-1$ //$NON-NLS-2$
 
 		metadataRepo = new TestMetadataRepository(getAgent(), ius);
-		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepo).anyTimes();
-		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
+		when(publisherInfo.getMetadataRepository()).thenReturn(metadataRepo);
+		when(publisherInfo.getContextMetadataRepository()).thenReturn(null);
 
 	}
 

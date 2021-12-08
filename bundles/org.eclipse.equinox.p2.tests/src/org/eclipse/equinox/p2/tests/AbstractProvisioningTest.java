@@ -739,7 +739,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 	}
 
-	public static void writeBuffer(File outputFile, StringBuffer buffer) throws IOException {
+	public static void writeBuffer(File outputFile, StringBuilder buffer) throws IOException {
 		outputFile.getParentFile().mkdirs();
 		try (FileOutputStream stream = new FileOutputStream(outputFile)) {
 			stream.write(buffer.toString().getBytes());
@@ -1367,7 +1367,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			IInstallableUnit sourceIU = it.next();
 			IQueryResult destinationCollector = destination.query(QueryUtil.createIUQuery(sourceIU), null);
 			assertEquals(message, 1, queryResultSize(destinationCollector));
-			assertTrue(message, sourceIU.equals(destinationCollector.iterator().next()));
+			assertEquals(message, sourceIU, destinationCollector.iterator().next());
 		}
 	}
 

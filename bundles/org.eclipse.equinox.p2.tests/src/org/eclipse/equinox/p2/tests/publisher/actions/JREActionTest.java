@@ -16,7 +16,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.expect;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.errorStatus;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.okStatus;
 import static org.eclipse.equinox.p2.tests.publisher.actions.StatusMatchers.statusWithMessageWhich;
@@ -27,6 +26,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -276,7 +276,7 @@ public class JREActionTest extends ActionTest {
 
 	@Override
 	protected void insertPublisherInfoBehavior() {
-		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
-		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();
+		when(publisherInfo.getArtifactRepository()).thenReturn(artifactRepository);
+		when(publisherInfo.getArtifactOptions()).thenReturn(IPublisherInfo.A_PUBLISH);
 	}
 }

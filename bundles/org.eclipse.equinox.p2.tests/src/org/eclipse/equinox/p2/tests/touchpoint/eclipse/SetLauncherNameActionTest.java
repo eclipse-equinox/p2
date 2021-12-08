@@ -14,7 +14,9 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
@@ -99,7 +101,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		//profile will start using "eclipse" by default, give it some content and see if it
 		//survives a name change.
 		File eclipseIni = new File(tempFolder, "eclipse.ini");
-		StringBuffer ini = new StringBuffer();
+		StringBuilder ini = new StringBuilder();
 		ini.append("-startup\n");
 		ini.append("plugins/org.eclipse.equinox.launcher_1.2.4.v1234.jar\n");
 		writeBuffer(eclipseIni, ini);

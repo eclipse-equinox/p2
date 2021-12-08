@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others.
+ * Copyright (c) 2008, 2021 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -15,9 +15,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.easymock.EasyMock.anyBoolean;
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.expect;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -62,10 +65,9 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private static final File LINUX_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/linux/"); //$NON-NLS-1$
 	private static final File WIN_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/win/"); //$NON-NLS-1$
 	private final String EXECUTABLE_NAME = "LauncherName"; //$NON-NLS-1$
-	private Collection<IBrandingAdvice> brandingAdvice = new LinkedList<>();
 	private String macConfigCocoa = "cocoa.macosx.x86"; //$NON-NLS-1$
-	private String winConfig = "win32.win32.x86"; //$NON-NLS-1$
-	private String linuxConfig = "linux.gtk.x86"; //$NON-NLS-1$
+	private String winConfig = "win32.win32.x86_64"; //$NON-NLS-1$
+	private String linuxConfig = "linux.gtk.x86_64"; //$NON-NLS-1$
 	private ExecutablesDescriptor executablesDescriptor;
 	private IArtifactRepository artifactRepository;
 	private Version version = Version.create("1.2.3"); //$NON-NLS-1$
@@ -76,9 +78,6 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	public void setUp() throws Exception {
 		setupPublisherInfo();
 		setupPublisherResult();
-	}
-
-	private void setupArtifactRepository() {
 		artifactRepository = new TestArtifactRepository(getAgent());
 	}
 
@@ -118,7 +117,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	private void testExecutableAction(String idBase, final String osArg, String config, File exec, File icon) {
 		id = idBase;
-		setupBrandingAdvice(osArg, configSpec, exec, icon);
+		when(publisherInfo.getArtifactRepository()).thenReturn(artifactRepository);
+		when(publisherInfo.getArtifactOptions()).thenReturn(IPublisherInfo.A_PUBLISH);
+		when(publisherInfo.getAdvice(anyString(), anyBoolean(), nullable(String.class), nullable(Version.class),
+				eq(IBrandingAdvice.class))).then(invocation -> setupBrandingAdvice(osArg, icon));
 		executablesDescriptor = ExecutablesDescriptor.createDescriptor(osArg, "eclipse", exec);
 		testAction = new EquinoxExecutableAction(executablesDescriptor, config, idBase, version, flavorArg);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
@@ -128,10 +130,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	private void verifyResults(String idBase, String confSpec) {
 		ArrayList<IInstallableUnit> iuList = new ArrayList<>(publisherResult.getIUs(null, IPublisherResult.ROOT));
+		assertEquals(3, iuList.size());
 		verifyEclipseIU(iuList, idBase, confSpec);
 		verifyCU(iuList, idBase, confSpec);
 		verifyExecIU(iuList, idBase, confSpec);
-		assertTrue(iuList.size() == 3);
 	}
 
 	private void verifyCU(ArrayList<IInstallableUnit> iuList, String idBase, String confSpec) {
@@ -162,16 +164,16 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private void verifyEclipseIU(ArrayList<IInstallableUnit> iuList, String idBase, String confSpec) {
 		for (IInstallableUnit possibleEclipse : iuList) {
 			if (possibleEclipse.getId().equals((idBase + ".executable." + confSpec + "." + EXECUTABLE_NAME))) { //$NON-NLS-1$//$NON-NLS-2$
-				assertTrue(possibleEclipse.getVersion().equals(version));
+				assertEquals(version, possibleEclipse.getVersion());
 				Collection<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + confSpec + "." + EXECUTABLE_NAME, version); //$NON-NLS-1$ //$NON-NLS-2$
-				assertTrue(providedCapability.size() == 1);
+				assertEquals(1, providedCapability.size());
 				Collection<IRequirement> req = possibleEclipse.getRequirements();
-				assertTrue(req.size() == 0);
+				assertEquals(0, req.size());
 				return;//pass
 			}
 		}
-		fail();
+		fail("No executable installable unit.");
 	}
 
 	private void verifyExecIU(ArrayList<IInstallableUnit> iuList, String idBase, String confSpec) {
@@ -274,15 +276,8 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		}
 	}
 
-	@Override
-	protected void insertPublisherInfoBehavior() {
-		setupArtifactRepository();
-		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
-		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();
-		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class<IBrandingAdvice>) anyObject())).andReturn(brandingAdvice);
-	}
-
-	private void setupBrandingAdvice(final String osArg, final String config, final File exec, final File icon) {
+	private List<IBrandingAdvice> setupBrandingAdvice(final String osArg, final File icon) {
+		List<IBrandingAdvice> brandingAdvice = new LinkedList<>();
 		brandingAdvice.add(new IBrandingAdvice() {
 			@Override
 			public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
@@ -304,5 +299,6 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				return EXECUTABLE_NAME;
 			}
 		});
+		return brandingAdvice;
 	}
 }

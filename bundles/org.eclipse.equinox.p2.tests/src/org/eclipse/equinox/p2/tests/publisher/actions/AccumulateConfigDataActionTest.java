@@ -15,21 +15,25 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import static org.mockito.Mockito.verify;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Map;
-import org.easymock.Capture;
-import org.easymock.EasyMock;
+import java.util.stream.Collectors;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
+import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.AccumulateConfigDataAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ConfigAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.LaunchingAdvice;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 public class AccumulateConfigDataActionTest extends ActionTest {
 
@@ -43,13 +47,11 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 	private static String launcherName = "launcherName"; //$NON-NLS-1$
 	private static String launcherVersion = "0.0.0"; //$NON-NLS-1$
 
-	Capture<ConfigAdvice> configAdviceCapture;
-	Capture<LaunchingAdvice> launchingAdviceCapture;
+	ArgumentCaptor<IPublisherAdvice> capture;
 
 	@Override
 	public void setUp() throws Exception {
-		configAdviceCapture = Capture.newInstance();
-		launchingAdviceCapture = Capture.newInstance();
+		capture = ArgumentCaptor.forClass(IPublisherAdvice.class);
 		setupPublisherInfo();
 		setupPublisherResult();
 		testAction = new AccumulateConfigDataAction(publisherInfo, configSpec, configLocation, executableLocation);
@@ -57,13 +59,15 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 
 	public void testAccumulateConfigDataAction() throws Exception {
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+		verify(publisherInfo, Mockito.atLeastOnce()).addAdvice(capture.capture());
 		verifyConfigAdvice();
 		verifyLaunchAdvice();
 		debug("Completed AccumulateConfigDataActionTest."); //$NON-NLS-1$
 	}
 
 	private void verifyLaunchAdvice() throws URISyntaxException {
-		LaunchingAdvice captured = launchingAdviceCapture.getValue();
+		LaunchingAdvice captured = (LaunchingAdvice) capture.getAllValues().stream()
+				.filter(LaunchingAdvice.class::isInstance).collect(Collectors.toList()).get(0);
 		String[] programArgs = captured.getProgramArguments();
 		assertTrue(programArgs.length == 4);
 		assertTrue(programArgs[0].equalsIgnoreCase("-startup")); //$NON-NLS-1$
@@ -81,7 +85,8 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 	}
 
 	private void verifyConfigAdvice() throws Exception {
-		ConfigAdvice captured = configAdviceCapture.getValue();
+		ConfigAdvice captured = (ConfigAdvice) capture.getAllValues().stream().filter(ConfigAdvice.class::isInstance)
+				.collect(Collectors.toList()).get(0);
 		Map<String, String> prop = captured.getProperties();
 		assertTrue(prop.get("eclipse.buildId").equalsIgnoreCase("TEST-ID")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(prop.get("eclipse.p2.profile").equalsIgnoreCase("PlatformProfile")); //$NON-NLS-1$//$NON-NLS-2$
@@ -109,8 +114,5 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 		ConfigAdvice configAdvice = new ConfigAdvice(configData, configSpec);
 		ArrayList<ConfigAdvice> configList = new ArrayList<>();
 		configList.add(configAdvice);
-
-		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(ConfigAdvice.class), EasyMock.capture(configAdviceCapture)));
-		publisherInfo.addAdvice(EasyMock.and(EasyMock.isA(LaunchingAdvice.class), EasyMock.capture(launchingAdviceCapture)));
 	}
 }
