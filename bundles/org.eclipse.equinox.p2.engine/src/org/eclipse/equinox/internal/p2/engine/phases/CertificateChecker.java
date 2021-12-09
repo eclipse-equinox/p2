@@ -19,6 +19,7 @@ import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.bouncycastle.openpgp.*;
 import org.eclipse.core.runtime.*;
@@ -54,7 +55,16 @@ public class CertificateChecker {
 	private Map<IArtifactDescriptor, File> artifacts = new HashMap<>();
 	private final IProvisioningAgent agent;
 
-	private PGPPublicKeyStore trustedKeys;
+	private Supplier<PGPPublicKeyStore> trustedKeys = new Supplier<>() {
+		private PGPPublicKeyStore cache = null;
+
+		public PGPPublicKeyStore get() {
+			if (cache == null) {
+				cache = buildPGPTrustore();
+			}
+			return cache;
+		}
+	};
 
 	public CertificateChecker() {
 		this(null);
@@ -113,11 +123,8 @@ public class CertificateChecker {
 				} else {
 					Collection<PGPSignature> signatures = PGPSignatureVerifier.getSignatures(artifact.getKey());
 					if (!signatures.isEmpty()) {
-						if (trustedKeys == null) {
-							trustedKeys = buildPGPTrustore();
-						}
-						if (trustedKeysIds.isEmpty() && !trustedKeys.isEmpty()) {
-							trustedKeysIds.addAll(trustedKeys.all().stream()
+						if (trustedKeysIds.isEmpty() && !trustedKeys.get().isEmpty()) {
+							trustedKeysIds.addAll(trustedKeys.get().all().stream()
 									.map(PGPPublicKey::getKeyID).map(Long::valueOf).collect(Collectors.toSet()));
 						}
 						if (signatures.stream().map(PGPSignature::getKeyID).noneMatch(trustedKeysIds::contains)) {
@@ -223,8 +230,8 @@ public class CertificateChecker {
 		if (trustInfo.persistTrust()) {
 			IStatus certifactesStatus = trustInfo.getTrustedCertificates().length == 0 ? null
 					: persistTrustedCertificates(trustedCertificates);
-			trustInfo.getTrustedPGPKeys().forEach(trustedKeys::addKey);
-			IStatus pgpStatus = trustInfo.getTrustedPGPKeys().isEmpty() ? null : persistTrustedKeys(trustedKeys);
+			trustInfo.getTrustedPGPKeys().forEach(trustedKeys.get()::addKey);
+			IStatus pgpStatus = trustInfo.getTrustedPGPKeys().isEmpty() ? null : persistTrustedKeys(trustedKeys.get());
 			if (pgpStatus == null) {
 				return certifactesStatus;
 			}
