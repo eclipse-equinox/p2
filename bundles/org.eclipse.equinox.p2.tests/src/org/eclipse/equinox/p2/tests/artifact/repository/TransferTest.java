@@ -57,7 +57,9 @@ public class TransferTest extends AbstractProvisioningTest {
 		try {
 			fos.close();
 			if (f != null) {
-				String[] ecfPlugins = new String[] {"org.eclipse.ecf", "org.eclipse.ecf.identity", "org.eclipse.ecf.filetransfer", "org.eclipse.ecf.provider.filetransfer", "org.eclipse.ecf.provider.filetransfer.httpclient45"};
+				String[] ecfPlugins = new String[] { "org.eclipse.ecf", "org.eclipse.ecf.identity",
+						"org.eclipse.ecf.filetransfer", "org.eclipse.ecf.provider.filetransfer",
+						"org.eclipse.ecf.provider.filetransfer.httpclient5" };
 				StringBuilder buffer = new StringBuilder();
 				for (String ecfPlugin : ecfPlugins) {
 					Bundle bundle = Platform.getBundle(ecfPlugin);
