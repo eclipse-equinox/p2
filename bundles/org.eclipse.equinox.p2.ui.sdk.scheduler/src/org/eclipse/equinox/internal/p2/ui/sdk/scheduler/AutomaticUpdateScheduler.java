@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IStartup;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -54,8 +55,6 @@ public class AutomaticUpdateScheduler implements IStartup {
 	private IUpdateListener listener;
 	private IUpdateChecker checker;
 
-	private IProvisioningAgent agent;
-
 	@Override
 	public void earlyStartup() {
 		AutomaticUpdatePlugin.getDefault().setScheduler(this);
@@ -64,7 +63,13 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
+				IProvisioningAgent agent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(),
+						IProvisioningAgent.class);
+				if (agent == null) {
+					String message = "No provisioning agent service found"; //$NON-NLS-1$
+					AutomaticUpdatePlugin.getDefault().getLog().warn(message, new IllegalStateException(message));
+					return Status.CANCEL_STATUS;
+				}
 				IProfileRegistry registry = agent.getService(IProfileRegistry.class);
 				IProfile currentProfile = registry.getProfile(IProfileRegistry.SELF);
 				if (currentProfile != null
@@ -72,7 +77,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 					return Status.OK_STATUS;
 				}
 
-				removeUnusedPlugins(registry);
+				removeUnusedPlugins(registry, agent);
 				scheduleUpdate();
 				return Status.OK_STATUS;
 			}
@@ -80,6 +85,11 @@ public class AutomaticUpdateScheduler implements IStartup {
 			@Override
 			public boolean belongsTo(Object family) {
 				return AutomaticUpdateScheduler.class == family;
+			}
+
+			@Override
+			public boolean shouldRun() {
+				return PlatformUI.isWorkbenchRunning();
 			}
 		};
 
@@ -92,8 +102,9 @@ public class AutomaticUpdateScheduler implements IStartup {
 	 * Invokes the garbage collector to discard unused plugins, if specified by a
 	 * corresponding preference.
 	 * 
+	 * @param agent non null
 	 */
-	private void removeUnusedPlugins(IProfileRegistry registry) {
+	private void removeUnusedPlugins(IProfileRegistry registry, IProvisioningAgent agent) {
 		// check if gc is enabled
 		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault().getPreferenceStore();
 		if (!pref.getBoolean(PreferenceConstants.PREF_GC_ON_STARTUP)) {
@@ -149,10 +160,12 @@ public class AutomaticUpdateScheduler implements IStartup {
 			}
 		};
 
-		IProvisioningAgent pagent = agent;
+		IProvisioningAgent pagent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(),
+				IProvisioningAgent.class);
 		if (pagent == null) {
-			// Job not executed yet
-			pagent = ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.class);
+			String message = "No provisioning agent service found"; //$NON-NLS-1$
+			AutomaticUpdatePlugin.getDefault().getLog().warn(message, new IllegalStateException(message));
+			return;
 		}
 		checker = pagent.getService(IUpdateChecker.class);
 		if (checker == null) {
