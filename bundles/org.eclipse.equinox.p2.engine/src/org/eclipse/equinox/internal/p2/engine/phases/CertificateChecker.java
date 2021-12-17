@@ -308,9 +308,12 @@ public class CertificateChecker {
 	public PGPPublicKeyStore buildPGPTrustore() {
 		PGPPublicKeyStore trustStore = new PGPPublicKeyStore();
 		IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
-		trustStore.addKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY));
-		ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class), profile.getProfileId());
-		trustStore.addKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null));
+		if (profile != null) {
+			trustStore.addKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY));
+			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
+					profile.getProfileId());
+			trustStore.addKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null));
+		}
 		//// SECURITY ISSUE: next lines become an attack vector as we have no guarantee
 		//// the metadata of those IUs is safe/were signed.
 		//// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576705#c4
