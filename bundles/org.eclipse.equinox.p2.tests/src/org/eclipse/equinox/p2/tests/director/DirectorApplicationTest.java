@@ -838,4 +838,24 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		return avoidTrustPromptService.getTrustInfo(untrustedChain, null);
 	}
 
+	public void testPGPSignedArtifact() throws Exception {
+		File srcRepo = getTestData(null, "/testData/pgp/repoPGPOK");
+
+		IArtifactRepositoryManager artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
+		IMetadataRepositoryManager metadataManager = getAgent().getService(IMetadataRepositoryManager.class);
+		assertNotNull(artifactManager);
+		assertNotNull(metadataManager);
+
+		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
+		String[] args = getSingleRepoArgs(null, srcRepo, srcRepo, destinationRepo, "blah");
+
+		destinationRepo.mkdirs();
+
+		StringBuffer buffer = runDirectorApp(null, args);
+		assertFalse(buffer.toString(), buffer.toString().contains("failed"));
+
+		artifactManager.removeRepository(srcRepo.toURI());
+		metadataManager.removeRepository(srcRepo.toURI());
+		delete(destinationRepo);
+	}
 }

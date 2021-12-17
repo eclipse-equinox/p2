@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -84,6 +85,21 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				}
 			}
 			return new TrustInfo(trusted, false, true);
+		}
+
+		@Override
+		public TrustInfo getTrustInfo(Certificate[][] untrustedChains, Collection<PGPPublicKey> untrustedPGPKeys,
+				String[] unsignedDetail) {
+			final Collection<Certificate> trusted;
+			if (untrustedChains == null) {
+				trusted = List.of();
+			} else {
+				trusted = new ArrayList<>(untrustedChains.length);
+				for (Certificate[] untrustedChain : untrustedChains) {
+					trusted.add(untrustedChain[0]);
+				}
+			}
+			return new TrustInfo(trusted, untrustedPGPKeys, false, true);
 		}
 	}
 
