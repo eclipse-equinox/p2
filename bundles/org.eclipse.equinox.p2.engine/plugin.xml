@@ -4,6 +4,7 @@
 <extension-point id="touchpoints"  name="Touchpoints" schema="schema/touchpoints.exsd"/>
 
 <extension-point id="actions" name="Actions" schema="schema/actions.exsd"/>
+<extension-point id="pgp" name="PGP" schema="schema/pgp.exsd"/>
  <extension
        id="metadataRepository"
        point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">

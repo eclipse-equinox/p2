@@ -39,7 +39,7 @@ import org.eclipse.equinox.p2.tests.TestData;
  * Tests for {@link CertificateChecker}.
  */
 public class CertificateCheckerTest extends AbstractProvisioningTest {
-	private static final String PGP_PUBLIC_KEY = "-----BEGIN PGP PUBLIC KEY BLOCK-----\n" + "\n"
+	private static final String PGP_SIGNER1_PUBLIC_KEY = "-----BEGIN PGP PUBLIC KEY BLOCK-----\n" + "\n"
 			+ "mQGNBGB1bugBDADQ5l7YnS9hNFRkBKSrvVNHt/TxeHaNNIHkdTC56I1QdThsOt4Y\n"
 			+ "oQRI27AEOaY1GFEi6+QqwxALcMMMSTgkCRs2NFGqlWMVzNYE7bJMWChVa7uQ/9CG\n"
 			+ "1HRbXwVwQx3hFgU4kmw1Kl/IH4LX76d9gAMyFANPjYZJSjbAv54wOlKruDRgpQFF\n"
@@ -78,7 +78,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 			+ "cKLSMOR+Tji6n7FjOcVl6VoDKTjdxj9OgAlbZ7W9jEArrUjDdCk/m4jq9h9phpli\n"
 			+ "BHoul/nauwtlUnQes1V+39Rk9l7gddKWg3dlwg6CjB5MkmcaeyxgANcyKgrunpg=\n" + "=JYpC\n"
 			+ "-----END PGP PUBLIC KEY BLOCK-----\n";
-	private static final String PGP_SIGNATURE = "-----BEGIN PGP SIGNATURE-----\n" + "\n"
+	private static final String PGP_SIGNER1_SIGNATURE = "-----BEGIN PGP SIGNATURE-----\n" + "\n"
 			+ "iQHRBAABCAA7FiEE6ZbGcKp/ZUCb9dtWE5442Q3tEfAFAmB4Bf8dHHNpZ25lcjFA\n"
 			+ "ZmFrZXVzZXIuZWNsaXBzZS5vcmcACgkQE5442Q3tEfBPuAwAhE4zA7BswKFhEtzm\n"
 			+ "DS3EbyRr/U13sV01YxqGtxYDCfrOt8TGVPXJSvo0AVP4vLFc5b+0jtVFoarFJNBu\n"
@@ -90,6 +90,19 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 			+ "7iTFc+WgVJkP0e695mm1tcvtQHUPbIItYJUsndyLgGInzglxN8+F4U4k8uapydI9\n"
 			+ "RmV2NVAifYp8z95Am5AnlG8lqjwrWk5bMbJH82QsQESrNT/h\n" + "=8Vrn\n"
 			+ "-----END PGP SIGNATURE-----\n";
+	private static final String PGP_SIGNER2_SIGNATURE = "-----BEGIN PGP SIGNATURE-----\n" + "\n"
+			+ "iQIzBAABCAAdFiEEzZ1aK4a8T+GDlFHh4vaU9BsKs3AFAmHUy4UACgkQ4vaU9BsK\n"
+			+ "s3DjuhAAvlCtqhK/7/aAG0/cXtlpu0fPC176OmEmBGTjCsrGdWwuRHsqXbLnMBVZ\n"
+			+ "0D1m38MDvuYZfJuP7arw7USKp+Jy54Bv/YwvHLl74YTx1BN9hAN9QvyLxLZOjdm1\n"
+			+ "/ipiWUuUgGa/brxEZNQqSR0w17TqXkIJHeFFS3T/rNH/Ckom5vQhAEm9HwJYeGdt\n"
+			+ "tJ5BUl7BS1rrEOs+xmzqLu6AaERREc5gGRniJe7aP2Ke+/wL6oOLG3v/6vsJSM2e\n"
+			+ "t+Olo4Ugc6JbdNrwvTO8kkTxsi0gp2CPhKl3RZVnbGoe4tXHawmk2V3eVTa0w6iP\n"
+			+ "ARPJ/xH2dDsRi4Kz3OkcyQOI24jGmaqpUrx3+f2BnEbcVs4cHIJc+O2gh1WUz6uY\n"
+			+ "Zw7qtK0W3H+E7RuJLCScgasPZZPBzyA6B3o2J3bfXnG5r41aJEuiq3otgllrBakG\n"
+			+ "u7fX00h8lylgRrlCb4mquZxxRsrl+ac6U5eYdDMkK5VNkXgrus8FedIh3vmqI7RR\n"
+			+ "ou9GEjho4kebt1Y1yTAQnxWBtTUG2hFt6VirKydI7+ZcCZmbD9lrZT6xVQOCkyUQ\n"
+			+ "Cwy7vNPWkpMBBRVLoaThD2+7znDpb6wNYf9mDCcCK8tyuVCDSYEFX6jlqv1yfpNl\n"
+			+ "QlYE1biLAHl09NH397Ta/9cWdfu68I7Mv4Ev2zu45OGa83h820M=\n" + "=9Ha/\n" + "-----END PGP SIGNATURE-----\n";
 
 	class CertificateTestService extends UIServices {
 		public boolean unsignedReturnValue = true;
@@ -242,9 +255,9 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 			ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(
 					new ArtifactKey("what", "ever", Version.create("1")));
 			artifactDescriptor.addProperties(
-					Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME, PGP_SIGNATURE, //
+					Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME, PGP_SIGNER1_SIGNATURE, //
 							PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME,
-							PGP_PUBLIC_KEY));
+							PGP_SIGNER1_PUBLIC_KEY));
 			checker.add(Map.of(artifactDescriptor, unsigned));
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
 			IStatus result = checker.start();
@@ -264,13 +277,29 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 							CertificateCheckerTest.class.getName() + "testPGPSignedArtifactTrustedKey-profile")
 							.toUri()));
 			testAgent.getService(IProfileRegistry.class).addProfile(IProfileRegistry.SELF,
-					Map.of(CertificateChecker.TRUSTED_KEY_STORE_PROPERTY, PGP_PUBLIC_KEY));
-
+					Map.of(CertificateChecker.TRUSTED_KEY_STORE_PROPERTY, PGP_SIGNER1_PUBLIC_KEY));
 			unsigned = TestData.getFile("pgp/repoPGPOK/plugins", "blah_1.0.0.123456.jar");
 			ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(
 					new ArtifactKey("what", "ever", Version.create("1")));
 			artifactDescriptor.addProperties(
-					Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME, PGP_SIGNATURE));
+					Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME, PGP_SIGNER1_SIGNATURE));
+			checker.add(Map.of(artifactDescriptor, unsigned));
+			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
+			IStatus result = checker.start();
+			assertTrue(result.isOK());
+			assertFalse(serviceUI.wasPrompted);
+		} finally {
+			System.getProperties().remove(EngineActivator.PROP_UNSIGNED_POLICY);
+		}
+	}
+
+	public void testPGPSignedArtifactTrustedKeyInProvideCapability() throws IOException {
+		try {
+			unsigned = TestData.getFile("pgp/repoPGPOK/plugins", "blah_1.0.0.123456.jar");
+			ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(
+					new ArtifactKey("what", "ever", Version.create("1")));
+			artifactDescriptor
+					.addProperties(Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME, PGP_SIGNER2_SIGNATURE));
 			checker.add(Map.of(artifactDescriptor, unsigned));
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
 			IStatus result = checker.start();

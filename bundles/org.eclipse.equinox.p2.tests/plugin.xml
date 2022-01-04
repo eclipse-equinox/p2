@@ -153,4 +153,10 @@
           suffix="@testArtifactRepositoryRegistry">
     </filter>
  </extension>
+ <extension
+       point="org.eclipse.equinox.p2.engine.pgp">
+    <trustedKeys
+          path="testData/pgp/signer2-publickey.asc">
+    </trustedKeys>
+ </extension>
 </plugin>

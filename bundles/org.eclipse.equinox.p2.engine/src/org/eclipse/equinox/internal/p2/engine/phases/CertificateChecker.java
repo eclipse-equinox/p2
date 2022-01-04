@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.bouncycastle.openpgp.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -55,6 +55,7 @@ public class CertificateChecker {
 	private Map<IArtifactDescriptor, File> artifacts = new HashMap<>();
 	private final IProvisioningAgent agent;
 
+	// Lazily loading
 	private Supplier<PGPPublicKeyStore> trustedKeys = new Supplier<>() {
 		private PGPPublicKeyStore cache = null;
 
@@ -307,13 +308,59 @@ public class CertificateChecker {
 
 	public PGPPublicKeyStore buildPGPTrustore() {
 		PGPPublicKeyStore trustStore = new PGPPublicKeyStore();
-		IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
-		if (profile != null) {
-			trustStore.addKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY));
-			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
-					profile.getProfileId());
-			trustStore.addKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null));
+		// load from profile properties
+		if (agent != null && agent.getService(IAgentLocation.SERVICE_NAME) != null) {
+			IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
+			if (profile != null) {
+				trustStore.addKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY));
+				ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
+						profile.getProfileId());
+				trustStore.addKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null));
+			}
 		}
+		// load from bundles providing capability
+		for (IConfigurationElement extension : RegistryFactory.getRegistry()
+				.getConfigurationElementsFor(EngineActivator.ID + ".pgp")) {
+			if ("trustedKeys".equals(extension.getName())) {
+				String pathInBundle = extension.getAttribute("path"); //$NON-NLS-1$
+				if (pathInBundle != null) {
+					Stream.of(EngineActivator.getContext().getBundles())
+							.filter(bundle -> bundle.getSymbolicName().equals(extension.getContributor().getName()))
+							.map(bundle -> bundle.getEntry(pathInBundle)) //
+							.filter(Objects::nonNull) //
+							.forEach(url -> {
+								try (InputStream stream = url.openStream()) {
+									PGPPublicKeyStore.readPublicKeys(stream).forEach(trustStore::addKey);
+								} catch (IOException e) {
+									DebugHelper.debug(DEBUG_PREFIX, e.getMessage());
+								}
+							});
+				}
+			}
+		}
+//		FrameworkWiring wiring = EngineActivator.getContext().getBundle(Constants.SYSTEM_BUNDLE_ID)
+//				.adapt(FrameworkWiring.class);
+//		if (wiring != null) {
+//			Requirement pgpSignatureRequirements = ModuleContainer.createRequirement(
+//					"org.eclipse.equinox.p2.pgp.trustedPublicKeys", //$NON-NLS-1$
+//					Map.of(), Map.of());
+//			for (BundleCapability capability : wiring.findProviders(pgpSignatureRequirements)) {
+//				String pathInBundle = (String) capability.getAttributes().get("path"); //$NON-NLS-1$
+//				if (pathInBundle != null) {
+//					URL key = capability.getRevision().getBundle().getEntry(pathInBundle);
+//					if (key != null) {
+//						try (InputStream stream = key.openStream()) {
+//							PGPPublicKeyStore.readPublicKeys(stream).forEach(trustStore::addKey);
+//						} catch (IOException e) {
+//							DebugHelper.debug(DEBUG_PREFIX, e.getMessage());
+//						}
+//					}
+//				}
+//			}
+
+//		}
+
+		// load from p2 metadata of installed artifacts
 		//// SECURITY ISSUE: next lines become an attack vector as we have no guarantee
 		//// the metadata of those IUs is safe/were signed.
 		//// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576705#c4
