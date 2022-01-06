@@ -274,12 +274,21 @@ public class ProvUIMessages extends NLS {
 	public static String TrustCertificateDialog_Export;
 	public static String TrustCertificateDialog_Title;
 	public static String TrustCertificateDialog_Message;
+	public static String TrustCertificateDialog_MessageWithPGP;
 	public static String TrustCertificateDialog_AcceptSelectedButtonLabel;
 	public static String TrustCertificateDialog_SelectAll;
 	public static String TrustCertificateDialog_DeselectAll;
 	public static String TrustCertificateDialog_ObjectType;
 	public static String TrustCertificateDialog_Id;
 	public static String TrustCertificateDialog_Name;
+	public static String TrustCertificateDialog_CopyFingerprint;
+	public static String TrustCertificateDialog_dates;
+	public static String TrustCertificateDialog_NotYetValidStartDate;
+	public static String TrustCertificateDialog_expiredSince;
+	public static String TrustCertificateDialog_validExpires;
+	public static String TrustCertificateDialog_valid;
+	public static String TrustCertificateDialog_expired;
+	public static String TrustCertificateDialog_notYetValid;
 	// Operations
 	public static String UpdateManagerCompatibility_ExportSitesTitle;
 	public static String UpdateManagerCompatibility_ImportSitesTitle;

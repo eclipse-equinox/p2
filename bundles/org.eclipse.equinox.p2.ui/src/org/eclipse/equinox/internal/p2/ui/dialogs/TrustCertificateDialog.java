@@ -35,6 +35,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.*;
@@ -65,8 +66,33 @@ public class TrustCertificateDialog extends SelectionDialog {
 		inputElement = input;
 		this.contentProvider = new TreeNodeContentProvider();
 		setTitle(ProvUIMessages.TrustCertificateDialog_Title);
-		setMessage(ProvUIMessages.TrustCertificateDialog_Message);
+		setMessage(containsPGPKeys(inputElement) ? ProvUIMessages.TrustCertificateDialog_MessageWithPGP
+				: ProvUIMessages.TrustCertificateDialog_Message);
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | getDefaultOrientation());
+	}
+
+	private static boolean containsPGPKeys(Object inputElement) {
+		if (inputElement instanceof PGPPublicKey) {
+			return true;
+		} else if (inputElement instanceof PGPPublicKey[]) {
+			return ((PGPPublicKey[]) inputElement).length > 0;
+		} else if (inputElement instanceof Iterable) {
+			Iterator<?> iterator = ((Iterable<?>) inputElement).iterator();
+			while (iterator.hasNext()) {
+				if (containsPGPKeys(iterator.next())) {
+					return true;
+				}
+			}
+		} else if (inputElement instanceof TreeNode) {
+			return containsPGPKeys(((TreeNode) inputElement).getValue());
+		} else if (inputElement instanceof TreeNode[]) {
+			for (TreeNode child : (TreeNode[]) inputElement) {
+				if (containsPGPKeys(child)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private static class PGPOrX509ColumnLabelProvider extends ColumnLabelProvider {
@@ -187,7 +213,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 				} else if (o instanceof PGPPublicKey) {
 					PGPPublicKey key = (PGPPublicKey) o;
 					destination.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
-					destination.setFileName(Long.toHexString(key.getKeyID()) + ".asc"); //$NON-NLS-1$
+					destination.setFileName(userFriendlyFingerPrint(key).replace(" ", "") + ".asc"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					String path = destination.open();
 					if (path == null) {
 						return;
@@ -229,7 +255,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		TableViewerColumn idColumn = new TableViewerColumn(listViewer, SWT.NONE);
 		idColumn.getColumn().setWidth(200);
 		idColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_Id);
-		idColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(key -> Long.toHexString(key.getKeyID()),
+		idColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(TrustCertificateDialog::userFriendlyFingerPrint,
 				cert -> cert.getSerialNumber().toString()));
 		TableViewerColumn signerColumn = new TableViewerColumn(listViewer, SWT.NONE);
 		signerColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_Name);
@@ -244,6 +270,25 @@ public class TrustCertificateDialog extends SelectionDialog {
 					+ principalHelper.getO();
 		}));
 		listViewer.getTable().setHeaderVisible(true);
+
+		Menu menu = new Menu(listViewer.getTable());
+		listViewer.getTable().setMenu(menu);
+		MenuItem item = new MenuItem(menu, SWT.PUSH);
+		item.setText(ProvUIMessages.TrustCertificateDialog_CopyFingerprint);
+		item.addSelectionListener(widgetSelectedAdapter(e -> {
+			Object o = ((IStructuredSelection) listViewer.getSelection()).getFirstElement();
+			if (o instanceof TreeNode) {
+				o = ((TreeNode) o).getValue();
+			}
+			if (o instanceof PGPPublicKey) {
+				PGPPublicKey key = (PGPPublicKey) o;
+				Clipboard clipboard = new Clipboard(getShell().getDisplay());
+				clipboard.setContents(new Object[] { userFriendlyFingerPrint(key) },
+						new Transfer[] { TextTransfer.getInstance() });
+				clipboard.dispose();
+			}
+		}));
+		listViewer.addSelectionChangedListener(e -> item.setEnabled(containsPGPKeys(e.getSelection())));
 
 		addSelectionButtons(composite);
 
@@ -322,10 +367,12 @@ public class TrustCertificateDialog extends SelectionDialog {
 			Object selectedElement = selection.getFirstElement();
 			if (selectedElement instanceof TreeNode) {
 				TreeNode treeNode = (TreeNode) selectedElement;
-				// create and open dialog for certificate chain
-				X509CertificateViewDialog certificateViewDialog = new X509CertificateViewDialog(getShell(),
-						(X509Certificate) treeNode.getValue());
-				certificateViewDialog.open();
+				if (treeNode.getValue() instanceof X509Certificate) {
+					// create and open dialog for certificate chain
+					X509CertificateViewDialog certificateViewDialog = new X509CertificateViewDialog(getShell(),
+							(X509Certificate) treeNode.getValue());
+					certificateViewDialog.open();
+				}
 			}
 		};
 	}
@@ -363,5 +410,16 @@ public class TrustCertificateDialog extends SelectionDialog {
 			setResult(list);
 		}
 		super.okPressed();
+	}
+
+	private static String userFriendlyFingerPrint(PGPPublicKey key) {
+		if (key == null) {
+			return null;
+		}
+		StringBuilder builder = new StringBuilder();
+		for (byte b : key.getFingerprint()) {
+			builder.append(String.format("%02X", Byte.toUnsignedInt(b))); //$NON-NLS-1$
+		}
+		return builder.toString();
 	}
 }
