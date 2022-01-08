@@ -133,20 +133,19 @@ public class TrustCertificateDialog extends SelectionDialog {
 		certificateChainViewer.setContentProvider(new TreeNodeContentProvider());
 		certificateChainViewer.setLabelProvider(new CertificateLabelProvider());
 		certificateChainViewer.addSelectionChangedListener(getChainSelectionListener());
+		listViewer.addDoubleClickListener(getDoubleClickListener());
+		listViewer.addSelectionChangedListener(getParentSelectionListener());
+		createButtons(composite);
 		if (inputElement instanceof Object[]) {
 			ISelection selection = null;
 			Object[] nodes = (Object[]) inputElement;
 			if (nodes.length > 0) {
 				selection = new StructuredSelection(nodes[0]);
 				certificateChainViewer.setInput(new TreeNode[] { (TreeNode) nodes[0] });
-				selectedCertificate = nodes[0];
+				certificateChainViewer.setSelection(selection);
 			}
 			listViewer.setSelection(selection);
 		}
-		listViewer.addDoubleClickListener(getDoubleClickListener());
-		listViewer.addSelectionChangedListener(getParentSelectionListener());
-		createButtons(composite);
-		detailsButton.setEnabled(selectedCertificate instanceof X509Certificate);
 		return composite;
 	}
 
@@ -241,7 +240,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		initializeDialogUnits(composite);
 		createMessageArea(composite);
 
-		listViewer = CheckboxTableViewer.newCheckList(composite, SWT.BORDER);
+		listViewer = CheckboxTableViewer.newCheckList(composite, SWT.BORDER | SWT.FULL_SELECTION);
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.heightHint = SIZING_SELECTION_WIDGET_HEIGHT;
 		data.widthHint = SIZING_SELECTION_WIDGET_WIDTH;
@@ -352,7 +351,8 @@ public class TrustCertificateDialog extends SelectionDialog {
 			ISelection selection = event.getSelection();
 			if (selection instanceof StructuredSelection) {
 				selectedCertificate = ((StructuredSelection) selection).getFirstElement();
-				detailsButton.setEnabled(selectedCertificate instanceof X509Certificate);
+				detailsButton.setEnabled(selectedCertificate instanceof TreeNode
+						&& ((TreeNode) selectedCertificate).getValue() instanceof X509Certificate);
 			}
 		};
 	}
@@ -383,8 +383,13 @@ public class TrustCertificateDialog extends SelectionDialog {
 			if (selection instanceof StructuredSelection) {
 				TreeNode firstElement = (TreeNode) ((StructuredSelection) selection).getFirstElement();
 				getCertificateChainViewer().setInput(new TreeNode[] { firstElement });
-				getOkButton().setEnabled(listViewer.getChecked(firstElement));
-				getCertificateChainViewer().refresh();
+				if (firstElement.getValue() instanceof X509Certificate) {
+					getCertificateChainViewer().setSelection(new StructuredSelection(firstElement));
+				}
+				Button okButton = getOkButton();
+				if (okButton != null) {
+					okButton.setEnabled(listViewer.getCheckedElements().length > 0);
+				}
 			}
 		};
 	}
