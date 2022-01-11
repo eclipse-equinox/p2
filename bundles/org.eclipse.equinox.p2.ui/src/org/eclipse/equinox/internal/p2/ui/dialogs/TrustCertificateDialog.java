@@ -17,29 +17,30 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.*;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.security.cert.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.function.Function;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.internal.provisional.security.ui.X500PrincipalHelper;
 import org.eclipse.equinox.internal.provisional.security.ui.X509CertificateViewDialog;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
 
 /**
@@ -69,6 +70,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		setMessage(containsPGPKeys(inputElement) ? ProvUIMessages.TrustCertificateDialog_MessageWithPGP
 				: ProvUIMessages.TrustCertificateDialog_Message);
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | getDefaultOrientation());
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parentShell, IProvHelpContextIds.TRUST_DIALOG);
 	}
 
 	private static boolean containsPGPKeys(Object inputElement) {
@@ -245,6 +247,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		data.heightHint = SIZING_SELECTION_WIDGET_HEIGHT;
 		data.widthHint = SIZING_SELECTION_WIDGET_WIDTH;
 		listViewer.getTable().setLayoutData(data);
+		listViewer.getTable().setHeaderVisible(true);
 
 		listViewer.setContentProvider(contentProvider);
 		TableViewerColumn typeColumn = new TableViewerColumn(listViewer, SWT.NONE);
@@ -268,7 +271,27 @@ public class TrustCertificateDialog extends SelectionDialog {
 			return principalHelper.getCN() + "; " + principalHelper.getOU() + "; " //$NON-NLS-1$ //$NON-NLS-2$
 					+ principalHelper.getO();
 		}));
-		listViewer.getTable().setHeaderVisible(true);
+		TableViewerColumn validColumn = new TableViewerColumn(listViewer, SWT.NONE);
+		validColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_dates);
+		validColumn.getColumn().setWidth(100);
+		validColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(pgp -> {
+			if (pgp.getCreationTime().after(Date.from(Instant.now()))) {
+				return NLS.bind(ProvUIMessages.TrustCertificateDialog_NotYetValidStartDate, pgp.getCreationTime());
+			}
+			Instant expires = pgp.getCreationTime().toInstant().plus(pgp.getValidSeconds(), ChronoUnit.SECONDS);
+			return expires.isBefore(Instant.now())
+					? NLS.bind(ProvUIMessages.TrustCertificateDialog_expiredSince, expires)
+					: NLS.bind(ProvUIMessages.TrustCertificateDialog_validExpires, expires);
+		}, x509 -> {
+			try {
+				x509.checkValidity();
+				return ProvUIMessages.TrustCertificateDialog_valid;
+			} catch (CertificateExpiredException expired) {
+				return ProvUIMessages.TrustCertificateDialog_expired;
+			} catch (CertificateNotYetValidException notYetValid) {
+				return ProvUIMessages.TrustCertificateDialog_notYetValid;
+			}
+		}));
 
 		Menu menu = new Menu(listViewer.getTable());
 		listViewer.getTable().setMenu(menu);
