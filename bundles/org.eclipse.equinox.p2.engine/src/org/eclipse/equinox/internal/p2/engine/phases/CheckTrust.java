@@ -60,6 +60,7 @@ public class CheckTrust extends InstallableUnitPhase {
 		// Instantiate a check trust manager
 		CertificateChecker certificateChecker = new CertificateChecker(agent);
 		certificateChecker.add(artifactRequests);
+		certificateChecker.setProfile(profile);
 		return certificateChecker.start();
 	}
 

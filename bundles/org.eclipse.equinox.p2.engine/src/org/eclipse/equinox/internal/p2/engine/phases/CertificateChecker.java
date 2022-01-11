@@ -29,7 +29,8 @@ import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerif
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
@@ -48,6 +49,11 @@ public class CertificateChecker {
 	private static final String DEBUG_PREFIX = "certificate checker"; //$NON-NLS-1$
 
 	public static final String TRUSTED_KEY_STORE_PROPERTY = "pgp.trustedPublicKeys"; //$NON-NLS-1$
+
+	/***
+	 * Store the optional profile for PGP key handling
+	 */
+	private IProfile profile;
 
 	/**
 	 * Stores artifacts to check
@@ -302,21 +308,21 @@ public class CertificateChecker {
 
 	}
 
+	public void setProfile(IProfile profile) {
+		this.profile = profile;
+	}
+
 	public void add(Map<IArtifactDescriptor, File> toAdd) {
 		artifacts.putAll(toAdd);
 	}
 
 	public PGPPublicKeyStore buildPGPTrustore() {
 		PGPPublicKeyStore trustStore = new PGPPublicKeyStore();
-		// load from profile properties
-		if (agent != null && agent.getService(IAgentLocation.SERVICE_NAME) != null) {
-			IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
-			if (profile != null) {
-				trustStore.addKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY));
-				ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
-						profile.getProfileId());
-				trustStore.addKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null));
-			}
+		if (profile != null) {
+			trustStore.addKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY));
+			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
+					profile.getProfileId());
+			trustStore.addKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null));
 		}
 		// load from bundles providing capability
 		for (IConfigurationElement extension : RegistryFactory.getRegistry()
@@ -372,16 +378,18 @@ public class CertificateChecker {
 	}
 
 	public IStatus persistTrustedKeys(PGPPublicKeyStore trustStore) {
-		IProfile profile = agent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
-		ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class), profile.getProfileId());
-		IEclipsePreferences node = profileScope.getNode(EngineActivator.ID);
-		try {
-			node.put(TRUSTED_KEY_STORE_PROPERTY, trustStore.toArmoredString());
-			node.flush();
-			return Status.OK_STATUS;
-		} catch (IOException | BackingStoreException ex) {
-			return new Status(IStatus.ERROR, EngineActivator.ID, ex.getMessage(), ex);
+		if (profile != null) {
+			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
+					profile.getProfileId());
+			IEclipsePreferences node = profileScope.getNode(EngineActivator.ID);
+			try {
+				node.put(TRUSTED_KEY_STORE_PROPERTY, trustStore.toArmoredString());
+				node.flush();
+			} catch (IOException | BackingStoreException ex) {
+				return new Status(IStatus.ERROR, EngineActivator.ID, ex.getMessage(), ex);
+			}
 		}
+		return Status.OK_STATUS;
 	}
 }
 

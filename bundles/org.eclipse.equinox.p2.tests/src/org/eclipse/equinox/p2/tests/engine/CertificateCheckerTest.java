@@ -28,6 +28,7 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.UIServices;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -276,7 +277,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 					Files.createTempDirectory(
 							CertificateCheckerTest.class.getName() + "testPGPSignedArtifactTrustedKey-profile")
 							.toUri()));
-			testAgent.getService(IProfileRegistry.class).addProfile(IProfileRegistry.SELF,
+			IProfile profile = testAgent.getService(IProfileRegistry.class).addProfile(IProfileRegistry.SELF,
 					Map.of(CertificateChecker.TRUSTED_KEY_STORE_PROPERTY, PGP_SIGNER1_PUBLIC_KEY));
 			unsigned = TestData.getFile("pgp/repoPGPOK/plugins", "blah_1.0.0.123456.jar");
 			ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(
@@ -284,6 +285,8 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 			artifactDescriptor.addProperties(
 					Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME, PGP_SIGNER1_SIGNATURE));
 			checker.add(Map.of(artifactDescriptor, unsigned));
+			checker.setProfile(profile);
+
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);
 			IStatus result = checker.start();
 			assertTrue(result.isOK());

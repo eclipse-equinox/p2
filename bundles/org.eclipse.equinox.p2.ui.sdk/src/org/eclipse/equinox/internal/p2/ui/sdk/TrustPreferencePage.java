@@ -20,6 +20,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPPublicKeyStore;
 import org.eclipse.equinox.internal.p2.engine.phases.CertificateChecker;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.viewers.*;
@@ -81,7 +83,10 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 		userColumn.getColumn().setWidth(400);
 		userColumn.getColumn().setText(ProvSDKMessages.TrustPreferencePage_userColumn);
 		viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		certificateChecker = new CertificateChecker(ProvSDKUIActivator.getDefault().getProvisioningAgent());
+		IProvisioningAgent provisioningAgent = ProvSDKUIActivator.getDefault().getProvisioningAgent();
+		certificateChecker = new CertificateChecker(provisioningAgent);
+		certificateChecker
+				.setProfile(provisioningAgent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF));
 		trustedKeys = certificateChecker.buildPGPTrustore();
 		viewer.setInput(trustedKeys.all());
 		Composite buttonComposite = createVerticalButtonBar(res);
