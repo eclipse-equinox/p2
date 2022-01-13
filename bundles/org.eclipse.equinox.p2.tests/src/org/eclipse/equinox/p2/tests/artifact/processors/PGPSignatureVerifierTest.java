@@ -71,13 +71,17 @@ public class PGPSignatureVerifierTest {
 
 	@Test
 	public void testNoPublicKeyFound() throws Exception {
+		// To address https://bugs.eclipse.org/bugs/show_bug.cgi?id=575541 a signature
+		// for which no key can be found is ignored.
+		// Such an artifact will be treated the same as an unsigned artifact.
+		// The missing key information will be in the details presented to the user.
 		IProcessingStepDescriptor processingStepDescriptor = new ProcessingStepDescriptor(null, null, false);
 		IArtifactDescriptor artifact = createArtifact("signed_by_signer_1", "public_signer2.pgp");
 		try (PGPSignatureVerifier verifier = new PGPSignatureVerifier()) {
 			verifier.initialize(null, processingStepDescriptor, artifact);
 			IStatus status = verifier.getStatus();
-			assertEquals(IStatus.ERROR, status.getSeverity());
-			assertTrue(status.getMessage().contains("Public key not found for"));
+			assertEquals(IStatus.OK, status.getSeverity());
+			// assertTrue(status.getMessage().contains("Public key not found for"));
 		}
 	}
 

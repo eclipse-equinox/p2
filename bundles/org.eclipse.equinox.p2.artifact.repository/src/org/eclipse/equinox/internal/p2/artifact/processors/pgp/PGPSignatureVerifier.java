@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.*;
-import org.eclipse.osgi.util.NLS;
 
 /**
  * This processing step verifies PGP signatures are correct (ie artifact was not
@@ -76,19 +75,21 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 			IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
 //		1. verify declared public keys have signature from a trusted key, if so, add to KeyStore
-//		2. verify artifact signature matches signture of given keys, and at least 1 of this key is trusted
+//		2. verify artifact signature matches signature of given keys, and at least 1 of this key is trusted
 		String signatureText = unnormalizedPGPProperty(context.getProperty(PGP_SIGNATURES_PROPERTY_NAME));
 		if (signatureText == null) {
 			setStatus(Status.OK_STATUS);
 			return;
 		}
+
+		Collection<PGPSignature> signatures;
 		try {
-			signaturesToVerify = getSignatures(context);
+			signatures = getSignatures(context);
 		} catch (Exception ex) {
 			setStatus(new Status(IStatus.ERROR, Activator.ID, Messages.Error_CouldNotLoadSignature, ex));
 			return;
 		}
-		if (signaturesToVerify.isEmpty()) {
+		if (signatures.isEmpty()) {
 			setStatus(Status.OK_STATUS);
 			return;
 		}
@@ -96,18 +97,21 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		IArtifactRepository repository = context.getRepository();
 		KNOWN_KEYS.addKeys(context.getProperty(PGP_SIGNER_KEYS_PROPERTY_NAME),
 				repository != null ? repository.getProperty(PGP_SIGNER_KEYS_PROPERTY_NAME) : null);
-		for (PGPSignature signature : signaturesToVerify) {
+		for (PGPSignature signature : signatures) {
 			PGPPublicKey publicKey = KNOWN_KEYS.getKey(signature.getKeyID());
-			if (publicKey == null) {
-				setStatus(new Status(IStatus.ERROR, Activator.ID,
-						NLS.bind(Messages.Error_publicKeyNotFound, Long.toHexString(signature.getKeyID()))));
-				return;
-			}
-			try {
-				signature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
-			} catch (PGPException ex) {
-				setStatus(new Status(IStatus.ERROR, Activator.ID, ex.getMessage(), ex));
-				return;
+			if (publicKey != null) {
+				// Signatures without known a corresponding key will be treated like unsigned
+				// content.
+				try {
+					if (signaturesToVerify == null) {
+						signaturesToVerify = new ArrayList<>();
+					}
+					signature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
+					signaturesToVerify.add(signature);
+				} catch (PGPException ex) {
+					setStatus(new Status(IStatus.ERROR, Activator.ID, ex.getMessage(), ex));
+					return;
+				}
 			}
 		}
 	}
