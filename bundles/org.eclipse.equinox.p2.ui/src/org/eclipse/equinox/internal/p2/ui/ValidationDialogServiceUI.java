@@ -21,6 +21,7 @@ import java.util.List;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
 import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
 import org.eclipse.equinox.p2.core.UIServices;
@@ -208,11 +209,39 @@ public class ValidationDialogServiceUI extends UIServices {
 				parent = node;
 			}
 		}
-		for (PGPPublicKey key : untrustedPublicKeys) {
-			children[i] = new TreeNode(key);
-			i++;
+
+		if (!untrustedPublicKeys.isEmpty()) {
+			Map<PGPPublicKey, Set<PGPPublicKey>> verifiedKnownKeyCertifications = PGPSignatureVerifier
+					.getVerifiedKnownKeyCertifications();
+			for (PGPPublicKey key : untrustedPublicKeys) {
+				children[i] = createTreeNode(key, verifiedKnownKeyCertifications, new HashSet<>());
+				i++;
+			}
 		}
 		return children;
+	}
+
+	private TreeNode createTreeNode(PGPPublicKey key,
+			Map<PGPPublicKey, Set<PGPPublicKey>> verifiedKnownKeyCertification, Set<PGPPublicKey> visited) {
+		if (visited.add(key)) {
+			TreeNode result = new TreeNode(key);
+			List<TreeNode> children = new ArrayList<>();
+			Set<PGPPublicKey> visitedChildren = new LinkedHashSet<>();
+			Set<PGPPublicKey> certifications = verifiedKnownKeyCertification.get(key);
+			if (certifications != null) {
+				for (PGPPublicKey certifyingKey : certifications) {
+					if (!visited.contains(certifyingKey) && visitedChildren.add(certifyingKey)) {
+						children.add(createTreeNode(certifyingKey, verifiedKnownKeyCertification, visited));
+					}
+				}
+			}
+			if (!children.isEmpty()) {
+				result.setChildren(children.toArray(TreeNode[]::new));
+				children.forEach(child -> child.setParent(result));
+			}
+			return result;
+		}
+		return null;
 	}
 
 	@Override

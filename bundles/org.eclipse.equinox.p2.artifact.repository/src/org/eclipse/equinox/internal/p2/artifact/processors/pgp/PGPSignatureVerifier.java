@@ -47,6 +47,54 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		link(nullOutputStream(), new NullProgressMonitor()); // this is convenience for tests
 	}
 
+	public static Map<PGPPublicKey, Set<PGPPublicKey>> getVerifiedKnownKeyCertifications() {
+		Map<PGPPublicKey, Set<PGPPublicKey>> result = new LinkedHashMap<>();
+		for (PGPPublicKey key : KNOWN_KEYS.all()) {
+			Set<PGPPublicKey> certifications = new LinkedHashSet<>();
+			for (Iterator<PGPSignature> signatures = key.getSignatures(); signatures.hasNext();) {
+				PGPSignature signature = signatures.next();
+				long signingKeyID = signature.getKeyID();
+				PGPPublicKey signingKey = KNOWN_KEYS.getKey(signingKeyID);
+				if (signingKey != null) {
+					switch (signature.getSignatureType()) {
+					case PGPSignature.SUBKEY_BINDING:
+					case PGPSignature.PRIMARYKEY_BINDING: {
+						try {
+							signature.init(new BcPGPContentVerifierBuilderProvider(), signingKey);
+							if (signature.verifyCertification(signingKey, key)) {
+								certifications.add(signingKey);
+							}
+						} catch (PGPException e) {
+							//$FALL-THROUGH$
+						}
+						break;
+					}
+					case PGPSignature.DEFAULT_CERTIFICATION:
+					case PGPSignature.NO_CERTIFICATION:
+					case PGPSignature.CASUAL_CERTIFICATION:
+					case PGPSignature.POSITIVE_CERTIFICATION: {
+						for (Iterator<String> userIDs = key.getUserIDs(); userIDs.hasNext();) {
+							String userID = userIDs.next();
+							try {
+								signature.init(new BcPGPContentVerifierBuilderProvider(), signingKey);
+								if (signature.verifyCertification(userID, key)) {
+									certifications.add(signingKey);
+									break;
+								}
+							} catch (PGPException e) {
+								//$FALL-THROUGH$
+							}
+						}
+						break;
+					}
+					}
+				}
+			}
+			result.put(key, certifications);
+		}
+		return result;
+	}
+
 	public static Collection<PGPSignature> getSignatures(IArtifactDescriptor artifact)
 			throws IOException, PGPException {
 		String signatureText = unnormalizedPGPProperty(artifact.getProperty(PGP_SIGNATURES_PROPERTY_NAME));

@@ -133,8 +133,46 @@ public class TrustCertificateDialog extends SelectionDialog {
 		certificateChainViewer.getTree().setLayoutData(data);
 		certificateChainViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 		certificateChainViewer.setContentProvider(new TreeNodeContentProvider());
-		certificateChainViewer.setLabelProvider(new CertificateLabelProvider());
+		certificateChainViewer.setLabelProvider(new CertificateLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				if (element instanceof TreeNode) {
+					Object o = ((TreeNode) element).getValue();
+					if (o instanceof PGPPublicKey) {
+						PGPPublicKey key = (PGPPublicKey) o;
+						String userFriendlyFingerPrint = userFriendlyFingerPrint(key);
+						java.util.List<String> users = new ArrayList<>();
+						key.getUserIDs().forEachRemaining(users::add);
+						String userIDs = String.join(",", users); //$NON-NLS-1$
+						if (!userIDs.isEmpty()) {
+							return userFriendlyFingerPrint + " [" + userIDs + "]"; //$NON-NLS-1$//$NON-NLS-2$
+						}
+						return userFriendlyFingerPrint;
+					}
+				}
+				return super.getText(element);
+			}
+		});
 		certificateChainViewer.addSelectionChangedListener(getChainSelectionListener());
+		Menu menu = new Menu(certificateChainViewer.getTree());
+		certificateChainViewer.getTree().setMenu(menu);
+		MenuItem item = new MenuItem(menu, SWT.PUSH);
+		item.setText(ProvUIMessages.TrustCertificateDialog_CopyFingerprint);
+		item.addSelectionListener(widgetSelectedAdapter(e -> {
+			Object o = ((IStructuredSelection) certificateChainViewer.getSelection()).getFirstElement();
+			if (o instanceof TreeNode) {
+				o = ((TreeNode) o).getValue();
+			}
+			if (o instanceof PGPPublicKey) {
+				PGPPublicKey key = (PGPPublicKey) o;
+				Clipboard clipboard = new Clipboard(getShell().getDisplay());
+				clipboard.setContents(new Object[] { userFriendlyFingerPrint(key) },
+						new Transfer[] { TextTransfer.getInstance() });
+				clipboard.dispose();
+			}
+		}));
+		certificateChainViewer.addSelectionChangedListener(e -> item.setEnabled(containsPGPKeys(e.getSelection())));
+
 		listViewer.addDoubleClickListener(getDoubleClickListener());
 		listViewer.addSelectionChangedListener(getParentSelectionListener());
 		createButtons(composite);
@@ -406,9 +444,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			if (selection instanceof StructuredSelection) {
 				TreeNode firstElement = (TreeNode) ((StructuredSelection) selection).getFirstElement();
 				getCertificateChainViewer().setInput(new TreeNode[] { firstElement });
-				if (firstElement.getValue() instanceof X509Certificate) {
-					getCertificateChainViewer().setSelection(new StructuredSelection(firstElement));
-				}
+				getCertificateChainViewer().setSelection(new StructuredSelection(firstElement));
 				Button okButton = getOkButton();
 				if (okButton != null) {
 					okButton.setEnabled(listViewer.getCheckedElements().length > 0);
