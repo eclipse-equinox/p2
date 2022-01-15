@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.artifact.processors.pgp;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.openpgp.*;
@@ -102,7 +103,8 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 			return Collections.emptyList();
 		}
 		List<PGPSignature> res = new ArrayList<>();
-		try (InputStream in = new ArmoredInputStream(new ByteArrayInputStream(signatureText.getBytes()))) {
+		try (InputStream in = new ArmoredInputStream(
+				new ByteArrayInputStream(signatureText.getBytes(StandardCharsets.US_ASCII)))) {
 			PGPObjectFactory pgpFactory = new BcPGPObjectFactory(in);
 			Object o = pgpFactory.nextObject();
 			PGPSignatureList signatureList = new PGPSignatureList(new PGPSignature[0]);

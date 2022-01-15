@@ -96,7 +96,8 @@ public class PGPPublicKeyStore {
 		}
 		Set<PGPPublicKey> res = new HashSet<>();
 		try (InputStream stream = PGPUtil.getDecoderStream(new ByteArrayInputStream(
-				PGPSignatureVerifier.unnormalizedPGPProperty(armoredPublicKeyring).getBytes()))) {
+				PGPSignatureVerifier.unnormalizedPGPProperty(armoredPublicKeyring)
+						.getBytes(StandardCharsets.US_ASCII)))) {
 			new JcaPGPObjectFactory(stream).forEach(o -> {
 				if (o instanceof PGPPublicKeyRingCollection) {
 					collectKeys((PGPPublicKeyRingCollection) o, res::add);
