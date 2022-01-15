@@ -213,7 +213,7 @@ public class CertificateChecker {
 					String detail = entry.getValue().toString();
 					Collection<Long> unknownIds = untrustedPGPKeyIDArtifacts.get(entry.getKey());
 					if (unknownIds != null) {
-						return detail + unknownIds.stream().map(Objects::toString)
+						return detail + unknownIds.stream().map(Long::toHexString)
 								.collect(Collectors.joining(", ", " [", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
 					return detail;
