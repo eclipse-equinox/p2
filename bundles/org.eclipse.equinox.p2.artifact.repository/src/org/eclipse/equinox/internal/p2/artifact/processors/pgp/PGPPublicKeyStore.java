@@ -111,6 +111,8 @@ public class PGPPublicKeyStore {
 			});
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+		} catch (PGPRuntimeOperationException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 		}
 		return res;
 
