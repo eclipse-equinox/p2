@@ -96,7 +96,6 @@ public class CertificateChecker {
 	private IStatus checkCertificates(SignedContentFactory verifierFactory) {
 		UIServices serviceUI = agent.getService(UIServices.class);
 		ArrayList<Certificate> untrustedCertificates = new ArrayList<>();
-		Map<IArtifactDescriptor, Collection<Long>> untrustedPGPKeyIDArtifacts = new HashMap<>();
 		Map<IArtifactDescriptor, Collection<PGPPublicKey>> untrustedPGPArtifacts = new HashMap<>();
 		Map<IArtifactDescriptor, File> unsigned = new HashMap<>();
 		ArrayList<Certificate[]> untrustedChain = new ArrayList<>();
@@ -133,26 +132,14 @@ public class CertificateChecker {
 					if (!signatures.isEmpty()) {
 						if (trustedKeysIds.isEmpty() && !trustedKeys.get().isEmpty()) {
 							trustedKeysIds.addAll(trustedKeys.get().all().stream()
-									.map(PGPPublicKey::getKeyID).collect(Collectors.toSet()));
+									.map(PGPPublicKey::getKeyID).map(Long::valueOf).collect(Collectors.toSet()));
 						}
-						Set<Long> untrustedKeyIds = signatures.stream().map(PGPSignature::getKeyID)
-								.collect(Collectors.toCollection(LinkedHashSet::new));
-						// If any key is already trusted, then we don't need to prompt for any of the
-						// other keys.
-						if (!untrustedKeyIds.removeAll(trustedKeysIds)) {
-							untrustedPGPKeyIDArtifacts.put(artifact.getKey(), untrustedKeyIds);
-							List<PGPPublicKey> untrustedKeys = untrustedKeyIds.stream()
-									.map(id -> findKey(id, artifact.getKey()))
-									.filter(Objects::nonNull)
-									.collect(Collectors.toList());
-							if (untrustedKeys.isEmpty()) {
-								// If no keys can be found for any of the signatures, treat the artifact like
-								// unsigned content because none of the signatures can actually be verified.
-								unsigned.put(artifact.getKey(), artifactFile);
-							} else {
-								// Otherwise, one of these keys needs to be trusted.
-								untrustedPGPArtifacts.put(artifact.getKey(), untrustedKeys);
-							}
+						if (signatures.stream().map(PGPSignature::getKeyID).noneMatch(trustedKeysIds::contains)) {
+							untrustedPGPArtifacts.put(artifact.getKey(),
+									signatures.stream().map(PGPSignature::getKeyID)
+											.map(id -> findKey(id, artifact.getKey()))
+											.filter(Objects::nonNull)
+											.collect(Collectors.toList()));
 						}
 					} else {
 						unsigned.put(artifact.getKey(), artifactFile);
@@ -211,9 +198,8 @@ public class CertificateChecker {
 		String[] details = EngineActivator.UNSIGNED_ALLOW.equals(policy) || unsigned.isEmpty() ? null
 				: unsigned.entrySet().stream().map(entry -> {
 					String detail = entry.getValue().toString();
-					Collection<Long> unknownIds = untrustedPGPKeyIDArtifacts.get(entry.getKey());
-					if (unknownIds != null) {
-						return detail + unknownIds.stream().map(Long::toHexString)
+					if (untrustedPGPKeys != null && !untrustedPGPKeys.isEmpty()) {
+						return detail + untrustedPGPKeys.stream().map(PGPPublicKey::getKeyID).map(Long::toHexString)
 								.collect(Collectors.joining(", ", " [", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
 					return detail;
@@ -347,8 +333,8 @@ public class CertificateChecker {
 		}
 		// load from bundles providing capability
 		for (IConfigurationElement extension : RegistryFactory.getRegistry()
-				.getConfigurationElementsFor(EngineActivator.ID + ".pgp")) { //$NON-NLS-1$
-			if ("trustedKeys".equals(extension.getName())) { //$NON-NLS-1$
+				.getConfigurationElementsFor(EngineActivator.ID + ".pgp")) {
+			if ("trustedKeys".equals(extension.getName())) {
 				String pathInBundle = extension.getAttribute("path"); //$NON-NLS-1$
 				if (pathInBundle != null) {
 					Stream.of(EngineActivator.getContext().getBundles())

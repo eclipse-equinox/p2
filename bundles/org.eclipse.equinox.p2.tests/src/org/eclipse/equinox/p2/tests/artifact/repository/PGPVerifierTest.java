@@ -62,10 +62,9 @@ public class PGPVerifierTest extends AbstractProvisioningTest {
 
 	@Test
 	public void testMissingPublicKey() throws Exception {
-		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=575541
-		// Missing PGP keys are ignored and the content is treated as unsigned.
 		IStatus mirrorStatus = performMirrorFrom("repoMissingPublicKey");
-		assertOK(mirrorStatus);
+		assertNotOK(mirrorStatus);
+		assertTrue(mirrorStatus.toString().contains("Public key not found"));
 	}
 
 	@Override
