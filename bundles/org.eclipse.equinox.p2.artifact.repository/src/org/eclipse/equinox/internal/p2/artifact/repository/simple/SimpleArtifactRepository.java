@@ -121,7 +121,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private long cacheTimestamp = 0l;
 
-	public class ArtifactOutputStream extends OutputStream implements IStateful {
+	public class ArtifactOutputStream extends OutputStream implements IStateful, IAdaptable {
 		private boolean closed;
 		private long count = 0;
 		private IArtifactDescriptor descriptor;
@@ -204,6 +204,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		public void setFirstLink(OutputStream value) {
 			firstLink = value;
+		}
+
+		@Override
+		public <T> T getAdapter(Class<T> adapter) {
+			if (adapter.isInstance(descriptor)) {
+				return adapter.cast(descriptor);
+			}
+			return null;
 		}
 	}
 

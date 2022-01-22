@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.IStatus;
@@ -22,6 +23,7 @@ import org.eclipse.equinox.internal.p2.engine.phases.CertificateChecker;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.viewers.*;
@@ -66,11 +68,10 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 		idColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return Long.toHexString(((PGPPublicKey) element).getKeyID()).toUpperCase();
+				return PGPPublicKeyService.toHex(((PGPPublicKey) element).getFingerprint()).toUpperCase(Locale.ROOT);
 			}
 		});
-		idColumn.getColumn().setWidth(16 * 10); // number of chars in a key Id * some heuristic of width
-		idColumn.getColumn().setText(ProvSDKMessages.TrustPreferencePage_idColumn);
+		idColumn.getColumn().setText(ProvSDKMessages.TrustPreferencePage_fingerprintColumn);
 		TableViewerColumn userColumn = new TableViewerColumn(viewer, SWT.NONE);
 		userColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -80,7 +81,6 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 				return String.join(",", userIds); //$NON-NLS-1$
 			}
 		});
-		userColumn.getColumn().setWidth(400);
 		userColumn.getColumn().setText(ProvSDKMessages.TrustPreferencePage_userColumn);
 		viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		IProvisioningAgent provisioningAgent = ProvSDKUIActivator.getDefault().getProvisioningAgent();
@@ -89,6 +89,13 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 				.setProfile(provisioningAgent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF));
 		trustedKeys = certificateChecker.buildPGPTrustore();
 		viewer.setInput(trustedKeys.all());
+
+		idColumn.getColumn().pack();
+		userColumn.getColumn().pack();
+		if (userColumn.getColumn().getWidth() < idColumn.getColumn().getWidth()) {
+			userColumn.getColumn().setWidth(idColumn.getColumn().getWidth());
+		}
+
 		Composite buttonComposite = createVerticalButtonBar(res);
 		buttonComposite.setLayoutData(new GridData(SWT.DEFAULT, SWT.BEGINNING, false, false));
 		Button exportButton = new Button(buttonComposite, SWT.PUSH);
@@ -102,7 +109,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 			FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
 			dialog.setText(ProvSDKMessages.TrustPreferencePage_fileExportTitle);
 			dialog.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
-			dialog.setFileName(Long.toHexString(key.getKeyID()).toUpperCase() + ".asc"); //$NON-NLS-1$
+			dialog.setFileName(PGPPublicKeyService.toHex(key.getFingerprint()).toUpperCase(Locale.ROOT) + ".asc"); //$NON-NLS-1$
 			String path = dialog.open();
 			if (path == null) {
 				return;

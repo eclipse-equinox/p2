@@ -15,6 +15,10 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.artifact.processors.pgp.messages"; //$NON-NLS-1$
 
+	public static String Error_SignatureAfterKeyExpiration;
+
+	public static String Error_SignatureAfterKeyRevocation;
+
 	public static String Error_SignatureAndFileDontMatch;
 
 	public static String Error_CouldNotLoadSignature;

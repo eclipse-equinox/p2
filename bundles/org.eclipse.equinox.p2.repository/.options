@@ -1,0 +1,3 @@
+org.eclipse.equinox.p2.repository/credentials/debug = false
+org.eclipse.equinox.p2.repository/transport/debug = false
+org.eclipse.equinox.p2.repository/keyservice/debug = false

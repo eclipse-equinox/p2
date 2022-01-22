@@ -289,17 +289,16 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 		listViewer.setContentProvider(contentProvider);
 		TableViewerColumn typeColumn = new TableViewerColumn(listViewer, SWT.NONE);
-		typeColumn.getColumn().setWidth(80);
 		typeColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_ObjectType);
 		typeColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(key -> "PGP", cert -> "x509")); //$NON-NLS-1$ //$NON-NLS-2$
+
 		TableViewerColumn idColumn = new TableViewerColumn(listViewer, SWT.NONE);
-		idColumn.getColumn().setWidth(200);
 		idColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_Id);
 		idColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(TrustCertificateDialog::userFriendlyFingerPrint,
 				cert -> cert.getSerialNumber().toString()));
+
 		TableViewerColumn signerColumn = new TableViewerColumn(listViewer, SWT.NONE);
 		signerColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_Name);
-		signerColumn.getColumn().setWidth(400);
 		signerColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(pgp -> {
 			java.util.List<String> users = new ArrayList<>();
 			pgp.getUserIDs().forEachRemaining(users::add);
@@ -309,9 +308,9 @@ public class TrustCertificateDialog extends SelectionDialog {
 			return principalHelper.getCN() + "; " + principalHelper.getOU() + "; " //$NON-NLS-1$ //$NON-NLS-2$
 					+ principalHelper.getO();
 		}));
+
 		TableViewerColumn validColumn = new TableViewerColumn(listViewer, SWT.NONE);
 		validColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_dates);
-		validColumn.getColumn().setWidth(100);
 		validColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(pgp -> {
 			if (pgp.getCreationTime().after(Date.from(Instant.now()))) {
 				return NLS.bind(ProvUIMessages.TrustCertificateDialog_NotYetValidStartDate, pgp.getCreationTime());
@@ -353,6 +352,11 @@ public class TrustCertificateDialog extends SelectionDialog {
 		addSelectionButtons(composite);
 
 		listViewer.setInput(inputElement);
+
+		typeColumn.getColumn().pack();
+		idColumn.getColumn().pack();
+		signerColumn.getColumn().pack();
+		validColumn.getColumn().pack();
 
 		if (!getInitialElementSelections().isEmpty()) {
 			checkInitialSelections();

@@ -10,14 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.DefaultPGPPublicKeyService;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +38,6 @@ public class PGPVerifierTest extends AbstractProvisioningTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		PGPSignatureVerifier.KNOWN_KEYS.clear();
 	}
 
 	private void loadPGPTestRepo(String repoName) throws Exception {
@@ -53,6 +60,26 @@ public class PGPVerifierTest extends AbstractProvisioningTest {
 	}
 
 	private IStatus performMirrorFrom(String repoName) throws Exception {
+		// Clear the remembered keys/cache of the agent.
+		IAgentLocation agentLocation = getAgent().getService(IAgentLocation.class);
+		Path repositoryCache = Paths
+				.get(agentLocation.getDataArea(org.eclipse.equinox.internal.p2.repository.Activator.ID));
+		if (Files.isDirectory(repositoryCache)) {
+			try (Stream<Path> walk = Files.walk(repositoryCache)) {
+				walk.sorted(Comparator.reverseOrder()).forEach(path -> {
+					try {
+						Files.delete(path);
+					} catch (IOException e) {
+						// Ignore
+					}
+				});
+			}
+		}
+		DefaultPGPPublicKeyService keyService = new DefaultPGPPublicKeyService(getAgent());
+		keyService.setGPG(false);
+		keyService.setKeyServers(Set.of());
+
+		getAgent().registerService(PGPPublicKeyService.SERVICE_NAME, keyService);
 		loadPGPTestRepo(repoName);
 		ArtifactKey key = new ArtifactKey("osgi.bundle", "blah", Version.create("1.0.0.123456"));
 		MirrorRequest mirrorRequest = new MirrorRequest(key, targetRepo, NO_PROPERTIES, NO_PROPERTIES, getTransport());
@@ -64,7 +91,7 @@ public class PGPVerifierTest extends AbstractProvisioningTest {
 	public void testMissingPublicKey() throws Exception {
 		IStatus mirrorStatus = performMirrorFrom("repoMissingPublicKey");
 		assertNotOK(mirrorStatus);
-		assertTrue(mirrorStatus.toString().contains("Public key not found"));
+		assertTrue(mirrorStatus.toString().matches(".*public key.*not be found.*"));
 	}
 
 	@Override

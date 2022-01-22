@@ -14,6 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
@@ -21,20 +22,21 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 
 public class PGPPublicKeyStore {
-	private Map<Long, PGPPublicKey> keys = new HashMap<>();
+	private Map<String, PGPPublicKey> keys = new HashMap<>();
 
 	public PGPPublicKey addKey(PGPPublicKey key) {
 		if (key == null) {
 			return null;
 		}
-		PGPPublicKey alreadyStoredKey = keys.putIfAbsent(key.getKeyID(), key);
+		PGPPublicKey alreadyStoredKey = keys.putIfAbsent(PGPPublicKeyService.toHex(key.getFingerprint()), key);
 		return alreadyStoredKey == null ? key : alreadyStoredKey;
 	}
 
-	public PGPPublicKey getKey(long id) {
-		return keys.get(id);
+	public Collection<PGPPublicKey> getKeys(long id) {
+		return keys.values().stream().filter(key -> key.getKeyID() == id).collect(Collectors.toList());
 	}
 
 	public void addKeys(String... armoredPublicKeys) {
@@ -63,9 +65,7 @@ public class PGPPublicKeyStore {
 	public String toArmoredString() throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ArmoredOutputStream armoredOut = new ArmoredOutputStream(out);
-		// PGPPublicKeyRing ring = new PGPPublicKeyRing(new ArrayList<>(keys.values()));
-		// ring.encode(armoredOut);
-		for (PGPPublicKey key : keys.values()) {
+		for (PGPPublicKey key : all()) {
 			key.encode(armoredOut);
 		}
 		armoredOut.close();
@@ -74,14 +74,14 @@ public class PGPPublicKeyStore {
 	}
 
 	public void remove(PGPPublicKey selectedKey) {
-		keys.remove(selectedKey.getKeyID());
+		keys.remove(PGPPublicKeyService.toHex(selectedKey.getFingerprint()));
 	}
 
 	public void add(File file) {
 		try (InputStream stream = new FileInputStream(file)) {
 			readPublicKeys(stream).forEach(this::addKey);
 		} catch (IOException e) {
-			// TODO: how to log?
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Could not read PGP key from " + file, e)); //$NON-NLS-1$
 		}
 	}
 
@@ -109,9 +109,7 @@ public class PGPPublicKeyStore {
 					res.add((PGPPublicKey) o);
 				}
 			});
-		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
-		} catch (PGPRuntimeOperationException e) {
+		} catch (IOException | PGPRuntimeOperationException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 		}
 		return res;

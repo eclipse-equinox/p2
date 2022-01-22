@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPPublicKeyStore;
@@ -32,6 +32,7 @@ import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
 import org.eclipse.osgi.util.NLS;
@@ -60,6 +61,7 @@ public class CertificateChecker {
 	 */
 	private Map<IArtifactDescriptor, File> artifacts = new HashMap<>();
 	private final IProvisioningAgent agent;
+	private final PGPPublicKeyService keyService;
 
 	// Lazily loading
 	private Supplier<PGPPublicKeyStore> trustedKeys = new Supplier<>() {
@@ -80,6 +82,8 @@ public class CertificateChecker {
 	public CertificateChecker(IProvisioningAgent agent) {
 		this.agent = agent;
 		artifacts = new HashMap<>();
+		keyService = agent.getService(PGPPublicKeyService.class);
+
 	}
 
 	public IStatus start() {
@@ -104,7 +108,8 @@ public class CertificateChecker {
 		if (artifacts.isEmpty() || serviceUI == null) {
 			return status;
 		}
-		Set<Long> trustedKeysIds = new HashSet<>();
+		Set<PGPPublicKey> trustedKeySet = new HashSet<>();
+		boolean isTrustedKeySetInitialized = false;
 		for (Entry<IArtifactDescriptor, File> artifact : artifacts.entrySet()) {
 			File artifactFile = artifact.getValue();
 			try {
@@ -128,24 +133,25 @@ public class CertificateChecker {
 						}
 					}
 				} else {
-					Collection<PGPSignature> signatures = PGPSignatureVerifier.getSignatures(artifact.getKey());
-					if (!signatures.isEmpty()) {
-						if (trustedKeysIds.isEmpty() && !trustedKeys.get().isEmpty()) {
-							trustedKeysIds.addAll(trustedKeys.get().all().stream()
-									.map(PGPPublicKey::getKeyID).map(Long::valueOf).collect(Collectors.toSet()));
+					// The keys are in this destination artifact's properties if and only if the
+					// PGPSignatureVerifier verified the signatures against these keys.
+					List<PGPPublicKey> verifiedKeys = PGPPublicKeyStore
+							.readPublicKeys(
+									artifact.getKey().getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME))
+							.stream().map(keyService::addKey).collect(Collectors.toList());
+					if (!verifiedKeys.isEmpty()) {
+						if (!isTrustedKeySetInitialized) {
+							isTrustedKeySetInitialized = true;
+							trustedKeySet.addAll(trustedKeys.get().all());
 						}
-						if (signatures.stream().map(PGPSignature::getKeyID).noneMatch(trustedKeysIds::contains)) {
-							untrustedPGPArtifacts.put(artifact.getKey(),
-									signatures.stream().map(PGPSignature::getKeyID)
-											.map(id -> findKey(id, artifact.getKey()))
-											.filter(Objects::nonNull)
-											.collect(Collectors.toList()));
+						if (verifiedKeys.stream().noneMatch(trustedKeySet::contains)) {
+							untrustedPGPArtifacts.put(artifact.getKey(), verifiedKeys);
 						}
 					} else {
 						unsigned.put(artifact.getKey(), artifactFile);
 					}
 				}
-			} catch (GeneralSecurityException | PGPException e) {
+			} catch (GeneralSecurityException e) {
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.CertificateChecker_SignedContentError, e);
 			} catch (IOException e) {
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.CertificateChecker_SignedContentIOError, e);
@@ -231,10 +237,9 @@ public class CertificateChecker {
 				untrustedCertificates.remove(trustedCertificate);
 			}
 		}
-		trustedKeysIds
-				.addAll(trustInfo.getTrustedPGPKeys().stream().map(PGPPublicKey::getKeyID).collect(Collectors.toSet()));
-		untrustedPGPArtifacts.values().removeIf(
-				pgpKeys -> pgpKeys.stream().anyMatch(untrusted -> trustedKeysIds.contains(untrusted.getKeyID())));
+
+		trustedKeySet.addAll(trustInfo.getTrustedPGPKeys());
+		untrustedPGPArtifacts.values().removeIf(pgpKeys -> pgpKeys.stream().anyMatch(trustedKeySet::contains));
 
 		// If there is still untrusted content, cancel the operation
 		if (!untrustedCertificates.isEmpty() || !untrustedPGPArtifacts.isEmpty()) {
@@ -257,18 +262,6 @@ public class CertificateChecker {
 		}
 
 		return status;
-	}
-
-
-	private PGPPublicKey findKey(long id, IArtifactDescriptor artifact) {
-		PGPPublicKey key = PGPSignatureVerifier.KNOWN_KEYS.getKey(id);
-		if (key != null) {
-			return key;
-		}
-		// in case keys from artifact were not imported yet in keystore, add them
-		PGPSignatureVerifier.KNOWN_KEYS
-				.addKeys(artifact.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME));
-		return PGPSignatureVerifier.KNOWN_KEYS.getKey(id);
 	}
 
 	private IStatus persistTrustedCertificates(Certificate[] trustedCertificates) {
@@ -326,15 +319,17 @@ public class CertificateChecker {
 	public PGPPublicKeyStore buildPGPTrustore() {
 		PGPPublicKeyStore trustStore = new PGPPublicKeyStore();
 		if (profile != null) {
-			trustStore.addKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY));
+			// PGPPublicKeyStore.readPublicKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY)).stream().map(keyService::addKey).forEach(trustStore::addKey);
 			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
 					profile.getProfileId());
-			trustStore.addKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null));
+			PGPPublicKeyStore
+					.readPublicKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null))
+					.stream().map(keyService::addKey).forEach(trustStore::addKey);
 		}
 		// load from bundles providing capability
 		for (IConfigurationElement extension : RegistryFactory.getRegistry()
-				.getConfigurationElementsFor(EngineActivator.ID + ".pgp")) {
-			if ("trustedKeys".equals(extension.getName())) {
+				.getConfigurationElementsFor(EngineActivator.ID + ".pgp")) { //$NON-NLS-1$
+			if ("trustedKeys".equals(extension.getName())) { //$NON-NLS-1$
 				String pathInBundle = extension.getAttribute("path"); //$NON-NLS-1$
 				if (pathInBundle != null) {
 					Stream.of(EngineActivator.getContext().getBundles())
@@ -343,7 +338,8 @@ public class CertificateChecker {
 							.filter(Objects::nonNull) //
 							.forEach(url -> {
 								try (InputStream stream = url.openStream()) {
-									PGPPublicKeyStore.readPublicKeys(stream).forEach(trustStore::addKey);
+									PGPPublicKeyStore.readPublicKeys(stream).stream().map(keyService::addKey)
+											.forEach(trustStore::addKey);
 								} catch (IOException e) {
 									DebugHelper.debug(DEBUG_PREFIX, e.getMessage());
 								}
@@ -380,7 +376,7 @@ public class CertificateChecker {
 		// profile.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).forEach(
 		// iu ->
 		// store.addAll(PGPSignatureVerifier.readPublicKeys(iu.getProperty(TRUSTED_KEY_STORE_PROPERTY))));
-		trustStore.all().forEach(PGPSignatureVerifier.KNOWN_KEYS::addKey);
+		// trustStore.all().forEach(PGPSignatureVerifier.KNOWN_KEYS::addKey);
 		return trustStore;
 	}
 

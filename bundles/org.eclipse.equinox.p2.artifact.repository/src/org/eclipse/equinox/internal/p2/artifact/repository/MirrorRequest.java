@@ -23,7 +23,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.Transport;
@@ -201,14 +200,6 @@ public class MirrorRequest extends ArtifactRequest {
 			((ArtifactDescriptor) destinationDescriptor).addProperties(targetDescriptorProperties);
 		if (targetRepositoryProperties != null && destinationDescriptor instanceof SimpleArtifactDescriptor)
 			((SimpleArtifactDescriptor) destinationDescriptor).addRepositoryProperties(targetRepositoryProperties);
-		if (isCanonical && destinationDescriptor instanceof ArtifactDescriptor) {
-			// keep some safety properties
-			if (sourceDescriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME) != null) {
-				((ArtifactDescriptor) destinationDescriptor)
-						.addProperties(Map.of(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME,
-								sourceDescriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME)));
-			}
-		}
 		return destinationDescriptor;
 	}
 

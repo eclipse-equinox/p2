@@ -25,15 +25,18 @@ public class DebugHelper {
 
 	public static final boolean DEBUG_REPOSITORY_CREDENTIALS;
 	public static final boolean DEBUG_REPOSITORY_TRANSPORT;
+	public static final boolean DEBUG_KEY_SERVICE;
 
 	static {
 		DebugOptions options = ServiceHelper.getService(Activator.getContext(), DebugOptions.class);
 		if (options != null) {
 			DEBUG_REPOSITORY_CREDENTIALS = options.getBooleanOption(Activator.ID + "/credentials/debug", false); //$NON-NLS-1$
 			DEBUG_REPOSITORY_TRANSPORT = options.getBooleanOption(Activator.ID + "/transport/debug", false); //$NON-NLS-1$
+			DEBUG_KEY_SERVICE = options.getBooleanOption(Activator.ID + "/keyservice/debug", false); //$NON-NLS-1$
 		} else {
 			DEBUG_REPOSITORY_CREDENTIALS = false;
 			DEBUG_REPOSITORY_TRANSPORT = false;
+			DEBUG_KEY_SERVICE = false;
 		}
 	}
 
@@ -50,7 +53,7 @@ public class DebugHelper {
 		System.out.println(buffer.toString());
 	}
 
-	public static void debug(String name, String message, Object[] keyValueArray) {
+	public static void debug(String name, String message, Object... keyValueArray) {
 		if (keyValueArray == null || keyValueArray.length == 0)
 			debug(name, message);
 		else {

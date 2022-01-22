@@ -18,26 +18,49 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.util.Set;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.artifact.processors.pgp.Messages;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.repository.DefaultPGPPublicKeyService;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
+import org.eclipse.equinox.p2.tests.TestAgentProvider;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class PGPSignatureVerifierTest {
 
+	@Rule
+	public TestAgentProvider agentProvider = new TestAgentProvider();
+
+	@Before
+	public void initialize() {
+		try {
+			PGPPublicKeyService keyService = agentProvider.getService(PGPPublicKeyService.class);
+			if (keyService instanceof DefaultPGPPublicKeyService) {
+				DefaultPGPPublicKeyService defaultPGPPublicKeyService = (DefaultPGPPublicKeyService) keyService;
+				defaultPGPPublicKeyService.setKeyServers(Set.of());
+				defaultPGPPublicKeyService.setGPG(false);
+			}
+		} catch (ProvisionException e) {
+			//$FALL-THROUGH$
+		}
+	}
+
 	// @formatter:off
 	/*
-	 * About test keys:
-	 * * Install the public&private keys locally
-	 * * then generate signatures with eg `gpg -u signer2@fakeuser.eclipse.org -a --output signed_by_signer_2 --detach-sig testArtifact`
+	 * About test keys: * Install the public&private keys locally * then generate
+	 * signatures with eg `gpg -u signer2@fakeuser.eclipse.org -a --output
+	 * signed_by_signer_2 --detach-sig testArtifact`
 	 */
 	// @formatter:on
 
@@ -58,8 +81,9 @@ public class PGPSignatureVerifierTest {
 	public void testOK() throws Exception {
 		IProcessingStepDescriptor processingStepDescriptor = new ProcessingStepDescriptor(null, null, false);
 		IArtifactDescriptor artifact = createArtifact("signed_by_signer_1", "public_signer1.pgp");
+		@SuppressWarnings("resource")
 		PGPSignatureVerifier verifier = new PGPSignatureVerifier();
-		verifier.initialize(null, processingStepDescriptor, artifact);
+		verifier.initialize(agentProvider.getAgent(), processingStepDescriptor, artifact);
 		Assert.assertTrue(verifier.getStatus().toString(), verifier.getStatus().isOK());
 		try (InputStream bytes = getClass().getResourceAsStream("testArtifact")) {
 			bytes.transferTo(verifier);
@@ -74,10 +98,10 @@ public class PGPSignatureVerifierTest {
 		IProcessingStepDescriptor processingStepDescriptor = new ProcessingStepDescriptor(null, null, false);
 		IArtifactDescriptor artifact = createArtifact("signed_by_signer_1", "public_signer2.pgp");
 		try (PGPSignatureVerifier verifier = new PGPSignatureVerifier()) {
-			verifier.initialize(null, processingStepDescriptor, artifact);
+			verifier.initialize(agentProvider.getAgent(), processingStepDescriptor, artifact);
 			IStatus status = verifier.getStatus();
 			assertEquals(IStatus.ERROR, status.getSeverity());
-			assertTrue(status.getMessage().contains("Public key not found for"));
+			assertTrue(status.getMessage().matches("A public key.*could not be found.*"));
 		}
 	}
 
@@ -86,7 +110,7 @@ public class PGPSignatureVerifierTest {
 		IProcessingStepDescriptor processingStepDescriptor = new ProcessingStepDescriptor(null, null, false);
 		IArtifactDescriptor artifact = createArtifact("signed_by_signer_1_tampered", "public_signer1.pgp");
 		try (PGPSignatureVerifier verifier = new PGPSignatureVerifier()) {
-			verifier.initialize(null, processingStepDescriptor, artifact);
+			verifier.initialize(agentProvider.getAgent(), processingStepDescriptor, artifact);
 			// signature has random modification, making it invalid by itself
 			Assert.assertFalse(verifier.getStatus().isOK());
 		}
@@ -96,8 +120,9 @@ public class PGPSignatureVerifierTest {
 	public void testSignatureForAnotherArtifact() throws Exception {
 		IProcessingStepDescriptor processingStepDescriptor = new ProcessingStepDescriptor(null, null, false);
 		IArtifactDescriptor artifact = createArtifact("signed_by_signer_1_otherArtifact", "public_signer1.pgp");
+		@SuppressWarnings("resource")
 		PGPSignatureVerifier verifier = new PGPSignatureVerifier();
-		verifier.initialize(null, processingStepDescriptor, artifact);
+		verifier.initialize(agentProvider.getAgent(), processingStepDescriptor, artifact);
 		Assert.assertTrue(verifier.getStatus().isOK());
 		try (InputStream bytes = getClass().getResourceAsStream("testArtifact")) {
 			bytes.transferTo(verifier);
@@ -106,6 +131,6 @@ public class PGPSignatureVerifierTest {
 		verifier.close();
 		IStatus status = verifier.getStatus();
 		assertEquals(IStatus.ERROR, status.getSeverity());
-		assertTrue(status.getMessage().contains(Messages.Error_SignatureAndFileDontMatch));
+		assertTrue(status.getMessage().matches(".*signature.*invalid.*"));
 	}
 }

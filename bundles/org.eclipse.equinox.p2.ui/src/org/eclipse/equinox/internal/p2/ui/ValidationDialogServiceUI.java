@@ -21,10 +21,11 @@ import java.util.List;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
 import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.UIServices;
+import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.viewers.TreeNode;
@@ -42,6 +43,16 @@ import org.eclipse.ui.PlatformUI;
  *
  */
 public class ValidationDialogServiceUI extends UIServices {
+
+	private final IProvisioningAgent agent;
+
+	public ValidationDialogServiceUI() {
+		this(null);
+	}
+
+	public ValidationDialogServiceUI(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
 
 	static final class MessageDialogWithLink extends MessageDialog {
 		private final String linkText;
@@ -211,37 +222,42 @@ public class ValidationDialogServiceUI extends UIServices {
 		}
 
 		if (!untrustedPublicKeys.isEmpty()) {
-			Map<PGPPublicKey, Set<PGPPublicKey>> verifiedKnownKeyCertifications = PGPSignatureVerifier
-					.getVerifiedKnownKeyCertifications();
+			PGPPublicKeyService keyService = agent == null ? null : agent.getService(PGPPublicKeyService.class);
 			for (PGPPublicKey key : untrustedPublicKeys) {
-				children[i] = createTreeNode(key, verifiedKnownKeyCertifications, new HashSet<>());
+				TreeNode treeNode = new TreeNode(key);
+				children[i] = treeNode;
+				expandChildren(treeNode, key, keyService, new HashSet<>(), Integer.getInteger("p2.pgp.trust.depth", 3)); //$NON-NLS-1$
 				i++;
 			}
 		}
 		return children;
 	}
 
-	private TreeNode createTreeNode(PGPPublicKey key,
-			Map<PGPPublicKey, Set<PGPPublicKey>> verifiedKnownKeyCertification, Set<PGPPublicKey> visited) {
-		if (visited.add(key)) {
-			TreeNode result = new TreeNode(key);
-			List<TreeNode> children = new ArrayList<>();
-			Set<PGPPublicKey> visitedChildren = new LinkedHashSet<>();
-			Set<PGPPublicKey> certifications = verifiedKnownKeyCertification.get(key);
-			if (certifications != null) {
+	private void expandChildren(TreeNode result, PGPPublicKey key, PGPPublicKeyService keyService,
+			Set<PGPPublicKey> visited, int remainingDepth) {
+		if (keyService != null && remainingDepth > 0 && visited.add(key)) {
+			Set<PGPPublicKey> certifications = keyService.getVerifiedCertifications(key);
+			if (certifications != null && !certifications.isEmpty()) {
+				List<TreeNode> children = new ArrayList<>();
 				for (PGPPublicKey certifyingKey : certifications) {
-					if (!visited.contains(certifyingKey) && visitedChildren.add(certifyingKey)) {
-						children.add(createTreeNode(certifyingKey, verifiedKnownKeyCertification, visited));
+					if (visited.add(certifyingKey)) {
+						TreeNode treeNode = new TreeNode(certifyingKey);
+						children.add(treeNode);
 					}
 				}
+
+				if (!children.isEmpty()) {
+					result.setChildren(children.toArray(TreeNode[]::new));
+					children.forEach(child -> {
+						child.setParent(result);
+						PGPPublicKey certifyingKey = (PGPPublicKey) child.getValue();
+						visited.remove(certifyingKey);
+						expandChildren(child, certifyingKey, keyService, visited, remainingDepth - 1);
+						visited.add(certifyingKey);
+					});
+				}
 			}
-			if (!children.isEmpty()) {
-				result.setChildren(children.toArray(TreeNode[]::new));
-				children.forEach(child -> child.setParent(result));
-			}
-			return result;
 		}
-		return null;
 	}
 
 	@Override
