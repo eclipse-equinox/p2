@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2020 IBM Corporation and others.
+ * Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -17,6 +17,7 @@
  *   Sonatype, Inc. - ongoing development
  *   Rapicorp, Inc. - split the optimization function
  *   Red Hat, Inc. - support for remediation page
+ *   Christoph Läubrich - access activator static singelton in a safe way
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -207,7 +208,8 @@ public class Projector {
 				// allow the user to specify a longer timeout.
 				// only set the value if it is a positive integer larger than the default.
 				// see https://bugs.eclipse.org/336967
-				timeoutString = DirectorActivator.context.getProperty(PROP_PROJECTOR_TIMEOUT);
+				timeoutString = DirectorActivator.context.map(ctx -> ctx.getProperty(PROP_PROJECTOR_TIMEOUT))
+						.orElse(null);
 				if (timeoutString != null)
 					timeout = Math.max(timeout, Integer.parseInt(timeoutString));
 			} catch (Exception e) {

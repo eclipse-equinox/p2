@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 IBM Corporation and others.
+ * Copyright (c) 2009, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
+ *     Christoph Läubrich - access activator static singelton in a safe way
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
@@ -36,7 +37,8 @@ public class PlanExecutionHelper {
 					.getService(IEngine.class).perform(result.getInstallerPlan(), phaseSet, progress);
 			if (!installerPlanStatus.isOK())
 				return installerPlanStatus;
-			Configurator configChanger = ServiceHelper.getService(DirectorActivator.context, Configurator.class);
+			Configurator configChanger = DirectorActivator.context
+					.map(ctx -> ServiceHelper.getService(ctx, Configurator.class)).orElse(null);
 			try {
 				configChanger.applyConfiguration();
 			} catch (IOException e) {
