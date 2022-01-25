@@ -614,7 +614,14 @@ public class FeaturesAction extends AbstractPublisherAction {
 		// artifact per feature IU.
 		Collection<IArtifactKey> artifacts = featureIU.getArtifacts();
 		for (IArtifactKey artifactKey : artifacts) {
-			File file = new File(feature.getLocation());
+			String location = feature.getLocation();
+			if (location == null) {
+				if (PublisherHelper.isArtifactPublish(publisherInfo)) {
+					throw new IllegalArgumentException(NLS.bind(Messages.exception_sourcePath, feature.getId()));
+				}
+				continue;
+			}
+			File file = new File(location);
 			ArtifactDescriptor ad = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info, artifactKey, file);
 			processArtifactPropertiesAdvice(featureIU, ad, publisherInfo);
 			ad.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
