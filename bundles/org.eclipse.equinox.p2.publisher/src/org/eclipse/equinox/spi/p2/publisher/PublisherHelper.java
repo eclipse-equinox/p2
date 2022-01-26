@@ -112,7 +112,7 @@ public class PublisherHelper {
 				descriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
 				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 
-				boolean generateChecksums = info == null || (info.getArtifactOptions() & IPublisherInfo.A_NO_MD5) == 0;
+				boolean generateChecksums = info == null || isArtifactGenerateChecksums(info);
 				if (generateChecksums) {
 					calculateChecksums(pathOnDisk, descriptor);
 				}
@@ -251,5 +251,50 @@ public class PublisherHelper {
 		boolean includeMax = Version.MAX_VERSION.equals(max) ? true : range.getIncludeMaximum();
 
 		return new VersionRange(min, includeMin, max, includeMax);
+	}
+
+	/**
+	 *
+	 * @return <code>true</code> if md5 sums should be generated <code>false</code>
+	 *         otherwise
+	 * @since 1.7.0
+	 */
+	public static boolean isArtifactGenerateChecksums(IPublisherInfo publisherInfo) {
+		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_NO_MD5) != 0) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 *
+	 * @return <code>true</code> if existing artifacts should be overwritten
+	 *         <code>false</code> otherwise
+	 * @since 1.7.0
+	 */
+	public static boolean isArtifactOverwrite(IPublisherInfo publisherInfo) {
+		return (publisherInfo.getArtifactOptions() & IPublisherInfo.A_OVERWRITE) != 0;
+	}
+
+	/**
+	 *
+	 * @return <code>true</code> if artifacts should published <code>false</code>
+	 *         otherwise
+	 * @since 1.7.0
+	 */
+	public static boolean isArtifactPublish(IPublisherInfo publisherInfo) {
+		int artifactOptions = publisherInfo.getArtifactOptions();
+		return artifactOptions == 0 || (artifactOptions & IPublisherInfo.A_PUBLISH) != 0;
+	}
+
+	/**
+	 *
+	 * @return <code>true</code> if the artifact index should be updated
+	 *         <code>false</code> otherwise
+	 * @since 1.7.0
+	 */
+	public static boolean isArtifactIndex(IPublisherInfo publisherInfo) {
+		int artifactOptions = publisherInfo.getArtifactOptions();
+		return artifactOptions == 0 || (artifactOptions & IPublisherInfo.A_INDEX) != 0;
 	}
 }

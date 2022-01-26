@@ -504,7 +504,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 		// if all we are doing is indexing things then add the descriptor and get on
 		// with it
-		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
+		if (!PublisherHelper.isArtifactPublish(publisherInfo)) {
 			destination.addDescriptor(descriptor, new NullProgressMonitor());
 			return;
 		}
@@ -556,7 +556,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			return;
 		// if all we are doing is indexing things then add the descriptor and get on
 		// with it
-		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
+		if (!PublisherHelper.isArtifactPublish(publisherInfo)) {
 			destination.addDescriptor(descriptor, new NullProgressMonitor());
 			return;
 		}

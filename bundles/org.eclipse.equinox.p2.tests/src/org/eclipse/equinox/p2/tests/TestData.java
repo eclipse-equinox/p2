@@ -135,15 +135,16 @@ public class TestData {
 	 * @throws IOException
 	 */
 	public static void assertEquals(ZipInputStream expected, ZipInputStream actual) throws IOException {
-		Map<String, Object[]> jar1 = getEntries(expected);
-		Map<String, Object[]> jar2 = getEntries(actual);
-		for (String name : jar1.keySet()) {
-			Object[] file1 = jar1.get(name);
-			Object[] file2 = jar2.remove(name);
-			Assert.assertNotNull(file2);
+		Map<String, Object[]> expectedEntries = getEntries(expected);
+		Map<String, Object[]> actualEntries = getEntries(actual);
+		for (String name : expectedEntries.keySet()) {
+			Object[] expectedFiles = expectedEntries.get(name);
+			Object[] actualFiles = actualEntries.remove(name);
+			Assert.assertNotNull(name + " entry is missing in actual zip stream (actual=" + actualEntries.keySet()
+					+ ", expected=" + expectedEntries.keySet() + ")", actualFiles);
 
-			ZipEntry entry1 = (ZipEntry) file1[0];
-			ZipEntry entry2 = (ZipEntry) file2[0];
+			ZipEntry entry1 = (ZipEntry) expectedFiles[0];
+			ZipEntry entry2 = (ZipEntry) actualFiles[0];
 			// compare the entries
 			Assert.assertEquals(entry1.getName(), entry2.getName());
 			Assert.assertEquals(entry1.getSize(), entry2.getSize());
@@ -154,11 +155,11 @@ public class TestData {
 			Assert.assertEquals(entry1.getMethod(), entry2.getMethod());
 
 			// check the content of the entries
-			Assert.assertArrayEquals((byte[]) file1[1], (byte[]) file2[1]);
+			Assert.assertArrayEquals((byte[]) expectedFiles[1], (byte[]) actualFiles[1]);
 		}
 
 		// ensure that we have consumed all of the entries in the second JAR
-		Assert.assertEquals(0, jar2.size());
+		Assert.assertEquals(0, actualEntries.size());
 	}
 
 	/**
