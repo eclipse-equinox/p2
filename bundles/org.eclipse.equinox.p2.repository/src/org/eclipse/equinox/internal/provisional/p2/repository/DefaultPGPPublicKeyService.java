@@ -173,7 +173,7 @@ public class DefaultPGPPublicKeyService extends PGPPublicKeyService {
 	public PGPPublicKey getKey(String fingerprint) {
 		int length = fingerprint.length();
 		if (length >= 16) {
-			long keyID = Long.parseLong(fingerprint.substring(length - 16, length), 16);
+			long keyID = Long.parseUnsignedLong(fingerprint.substring(length - 16, length), 16);
 			Collection<PGPPublicKey> keys = getKeys(keyID);
 			for (PGPPublicKey key : keys) {
 				if (toHex(key.getFingerprint()).equalsIgnoreCase(fingerprint)) {

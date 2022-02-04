@@ -14,6 +14,8 @@
 package org.eclipse.equinox.internal.p2.engine.phases;
 
 import java.io.*;
+import java.net.URL;
+import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
 import java.util.*;
@@ -36,8 +38,7 @@ import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -69,7 +70,8 @@ public class CertificateChecker {
 
 		public PGPPublicKeyStore get() {
 			if (cache == null) {
-				cache = buildPGPTrustore();
+				cache = getPreferenceTrustedKeys();
+				getContributedTrustedKeys().keySet().forEach(cache::addKey);
 			}
 			return cache;
 		}
@@ -316,30 +318,25 @@ public class CertificateChecker {
 		artifacts.putAll(toAdd);
 	}
 
-	public PGPPublicKeyStore buildPGPTrustore() {
-		PGPPublicKeyStore trustStore = new PGPPublicKeyStore();
-		if (profile != null) {
-			// PGPPublicKeyStore.readPublicKeys(profile.getProperty(TRUSTED_KEY_STORE_PROPERTY)).stream().map(keyService::addKey).forEach(trustStore::addKey);
-			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
-					profile.getProfileId());
-			PGPPublicKeyStore
-					.readPublicKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null))
-					.stream().map(keyService::addKey).forEach(trustStore::addKey);
-		}
-		// load from bundles providing capability
+	public Map<PGPPublicKey, Set<Bundle>> getContributedTrustedKeys() {
+		// Build the map based on fingerprints to properly avoid duplicates as we
+		// accumulate the full set of keys.
+		Map<ByteBuffer, Set<Bundle>> keys = new LinkedHashMap<>();
+
+		// Load from the extension registry.
 		for (IConfigurationElement extension : RegistryFactory.getRegistry()
-				.getConfigurationElementsFor(EngineActivator.ID + ".pgp")) { //$NON-NLS-1$
+				.getConfigurationElementsFor(EngineActivator.ID, "pgp")) { //$NON-NLS-1$
 			if ("trustedKeys".equals(extension.getName())) { //$NON-NLS-1$
 				String pathInBundle = extension.getAttribute("path"); //$NON-NLS-1$
 				if (pathInBundle != null) {
+					String name = extension.getContributor().getName();
 					Stream.of(EngineActivator.getContext().getBundles())
-							.filter(bundle -> bundle.getSymbolicName().equals(extension.getContributor().getName()))
-							.map(bundle -> bundle.getEntry(pathInBundle)) //
-							.filter(Objects::nonNull) //
-							.forEach(url -> {
-								try (InputStream stream = url.openStream()) {
+							.filter(bundle -> bundle.getSymbolicName().equals(name)).findAny().ifPresent(bundle -> {
+								URL keyURL = bundle.getEntry(pathInBundle);
+								try (InputStream stream = keyURL.openStream()) {
 									PGPPublicKeyStore.readPublicKeys(stream).stream().map(keyService::addKey)
-											.forEach(trustStore::addKey);
+											.forEach(key -> keys.computeIfAbsent(ByteBuffer.wrap(key.getFingerprint()),
+													k -> new LinkedHashSet<>()).add(bundle));
 								} catch (IOException e) {
 									DebugHelper.debug(DEBUG_PREFIX, e.getMessage());
 								}
@@ -347,36 +344,21 @@ public class CertificateChecker {
 				}
 			}
 		}
-//		FrameworkWiring wiring = EngineActivator.getContext().getBundle(Constants.SYSTEM_BUNDLE_ID)
-//				.adapt(FrameworkWiring.class);
-//		if (wiring != null) {
-//			Requirement pgpSignatureRequirements = ModuleContainer.createRequirement(
-//					"org.eclipse.equinox.p2.pgp.trustedPublicKeys", //$NON-NLS-1$
-//					Map.of(), Map.of());
-//			for (BundleCapability capability : wiring.findProviders(pgpSignatureRequirements)) {
-//				String pathInBundle = (String) capability.getAttributes().get("path"); //$NON-NLS-1$
-//				if (pathInBundle != null) {
-//					URL key = capability.getRevision().getBundle().getEntry(pathInBundle);
-//					if (key != null) {
-//						try (InputStream stream = key.openStream()) {
-//							PGPPublicKeyStore.readPublicKeys(stream).forEach(trustStore::addKey);
-//						} catch (IOException e) {
-//							DebugHelper.debug(DEBUG_PREFIX, e.getMessage());
-//						}
-//					}
-//				}
-//			}
 
-//		}
+		Map<PGPPublicKey, Set<Bundle>> result = keys.entrySet().stream()
+				.collect(Collectors.toMap(entry -> keyService.getKey(entry.getKey().array()), Map.Entry::getValue));
+		return result;
+	}
 
-		// load from p2 metadata of installed artifacts
-		//// SECURITY ISSUE: next lines become an attack vector as we have no guarantee
-		//// the metadata of those IUs is safe/were signed.
-		//// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576705#c4
-		// profile.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).forEach(
-		// iu ->
-		// store.addAll(PGPSignatureVerifier.readPublicKeys(iu.getProperty(TRUSTED_KEY_STORE_PROPERTY))));
-		// trustStore.all().forEach(PGPSignatureVerifier.KNOWN_KEYS::addKey);
+	public PGPPublicKeyStore getPreferenceTrustedKeys() {
+		PGPPublicKeyStore trustStore = new PGPPublicKeyStore();
+		if (profile != null) {
+			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
+					profile.getProfileId());
+			PGPPublicKeyStore
+					.readPublicKeys(profileScope.getNode(EngineActivator.ID).get(TRUSTED_KEY_STORE_PROPERTY, null))
+					.stream().map(keyService::addKey).forEach(trustStore::addKey);
+		}
 		return trustStore;
 	}
 

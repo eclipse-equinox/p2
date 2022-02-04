@@ -58,6 +58,8 @@ public class ProvSDKMessages extends NLS {
 	public static String TrustPreferencePage_pgpIntro;
 	public static String TrustPreferencePage_fileImportTitle;
 	public static String TrustPreferencePage_addPGPKeyButtonLabel;
+	public static String TrustPreferencePage_Contributor;
+	public static String TrustPreferencePage_PreferenceContributor;
 	public static String TrustPreferencePage_removePGPKeyButtonLabel;
 
 }
