@@ -30,11 +30,16 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.internal.provisional.security.ui.X500PrincipalHelper;
 import org.eclipse.equinox.internal.provisional.security.ui.X509CertificateViewDialog;
+import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.widgets.LabelFactory;
+import org.eclipse.jface.widgets.WidgetFactory;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -51,9 +56,6 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 	private Object inputElement;
 	private IStructuredContentProvider contentProvider;
-
-	private static final int SIZING_SELECTION_WIDGET_HEIGHT = 250;
-	private static final int SIZING_SELECTION_WIDGET_WIDTH = 300;
 
 	CheckboxTableViewer listViewer;
 
@@ -124,12 +126,14 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		Composite composite = createUpperDialogArea(parent);
+		SashForm sashForm = createUpperDialogArea(parent);
+		Composite composite = createSashFormArea(sashForm);
+
 		certificateChainViewer = new TreeViewer(composite, SWT.BORDER);
-		GridLayout layout = new GridLayout();
-		certificateChainViewer.getTree().setLayout(layout);
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;
+		data.heightHint = convertHeightInCharsToPixels(8);
+		data.widthHint = convertWidthInCharsToPixels(120);
 		certificateChainViewer.getTree().setLayoutData(data);
 		certificateChainViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 		certificateChainViewer.setContentProvider(new TreeNodeContentProvider());
@@ -143,7 +147,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 						String userFriendlyFingerPrint = userFriendlyFingerPrint(key);
 						java.util.List<String> users = new ArrayList<>();
 						key.getUserIDs().forEachRemaining(users::add);
-						String userIDs = String.join(",", users); //$NON-NLS-1$
+						String userIDs = String.join(", ", users); //$NON-NLS-1$
 						if (!userIDs.isEmpty()) {
 							return userFriendlyFingerPrint + " [" + userIDs + "]"; //$NON-NLS-1$//$NON-NLS-2$
 						}
@@ -175,16 +179,17 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 		listViewer.addDoubleClickListener(getDoubleClickListener());
 		listViewer.addSelectionChangedListener(getParentSelectionListener());
+
 		createButtons(composite);
+
 		if (inputElement instanceof Object[]) {
-			ISelection selection = null;
 			Object[] nodes = (Object[]) inputElement;
 			if (nodes.length > 0) {
-				selection = new StructuredSelection(nodes[0]);
+				ISelection selection = new StructuredSelection(nodes[0]);
 				certificateChainViewer.setInput(new TreeNode[] { (TreeNode) nodes[0] });
 				certificateChainViewer.setSelection(selection);
+				listViewer.setSelection(selection);
 			}
-			listViewer.setSelection(selection);
 		}
 		return composite;
 	}
@@ -275,19 +280,52 @@ public class TrustCertificateDialog extends SelectionDialog {
 		});
 	}
 
-	private Composite createUpperDialogArea(Composite parent) {
-		Composite composite = (Composite) super.createDialogArea(parent);
-		initializeDialogUnits(composite);
+	private Composite createSashFormArea(SashForm sashForm) {
+		Composite composite = new Composite(sashForm, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+		composite.setLayout(layout);
+		return composite;
+	}
+
+	@Override
+	protected Label createMessageArea(Composite composite) {
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
+		data.widthHint = convertWidthInCharsToPixels(120);
+		LabelFactory factory = WidgetFactory.label(SWT.WRAP).font(composite.getFont()).layoutData(data);
+		if (getMessage() != null) {
+			factory.text(getMessage());
+		}
+		return factory.create(composite);
+	}
+
+	private SashForm createUpperDialogArea(Composite parent) {
+		Composite mainComposite = (Composite) super.createDialogArea(parent);
+		initializeDialogUnits(mainComposite);
+
+		SashForm sashForm = new SashForm(mainComposite, SWT.VERTICAL);
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		Composite composite = createSashFormArea(sashForm);
+
 		createMessageArea(composite);
 
-		listViewer = CheckboxTableViewer.newCheckList(composite, SWT.BORDER | SWT.FULL_SELECTION);
-		GridData data = new GridData(GridData.FILL_BOTH);
-		data.heightHint = SIZING_SELECTION_WIDGET_HEIGHT;
-		data.widthHint = SIZING_SELECTION_WIDGET_WIDTH;
-		listViewer.getTable().setLayoutData(data);
-		listViewer.getTable().setHeaderVisible(true);
-
+		TableColumnLayout tableColumnLayout = new TableColumnLayout();
+		Composite tableComposite = WidgetFactory.composite(SWT.NONE)
+				.layoutData(new GridData(SWT.FILL, SWT.FILL, true, true)).layout(tableColumnLayout).create(composite);
+		Table table = WidgetFactory
+				.table(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.CHECK)
+				.headerVisible(true).linesVisible(true).font(parent.getFont()).create(tableComposite);
+		listViewer = new CheckboxTableViewer(table);
 		listViewer.setContentProvider(contentProvider);
+
+		GridData data = new GridData(GridData.FILL_BOTH);
+		data.heightHint = convertHeightInCharsToPixels(10);
+		data.widthHint = convertWidthInCharsToPixels(120);
+		tableComposite.setLayoutData(data);
+
 		TableViewerColumn typeColumn = new TableViewerColumn(listViewer, SWT.NONE);
 		typeColumn.getColumn().setText(ProvUIMessages.TrustCertificateDialog_ObjectType);
 		typeColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(key -> "PGP", cert -> "x509")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -302,7 +340,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		signerColumn.setLabelProvider(new PGPOrX509ColumnLabelProvider(pgp -> {
 			java.util.List<String> users = new ArrayList<>();
 			pgp.getUserIDs().forEachRemaining(users::add);
-			return String.join(",", users); //$NON-NLS-1$
+			return String.join(", ", users); //$NON-NLS-1$
 		}, x509 -> {
 			X500PrincipalHelper principalHelper = new X500PrincipalHelper(x509.getSubjectX500Principal());
 			return principalHelper.getCN() + "; " + principalHelper.getOU() + "; " //$NON-NLS-1$ //$NON-NLS-2$
@@ -315,7 +353,11 @@ public class TrustCertificateDialog extends SelectionDialog {
 			if (pgp.getCreationTime().after(Date.from(Instant.now()))) {
 				return NLS.bind(ProvUIMessages.TrustCertificateDialog_NotYetValidStartDate, pgp.getCreationTime());
 			}
-			Instant expires = pgp.getCreationTime().toInstant().plus(pgp.getValidSeconds(), ChronoUnit.SECONDS);
+			long validSeconds = pgp.getValidSeconds();
+			if (validSeconds == 0) {
+				return ProvUIMessages.TrustCertificateDialog_valid;
+			}
+			Instant expires = pgp.getCreationTime().toInstant().plus(validSeconds, ChronoUnit.SECONDS);
 			return expires.isBefore(Instant.now())
 					? NLS.bind(ProvUIMessages.TrustCertificateDialog_expiredSince, expires)
 					: NLS.bind(ProvUIMessages.TrustCertificateDialog_validExpires, expires);
@@ -330,8 +372,14 @@ public class TrustCertificateDialog extends SelectionDialog {
 			}
 		}));
 
-		Menu menu = new Menu(listViewer.getTable());
-		listViewer.getTable().setMenu(menu);
+		// The first column is packed below.
+		tableColumnLayout.setColumnData(typeColumn.getColumn(), new ColumnWeightData(1));
+		tableColumnLayout.setColumnData(idColumn.getColumn(), new ColumnWeightData(10));
+		tableColumnLayout.setColumnData(signerColumn.getColumn(), new ColumnWeightData(15));
+		tableColumnLayout.setColumnData(validColumn.getColumn(), new ColumnWeightData(10));
+
+		Menu menu = new Menu(table);
+		table.setMenu(menu);
 		MenuItem item = new MenuItem(menu, SWT.PUSH);
 		item.setText(ProvUIMessages.TrustCertificateDialog_CopyFingerprint);
 		item.addSelectionListener(widgetSelectedAdapter(e -> {
@@ -354,9 +402,6 @@ public class TrustCertificateDialog extends SelectionDialog {
 		listViewer.setInput(inputElement);
 
 		typeColumn.getColumn().pack();
-		idColumn.getColumn().pack();
-		signerColumn.getColumn().pack();
-		validColumn.getColumn().pack();
 
 		if (!getInitialElementSelections().isEmpty()) {
 			checkInitialSelections();
@@ -364,7 +409,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 		Dialog.applyDialogFont(composite);
 
-		return composite;
+		return sashForm;
 	}
 
 	/**
@@ -484,10 +529,6 @@ public class TrustCertificateDialog extends SelectionDialog {
 		if (key == null) {
 			return null;
 		}
-		StringBuilder builder = new StringBuilder();
-		for (byte b : key.getFingerprint()) {
-			builder.append(String.format("%02X", Byte.toUnsignedInt(b))); //$NON-NLS-1$
-		}
-		return builder.toString();
+		return PGPPublicKeyService.toHex(key.getFingerprint()).toUpperCase(Locale.ROOT);
 	}
 }
