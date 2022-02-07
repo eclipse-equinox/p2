@@ -33,7 +33,9 @@ import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProfileScope;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.IArtifactUIServices;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
@@ -90,7 +92,8 @@ public class CertificateChecker {
 
 	public IStatus start() {
 		final BundleContext context = EngineActivator.getContext();
-		ServiceReference<SignedContentFactory> contentFactoryRef = context.getServiceReference(SignedContentFactory.class);
+		ServiceReference<SignedContentFactory> contentFactoryRef = context
+				.getServiceReference(SignedContentFactory.class);
 		SignedContentFactory verifierFactory = context.getService(contentFactoryRef);
 		try {
 			return checkCertificates(verifierFactory);
@@ -100,37 +103,43 @@ public class CertificateChecker {
 	}
 
 	private IStatus checkCertificates(SignedContentFactory verifierFactory) {
-		UIServices serviceUI = agent.getService(UIServices.class);
-		ArrayList<Certificate> untrustedCertificates = new ArrayList<>();
-		Map<IArtifactDescriptor, Collection<PGPPublicKey>> untrustedPGPArtifacts = new HashMap<>();
-		Map<IArtifactDescriptor, File> unsigned = new HashMap<>();
-		ArrayList<Certificate[]> untrustedChain = new ArrayList<>();
-		Map<Certificate, Collection<File>> untrustedArtifacts = new HashMap<>();
-		IStatus status = Status.OK_STATUS;
-		if (artifacts.isEmpty() || serviceUI == null) {
-			return status;
+		if (artifacts.isEmpty()) {
+			return Status.OK_STATUS;
 		}
+
+		UIServices serviceUI = agent.getService(UIServices.class);
+		if (serviceUI == null) {
+			return Status.OK_STATUS;
+		}
+
+		IArtifactUIServices artifactServiceUI = serviceUI instanceof IArtifactUIServices
+				? (IArtifactUIServices) serviceUI
+				: (untrustedCertificateChains, untrustedPGPKeys, unsignedArtifacts,
+						artifactFiles) -> IArtifactUIServices.getTrustInfo(serviceUI, untrustedCertificateChains,
+								untrustedPGPKeys, unsignedArtifacts, artifactFiles);
+
+		Map<List<Certificate>, Set<IArtifactKey>> untrustedCertificates = new LinkedHashMap<>();
+		Map<PGPPublicKey, Set<IArtifactKey>> untrustedPGPKeys = new LinkedHashMap<>();
+		Set<IArtifactKey> unsignedArtifacts = new LinkedHashSet<>();
 		Set<PGPPublicKey> trustedKeySet = new HashSet<>();
 		boolean isTrustedKeySetInitialized = false;
+		Map<IArtifactKey, File> artifactFiles = new LinkedHashMap<>();
 		for (Entry<IArtifactDescriptor, File> artifact : artifacts.entrySet()) {
+			IArtifactDescriptor artifactDescriptor = artifact.getKey();
+			IArtifactKey artifactKey = artifactDescriptor.getArtifactKey();
 			File artifactFile = artifact.getValue();
+			artifactFiles.put(artifactKey, artifactFile);
 			try {
 				SignedContent content = verifierFactory.getSignedContent(artifactFile);
 				if (content.isSigned()) {
 					SignerInfo[] signerInfo = content.getSignerInfos();
+					// Only record the untrusted elements if there are no trusted elements.
 					if (Arrays.stream(signerInfo).noneMatch(SignerInfo::isTrusted)) {
-						// Only record the untrusted elements if there are no trusted elements.
 						for (SignerInfo element : signerInfo) {
 							if (!element.isTrusted()) {
-								Certificate[] certificateChain = element.getCertificateChain();
-								if (!untrustedCertificates.contains(certificateChain[0])) {
-									untrustedCertificates.add(certificateChain[0]);
-									untrustedChain.add(certificateChain);
-								}
-								if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED) {
-									untrustedArtifacts.computeIfAbsent(certificateChain[0], key -> new ArrayList<>())
-											.add(artifactFile);
-								}
+								List<Certificate> certificateChain = Arrays.asList(element.getCertificateChain());
+								untrustedCertificates.computeIfAbsent(certificateChain, key -> new LinkedHashSet<>())
+										.add(artifactKey);
 							}
 						}
 					}
@@ -139,32 +148,36 @@ public class CertificateChecker {
 					// PGPSignatureVerifier verified the signatures against these keys.
 					List<PGPPublicKey> verifiedKeys = PGPPublicKeyStore
 							.readPublicKeys(
-									artifact.getKey().getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME))
+									artifactDescriptor.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME))
 							.stream().map(keyService::addKey).collect(Collectors.toList());
 					if (!verifiedKeys.isEmpty()) {
 						if (!isTrustedKeySetInitialized) {
 							isTrustedKeySetInitialized = true;
 							trustedKeySet.addAll(trustedKeys.get().all());
 						}
+						// Only record the untrusted keys if none of the keys are trusted.
 						if (verifiedKeys.stream().noneMatch(trustedKeySet::contains)) {
-							untrustedPGPArtifacts.put(artifact.getKey(), verifiedKeys);
+							verifiedKeys
+									.forEach(key -> untrustedPGPKeys.computeIfAbsent(key, k -> new LinkedHashSet<>())
+											.add(artifactKey));
 						}
 					} else {
-						unsigned.put(artifact.getKey(), artifactFile);
+						unsignedArtifacts.add(artifactKey);
 					}
 				}
 			} catch (GeneralSecurityException e) {
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.CertificateChecker_SignedContentError, e);
 			} catch (IOException e) {
-				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.CertificateChecker_SignedContentIOError, e);
+				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.CertificateChecker_SignedContentIOError,
+						e);
 			}
 		}
 
 		// log the unsigned artifacts if requested
-		if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNSIGNED && !unsigned.isEmpty()) {
+		if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNSIGNED && !unsignedArtifacts.isEmpty()) {
 			StringBuilder message = new StringBuilder("The following artifacts are unsigned:\n"); //$NON-NLS-1$
-			for (File file : unsigned.values()) {
-				message.append(NLS.bind("  {0}\n", file.getPath())); //$NON-NLS-1$
+			for (IArtifactKey key : unsignedArtifacts) {
+				message.append(NLS.bind("  {0}\n", artifactFiles.get(key).getPath())); //$NON-NLS-1$
 			}
 			DebugHelper.debug(DEBUG_PREFIX, message.toString());
 		}
@@ -172,79 +185,75 @@ public class CertificateChecker {
 		// log the untrusted certificates if requested
 		if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED && !untrustedCertificates.isEmpty()) {
 			StringBuilder message = new StringBuilder("The following certificates are untrusted:\n"); //$NON-NLS-1$
-			for (Certificate cert : untrustedArtifacts.keySet()) {
-				message.append(cert.toString() + "\n"); //$NON-NLS-1$
+			for (Map.Entry<List<Certificate>, Set<IArtifactKey>> entry : untrustedCertificates.entrySet()) {
+				message.append(entry.getKey().get(0).toString() + "\n"); //$NON-NLS-1$
 				message.append("  used by the following artifacts:\n"); //$NON-NLS-1$
-				for (File file : untrustedArtifacts.get(cert)) {
-					message.append(NLS.bind("    {0}\n", file.getPath())); //$NON-NLS-1$
+				for (IArtifactKey key : entry.getValue()) {
+					message.append(NLS.bind("    {0}\n", artifactFiles.get(key).getPath())); //$NON-NLS-1$
 				}
+
 			}
 			DebugHelper.debug(DEBUG_PREFIX, message.toString());
 		}
-		Set<PGPPublicKey> untrustedPGPKeys = untrustedPGPArtifacts.values().stream().flatMap(Collection::stream)
-				.collect(Collectors.toSet());
+
 		if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED && !untrustedPGPKeys.isEmpty()) {
 			StringBuilder message = new StringBuilder("The following PGP Keys are untrusted:\n"); //$NON-NLS-1$
-			for (PGPPublicKey untrustedKey : untrustedPGPKeys) {
-				message.append(Long.toHexString(untrustedKey.getKeyID()) + "\n"); //$NON-NLS-1$
+			for (Map.Entry<PGPPublicKey, Set<IArtifactKey>> entry : untrustedPGPKeys.entrySet()) {
+				message.append(Long.toHexString(entry.getKey().getKeyID()) + "\n"); //$NON-NLS-1$
 				message.append("  used by the following artifacts:\n"); //$NON-NLS-1$
-				for (Entry<IArtifactDescriptor, Collection<PGPPublicKey>> entry : untrustedPGPArtifacts.entrySet()) {
-					if (entry.getValue().stream().anyMatch(signer -> signer.getKeyID() == untrustedKey.getKeyID())) {
-						message.append(NLS.bind("    {0}\n", entry.getKey().getArtifactKey())); //$NON-NLS-1$
-					}
+				for (IArtifactKey key : entry.getValue()) {
+					message.append(NLS.bind("    {0}\n", key)); //$NON-NLS-1$
 				}
 			}
 			DebugHelper.debug(DEBUG_PREFIX, message.toString());
 		}
 
 		String policy = getUnsignedContentPolicy();
-		//if there is unsigned content and we should never allow it, then fail without further checking certificates
-		if (!unsigned.isEmpty() && EngineActivator.UNSIGNED_FAIL.equals(policy)) {
-			return new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.CertificateChecker_UnsignedNotAllowed, unsigned));
+		// if there is unsigned content and we should never allow it, then fail without
+		// further checking certificates
+		if (!unsignedArtifacts.isEmpty() && EngineActivator.UNSIGNED_FAIL.equals(policy)) {
+			return new Status(IStatus.ERROR, EngineActivator.ID,
+					NLS.bind(Messages.CertificateChecker_UnsignedNotAllowed, unsignedArtifacts.stream()
+							.map(key -> artifactFiles.get(key)).collect(Collectors.toList())));
 		}
 
-		String[] details = EngineActivator.UNSIGNED_ALLOW.equals(policy) || unsigned.isEmpty() ? null
-				: unsigned.entrySet().stream().map(entry -> {
-					String detail = entry.getValue().toString();
-					if (untrustedPGPKeys != null && !untrustedPGPKeys.isEmpty()) {
-						return detail + untrustedPGPKeys.stream().map(PGPPublicKey::getKeyID).map(Long::toHexString)
-								.collect(Collectors.joining(", ", " [", "]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					}
-					return detail;
-				}).toArray(String[]::new);
-		Certificate[][] unTrustedCertificateChains = untrustedCertificates.isEmpty() ? null
-				: untrustedChain.toArray(Certificate[][]::new);
 		// If there was no unsigned content, and nothing untrusted, no need to prompt.
-		if (details == null && unTrustedCertificateChains == null && untrustedPGPArtifacts.isEmpty()) {
-			return status;
+		if ((EngineActivator.UNSIGNED_ALLOW.equals(policy) || unsignedArtifacts.isEmpty())
+				&& untrustedCertificates.isEmpty() && untrustedPGPKeys.isEmpty()) {
+			return Status.OK_STATUS;
 		}
 
-		TrustInfo trustInfo = serviceUI.getTrustInfo(unTrustedCertificateChains,
-				untrustedPGPKeys,
-				details);
+		TrustInfo trustInfo = artifactServiceUI.getTrustInfo(untrustedCertificates, untrustedPGPKeys, unsignedArtifacts,
+				artifactFiles);
 
-		// If user doesn't trust unsigned content, cancel the operation
-		if (!unsigned.isEmpty() && !trustInfo.trustUnsignedContent()) {
+		// If there is unsigned content and user doesn't trust unsigned content, cancel
+		// the operation.
+		if (!unsignedArtifacts.isEmpty() && !trustInfo.trustUnsignedContent()) {
 			return Status.CANCEL_STATUS;
 		}
 
 		Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
 		// If we had untrusted chains and nothing was trusted, cancel the operation
-		if (unTrustedCertificateChains != null && trustedCertificates == null) {
+		if (!untrustedCertificates.isEmpty() && trustedCertificates == null) {
 			return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
 		}
+
 		// Anything that was trusted should be removed from the untrusted list
 		if (trustedCertificates != null) {
-			for (Certificate trustedCertificate : trustedCertificates) {
-				untrustedCertificates.remove(trustedCertificate);
-			}
+			List<Certificate> trustedCertificateList = Arrays.asList(trustedCertificates);
+			untrustedCertificates.keySet().removeIf(it -> trustedCertificateList.contains(it.get(0)));
 		}
 
 		trustedKeySet.addAll(trustInfo.getTrustedPGPKeys());
-		untrustedPGPArtifacts.values().removeIf(pgpKeys -> pgpKeys.stream().anyMatch(trustedKeySet::contains));
+
+		Set<IArtifactKey> trustedArtifactKeys = trustedKeySet.stream().map(untrustedPGPKeys::get)
+				.filter(Objects::nonNull).flatMap(Set::stream)
+				.collect(Collectors.toSet());
+		untrustedPGPKeys.values().forEach(it -> it.removeAll(trustedArtifactKeys));
+		untrustedPGPKeys.values().removeIf(Collection::isEmpty);
 
 		// If there is still untrusted content, cancel the operation
-		if (!untrustedCertificates.isEmpty() || !untrustedPGPArtifacts.isEmpty()) {
+		if (!untrustedCertificates.isEmpty() || !untrustedPGPKeys.isEmpty()) {
 			return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
 		}
 		// If we should persist the trusted certificates, add them to the trust engine
@@ -263,14 +272,16 @@ public class CertificateChecker {
 					pgpStatus.getMessage() + '\n' + certifactesStatus.getMessage(), null);
 		}
 
-		return status;
+		return Status.OK_STATUS;
 	}
 
 	private IStatus persistTrustedCertificates(Certificate[] trustedCertificates) {
 		if (trustedCertificates == null)
-			// I'm pretty sure this would be a bug; trustedCertificates should never be null here.
+			// I'm pretty sure this would be a bug; trustedCertificates should never be null
+			// here.
 			return new Status(IStatus.INFO, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
-		ServiceTracker<TrustEngine, TrustEngine> trustEngineTracker = new ServiceTracker<>(EngineActivator.getContext(), TrustEngine.class, null);
+		ServiceTracker<TrustEngine, TrustEngine> trustEngineTracker = new ServiceTracker<>(EngineActivator.getContext(),
+				TrustEngine.class, null);
 		trustEngineTracker.open();
 		Object[] trustEngines = trustEngineTracker.getServices();
 		try {
@@ -283,13 +294,16 @@ public class CertificateChecker {
 						continue;
 					try {
 						trustEngine.addTrustAnchor(trustedCertificate, trustedCertificate.toString());
-						// this should mean we added an anchor successfully; continue to next certificate
+						// this should mean we added an anchor successfully; continue to next
+						// certificate
 						break;
 					} catch (IOException e) {
-						//just return an INFO so the user can proceed with the install
-						return new Status(IStatus.INFO, EngineActivator.ID, Messages.CertificateChecker_KeystoreConnectionError, e);
+						// just return an INFO so the user can proceed with the install
+						return new Status(IStatus.INFO, EngineActivator.ID,
+								Messages.CertificateChecker_KeystoreConnectionError, e);
 					} catch (GeneralSecurityException e) {
-						return new Status(IStatus.INFO, EngineActivator.ID, Messages.CertificateChecker_CertificateError, e);
+						return new Status(IStatus.INFO, EngineActivator.ID,
+								Messages.CertificateChecker_CertificateError, e);
 					}
 				}
 			}
@@ -377,4 +391,3 @@ public class CertificateChecker {
 		return Status.OK_STATUS;
 	}
 }
-

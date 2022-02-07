@@ -14,10 +14,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import java.io.File;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.*;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
@@ -25,6 +28,8 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
 import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.UIServices;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.spi.IArtifactUIServices;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.*;
@@ -42,7 +47,7 @@ import org.eclipse.ui.PlatformUI;
  * declaration is made in the serviceui_component.xml file.
  *
  */
-public class ValidationDialogServiceUI extends UIServices {
+public class ValidationDialogServiceUI extends UIServices implements IArtifactUIServices {
 
 	private final IProvisioningAgent agent;
 
@@ -181,56 +186,101 @@ public class ValidationDialogServiceUI extends UIServices {
 		// We've established trust for unsigned content, now examine the untrusted
 		// chains
 		if (!isHeadless() && (untrustedChains.length > 0 || !untrustedPublicKeys.isEmpty())) {
-			final TrustCertificateDialog[] dialog = new TrustCertificateDialog[1];
-			final TreeNode[] input = createTreeNodes(untrustedChains, untrustedPublicKeys);
-			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
-				Shell shell = ProvUI.getDefaultParentShell();
-				TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input);
-				dialog[0] = trustCertificateDialog;
-				trustCertificateDialog.open();
-			});
-			persistTrust = true;
-			if (dialog[0].getResult() != null) {
-				for (Object o : dialog[0].getResult()) {
-					if (o instanceof TreeNode) {
-						o = ((TreeNode) o).getValue();
-					}
-					if (o instanceof Certificate) {
-						trustedCertificates.add((Certificate) o);
-					} else if (o instanceof PGPPublicKey) {
-						trustedKeys.add((PGPPublicKey) o);
+			return getTrustInfo(
+					Arrays.stream(untrustedChains).collect(
+							Collectors.toMap(Arrays::asList, it -> Set.of(), (e1, e2) -> e1, LinkedHashMap::new)),
+					untrustedPublicKeys.stream().collect(
+							Collectors.toMap(Function.identity(), it -> Set.of(), (e1, e2) -> e1, LinkedHashMap::new)),
+					null, null);
+
+		}
+
+		return new TrustInfo(trustedCertificates, trustedKeys, persistTrust, trustUnsigned);
+	}
+
+	@Override
+	public TrustInfo getTrustInfo(Map<List<Certificate>, Set<IArtifactKey>> untrustedCertificates,
+			Map<PGPPublicKey, Set<IArtifactKey>> untrustedPGPKeys, //
+			Set<IArtifactKey> unsignedArtifacts, //
+			Map<IArtifactKey, File> artifacts) {
+		boolean trustUnsigned = true;
+		boolean persistTrust = false;
+		List<Certificate> trustedCertificates = new ArrayList<>();
+		List<PGPPublicKey> trustedKeys = new ArrayList<>();
+		if (!isHeadless()) {
+			TreeNode[] input = createTreeNodes(untrustedCertificates, untrustedPGPKeys, unsignedArtifacts, artifacts);
+			if (input.length != 0) {
+				trustUnsigned = unsignedArtifacts == null || unsignedArtifacts.isEmpty();
+				final TrustCertificateDialog[] dialog = new TrustCertificateDialog[1];
+				PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+					Shell shell = ProvUI.getDefaultParentShell();
+					TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input);
+					dialog[0] = trustCertificateDialog;
+					trustCertificateDialog.open();
+				});
+				persistTrust = true;
+				if (dialog[0].getResult() != null) {
+					for (Object o : dialog[0].getResult()) {
+						if (o instanceof TreeNode) {
+							o = ((TreeNode) o).getValue();
+						}
+						if (o instanceof Certificate) {
+							trustedCertificates.add((Certificate) o);
+						} else if (o instanceof PGPPublicKey) {
+							trustedKeys.add((PGPPublicKey) o);
+						} else if (o == null) {
+							trustUnsigned = true;
+						}
 					}
 				}
 			}
 		}
+
 		return new TrustInfo(trustedCertificates, trustedKeys, persistTrust, trustUnsigned);
 	}
 
-	private TreeNode[] createTreeNodes(Certificate[][] certificates, Collection<PGPPublicKey> untrustedPublicKeys) {
-		TreeNode[] children = new TreeNode[certificates.length + untrustedPublicKeys.size()];
-		int i = 0;
-		for (i = 0; i < certificates.length; i++) {
-			TreeNode head = new TreeNode(certificates[i][0]);
-			TreeNode parent = head;
-			children[i] = head;
-			for (int j = 0; j < certificates[i].length; j++) {
-				TreeNode node = new TreeNode(certificates[i][j]);
-				node.setParent(parent);
-				parent.setChildren(new TreeNode[] { node });
-				parent = node;
+	private TreeNode[] createTreeNodes(Map<List<Certificate>, Set<IArtifactKey>> untrustedCertificates,
+			Map<PGPPublicKey, Set<IArtifactKey>> untrustedPGPKeys, //
+			Set<IArtifactKey> unsignedArtifacts, //
+			Map<IArtifactKey, File> artifacts) {
+
+		List<ExtendedTreeNode> children = new ArrayList<>();
+		if (untrustedCertificates != null && !untrustedCertificates.isEmpty()) {
+			for (Map.Entry<List<Certificate>, Set<IArtifactKey>> entry : untrustedCertificates.entrySet()) {
+				ExtendedTreeNode parent = null;
+				List<Certificate> key = entry.getKey();
+				Set<IArtifactKey> associatedArtifacts = entry.getValue();
+				for (Certificate certificate : key) {
+					ExtendedTreeNode node = new ExtendedTreeNode(certificate, associatedArtifacts);
+					if (parent == null) {
+						children.add(node);
+					} else {
+						node.setParent(parent);
+						parent.setChildren(new TreeNode[] { node });
+					}
+					parent = node;
+				}
 			}
 		}
 
-		if (!untrustedPublicKeys.isEmpty()) {
+		if (untrustedPGPKeys != null && !untrustedPGPKeys.isEmpty()) {
 			PGPPublicKeyService keyService = agent == null ? null : agent.getService(PGPPublicKeyService.class);
-			for (PGPPublicKey key : untrustedPublicKeys) {
-				TreeNode treeNode = new TreeNode(key);
-				children[i] = treeNode;
-				expandChildren(treeNode, key, keyService, new HashSet<>(), Integer.getInteger("p2.pgp.trust.depth", 3)); //$NON-NLS-1$
-				i++;
+			for (Map.Entry<PGPPublicKey, Set<IArtifactKey>> entry : untrustedPGPKeys.entrySet()) {
+				PGPPublicKey key = entry.getKey();
+				Set<IArtifactKey> associatedArtifacts = entry.getValue();
+				ExtendedTreeNode node = new ExtendedTreeNode(key, associatedArtifacts);
+				children.add(node);
+				expandChildren(node, key, keyService, new HashSet<>(), Integer.getInteger("p2.pgp.trust.depth", 3)); //$NON-NLS-1$
 			}
 		}
-		return children;
+
+		if (unsignedArtifacts != null && !unsignedArtifacts.isEmpty()) {
+			ExtendedTreeNode node = new ExtendedTreeNode(null, unsignedArtifacts);
+			children.add(node);
+
+		}
+
+		return children.toArray(TreeNode[]::new);
 	}
 
 	private void expandChildren(TreeNode result, PGPPublicKey key, PGPPublicKeyService keyService,
@@ -303,6 +353,35 @@ public class ValidationDialogServiceUI extends UIServices {
 		// assume that the operation should proceed. See
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291049
 		return !PlatformUI.isWorkbenchRunning();
+	}
+
+	private static class ExtendedTreeNode extends TreeNode implements IAdaptable {
+		private final Set<IArtifactKey> artifacts;
+
+		public ExtendedTreeNode(Object value) {
+			super(value);
+			artifacts = null;
+		}
+
+		public ExtendedTreeNode(Object value, Set<IArtifactKey> artifacts) {
+			super(value);
+			this.artifacts = artifacts;
+		}
+
+		@Override
+		public <T> T getAdapter(Class<T> adapter) {
+			if (adapter.isInstance(this)) {
+				return adapter.cast(this);
+			}
+			if (adapter.isInstance(getValue())) {
+				return adapter.cast(value);
+			}
+			if (adapter == IArtifactKey[].class && artifacts != null) {
+				return adapter.cast(artifacts.toArray(IArtifactKey[]::new));
+			}
+
+			return null;
+		}
 	}
 
 }
