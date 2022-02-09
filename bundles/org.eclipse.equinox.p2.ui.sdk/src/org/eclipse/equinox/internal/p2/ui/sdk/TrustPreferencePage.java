@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -25,11 +27,15 @@ import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.Policy;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.widgets.LabelFactory;
 import org.eclipse.jface.widgets.WidgetFactory;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -72,9 +78,12 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 		Composite res = new Composite(parent, SWT.NONE);
 		res.setLayout(new GridLayout(2, false));
 
-		Label pgpLabel = new Label(res, SWT.WRAP);
-		pgpLabel.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false, 2, 1));
-		pgpLabel.setText(ProvSDKMessages.TrustPreferencePage_pgpIntro);
+		// Ensure that the message supports wrapping for a long text message.
+		GridData data = new GridData(SWT.FILL, SWT.DEFAULT, true, false, 2, 1);
+		data.widthHint = convertWidthInCharsToPixels(100);
+		LabelFactory factory = WidgetFactory.label(SWT.WRAP).text(ProvSDKMessages.TrustPreferencePage_pgpIntro)
+				.font(parent.getFont()).layoutData(data);
+		factory.create(res);
 
 		TableColumnLayout tableColumnLayout = new TableColumnLayout();
 		Composite tableComposite = WidgetFactory.composite(SWT.NONE)
@@ -200,6 +209,40 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 			Collection<PGPPublicKey> keys = trustedKeys.all();
 			removeButton.setEnabled(getSelectedKeys().stream().anyMatch(keys::contains));
 		});
+
+		Button trustAllButton = WidgetFactory.button(SWT.CHECK).text(ProvSDKMessages.TrustPreferencePage_TrustAll)
+				.font(JFaceResources.getDialogFont())
+				.create(res);
+		setButtonLayoutData(trustAllButton).verticalSpan = 2;
+		trustAllButton.setSelection(certificateChecker.isTrustAlways());
+		trustAllButton.addSelectionListener(widgetSelectedAdapter(e -> {
+			if (trustAllButton.getSelection()) {
+				// Prompt the user to ensure they really understand what they've chosen, the
+				// risk, and where the preference is stored if they wish to change it in the
+				// future. Also ensure that the default button is no so that they must
+				// explicitly click the yes button, not just hit enter.
+				MessageDialog messageDialog = new MessageDialog(getShell(),
+						ProvSDKMessages.TrustPreferencePage_TrustAllConfirmationTitle, null,
+						ProvSDKMessages.TrustPreferencePage_TrustAllConfirmationDescription, MessageDialog.QUESTION,
+						new String[] { ProvSDKMessages.TrustPreferencePage_TrustAllYes,
+								ProvSDKMessages.TrustPreferencePage_TrustAllNo },
+						1) {
+					@Override
+					public Image getImage() {
+						return getWarningImage();
+					}
+				};
+				int result = messageDialog.open();
+				if (result != Window.OK) {
+					certificateChecker.setTrustAlways(false);
+					// Restore the setting.
+					trustAllButton.setSelection(false);
+				} else {
+					certificateChecker.setTrustAlways(true);
+				}
+
+			}
+		}));
 
 		return res;
 	}

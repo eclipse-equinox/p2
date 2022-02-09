@@ -73,13 +73,14 @@ public abstract class UIServices {
 	}
 
 	/**
-	 * Trust information returned from a trust request.	 *
+	 * Trust information returned from a trust request.
 	 */
 	public static class TrustInfo {
 		private final Certificate[] trustedCertificates;
 		private final Collection<PGPPublicKey> trustedPGPKeys;
 		private final boolean saveTrustedCertificates;
 		private final boolean trustUnsigned;
+		private final boolean trustAlways;
 
 		/**
 		 *
@@ -96,6 +97,7 @@ public abstract class UIServices {
 			this.trustedPGPKeys = Collections.emptyList();
 			this.saveTrustedCertificates = save;
 			this.trustUnsigned = trustUnsigned;
+			trustAlways = false;
 		}
 
 		/**
@@ -112,6 +114,28 @@ public abstract class UIServices {
 		public TrustInfo(Collection<Certificate> trustedCertificates, Collection<PGPPublicKey> trustedPGPKeys,
 				boolean save,
 				boolean trustUnsigned) {
+			this(trustedCertificates, trustedPGPKeys, save, trustUnsigned, false);
+		}
+
+		/**
+		 * @param trustedCertificates Trusted certificates
+		 * @param trustedPGPKeys      Trusted PGP public keys
+		 * @param save                Whether to store trusted certificates and keys or
+		 *                            not.
+		 * @param trustUnsigned       Whether to trust unsigned content.
+		 *                            <code>true</code> if installation should continue
+		 *                            despite unsigned content; <code>false</code>
+		 *                            otherwise.
+		 * @param trustAlways         Whether to always trust all content regardless of
+		 *                            whether it's signed, regardless of how it's
+		 *                            signed, and regardless of the certificate or key
+		 *                            with which it's signed.
+		 *
+		 * @since 2.9
+		 */
+		public TrustInfo(Collection<Certificate> trustedCertificates, Collection<PGPPublicKey> trustedPGPKeys,
+				boolean save, boolean trustUnsigned, boolean trustAlways) {
+			this.trustAlways = trustAlways;
 			this.trustedCertificates = trustedCertificates.toArray(Certificate[]::new);
 			this.trustedPGPKeys = trustedPGPKeys;
 			this.saveTrustedCertificates = save;
@@ -131,7 +155,10 @@ public abstract class UIServices {
 
 		/**
 		 *
-		 * @return the trusted PGP keys
+		 * Return a collection of the keys that should be trusted for the requested
+		 * operation.
+		 *
+		 * @return the trusted PGP keys.
 		 * @since 2.8
 		 */
 		public Collection<PGPPublicKey> getTrustedPGPKeys() {
@@ -158,6 +185,20 @@ public abstract class UIServices {
 		 */
 		public boolean trustUnsignedContent() {
 			return trustUnsigned;
+		}
+
+		/**
+		 * Return a boolean indicating whether to always trust all content regardless of
+		 * whether it's signed, regardless of how it's signed, and regardless of the
+		 * certificate or key with which it's signed, both during this operation and for
+		 * all future operations.
+		 *
+		 * @return <code>true</code> if all content should always be trusted, and
+		 *         <code>false</code> otherwise.
+		 * @since 2.9
+		 */
+		public boolean trustAlways() {
+			return trustAlways;
 		}
 	}
 

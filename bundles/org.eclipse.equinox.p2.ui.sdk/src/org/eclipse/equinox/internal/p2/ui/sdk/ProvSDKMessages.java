@@ -61,5 +61,10 @@ public class ProvSDKMessages extends NLS {
 	public static String TrustPreferencePage_Contributor;
 	public static String TrustPreferencePage_PreferenceContributor;
 	public static String TrustPreferencePage_removePGPKeyButtonLabel;
+	public static String TrustPreferencePage_TrustAll;
+	public static String TrustPreferencePage_TrustAllConfirmationDescription;
+	public static String TrustPreferencePage_TrustAllConfirmationTitle;
+	public static String TrustPreferencePage_TrustAllNo;
+	public static String TrustPreferencePage_TrustAllYes;
 
 }

@@ -36,18 +36,19 @@ import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.Policy;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.widgets.LabelFactory;
 import org.eclipse.jface.widgets.WidgetFactory;
+import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
@@ -69,6 +70,10 @@ public class TrustCertificateDialog extends SelectionDialog {
 	private Button detailsButton;
 
 	private Button exportButton;
+
+	private boolean rememberSelectedSigners = true;
+
+	private boolean trustAlways;
 
 	private final Map<TreeNode, List<IArtifactKey>> artifactMap = new LinkedHashMap<>();
 
@@ -113,13 +118,17 @@ public class TrustCertificateDialog extends SelectionDialog {
 		}
 	}
 
-	public TreeViewer getCertificateChainViewer() {
-		return certificateChainViewer;
+	public boolean isRememberSelectedSigners() {
+		return rememberSelectedSigners;
+	}
+
+	public boolean isTrustAlways() {
+		return trustAlways;
 	}
 
 	@Override
 	protected Label createMessageArea(Composite composite) {
-		// Ensure that the message support wrapping for a long text message.
+		// Ensure that the message supports wrapping for a long text message.
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		data.widthHint = convertWidthInCharsToPixels(120);
 		LabelFactory factory = WidgetFactory.label(SWT.WRAP).font(composite.getFont()).layoutData(data);
@@ -358,13 +367,13 @@ public class TrustCertificateDialog extends SelectionDialog {
 		});
 
 		certifcateViewer.addSelectionChangedListener(e -> {
-			if (getCertificateChainViewer() != null) {
+			if (certificateChainViewer != null) {
 				TreeNode treeNode = getInstance(e.getSelection(), TreeNode.class);
 				if (treeNode != null) {
-					getCertificateChainViewer().setInput(new TreeNode[] { treeNode });
-					getCertificateChainViewer().setSelection(new StructuredSelection(treeNode));
+					certificateChainViewer.setInput(new TreeNode[] { treeNode });
+					certificateChainViewer.setSelection(new StructuredSelection(treeNode));
 				} else {
-					getCertificateChainViewer().setInput(new TreeNode[] {});
+					certificateChainViewer.setInput(new TreeNode[] {});
 				}
 			}
 
@@ -560,37 +569,101 @@ public class TrustCertificateDialog extends SelectionDialog {
 	 * @param composite org.eclipse.swt.widgets.Composite
 	 */
 	private void addSelectionButtons(Composite composite) {
-		Composite buttonComposite = new Composite(composite, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 0;
-		layout.marginWidth = 0;
-		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-		buttonComposite.setLayout(layout);
-		buttonComposite.setLayoutData(new GridData(SWT.END, SWT.TOP, true, false));
+		int horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
 
-		Button selectButton = createButton(buttonComposite, IDialogConstants.SELECT_ALL_ID,
+		Composite buttonArea = new Composite(composite, SWT.NONE);
+		GridLayout buttonAreaLayout = new GridLayout();
+		buttonAreaLayout.numColumns = 2;
+		buttonAreaLayout.marginWidth = 0;
+		buttonAreaLayout.horizontalSpacing = horizontalSpacing;
+		buttonArea.setLayout(buttonAreaLayout);
+		buttonArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+		Composite leftButtonArea = new Composite(buttonArea, SWT.NONE);
+		GridLayout leftButtonAreaLayout = new GridLayout();
+		leftButtonAreaLayout.numColumns = 0;
+		leftButtonAreaLayout.marginWidth = 0;
+		leftButtonAreaLayout.horizontalSpacing = horizontalSpacing;
+		leftButtonArea.setLayout(leftButtonAreaLayout);
+		leftButtonArea.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false));
+
+		if (containsInstance(artifactMap.keySet(), PGPPublicKey.class)
+				|| containsInstance(artifactMap.keySet(), Certificate.class)) {
+			Button rememberSelectionButton = createCheckButton(leftButtonArea,
+					ProvUIMessages.TrustCertificateDialog_RememberSigners);
+			rememberSelectionButton.setSelection(rememberSelectedSigners);
+			rememberSelectionButton.addSelectionListener(widgetSelectedAdapter(e -> {
+				rememberSelectedSigners = rememberSelectionButton.getSelection();
+			}));
+		}
+
+		Button trustAlwaysButton = createCheckButton(leftButtonArea, ProvUIMessages.TrustCertificateDialog_AlwaysTrust);
+		trustAlwaysButton.addSelectionListener(widgetSelectedAdapter(e -> {
+			if (trustAlwaysButton.getSelection()) {
+				// Prompt the user to ensure they really understand what they've chosen, the
+				// risk, and where the preference is stored if they wish to change it in the
+				// future. Also ensure that the default button is no so that they must
+				// explicitly click the yes button, not just hit enter.
+				MessageDialog messageDialog = new MessageDialog(getShell(),
+						ProvUIMessages.TrustCertificateDialog_AlwaysTrustConfirmationTitle, null,
+						ProvUIMessages.TrustCertificateDialog_AlwaysTrustConfirmationMessage, MessageDialog.QUESTION,
+						new String[] { ProvUIMessages.TrustCertificateDialog_AlwaysTrustYes,
+								ProvUIMessages.TrustCertificateDialog_AlwaysTrustNo },
+						1) {
+					@Override
+					public Image getImage() {
+						return getWarningImage();
+					}
+				};
+				int result = messageDialog.open();
+				if (result != Window.OK) {
+					// Restore the checkbox state.
+					trustAlwaysButton.setSelection(false);
+				} else {
+					certifcateViewer.setAllChecked(true);
+					if (artifactViewer != null) {
+						artifactViewer.refresh(true);
+					}
+					updateOkButton();
+				}
+			}
+			trustAlways = trustAlwaysButton.getSelection();
+		}));
+
+		Composite rightButtonArea = new Composite(buttonArea, SWT.NONE);
+		GridLayout rightButtonAreaLayout = new GridLayout();
+		rightButtonAreaLayout.numColumns = 0;
+		rightButtonAreaLayout.marginWidth = 0;
+		rightButtonAreaLayout.horizontalSpacing = horizontalSpacing;
+		rightButtonArea.setLayout(rightButtonAreaLayout);
+		rightButtonArea.setLayoutData(new GridData(SWT.END, SWT.TOP, true, false));
+
+		Button selectButton = createButton(rightButtonArea, IDialogConstants.SELECT_ALL_ID,
 				ProvUIMessages.TrustCertificateDialog_SelectAll, false);
-
-		SelectionListener listener = widgetSelectedAdapter(e -> {
+		selectButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			certifcateViewer.setAllChecked(true);
 			if (artifactViewer != null) {
 				artifactViewer.refresh(true);
 			}
 			updateOkButton();
-		});
-		selectButton.addSelectionListener(listener);
+		}));
 
-		Button deselectButton = createButton(buttonComposite, IDialogConstants.DESELECT_ALL_ID,
+		Button deselectButton = createButton(rightButtonArea, IDialogConstants.DESELECT_ALL_ID,
 				ProvUIMessages.TrustCertificateDialog_DeselectAll, false);
-
-		listener = widgetSelectedAdapter(e -> {
+		deselectButton.addSelectionListener(widgetSelectedAdapter(e -> {
 			certifcateViewer.setAllChecked(false);
 			if (artifactViewer != null) {
 				artifactViewer.refresh(true);
 			}
 			updateOkButton();
-		});
-		deselectButton.addSelectionListener(listener);
+		}));
+	}
+
+	protected Button createCheckButton(Composite parent, String label) {
+		((GridLayout) parent.getLayout()).numColumns++;
+		Button button = WidgetFactory.button(SWT.CHECK).text(label).font(JFaceResources.getDialogFont()).create(parent);
+		setButtonLayoutData(button);
+		return button;
 	}
 
 	private String getFilterPath(String key) {

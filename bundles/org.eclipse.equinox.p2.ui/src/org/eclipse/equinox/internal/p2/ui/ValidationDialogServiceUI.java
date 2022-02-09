@@ -19,6 +19,7 @@ import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -204,39 +205,43 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			Set<IArtifactKey> unsignedArtifacts, //
 			Map<IArtifactKey, File> artifacts) {
 		boolean trustUnsigned = true;
-		boolean persistTrust = false;
+		AtomicBoolean persistTrust = new AtomicBoolean();
+		AtomicBoolean trustAlways = new AtomicBoolean();
 		List<Certificate> trustedCertificates = new ArrayList<>();
 		List<PGPPublicKey> trustedKeys = new ArrayList<>();
 		if (!isHeadless()) {
 			TreeNode[] input = createTreeNodes(untrustedCertificates, untrustedPGPKeys, unsignedArtifacts, artifacts);
 			if (input.length != 0) {
 				trustUnsigned = unsignedArtifacts == null || unsignedArtifacts.isEmpty();
-				final TrustCertificateDialog[] dialog = new TrustCertificateDialog[1];
+				List<Object> result = new ArrayList<>();
 				PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
 					Shell shell = ProvUI.getDefaultParentShell();
 					TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input);
-					dialog[0] = trustCertificateDialog;
-					trustCertificateDialog.open();
+					if (trustCertificateDialog.open() == Window.OK) {
+						Object[] dialogResult = trustCertificateDialog.getResult();
+						if (dialogResult != null) {
+							result.addAll(Arrays.asList(dialogResult));
+						}
+						persistTrust.set(trustCertificateDialog.isRememberSelectedSigners());
+						trustAlways.set(trustCertificateDialog.isTrustAlways());
+					}
 				});
-				persistTrust = true;
-				if (dialog[0].getResult() != null) {
-					for (Object o : dialog[0].getResult()) {
-						if (o instanceof TreeNode) {
-							o = ((TreeNode) o).getValue();
-						}
-						if (o instanceof Certificate) {
-							trustedCertificates.add((Certificate) o);
-						} else if (o instanceof PGPPublicKey) {
-							trustedKeys.add((PGPPublicKey) o);
-						} else if (o == null) {
-							trustUnsigned = true;
-						}
+				for (Object o : result) {
+					if (o instanceof TreeNode) {
+						o = ((TreeNode) o).getValue();
+					}
+					if (o instanceof Certificate) {
+						trustedCertificates.add((Certificate) o);
+					} else if (o instanceof PGPPublicKey) {
+						trustedKeys.add((PGPPublicKey) o);
+					} else if (o == null) {
+						trustUnsigned = true;
 					}
 				}
 			}
 		}
 
-		return new TrustInfo(trustedCertificates, trustedKeys, persistTrust, trustUnsigned);
+		return new TrustInfo(trustedCertificates, trustedKeys, persistTrust.get(), trustUnsigned, trustAlways.get());
 	}
 
 	private TreeNode[] createTreeNodes(Map<List<Certificate>, Set<IArtifactKey>> untrustedCertificates,

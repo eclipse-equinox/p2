@@ -278,6 +278,11 @@ public class ProvUIMessages extends NLS {
 	public static String TrustCertificateDialog_MessageNameWarning;
 	public static String TrustCertificateDialog_MessagePGP;
 	public static String TrustCertificateDialog_AcceptSelectedButtonLabel;
+	public static String TrustCertificateDialog_AlwaysTrust;
+	public static String TrustCertificateDialog_AlwaysTrustConfirmationMessage;
+	public static String TrustCertificateDialog_AlwaysTrustConfirmationTitle;
+	public static String TrustCertificateDialog_AlwaysTrustNo;
+	public static String TrustCertificateDialog_AlwaysTrustYes;
 	public static String TrustCertificateDialog_ArtifactId;
 	public static String TrustCertificateDialog_SelectAll;
 	public static String TrustCertificateDialog_DeselectAll;
@@ -294,6 +299,7 @@ public class ProvUIMessages extends NLS {
 	public static String TrustCertificateDialog_valid;
 	public static String TrustCertificateDialog_expired;
 	public static String TrustCertificateDialog_notYetValid;
+	public static String TrustCertificateDialog_RememberSigners;
 	public static String TrustCertificateDialog_Unknown;
 	public static String TrustCertificateDialog_Unsigned;
 	public static String TrustCertificateDialog_Version;
