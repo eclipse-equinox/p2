@@ -124,6 +124,14 @@ public class CertificateChecker {
 			return Status.OK_STATUS;
 		}
 
+		// If unsigned content is allowed then the flood gates are open so there is no
+		// point in checking for unrooted certificates nor for not-yet-trusted keys.
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=578583
+		String policy = getUnsignedContentPolicy();
+		if (EngineActivator.UNSIGNED_ALLOW.equals(policy)) {
+			return Status.OK_STATUS;
+		}
+
 		UIServices serviceUI = agent.getService(UIServices.class);
 		if (serviceUI == null) {
 			return Status.OK_STATUS;
@@ -231,7 +239,6 @@ public class CertificateChecker {
 			DebugHelper.debug(DEBUG_PREFIX, message.toString());
 		}
 
-		String policy = getUnsignedContentPolicy();
 		// if there is unsigned content and we should never allow it, then fail without
 		// further checking certificates
 		if (!unsignedArtifacts.isEmpty() && EngineActivator.UNSIGNED_FAIL.equals(policy)) {
@@ -241,8 +248,7 @@ public class CertificateChecker {
 		}
 
 		// If there was no unsigned content, and nothing untrusted, no need to prompt.
-		if ((EngineActivator.UNSIGNED_ALLOW.equals(policy) || unsignedArtifacts.isEmpty())
-				&& untrustedCertificates.isEmpty() && untrustedPGPKeys.isEmpty()) {
+		if (unsignedArtifacts.isEmpty() && untrustedCertificates.isEmpty() && untrustedPGPKeys.isEmpty()) {
 			return Status.OK_STATUS;
 		}
 
