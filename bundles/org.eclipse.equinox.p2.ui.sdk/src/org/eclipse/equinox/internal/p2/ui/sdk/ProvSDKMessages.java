@@ -52,13 +52,21 @@ public class ProvSDKMessages extends NLS {
 	public static String RemediationOperation_ResolveJobTask;
 	public static String TrustPreferencePage_title;
 	public static String TrustPreferencePage_export;
-	public static String TrustPreferencePage_fingerprintColumn;
-	public static String TrustPreferencePage_userColumn;
 	public static String TrustPreferencePage_fileExportTitle;
 	public static String TrustPreferencePage_pgpIntro;
 	public static String TrustPreferencePage_fileImportTitle;
 	public static String TrustPreferencePage_addPGPKeyButtonLabel;
 	public static String TrustPreferencePage_Contributor;
+	public static String TrustPreferencePage_CopyFingerprint;
+	public static String TrustPreferencePage_DataValidExpires;
+	public static String TrustPreferencePage_DateExpired;
+	public static String TrustPreferencePage_DateExpiredSince;
+	public static String TrustPreferencePage_DateNotYetvalid;
+	public static String TrustPreferencePage_DateNotYetValid;
+	public static String TrustPreferencePage_DateValid;
+	public static String TrustPreferencePage_Export;
+	public static String TrustPreferencePage_FingerprintIdColumn;
+	public static String TrustPreferencePage_NameColumn;
 	public static String TrustPreferencePage_PreferenceContributor;
 	public static String TrustPreferencePage_removePGPKeyButtonLabel;
 	public static String TrustPreferencePage_TrustAll;
@@ -66,5 +74,7 @@ public class ProvSDKMessages extends NLS {
 	public static String TrustPreferencePage_TrustAllConfirmationTitle;
 	public static String TrustPreferencePage_TrustAllNo;
 	public static String TrustPreferencePage_TrustAllYes;
+	public static String TrustPreferencePage_TypeColumn;
+	public static String TrustPreferencePage_ValidityColumn;
 
 }

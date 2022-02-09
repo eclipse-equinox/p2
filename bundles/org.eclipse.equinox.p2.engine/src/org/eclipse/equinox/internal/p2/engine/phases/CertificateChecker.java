@@ -17,7 +17,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
-import java.security.cert.Certificate;
+import java.security.cert.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
@@ -56,6 +56,8 @@ public class CertificateChecker {
 
 	public static final String TRUSTED_KEY_STORE_PROPERTY = "pgp.trustedPublicKeys"; //$NON-NLS-1$
 
+	public static final String TRUSTED_CERTIFICATES_PROPERTY = "trustedCertificates"; //$NON-NLS-1$
+
 	/***
 	 * Store the optional profile for PGP key handling
 	 */
@@ -76,6 +78,19 @@ public class CertificateChecker {
 			if (cache == null) {
 				cache = getPreferenceTrustedKeys();
 				getContributedTrustedKeys().keySet().forEach(cache::addKey);
+			}
+			return cache;
+		}
+	};
+
+	// Lazily loading in case we ever add an extension point for registering
+	// certificates.
+	private Supplier<Collection<? extends Certificate>> additionalTrustedCertificates = new Supplier<>() {
+		private Collection<? extends Certificate> cache = null;
+
+		public Collection<? extends Certificate> get() {
+			if (cache == null) {
+				cache = getPreferenceTrustedCertificates();
 			}
 			return cache;
 		}
@@ -140,7 +155,10 @@ public class CertificateChecker {
 				if (content.isSigned()) {
 					SignerInfo[] signerInfo = content.getSignerInfos();
 					// Only record the untrusted elements if there are no trusted elements.
-					if (Arrays.stream(signerInfo).noneMatch(SignerInfo::isTrusted)) {
+					// Also check previously trusted certificates from the preferences.
+					if (Arrays.stream(signerInfo).noneMatch(SignerInfo::isTrusted)
+							&& Arrays.stream(signerInfo).map(SignerInfo::getCertificateChain).flatMap(Arrays::stream)
+									.noneMatch(cert -> additionalTrustedCertificates.get().contains(cert))) {
 						for (SignerInfo element : signerInfo) {
 							if (!element.isTrusted()) {
 								List<Certificate> certificateChain = Arrays.asList(element.getCertificateChain());
@@ -265,33 +283,62 @@ public class CertificateChecker {
 			}
 		}
 
-		// If we should persist the trusted certificates, add them to the trust engine
+		// If we should persist the trusted certificates and keys.
 		if (trustInfo.persistTrust()) {
-			IStatus certificatesStatus = trustInfo.getTrustedCertificates().length == 0 ? null
-					: persistTrustedCertificates(trustInfo.getTrustedCertificates());
-			PGPPublicKeyStore keyStore = new PGPPublicKeyStore();
-			trustInfo.getTrustedPGPKeys().forEach(keyStore::addKey);
+			List<IStatus> statuses = new ArrayList<>();
 
-			IStatus pgpStatus = trustInfo.getTrustedPGPKeys().isEmpty() ? null : persistTrustedKeys(keyStore);
-			if (pgpStatus == null) {
-				return certificatesStatus;
-			}
-			if (certificatesStatus == null) {
-				return pgpStatus;
+			Set<Certificate> unsavedCertificates = new LinkedHashSet<>();
+			if (trustInfo.getTrustedCertificates() != null) {
+				unsavedCertificates.addAll(Arrays.asList(trustInfo.getTrustedCertificates()));
 			}
 
-			return new MultiStatus(getClass(), IStatus.OK, new IStatus[] { pgpStatus, certificatesStatus },
-					pgpStatus.getMessage() + '\n' + certificatesStatus.getMessage(), null);
+			if (!unsavedCertificates.isEmpty()) {
+				// Try to save to the trust engine first.
+				IStatus status = persistTrustedCertificatesInTrustEngine(unsavedCertificates);
+				if (status != null && !status.isOK()) {
+					statuses.add(status);
+				}
+
+				// If we couldn't save them in the trust engine, save them in the preferences.
+				if (!unsavedCertificates.isEmpty()) {
+					// Be sure we add the new certificates to the previously saved certificates.
+					unsavedCertificates.addAll(getPreferenceTrustedCertificates());
+					IStatus preferenceStatus = persistTrustedCertificates(unsavedCertificates);
+					if (preferenceStatus != null && !preferenceStatus.isOK()) {
+						statuses.add(preferenceStatus);
+					}
+				}
+			}
+
+			if (!trustInfo.getTrustedPGPKeys().isEmpty()) {
+				// Be sure we add the new keys to the previously saved keys.
+				PGPPublicKeyStore keyStore = getPreferenceTrustedKeys();
+				trustInfo.getTrustedPGPKeys().forEach(keyStore::addKey);
+				IStatus status = persistTrustedKeys(keyStore);
+				if (status != null && !status.isOK()) {
+					statuses.add(status);
+				}
+			}
+
+			if (!statuses.isEmpty()) {
+				if (statuses.size() == 1) {
+					return statuses.get(1);
+				}
+				String message = statuses.stream().map(IStatus::getMessage).collect(Collectors.joining("\n")); //$NON-NLS-1$
+				return new MultiStatus(getClass(), IStatus.OK, statuses.toArray(IStatus[]::new), message, null);
+			}
 		}
 
 		return Status.OK_STATUS;
 	}
 
-	private IStatus persistTrustedCertificates(Certificate[] trustedCertificates) {
-		if (trustedCertificates == null)
-			// I'm pretty sure this would be a bug; trustedCertificates should never be null
-			// here.
-			return new Status(IStatus.INFO, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
+	/**
+	 * This modifies the argument collection to remove the certificates that were
+	 * successfully saved. Often no certificates are saved because this tries to
+	 * store in the Java runtime cacerts and those are typically read-only.
+	 */
+	private IStatus persistTrustedCertificatesInTrustEngine(
+			Collection<? extends Certificate> unsavedTrustedCertificates) {
 		ServiceTracker<TrustEngine, TrustEngine> trustEngineTracker = new ServiceTracker<>(EngineActivator.getContext(),
 				TrustEngine.class, null);
 		trustEngineTracker.open();
@@ -299,7 +346,8 @@ public class CertificateChecker {
 		try {
 			if (trustEngines == null)
 				return null;
-			for (Certificate trustedCertificate : trustedCertificates) {
+			for (Iterator<? extends Certificate> it = unsavedTrustedCertificates.iterator(); it.hasNext();) {
+				Certificate trustedCertificate = it.next();
 				for (Object engine : trustEngines) {
 					TrustEngine trustEngine = (TrustEngine) engine;
 					if (trustEngine.isReadOnly())
@@ -308,6 +356,7 @@ public class CertificateChecker {
 						trustEngine.addTrustAnchor(trustedCertificate, trustedCertificate.toString());
 						// this should mean we added an anchor successfully; continue to next
 						// certificate
+						it.remove();
 						break;
 					} catch (IOException e) {
 						// just return an INFO so the user can proceed with the install
@@ -323,6 +372,43 @@ public class CertificateChecker {
 			trustEngineTracker.close();
 		}
 		return Status.OK_STATUS;
+	}
+
+	public IStatus persistTrustedCertificates(Collection<? extends Certificate> trustedCertificates) {
+		if (profile != null) {
+			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
+					profile.getProfileId());
+			IEclipsePreferences node = profileScope.getNode(EngineActivator.ID);
+			try {
+				CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509"); //$NON-NLS-1$
+				CertPath certPath = certificateFactory.generateCertPath(new ArrayList<>(trustedCertificates));
+				byte[] encoded = certPath.getEncoded("PKCS7"); //$NON-NLS-1$
+				node.putByteArray(TRUSTED_CERTIFICATES_PROPERTY, encoded);
+				node.flush();
+			} catch (BackingStoreException | CertificateException ex) {
+				return new Status(IStatus.ERROR, EngineActivator.ID, ex.getMessage(), ex);
+			}
+		}
+		return Status.OK_STATUS;
+	}
+
+	public Set<? extends Certificate> getPreferenceTrustedCertificates() {
+		if (profile != null) {
+			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
+					profile.getProfileId());
+			IEclipsePreferences node = profileScope.getNode(EngineActivator.ID);
+			try {
+				byte[] encoded = node.getByteArray(TRUSTED_CERTIFICATES_PROPERTY, null);
+				if (encoded != null) {
+					CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509"); //$NON-NLS-1$
+					CertPath certPath = certificateFactory.generateCertPath(new ByteArrayInputStream(encoded), "PKCS7"); //$NON-NLS-1$
+					return new LinkedHashSet<>(certPath.getCertificates());
+				}
+			} catch (CertificateException ex) {
+				DebugHelper.debug(DEBUG_PREFIX, ex.getMessage());
+			}
+		}
+		return Set.of();
 	}
 
 	/**

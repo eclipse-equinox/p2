@@ -30,7 +30,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.internal.provisional.security.ui.X500PrincipalHelper;
-import org.eclipse.equinox.internal.provisional.security.ui.X509CertificateViewDialog;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.jface.dialogs.*;
@@ -214,8 +213,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			public void widgetDefaultSelected(SelectionEvent e) {
 				X509Certificate cert = getInstance(certificateChainViewer.getSelection(), X509Certificate.class);
 				if (cert != null) {
-					X509CertificateViewDialog certificateDialog = new X509CertificateViewDialog(getShell(), cert);
-					certificateDialog.open();
+					CertificateLabelProvider.openDialog(getShell(), cert);
 				}
 			}
 
@@ -254,7 +252,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 						}
 					} else {
 						destination.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
-						destination.setFileName(userFriendlyFingerPrint(key).replace(" ", "") + ".asc"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						destination.setFileName(userFriendlyFingerPrint(key) + ".asc"); //$NON-NLS-1$
 						String path = destination.open();
 						setFilterPath(EXPORT_FILTER_PATH, destination.getFilterPath());
 						if (path == null) {
@@ -361,8 +359,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			X509Certificate cert = getInstance(selection, X509Certificate.class);
 			if (cert != null) {
 				// create and open dialog for certificate chain
-				X509CertificateViewDialog certificateViewDialog = new X509CertificateViewDialog(getShell(), cert);
-				certificateViewDialog.open();
+				CertificateLabelProvider.openDialog(getShell(), cert);
 			}
 		});
 
