@@ -204,7 +204,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 					if (!operation.hasResolved()) {
 						operation.resolveModal(monitor);
 					}
-					if (operation.hasResolved()) {
+					if (operation.getProfileChangeRequest() != null) {
 						this.localJRECheckPlan = ProvUI.toCompabilityWithCurrentJREProvisioningPlan(operation, null);
 						if (!compatibleWithCurrentEE()) {
 							couldNotResolveStatus = localJRECheckPlan.getStatus();
@@ -215,6 +215,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				return false;
 			}
 		}
+		if (localJRECheckPlan == null) {
+			return true;
+		}
+
 		IStatus currentEEPlanStatus = localJRECheckPlan.getStatus();
 		if (currentEEPlanStatus.getSeverity() != IStatus.ERROR) {
 			return true;
@@ -337,7 +341,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			try {
 				runnableContext.run(true, true, monitor -> {
 					operation.resolveModal(monitor);
-					if (getPolicy().getCheckAgainstCurrentExecutionEnvironment()) {
+					if (operation.getProfileChangeRequest() != null
+							&& getPolicy().getCheckAgainstCurrentExecutionEnvironment()) {
 						this.localJRECheckPlan = ProvUI.toCompabilityWithCurrentJREProvisioningPlan(operation, monitor);
 						if (!compatibleWithCurrentEE()) {
 							couldNotResolveStatus = localJRECheckPlan.getStatus();
