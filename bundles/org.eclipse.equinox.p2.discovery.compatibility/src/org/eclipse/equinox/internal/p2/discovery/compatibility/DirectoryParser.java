@@ -16,6 +16,7 @@ package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
 import java.io.IOException;
 import java.io.Reader;
+import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.Directory.Entry;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.util.DefaultSaxErrorHandler;
@@ -42,7 +43,7 @@ public class DirectoryParser {
 		XMLReader xmlReader;
 		try {
 			xmlReader = SecureXMLUtil.newSecureXMLReader();
-		} catch (SAXException e) {
+		} catch (SAXException | ParserConfigurationException e) {
 			throw new IOWithCauseException(e.getMessage(), e);
 		}
 		xmlReader.setErrorHandler(new DefaultSaxErrorHandler());

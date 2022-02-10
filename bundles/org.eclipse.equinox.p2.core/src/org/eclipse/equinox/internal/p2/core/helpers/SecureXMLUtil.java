@@ -16,7 +16,6 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * A utility class for creating an XML-related factories suitable for
@@ -52,10 +51,11 @@ public class SecureXMLUtil {
 	 * Create a new {@link XMLReader}.
 	 *
 	 * @throws SAXException
+	 * @throws ParserConfigurationException
 	 */
-	public static XMLReader newSecureXMLReader() throws SAXException {
-		XMLReader reader = XMLReaderFactory.createXMLReader();
-		reader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-		return reader;
+	public static XMLReader newSecureXMLReader() throws SAXException, ParserConfigurationException {
+		SAXParserFactory factory = newSecureSAXParserFactory();
+		factory.setNamespaceAware(true);
+		return factory.newSAXParser().getXMLReader();
 	}
 }

@@ -281,7 +281,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		detailedMessage.append(" install location is ").append(getInstallLocation()).append('\n');
 		String message = "Need to set the \"org.eclipse.equinox.p2.reconciler.tests.platform.archive\" system property with a valid path to the platform binary drop or copy the archive to be a sibling of the install folder.";
 		assertNotNull(message + "\n" + detailedMessage, file);
-		assertTrue(message, file.exists());
+		assertTrue(message + "\nThe file '" + file.getAbsolutePath() + "' does not exist", file.exists());
 		assertTrue("File is zero length: " + file.getAbsolutePath(), file.length() > 0);
 		return file;
 	}
