@@ -6,10 +6,10 @@
     <property name='p2.timestamp' value='1222693511921'/>
   </properties>
   <references size='4'>
-    <repository uri='http://download.eclipse.org/eclipse/updates/3.5/' url='http://download.eclipse.org/eclipse/updates/3.5/' type='0' options='0'/>
-    <repository uri='http://download.eclipse.org/eclipse/updates/3.5/' url='http://download.eclipse.org/eclipse/updates/3.5/' type='1' options='0'/>
-    <repository uri='http://download.eclipse.org/eclipse/updates/3.6/' url='http://download.eclipse.org/eclipse/updates/3.6/' type='0' options='0'/>
-    <repository uri='http://download.eclipse.org/eclipse/updates/3.6/' url='http://download.eclipse.org/eclipse/updates/3.6/' type='1' options='0'/>
+    <repository uri='https://download.eclipse.org/eclipse/updates/3.5/' url='https://download.eclipse.org/eclipse/updates/3.5/' type='0' options='0'/>
+    <repository uri='https://download.eclipse.org/eclipse/updates/3.5/' url='https://download.eclipse.org/eclipse/updates/3.5/' type='1' options='0'/>
+    <repository uri='https://download.eclipse.org/eclipse/updates/3.6/' url='https://download.eclipse.org/eclipse/updates/3.6/' type='0' options='0'/>
+    <repository uri='https://download.eclipse.org/eclipse/updates/3.6/' url='https://download.eclipse.org/eclipse/updates/3.6/' type='1' options='0'/>
   </references>
   <units size='8'>
     <unit id='helloworldfeature.feature.jar' version='1.0.1'>

@@ -178,7 +178,7 @@
          <overview
                screenshot="icons/mail-screenshot.png"
                summary="In computing, the Post Office Protocol (POP) is an application-layer Internet standard protocol used by local e-mail clients to retrieve e-mail from a remote server over a TCP/IP connection. POP and IMAP (Internet Message Access Protocol) are the two most prevalent Internet standard protocols for e-mail retrieval. Virtually all modern e-mail clients and servers support both. The POP protocol has been developed through several versions, with version 3 (POP3) being the current standard."
-               url="http://en.wikipedia.org/wiki/Post_Office_Protocol">
+               url="https://en.wikipedia.org/wiki/Post_Office_Protocol">
          </overview>
          <icon
                image32="icons/mail.png">
@@ -197,11 +197,11 @@
             license="EPL"
             name="Eclipse Marketplace Client"
             provider="Eclipse Packaging Project"
-            siteUrl="http://download.eclipse.org/releases/staging">
+            siteUrl="https://download.eclipse.org/releases/staging">
          <overview
                screenshot="icons/mpc-screenshot.png"
                summary="Marketplace Client is a rich client solution for installing solutions listed on Eclipse Marketplace directly from an Eclipse Installation.&#x0A;&#x0A;The Eclipse community has hundreds, if not thousands, of third-party plugins that users can add to their Eclipse installation. Unfortunately, there is not easy way to discover and install these solutions from within Eclipse.&#x0A;&#x0A;The Eclipse Foundation has recently launched a new website, called Eclipse Marketplace, that provides a listing of Eclipse-based solutions. The listings allow each solution provider to specify a P2 repository for their solution. Eclipse users now have a central catalog to find Eclipse solutions but the install process is still not tightly integrated with the Eclipse workspace.&#x0A;&#x0A;MPC provides the tight install integration between the Eclipse workspace and Eclipse Marketplace, plus other third party solution listings. MPC is included in many of the EPP packages."
-               url="http://eclipse.org/mpc/"></overview>
+               url="https://eclipse.org/mpc/"></overview>
          <icon
                image32="icons/mpc.png">
          </icon>

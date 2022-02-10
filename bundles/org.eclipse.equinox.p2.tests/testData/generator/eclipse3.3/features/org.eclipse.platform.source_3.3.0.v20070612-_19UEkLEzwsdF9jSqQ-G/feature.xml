@@ -10,9 +10,9 @@
 		%license
 	</license>
 	<url>
-		<update label="%updateSiteName" url="http://update.eclipse.org/updates/3.3"/>
-		<discovery label="%updateSiteName" url="http://update.eclipse.org/updates/3.3"/>
-		<discovery label="%secondaryUpdateSiteName" url="http://download.eclipse.org/releases/europa"/>
+		<update label="%updateSiteName" url="https://update.eclipse.org/updates/3.3"/>
+		<discovery label="%updateSiteName" url="https://update.eclipse.org/updates/3.3"/>
+		<discovery label="%secondaryUpdateSiteName" url="https://download.eclipse.org/releases/europa"/>
 	</url>
 	<includes id="org.eclipse.rcp.source" version="3.3.0.v20070607-8y8eE8NEbsN3X_fjWS8HPNG"/>
 	<plugin    fragment="false" unpack="false"  download-size="0" install-size="0" id="org.eclipse.platform.doc.isv" version="3.3.0.v20070621"/>

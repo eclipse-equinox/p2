@@ -131,7 +131,7 @@
     </unit>
   </units>
   <repositories>
-    <repository uri='http://download.eclipse.org/releases/helios'/>
+    <repository uri='https://download.eclipse.org/releases/helios'/>
     <repository uri='file:/folk/kzhu0/tmp/plugins/'/>
     <repository uri='http://hge.javaforge.com/hgeclipse'/>
   </repositories>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<site digestURL="http://download.eclipse.org/releases/europa/" mirrorsURL="http://www.eclipse.org/downloads/download.php?file=/releases/europa/site.xml&amp;format=xml&amp;protocol=http" pack200="true">
+<site digestURL="https://download.eclipse.org/releases/europa/" mirrorsURL="http://www.eclipse.org/downloads/download.php?file=/releases/europa/site.xml&amp;format=xml&amp;protocol=http" pack200="true">
 
     <description url="http://www.eclipse.org/europa/">
         This Europa Discovery Site contains a number of Eclipse based projects 

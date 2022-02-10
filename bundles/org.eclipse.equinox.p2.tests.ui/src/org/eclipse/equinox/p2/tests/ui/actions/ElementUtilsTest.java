@@ -58,15 +58,15 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 
 	public void testUpdateUsingElements() throws URISyntaxException {
 		// Two visible repos, one is added, the other is not
-		URI known1 = new URI("http://example.com/known1");
-		URI known2 = new URI("http://example.com/known2");
+		URI known1 = new URI("https://example.com/known1");
+		URI known2 = new URI("https://example.com/known2");
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		manager.addRepository(known1);
 
 		// Add system repos that should not be known or affected by ElementUtils
 		// One is an enabled system repo, one is disabled system repo
-		URI uri = new URI("http://example.com/1");
-		URI uri2 = new URI("http://example.com/2");
+		URI uri = new URI("https://example.com/1");
+		URI uri2 = new URI("https://example.com/2");
 		manager.addRepository(uri);
 		manager.setRepositoryProperty(uri, IRepository.PROP_SYSTEM, Boolean.toString(true));
 		manager.addRepository(uri2);
@@ -82,7 +82,7 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		MetadataRepositoryElement[] elements = children.toArray(new MetadataRepositoryElement[children.size()]);
 
 		// Add a visible repo not known by the elements
-		URI uri3 = new URI("http://example.com/3");
+		URI uri3 = new URI("https://example.com/3");
 		manager.addRepository(uri3);
 
 		// Now update the repo using the elements.

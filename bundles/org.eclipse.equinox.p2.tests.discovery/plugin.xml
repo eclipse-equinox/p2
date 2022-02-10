@@ -86,7 +86,7 @@
                style="push">
             <parameter
                   name="org.eclipse.equinox.p2.ui.discovery.commands.DirectoryParameter"
-                  value="http://www.eclipse.org/mylyn/discovery/directory-3.3.xml">
+                  value="https://www.eclipse.org/mylyn/discovery/directory-3.3.xml">
             </parameter>
             <parameter
                   name="org.eclipse.equinox.p2.ui.discovery.commands.TagsParameter"
@@ -99,7 +99,7 @@
                style="push">
             <parameter
                   name="org.eclipse.equinox.p2.ui.discovery.commands.RepositoryParameter"
-                  value="http://download.eclipse.org/tools/mylyn/update/e3.4">
+                  value="https://download.eclipse.org/tools/mylyn/update/e3.4">
             </parameter>
          </command>
       </menuContribution>
