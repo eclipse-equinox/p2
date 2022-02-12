@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 
 public class PGPPublicKeyStore {
-	private Map<String, PGPPublicKey> keys = new HashMap<>();
+	private Map<String, PGPPublicKey> keys = new LinkedHashMap<>();
 
 	public PGPPublicKey addKey(PGPPublicKey key) {
 		if (key == null) {

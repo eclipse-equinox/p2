@@ -247,6 +247,10 @@ public class ProvUIMessages extends NLS {
 	public static String SelectableIUsPage_Deselect_All;
 	public static String InstallRemediationPage_Title;
 	public static String InstallRemediationPage_Description;
+	public static String KeySigningInfoFactory_FingerprintItem;
+	public static String KeySigningInfoFactory_KeySignersSection;
+	public static String KeySigningInfoFactory_PGPSigningType;
+	public static String KeySigningInfoFactory_UserIDItem;
 	public static String UpdateRemediationPage_Title;
 	public static String UpdateRemediationPage_Description;
 	public static String RemediationPage_SubDescription;

@@ -12,6 +12,13 @@
          <adapter type="org.eclipse.equinox.p2.repository.metadata.IMetadataRepository"/>
          <adapter type="org.eclipse.equinox.p2.repository.artifact.IArtifactRepository"/>
       </factory>
+      <factory
+            adaptableType="org.eclipse.ui.internal.about.AboutPluginsPage"
+            class="org.eclipse.equinox.internal.p2.ui.KeySigningInfoFactory">
+         <adapter
+               type="org.eclipse.ui.internal.about.AboutBundleData$ExtendedSigningInfo">
+         </adapter>
+      </factory>
    </extension>
    
      <extension

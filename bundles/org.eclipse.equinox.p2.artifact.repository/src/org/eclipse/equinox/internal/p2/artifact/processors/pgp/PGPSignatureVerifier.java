@@ -88,6 +88,13 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 		return res;
 	}
 
+	public static PGPPublicKeyStore getKeys(IArtifactDescriptor artifact) {
+		PGPPublicKeyStore keyStore = new PGPPublicKeyStore();
+		String keyText = artifact.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME);
+		PGPPublicKeyStore.readPublicKeys(keyText).stream().forEach(keyStore::addKey);
+		return keyStore;
+	}
+
 	@Override
 	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor,
 			IArtifactDescriptor context) {
