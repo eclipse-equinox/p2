@@ -64,6 +64,7 @@ public class ProvSDKMessages extends NLS {
 	public static String TrustPreferencePage_DateNotYetvalid;
 	public static String TrustPreferencePage_DateNotYetValid;
 	public static String TrustPreferencePage_DateValid;
+	public static String TrustPreferencePage_Details;
 	public static String TrustPreferencePage_Export;
 	public static String TrustPreferencePage_FingerprintIdColumn;
 	public static String TrustPreferencePage_NameColumn;

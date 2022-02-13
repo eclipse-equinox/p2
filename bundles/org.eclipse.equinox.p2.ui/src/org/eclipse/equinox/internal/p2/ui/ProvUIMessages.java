@@ -78,6 +78,7 @@ public class ProvUIMessages extends NLS {
 	public static String IUGeneralInfoPropertyPage_VersionLabel;
 	public static String IULicensePropertyPage_NoLicense;
 	public static String IULicensePropertyPage_ViewLicenseLabel;
+	public static String PGPPublicKeyViewDialog_Title;
 	public static String ProfileModificationAction_InvalidSelections;
 	public static String ProfileModificationWizardPage_DetailsLabel;
 	public static String ProfileSnapshots_Label;

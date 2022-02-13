@@ -26,6 +26,7 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPPublicKeyStore;
 import org.eclipse.equinox.internal.p2.engine.phases.CertificateChecker;
+import org.eclipse.equinox.internal.p2.ui.dialogs.PGPPublicKeyViewDialog;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -143,7 +144,8 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 				return ProvSDKMessages.TrustPreferencePage_DateValid;
 			}
 			Instant expires = pgp.getCreationTime().toInstant().plus(validSeconds, ChronoUnit.SECONDS);
-			return expires.isBefore(Instant.now()) ? NLS.bind(ProvSDKMessages.TrustPreferencePage_DateExpiredSince, expires)
+			return expires.isBefore(Instant.now())
+					? NLS.bind(ProvSDKMessages.TrustPreferencePage_DateExpiredSince, expires)
 					: NLS.bind(ProvSDKMessages.TrustPreferencePage_DataValidExpires, expires);
 		}, x509 -> {
 			try {
@@ -265,12 +267,30 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 		removeButton.setEnabled(false);
 		setVerticalButtonLayoutData(removeButton);
 
+		Runnable details = () -> {
+			Object element = viewer.getStructuredSelection().getFirstElement();
+			if (element instanceof X509Certificate) {
+				// create and open dialog for certificate chain
+				CertificateLabelProvider.openDialog(getShell(), (X509Certificate) element);
+			} else {
+				new PGPPublicKeyViewDialog(getShell(), (PGPPublicKey) element,
+						provisioningAgent.getService(PGPPublicKeyService.class)).open();
+			}
+		};
+
+		Button detailsButton = new Button(buttonComposite, SWT.PUSH);
+		detailsButton.setText(ProvSDKMessages.TrustPreferencePage_Details);
+		detailsButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> details.run()));
+		detailsButton.setEnabled(false);
+		setVerticalButtonLayoutData(detailsButton);
+
 		viewer.addPostSelectionChangedListener(e -> {
 			List<Object> selectedKeys = getSelectedKeys();
 			exportButton.setEnabled(selectedKeys.size() == 1);
 			Collection<PGPPublicKey> keys = trustedKeys.all();
 			removeButton.setEnabled(
 					selectedKeys.stream().anyMatch(o -> keys.contains(o) || trustedCertificates.contains(o)));
+			detailsButton.setEnabled(selectedKeys.size() == 1);
 		});
 
 		Button trustAllButton = WidgetFactory.button(SWT.CHECK).text(ProvSDKMessages.TrustPreferencePage_TrustAll)
@@ -306,14 +326,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 			}
 		}));
 
-		viewer.addDoubleClickListener(e -> {
-			StructuredSelection selection = (StructuredSelection) e.getSelection();
-			Object element = selection.getFirstElement();
-			if (element instanceof X509Certificate) {
-				// create and open dialog for certificate chain
-				CertificateLabelProvider.openDialog(getShell(), (X509Certificate) element);
-			}
-		});
+		viewer.addDoubleClickListener(e -> details.run());
 
 		typeColumn.getColumn().pack();
 
