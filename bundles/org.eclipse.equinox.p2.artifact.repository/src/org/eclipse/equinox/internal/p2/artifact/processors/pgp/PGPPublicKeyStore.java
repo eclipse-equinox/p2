@@ -31,7 +31,7 @@ public class PGPPublicKeyStore {
 		if (key == null) {
 			return null;
 		}
-		PGPPublicKey alreadyStoredKey = keys.putIfAbsent(PGPPublicKeyService.toHex(key.getFingerprint()), key);
+		PGPPublicKey alreadyStoredKey = keys.putIfAbsent(PGPPublicKeyService.toHexFingerprint(key), key);
 		return alreadyStoredKey == null ? key : alreadyStoredKey;
 	}
 
@@ -74,7 +74,7 @@ public class PGPPublicKeyStore {
 	}
 
 	public void remove(PGPPublicKey selectedKey) {
-		keys.remove(PGPPublicKeyService.toHex(selectedKey.getFingerprint()));
+		keys.remove(PGPPublicKeyService.toHexFingerprint(selectedKey));
 	}
 
 	public void add(File file) {

@@ -224,7 +224,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 										verifyingKey) != 0) {
 									LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
 											NLS.bind(Messages.Error_SignatureAfterKeyExpiration, PGPPublicKeyService
-													.toHex(verifyingKey.getFingerprint()).toUpperCase(Locale.ROOT))));
+													.toHexFingerprint(verifyingKey))));
 								}
 							}
 
@@ -233,7 +233,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 								if (!keyService.isCreatedBeforeRevocation(signature, verifyingKey)) {
 									setStatus(new Status(IStatus.ERROR, Activator.ID,
 											NLS.bind(Messages.Error_SignatureAfterKeyRevocation, PGPPublicKeyService
-													.toHex(verifyingKey.getFingerprint()).toUpperCase(Locale.ROOT))));
+													.toHexFingerprint(verifyingKey))));
 									return;
 								}
 							}

@@ -109,7 +109,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 				key -> "PGP", cert -> "x509", tableColumnLayout, 1); //$NON-NLS-1$ //$NON-NLS-2$
 
 		createColumn(viewer, ProvSDKMessages.TrustPreferencePage_FingerprintIdColumn,
-				key -> PGPPublicKeyService.toHex(key.getFingerprint()).toUpperCase(Locale.ROOT),
+				key -> PGPPublicKeyService.toHexFingerprint(key),
 				cert -> cert.getSerialNumber().toString(), tableColumnLayout, 10);
 
 		createColumn(viewer, ProvSDKMessages.TrustPreferencePage_NameColumn, key -> {
@@ -196,7 +196,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 			} else {
 				PGPPublicKey key = (PGPPublicKey) element;
 				destination.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
-				destination.setFileName(PGPPublicKeyService.toHex(key.getFingerprint()).toUpperCase() + ".asc"); //$NON-NLS-1$
+				destination.setFileName(PGPPublicKeyService.toHexFingerprint(key) + ".asc"); //$NON-NLS-1$
 				String path = destination.open();
 				setFilterPath(EXPORT_FILTER_PATH, destination.getFilterPath());
 				if (path == null) {
@@ -346,7 +346,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 			if (element instanceof PGPPublicKey) {
 				Clipboard clipboard = new Clipboard(getShell().getDisplay());
 				clipboard.setContents(new Object[] {
-						PGPPublicKeyService.toHex(((PGPPublicKey) element).getFingerprint()).toUpperCase(Locale.ROOT) },
+						PGPPublicKeyService.toHexFingerprint((PGPPublicKey) element) },
 						new Transfer[] { TextTransfer.getInstance() });
 				clipboard.dispose();
 			}
@@ -381,8 +381,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 				}
 				return 1;
 			}
-			return PGPPublicKeyService.toHex(k1.getFingerprint())
-					.compareTo(PGPPublicKeyService.toHex(k2.getFingerprint()));
+			return PGPPublicKeyService.toHexFingerprint(k1).compareTo(PGPPublicKeyService.toHexFingerprint(k2));
 		});
 		input.addAll(all);
 		input.addAll(contributedTrustedKeys.keySet());

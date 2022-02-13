@@ -102,7 +102,7 @@ public class PGPPublicKeyViewDialog extends TitleAreaDialog {
 	@SuppressWarnings("nls")
 	protected void update(PGPPublicKey key, Set<PGPPublicKey> verifiedCertifications) {
 		StyledString content = new StyledString();
-		String fingerprint = PGPPublicKeyService.toHex(key.getFingerprint()).toUpperCase(Locale.ROOT);
+		String fingerprint = PGPPublicKeyService.toHexFingerprint(key);
 
 		PublicKeyPacket publicKeyPacket = key.getPublicKeyPacket();
 		publicKeyPacket.getAlgorithm();
@@ -219,7 +219,7 @@ public class PGPPublicKeyViewDialog extends TitleAreaDialog {
 			return userIDs.next();
 
 		}
-		return PGPPublicKeyService.toHex(key.getFingerprint()).toUpperCase(Locale.ROOT);
+		return PGPPublicKeyService.toHexFingerprint(key);
 	}
 
 	private void computeVerifiedCertifications(Shell shell) {

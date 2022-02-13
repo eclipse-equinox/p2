@@ -162,6 +162,18 @@ public abstract class PGPPublicKeyService {
 	}
 
 	/**
+	 * Returns the hexadecimal representation of the key's
+	 * {@link PGPPublicKey#getFingerprint() fingerprint}.
+	 *
+	 * @param key the key for which to get the hexadecimal fingerprint.
+	 *
+	 * @return the hexadecimal representation of the key's fingerprint.
+	 */
+	public static String toHexFingerprint(PGPPublicKey key) {
+		return Hex.toHexString(key.getFingerprint());
+	}
+
+	/**
 	 * Returns the hexadecimal representation of the given bytes.
 	 *
 	 * @param bytes the bytes to convert to a hexadecimal representation.
@@ -181,7 +193,7 @@ public abstract class PGPPublicKeyService {
 	 *         leading zeros.
 	 */
 	public static String toHex(long keyID) {
-		return String.format("%1$016X", keyID); //$NON-NLS-1$
+		return String.format("%1$016x", keyID); //$NON-NLS-1$
 	}
 
 	/**

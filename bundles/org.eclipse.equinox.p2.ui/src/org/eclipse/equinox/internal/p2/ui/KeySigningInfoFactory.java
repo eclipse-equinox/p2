@@ -96,7 +96,7 @@ public class KeySigningInfoFactory implements IAdapterFactory {
 
 				private void addDetails(PGPPublicKey key, List<String> lines, String indentation) {
 					lines.add(indentation + ProvUIMessages.KeySigningInfoFactory_FingerprintItem
-							+ PGPPublicKeyService.toHex(key.getFingerprint()).toUpperCase(Locale.ROOT));
+							+ PGPPublicKeyService.toHexFingerprint(key));
 					for (Iterator<String> userIDs = key.getUserIDs(); userIDs.hasNext();) {
 						lines.add(indentation + ProvUIMessages.KeySigningInfoFactory_UserIDItem + userIDs.next());
 					}

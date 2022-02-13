@@ -799,6 +799,6 @@ public class TrustCertificateDialog extends SelectionDialog {
 		if (key == null) {
 			return null;
 		}
-		return PGPPublicKeyService.toHex(key.getFingerprint()).toUpperCase(Locale.ROOT);
+		return PGPPublicKeyService.toHexFingerprint(key);
 	}
 }
