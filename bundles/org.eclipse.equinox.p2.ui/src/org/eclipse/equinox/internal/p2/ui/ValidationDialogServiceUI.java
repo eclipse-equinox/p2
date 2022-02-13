@@ -20,6 +20,7 @@ import java.security.cert.Certificate;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -52,6 +53,20 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 
 	private final IProvisioningAgent agent;
 
+	private Display display;
+
+	private Consumer<String> linkHandler = link -> {
+		if (PlatformUI.isWorkbenchRunning()) {
+			try {
+				URL url = new URL(link);
+				PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(url);
+			} catch (Exception x) {
+				ProvUIActivator.getDefault().getLog()
+						.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, x.getMessage(), x));
+			}
+		}
+	};
+
 	public ValidationDialogServiceUI() {
 		this(null);
 	}
@@ -62,12 +77,15 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 
 	static final class MessageDialogWithLink extends MessageDialog {
 		private final String linkText;
+		private final Consumer<String> linkOpener;
 
 		MessageDialogWithLink(Shell parentShell, String dialogTitle, Image dialogTitleImage, String dialogMessage,
-				int dialogImageType, String[] dialogButtonLabels, int defaultIndex, String linkText) {
+				int dialogImageType, String[] dialogButtonLabels, int defaultIndex, String linkText,
+				Consumer<String> linkOpener) {
 			super(parentShell, dialogTitle, dialogTitleImage, dialogMessage, dialogImageType, dialogButtonLabels,
 					defaultIndex);
 			this.linkText = linkText;
+			this.linkOpener = linkOpener;
 		}
 
 		@Override
@@ -78,13 +96,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			Link link = new Link(parent, SWT.NONE);
 			link.setText(linkText);
 			link.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
-				try {
-					URL url = new URL(e.text);
-					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(url);
-				} catch (Exception x) {
-					ProvUIActivator.getDefault().getLog().log(//
-							new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, x.getMessage(), x));
-				}
+				linkOpener.accept(e.text);
 			}));
 			return link;
 		}
@@ -114,7 +126,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		if (!suppressAuthentication() && !isHeadless()) {
-			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+			getDisplay().syncExec(() -> {
 				Shell shell = ProvUI.getDefaultParentShell();
 				String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
 				UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired,
@@ -159,7 +171,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 		// detail should be trusted
 		if (!isHeadless() && unsignedDetail != null && unsignedDetail.length > 0) {
 			final boolean[] result = new boolean[] { false };
-			PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
 					Shell shell = ProvUI.getDefaultParentShell();
@@ -214,7 +226,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			if (input.length != 0) {
 				trustUnsigned = unsignedArtifacts == null || unsignedArtifacts.isEmpty();
 				List<Object> result = new ArrayList<>();
-				PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+				getDisplay().syncExec(() -> {
 					Shell shell = ProvUI.getDefaultParentShell();
 					TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input);
 					if (trustCertificateDialog.open() == Window.OK) {
@@ -319,7 +331,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 	public AuthenticationInfo getUsernamePassword(final String location, final AuthenticationInfo previousInfo) {
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		if (!suppressAuthentication() && !isHeadless()) {
-			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+			getDisplay().syncExec(() -> {
 				Shell shell = ProvUI.getDefaultParentShell();
 				String message = null;
 				if (previousInfo.saveResult())
@@ -346,18 +358,76 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			super.showInformationMessage(title, text, linkText);
 			return;
 		}
-		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+		getDisplay().syncExec(() -> {
 			MessageDialog dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), title, null, text,
-					MessageDialog.INFORMATION, new String[] { IDialogConstants.OK_LABEL }, 0, linkText);
+					MessageDialog.INFORMATION, new String[] { IDialogConstants.OK_LABEL }, 0, linkText, linkHandler);
 			dialog.open();
 		});
+	}
+
+	/**
+	 * Returns a handler (used by
+	 * {@link #showInformationMessage(String, String, String)}) to open a link in an
+	 * external browser.
+	 *
+	 * @return a handler to open a link in an external browser.
+	 *
+	 * @since 2.7.400
+	 */
+	public Consumer<String> getLinkHandler() {
+		return linkHandler;
+	}
+
+	/**
+	 * Sets the handler used by
+	 * {@link #showInformationMessage(String, String, String)} to open a link in an
+	 * external browser.
+	 *
+	 * @param linkHandler the handler for opening links in an external browser.
+	 *
+	 * @since 2.7.400
+	 */
+	public void setLinkHandler(Consumer<String> linkHandler) {
+		this.linkHandler = linkHandler;
+	}
+
+	/**
+	 * Returns the display of the workbench or the display set by
+	 * {@link #setDisplay(Display)} in a non-workbench application.
+	 *
+	 * @since 2.7.400
+	 */
+	public Display getDisplay() {
+		if (display == null && PlatformUI.isWorkbenchRunning()) {
+			display = PlatformUI.getWorkbench().getDisplay();
+		}
+		return display;
+	}
+
+	/**
+	 * Can be called once to set the display in a non-workbench application.
+	 *
+	 * @throws IllegalStateException if there is a workbench running or the display
+	 *                               has already been set differently.
+	 *
+	 * @since 2.7.400
+	 */
+	public void setDisplay(Display display) {
+		if (this.display != null && this.display != display) {
+			throw new IllegalStateException("Cannot change the display"); //$NON-NLS-1$
+		}
+		this.display = display;
 	}
 
 	private boolean isHeadless() {
 		// If there is no UI available and we are still the IServiceUI,
 		// assume that the operation should proceed. See
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291049
-		return !PlatformUI.isWorkbenchRunning();
+		//
+		// But we shouldn't just assume that no workbench mean no display and no head.
+		// It should be possible to reuse this class in an application without a
+		// workbench, e.g., the Eclipse Installer.
+		return getDisplay() == null;
 	}
 
 	private static class ExtendedTreeNode extends TreeNode implements IAdaptable {
