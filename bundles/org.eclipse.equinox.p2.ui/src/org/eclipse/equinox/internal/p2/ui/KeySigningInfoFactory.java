@@ -110,10 +110,10 @@ public class KeySigningInfoFactory implements IAdapterFactory {
 
 				private Map<PGPSignature, PGPPublicKey> getDetails(Bundle bundle) {
 					try {
-						File bundleFile = FileLocator.getBundleFile(bundle);
+						File bundleFile = FileLocator.getBundleFile(bundle).getCanonicalFile();
 						Map<PGPSignature, PGPPublicKey> details = bundlePoolArtficactSigningDetails.get(bundleFile);
 						return details;
-					} catch (IOException e) {
+					} catch (IOException | RuntimeException e) {
 						ProvUIActivator.getDefault().getLog()
 								.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e));
 						return null;
@@ -165,7 +165,7 @@ public class KeySigningInfoFactory implements IAdapterFactory {
 									}
 								}
 								if (!details.isEmpty()) {
-									result.put(file, details);
+									result.put(file.getCanonicalFile(), details);
 								}
 							}
 						} catch (IOException | PGPException | RuntimeException e) {
