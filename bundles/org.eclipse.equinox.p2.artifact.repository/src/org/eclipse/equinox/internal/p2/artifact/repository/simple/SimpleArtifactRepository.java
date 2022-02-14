@@ -514,7 +514,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		Set<String> skipChecksums = DOWNLOAD_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumHelper.MD5);
 		ArrayList<ProcessingStep> downloadChecksumSteps = new ArrayList<>();
 		addChecksumVerifiers(descriptor, downloadChecksumSteps, skipChecksums, IArtifactDescriptor.DOWNLOAD_CHECKSUM);
-		if (downloadChecksumSteps.isEmpty()) {
+		if (downloadChecksumSteps.isEmpty() && !isLocal()) {
 			LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
 					NLS.bind(Messages.noDigestAlgorithmToVerifyDownload, descriptor.getArtifactKey())));
 		}
