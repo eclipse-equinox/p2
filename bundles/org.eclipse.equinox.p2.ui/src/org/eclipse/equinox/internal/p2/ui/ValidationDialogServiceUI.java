@@ -36,6 +36,7 @@ import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.viewers.TreeNode;
+import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -66,6 +67,8 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			}
 		}
 	};
+
+	private IShellProvider shellProvider = () -> ProvUI.getDefaultParentShell();
 
 	public ValidationDialogServiceUI() {
 		this(null);
@@ -127,7 +130,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		if (!suppressAuthentication() && !isHeadless()) {
 			getDisplay().syncExec(() -> {
-				Shell shell = ProvUI.getDefaultParentShell();
+				Shell shell = shellProvider.getShell();
 				String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
 				UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired,
 						null, message);
@@ -174,7 +177,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					Shell shell = ProvUI.getDefaultParentShell();
+					Shell shell = shellProvider.getShell();
 					OkCancelErrorDialog dialog = new OkCancelErrorDialog(shell, ProvUIMessages.ServiceUI_warning_title,
 							null, createStatus(), IStatus.WARNING);
 					result[0] = dialog.open() == IDialogConstants.OK_ID;
@@ -227,7 +230,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 				trustUnsigned = unsignedArtifacts == null || unsignedArtifacts.isEmpty();
 				List<Object> result = new ArrayList<>();
 				getDisplay().syncExec(() -> {
-					Shell shell = ProvUI.getDefaultParentShell();
+					Shell shell = shellProvider.getShell();
 					TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input);
 					if (trustCertificateDialog.open() == Window.OK) {
 						Object[] dialogResult = trustCertificateDialog.getResult();
@@ -332,7 +335,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		if (!suppressAuthentication() && !isHeadless()) {
 			getDisplay().syncExec(() -> {
-				Shell shell = ProvUI.getDefaultParentShell();
+				Shell shell = shellProvider.getShell();
 				String message = null;
 				if (previousInfo.saveResult())
 					message = NLS.bind(ProvUIMessages.ProvUIMessages_SavedNotAccepted_EnterFor_0, location);
@@ -359,7 +362,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			return;
 		}
 		getDisplay().syncExec(() -> {
-			MessageDialog dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(), title, null, text,
+			MessageDialog dialog = new MessageDialogWithLink(shellProvider.getShell(), title, null, text,
 					MessageDialog.INFORMATION, new String[] { IDialogConstants.OK_LABEL }, 0, linkText, linkHandler);
 			dialog.open();
 		});
@@ -389,6 +392,32 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 	 */
 	public void setLinkHandler(Consumer<String> linkHandler) {
 		this.linkHandler = linkHandler;
+	}
+
+	/**
+	 * Returns a shell that is appropriate to use as the parent for a modal dialog
+	 * about to be opened.
+	 *
+	 * @return a shell that is appropriate to use as the parent for a modal dialog
+	 *         about to be opened.
+	 *
+	 * @see ProvUI#getDefaultParentShell()
+	 *
+	 * @since 2.7.400
+	 */
+	public IShellProvider getShellProvider() {
+		return shellProvider;
+	}
+
+	/**
+	 * Set the provider that yields a shell that is appropriate to use as the parent
+	 * for a modal dialog about to be opened.
+	 *
+	 * @param shellProvider the provider of a shell that is appropriate to use as
+	 *                      the parent for a modal dialog about to be opened.
+	 */
+	public void setShellProvider(IShellProvider shellProvider) {
+		this.shellProvider = shellProvider;
 	}
 
 	/**
