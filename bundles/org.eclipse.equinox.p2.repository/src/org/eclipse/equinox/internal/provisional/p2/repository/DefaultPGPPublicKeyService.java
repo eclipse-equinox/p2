@@ -191,10 +191,7 @@ public class DefaultPGPPublicKeyService extends PGPPublicKeyService {
 			keys.addAll(keyServer.getKeys(keyID));
 		}
 
-		LocalKeyCache localKeyCache = localKeys.get(keyID);
-		if (localKeyCache != null) {
-			keys.addAll(localKeyCache.get());
-		}
+		keys.addAll(getLocalKeyCache(keyID).get());
 
 		keys.addAll(getDefaultKeys(keyID));
 
@@ -300,23 +297,7 @@ public class DefaultPGPPublicKeyService extends PGPPublicKeyService {
 	@Override
 	public PGPPublicKey addKey(PGPPublicKey key) {
 		long keyID = key.getKeyID();
-		LocalKeyCache localKeyCache = localKeys.get(keyID);
-		if (localKeyCache == null) {
-			String hexKeyID = toHex(keyID);
-			Path cache = keyCache.resolve(hexKeyID + ".asc"); //$NON-NLS-1$
-			localKeyCache = new LocalKeyCache(cache) {
-				@Override
-				protected List<PGPPublicKey> reconcileKeys(List<PGPPublicKey> keys) {
-					return DefaultPGPPublicKeyService.this.reconcileKeys(keys);
-				}
-
-				@Override
-				protected void log(Throwable throwable) {
-					DefaultPGPPublicKeyService.this.log(throwable);
-				}
-			};
-			localKeys.put(keyID, localKeyCache);
-		}
+		LocalKeyCache localKeyCache = getLocalKeyCache(keyID);
 		localKeyCache.add(key);
 
 		Collection<PGPPublicKey> keys = getKeys(keyID);
@@ -412,6 +393,27 @@ public class DefaultPGPPublicKeyService extends PGPPublicKeyService {
 			}
 		}
 		return null;
+	}
+
+	private LocalKeyCache getLocalKeyCache(long keyID) {
+		LocalKeyCache localKeyCache = localKeys.get(keyID);
+		if (localKeyCache == null) {
+			String hexKeyID = toHex(keyID);
+			Path cache = keyCache.resolve(hexKeyID + ".asc"); //$NON-NLS-1$
+			localKeyCache = new LocalKeyCache(cache) {
+				@Override
+				protected List<PGPPublicKey> reconcileKeys(List<PGPPublicKey> keys) {
+					return DefaultPGPPublicKeyService.this.reconcileKeys(keys);
+				}
+
+				@Override
+				protected void log(Throwable throwable) {
+					DefaultPGPPublicKeyService.this.log(throwable);
+				}
+			};
+			localKeys.put(keyID, localKeyCache);
+		}
+		return localKeyCache;
 	}
 
 	protected Collection<PGPPublicKey> fetchKeys(URI uri, Path cache) throws IOException {
