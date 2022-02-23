@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.artifact.processors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +21,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.Set;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.repository.DefaultPGPPublicKeyService;
@@ -73,6 +76,23 @@ public class PGPSignatureVerifierTest {
 		return res;
 	}
 
+	private static class ArtifactOutputStream extends ByteArrayOutputStream implements IAdaptable {
+		IArtifactDescriptor descriptor = new ArtifactDescriptor(
+				new ArtifactKey("whatever", "whatever", Version.parseVersion("1.0.0")));
+
+		public IArtifactDescriptor getDescriptor() {
+			return descriptor;
+		}
+
+		@Override
+		public <T> T getAdapter(Class<T> adapter) {
+			if (adapter.isInstance(descriptor)) {
+				return adapter.cast(descriptor);
+			}
+			return null;
+		}
+	}
+
 	private String read(String resource) throws IOException, URISyntaxException {
 		return Files.readString(new File(FileLocator.toFileURL(getClass().getResource(resource)).toURI()).toPath());
 	}
@@ -84,6 +104,8 @@ public class PGPSignatureVerifierTest {
 		@SuppressWarnings("resource")
 		PGPSignatureVerifier verifier = new PGPSignatureVerifier();
 		verifier.initialize(agentProvider.getAgent(), processingStepDescriptor, artifact);
+		ArtifactOutputStream artifactOutputStream = new ArtifactOutputStream();
+		verifier.link(artifactOutputStream, new NullProgressMonitor());
 		Assert.assertTrue(verifier.getStatus().toString(), verifier.getStatus().isOK());
 		try (InputStream bytes = getClass().getResourceAsStream("testArtifact")) {
 			bytes.transferTo(verifier);
@@ -91,6 +113,12 @@ public class PGPSignatureVerifierTest {
 		Assert.assertTrue(verifier.getStatus().isOK());
 		verifier.close();
 		Assert.assertTrue(verifier.getStatus().isOK());
+
+		IArtifactDescriptor descriptor = artifactOutputStream.getDescriptor();
+		Assert.assertNotNull("Signatures should be present",
+				descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME));
+		Assert.assertNotNull("Keys should be present",
+				descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME));
 	}
 
 	@Test
@@ -99,9 +127,21 @@ public class PGPSignatureVerifierTest {
 		IArtifactDescriptor artifact = createArtifact("signed_by_signer_1", "public_signer2.pgp");
 		try (PGPSignatureVerifier verifier = new PGPSignatureVerifier()) {
 			verifier.initialize(agentProvider.getAgent(), processingStepDescriptor, artifact);
-			IStatus status = verifier.getStatus();
-			assertEquals(IStatus.ERROR, status.getSeverity());
-			assertTrue(status.getMessage().matches("A public key.*could not be found.*"));
+			ArtifactOutputStream artifactOutputStream = new ArtifactOutputStream();
+			verifier.link(artifactOutputStream, new NullProgressMonitor());
+			Assert.assertTrue(verifier.getStatus().toString(), verifier.getStatus().isOK());
+			try (InputStream bytes = getClass().getResourceAsStream("testArtifact")) {
+				bytes.transferTo(verifier);
+			}
+			Assert.assertTrue(verifier.getStatus().isOK());
+			verifier.close();
+			Assert.assertTrue(verifier.getStatus().isOK());
+
+			IArtifactDescriptor descriptor = artifactOutputStream.getDescriptor();
+			Assert.assertNull("No signatures should be present",
+					descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME));
+			Assert.assertNull("No keys should be present",
+					descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME));
 		}
 	}
 

@@ -19,14 +19,17 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.repository.DefaultPGPPublicKeyService;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,17 +52,35 @@ public class PGPVerifierTest extends AbstractProvisioningTest {
 
 	@Test
 	public void testAllGood() throws Exception {
-		IStatus mirrorStatus = performMirrorFrom("repoPGPOK");
+		MirrorRequest mirrorRequest = performMirrorFrom("repoPGPOK");
+		IStatus mirrorStatus = mirrorRequest.getResult();
 		assertOK(mirrorStatus);
+
+		IArtifactDescriptor[] artifactDescriptors = targetRepo.getArtifactDescriptors(mirrorRequest.getArtifactKey());
+		Assert.assertEquals(1, artifactDescriptors.length);
+		IArtifactDescriptor descriptor = artifactDescriptors[0];
+		Assert.assertNotNull("Signatures should be present",
+				descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME));
+		Assert.assertNotNull("Keys should be present",
+				descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME));
 	}
 
 	@Test
 	public void testAllGoodWithEncodedProperties() throws Exception {
-		IStatus mirrorStatus = performMirrorFrom("repoPGPOK_encoded");
+		MirrorRequest mirrorRequest = performMirrorFrom("repoPGPOK_encoded");
+		IStatus mirrorStatus = mirrorRequest.getResult();
 		assertOK(mirrorStatus);
+
+		IArtifactDescriptor[] artifactDescriptors = targetRepo.getArtifactDescriptors(mirrorRequest.getArtifactKey());
+		Assert.assertEquals(1, artifactDescriptors.length);
+		IArtifactDescriptor descriptor = artifactDescriptors[0];
+		Assert.assertNotNull("Signatures should be present",
+				descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME));
+		Assert.assertNotNull("Keys should be present",
+				descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME));
 	}
 
-	private IStatus performMirrorFrom(String repoName) throws Exception {
+	private MirrorRequest performMirrorFrom(String repoName) throws Exception {
 		// Clear the remembered keys/cache of the agent.
 		IAgentLocation agentLocation = getAgent().getService(IAgentLocation.class);
 		Path repositoryCache = Paths
@@ -84,14 +105,22 @@ public class PGPVerifierTest extends AbstractProvisioningTest {
 		ArtifactKey key = new ArtifactKey("osgi.bundle", "blah", Version.create("1.0.0.123456"));
 		MirrorRequest mirrorRequest = new MirrorRequest(key, targetRepo, NO_PROPERTIES, NO_PROPERTIES, getTransport());
 		mirrorRequest.perform(sourceRepo, getMonitor());
-		return mirrorRequest.getResult();
+		return mirrorRequest;
 	}
 
 	@Test
 	public void testMissingPublicKey() throws Exception {
-		IStatus mirrorStatus = performMirrorFrom("repoMissingPublicKey");
-		assertNotOK(mirrorStatus);
-		assertTrue(mirrorStatus.toString().matches(".*public key.*not be found.*"));
+		MirrorRequest mirrorRequest = performMirrorFrom("repoMissingPublicKey");
+		IStatus mirrorStatus = mirrorRequest.getResult();
+		assertOK(mirrorStatus);
+
+		IArtifactDescriptor[] artifactDescriptors = targetRepo.getArtifactDescriptors(mirrorRequest.getArtifactKey());
+		Assert.assertEquals(1, artifactDescriptors.length);
+		IArtifactDescriptor descriptor = artifactDescriptors[0];
+		Assert.assertNull("Signatures should not be present",
+				descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME));
+		Assert.assertNull("Keys should not be present",
+				descriptor.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME));
 	}
 
 	@Override

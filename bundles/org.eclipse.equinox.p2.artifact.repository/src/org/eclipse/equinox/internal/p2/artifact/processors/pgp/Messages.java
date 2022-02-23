@@ -23,7 +23,7 @@ public class Messages extends NLS {
 
 	public static String Error_CouldNotLoadSignature;
 
-	public static String Error_publicKeyNotFound;
+	public static String Warning_publicKeyNotFound;
 
 	static {
 		// initialize resource bundle

@@ -137,25 +137,25 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 			long keyID = signature.getKeyID();
 			Collection<PGPPublicKey> keys = keyService.getKeys(keyID);
 			if (keys.isEmpty()) {
-				setStatus(new Status(IStatus.ERROR, Activator.ID,
-						NLS.bind(Messages.Error_publicKeyNotFound, PGPPublicKeyService.toHex(keyID))));
-				return;
-			}
-
-			try {
-				PGPContentVerifierBuilder verifierBuilder = new BcPGPContentVerifierBuilderProvider()
-						.get(signature.getKeyAlgorithm(), signature.getHashAlgorithm());
-				List<PGPContentVerifier> verifiers = new ArrayList<>();
-				signaturesToVerify.put(signature, verifiers);
-				for (PGPPublicKey key : keys) {
-					PGPContentVerifier verifier = verifierBuilder.build(key);
-					verifierKeys.put(verifier, key);
-					verifiers.add(verifier);
-					signatureVerifiers.add(verifier.getOutputStream());
+				LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+						NLS.bind(Messages.Warning_publicKeyNotFound, PGPPublicKeyService.toHex(keyID),
+								context.getArtifactKey().getId())));
+			} else {
+				try {
+					PGPContentVerifierBuilder verifierBuilder = new BcPGPContentVerifierBuilderProvider()
+							.get(signature.getKeyAlgorithm(), signature.getHashAlgorithm());
+					List<PGPContentVerifier> verifiers = new ArrayList<>();
+					signaturesToVerify.put(signature, verifiers);
+					for (PGPPublicKey key : keys) {
+						PGPContentVerifier verifier = verifierBuilder.build(key);
+						verifierKeys.put(verifier, key);
+						verifiers.add(verifier);
+						signatureVerifiers.add(verifier.getOutputStream());
+					}
+				} catch (PGPException ex) {
+					setStatus(new Status(IStatus.ERROR, Activator.ID, ex.getMessage(), ex));
+					return;
 				}
-			} catch (PGPException ex) {
-				setStatus(new Status(IStatus.ERROR, Activator.ID, ex.getMessage(), ex));
-				return;
 			}
 		}
 	}
