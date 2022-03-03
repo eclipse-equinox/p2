@@ -16,6 +16,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
+import java.util.Optional;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.ecf.provider.filetransfer.IFileTransferProtocolToFactoryMapper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -171,6 +172,20 @@ public class Activator implements BundleActivator {
 			}
 		}
 		return false;
+	}
+
+	public static String getProperty(String key) {
+		if (context != null) {
+			return context.getProperty(key);
+		}
+		return System.getProperty(key);
+	}
+
+	public static Optional<Version> getVersion() {
+		return Optional.ofNullable(context) //
+				.map(BundleContext::getBundle) //
+				.or(() -> Optional.ofNullable(FrameworkUtil.getBundle(FileReader.class)))//
+				.map(Bundle::getVersion);
 	}
 
 }

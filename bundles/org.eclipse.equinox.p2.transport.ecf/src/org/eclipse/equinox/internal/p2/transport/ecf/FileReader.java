@@ -34,7 +34,7 @@ import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Messages;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.Version;
 
 /**
  * FileReader is an ECF FileTransferJob implementation.
@@ -64,11 +64,11 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	static Map<String, Map<String, String>> options;
 
 	static private String getProperty(String key, String defaultValue) {
-		String value = FrameworkUtil.getBundle(FileReader.class).getBundleContext().getProperty(key);
-		if (value == null) {
-			value = defaultValue;
+		String value = Activator.getProperty(key);
+		if (value != null) {
+			return value;
 		}
-		return value;
+		return defaultValue;
 	}
 
 	static {
@@ -80,7 +80,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		String osgiArch = getProperty("org.osgi.framework.processor", "unknownArch");//$NON-NLS-1$//$NON-NLS-2$
 		String language = getProperty("osgi.nl", "unknownLanguage");//$NON-NLS-1$//$NON-NLS-2$
 		String osVersion = getProperty("org.osgi.framework.os.version", "unknownOSVersion"); //$NON-NLS-1$ //$NON-NLS-2$
-		String p2Version = FrameworkUtil.getBundle(FileReader.class).getVersion().toString();
+		String p2Version = Activator.getVersion().map(Version::toString).orElse("unknownVersion"); //$NON-NLS-1$
 		userAgent = "p2/" + p2Version + " (Java " + javaSpec + ' ' + javaVendor + "; " + osName + ' ' + osVersion + ' ' //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				+ osgiArch + "; " + language + ") "; //$NON-NLS-1$ //$NON-NLS-2$
 		String userAgentProvided = getProperty("p2.userAgent", null); //$NON-NLS-1$
