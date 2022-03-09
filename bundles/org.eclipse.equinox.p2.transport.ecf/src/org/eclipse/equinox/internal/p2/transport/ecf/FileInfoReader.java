@@ -163,7 +163,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 		try {
 			container = ContainerFactory.getDefault().createContainer();
 		} catch (ContainerCreateException e) {
-			throw RepositoryStatusHelper.fromMessage(Messages.ecf_configuration_error);
+			throw RepositoryStatusHelper.fromExceptionMessage(e ,Messages.ecf_configuration_error);
 		}
 
 		IRemoteFileSystemBrowserContainerAdapter adapter = container.getAdapter(IRemoteFileSystemBrowserContainerAdapter.class);
