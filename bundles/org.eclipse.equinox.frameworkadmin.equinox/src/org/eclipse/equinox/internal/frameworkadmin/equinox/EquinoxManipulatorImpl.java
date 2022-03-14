@@ -328,20 +328,19 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		BundleInfo[] bInfos = new BundleInfo[bundles.length];
 		for (int i = 0; i < bundles.length; i++) {
 			// System.out.println("bundles[" + i + "]=" + bundles[i]);
-			try {
+			Optional<File> bundleFile = FileLocator.getBundleFileLocation(bundles[i]);
+			if (bundleFile.isPresent()) {
 				if (bundles[i].getBundleId() == 0) // SystemBundle
 					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(),
 							bundles[i].getHeaders("").get(Constants.BUNDLE_VERSION), //$NON-NLS-1$
-							FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(), -1, true);
+							bundleFile.get().getAbsoluteFile().toURI(), -1, true);
 				else {
 					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(),
 							bundles[i].getHeaders("").get(Constants.BUNDLE_VERSION), //$NON-NLS-1$
-							FileLocator.getBundleFile(bundles[i]).getAbsoluteFile().toURI(),
+							bundleFile.get().getAbsoluteFile().toURI(),
 							bundles[i].adapt(BundleStartLevel.class).getStartLevel(),
 							bundles[i].adapt(BundleStartLevel.class).isPersistentlyStarted());
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 		configData.setBundles(bInfos);

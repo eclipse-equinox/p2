@@ -27,7 +27,9 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherAppli
 import org.eclipse.equinox.p2.publisher.eclipse.InstallPublisherApplication;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
+import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -90,7 +92,7 @@ public class GeneratorTests extends AbstractProvisioningTest {
 		for (int i = 0; i < limit; i++) {
 			BundleContext context = TestActivator.getContext();
 			Bundle bundle = context.getBundle(i);
-			File bundleFile = FileLocator.getBundleFile(bundle);
+			File bundleFile = FileLocator.getBundleFileLocation(bundle).get();
 			if (!bundleFile.isFile()) {
 				//only jars please
 				++limit;
