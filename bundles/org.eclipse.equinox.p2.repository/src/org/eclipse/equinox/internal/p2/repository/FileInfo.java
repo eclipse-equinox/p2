@@ -7,11 +7,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
  * Carries information about a file transfer.
- * 
+ *
  */
 public class FileInfo {
 	public static final String PROPERTY_CONTENT_TYPE = "contentType"; //$NON-NLS-1$
@@ -35,6 +36,8 @@ public class FileInfo {
 	private long size = -1L;
 
 	private long averageSpeed = UNKNOWN_RATE;
+
+	private Map<?, ?> responseHeaders;
 
 	public FileInfo() {
 		contentType = ""; //$NON-NLS-1$
@@ -143,5 +146,13 @@ public class FileInfo {
 	 */
 	public long getAverageSpeed() {
 		return averageSpeed;
+	}
+
+	public void setResponseHeaders(Map<?, ?> responseHeaders) {
+		this.responseHeaders = responseHeaders;
+	}
+
+	public Map<?, ?> getResponseHeaders() {
+		return responseHeaders;
 	}
 }

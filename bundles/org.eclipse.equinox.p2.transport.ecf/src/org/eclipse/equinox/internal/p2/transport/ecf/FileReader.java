@@ -190,11 +190,12 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			// connection
 			cancelJob.schedule(500);
 		} else if (event instanceof IIncomingFileTransferReceiveStartEvent) {
+			IIncomingFileTransferReceiveStartEvent startEvent = (IIncomingFileTransferReceiveStartEvent) event;
 			// we no longer need the cancel handler because we are about to fork the
 			// transfer job
 			if (cancelJob != null)
 				cancelJob.cancel();
-			IIncomingFileTransfer source = ((IIncomingFileTransferEvent) event).getSource();
+			IIncomingFileTransfer source = startEvent.getSource();
 			try {
 				FileInfo fi = new FileInfo();
 				Date lastModified = source.getRemoteLastModified();
@@ -202,9 +203,10 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 					fi.setLastModified(lastModified.getTime());
 				fi.setName(source.getRemoteFileName());
 				fi.setSize(source.getFileLength());
+				fi.setResponseHeaders(startEvent.getResponseHeaders());
 				fileInfo = fi;
 
-				((IIncomingFileTransferReceiveStartEvent) event).receive(theOutputStream, this);
+				startEvent.receive(theOutputStream, this);
 			} catch (IOException e) {
 				exception = e;
 				return;

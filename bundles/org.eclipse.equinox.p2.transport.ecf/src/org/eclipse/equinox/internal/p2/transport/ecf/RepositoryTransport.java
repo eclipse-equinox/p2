@@ -225,6 +225,16 @@ public class RepositoryTransport extends Transport {
 				status.setFileSize(fi.getSize());
 				status.setLastModified(fi.getLastModified());
 				status.setTransferRate(fi.getAverageSpeed());
+				Map<?, ?> headers = fi.getResponseHeaders();
+				if (headers != null) {
+					for (var entry : headers.entrySet()) {
+						// TODO ECF assumes that headers are unique but this is not true at least for
+						// http! example is the Set-Cookie header see the following RFCs
+						// https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+						// https://www.rfc-editor.org/rfc/rfc6265#section-3
+						status.addHeader(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+					}
+				}
 			}
 		}
 		if (target instanceof IStateful)

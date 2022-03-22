@@ -7,12 +7,13 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
+import java.util.*;
 import org.eclipse.core.runtime.Status;
 
 /**
@@ -26,6 +27,7 @@ public class DownloadStatus extends Status {
 	private long speed = UNKNOWN_RATE;
 	private long fileSize = UNKNOWN_SIZE;
 	private long lastModified = 0;
+	private Map<String, List<String>> responseHeaders = new HashMap<>();
 
 	/**
 	 * Constructs a new DownloadStatus with the given attributes.
@@ -91,5 +93,13 @@ public class DownloadStatus extends Status {
 		sb.append("Download rate="); //$NON-NLS-1$
 		sb.append(getTransferRate() == UNKNOWN_RATE ? "Unknown rate" : getTransferRate()); //$NON-NLS-1$
 		return sb.toString();
+	}
+
+	public void addHeader(String key, String value) {
+		responseHeaders.computeIfAbsent(key, nil -> new ArrayList<>()).add(value);
+	}
+
+	public Map<String, List<String>> getResponseHeaders() {
+		return responseHeaders;
 	}
 }
