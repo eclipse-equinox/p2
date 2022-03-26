@@ -585,7 +585,7 @@ public class DefaultPGPPublicKeyService extends PGPPublicKeyService {
 			keyCache = baseCache.resolve(keyServer.replace(':', '_'));
 			if (!Files.isDirectory(this.keyCache)) {
 				try {
-					Files.createDirectory(keyCache);
+					Files.createDirectories(keyCache);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
