@@ -48,6 +48,13 @@ public class MirrorRequest extends ArtifactRequest {
 	public static final int ARTIFACT_PROCESSING_ERROR = 2;
 
 	/**
+	 * A boolean property controlling whether reporting download statistics is
+	 * enabled.
+	 */
+	public static final boolean DOWNLOAD_STATS_ENABLED = !"false" //$NON-NLS-1$
+			.equals(Activator.getContext().getProperty("eclipse.p2.reportDownloadStatistics")); //$NON-NLS-1$
+
+	/**
 	 * Maximum number of times a request for a single artifact should be tried
 	 */
 	private static final int MAX_RETRY_REQUEST = 200;
@@ -245,6 +252,9 @@ public class MirrorRequest extends ArtifactRequest {
 	 * Collect download statistics, if specified by the descriptor and the source repository
 	 */
 	private void collectStats(IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
+		if (!DOWNLOAD_STATS_ENABLED) {
+			return;
+		}
 		final String statsProperty = sourceDescriptor.getProperty(PROP_DOWNLOAD_STATS);
 		if (statsProperty == null)
 			return;
