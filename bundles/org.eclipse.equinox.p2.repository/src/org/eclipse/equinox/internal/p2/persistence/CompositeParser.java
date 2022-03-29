@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
@@ -180,7 +181,7 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 	}
 
 	public CompositeParser(BundleContext context, String bundleId, String type) {
-		super(context, bundleId);
+		super(bundleId);
 		this.repositoryType = type;
 	}
 
@@ -196,10 +197,10 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 		try {
 			// TODO: currently not caching the parser since we make no assumptions
 			//		 or restrictions on concurrent parsing
-			getParser();
+			XMLReader reader = getParser().getXMLReader();
 			RepositoryHandler repositoryHandler = new RepositoryHandler();
-			xmlReader.setContentHandler(new RepositoryDocHandler(REPOSITORY_ELEMENT, repositoryHandler));
-			xmlReader.parse(new InputSource(stream));
+			reader.setContentHandler(new RepositoryDocHandler(REPOSITORY_ELEMENT, repositoryHandler));
+			reader.parse(new InputSource(stream));
 			if (isValidXML()) {
 				theState = repositoryHandler.getRepository();
 			}

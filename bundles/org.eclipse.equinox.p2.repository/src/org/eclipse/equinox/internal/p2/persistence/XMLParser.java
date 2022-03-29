@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2016 IBM Corporation and others.
+ *  Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
@@ -18,12 +19,11 @@ import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
 import org.xml.sax.*;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
@@ -36,7 +36,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	// Get a generic parser error message for inclusion in an error status
 	protected abstract String getErrorMessage();
 
-	protected BundleContext context; // parser class bundle context
 	protected String bundleId; // parser class bundle id
 
 	protected XMLReader xmlReader; // the XML reader for the parser
@@ -50,11 +49,14 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	// Store a cache of previously seen URIs to avoid GC presure
 	final Map<String, URI> uris = new HashMap<>();
 
-	private static ServiceTracker<SAXParserFactory, SAXParserFactory> xmlTracker = null;
+	protected SAXParserFactory parserFactory;
 
-	public XMLParser(BundleContext context, String pluginId) {
-		super();
-		this.context = context;
+	public XMLParser(String pluginId) {
+		this(org.eclipse.equinox.internal.p2.repository.Activator.getParserFactory(), pluginId);
+	}
+
+	public XMLParser(SAXParserFactory factory, String pluginId) {
+		this.parserFactory = Objects.requireNonNull(factory, "SAXParserFactory can't be null"); //$NON-NLS-1$
 		this.bundleId = pluginId;
 	}
 
@@ -69,30 +71,9 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return (status == null || !status.matches(IStatus.ERROR | IStatus.CANCEL));
 	}
 
-	private synchronized static SAXParserFactory acquireXMLParsing(BundleContext context) {
-		if (xmlTracker == null) {
-			xmlTracker = new ServiceTracker<SAXParserFactory, SAXParserFactory>(context, SAXParserFactory.class, null);
-			xmlTracker.open();
-		}
-		// FEATURE_SECURE_PROCESSING is documented as must be supported by all implementations
-		SAXParserFactory factory = xmlTracker.getService();
-		try {
-			factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-		} catch (ParserConfigurationException | SAXNotRecognizedException | SAXNotSupportedException e) {
-			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Feature not supported", e)); //$NON-NLS-1$
-		}
-		return factory;
-	}
-
-	protected synchronized static void releaseXMLParsing() {
-		if (xmlTracker != null) {
-			xmlTracker.close();
-			xmlTracker = null;
-		}
-	}
 
 	protected SAXParser getParser() throws ParserConfigurationException, SAXException {
-		SAXParserFactory factory = acquireXMLParsing(this.context);
+		SAXParserFactory factory = parserFactory;
 		if (factory == null) {
 			throw new SAXException(Messages.XMLParser_No_SAX_Parser);
 		}
@@ -121,7 +102,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 	/**
 	 * Set the document locator for the parser
-	 * 
+	 *
 	 * @see org.xml.sax.ContentHandler#setDocumentLocator
 	 */
 	@Override
@@ -163,7 +144,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 		/**
 		 * Set the document locator for the parser
-		 * 
+		 *
 		 * @see org.xml.sax.ContentHandler#setDocumentLocator
 		 */
 		@Override
@@ -200,13 +181,13 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		 */
 		protected void noSubElements(String name, Attributes attributes) {
 			unexpectedElement(this, name, attributes);
-			// Create a new handler to ignore subsequent nested elements			
+			// Create a new handler to ignore subsequent nested elements
 			new IgnoringHandler(this);
 		}
 
 		/*
 		 * Save up character data until endElement or nested startElement
-		 * 
+		 *
 		 * @see org.xml.sax.ContentHandler#characters
 		 */
 		@Override
@@ -245,7 +226,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			}
 		}
 
-		// Method to override in the handler of an element with CDATA. 
+		// Method to override in the handler of an element with CDATA.
 		protected void processCharacters(String data) {
 			if (data.length() > 0) {
 				unexpectedCharacterData(this, data);

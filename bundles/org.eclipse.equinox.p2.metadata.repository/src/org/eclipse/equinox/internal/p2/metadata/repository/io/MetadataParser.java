@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,6 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
  *		EclipseSource - ongoing development
+ *		Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
@@ -20,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
+import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -29,15 +31,18 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
-import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 
 public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	static final ILicense[] NO_LICENSES = new ILicense[0];
 
-	public MetadataParser(BundleContext context, String bundleId) {
-		super(context, bundleId);
+	public MetadataParser(String bundleId) {
+		super(bundleId);
+	}
+
+	public MetadataParser(SAXParserFactory factory, String bundleId) {
+		super(factory, bundleId);
 	}
 
 	protected abstract class AbstractMetadataHandler extends AbstractHandler {

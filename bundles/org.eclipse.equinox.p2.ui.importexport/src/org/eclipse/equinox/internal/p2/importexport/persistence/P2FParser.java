@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2022 WindRiver Corporation and others.
  *
  * This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  * 
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
+ *     Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.persistence;
 
@@ -24,17 +25,17 @@ import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
 
 public class P2FParser extends XMLParser implements P2FConstants {
-	static final VersionRange XML_TOLERANCE = new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false);
+	static final VersionRange XML_TOLERANCE = new VersionRange(Version.createOSGi(1, 0, 0), true,
+			Version.createOSGi(2, 0, 0), false);
 
 	List<IUDetail> iusListed;
 
 	protected class RepositoryHandler extends AbstractHandler {
 
-		private final String[] required = new String[] {LOCATION_ELEMENT};
+		private final String[] required = new String[] { LOCATION_ELEMENT };
 		private final String[] optional = new String[] {};
 		private URI referredRepo;
 		private List<URI> uri;
@@ -42,7 +43,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		public RepositoryHandler(AbstractHandler parentHandler, Attributes attributes, List<URI> uri) {
 			super(parentHandler, REPOSITORY_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
-			//skip entire subrepository if the location is missing
+			// skip entire subrepository if the location is missing
 			if (values[0] == null)
 				return;
 			this.uri = uri;
@@ -84,7 +85,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 	}
 
 	protected class IUHandler extends AbstractHandler {
-		private final String[] required = new String[] {ID_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_ATTRIBUTE};
+		private final String[] required = new String[] { ID_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_ATTRIBUTE };
 		private final String[] optional = new String[] {};
 
 		IInstallableUnit iu = null;
@@ -94,7 +95,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		public IUHandler(AbstractHandler parentHandler, Attributes attributes, List<IUDetail> ius) {
 			super(parentHandler, IU_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
-			//skip entire record if the id is missing
+			// skip entire record if the id is missing
 			if (values[0] == null)
 				return;
 			MetadataFactory.InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
@@ -155,7 +156,8 @@ public class P2FParser extends XMLParser implements P2FConstants {
 			if (P2F_ELEMENT.equals(target)) {
 				Version repositoryVersion = extractPIVersion(target, data);
 				if (!XML_TOLERANCE.isIncluded(repositoryVersion)) {
-					throw new VersionIncompatibleException(NLS.bind(Messages.io_IncompatibleVersion, repositoryVersion, XML_TOLERANCE));
+					throw new VersionIncompatibleException(
+							NLS.bind(Messages.io_IncompatibleVersion, repositoryVersion, XML_TOLERANCE));
 				}
 			}
 		}
@@ -193,8 +195,8 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		}
 	}
 
-	public P2FParser(BundleContext context, String pluginId) {
-		super(context, pluginId);
+	public P2FParser(String pluginId) {
+		super(pluginId);
 	}
 
 	public void parse(File file) throws IOException {
@@ -208,11 +210,11 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		this.status = null;
 		try {
 			// TODO: currently not caching the parser since we make no assumptions
-			//		 or restrictions on concurrent parsing
-			getParser();
+			// or restrictions on concurrent parsing
+			XMLReader reader = getParser().getXMLReader();
 			P2FHandler p2fHandler = new P2FHandler();
-			xmlReader.setContentHandler(new P2FDocHandler(P2F_ELEMENT, p2fHandler));
-			xmlReader.parse(new InputSource(stream));
+			reader.setContentHandler(new P2FDocHandler(P2F_ELEMENT, p2fHandler));
+			reader.parse(new InputSource(stream));
 		} catch (SAXException e) {
 			IOException ioException = new IOException(e.getMessage());
 			ioException.initCause(e);
