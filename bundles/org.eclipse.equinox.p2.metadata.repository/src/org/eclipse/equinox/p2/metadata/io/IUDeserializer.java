@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 Sonatype, Inc. and others.
+ * Copyright (c) 2011, 2022 Sonatype, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     Sonatype, Inc - initial API and implementation
+ *     Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.io;
 
@@ -56,19 +57,17 @@ public class IUDeserializer {
 
 	private class IUDeserializerParser extends MetadataParser {
 		private IUOnlyHandler iusHandler;
-		private SAXParserFactory parserFactory;
 
 		public IUDeserializerParser(SAXParserFactory factory) {
-			super(null, null);
-			this.parserFactory = factory;
+			super(factory, null);
 		}
 
 		public Collection<IInstallableUnit> parse(InputStream stream) throws IOException {
 			try {
-				getParser();
+				XMLReader reader = getParser().getXMLReader();
 				iusHandler = new IUOnlyHandler();
-				xmlReader.setContentHandler(iusHandler);
-				xmlReader.parse(new InputSource(stream));
+				reader.setContentHandler(iusHandler);
+				reader.parse(new InputSource(stream));
 				if (isValidXML()) {
 					return Arrays.asList(iusHandler.getInstallableUnits());
 				}

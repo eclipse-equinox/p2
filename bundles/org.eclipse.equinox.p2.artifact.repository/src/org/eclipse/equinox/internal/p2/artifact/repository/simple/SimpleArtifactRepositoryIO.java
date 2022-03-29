@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
@@ -33,13 +34,12 @@ import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
 
 /**
  * This class reads and writes artifact repository metadata
  * (e.g. table of contents files);
- * 
+ *
  * This class is not used for reading or writing the actual artifacts.
  */
 
@@ -80,7 +80,7 @@ public class SimpleArtifactRepositoryIO {
 	/**
 	 * Reads the artifact repository from the given stream,
 	 * and returns the contained array of abstract artifact repositories.
-	 * 
+	 *
 	 * This method performs buffering, and closes the stream when finished.
 	 */
 	public IArtifactRepository read(URI location, InputStream input, IProgressMonitor monitor, boolean acquireLock) throws ProvisionException {
@@ -88,7 +88,7 @@ public class SimpleArtifactRepositoryIO {
 		try {
 			try {
 				bufferedInput = new BufferedInputStream(input);
-				Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
+				Parser repositoryParser = new Parser(Activator.ID);
 				repositoryParser.setErrorContext(location.toURL().toExternalForm());
 				IStatus result = null;
 				boolean lock = false;
@@ -192,31 +192,31 @@ public class SimpleArtifactRepositoryIO {
 		// Constants defining the structure of the XML for a SimpleArtifactRepository
 
 		// A format version number for simple artifact repository XML.
-		public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
-		public static final Version CURRENT_VERSION = Version.createOSGi(1, 1, 0);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
+		Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
+		Version CURRENT_VERSION = Version.createOSGi(1, 1, 0);
+		VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
 		// Constants for processing instructions
-		public static final String PI_REPOSITORY_TARGET = "artifactRepository"; //$NON-NLS-1$
-		public static XMLWriter.ProcessingInstruction[] PI_DEFAULTS = new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(PI_REPOSITORY_TARGET, CURRENT_VERSION)};
+		String PI_REPOSITORY_TARGET = "artifactRepository"; //$NON-NLS-1$
+		XMLWriter.ProcessingInstruction[] PI_DEFAULTS = new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(PI_REPOSITORY_TARGET, CURRENT_VERSION)};
 
 		// Constants for artifact repository elements
-		public static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
-		public static final String REPOSITORY_PROPERTIES_ELEMENT = "repositoryProperties"; //$NON-NLS-1$
-		public static final String MAPPING_RULES_ELEMENT = "mappings"; //$NON-NLS-1$
-		public static final String MAPPING_RULE_ELEMENT = "rule"; //$NON-NLS-1$
-		public static final String ARTIFACTS_ELEMENT = "artifacts"; //$NON-NLS-1$
-		public static final String ARTIFACT_ELEMENT = "artifact"; //$NON-NLS-1$
-		public static final String PROCESSING_STEPS_ELEMENT = "processing"; //$NON-NLS-1$
-		public static final String PROCESSING_STEP_ELEMENT = "step"; //$NON-NLS-1$
+		String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
+		String REPOSITORY_PROPERTIES_ELEMENT = "repositoryProperties"; //$NON-NLS-1$
+		String MAPPING_RULES_ELEMENT = "mappings"; //$NON-NLS-1$
+		String MAPPING_RULE_ELEMENT = "rule"; //$NON-NLS-1$
+		String ARTIFACTS_ELEMENT = "artifacts"; //$NON-NLS-1$
+		String ARTIFACT_ELEMENT = "artifact"; //$NON-NLS-1$
+		String PROCESSING_STEPS_ELEMENT = "processing"; //$NON-NLS-1$
+		String PROCESSING_STEP_ELEMENT = "step"; //$NON-NLS-1$
 
-		public static final String MAPPING_RULE_FILTER_ATTRIBUTE = "filter"; //$NON-NLS-1$
-		public static final String MAPPING_RULE_OUTPUT_ATTRIBUTE = "output"; //$NON-NLS-1$
+		String MAPPING_RULE_FILTER_ATTRIBUTE = "filter"; //$NON-NLS-1$
+		String MAPPING_RULE_OUTPUT_ATTRIBUTE = "output"; //$NON-NLS-1$
 
-		public static final String ARTIFACT_CLASSIFIER_ATTRIBUTE = CLASSIFIER_ATTRIBUTE;
+		String ARTIFACT_CLASSIFIER_ATTRIBUTE = CLASSIFIER_ATTRIBUTE;
 
-		public static final String STEP_DATA_ATTRIBUTE = "data"; //$NON-NLS-1$
-		public static final String STEP_REQUIRED_ATTRIBUTE = "required"; //$NON-NLS-1$
+		String STEP_DATA_ATTRIBUTE = "data"; //$NON-NLS-1$
+		String STEP_REQUIRED_ATTRIBUTE = "required"; //$NON-NLS-1$
 	}
 
 	// XML writer for a SimpleArtifactRepository
@@ -300,8 +300,8 @@ public class SimpleArtifactRepositoryIO {
 
 		private SimpleArtifactRepository theRepository = null;
 
-		public Parser(BundleContext context, String bundleId) {
-			super(context, bundleId);
+		public Parser(String bundleId) {
+			super(bundleId);
 		}
 
 		public synchronized void parse(InputStream stream) throws IOException {
@@ -309,10 +309,10 @@ public class SimpleArtifactRepositoryIO {
 			try {
 				// TODO: currently not caching the parser since we make no assumptions
 				//		 or restrictions on concurrent parsing
-				getParser();
+				XMLReader reader = getParser().getXMLReader();
 				RepositoryHandler repositoryHandler = new RepositoryHandler();
-				xmlReader.setContentHandler(new RepositoryDocHandler(REPOSITORY_ELEMENT, repositoryHandler));
-				xmlReader.parse(new InputSource(stream));
+				reader.setContentHandler(new RepositoryDocHandler(REPOSITORY_ELEMENT, repositoryHandler));
+				reader.parse(new InputSource(stream));
 				if (isValidXML()) {
 					theRepository = repositoryHandler.getRepository();
 				}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2022 WindRiver Corporation and others.
  *
  * This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  * 
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
+ *     Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal;
 
@@ -51,8 +52,7 @@ public class ImportExportImpl implements P2ImportExport {
 
 	@Override
 	public List<IUDetail> importP2F(InputStream input) throws IOException {
-		P2FParser parser = new P2FParser(Platform.getBundle(Constants.Bundle_ID).getBundleContext(),
-				Constants.Bundle_ID);
+		P2FParser parser = new P2FParser(Constants.Bundle_ID);
 		parser.parse(input);
 		return parser.getIUs();
 	}

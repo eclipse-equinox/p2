@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -46,10 +46,10 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 public class IUPersistenceTest extends AbstractProvisioningTest {
 
@@ -117,8 +117,8 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 		private IInstallableUnit theIU = null;
 
-		public IUStringParser(BundleContext context, String bundleId) {
-			super(context, bundleId);
+		public IUStringParser(String bundleId) {
+			super(bundleId);
 		}
 
 		@Override
@@ -134,10 +134,10 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		public void parse(String profileString) throws IOException {
 			this.status = null;
 			try {
-				getParser();
+				XMLReader reader = getParser().getXMLReader();
 				TestHandler testHandler = new TestHandler();
-				xmlReader.setContentHandler(new IUDocHandler(IU_TEST_ELEMENT, testHandler));
-				xmlReader.parse(new InputSource(new StringReader(profileString)));
+				reader.setContentHandler(new IUDocHandler(IU_TEST_ELEMENT, testHandler));
+				reader.parse(new InputSource(new StringReader(profileString)));
 				if (isValidXML()) {
 					theIU = testHandler.getIU();
 				}
@@ -368,7 +368,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			writer0.writeTest(iu0);
 			String iuText0 = output0.toString();
 
-			IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
+			IUStringParser parser = new IUStringParser(TestActivator.PI_PROV_TESTS);
 			parser.parse(iuText0);
 			assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
 			InstallableUnitPatch iu1 = (InstallableUnitPatch) parser.getRootObject();
@@ -393,7 +393,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			writer0.writeTest(iu0);
 			String iuText0 = output0.toString();
 
-			IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
+			IUStringParser parser = new IUStringParser(TestActivator.PI_PROV_TESTS);
 			parser.parse(iuText0);
 			assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
 			InstallableUnitPatch iu1 = (InstallableUnitPatch) parser.getRootObject();
@@ -418,7 +418,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			writer0.writeTest(iu0);
 			String iuText0 = output0.toString();
 
-			IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
+			IUStringParser parser = new IUStringParser(TestActivator.PI_PROV_TESTS);
 			parser.parse(iuText0);
 			assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
 			InstallableUnit iu1 = (InstallableUnit) parser.getRootObject();

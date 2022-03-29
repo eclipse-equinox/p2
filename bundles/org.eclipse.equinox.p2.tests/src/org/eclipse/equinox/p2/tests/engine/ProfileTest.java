@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -36,10 +36,10 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  * Simple test of the engine API.
@@ -202,17 +202,17 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 		private IProfile[] profiles = null;
 
-		public ProfileStringParser(BundleContext context, String bundleId) {
-			super(context, bundleId);
+		public ProfileStringParser(String bundleId) {
+			super(bundleId);
 		}
 
 		public void parse(String profileString) throws IOException {
 			this.status = null;
 			try {
-				getParser();
+				XMLReader reader = getParser().getXMLReader();
 				TestHandler testHandler = new TestHandler();
-				xmlReader.setContentHandler(new ProfileDocHandler(PROFILE_TEST_ELEMENT, testHandler));
-				xmlReader.parse(new InputSource(new StringReader(profileString)));
+				reader.setContentHandler(new ProfileDocHandler(PROFILE_TEST_ELEMENT, testHandler));
+				reader.parse(new InputSource(new StringReader(profileString)));
 				if (isValidXML()) {
 					profiles = testHandler.profiles;
 				}

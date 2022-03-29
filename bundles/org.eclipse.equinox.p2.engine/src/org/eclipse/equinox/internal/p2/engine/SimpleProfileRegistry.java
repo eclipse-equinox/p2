@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - ongoing development
  *     Red Hat, Inc. - fragments support added, Bug 460967
+ *     Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -39,8 +40,7 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
@@ -217,7 +217,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				return null;
 		}
 
-		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
+		Parser parser = new Parser(EngineActivator.ID);
 		try {
 			parser.parse(profileFile);
 		} catch (IOException e) {
@@ -525,7 +525,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (store == null || !store.isDirectory())
 			throw new IllegalStateException(NLS.bind(Messages.reg_dir_not_available, store));
 
-		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
+		Parser parser = new Parser(EngineActivator.ID);
 		File[] profileDirectories = store.listFiles((FileFilter) pathname -> pathname.getName().endsWith(PROFILE_EXT) && pathname.isDirectory());
 		// protect against NPE
 		if (profileDirectories == null) {
@@ -724,8 +724,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			return Collections.unmodifiableMap(profileHandlers);
 		}
 
-		public Parser(BundleContext context, String bundleId) {
-			super(context, bundleId);
+		public Parser(String bundleId) {
+			super(bundleId);
 		}
 
 		public void addProfilePlaceHolder(String profileId) {
@@ -747,10 +747,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			try {
 				// TODO: currently not caching the parser since we make no assumptions
 				//		 or restrictions on concurrent parsing
-				getParser();
+				XMLReader reader = getParser().getXMLReader();
 				ProfileHandler profileHandler = new ProfileHandler();
-				xmlReader.setContentHandler(new ProfileDocHandler(PROFILE_ELEMENT, profileHandler));
-				xmlReader.parse(new InputSource(stream));
+				reader.setContentHandler(new ProfileDocHandler(PROFILE_ELEMENT, profileHandler));
+				reader.parse(new InputSource(stream));
 				profileHandlers.put(profileHandler.getProfileId(), profileHandler);
 			} catch (SAXException e) {
 				IOException ioException = new IOException(e.getMessage());

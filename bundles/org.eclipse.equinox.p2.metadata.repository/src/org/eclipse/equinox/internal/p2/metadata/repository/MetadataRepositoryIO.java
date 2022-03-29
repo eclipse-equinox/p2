@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Prashant Deva - Bug 194674 [prov] Provide write access to metadata repository
+ *     Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
@@ -36,8 +37,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.xml.sax.*;
 
 /**
@@ -62,8 +61,7 @@ public class MetadataRepositoryIO {
 			try {
 				bufferedInput = new BufferedInputStream(input);
 
-				Parser repositoryParser = new Parser(
-						FrameworkUtil.getBundle(MetadataRepositoryIO.class).getBundleContext(), Constants.ID);
+				Parser repositoryParser = new Parser(Constants.ID);
 				repositoryParser.setErrorContext(location.toExternalForm());
 				repositoryParser.parse(input, monitor);
 				IStatus result = repositoryParser.getStatus();
@@ -191,8 +189,8 @@ public class MetadataRepositoryIO {
 
 		private IMetadataRepository theRepository = null;
 
-		public Parser(BundleContext context, String bundleId) {
-			super(context, bundleId);
+		public Parser(String bundleId) {
+			super(bundleId);
 		}
 
 		public synchronized void parse(InputStream stream, IProgressMonitor monitor) throws IOException {
@@ -202,10 +200,10 @@ public class MetadataRepositoryIO {
 			try {
 				// TODO: currently not caching the parser since we make no assumptions
 				//		 or restrictions on concurrent parsing
-				getParser();
+				XMLReader reader = getParser().getXMLReader();
 				RepositoryHandler repositoryHandler = new RepositoryHandler();
-				xmlReader.setContentHandler(new RepositoryDocHandler(REPOSITORY_ELEMENT, repositoryHandler));
-				xmlReader.parse(new InputSource(stream));
+				reader.setContentHandler(new RepositoryDocHandler(REPOSITORY_ELEMENT, repositoryHandler));
+				reader.parse(new InputSource(stream));
 				if (isValidXML()) {
 					theRepository = repositoryHandler.getRepository();
 				}
