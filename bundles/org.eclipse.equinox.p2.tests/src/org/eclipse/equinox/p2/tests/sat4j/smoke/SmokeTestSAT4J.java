@@ -13,13 +13,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.sat4j.smoke;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.reader.OPBEclipseReader2007;
 import org.sat4j.reader.ParseFormatException;
-import org.sat4j.specs.*;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IProblem;
+import org.sat4j.specs.TimeoutException;
 
 public class SmokeTestSAT4J extends AbstractProvisioningTest {
 
@@ -51,29 +55,5 @@ public class SmokeTestSAT4J extends AbstractProvisioningTest {
 			fail("Timeout exception", e);
 		}
 		assertNotNull(raised);
-	}
-
-	public void testBug247567() {
-		File data = getTestData("Opb file 247567", "testData/sat4j/Bug247567.opb");
-		Exception raised = null;
-		try {
-			IProblem pb = invokeSolver(data);
-			assertNotNull(pb);
-			for (int i = 1; i <= 6; i++) {
-				pb.model(i);
-			}
-		} catch (ArrayIndexOutOfBoundsException e) {
-			raised = e;
-		} catch (FileNotFoundException e) {
-			//Ignore
-		} catch (ParseFormatException e) {
-			raised = e;
-		} catch (ContradictionException e) {
-			fail("Contradiction exception", e);
-		} catch (TimeoutException e) {
-			fail("Timeout exception", e);
-		}
-		assertNull(raised);
-
 	}
 }
