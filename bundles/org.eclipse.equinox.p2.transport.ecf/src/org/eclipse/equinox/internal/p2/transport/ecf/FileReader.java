@@ -147,7 +147,6 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 * job to monitor for cancelation.
 	 */
 	protected class CancelHandler extends Job {
-		private boolean done = false;
 
 		protected CancelHandler() {
 			super(Messages.FileTransport_cancelCheck);
@@ -156,7 +155,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 		@Override
 		public IStatus run(IProgressMonitor jobMonitor) {
-			while (!done && !jobMonitor.isCanceled()) {
+			while (FileReader.this.cancelJob == this && !jobMonitor.isCanceled()) {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
