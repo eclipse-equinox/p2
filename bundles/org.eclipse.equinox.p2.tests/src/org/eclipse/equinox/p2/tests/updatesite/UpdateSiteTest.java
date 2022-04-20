@@ -15,9 +15,6 @@ package org.eclipse.equinox.p2.tests.updatesite;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -784,37 +781,6 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertTrue("1.1", afterKnownRepos.length == knownRepos.length + 1);
 	}
 
-	public void testPack200() {
-		File output = new File(getTempFolder(), getUniqueString());
-		File site = getTestData("0.1", "/testData/updatesite/packedSiteWithMirror");
-		URI siteURI = site.toURI();
-
-		IArtifactRepository repo = null;
-		try {
-			repo = getArtifactRepositoryManager().loadRepository(siteURI, new NullProgressMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "test.feature", Version.create("1.0.0"));
-		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
-
-		// Should have a packed & canonical version
-		assertEquals(2, descriptors.length);
-		@SuppressWarnings("removal")
-		IArtifactDescriptor desc = IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT)) ? descriptors[0] : descriptors[1];
-		try (OutputStream out = new FileOutputStream(output)) {
-
-			IStatus status = repo.getRawArtifact(desc, out, new NullProgressMonitor());
-			// Transfer should succeed
-			assertTrue(status.isOK());
-			// Length should be as expected
-			assertEquals(480, output.length());
-		} catch (IOException e) {
-			fail("Failed", e);
-		} finally {
-			getArtifactRepositoryManager().removeRepository(siteURI);
-		}
-	}
 
 	@SuppressWarnings("removal")
 	public void testMirrors() {
@@ -839,7 +805,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			IArtifactDescriptor[] descriptors = sourceRepo.getArtifactDescriptors(key);
 			IArtifactDescriptor descriptor = null;
 			for (int i = 0; i < descriptors.length && descriptor == null; i++)
-				if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[i].getProperty(IArtifactDescriptor.FORMAT)))
+				if (!IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[i].getProperty(IArtifactDescriptor.FORMAT)))
 					descriptor = descriptors[i];
 
 			if (descriptor == null)

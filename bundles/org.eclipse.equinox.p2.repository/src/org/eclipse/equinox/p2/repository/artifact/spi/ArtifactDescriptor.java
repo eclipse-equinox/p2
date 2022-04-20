@@ -35,8 +35,8 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 
 	protected IArtifactKey key; // The key associated with this artifact
 
-	// The list of post processing steps that must be applied one the artifact once it 
-	// has been downloaded (e.g, unpack, then md5 checksum, then...)
+	// The list of post processing steps that must be applied one the artifact once it
+	// has been downloaded (e.g, md5 checksum, then...)
 	protected IProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
 
 	protected Map<String, String> properties = new OrderedProperties();
@@ -46,7 +46,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 	/**
 	 * Creates a new artifact descriptor with the same key, properties, repository,
 	 * and processing steps as the provided base descriptor.
-	 * 
+	 *
 	 * @param base the descriptor to use as a template for this new descriptor
 	 */
 	public ArtifactDescriptor(IArtifactDescriptor base) {
@@ -59,7 +59,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 
 	/**
 	 * Returns a new artifact descriptor that uses the provided artifact key
-	 * 
+	 *
 	 * @param key The artifact key corresponding to this descriptor
 	 */
 	public ArtifactDescriptor(IArtifactKey key) {

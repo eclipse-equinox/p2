@@ -36,7 +36,6 @@ import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
@@ -224,10 +223,6 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			// TODO - this is wrong but I'm testing a work-around for bug 205842
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 		}
-		IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {
-				new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
-		result.setProcessingSteps(steps);
-		result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 		return result;
 	}
 

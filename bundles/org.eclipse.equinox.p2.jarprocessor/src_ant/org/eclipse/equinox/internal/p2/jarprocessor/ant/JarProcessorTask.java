@@ -67,14 +67,14 @@ public class JarProcessorTask extends Task {
 
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void setPack(boolean pack) {
-		log("Support for pack200 is scheduled for removal after June 2023.", Project.MSG_WARN); //$NON-NLS-1$
-		options.pack = pack;
+		log("Support for pack200 is scheduled for removal after June 2023 and is NO-OP since June 2022.", //$NON-NLS-1$
+				Project.MSG_WARN);
 	}
 
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void setNormalize(boolean normalize) {
-		log("Support for pack200 is scheduled for removal after June 2023.", Project.MSG_WARN); //$NON-NLS-1$
-		options.repack = normalize;
+		log("Support for pack200 is scheduled for removal after June 2023 and is NO-OP since June 2022.", //$NON-NLS-1$
+				Project.MSG_WARN);
 	}
 
 	public void setUnsign(boolean unsign) {
@@ -91,12 +91,7 @@ public class JarProcessorTask extends Task {
 		}
 	}
 
-	@SuppressWarnings("removal")
 	private void adjustAndValidateConfiguration() {
-		// Sign and pack implies a normalization
-		if (options.signCommand != null && options.pack)
-			options.repack = true;
-
 		// Check that alias, and storepass are set
 		if (options.signCommand != null && signArgs.getProperty(UNSIGN) == null) {
 			if (signArgs.getProperty(ALIAS) == null)

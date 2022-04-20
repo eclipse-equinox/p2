@@ -24,9 +24,10 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 
 /**
- * ProcessingSteps process the data written to them and pass the resultant data on
- * to a configured destination stream.  Steps may monitor (e.g., count) the data, compute information 
- * about the data (e.g., checksum or hash) or transform the data (e.g., unpack200).
+ * ProcessingSteps process the data written to them and pass the resultant data
+ * on to a configured destination stream. Steps may monitor (e.g., count) the
+ * data, compute information about the data (e.g., checksum or hash) or
+ * transform the data.
  */
 public abstract class ProcessingStep extends OutputStream implements IStateful {
 
@@ -39,8 +40,8 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	}
 
 	/**
-	 * Initialize this processing step according to the information in the given 
-	 * descriptor and context.  After initialization, this step is ready for linking 
+	 * Initialize this processing step according to the information in the given
+	 * descriptor and context.  After initialization, this step is ready for linking
 	 * with other steps or output streams
 	 * @param descriptor description of the step
 	 * @param context the context in which the step is being used
@@ -69,7 +70,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 		// nothing to do here!
 	}
 
-	/** 
+	/**
 	 * Flush any unwritten data from this stream.
 	 */
 	@Override
@@ -80,9 +81,9 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	}
 
 	/**
-	 * Close this stream and, if the configured destination is a ProcessingStep, 
-	 * close it as well.  Typically a chain of steps terminates in a conventional 
-	 * output stream.  Implementors of this method should ensure they set the 
+	 * Close this stream and, if the configured destination is a ProcessingStep,
+	 * close it as well.  Typically a chain of steps terminates in a conventional
+	 * output stream.  Implementors of this method should ensure they set the
 	 * status of the step.
 	 */
 	@Override
@@ -108,7 +109,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	}
 
 	/**
-	 * Get the progress monitor. 
+	 * Get the progress monitor.
 	 * @return the progress monitor; may be null
 	 */
 	protected IProgressMonitor getProgressMonitor() {
@@ -117,7 +118,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 
 	/**
 	 * Get the stream to write the processed data into.
-	 * 
+	 *
 	 * @return output stream for processed data
 	 */
 	protected OutputStream getDestination() {
@@ -129,7 +130,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 * step has not yet executed. If the step has executed the returned status
 	 * indicates the success or failure of the step.
 	 * @param deep whether or not to aggregate the status of any linked steps
-	 * @return the requested status 
+	 * @return the requested status
 	 */
 	public IStatus getStatus(boolean deep) {
 		return ProcessingStepHandler.getStatus(this, deep);

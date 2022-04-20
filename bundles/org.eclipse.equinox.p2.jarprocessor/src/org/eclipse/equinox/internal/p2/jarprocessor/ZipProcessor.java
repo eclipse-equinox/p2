@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2006, 2017 IBM Corporation and others.
+ *  Copyright (c) 2006, 2022 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -26,7 +26,6 @@ public class ZipProcessor {
 
 	private String workingDirectory = null;
 	private Properties properties = null;
-	private Set<String> packExclusions = null;
 	private Set<String> signExclusions = null;
 
 	public void setExecutor(JarProcessorExecutor executor) {
@@ -47,27 +46,18 @@ public class ZipProcessor {
 		return workingDirectory;
 	}
 
-	@SuppressWarnings("removal")
-	private boolean repacking() {
-		return options.repack || (options.pack && options.signCommand != null);
-	}
-
-	@SuppressWarnings("removal")
 	public void processZip(File zipFile) throws ZipException, IOException {
 		if (options.verbose)
 			System.out.println("Processing " + zipFile.getPath()); //$NON-NLS-1$
 		try (ZipFile zip = new ZipFile(zipFile)) {
 			initialize(zip);
 
-			String extension = options.unpack ? "pack.gz" : ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
+			String extension = ".jar"; //$NON-NLS-1$
 			File tempDir = new File(getWorkingDirectory(), "temp_" + zipFile.getName()); //$NON-NLS-1$
 			JarProcessor processor = new JarProcessor();
 			processor.setVerbose(options.verbose);
 			processor.setProcessAll(options.processAll);
 			processor.setWorkingDirectory(tempDir.getCanonicalPath());
-			if (options.unpack) {
-				executor.addPackUnpackStep(processor, properties, options);
-			}
 
 			File outputFile = new File(getWorkingDirectory(), zipFile.getName() + ".temp"); //$NON-NLS-1$
 			File parent = outputFile.getParentFile();
@@ -83,13 +73,11 @@ public class ZipProcessor {
 
 						InputStream entryStream = zip.getInputStream(entry);
 
-						boolean pack = options.pack && !packExclusions.contains(name);
 						boolean sign = options.signCommand != null && !signExclusions.contains(name);
-						boolean repack = repacking() && !packExclusions.contains(name);
 
 						File extractedFile = null;
 
-						if (entry.getName().endsWith(extension) && (pack || sign || repack || options.unpack)) {
+						if (entry.getName().endsWith(extension) && (sign)) {
 							extractedFile = createSubPathFile(tempDir, name);
 							parent = extractedFile.getParentFile();
 							if (!parent.exists())
@@ -107,54 +95,11 @@ public class ZipProcessor {
 								if (options.verbose)
 									System.out.println(entry.getName() + " is not marked, skipping."); //$NON-NLS-1$
 							} else {
-								if (options.unpack) {
-									File result = processor.processJar(extractedFile);
-									name = name.substring(0, name.length() - extractedFile.getName().length())
-											+ result.getName();
-									extractedFile = result;
-								} else {
-									if (repack || sign) {
-										processor.clearProcessSteps();
-										if (repack)
-											executor.addPackUnpackStep(processor, properties, options);
-										if (sign)
-											executor.addSignStep(processor, properties, options);
-										extractedFile = processor.processJar(extractedFile);
-									}
-									if (pack) {
-										processor.clearProcessSteps();
-										executor.addPackStep(processor, properties, options);
-										File modifiedFile = processor.processJar(extractedFile);
-										if (modifiedFile.exists()) {
-											try {
-												String newName = name.substring(0,
-														name.length() - extractedFile.getName().length())
-														+ modifiedFile.getName();
-												if (options.verbose) {
-													System.out.println(
-															"Adding " + newName + " to " + outputFile.getPath()); //$NON-NLS-1$ //$NON-NLS-2$
-													System.out.println();
-												}
-												ZipEntry zipEntry = new ZipEntry(newName);
-												entryStream = new FileInputStream(modifiedFile);
-												zipOut.putNextEntry(zipEntry);
-												Utils.transferStreams(entryStream, zipOut, false); // we want to keep
-																									// zipOut open
-												entryStream.close();
-												Utils.clear(modifiedFile);
-											} catch (IOException e) {
-												Utils.close(entryStream);
-												if (options.verbose) {
-													e.printStackTrace();
-													System.out.println(
-															"Warning: Problem reading " + modifiedFile.getPath() + "."); //$NON-NLS-1$//$NON-NLS-2$
-												}
-											}
-											entryStream = null;
-										} else if (options.verbose) {
-											System.out.println("Warning: " + modifiedFile.getPath() + " not found."); //$NON-NLS-1$//$NON-NLS-2$
-										}
-									}
+								if (sign) {
+									processor.clearProcessSteps();
+									if (sign)
+										executor.addSignStep(processor, properties, options);
+									extractedFile = processor.processJar(extractedFile);
 								}
 								if (extractedFile.exists()) {
 									try {
@@ -217,7 +162,6 @@ public class ZipProcessor {
 		return result;
 	}
 
-	@SuppressWarnings("removal")
 	private void initialize(ZipFile zip) {
 		ZipEntry entry = zip.getEntry("pack.properties"); //$NON-NLS-1$
 		properties = new Properties();
@@ -234,7 +178,6 @@ public class ZipProcessor {
 			}
 		}
 
-		packExclusions = Utils.getPackExclusions(properties);
 		signExclusions = Utils.getSignExclusions(properties);
 
 		if (executor == null)
