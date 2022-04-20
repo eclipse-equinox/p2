@@ -459,6 +459,7 @@ public class SimplePlanner implements IPlanner {
 			case CANCEL: {
 				IProvisioningPlan plan = engine.createPlan(profile, context);
 				plan.setStatus(s);
+				projector.close();
 				return plan;
 			}
 
@@ -469,6 +470,7 @@ public class SimplePlanner implements IPlanner {
 						|| Boolean.parseBoolean(context.getProperty(EXPLANATION))))) {
 					IProvisioningPlan plan = engine.createPlan(profile, context);
 					plan.setStatus(s);
+					projector.close();
 					return plan;
 				}
 
@@ -484,6 +486,7 @@ public class SimplePlanner implements IPlanner {
 
 				IProvisioningPlan plan = engine.createPlan(profile, context);
 				plan.setStatus(plannerStatus);
+				projector.close();
 				return plan;
 			}
 
@@ -520,13 +523,15 @@ public class SimplePlanner implements IPlanner {
 				return (IProvisioningPlan) resolutionResult;
 			}
 
-			Collection<IInstallableUnit> newState = ((Projector) resolutionResult).extractSolution();
+			Projector projector = (Projector) resolutionResult;
+			Collection<IInstallableUnit> newState = projector.extractSolution();
 			Collection<IInstallableUnit> fullState = new ArrayList<>();
 			fullState.addAll(newState);
 			newState = AttachmentHelper.attachFragments(newState.iterator(),
-					((Projector) resolutionResult).getFragmentAssociation());
+					projector.getFragmentAssociation());
 
-			IProvisioningPlan temporaryPlan = generatePlan((Projector) resolutionResult, newState, pcr, context);
+			IProvisioningPlan temporaryPlan = generatePlan(projector, newState, pcr, context);
+			projector.close();
 
 			// Create a plan for installing necessary pieces to complete the installation
 			// (e.g touchpoint actions)

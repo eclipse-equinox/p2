@@ -1083,4 +1083,11 @@ public class Projector {
 	public void setUserDefined(boolean containsKey) {
 		userDefinedFunction = containsKey;
 	}
+
+	public void close() {
+		if (dependencyHelper != null) {
+			dependencyHelper.reset();
+			dependencyHelper = null;
+		}
+	}
 }
