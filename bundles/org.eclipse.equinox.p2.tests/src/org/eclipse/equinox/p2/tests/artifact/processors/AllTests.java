@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 compeople AG and others.
+ * Copyright (c) 2007, 2022 compeople AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,9 +19,8 @@ import org.junit.runners.Suite;
 /**
  * Performs all automated director tests.
  */
-@SuppressWarnings("removal")
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ Pack200ProcessorTest.class, ZipVerifierProcessorTest.class, ChecksumVerifierTest.class,
+@Suite.SuiteClasses({ ZipVerifierProcessorTest.class, ChecksumVerifierTest.class,
 		ChecksumUtilitiesTest.class, PGPSignatureVerifierTest.class })
 public class AllTests {
 // test suite

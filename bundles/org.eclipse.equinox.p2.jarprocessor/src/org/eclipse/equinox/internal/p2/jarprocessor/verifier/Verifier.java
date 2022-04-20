@@ -82,8 +82,8 @@ public class Verifier extends JarProcessorExecutor {
 	public void verify(final File workingDirectory, String[] input) {
 		options = new Options();
 		options.verbose = false;
-		options.repack = true; // We first unpack first during repack/sign phase
-		options.pack = true; // then we are verifying during the pack phase.
+		options.repack = false; // We first unpack first during repack/sign phase
+		options.pack = false; // then we are verifying during the pack phase.
 		options.outputDir = workingDirectory.toString();
 
 		Properties properties = new Properties();

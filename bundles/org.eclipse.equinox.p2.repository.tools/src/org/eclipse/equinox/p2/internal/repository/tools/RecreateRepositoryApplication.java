@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corporation and others.
+ * Copyright (c) 2009, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -30,7 +30,6 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class RecreateRepositoryApplication extends AbstractApplication {
@@ -113,8 +112,6 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		for (IArtifactKey key : repoMap.keySet()) {
 			IArtifactDescriptor[] descriptors = repoMap.get(key);
 
-			String unpackedSize = null;
-			File packFile = null;
 			Set<File> files = new HashSet<>();
 			for (IArtifactDescriptor descriptor : descriptors) {
 				File artifactFile = simple.getArtifactFile(descriptor);
@@ -137,34 +134,8 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 						.checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums);
 				newDescriptor.addProperties(checksumsToProperties);
 
-				File temp = new File(artifactFile.getParentFile(), artifactFile.getName() + ".pack.gz"); //$NON-NLS-1$
-				if (temp.exists()) {
-					packFile = temp;
-					unpackedSize = size;
-				}
-
 				repository.addDescriptor(newDescriptor, null);
 			}
-			if (packFile != null && !files.contains(packFile) && packFile.length() > 0) {
-				ArtifactDescriptor packDescriptor = createPack200ArtifactDescriptor(key, packFile, unpackedSize);
-				repository.addDescriptor(packDescriptor, null);
-			}
 		}
-	}
-
-	@Deprecated(forRemoval = true, since = "2.3.0")
-	private ArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File packFile, String installSize) {
-
-		if (packFile != null && packFile.exists()) {
-			ArtifactDescriptor result = new ArtifactDescriptor(key);
-			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
-			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(packFile.length()));
-			IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {
-					new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) }; //$NON-NLS-1$
-			result.setProcessingSteps(steps);
-			result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
-			return result;
-		}
-		return null;
 	}
 }

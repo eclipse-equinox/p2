@@ -933,19 +933,6 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		super.publishArtifact(descriptor, jarFile, publisherInfo);
 
-		// if we are assimilating pack200 files then add the packed descriptor
-		// into the repo assuming it does not already exist.
-		boolean reuse = "true" //$NON-NLS-1$
-				.equals(destination.getProperties().get(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS));
-		if (reuse && (publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
-			File packFile = new Path(jarFile.getAbsolutePath()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
-			if (packFile.exists()) {
-				@SuppressWarnings("removal")
-				IArtifactDescriptor ad200 = createPack200ArtifactDescriptor(descriptor.getArtifactKey(), packFile,
-						descriptor.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-				publishArtifact(ad200, packFile, publisherInfo);
-			}
-		}
 	}
 
 	private File[] expandLocations(File[] list) {

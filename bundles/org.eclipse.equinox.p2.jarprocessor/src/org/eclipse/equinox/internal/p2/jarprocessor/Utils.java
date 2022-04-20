@@ -149,38 +149,21 @@ public class Utils {
 	}
 
 	/**
-	 * get the set of commands to try to execute pack/unpack
+	 * Get the set of commands to try to execute pack/unpack
 	 * 
 	 * @param cmd the command, either "pack200" or "unpack200"
-	 * @return String [] or null
+	 * @return <code>null</code> as pack200 is not supported on Java >= 14
 	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @deprecated See <a href=
 	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
+	 *             and <a href=
+	 *             "https://github.com/eclipse-equinox/p2/issues/40">issue</a> for
+	 *             details.
 	 */
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static String[] getPack200Commands(String cmd) {
-		String[] locations = null;
-		String prop = System.getProperty(PACK200_PROPERTY);
-		String javaHome = System.getProperty("java.home"); //$NON-NLS-1$
-		if (null == prop) {
-			locations = new String[] { javaHome + "/bin/" + cmd, cmd }; //$NON-NLS-1$
-		} else
-			switch (prop) {
-			case NONE:
-				return null;
-			case JRE:
-				locations = new String[] { javaHome + "/bin/" + cmd }; //$NON-NLS-1$
-				break;
-			case PATH:
-				locations = new String[] { cmd };
-				break;
-			default:
-				locations = new String[] { prop + "/" + cmd }; //$NON-NLS-1$
-				break;
-			}
-		return locations;
+		return null;
 	}
 
 	/**
@@ -259,18 +242,6 @@ public class Utils {
 	 */
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static Set<String> getPackExclusions(Properties properties) {
-		if (properties == null)
-			return Collections.emptySet();
-
-		String packExcludes = properties.getProperty(PACK_EXCLUDES);
-		if (packExcludes != null) {
-			String[] excludes = toStringArray(packExcludes, ","); //$NON-NLS-1$
-			Set<String> packExclusions = new HashSet<>();
-			for (String exclude : excludes) {
-				packExclusions.add(exclude);
-			}
-			return packExclusions;
-		}
 		return Collections.emptySet();
 	}
 
@@ -290,8 +261,7 @@ public class Utils {
 	}
 
 	public static String concat(String[] array) {
-		String buffer = String.join(String.valueOf(' '), array);
-		return buffer;
+		return String.join(String.valueOf(' '), array);
 	}
 
 	public static String[] toStringArray(String input, String separator) {

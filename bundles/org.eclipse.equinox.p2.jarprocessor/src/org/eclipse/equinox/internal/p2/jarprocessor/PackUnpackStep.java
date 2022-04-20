@@ -14,67 +14,37 @@
 package org.eclipse.equinox.internal.p2.jarprocessor;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @noreference This class is not intended to be referenced by clients.
  * @noextend This class is not intended to be subclassed by clients.
  * @noinstantiate This class is not intended to be instantiated by clients.
- * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+ * @deprecated See <a href=
+ *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+ *             and <a href=
+ *             "https://github.com/eclipse-equinox/p2/issues/40">issue</a> for
+ *             details.
  */
 @Deprecated(forRemoval = true, since = "1.2.0")
 public class PackUnpackStep extends PackStep {
-	private Set<String> exclusions = null;
 
 	public PackUnpackStep(Properties options) {
 		super(options);
-		exclusions = Utils.getPackExclusions(options);
 	}
 
 	public PackUnpackStep(Properties options, boolean verbose) {
 		super(options, verbose);
-		exclusions = Utils.getPackExclusions(options);
 	}
 
 	@Override
 	public String recursionEffect(String entryName) {
-		if (canPack() && entryName.endsWith(".jar") && !exclusions.contains(entryName)) { //$NON-NLS-1$
-			return entryName;
-		}
 		return null;
 	}
 
 	@Override
 	public File postProcess(File input, File workingDirectory, List<Properties> containers) {
-		if (canPack() && packCommand != null && input != null) {
-			Properties inf = Utils.getEclipseInf(input, verbose);
-			if (!shouldPack(input, containers, inf))
-				return null;
-			File tempFile = new File(workingDirectory, "temp_" + input.getName()); //$NON-NLS-1$
-			try {
-				String[] tmp = getCommand(input, tempFile, inf, containers);
-				String[] cmd = new String[tmp.length + 1];
-				cmd[0] = tmp[0];
-				cmd[1] = "-r"; //$NON-NLS-1$
-				System.arraycopy(tmp, 1, cmd, 2, tmp.length - 1);
-
-				int result = execute(cmd, verbose);
-				if (result == 0 && tempFile.exists()) {
-					File finalFile = new File(workingDirectory, input.getName());
-					if (finalFile.exists())
-						finalFile.delete();
-					tempFile.renameTo(finalFile);
-					return finalFile;
-				} else if (verbose) {
-					System.out.println("Error: " + result + " was returned from command: " + Utils.concat(cmd)); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			} catch (IOException e) {
-				if (verbose)
-					e.printStackTrace();
-				return null;
-			}
-		}
 		return null;
 	}
 
@@ -85,6 +55,6 @@ public class PackUnpackStep extends PackStep {
 
 	@Override
 	public String getStepName() {
-		return "Repack"; //$NON-NLS-1$
+		return "Repack (NO-OP see https://github.com/eclipse-equinox/p2/issues/40)"; //$NON-NLS-1$
 	}
 }

@@ -42,7 +42,6 @@ public class SiteModel {
 	private String locationURIString;
 	private String mirrorsURIString;
 	private String statsURIString;
-	private boolean supportsPack200;
 	private String type;
 	private URLEntry[] associateSites;
 	private String digestURIString;
@@ -346,11 +345,13 @@ public class SiteModel {
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
 	 */
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public boolean isPack200Supported() {
-		return supportsPack200;
+		return false;
 	}
 
 	/**
@@ -412,9 +413,16 @@ public class SiteModel {
 		this.mirrorsURIString = mirrorsURI;
 	}
 
+	/**
+	 * NO-OP as pack200 is not supported in Java 14+.
+	 * 
+	 * @see <a href=
+	 *      "https://github.com/eclipse-equinox/p2/issues/40">https://github.com/eclipse-equinox/p2/issues/40</a>
+	 * @param value
+	 */
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void setSupportsPack200(boolean value) {
-		this.supportsPack200 = value;
+		// NO-OP
 	}
 
 	/**

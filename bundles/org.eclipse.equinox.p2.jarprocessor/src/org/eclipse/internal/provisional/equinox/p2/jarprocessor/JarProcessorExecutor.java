@@ -17,7 +17,6 @@ package org.eclipse.internal.provisional.equinox.p2.jarprocessor;
 import java.io.*;
 import java.util.Properties;
 import java.util.Set;
-import java.util.zip.ZipException;
 import org.eclipse.equinox.internal.p2.jarprocessor.*;
 
 public class JarProcessorExecutor {
@@ -36,10 +35,8 @@ public class JarProcessorExecutor {
 	}
 
 	protected Options options = null;
-	private Set<String> packExclusions = null;
 	private Set<String> signExclusions = null;
 
-	@SuppressWarnings("removal")
 	public void runJarProcessor(Options processOptions) {
 		this.options = processOptions;
 		if (options.input.isFile() && options.input.getName().endsWith(".zip")) { //$NON-NLS-1$
@@ -49,9 +46,6 @@ public class JarProcessorExecutor {
 			processor.setExecutor(this);
 			try {
 				processor.processZip(options.input);
-			} catch (ZipException e) {
-				if (options.verbose)
-					e.printStackTrace();
 			} catch (IOException e) {
 				if (options.verbose)
 					e.printStackTrace();
@@ -66,21 +60,6 @@ public class JarProcessorExecutor {
 			// load options file
 			Properties properties = new Properties();
 			if (options.input.isDirectory()) {
-				File packProperties = new File(options.input, "pack.properties"); //$NON-NLS-1$
-				if (packProperties.exists() && packProperties.isFile()) {
-					InputStream in = null;
-					try {
-						in = new BufferedInputStream(new FileInputStream(packProperties));
-						properties.load(in);
-					} catch (IOException e) {
-						if (options.verbose)
-							e.printStackTrace();
-					} finally {
-						Utils.close(in);
-					}
-				}
-
-				packExclusions = Utils.getPackExclusions(properties);
 				signExclusions = Utils.getSignExclusions(properties);
 			}
 
@@ -94,9 +73,8 @@ public class JarProcessorExecutor {
 		}
 	}
 
-	@SuppressWarnings("removal")
 	protected FileFilter createFileFilter(Options processOptions) {
-		return processOptions.unpack ? Utils.PACK_GZ_FILTER : Utils.JAR_FILTER;
+		return Utils.JAR_FILTER;
 	}
 
 	protected String getRelativeName(File file) {
@@ -127,24 +105,10 @@ public class JarProcessorExecutor {
 		}
 	}
 
-	private boolean shouldPack(String name) {
-		if (!options.pack)
-			return false;
-		return packExclusions == null ? true : !packExclusions.contains(name);
-	}
-
 	private boolean shouldSign(String name) {
 		if (options.signCommand == null)
 			return false;
 		return signExclusions == null ? true : !signExclusions.contains(name);
-	}
-
-	private boolean shouldRepack(String name) {
-		if (shouldSign(name) && shouldPack(name))
-			return true;
-		if (!options.repack)
-			return false;
-		return packExclusions == null ? true : !packExclusions.contains(name);
 	}
 
 	protected void process(File input, FileFilter filter, boolean verbose, JarProcessor processor,
@@ -165,29 +129,16 @@ public class JarProcessorExecutor {
 			} else if (filter.accept(files[i])) {
 				try {
 					processor.clearProcessSteps();
-					if (options.unpack) {
-						addUnpackStep(processor, packProperties, options);
-						processor.processJar(files[i]);
-					} else {
-						String name = getRelativeName(files[i]);
-						boolean sign = shouldSign(name);
-						boolean repack = shouldRepack(name);
+					String name = getRelativeName(files[i]);
+					boolean sign = shouldSign(name);
 
-						if (repack || sign) {
-							processor.clearProcessSteps();
-							if (repack)
-								addPackUnpackStep(processor, packProperties, options);
-							if (sign)
-								addSignStep(processor, packProperties, options);
-							files[i] = processor.processJar(files[i]);
-						}
-
-						if (shouldPack(name)) {
-							processor.clearProcessSteps();
-							addPackStep(processor, packProperties, options);
-							processor.processJar(files[i]);
-						}
+					if (sign) {
+						processor.clearProcessSteps();
+						if (sign)
+							addSignStep(processor, packProperties, options);
+						files[i] = processor.processJar(files[i]);
 					}
+
 				} catch (IOException e) {
 					if (verbose)
 						e.printStackTrace();
@@ -209,7 +160,7 @@ public class JarProcessorExecutor {
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void addPackUnpackStep(JarProcessor processor, Properties properties,
 			JarProcessorExecutor.Options processOptions) {
-		processor.addProcessStep(new PackUnpackStep(properties, processOptions.verbose));
+		// NO-OP see https://github.com/eclipse-equinox/p2/issues/40
 	}
 
 	public void addSignStep(JarProcessor processor, Properties properties,
@@ -220,12 +171,12 @@ public class JarProcessorExecutor {
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void addPackStep(JarProcessor processor, Properties properties,
 			JarProcessorExecutor.Options processOptions) {
-		processor.addProcessStep(new PackStep(properties, processOptions.verbose));
+		// NO-OP see https://github.com/eclipse-equinox/p2/issues/40
 	}
 
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public void addUnpackStep(JarProcessor processor, Properties properties,
 			JarProcessorExecutor.Options processOptions) {
-		processor.addProcessStep(new UnpackStep(properties, processOptions.verbose));
+		// NO-OP see https://github.com/eclipse-equinox/p2/issues/40
 	}
 }

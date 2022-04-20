@@ -51,7 +51,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -251,33 +250,6 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 				}
 		}
 
-	}
-
-	/*
-	 * Test that the appropriate location for a packed feature is returned.
-	 */
-	@Deprecated(forRemoval = true)
-	public void testProperPackedFeatureLocation() {
-		try {
-			repositoryFile = getTempFolder();
-			repositoryURI = repositoryFile.toURI();
-
-			// Create a descriptor for a packed repo
-			ArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("org.eclipse.update.feature", "test", Version.parseVersion("1.0.0")));
-			descriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
-			descriptor.setProcessingSteps(new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
-
-			// Create repository
-			Map<String, String> properties = new HashMap<>();
-			properties.put("publishPackFilesAsSiblings", Boolean.TRUE.toString());
-			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-
-			URI location = repo.getLocation(descriptor);
-			assertNotNull("Null location returned", location);
-			assertTrue("Unexpected location", location.toString().endsWith(".pack.gz"));
-		} catch (Exception e) {
-			fail("Test failed", e);
-		}
 	}
 
 	public void testRelativeRepositoryLocation() throws ProvisionException {

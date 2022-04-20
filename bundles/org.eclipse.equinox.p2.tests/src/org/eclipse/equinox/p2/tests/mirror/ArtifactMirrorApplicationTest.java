@@ -14,11 +14,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
-import static org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor.FORMAT_PACKED;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -36,7 +34,6 @@ import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.comparator.ArtifactChecksumComparator;
@@ -48,11 +45,9 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactDescriptorQuery;
-import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.StringBufferStream;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -877,68 +872,6 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			assertEqualArtifacts("26.5", (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null), (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		} catch (ProvisionException e) {
 			fail("26.6", e);
-		}
-	}
-
-	/**
-	 * Verifies that the mirror application executes processing steps correctly
-	 */
-	@SuppressWarnings("removal")
-	public void testArtifactProcessingSteps() {
-		if (System.getProperty("java.specification.version").compareTo("14") >= 0) {
-			// Test explicitly uses pack200 artifacts which are not supported on Java 14+
-			return;
-		}
-		//Setup: load the repository containing packed data
-		File packedRepoLocation = getTestData("27.0", "/testData/mirror/mirrorPackedRepo");
-		IArtifactRepository packedRepo = null;
-		IArtifactRepository destinationRepo = null;
-
-		try {
-			packedRepo = getArtifactRepositoryManager().loadRepository(packedRepoLocation.toURI(), null);
-			destinationRepo = getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), "Test Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		} catch (ProvisionException e1) {
-			fail("");
-		}
-
-		for (IArtifactKey key : packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null)) {
-			for (IArtifactDescriptor srcDescriptor : packedRepo.getArtifactDescriptors(key)) {
-				if (!(srcDescriptor.getProperty(IArtifactDescriptor.FORMAT) == null)
-						&& srcDescriptor.getProperty(IArtifactDescriptor.FORMAT).equals(FORMAT_PACKED)) {
-					//if we have a packed artifact
-					IArtifactDescriptor newDescriptor = new ArtifactDescriptor(key);
-					Map<String, String> properties = new OrderedProperties();
-					properties.putAll(srcDescriptor.getProperties());
-					properties.remove(IArtifactDescriptor.FORMAT);
-					((ArtifactDescriptor) newDescriptor).addProperties(properties);
-					//create appropriate descriptor
-					try (OutputStream repositoryStream = destinationRepo.getOutputStream(newDescriptor)) {
-						//System.out.println("Mirroring: " + srcDescriptors[j].getArtifactKey() + " (Descriptor: " + srcDescriptors[j] + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-						if (repositoryStream == null)
-							return;
-						// TODO Is that ok to ignore the result?
-						//TODO MAKE THIS WORK PROPERLY
-						packedRepo.getArtifact(srcDescriptor, repositoryStream, new NullProgressMonitor());
-					}catch (ProvisionException e) {
-						fail("27.1", e);
-					}catch (IOException e) {
-						fail("27.2", e);
-					}
-					//corresponding key should now be in the destination
-					IArtifactDescriptor[] destDescriptors = destinationRepo.getArtifactDescriptors(key);
-					boolean canonicalFound = false;
-					for (int l = 0; !canonicalFound && (l < destDescriptors.length); l++) {
-						//No processing steps mean item is canonical
-						if (destDescriptors[l].getProcessingSteps().length == 0)
-							canonicalFound = true;
-					}
-					if (!canonicalFound)
-						fail("27.3 no canonical found for " + key.toString());
-					//ensure the canonical matches that in the expected
-					assertEqualArtifacts("27.3", (SimpleArtifactRepository) destinationRepo, (SimpleArtifactRepository) packedRepo);
-				}
-			}
 		}
 	}
 

@@ -21,7 +21,9 @@ import org.eclipse.equinox.internal.p2.jarprocessor.*;
 public class JarProcessor {
 	/**
 	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
 	 */
 	@Deprecated(forRemoval = true, since = "1.2.0")
 	public static final String PACKED_SUFFIX = "pack.gz"; //$NON-NLS-1$
@@ -35,45 +37,53 @@ public class JarProcessor {
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             and <a href=
+	 *             "https://github.com/eclipse-equinox/p2/issues/40">issue</a> for
+	 *             details.
 	 */
 	@Deprecated(forRemoval = true, since = "1.2.0")
-	static public JarProcessor getUnpackProcessor(Properties properties) {
-		if (!canPerformUnpack())
-			throw new UnsupportedOperationException();
-		JarProcessor processor = new JarProcessor();
-		processor.addProcessStep(new UnpackStep(properties));
-		return processor;
+	public static JarProcessor getUnpackProcessor(Properties properties) {
+		throw new UnsupportedOperationException();
 	}
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             and <a
+	 *             href="https://github.com/eclipse-equinox/p2/issues/40>issue</a>
+	 *             for details.
 	 */
 	@Deprecated(forRemoval = true, since = "1.2.0")
-	static public JarProcessor getPackProcessor(Properties properties) {
-		if (!canPerformPack())
-			throw new UnsupportedOperationException();
-		JarProcessor processor = new JarProcessor();
-		processor.addProcessStep(new PackStep(properties));
-		return processor;
+	public static JarProcessor getPackProcessor(Properties properties) {
+		throw new UnsupportedOperationException();
 	}
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             and <a
+	 *             href="https://github.com/eclipse-equinox/p2/issues/40>issue</a>
+	 *             for details.
 	 */
 	@Deprecated(forRemoval = true, since = "1.2.0")
-	static public boolean canPerformPack() {
+	public static boolean canPerformPack() {
 		return PackStep.canPack();
 	}
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             and <a
+	 *             href="https://github.com/eclipse-equinox/p2/issues/40>issue</a>
+	 *             for details.
 	 */
 	@Deprecated(forRemoval = true, since = "1.2.0")
-	static public boolean canPerformUnpack() {
+	public static boolean canPerformUnpack() {
 		return UnpackStep.canUnpack();
 	}
 

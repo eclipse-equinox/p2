@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2021 compeople AG and others.
+* Copyright (c) 2007, 2022 compeople AG and others.
 *
 * This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
@@ -25,26 +25,20 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
-import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.tests.TestActivator;
 import org.junit.Test;
 
-@SuppressWarnings("removal")
 public class ProcessingStepHandlerTest {
 
 	//	private static final int BUFFER_SIZE = 8 * 1024;
@@ -196,23 +190,6 @@ public class ProcessingStepHandlerTest {
 	}
 
 	@Test
-	public void testExecuteOnePack200UnpackerPS() throws IOException {
-		//this test is only applicable if pack200 is available
-		if (!PackStep.canPack())
-			return;
-		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
-		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
-		ByteArrayOutputStream result = new ByteArrayOutputStream(100000);
-		OutputStream testStream = handler.link(steps, result, monitor);
-		IStatus status = ProcessingStepHandler.checkStatus(testStream);
-		assertTrue("Step is not ready.", status.isOK());
-		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/jarprocessor.jar.pack.gz").openStream();
-		FileUtils.copyStream(inputStream, true, testStream, true);
-		//the value 35062 obtained by manually unpacking the test artifact using unpack200.exe from sun 7u9 JRE
-		assertEquals(35062, result.size());
-	}
-
-	@Test
 	public void testCreateByteShifterPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)};
 		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
@@ -259,15 +236,6 @@ public class ProcessingStepHandlerTest {
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
 		assertEquals(Multiplier.class, steps[0].getClass());
-	}
-
-	@Test
-	public void testCreatePack200UnpackerPS() {
-		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
-		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
-		assertNotNull(steps);
-		assertEquals(1, steps.length);
-		assertEquals(Pack200ProcessorStep.class, steps[0].getClass());
 	}
 
 	@Test

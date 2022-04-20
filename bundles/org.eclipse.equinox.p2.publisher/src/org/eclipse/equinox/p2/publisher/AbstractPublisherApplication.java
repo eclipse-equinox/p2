@@ -45,13 +45,13 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	// directory
 	// instead of a 'plugins' directory, so a separate constant is defined and used
 	// here.
-	static final protected String[][] INPLACE_MAPPING_RULES = {
+	protected static final String[][] INPLACE_MAPPING_RULES = {
 			{ "(& (classifier=osgi.bundle) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz" }, //$NON-NLS-1$//$NON-NLS-2$
 			{ "(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar" }, //$NON-NLS-1$//$NON-NLS-2$
 			{ "(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}" }, //$NON-NLS-1$//$NON-NLS-2$
 			{ "(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar" } }; //$NON-NLS-1$//$NON-NLS-2$
 
-	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
+	public static final String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
 	protected PublisherInfo info;
 	protected String source;

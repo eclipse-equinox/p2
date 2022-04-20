@@ -60,7 +60,6 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	File targetLocation;
 	IArtifactRepository targetRepository, sourceRepository;
 	URI destination, failedOptimized, pakedRepositoryLocation;
-	boolean isJava14;
 
 	@Override
 	public void setUp() throws Exception {
@@ -75,7 +74,6 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		failedOptimized = URIUtil.toJarURI(getTestData("Error loading test data", "testData/mirror/invalidPackedMissingCanonical.zip").toURI(), null);
 		pakedRepositoryLocation = getTestData("Error loading packed repository", "testData/mirror/mirrorPackedRepo").toURI();
 		destination = getTempFolder().toURI();
-		isJava14 = System.getProperty("java.specification.version").compareTo("14") >= 0 ? true : false; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -120,12 +118,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		assertTrue(request.getResult().toString(), request.getResult().isOK());
 		assertTrue(String.format("Target does not contain artifact %s", key), targetRepository.contains(key));
-		if (isJava14) {
-			// Pack200 tools are gone in Java14+ thus pack.gz file is not downloaded
-			assertEquals("Exact number of downloads", 1, src.downloadCount);
-		} else {
-			assertEquals("Exact number of downloads", 2, src.downloadCount);
-		}
+		// Pack200 tools are gone in Java14+ thus pack.gz file is not downloaded
+		assertEquals("Exact number of downloads", 1, src.downloadCount);
 	}
 
 	/**
@@ -199,12 +193,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
 
-		if (isJava14) {
-			// packed artifact is ignored as Java 14 removed pack200
-			assertEquals("Expected ERROR status", IStatus.ERROR, req.getResult().getSeverity());
-		} else {
-			assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
-		}
+		// packed artifact is ignored as Java 14 removed pack200
+		assertEquals("Expected ERROR status", IStatus.ERROR, req.getResult().getSeverity());
 
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key, new NullProgressMonitor());
@@ -215,12 +205,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
 
-		if (isJava14) {
-			// packed artifact is ignored as Java 14 removed pack200
-			assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
-		} else {
-			assertEquals("Expected INFO status", IStatus.INFO, req.getResult().getSeverity());
-		}
+		// packed artifact is ignored as Java 14 removed pack200
+		assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
 
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key, new NullProgressMonitor());
@@ -229,49 +215,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
-		if (isJava14) {
-			// packed artifact is ignored as Java 14 removed pack200
-			assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
-		} else {
-			assertEquals("Expected OK status", IStatus.OK, req.getResult().getSeverity());
-		}
-	}
-
-	/*
-	 *
-	 */
-	public void testFailedOptimizedMissingCanonical() {
-		if (isJava14) {
-			// Java 14 doesn't have pack/unpack tools
-			return;
-		}
-
-		try {
-			IArtifactRepository source = new AbstractWrappedArtifactRepository(getArtifactRepositoryManager().loadRepository(failedOptimized, new NullProgressMonitor())) {
-				@Override
-				public URI getLocation() {
-					try {
-						return new URI("http://nowhere");
-					} catch (URISyntaxException e) {
-						fail("Failed to create URI", e);
-						return null;
-					}
-				}
-			};
-			IArtifactRepository target = getArtifactRepositoryManager().createRepository(destination, "Destination", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-
-			IArtifactKey key = new ArtifactKey("osgi.bundle", "org.eclipse.ve.jfc", Version.parseVersion("1.4.0.HEAD"));
-			MirrorRequest req = new MirrorRequest(key, target, null, null, getTransport());
-
-			req.perform(source, new NullProgressMonitor());
-			IStatus result = req.getResult();
-			assertTrue("MirrorRequest should have failed", result.matches(IStatus.ERROR));
-			assertEquals("Result should contain two failures", 2, result.getChildren().length);
-			assertStatusContains("Return status does not contain Signature Verification failure", result, "Invalid content:");
-			assertStatusContains("Return status does not contain Missing Artifact status", result, "Artifact not found:");
-		} catch (ProvisionException e) {
-			fail("Failed to load repositories", e);
-		}
+		// packed artifact is ignored as Java 14 removed pack200
+		assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
 	}
 
 	protected static void assertStatusContains(String message, IStatus status, String statusString) {

@@ -20,13 +20,13 @@ import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
  */
 public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 
-	private final String processorId; //the operation to be applied (e.g: unpack, md5, signature verification, etc.)
+	private final String processorId; // the operation to be applied (e.g: md5, signature verification, etc.)
 	private final String data; //data requested for the processing (eg. expected checksum)
 	private final boolean required; //whether the step is optional or not
 
 	/**
 	 * Create a processing step description.
-	 * 
+	 *
 	 * @param processorId The fully qualified processing step extension id.
 	 * @param data The processing step data. The structure
 	 * and content of the data is specific to the particular processing step being used.
