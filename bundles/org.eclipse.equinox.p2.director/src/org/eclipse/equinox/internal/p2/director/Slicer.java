@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *      Sonatype, Inc. - ongoing development
+ *      Christoph Läubrich - Issue #39 - Slicer should allow filtering of a requirement based on the IU currently processed
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -86,12 +87,13 @@ public class Slicer {
 		IQueryable<IInstallableUnit> queryable = new QueryableArray(considered.toArray(new IInstallableUnit[considered.size()]));
 		Iterator<IInstallableUnit> it = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).iterator();
 		while (it.hasNext()) {
-			Collection<IRequirement> reqs = getRequirements(it.next().unresolved());
+			IInstallableUnit iu = it.next().unresolved();
+			Collection<IRequirement> reqs = getRequirements(iu);
 			for (IRequirement req : reqs) {
-				if (!isApplicable(req))
+				if (!isApplicable(iu, req))
 					continue;
 
-				if (!isGreedy(req)) {
+				if (!isGreedy(iu, req)) {
 					nonGreedyIUs.addAll(queryable.query(QueryUtil.createMatchQuery(req.getMatches()), null).toUnmodifiableSet());
 				}
 			}
@@ -112,6 +114,11 @@ public class Slicer {
 	}
 
 	// Check whether the requirement is applicable
+
+	protected boolean isApplicable(IInstallableUnit unit, IRequirement req) {
+		return isApplicable(req);
+	}
+
 	protected boolean isApplicable(IRequirement req) {
 		IMatchExpression<IInstallableUnit> filter = req.getFilter();
 		return filter == null || filter.isMatch(selectionContext);
@@ -140,15 +147,19 @@ public class Slicer {
 		if (reqs.isEmpty())
 			return;
 		for (IRequirement req : reqs) {
-			if (!isApplicable(req))
+			if (!isApplicable(iu, req))
 				continue;
 
-			if (!isGreedy(req)) {
+			if (!isGreedy(iu, req)) {
 				continue;
 			}
 
 			expandRequirement(iu, req);
 		}
+	}
+
+	protected boolean isGreedy(IInstallableUnit unit, IRequirement req) {
+		return isGreedy(req);
 	}
 
 	protected boolean isGreedy(IRequirement req) {
