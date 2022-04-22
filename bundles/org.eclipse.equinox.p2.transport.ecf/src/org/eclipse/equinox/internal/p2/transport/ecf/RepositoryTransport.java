@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 IBM Corporation and others.
+ * Copyright (c) 2006, 2022 IBM Corporation and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -8,6 +8,7 @@
  * Contributors
  * 	IBM Corporation - Initial API and implementation.
  *  Cloudsmith Inc - Implementation
+ *  Christoph Läubrich - Issue #6 - Deprecate Transport.download(URI, OutputStream, long, IProgressMonitor)
  ******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.transport.ecf;
@@ -69,8 +70,7 @@ public class RepositoryTransport extends Transport {
 	}
 
 	@Override
-	public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
-
+	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
 		boolean promptUser = false;
 		boolean useJREHttp = false;
 		AuthenticationInfo loginDetails = null;
@@ -104,7 +104,7 @@ public class RepositoryTransport extends Transport {
 							eventBus.addListener(listener);
 						}
 					}
-					reader.readInto(toDownload, target, startPos, monitor);
+					reader.readInto(toDownload, target, -1, monitor);
 				} finally {
 					if (eventBus != null) {
 						eventBus.removeListener(listener);
@@ -159,11 +159,6 @@ public class RepositoryTransport extends Transport {
 				ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
 				NLS.bind(Messages.UnableToRead_0_TooManyAttempts, toDownload), null);
 		return statusOn(target, status, null);
-	}
-
-	@Override
-	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
-		return download(toDownload, target, -1, monitor);
 	}
 
 	@Override
@@ -278,7 +273,8 @@ public class RepositoryTransport extends Transport {
 			return true;
 		else if (t instanceof SocketException)
 			return true;
-		else if (t instanceof IncomingFileTransferException && ((IncomingFileTransferException) t).getErrorCode() == 503)
+		else if (t instanceof IncomingFileTransferException
+				&& ((IncomingFileTransferException) t).getErrorCode() == 503)
 			return true;
 		return false;
 	}

@@ -86,11 +86,6 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		}
 
 		@Override
-		public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
-			throw new IllegalStateException("Method should not be called");
-		}
-
-		@Override
 		public InputStream stream(URI toDownload, IProgressMonitor monitor) {
 			throw new IllegalStateException("Method should not be called");
 		}

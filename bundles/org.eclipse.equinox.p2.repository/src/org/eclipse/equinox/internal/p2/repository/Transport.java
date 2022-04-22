@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,11 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - transport split
+ *     Christoph Läubrich - Issue #6 - Deprecate Transport.download(URI, OutputStream, long, IProgressMonitor)
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
@@ -24,25 +25,38 @@ public abstract class Transport {
 	public static final String SERVICE_NAME = Transport.class.getName();
 
 	/**
-	 * Perform a download, writing into the target output stream. Progress is reported on the
-	 * monitor. If the <code>target</code> is an instance of {@link IStateful} the resulting status
-	 * is also set on the target. An IStateful target is updated with status even if this methods
-	 * throws {@link OperationCanceledException}.
-	 * 
+	 * Perform a download, writing into the target output stream. Progress is
+	 * reported on the monitor. If the <code>target</code> is an instance of
+	 * {@link IStateful} the resulting status is also set on the target. An
+	 * IStateful target is updated with status even if this methods throws
+	 * {@link OperationCanceledException}.
+	 *
 	 * @returns IStatus, that is a {@link DownloadStatus} on success.
 	 * @param toDownload URI of file to download
-	 * @param target OutputStream where result is written
-	 * @param startPos the starting position of the download, or -1 for from start
-	 * @param monitor where progress should be reported
+	 * @param target     OutputStream where result is written
+	 * @param startPos   the starting position of the download, or -1 for from start
+	 * @param monitor    where progress should be reported
 	 * @throws OperationCanceledException if the operation was canceled.
+	 * @deprecated this method is actually never called from P2 code and thus
+	 *             deprecated, callers should migrate to
+	 *             {@link #download(URI, OutputStream, IProgressMonitor)},
+	 *             implementors should simply remove this and rely on the default
+	 *             implementation
 	 */
-	public abstract IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor);
+	@Deprecated(forRemoval = true)
+	public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
+		if (startPos <= 0) {
+			return download(toDownload, target, monitor);
+		}
+		throw new UnsupportedOperationException(
+				"positional downloads are actually never called from P2 code and thus disabled by default, please use the method without a position instead"); //$NON-NLS-1$
+	}
 
 	/**
 	 * Perform a download, writing into the target output stream. Progress is reported on the
 	 * monitor. If the <code>target</code> is an instance of {@link IStateful} the resulting status
 	 * is also set on the target.
-	 * 
+	 *
 	 * @returns IStatus, that is a {@link DownloadStatus} on success.
 	 * @param toDownload URI of file to download
 	 * @param target OutputStream where result is written
@@ -53,7 +67,7 @@ public abstract class Transport {
 
 	/**
 	 * Perform a stream download, writing into an InputStream that is returned. Performs authentication if needed.
-	 * 
+	 *
 	 * @returns InputStream a stream with the content from the toDownload URI, or null
 	 * @param toDownload URI of file to download
 	 * @param monitor monitor checked for cancellation
