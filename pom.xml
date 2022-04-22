@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (c) 2012, 2019 Eclipse Foundation.
+  Copyright (c) 2012, 2022 Eclipse Foundation.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Distribution License v1.0
   which accompanies this distribution, and is available at
@@ -64,51 +64,6 @@
     </profile>
   </profiles>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.eclipse.cbi.maven.plugins</groupId>
-                    <artifactId>eclipse-cbi-plugin</artifactId>
-                    <versionRange>[0.0.0,)</versionRange>
-                    <goals>
-                      <goal>generate-api-build-xml</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.eclipse.tycho.extras</groupId>
-                    <artifactId>tycho-eclipserun-plugin</artifactId>
-                    <versionRange>[0.0.0,)</versionRange>
-                    <goals>
-                      <goal>eclipse-run</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-
   <modules>
     <module>bundles/org.eclipse.equinox.frameworkadmin</module>
     <module>bundles/org.eclipse.equinox.frameworkadmin.equinox</module>
@@ -146,14 +101,8 @@
     <module>bundles/org.eclipse.equinox.simpleconfigurator</module>
     <module>bundles/org.eclipse.equinox.simpleconfigurator.manipulator</module>
     <module>bundles/org.eclipse.equinox.p2.publisher.eclipse</module>
-    <module>features/org.eclipse.equinox.p2.core.feature</module>
-    <module>features/org.eclipse.equinox.p2.extras.feature</module>
-    <module>features/org.eclipse.equinox.p2.discovery.feature</module>
     <module>bundles/org.eclipse.equinox.p2.ui.sdk</module>
     <module>bundles/org.eclipse.equinox.p2.ui.sdk.scheduler</module>
-    <module>features/org.eclipse.equinox.p2.sdk</module>
-    <module>features/org.eclipse.equinox.p2.rcp.feature</module>
-    <module>features/org.eclipse.equinox.p2.user.ui</module>
 
     <module>bundles/org.eclipse.equinox.p2.tests.reconciler.product</module>
     <module>bundles/org.eclipse.equinox.p2.tests</module>
@@ -161,7 +110,43 @@
     <module>bundles/org.eclipse.equinox.p2.tests.ui</module>
     <module>bundles/org.eclipse.equinox.p2.tests.verifier</module>
 
+    <module>features/org.eclipse.equinox.p2.core.feature</module>
+    <module>features/org.eclipse.equinox.p2.extras.feature</module>
+    <module>features/org.eclipse.equinox.p2.discovery.feature</module>
+    <module>features/org.eclipse.equinox.p2.sdk</module>
+    <module>features/org.eclipse.equinox.p2.rcp.feature</module>
+    <module>features/org.eclipse.equinox.p2.user.ui</module>
+
     <module>examples</module>
   </modules>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>feature-source</id>
+            <goals>
+              <goal>feature-source</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-p2-metadata</id>
+            <phase>package</phase>
+            <goals>
+              <goal>p2-metadata</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
