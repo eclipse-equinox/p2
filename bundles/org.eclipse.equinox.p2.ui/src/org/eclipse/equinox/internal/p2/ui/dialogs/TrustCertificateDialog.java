@@ -299,7 +299,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		certifcateViewer.setContentProvider(new TreeNodeContentProvider());
 
 		GridData data = new GridData(GridData.FILL_BOTH);
-		data.heightHint = convertHeightInCharsToPixels(Math.min(artifactMap.keySet().size() + 1, 6)) * 3 / 2;
+		data.heightHint = convertHeightInCharsToPixels(Math.min(artifactMap.keySet().size() + 2, 6)) * 3 / 2;
 		data.widthHint = convertWidthInCharsToPixels(120);
 		tableComposite.setLayoutData(data);
 
