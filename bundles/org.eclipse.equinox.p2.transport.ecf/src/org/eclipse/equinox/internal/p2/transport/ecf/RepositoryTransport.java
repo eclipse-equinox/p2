@@ -289,33 +289,26 @@ public class RepositoryTransport extends Transport {
 
 	public static DownloadStatus forException(Throwable t, URI toDownload) {
 		if (isForgiveableException(t)) {
-			String value = System.getProperty(TIMEOUT_RETRY);
-			if (value != null) {
-				try {
-					int retry = Integer.valueOf(value).intValue();
-					if (retry > 0) {
-						Integer retryCount = null;
-						if (socketExceptionRetry == null) {
-							socketExceptionRetry = new HashMap<>();
-							retryCount = Integer.valueOf(1);
-						} else {
-							Integer alreadyRetryCount = socketExceptionRetry.get(toDownload);
-							if (alreadyRetryCount == null)
-								retryCount = Integer.valueOf(1);
-							else if (alreadyRetryCount.intValue() < retry) {
-								retryCount = Integer.valueOf(alreadyRetryCount.intValue() + 1);
-							}
-						}
-						if (retryCount != null && retryCount.intValue() <= retry) {
-							socketExceptionRetry.put(toDownload, retryCount);
-							return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY,
-									NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {
-											toDownload.toString(), t.getMessage(), retryCount.toString() }),
-									t);
-						}
+			int retry = Integer.getInteger(TIMEOUT_RETRY, 0);
+			if (retry > 0) {
+				Integer retryCount = null;
+				if (socketExceptionRetry == null) {
+					socketExceptionRetry = new HashMap<>();
+					retryCount = Integer.valueOf(1);
+				} else {
+					Integer alreadyRetryCount = socketExceptionRetry.get(toDownload);
+					if (alreadyRetryCount == null)
+						retryCount = Integer.valueOf(1);
+					else if (alreadyRetryCount.intValue() < retry) {
+						retryCount = Integer.valueOf(alreadyRetryCount.intValue() + 1);
 					}
-				} catch (NumberFormatException e) {
-					// ignore
+				}
+				if (retryCount != null && retryCount.intValue() <= retry) {
+					socketExceptionRetry.put(toDownload, retryCount);
+					return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY,
+							NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2,
+									new String[] { toDownload.toString(), t.getMessage(), retryCount.toString() }),
+							t);
 				}
 			}
 		}
