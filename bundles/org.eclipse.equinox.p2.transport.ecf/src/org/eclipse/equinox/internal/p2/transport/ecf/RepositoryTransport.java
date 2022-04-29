@@ -292,7 +292,7 @@ public class RepositoryTransport extends Transport {
 			String value = System.getProperty(TIMEOUT_RETRY);
 			if (value != null) {
 				try {
-					int retry = Integer.valueOf(value).intValue();
+					int retry = Integer.parseInt(value);
 					if (retry > 0) {
 						Integer retryCount = null;
 						if (socketExceptionRetry == null) {
