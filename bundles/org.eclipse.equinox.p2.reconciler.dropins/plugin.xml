@@ -31,10 +31,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.equinox.p2.reconciler.application"
-            name="p2 reconciliation application">
+            name="Reconciler test application">
          <property
                name="appName"
-               value="p2 reconciliation application">
+               value="Reconciler test application">
          </property>
       </product>
    </extension>
