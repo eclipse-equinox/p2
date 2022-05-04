@@ -428,17 +428,30 @@ public class BundlesAction extends AbstractPublisherAction {
 		capAttrs.compute(capNs,
 				(k, v) -> (v instanceof String) ? v : String.format("%s_%s-%s", iu.getId(), iu.getVersion(), capNo)); //$NON-NLS-1$
 
+		for (Version version : getVersions(capAttrs)) {
+			capAttrs.put(IProvidedCapability.PROPERTY_VERSION, version); // created capability contains a copy
+			caps.add(MetadataFactory.createProvidedCapability(capNs, capAttrs));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Collection<Version> getVersions(Map<String, Object> capAttrs) {
 		// Resolve the mandatory p2 version
 		// By convention versioned OSGi capabilities have a "version" attribute
 		// containing the OSGi Version object
 		// If this is not the case use an empty version (e.g. "osgi.ee" has a list of
 		// versions).
-		// TODO If present but not a Version log a warning somehow that it is ignored?
-		// Or fail the publication?
-		capAttrs.compute(IProvidedCapability.PROPERTY_VERSION,
-				(k, v) -> (v instanceof Version) ? v : Version.emptyVersion);
-
-		caps.add(MetadataFactory.createProvidedCapability(capNs, capAttrs));
+		Object versionValue = capAttrs.get(IProvidedCapability.PROPERTY_VERSION);
+		if (versionValue instanceof Version) {
+			return List.of((Version) versionValue);
+		} else if (versionValue instanceof Collection
+				&& ((Collection<?>) versionValue).stream().allMatch(Version.class::isInstance)) {
+			return (Collection<Version>) versionValue;
+		} else {
+			// TODO If present but not a Version log a warning somehow that it is ignored?
+			// Or fail the publication?
+			return List.of(Version.emptyVersion);
+		}
 	}
 
 	private Object convertAttribute(Object attr) {
