@@ -22,6 +22,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
+import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -374,10 +375,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		if (slicingOptions.getInstallTimeLikeResolution())
 			return performResolution(monitor);
 
-		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(),
-				slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(),
-				slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly(),
-				slicingOptions.followOnlyFilteredRequirements());
+		Slicer slicer = createSlicer(slicingOptions);
 		IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]),
 				monitor);
 
@@ -392,6 +390,13 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			throw new ProvisionException(slicer.getStatus());
 		}
 		return slice;
+	}
+
+	protected Slicer createSlicer(SlicingOptions options) {
+		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), options.getFilter(),
+				options.includeOptionalDependencies(), options.isEverythingGreedy(), options.forceFilterTo(),
+				options.considerStrictDependencyOnly(), options.followOnlyFilteredRequirements());
+		return slicer;
 	}
 
 	public void setSlicingOptions(SlicingOptions options) {
