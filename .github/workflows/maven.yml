@@ -23,4 +23,4 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Dcompare-version-with-baselines.skip=true -Dproject.build.sourceEncoding=UTF-8 --global-toolchains=.github/toolchains-gh.xml
+      run: mvn clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Dcompare-version-with-baselines.skip=true -Dproject.build.sourceEncoding=UTF-8 --global-toolchains=.github/toolchains-gh.xml -Dtycho-version=2.7.2
