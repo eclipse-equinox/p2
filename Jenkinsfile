@@ -20,7 +20,7 @@ pipeline {
 						-Pbuild-individual-bundles -Pbree-libs -Papi-check \
 						-DskipTests=false -Dcompare-version-with-baselines.skip=false \
 						-Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true \
-						-Dproject.build.sourceEncoding=UTF-8 
+						-Dproject.build.sourceEncoding=UTF-8 -X
 					"""
 				}
 			}
