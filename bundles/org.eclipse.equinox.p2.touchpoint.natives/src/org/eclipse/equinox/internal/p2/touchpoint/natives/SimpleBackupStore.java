@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.stream.Stream;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -271,9 +272,11 @@ public class SimpleBackupStore implements IBackupStore {
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_not_a_directory, file.getAbsolutePath()));
 		}
 
-		if (Files.list(path).count() > 0) {
-			throw new IllegalArgumentException(
-					NLS.bind(Messages.BackupStore_directory_not_empty, file.getAbsolutePath()));
+		try (Stream<Path> s = Files.list(path)) {
+			if (s.count() > 0) {
+				throw new IllegalArgumentException(
+						NLS.bind(Messages.BackupStore_directory_not_empty, file.getAbsolutePath()));
+			}
 		}
 
 		return moveDirToBackup(path);
