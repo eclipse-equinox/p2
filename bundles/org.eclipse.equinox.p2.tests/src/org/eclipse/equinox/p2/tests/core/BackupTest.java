@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.stream.Stream;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.SimpleBackupStore;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -147,7 +148,10 @@ public class BackupTest extends AbstractProvisioningTest {
 
 		store.restore();
 		assertFileContent("Restore of A failed - not original content", aTxt.toFile(), "A");
-		assertTrue("Empty directory not restored ok", Files.isDirectory(bDir) && Files.list(bDir).count() == 0);
+		assertTrue("Empty directory not restored ok", Files.isDirectory(bDir));
+		try (Stream<Path> s = Files.list(bDir)) {
+			assertFalse("Empty directory not restored ok", s.findAny().isPresent());
+		}
 		assertNoGarbage(store);
 	}
 

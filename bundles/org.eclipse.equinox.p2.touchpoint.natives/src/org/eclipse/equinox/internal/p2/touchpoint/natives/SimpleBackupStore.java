@@ -700,10 +700,11 @@ public class SimpleBackupStore implements IBackupStore {
 				try {
 					Files.delete(buDir);
 				} catch (DirectoryNotEmptyException e) {
-					String children = Files.list(buDir).map(p -> p.relativize(buDir)).map(Path::toString)
-							.collect(joining(",")); //$NON-NLS-1$
-					unrestorable.put(buDir,
-							new IOException(String.format("Directory %s not empty: %s", buDir, children, e))); //$NON-NLS-1$
+					try (Stream<Path> s = Files.list(buDir)) {
+						String children = s.map(p -> p.relativize(buDir)).map(Path::toString).collect(joining(",")); //$NON-NLS-1$
+						unrestorable.put(buDir,
+								new IOException(String.format("Directory %s not empty: %s", buDir, children, e))); //$NON-NLS-1$
+					}
 				} catch (IOException e) {
 					unrestorable.put(buDir, e);
 				}
