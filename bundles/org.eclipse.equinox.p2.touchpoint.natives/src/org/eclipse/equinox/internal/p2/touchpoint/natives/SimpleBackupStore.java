@@ -273,7 +273,7 @@ public class SimpleBackupStore implements IBackupStore {
 		}
 
 		try (Stream<Path> s = Files.list(path)) {
-			if (s.count() > 0) {
+			if (s.findAny().isPresent()) {
 				throw new IllegalArgumentException(
 						NLS.bind(Messages.BackupStore_directory_not_empty, file.getAbsolutePath()));
 			}
@@ -508,12 +508,13 @@ public class SimpleBackupStore implements IBackupStore {
 	}
 
 	/**
-	 * Makes sure a directory exists in the backup store without touching the original directory content
+	 * Makes sure a directory exists in the backup store without touching the
+	 * original directory content
 	 * 
 	 * @param path
 	 * 
-	 * @return false if the directory is already created in the backup store, false if a placeholder had
-	 *         to be created and backed up.
+	 * @return false if the directory is already created in the backup store, false
+	 *         if a placeholder had to be created and backed up.
 	 * 
 	 * @throws IOException
 	 */
@@ -699,12 +700,10 @@ public class SimpleBackupStore implements IBackupStore {
 				try {
 					Files.delete(buDir);
 				} catch (DirectoryNotEmptyException e) {
-					String children = Files.list(buDir)
-							.map(p -> p.relativize(buDir))
-							.map(Path::toString)
+					String children = Files.list(buDir).map(p -> p.relativize(buDir)).map(Path::toString)
 							.collect(joining(",")); //$NON-NLS-1$
-					unrestorable.put(buDir, new IOException(String.format(
-							"Directory %s not empty: %s", buDir, children, e))); //$NON-NLS-1$
+					unrestorable.put(buDir,
+							new IOException(String.format("Directory %s not empty: %s", buDir, children, e))); //$NON-NLS-1$
 				} catch (IOException e) {
 					unrestorable.put(buDir, e);
 				}
