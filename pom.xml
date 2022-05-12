@@ -116,6 +116,7 @@
     <module>features/org.eclipse.equinox.p2.sdk</module>
     <module>features/org.eclipse.equinox.p2.rcp.feature</module>
     <module>features/org.eclipse.equinox.p2.user.ui</module>
+    <module>features/org.eclipse.equinox.server.p2</module>
 
     <module>examples</module>
   </modules>
@@ -149,4 +150,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
