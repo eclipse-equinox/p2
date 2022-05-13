@@ -11,7 +11,11 @@ package org.eclipse.equinox.p2.tests.repository;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.security.cert.Certificate;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.UIServices;
@@ -229,7 +233,7 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 		 */
 		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
-			return new TrustInfo(null, false, true);
+			return new TrustInfo(null, null, false, true);
 		}
 	}
 

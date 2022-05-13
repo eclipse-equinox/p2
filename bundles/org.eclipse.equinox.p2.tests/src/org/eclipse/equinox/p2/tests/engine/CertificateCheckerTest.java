@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.cert.Certificate;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
@@ -154,7 +155,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
 			wasPrompted = true;
-			return new TrustInfo(null, false, unsignedReturnValue);
+			return new TrustInfo(Collections.emptyList(), Collections.emptyList(), false, unsignedReturnValue);
 		}
 
 	}

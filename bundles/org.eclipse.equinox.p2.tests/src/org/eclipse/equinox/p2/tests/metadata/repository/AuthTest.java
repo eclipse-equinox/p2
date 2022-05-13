@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.net.URI;
 import java.security.cert.Certificate;
+import java.util.Collections;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -104,7 +105,7 @@ public class AuthTest extends ServerBasedTestCase {
 		 */
 		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
-			return new TrustInfo(null, false, true);
+			return new TrustInfo(Collections.emptyList(), Collections.emptyList(), false, true);
 		}
 	}
 }
