@@ -14,11 +14,11 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import static org.eclipse.equinox.p2.tests.AdditionalCoreMatchers.hasSize;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -87,7 +87,7 @@ public class ProductFileTest {
 		Map<String, String> properties = productFile.getConfigurationProperties();
 		assertEquals("1.0", 4, properties.size());
 		assertEquals("1.1", "bar", properties.get("foo"));
-		assertEquals("1.2", "", properties.get("foo1"));
+		assertTrue("1.2", properties.get("foo1").isEmpty());
 		assertEquals("1.3", "test.product", properties.get("eclipse.product"));
 		assertEquals("1.4", "test.app", properties.get("eclipse.application"));
 	}
@@ -117,7 +117,7 @@ public class ProductFileTest {
 		assertEquals("1.0", 1, bundleInfos.size());
 		assertEquals("1.1", "org.eclipse.core.runtime", info.getSymbolicName());
 		assertEquals("1.2", 2, info.getStartLevel());
-		assertEquals("1.3", true, info.isMarkedAsStarted());
+		assertTrue("1.3", info.isMarkedAsStarted());
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class ProductFileTest {
 		List<IVersionedId> features = rootFeaturesProduct.getFeatures(IProductDescriptor.ROOT_FEATURES);
 		assertThat(features, hasItem(new VersionedId("org.eclipse.help", "2.0.102.v20140128")));
 		assertThat(features, hasItem(new VersionedId("org.eclipse.egit", "0.0.0")));
-		assertThat(features, hasSize(2));
+		assertEquals(2, features.size());
 	}
 
 	@Test
@@ -156,7 +156,7 @@ public class ProductFileTest {
 		List<IVersionedId> features = rootFeaturesProduct.getFeatures(IProductDescriptor.INCLUDED_FEATURES);
 		assertThat(features, hasItem(new VersionedId("org.eclipse.rcp", "4.4.0.v20140128")));
 		assertThat(features, hasItem(new VersionedId("org.eclipse.e4.rcp", "0.0.0")));
-		assertThat(features, hasSize(2));
+		assertEquals(2, features.size());
 	}
 
 	@Test
@@ -167,25 +167,25 @@ public class ProductFileTest {
 	@Test
 	public void testHasFeatures() throws Exception {
 		ProductFile featuresOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyFeatures.product").toString());
-		assertThat(featuresOnly.hasFeatures(), is(true));
-		assertThat(featuresOnly.hasBundles(false), is(false));
-		assertThat(featuresOnly.hasBundles(true), is(false));
+		assertTrue(featuresOnly.hasFeatures());
+		assertFalse(featuresOnly.hasBundles(false));
+		assertFalse(featuresOnly.hasBundles(true));
 	}
 
 	@Test
 	public void testHasBundles() throws Exception {
 		ProductFile bundlesOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyBundles.product").toString());
-		assertThat(bundlesOnly.hasFeatures(), is(false));
-		assertThat(bundlesOnly.hasBundles(false), is(true));
-		assertThat(bundlesOnly.hasBundles(true), is(true));
+		assertFalse(bundlesOnly.hasFeatures());
+		assertTrue(bundlesOnly.hasBundles(false));
+		assertTrue(bundlesOnly.hasBundles(true));
 	}
 
 	@Test
 	public void testHasFragments() throws Exception {
 		ProductFile bundlesOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyFragments.product").toString());
-		assertThat(bundlesOnly.hasFeatures(), is(false));
-		assertThat(bundlesOnly.hasBundles(false), is(false));
-		assertThat(bundlesOnly.hasBundles(true), is(true));
+		assertFalse(bundlesOnly.hasFeatures());
+		assertFalse(bundlesOnly.hasBundles(false));
+		assertTrue(bundlesOnly.hasBundles(true));
 	}
 
 	/**
@@ -260,7 +260,7 @@ public class ProductFileTest {
 	@Test
 	public void testUseFeatures() {
 		boolean useFeatures = productFile.useFeatures();
-		assertTrue("1.0", !useFeatures);
+		assertFalse("1.0", useFeatures);
 	}
 
 	/**
@@ -287,9 +287,9 @@ public class ProductFileTest {
 
 	@Test
 	public void testIncludeLaunchers() {
-		assertEquals("1.0", true, noLauncherFlag.includeLaunchers());
-		assertEquals("1.1", false, falseLauncherFlag.includeLaunchers());
-		assertEquals("1.2", true, trueLauncherFlag.includeLaunchers());
+		assertTrue("1.0", noLauncherFlag.includeLaunchers());
+		assertFalse("1.1", falseLauncherFlag.includeLaunchers());
+		assertTrue("1.2", trueLauncherFlag.includeLaunchers());
 	}
 
 	/**
