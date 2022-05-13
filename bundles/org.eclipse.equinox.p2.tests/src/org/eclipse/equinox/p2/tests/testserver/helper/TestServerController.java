@@ -157,7 +157,7 @@ public class TestServerController {
 		 */
 		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
-			return new TrustInfo(null, false, true);
+			return new TrustInfo(null, null, false, true);
 		}
 	}
 }

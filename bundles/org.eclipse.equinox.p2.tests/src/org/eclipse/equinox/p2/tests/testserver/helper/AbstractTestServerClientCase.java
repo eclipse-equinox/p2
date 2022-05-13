@@ -15,6 +15,7 @@
 package org.eclipse.equinox.p2.tests.testserver.helper;
 
 import java.security.cert.Certificate;
+import java.util.Collections;
 import junit.framework.Protectable;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
@@ -140,7 +141,7 @@ public class AbstractTestServerClientCase extends TestCase {
 		 */
 		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
-			return new TrustInfo(null, false, true);
+			return new TrustInfo(null, null, false, true);
 		}
 	}
 
@@ -169,7 +170,7 @@ public class AbstractTestServerClientCase extends TestCase {
 		 */
 		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
-			return new TrustInfo(null, false, true);
+			return new TrustInfo(Collections.emptyList(), Collections.emptyList(), false, true);
 		}
 
 	}

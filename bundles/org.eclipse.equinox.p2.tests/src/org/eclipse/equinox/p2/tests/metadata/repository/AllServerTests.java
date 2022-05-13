@@ -17,6 +17,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.security.cert.Certificate;
+import java.util.Collections;
 import java.util.Hashtable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -187,7 +188,7 @@ public class AllServerTests extends TestCase {
 		 */
 		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
-			return new TrustInfo(null, false, true);
+			return new TrustInfo(Collections.emptyList(), Collections.emptyList(), false, true);
 		}
 	}
 }
