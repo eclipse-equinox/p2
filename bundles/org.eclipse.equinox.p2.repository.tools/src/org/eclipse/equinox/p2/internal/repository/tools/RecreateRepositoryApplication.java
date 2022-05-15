@@ -33,7 +33,6 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class RecreateRepositoryApplication extends AbstractApplication {
-	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 	private URI repoLocation;
 	private String repoName = null;
 	boolean removeArtifactRepo = true;
@@ -101,10 +100,8 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
 		// add pack200 mappings, the existing repoProperties is not modifiable
-		Map<String, String> newProperties = new HashMap<>(repoProperties);
-		newProperties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 		IArtifactRepository repository = manager.createRepository(repoLocation, repoName,
-				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, newProperties);
+				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, repoProperties);
 		if (!(repository instanceof IFileArtifactRepository))
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 

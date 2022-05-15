@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -49,7 +49,6 @@ public class Mirroring {
 	private List<IArtifactKey> keysToMirror;
 	private IArtifactMirrorLog comparatorLog;
 	private Transport transport;
-	private boolean includePacked = true;
 	private boolean mirrorProperties = false;
 
 	private IArtifactComparator getComparator() {
@@ -149,12 +148,7 @@ public class Mirroring {
 		return multiStatus;
 	}
 
-	@SuppressWarnings("removal")
 	private IStatus mirror(IArtifactDescriptor sourceDescriptor, boolean verbose) {
-		if (!includePacked
-				&& IArtifactDescriptor.FORMAT_PACKED.equals(sourceDescriptor.getProperty(IArtifactDescriptor.FORMAT)))
-			return Status.OK_STATUS;
-
 		IArtifactDescriptor targetDescriptor = raw ? sourceDescriptor : new ArtifactDescriptor(sourceDescriptor);
 		IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(sourceDescriptor);
 
@@ -367,7 +361,4 @@ public class Mirroring {
 		this.transport = transport;
 	}
 
-	public void setIncludePacked(boolean includePacked) {
-		this.includePacked = includePacked;
-	}
 }

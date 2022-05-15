@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corporation and others.
+ * Copyright (c) 2009, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -49,7 +49,8 @@ public class MirrorTask extends AbstractRepositoryTask {
 				((MirrorApplication) application).setCompare(true);
 				// Set baseline location
 				if (comparator.getBaseline() != null)
-					((MirrorApplication) application).setBaseline(comparator.getBaseline().getDescriptor().getRepoLocation());
+					((MirrorApplication) application)
+							.setBaseline(comparator.getBaseline().getDescriptor().getRepoLocation());
 				// Set comparator to use
 				if (comparator.getComparator() != null)
 					((MirrorApplication) application).setComparatorID(comparator.getComparator());
@@ -113,7 +114,8 @@ public class MirrorTask extends AbstractRepositoryTask {
 	}
 
 	/*
-	 * Set whether or not we should ignore errors when running the mirror application.
+	 * Set whether or not we should ignore errors when running the mirror
+	 * application.
 	 */
 	public void setIgnoreErrors(boolean value) {
 		ignoreErrors = value;
@@ -136,10 +138,6 @@ public class MirrorTask extends AbstractRepositoryTask {
 
 	public void setValidate(boolean value) {
 		((MirrorApplication) application).setValidate(value);
-	}
-
-	public void setIncludePacked(boolean value) {
-		((MirrorApplication) application).setIncludePacked(value);
 	}
 
 	public void setReferences(boolean value) {

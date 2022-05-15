@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others.
+ * Copyright (c) 2008, 2022 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -134,8 +134,6 @@ public class Publisher {
 			IArtifactRepository result = loadArtifactRepository(agent, location, true, true);
 			if (result != null && result.isModifiable()) {
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
-				if (reusePackedFiles)
-					result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 				return result;
 			}
 		} catch (ProvisionException e) {
@@ -148,8 +146,6 @@ public class Publisher {
 				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		if (result != null) {
 			manager.removeRepository(result.getLocation());
-			if (reusePackedFiles)
-				result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 			return result;
 		}

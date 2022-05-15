@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2021 IBM Corporation and others.
+ * Copyright (c) 2009, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -56,7 +56,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private boolean mirrorReferences = true;
 	private String metadataOrArtifacts = null;
 	private String[] rootIUs = null;
-	private boolean includePacked = true;
 	private boolean mirrorProperties = false;
 
 	private File mirrorLogFile; // file to log mirror output to (optional)
@@ -246,7 +245,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		mirror.setValidate(validate);
 		mirror.setCompareExclusions(compareExclusions);
 		mirror.setTransport((Transport) agent.getService(Transport.SERVICE_NAME));
-		mirror.setIncludePacked(includePacked);
 		mirror.setMirrorProperties(mirrorProperties);
 
 		// If IUs have been specified then only they should be mirrored, otherwise
@@ -486,10 +484,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	public void setComparatorExclusions(IQuery<IArtifactDescriptor> exclusions) {
 		compareExclusions = exclusions;
-	}
-
-	public void setIncludePacked(boolean includePacked) {
-		this.includePacked = includePacked;
 	}
 
 	public void setMirrorProperties(boolean mirrorProperties) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -268,11 +268,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
 	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
-	static final private String[][] PACKED_MAPPING_RULES = {{"(& (classifier=osgi.bundle) (format=packed))", "${repoUrl}/plugins/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
-			{"(& (classifier=org.eclipse.update.feature) (format=packed))", "${repoUrl}/features/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
 
 	static final private String[][] DEFAULT_MAPPING_RULES = {{"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
@@ -291,8 +286,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	transient private Mapper mapper = new Mapper();
 	private KeyIndex keyIndex;
 	private boolean snapshotNeeded = false;
-
-	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
 	private static final int DEFAULT_MAX_THREADS = 4;
 
@@ -389,19 +382,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			}
 
 			initializeAfterLoad(location, false); // Don't update the timestamp, it will be done during save
-			if (properties != null) {
-				if (properties.containsKey(PUBLISH_PACK_FILES_AS_SIBLINGS)) {
-					synchronized (this) {
-						String newValue = properties.get(PUBLISH_PACK_FILES_AS_SIBLINGS);
-						if (Boolean.TRUE.toString().equals(newValue)) {
-							mappingRules = PACKED_MAPPING_RULES;
-						} else {
-							mappingRules = DEFAULT_MAPPING_RULES;
-						}
-						initializeMapper();
-					}
-				}
-			}
 			save();
 		} finally {
 			if (lockAcquired)
@@ -443,11 +423,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		internal.setRepository(this);
 		if (isFolderBased(descriptor))
 			internal.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
-
-		//clear out the UUID if we aren't using the blobstore.
-		if (flatButPackedEnabled(descriptor) && internal.getProperty(ARTIFACT_UUID) != null) {
-			internal.setProperty(ARTIFACT_UUID, null);
-		}
 
 		if (descriptor instanceof SimpleArtifactDescriptor) {
 			Map<String, String> repoProperties = ((SimpleArtifactDescriptor) descriptor).getRepositoryProperties();
@@ -578,9 +553,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized URI createLocation(ArtifactDescriptor descriptor) {
-		if (flatButPackedEnabled(descriptor)) {
-			return getLocationForPackedButFlatArtifacts(descriptor);
-		}
 		// if the descriptor is canonical, clear out any UUID that might be set and use the Mapper
 		if (descriptor.getProcessingSteps().length == 0) {
 			descriptor.setProperty(ARTIFACT_UUID, null);
@@ -920,35 +892,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return artifactDescriptors;
 	}
 
-	/**
-	 * Typically non-canonical forms of the artifact are stored in the blob store.
-	 * However, we support having the pack200 files alongside the canonical artifact
-	 * for compatibility with the format used in optimized update sites.  We call
-	 * this arrangement "flat but packed".
-	 */
-	@SuppressWarnings("removal")
-	private boolean flatButPackedEnabled(IArtifactDescriptor descriptor) {
-		return Boolean.TRUE.toString().equals(getProperties().get(PUBLISH_PACK_FILES_AS_SIBLINGS)) && IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
-	}
-
-	/**
-	 * @see #flatButPackedEnabled(IArtifactDescriptor)
-	 */
-	private URI getLocationForPackedButFlatArtifacts(IArtifactDescriptor descriptor) {
-		IArtifactKey key = descriptor.getArtifactKey();
-		return mapper.map(getLocation(), key.getClassifier(), key.getId(), key.getVersion().toString(),
-				descriptor.getProperty(IArtifactDescriptor.FORMAT), descriptor.getProperties());
-	}
-
 	public synchronized URI getLocation(IArtifactDescriptor descriptor) {
 		// if the artifact has a uuid then use it
 		String uuid = descriptor.getProperty(ARTIFACT_UUID);
 		if (uuid != null)
 			return blobStore.fileFor(bytesFromHexString(uuid));
-
-		if (flatButPackedEnabled(descriptor)) {
-			return getLocationForPackedButFlatArtifacts(descriptor);
-		}
 
 		try {
 			// if the artifact is just a reference then return the reference location
@@ -1366,16 +1314,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		String oldValue = super.setProperty(key, newValue, new NullProgressMonitor());
 		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
 			return oldValue;
-		if (PUBLISH_PACK_FILES_AS_SIBLINGS.equals(key)) {
-			synchronized (this) {
-				if (Boolean.TRUE.toString().equals(newValue)) {
-					mappingRules = PACKED_MAPPING_RULES;
-				} else {
-					mappingRules = DEFAULT_MAPPING_RULES;
-				}
-				initializeMapper();
-			}
-		}
 		if (save)
 			save();
 		return oldValue;

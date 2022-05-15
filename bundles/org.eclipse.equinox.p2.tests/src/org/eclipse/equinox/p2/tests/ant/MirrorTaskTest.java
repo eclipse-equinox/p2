@@ -56,7 +56,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	private static final String MIRROR_TASK = "p2.mirror";
-	private static final String MIRROR_ARTIFACTS_TASK = "p2.artifact.mirror";
 	private URI destinationRepo;
 	private URI artifactRepo, sliceArtifactRepo, sliceRepo, sourceRepo2, zipRepo;
 
@@ -703,19 +702,6 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		if (exception == null || !(rootCause(exception) instanceof ProvisionException)) {
 			fail("Unexpected exception type", exception);
 		}
-	}
-
-	public void testMirrorPackedRepo() {
-		AntTaskElement mirror = new AntTaskElement(MIRROR_ARTIFACTS_TASK);
-		mirror.addAttribute("destination", URIUtil.toUnencodedString(destinationRepo));
-		mirror.addAttribute("source", URIUtil.toUnencodedString(artifactRepo));
-		addTask(mirror);
-		runAntTask();
-
-		File repo = new File(destinationRepo);
-
-		assertTrue(new File(repo, "plugins/org.eclipse.core.filebuffers_3.4.0.v20080603-2000.jar.pack.gz").exists());
-		assertTrue(new File(repo, "plugins/org.eclipse.osgi.services.source_3.1.200.v20071203.jar.pack.gz").exists());
 	}
 
 	/*
