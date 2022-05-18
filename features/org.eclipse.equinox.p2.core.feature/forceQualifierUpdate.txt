@@ -24,3 +24,4 @@ Bug 574602 - Eclipse 4.21 prerequisites: Orbit
 Bug 574602 - Eclipse 4.21 prerequisites: Orbit
 Bug 576389 - Touch bundle for org.bouncycastle.bcprov version update
 Bug 578120 - Update to latest Orbit - bouncycastle and mina sshd updates
+Update to latest Orbit - bouncycastle
