@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.eclipse.equinox.p2</groupId>
     <artifactId>rt.equinox.p2</artifactId>
-    <version>4.24.0-SNAPSHOT</version>
+    <version>4.25.0-SNAPSHOT</version>
     <relativePath>../..</relativePath>
   </parent>
   <groupId>org.eclipse.equinox</groupId>
