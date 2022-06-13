@@ -24,7 +24,6 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -62,7 +61,8 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		if (location[0] == null)
 			return;
 
-		Job job = new WorkbenchJob(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel) {
+		Job job = new org.eclipse.e4.ui.progress.UIJob(
+				ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel) {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {

@@ -14,9 +14,11 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
-import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.progress.*;
 
 /**
@@ -42,14 +44,40 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 		public boolean isRemoved() {
 			return super.isRemoved();
 		}
+
+		@Override
+		public void setRemoved(boolean removedValue) {
+			super.setRemoved(removedValue);
+		}
+
 	}
 
 	Object elementRequested;
 	ListenerList<IDeferredQueryTreeListener> listeners;
+	private AbstractTreeViewer treeViewer;
 
 	public DeferredQueryTreeContentManager(AbstractTreeViewer viewer) {
 		super(viewer);
+		this.treeViewer = viewer;
 		listeners = new ListenerList<>();
+	}
+
+	@Override
+	protected void addChildren(final Object parent, final Object[] children, IProgressMonitor monitor) {
+		// Overridden from original implementation to prevent the use of workbench job!
+		Job updateJob = new org.eclipse.e4.ui.progress.UIJob("Adding children") { //$NON-NLS-1$
+			@Override
+			public IStatus runInUIThread(IProgressMonitor updateMonitor) {
+				// Cancel the job if the tree viewer got closed
+				if (treeViewer.getControl().isDisposed() || updateMonitor.isCanceled()) {
+					return Status.CANCEL_STATUS;
+				}
+				treeViewer.add(parent, children);
+				return Status.OK_STATUS;
+			}
+		};
+		updateJob.setSystem(true);
+		updateJob.schedule();
 	}
 
 	/*
@@ -76,9 +104,32 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	@Override
 	protected void runClearPlaceholderJob(final PendingUpdateAdapter placeholder) {
 		if (placeholder instanceof ElementPendingUpdateAdapter) {
-			if (((ElementPendingUpdateAdapter) placeholder).isRemoved() || !PlatformUI.isWorkbenchRunning())
+			ElementPendingUpdateAdapter pendingUpdate = (ElementPendingUpdateAdapter) placeholder;
+			if (pendingUpdate.isRemoved()) {
 				return;
+			}
 			notifyListener(false, (ElementPendingUpdateAdapter) placeholder);
+			Job clearJob = new org.eclipse.e4.ui.progress.UIJob("Clearing") { //$NON-NLS-1$
+				@Override
+				public IStatus runInUIThread(IProgressMonitor monitor) {
+					if (!pendingUpdate.isRemoved()) {
+						Control control = treeViewer.getControl();
+						if (control.isDisposed()) {
+							return Status.CANCEL_STATUS;
+						}
+						treeViewer.remove(placeholder);
+						pendingUpdate.setRemoved(true);
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			clearJob.setSystem(true);
+			// See bug 470554 if IElementCollector.done() is called immediately
+			// after IElementCollector.add(), SWT/GTK seem to be confused.
+			// Delay tree element deletion to avoid race conditions with GTK code
+			long timeout = Util.isGtk() ? 100 : 0;
+			clearJob.schedule(timeout);
+			return;
 		}
 		super.runClearPlaceholderJob(placeholder);
 	}

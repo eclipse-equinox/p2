@@ -19,6 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
@@ -46,7 +47,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
 import org.eclipse.ui.dialogs.PatternFilter;
-import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -109,7 +109,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	CachedMetadataRepositories input;
 	Text pattern, details;
 	PatternFilter filter;
-	WorkbenchJob filterJob;
+	Job filterJob;
 	Button addButton, removeButton, editButton, refreshButton, disableButton, exportButton;
 
 	private Map<MetadataRepositoryElement, URI> originalURICache = new HashMap<>(2);
@@ -792,7 +792,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			filter.setPattern(text);
 		if (filterJob != null)
 			filterJob.cancel();
-		filterJob = new WorkbenchJob("filter job") { //$NON-NLS-1$
+		filterJob = new org.eclipse.e4.ui.progress.UIJob("filter job") { //$NON-NLS-1$
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				if (monitor.isCanceled())
