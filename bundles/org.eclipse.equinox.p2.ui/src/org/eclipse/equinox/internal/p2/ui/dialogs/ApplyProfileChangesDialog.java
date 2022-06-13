@@ -31,31 +31,38 @@ public class ApplyProfileChangesDialog extends MessageDialog {
 	public static final int PROFILE_IGNORE = 0;
 	public static final int PROFILE_APPLYCHANGES = 1;
 	public static final int PROFILE_RESTART = 2;
-	private final static String[] yesNo = new String[] {ProvUIMessages.ApplyProfileChangesDialog_Restart, IDialogConstants.NO_LABEL};
-	private final static String[] yesNoApply = new String[] {ProvUIMessages.ApplyProfileChangesDialog_Restart, ProvUIMessages.ApplyProfileChangesDialog_NotYet, ProvUIMessages.ApplyProfileChangesDialog_ApplyChanges};
+	private final static String[] yesNo = new String[] { ProvUIMessages.ApplyProfileChangesDialog_Restart,
+			IDialogConstants.NO_LABEL };
+	private final static String[] yesNoApply = new String[] { ProvUIMessages.ApplyProfileChangesDialog_Restart,
+			ProvUIMessages.ApplyProfileChangesDialog_NotYet, ProvUIMessages.ApplyProfileChangesDialog_ApplyChanges };
 
 	private int returnCode = PROFILE_IGNORE;
 
 	private ApplyProfileChangesDialog(Shell parent, String title, String message, boolean mustRestart) {
 		super(parent, title, null, // accept the default window icon
-				message, QUESTION, mustRestart ? yesNo : yesNoApply, 0); // yes is the default
+				message, NONE, mustRestart ? yesNo : yesNoApply, 0); // yes is the default
 	}
 
 	/**
 	 * Prompt the user for restart or apply profile changes.
 	 *
-	 * @param parent the parent shell of the dialog, or <code>null</code> if none
+	 * @param parent      the parent shell of the dialog, or <code>null</code> if
+	 *                    none
 	 * @param mustRestart indicates whether the user must restart to get the
-	 * 		changes.  If <code>false</code>, then the user may choose to apply
-	 * 		the changes to the running profile rather than restarting.
-	 * @return one of PROFILE_IGNORE (do nothing), PROFILE_APPLYCHANGES
-	 * 		(attempt to apply the changes), or PROFILE_RESTART (restart the system).
+	 *                    changes. If <code>false</code>, then the user may choose
+	 *                    to apply the changes to the running profile rather than
+	 *                    restarting.
+	 * @return one of PROFILE_IGNORE (do nothing), PROFILE_APPLYCHANGES (attempt to
+	 *         apply the changes), or PROFILE_RESTART (restart the system).
 	 */
 	public static int promptForRestart(Shell parent, boolean mustRestart) {
 		String title = ProvUIMessages.PlatformUpdateTitle;
 		IProduct product = Platform.getProduct();
-		String productName = product != null && product.getName() != null ? product.getName() : ProvUIMessages.ApplicationInRestartDialog;
-		String message = NLS.bind(mustRestart ? ProvUIMessages.PlatformRestartMessage : ProvUIMessages.OptionalPlatformRestartMessage, productName);
+		String productName = product != null && product.getName() != null ? product.getName()
+				: ProvUIMessages.ApplicationInRestartDialog;
+		String message = NLS.bind(
+				mustRestart ? ProvUIMessages.PlatformRestartMessage : ProvUIMessages.OptionalPlatformRestartMessage,
+				productName);
 		ApplyProfileChangesDialog dialog = new ApplyProfileChangesDialog(parent, title, message, mustRestart);
 		if (dialog.open() == Window.CANCEL)
 			return PROFILE_IGNORE;
@@ -70,17 +77,17 @@ public class ApplyProfileChangesDialog extends MessageDialog {
 	@Override
 	protected void buttonPressed(int id) {
 		switch (id) {
-			case 0:
-				// YES
-				returnCode = PROFILE_RESTART;
-				break;
-			case 1:
-				// NO
-				returnCode = PROFILE_IGNORE;
-				break;
-			default:
-				returnCode = PROFILE_APPLYCHANGES;
-				break;
+		case 0:
+			// YES
+			returnCode = PROFILE_RESTART;
+			break;
+		case 1:
+			// NO
+			returnCode = PROFILE_IGNORE;
+			break;
+		default:
+			returnCode = PROFILE_APPLYCHANGES;
+			break;
 		}
 
 		super.buttonPressed(id);
