@@ -54,27 +54,29 @@ public class CopyUtils {
 	 * @param control  the control on which to install the menu and handler
 	 */
 	public static void activateCopy(ICopyable copyable, final Control control) {
-		IFocusService fs = PlatformUI.getWorkbench().getService(IFocusService.class);
-		final IHandlerService hs = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		new CopyPopup(copyable, control);
-		if (fs != null && hs != null) {
-			fs.addFocusTracker(control, CONTROL_ID);
-			final IHandlerActivation handlerActivation = hs.activateHandler(CopyHandler.ID, new CopyHandler(copyable),
-					new Expression() {
-						@Override
-						public EvaluationResult evaluate(IEvaluationContext context) {
-							return context.getVariable(ISources.ACTIVE_FOCUS_CONTROL_NAME) == control
-									? EvaluationResult.TRUE
-									: EvaluationResult.FALSE;
-						}
+		if (PlatformUI.isWorkbenchRunning()) {
+			final IFocusService fs = PlatformUI.getWorkbench().getService(IFocusService.class);
+			final IHandlerService hs = PlatformUI.getWorkbench().getService(IHandlerService.class);
+			if (fs != null && hs != null) {
+				fs.addFocusTracker(control, CONTROL_ID);
+				final IHandlerActivation handlerActivation = hs.activateHandler(CopyHandler.ID,
+						new CopyHandler(copyable), new Expression() {
+							@Override
+							public EvaluationResult evaluate(IEvaluationContext context) {
+								return context.getVariable(ISources.ACTIVE_FOCUS_CONTROL_NAME) == control
+										? EvaluationResult.TRUE
+										: EvaluationResult.FALSE;
+							}
 
-						@Override
-						public void collectExpressionInfo(final ExpressionInfo info) {
-							info.addVariableNameAccess(ISources.ACTIVE_FOCUS_CONTROL_NAME);
-						}
+							@Override
+							public void collectExpressionInfo(final ExpressionInfo info) {
+								info.addVariableNameAccess(ISources.ACTIVE_FOCUS_CONTROL_NAME);
+							}
 
-					});
-			control.addDisposeListener(e -> hs.deactivateHandler(handlerActivation));
+						});
+				control.addDisposeListener(e -> hs.deactivateHandler(handlerActivation));
+			}
 		}
 	}
 
