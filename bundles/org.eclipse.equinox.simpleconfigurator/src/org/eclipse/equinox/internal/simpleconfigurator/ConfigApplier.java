@@ -252,10 +252,19 @@ class ConfigApplier {
 
 	private Set<Bundle> getDoNotRefresh() {
 		Set<Bundle> doNotRefresh = new HashSet<>();
-		doNotRefresh.add(manipulatingContext.getBundle());
+		Bundle thisBundle = manipulatingContext.getBundle();
+		if (thisBundle != null) {
+			doNotRefresh.add(thisBundle);
+			addDoNotRefreshFragments(thisBundle, doNotRefresh);
+		}
 		Bundle systemBundle = manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION);
 		doNotRefresh.add(systemBundle);
-		BundleWiring systemWiring = systemBundle.adapt(BundleWiring.class);
+		addDoNotRefreshFragments(systemBundle, doNotRefresh);
+		return doNotRefresh;
+	}
+
+	private void addDoNotRefreshFragments(Bundle bundle, Set<Bundle> doNotRefresh) {
+		BundleWiring systemWiring = bundle.adapt(BundleWiring.class);
 		if (systemWiring != null) {
 			for (BundleWire hostWire : systemWiring.getProvidedWires(HostNamespace.HOST_NAMESPACE)) {
 				Bundle systemFragment = hostWire.getRequirer().getBundle();
@@ -265,7 +274,6 @@ class ConfigApplier {
 				}
 			}
 		}
-		return doNotRefresh;
 	}
 
 	private Collection<Bundle> uninstallBundles(HashSet<BundleInfo> toUninstall) {
