@@ -272,15 +272,21 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		revertAction = new Action() {
 			@Override
 			public void run() {
-				int result = MessageDialog.open(MessageDialog.QUESTION, getShell(), ProvUIMessages.RevertDialog_Title,
-						ProvUIMessages.RevertDialog_ConfirmRestartMessage, SWT.NONE,
-						ProvUIMessages.RevertProfilePage_RevertLabel, ProvUIMessages.RevertDialog_CancelButtonLabel);
-				if (result != Window.OK)
+				PlainMessageDialog dialog = PlainMessageDialog.getBuilder(getShell(), ProvUIMessages.RevertDialog_Title)
+						.message(ProvUIMessages.RevertDialog_ConfirmRestartMessage)
+						.buttonLabels(java.util.List.of(ProvUIMessages.RevertProfilePage_RevertLabel,
+								ProvUIMessages.RevertDialog_CancelButtonLabel))
+						.build();
+
+				int result = dialog.open();
+				if (result != Window.OK) {
 					return;
+				}
 				boolean finish = revert();
 				if (finish) {
 					getPageContainer().closeModalContainers();
 				}
+
 			}
 		};
 		revertAction.setText(ProvUIMessages.RevertProfilePage_RevertLabel);
