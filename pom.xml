@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+ <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Copyright (c) 2012, 2022 Eclipse Foundation.
   All rights reserved. This program and the accompanying materials
@@ -22,9 +22,15 @@
   <groupId>org.eclipse.equinox.p2</groupId>
   <artifactId>rt.equinox.p2</artifactId>
   <packaging>pom</packaging>
+  <version>${releaseVersion}${qualifier}</version>
 
   <properties>
     <tycho.scmUrl>scm:git:https://github.com/eclipse-equinox/p2.git</tycho.scmUrl>
+    <releaseVersion>4.25.0</releaseVersion>
+    <!-- Defines the default Qualifier if no format is given-->
+    <!-- can be overriden with -Dtycho.buildqualifier.format=yyyyMMddHHmm for a dynamic qualifier or -Dqualifier=abcd for a static value -->
+    <qualifier>-SNAPSHOT</qualifier>
+    <addMavenDescriptor>false</addMavenDescriptor>
   </properties>
 
   <!-- 
@@ -147,6 +153,16 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+		  <groupId>org.eclipse.tycho</groupId>
+		  <artifactId>tycho-packaging-plugin</artifactId>
+		  <version>${tycho.version}</version>
+		  <configuration>
+		    <archive>
+		      <addMavenDescriptor>${addMavenDescriptor}</addMavenDescriptor>
+		    </archive>
+          </configuration>
       </plugin>
     </plugins>
   </build>

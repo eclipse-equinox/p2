@@ -24,7 +24,11 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4.4
+      with:
+        maven-version: 3.8.6
     - name: Build with Maven
       uses: GabrielBB/xvfb-action@v1
       with:
-       run: mvn clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Papi-check -Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 --global-toolchains=.github/toolchains-gh.xml
+       run: mvn -V clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Papi-check -Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 --global-toolchains=.github/toolchains-gh.xml --settings .github/settings-gh.xml
