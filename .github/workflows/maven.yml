@@ -28,4 +28,4 @@ jobs:
     - name: Build with Maven
       uses: GabrielBB/xvfb-action@v1
       with:
-       run: mvn clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Papi-check -Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 --global-toolchains=.github/toolchains-gh.xml
+       run: mvn clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Papi-check -Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 --global-toolchains=.github/toolchains-gh.xml -T1C
