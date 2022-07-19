@@ -32,6 +32,8 @@
     <qualifier>-SNAPSHOT</qualifier>
     <!-- disabled for now, should be enabled later! -->
     <addMavenDescriptor>false</addMavenDescriptor>
+    <tycho.surefire.useUIHarness>false</tycho.surefire.useUIHarness>
+    <tycho.surefire.useUIThread>true</tycho.surefire.useUIThread>
   </properties>
 
   <!-- 
@@ -69,62 +71,35 @@
         <osgi.ws>cocoa</osgi.ws>
       </properties>
     </profile>
+    <profile>
+      <id>reconciler.product</id>
+      <activation>
+        <file><exists>reconciler.product</exists></file>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.eclipse.tycho</groupId>
+              <artifactId>tycho-p2-director-plugin</artifactId>
+              <configuration>
+                <products>
+                  <product>
+                    <id>org.eclipse.equinox.p2.reconciler</id>
+                    <rootFolder>eclipse</rootFolder>
+                  </product>
+                </products>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
   </profiles>
 
   <modules>
-    <module>bundles/org.eclipse.equinox.frameworkadmin</module>
-    <module>bundles/org.eclipse.equinox.frameworkadmin.equinox</module>
-    <module>bundles/org.eclipse.equinox.frameworkadmin.test</module>
-    <module>bundles/org.eclipse.equinox.p2.artifact.repository</module>
-    <module>bundles/org.eclipse.equinox.p2.console</module>
-    <module>bundles/org.eclipse.equinox.p2.core</module>
-    <module>bundles/org.eclipse.equinox.p2.director</module>
-    <module>bundles/org.eclipse.equinox.p2.director.app</module>
-    <module>bundles/org.eclipse.equinox.p2.directorywatcher</module>
-    <module>bundles/org.eclipse.equinox.p2.discovery</module>
-    <module>bundles/org.eclipse.equinox.p2.discovery.compatibility</module>
-    <module>bundles/org.eclipse.equinox.p2.engine</module>
-    <module>bundles/org.eclipse.equinox.p2.extensionlocation</module>
-    <module>bundles/org.eclipse.equinox.p2.garbagecollector</module>
-    <module>bundles/org.eclipse.equinox.p2.installer</module>
-    <module>bundles/org.eclipse.equinox.p2.jarprocessor</module>
-    <module>bundles/org.eclipse.equinox.p2.metadata</module>
-    <module>bundles/org.eclipse.equinox.p2.metadata.repository</module>
-    <module>bundles/org.eclipse.equinox.p2.operations</module>
-    <module>bundles/org.eclipse.equinox.p2.publisher</module>
-    <module>bundles/org.eclipse.equinox.p2.reconciler.dropins</module>
-    <module>bundles/org.eclipse.equinox.p2.repository</module>
-    <module>bundles/org.eclipse.equinox.p2.repository.tools</module>
-    <module>bundles/org.eclipse.equinox.p2.touchpoint.eclipse</module>
-    <module>bundles/org.eclipse.equinox.p2.touchpoint.natives</module>
-    <module>bundles/org.eclipse.equinox.p2.transport.ecf</module>
-    <module>bundles/org.eclipse.equinox.p2.ui</module>
-    <module>bundles/org.eclipse.equinox.p2.ui.importexport</module>
-    <module>bundles/org.eclipse.equinox.p2.ui.admin</module>
-    <module>bundles/org.eclipse.equinox.p2.ui.admin.rcp</module>
-    <module>bundles/org.eclipse.equinox.p2.ui.discovery</module>
-    <module>bundles/org.eclipse.equinox.p2.updatechecker</module>
-    <module>bundles/org.eclipse.equinox.p2.updatesite</module>
-    <module>bundles/org.eclipse.equinox.simpleconfigurator</module>
-    <module>bundles/org.eclipse.equinox.simpleconfigurator.manipulator</module>
-    <module>bundles/org.eclipse.equinox.p2.publisher.eclipse</module>
-    <module>bundles/org.eclipse.equinox.p2.ui.sdk</module>
-    <module>bundles/org.eclipse.equinox.p2.ui.sdk.scheduler</module>
-
-    <module>bundles/org.eclipse.equinox.p2.tests.reconciler.product</module>
-    <module>bundles/org.eclipse.equinox.p2.tests</module>
-    <module>bundles/org.eclipse.equinox.p2.tests.discovery</module>
-    <module>bundles/org.eclipse.equinox.p2.tests.ui</module>
-    <module>bundles/org.eclipse.equinox.p2.tests.verifier</module>
-
-    <module>features/org.eclipse.equinox.p2.core.feature</module>
-    <module>features/org.eclipse.equinox.p2.extras.feature</module>
-    <module>features/org.eclipse.equinox.p2.discovery.feature</module>
-    <module>features/org.eclipse.equinox.p2.sdk</module>
-    <module>features/org.eclipse.equinox.p2.rcp.feature</module>
-    <module>features/org.eclipse.equinox.p2.user.ui</module>
-    <module>features/org.eclipse.equinox.server.p2</module>
-
+    <module>bundles</module>
+    <module>features</module>
     <module>examples</module>
   </modules>
 
@@ -156,6 +131,18 @@
         </executions>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-surefire-plugin</artifactId>
+          <configuration>
+            <useUIHarness>${tycho.surefire.useUIHarness}</useUIHarness>
+            <useUIThread>${tycho.surefire.useUIThread}</useUIThread>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
 </project>
