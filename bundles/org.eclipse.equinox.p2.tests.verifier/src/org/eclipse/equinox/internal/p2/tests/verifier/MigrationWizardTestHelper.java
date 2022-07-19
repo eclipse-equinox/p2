@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.MigrationSuppo
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
+@SuppressWarnings("restriction")
 public class MigrationWizardTestHelper extends MigrationSupport {
 	//Variable that keeps track if the wizard has been requested to open
 	public boolean wizardOpened = false;
