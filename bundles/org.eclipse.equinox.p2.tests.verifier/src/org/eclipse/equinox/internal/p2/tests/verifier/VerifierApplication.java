@@ -48,6 +48,7 @@ import org.osgi.resource.*;
  *
  * @since 1.0
  */
+@SuppressWarnings("restriction")
 public class VerifierApplication implements IApplication {
 
 	private static final File DEFAULT_PROPERTIES_FILE = new File("verifier.properties"); //$NON-NLS-1$
