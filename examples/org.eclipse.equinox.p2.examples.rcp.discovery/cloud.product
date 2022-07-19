@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="RCP Mail Example (p2 Discovery)" id="org.eclipse.equinox.p2.examples.rcp.cloud.product" application="org.eclipse.equinox.p2.examples.rcp.cloud.application" version="2.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="RCP Mail Example (p2 Discovery)" uid="org.eclipse.equinox.p2.examples.rcp.cloud.product" id="org.eclipse.equinox.p2.examples.rcp.cloud.product" application="org.eclipse.equinox.p2.examples.rcp.cloud.application" version="2.1.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="product_lg.gif"/>
@@ -41,7 +41,6 @@
       <plugin id="org.apache.batik.i18n"/>
       <plugin id="org.apache.batik.util"/>
       <plugin id="org.apache.commons.codec"/>
-      <plugin id="org.apache.commons.httpclient"/>
       <plugin id="org.apache.commons.io"/>
       <plugin id="org.apache.commons.jxpath"/>
       <plugin id="org.apache.commons.logging"/>
@@ -83,8 +82,6 @@
       <plugin id="org.eclipse.ecf.filetransfer"/>
       <plugin id="org.eclipse.ecf.identity"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer"/>
-      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient"/>
-      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient.ssl" fragment="true"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient5"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer.ssl" fragment="true"/>
       <plugin id="org.eclipse.ecf.ssl" fragment="true"/>
@@ -105,7 +102,7 @@
       <plugin id="org.eclipse.equinox.p2.discovery"/>
       <plugin id="org.eclipse.equinox.p2.discovery.compatibility"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
-      <plugin id="org.eclipse.equinox.p2.examples.rcp.cloud" version="2.0.0.qualifier"/>
+      <plugin id="org.eclipse.equinox.p2.examples.rcp.discovery"/>
       <plugin id="org.eclipse.equinox.p2.extensionlocation"/>
       <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
       <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
@@ -130,7 +127,6 @@
       <plugin id="org.eclipse.equinox.security.ui"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
-      <plugin id="org.eclipse.equinox.util"/>
       <plugin id="org.eclipse.help"/>
       <plugin id="org.eclipse.jface"/>
       <plugin id="org.eclipse.jface.databinding"/>
@@ -151,6 +147,5 @@
       <plugin id="org.w3c.dom.smil"/>
       <plugin id="org.w3c.dom.svg"/>
    </plugins>
-
 
 </product>

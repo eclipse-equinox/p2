@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="RCP Mail Example (Pre-Startup Example)" id="org.eclipse.equinox.p2.examples.rcp.prestartupdate.product" application="org.eclipse.equinox.p2.examples.rcp.prestartupdate.application" version="1.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="RCP Mail Example (Pre-Startup Example)" uid="org.eclipse.equinox.p2.examples.rcp.prestartupdate.product" id="org.eclipse.equinox.p2.examples.rcp.prestartupdate.product" application="org.eclipse.equinox.p2.examples.rcp.prestartupdate.application" version="1.1.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="product_lg.gif"/>
@@ -35,8 +35,8 @@
       <plugin id="com.ibm.icu"/>
       <plugin id="com.ibm.icu.source"/>
       <plugin id="org.apache.commons.codec"/>
-      <plugin id="org.apache.commons.httpclient"/>
       <plugin id="org.apache.commons.logging"/>
+      <plugin id="org.apache.felix.scr"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.databinding"/>
@@ -45,18 +45,14 @@
       <plugin id="org.eclipse.core.expressions"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>
-      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
       <plugin id="org.eclipse.ecf"/>
       <plugin id="org.eclipse.ecf.filetransfer"/>
       <plugin id="org.eclipse.ecf.identity"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer"/>
-      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient"/>
-      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient.ssl" fragment="true"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer.ssl" fragment="true"/>
       <plugin id="org.eclipse.ecf.ssl" fragment="true"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
-      <plugin id="org.apache.felix.scr"/>
       <plugin id="org.eclipse.equinox.frameworkadmin"/>
       <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
       <plugin id="org.eclipse.equinox.p2.artifact.repository"/>

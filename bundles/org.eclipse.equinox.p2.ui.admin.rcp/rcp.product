@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="%productName" id="org.eclipse.equinox.p2.ui.admin.rcp.product" application="org.eclipse.equinox.p2.ui.admin.rcp.application" version="1.2.0.@qualifier@" useFeatures="false" includeLaunchers="true">
+<product name="%productName" uid="org.eclipse.equinox.p2.ui.admin.rcp.product" id="org.eclipse.equinox.p2.ui.admin.rcp.product" application="org.eclipse.equinox.p2.ui.admin.rcp.application" version="1.2.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <text>
@@ -145,7 +145,6 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
       <plugin id="org.apache.batik.i18n"/>
       <plugin id="org.apache.batik.util"/>
       <plugin id="org.apache.commons.codec"/>
-      <plugin id="org.apache.commons.httpclient"/>
       <plugin id="org.apache.commons.io"/>
       <plugin id="org.apache.commons.jxpath"/>
       <plugin id="org.apache.commons.logging"/>
@@ -196,8 +195,6 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
       <plugin id="org.eclipse.ecf.filetransfer"/>
       <plugin id="org.eclipse.ecf.identity"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer"/>
-      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient"/>
-      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient.ssl" fragment="true"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer.ssl" fragment="true"/>
       <plugin id="org.eclipse.ecf.ssl" fragment="true"/>
       <plugin id="org.eclipse.emf.common"/>
@@ -244,7 +241,6 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
       <plugin id="org.eclipse.equinox.security.ui"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
-      <plugin id="org.eclipse.equinox.util"/>
       <plugin id="org.eclipse.help"/>
       <plugin id="org.eclipse.jface"/>
       <plugin id="org.eclipse.jface.databinding"/>
