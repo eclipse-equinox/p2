@@ -38,11 +38,12 @@ public class ServiceHelper {
 	}
 
 	public static <T> T getService(BundleContext context, Class<T> clazz, String filter) {
+		if (context == null)
+			return null;
 		Collection<ServiceReference<T>> references;
 		try {
 			references = context.getServiceReferences(clazz, filter);
 		} catch (InvalidSyntaxException e) {
-			// TODO Auto-generated catch block
 			return null;
 		}
 		if (references.isEmpty())
@@ -74,11 +75,12 @@ public class ServiceHelper {
 	}
 
 	public static Object getService(BundleContext context, String name, String filter) {
+		if (context == null)
+			return null;
 		ServiceReference<?>[] references;
 		try {
 			references = context.getServiceReferences(name, filter);
 		} catch (InvalidSyntaxException e) {
-			// TODO Auto-generated catch block
 			return null;
 		}
 		if (references == null || references.length == 0)
