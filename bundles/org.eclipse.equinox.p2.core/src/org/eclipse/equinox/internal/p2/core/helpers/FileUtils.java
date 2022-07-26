@@ -130,12 +130,44 @@ public class FileUtils {
 		return unzippedFiles.toArray(new File[unzippedFiles.size()]);
 	}
 
+	private static final boolean IS_WINDOWS = File.separatorChar == '\\';
+
+	// reserved names according to
+	// https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+	private static final Set<String> RESERVED_NAMES = new HashSet<>(Arrays.asList("aux", "com1", "com2", "com3", "com4", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			"com5", "com6", "com7", "com8", "com9", "con", "lpt1", "lpt2", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+			"lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9", "nul", "prn")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
+
+	/** Tests whether the filename can escape path into special device **/
+	public static boolean isReservedFileName(File file) {
+		// Directory names are not checked here because illegal directory names will be
+		// handled by OS.
+		if (!IS_WINDOWS) { // only windows has special file names which can escape any path
+			return false;
+		}
+		String fileName = file.getName();
+		// Illegal characters are not checked here because they are check by both JDK
+		// and OS. This is only a check against technical allowed but unwanted device
+		// names.
+		int dot = fileName.indexOf('.');
+		// on windows, filename suffixes are not relevant to name validity
+		String basename = dot == -1 ? fileName : fileName.substring(0, dot);
+		return RESERVED_NAMES.contains(basename.toLowerCase());
+	}
+
 	private static File createSubPathFile(File root, String subPath) throws IOException {
 		File result = new File(root, subPath);
-		String resultCanonical = result.getCanonicalPath();
-		String rootCanonical = root.getCanonicalPath();
-		if (!resultCanonical.startsWith(rootCanonical + File.separator) && !resultCanonical.equals(rootCanonical)) {
-			throw new IOException("Invalid path: " + subPath); //$NON-NLS-1$
+		if (subPath.contains("..")) { //$NON-NLS-1$
+			// do the extra check to make sure the path did not escape the root path
+			java.nio.file.Path resultNormalized = result.toPath().normalize();
+			java.nio.file.Path rootBaseNormalized = root.toPath().normalize();
+			if (!resultNormalized.startsWith(rootBaseNormalized)) {
+				throw new IOException("Invalid path: " + subPath); //$NON-NLS-1$
+			}
+		}
+		// Additional check if it is a special device instead of a regular file.
+		if (isReservedFileName(result)) {
+			throw new IOException("Invalid filename: " + subPath); //$NON-NLS-1$
 		}
 		return result;
 	}
