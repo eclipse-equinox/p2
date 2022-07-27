@@ -28,7 +28,6 @@ public class FileUtils {
 			for (TarEntry entry : tarFile.entries()) {
 				try (InputStream input = tarFile.getInputStream(entry)) {
 					File outFile = createSubPathFile(outputDir, entry.getName());
-					outFile = outFile.getCanonicalFile(); //bug 266844
 					untarredFiles.add(outFile);
 					if (entry.getFileType() == TarEntry.DIRECTORY) {
 						outFile.mkdirs();

@@ -17,10 +17,13 @@ package org.eclipse.equinox.p2.tests.core;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import org.apache.tools.tar.TarEntry;
+import org.apache.tools.tar.TarOutputStream;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -111,6 +114,41 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 			// expected
 			assertTrue("Wrong message: " + e.getMessage(), e.getMessage().contains("Invalid path: "));
 		}
+	}
+
+	public void testBug266844zip() throws IOException {
+		File zip = TestActivator.getContext().getDataFile(getName() + ".zip");
+		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+			zos.putNextEntry(new ZipEntry("./"));
+			zos.putNextEntry(new ZipEntry("./content.txt"));
+			zos.write("test data".getBytes());
+			zos.closeEntry();
+		}
+		File temp = getTempFolder();
+		FileUtils.unzipFile(zip, temp);
+		File extracted = new File(temp, "content.txt");
+		assertEquals("test data", Files.readString(extracted.toPath()));
+		assertTrue("File not deleted", extracted.delete());
+		Util.unzipFile(zip, temp, null, null, null);
+		assertEquals("test data", Files.readString(extracted.toPath()));
+		assertTrue("File not deleted", extracted.delete());
+	}
+
+	public void testBug266844tar() throws IOException {
+		File tar = TestActivator.getContext().getDataFile(getName() + ".tar.gz");
+		try (TarOutputStream tos = new TarOutputStream(new FileOutputStream(tar))) {
+			tos.putNextEntry(new TarEntry("./"));
+			TarEntry entry = new TarEntry("./content.txt");
+			entry.setSize(9);
+			tos.putNextEntry(entry);
+			tos.write("test data".getBytes());
+			tos.closeEntry();
+		}
+		File temp = getTempFolder();
+		FileUtils.unzipFile(tar, temp);
+		File extracted = new File(temp, "content.txt");
+		assertEquals("test data", Files.readString(extracted.toPath()));
+		assertTrue("File not deleted", extracted.delete());
 	}
 
 	public void testZipRootPathComputer() {
