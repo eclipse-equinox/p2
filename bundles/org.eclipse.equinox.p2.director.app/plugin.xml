@@ -9,9 +9,6 @@
 			<run class="org.eclipse.equinox.internal.p2.director.app.DirectorApplication"/> 
 		</application> 
 	</extension>
-	<extension id="product" point="org.eclipse.core.runtime.products">
-		<product application="org.eclipse.equinox.p2.director.app.application" name="Equinox Provisioning Director" />
-	</extension> 
 	<extension id="org.eclipse.equinox.p2.director.product" point="org.eclipse.core.runtime.products">
 		<product application="org.eclipse.equinox.p2.director" name="Equinox P2 Director" />
 	</extension> 
