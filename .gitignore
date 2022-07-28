@@ -1,4 +1,5 @@
 target/
+bin/
 # files generated (temporary) by the tycho maven builds
 .polyglot.*
 .META-INF_*
