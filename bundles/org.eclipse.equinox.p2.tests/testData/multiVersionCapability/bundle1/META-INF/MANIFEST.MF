@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: testMultiVersionCapability
+Bundle-Version: 1.0.0.qualifier
+Provide-Capability: 
+ cap0;cap0=name0;uses:="some.other",
+ cap1;cap1=name1;version:Version="1.0";uses:="some.other",
+ cap2;cap2=name2;version:List<Version>="1.1";uses:="some.other",
+ cap3;cap3=name3;version:List<Version>="1,2.1";uses:="some.other"

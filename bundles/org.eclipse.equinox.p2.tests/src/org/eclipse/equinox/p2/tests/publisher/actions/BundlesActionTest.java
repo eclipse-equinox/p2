@@ -33,10 +33,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -44,6 +46,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.OSGiVersion;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -510,5 +513,35 @@ public class BundlesActionTest extends ActionTest {
 		Collection<IInstallableUnit> ius = publisherResult.getIUs("org.eclipse.p2.test.validManifest",
 				IPublisherResult.ROOT);
 		assertThat(ius.size(), is(1));
+	}
+
+	public void testMultiVersionCapability() throws Exception {
+		File testData = getTestData("dymamicImport", "testData/multiVersionCapability/bundle1");
+		IInstallableUnit iu = BundlesAction.createBundleIU(BundlesAction.createBundleDescription(testData), null,
+				new PublisherInfo());
+		Map<String, List<IProvidedCapability>> namespace2capability = iu.getProvidedCapabilities().stream()
+				.collect(Collectors.groupingBy(IProvidedCapability::getNamespace));
+
+		List<IProvidedCapability> list0 = namespace2capability.get("cap0");
+		assertCapabilities(list0, "name0", Version.emptyVersion);
+
+		List<IProvidedCapability> list1 = namespace2capability.get("cap1");
+		assertCapabilities(list1, "name1", new OSGiVersion(1, 0, 0, ""));
+
+		List<IProvidedCapability> list2 = namespace2capability.get("cap2");
+		assertCapabilities(list2, "name2", new OSGiVersion(1, 1, 0, ""));
+
+		List<IProvidedCapability> list3 = namespace2capability.get("cap3");
+		assertCapabilities(list3, "name3", new OSGiVersion(1, 0, 0, ""), new OSGiVersion(2, 1, 0, ""));
+	}
+
+	private void assertCapabilities(List<IProvidedCapability> capabilities, String expectedName,
+			Version... expectedVersions) {
+		assertEquals(expectedVersions.length, capabilities.size());
+		capabilities.forEach(c -> assertEquals(expectedName, c.getName()));
+		capabilities.sort(Comparator.comparing(IProvidedCapability::getVersion));
+		for (int i = 0; i < expectedVersions.length; i++) {
+			assertEquals(expectedVersions[i], capabilities.get(i).getVersion());
+		}
 	}
 }
