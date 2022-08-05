@@ -13,18 +13,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.core;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
- * A Pool allows semantically equivalent objects to be shared.  To be useful, objects added to the pool should implement
- * a meaningful equals() method.
+ * A Pool allows semantically equivalent objects to be shared. To be useful,
+ * objects added to the pool should implement a meaningful equals() method.
  * <p>
- * Care must be taken by users that object sharing is appropriate for their application.  It is easy
- * to "over share" objects leading to unexpected and difficult to debug behaviour.
- * </p><p>
+ * Care must be taken by users that object sharing is appropriate for their
+ * application. It is easy to "over share" objects leading to unexpected and
+ * difficult to debug behavior.
+ * </p>
+ * <p>
  * This interface is not intended to be implemented by clients.
  * </p>
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.1
  */
+@ProviderType
 public interface IPool<T> {
 
 	/**
@@ -35,5 +41,5 @@ public interface IPool<T> {
 	 * @param newObject the object to add
 	 * @return a shared object that is equal to the given object or <code>null</code>
 	 */
-	public abstract T add(T newObject);
+	T add(T newObject);
 }

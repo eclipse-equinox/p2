@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.core;
 
 import java.net.URI;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * An instance of this service represents the location of a provisioning agent's
@@ -23,11 +24,12 @@ import java.net.URI;
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
  */
+@ProviderType
 public interface IAgentLocation {
 	/**
 	 * Service name constant for the agent location service.
 	 */
-	public static final String SERVICE_NAME = IAgentLocation.class.getName();
+	String SERVICE_NAME = IAgentLocation.class.getName();
 
 	/**
 	 * Returns the location where the bundle with the given namespace
@@ -35,13 +37,13 @@ public interface IAgentLocation {
 	 * @param namespace The namespace of the bundle storing the data
 	 * @return The data location
 	 */
-	public URI getDataArea(String namespace);
+	URI getDataArea(String namespace);
 
 	/**
 	 * Returns the root {@link URI} of the agent metadata.
 	 *
 	 * @return the location of the agent metadata
 	 */
-	public URI getRootLocation();
+	URI getRootLocation();
 
 }

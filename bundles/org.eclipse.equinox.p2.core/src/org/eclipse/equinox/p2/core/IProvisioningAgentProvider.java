@@ -14,18 +14,20 @@
 package org.eclipse.equinox.p2.core;
 
 import java.net.URI;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * An OSGi service that is used to create or obtain instances of an
  * {@link IProvisioningAgent}.
  * @since 2.0
  */
+@ProviderType
 public interface IProvisioningAgentProvider {
 
 	/**
 	 * Service name constant for the agent provider service.
 	 */
-	public static final String SERVICE_NAME = IProvisioningAgentProvider.class.getName();
+	String SERVICE_NAME = IProvisioningAgentProvider.class.getName();
 
 	/**
 	 * Creates a provisioning agent who metadata is stored at the given location.
@@ -46,5 +48,5 @@ public interface IProvisioningAgentProvider {
 	 * </ul>
 	 * @see IProvisioningAgent#stop()
 	 */
-	public IProvisioningAgent createAgent(URI location) throws ProvisionException;
+	IProvisioningAgent createAgent(URI location) throws ProvisionException;
 }

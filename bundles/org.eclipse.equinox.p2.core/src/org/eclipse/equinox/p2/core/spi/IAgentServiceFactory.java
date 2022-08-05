@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.core.spi;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * A factory for creating a service that forms part of a provisioning agent instance.
@@ -21,16 +22,17 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
  * can be obtained by a provisioning agent.
  * @since 2.0
  */
+@ConsumerType
 public interface IAgentServiceFactory {
 	/**
 	 * The service name for the factory service.
 	 */
-	public static final String SERVICE_NAME = IAgentServiceFactory.class.getName();
+	String SERVICE_NAME = IAgentServiceFactory.class.getName();
 
 	/**
 	 * The service property specifying the name of the service created by this factory.
 	 */
-	public static final String PROP_CREATED_SERVICE_NAME = "p2.agent.servicename"; //$NON-NLS-1$
+	String PROP_CREATED_SERVICE_NAME = "p2.agent.servicename"; //$NON-NLS-1$
 
 	/**
 	 * Instantiates a service instance for the given provisioning agent.
@@ -38,5 +40,5 @@ public interface IAgentServiceFactory {
 	 * @param agent The agent this service will belong to
 	 * @return The created service
 	 */
-	public Object createService(IProvisioningAgent agent);
+	Object createService(IProvisioningAgent agent);
 }
