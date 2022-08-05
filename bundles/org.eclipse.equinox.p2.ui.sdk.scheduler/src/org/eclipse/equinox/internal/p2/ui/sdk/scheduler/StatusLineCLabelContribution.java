@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2022 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -53,7 +53,7 @@ public class StatusLineCLabelContribution extends ContributionItem {
 			GC gc = new GC(parent);
 			gc.setFont(parent.getFont());
 			FontMetrics fm = gc.getFontMetrics();
-			widthHint = fm.getAverageCharWidth() * charWidth;
+			widthHint = (int) (fm.getAverageCharacterWidth() * charWidth);
 			heightHint = fm.getHeight();
 			gc.dispose();
 		}
