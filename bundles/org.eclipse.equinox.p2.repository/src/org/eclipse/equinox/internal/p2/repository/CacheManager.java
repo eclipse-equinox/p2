@@ -82,6 +82,9 @@ public class CacheManager {
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
+	/** Allows to mute "Using unsafe http transport" warnings */
+	private static final boolean SKIP_REPOSITORY_PROTOCOL_CHECK = Boolean.getBoolean("p2.skipRepositoryProtocolCheck"); //$NON-NLS-1$
+
 	private final HashSet<String> knownPrefixes = new HashSet<>(5);
 
 	/**
@@ -270,6 +273,9 @@ public class CacheManager {
 	}
 
 	private void checkLocationIsSecure(URI repositoryLocation) {
+		if (SKIP_REPOSITORY_PROTOCOL_CHECK) {
+			return;
+		}
 		if ("http".equals(repositoryLocation.getScheme())) { //$NON-NLS-1$
 			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.unsafeHttp, repositoryLocation)));
 		}
