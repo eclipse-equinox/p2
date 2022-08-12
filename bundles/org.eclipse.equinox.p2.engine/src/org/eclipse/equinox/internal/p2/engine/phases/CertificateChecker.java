@@ -52,6 +52,9 @@ import org.osgi.util.tracker.ServiceTracker;
 public class CertificateChecker {
 	private static final String DEBUG_PREFIX = "certificate checker"; //$NON-NLS-1$
 
+	private static boolean VERIFY_CERTIFICATE_SIGNATURE_VALIDITY = Boolean.TRUE.toString()
+			.equalsIgnoreCase(System.getProperty("p2.verifyCertificateSignatureValidity", Boolean.TRUE.toString())); //$NON-NLS-1$
+
 	public static final String TRUST_ALWAYS_PROPERTY = "trustAlways"; //$NON-NLS-1$
 
 	public static final String TRUSTED_KEY_STORE_PROPERTY = "pgp.trustedPublicKeys"; //$NON-NLS-1$
@@ -163,6 +166,24 @@ public class CertificateChecker {
 				boolean signed = content.isSigned();
 				if (signed) {
 					SignerInfo[] signerInfo = content.getSignerInfos();
+
+					// Treat the artifact as untrusted if the signature is outside of the
+					// certificate's validity range.
+					if (VERIFY_CERTIFICATE_SIGNATURE_VALIDITY) {
+						Arrays.stream(signerInfo).filter(info -> {
+							try {
+								content.checkValidity(info);
+								return false;
+							} catch (CertificateExpiredException | CertificateNotYetValidException e) {
+								return true;
+							}
+						}).forEach(info -> {
+							List<Certificate> certificateChain = Arrays.asList(info.getCertificateChain());
+							untrustedCertificates.computeIfAbsent(certificateChain, key -> new LinkedHashSet<>())
+									.add(artifactKey);
+						});
+					}
+
 					// Only record the untrusted elements if there are no trusted elements.
 					// Also check previously trusted certificates from the preferences.
 					if (Arrays.stream(signerInfo).noneMatch(SignerInfo::isTrusted)
@@ -176,7 +197,11 @@ public class CertificateChecker {
 							}
 						}
 					}
-				} else {
+				}
+
+				// Also check for PGP if there are untrusted certificates because there might be
+				// trusted PGP keys too.
+				if (!signed || !untrustedCertificates.isEmpty()) {
 					// The keys are in this destination artifact's properties if and only if the
 					// PGPSignatureVerifier verified the signatures against these keys.
 					List<PGPPublicKey> verifiedKeys = PGPPublicKeyStore
@@ -193,7 +218,13 @@ public class CertificateChecker {
 							verifiedKeys.forEach(key -> untrustedPGPKeys
 									.computeIfAbsent(key, k -> new LinkedHashSet<>()).add(artifactKey));
 						}
-					} else {
+						if (untrustedPGPKeys.isEmpty()) {
+							// There are PGP keys and at least one of them is trusted so even if there are
+							// untrusted certificates we will not prompt for those because we only prompt if
+							// none of the certificates *and* none of the PGP keys are trusted.
+							untrustedCertificates.clear();
+						}
+					} else if (untrustedCertificates.isEmpty()) {
 						unsignedArtifacts.add(artifactKey);
 					}
 				}
@@ -265,26 +296,36 @@ public class CertificateChecker {
 				return Status.CANCEL_STATUS;
 			}
 
+			// For any certificate that was newly trusted, its associated artifacts are
+			// trusted.
+			Set<IArtifactKey> trustedArtifactKeys = new HashSet<>();
 			Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
-			// If we had untrusted chains and nothing was trusted, cancel the operation
-			if (!untrustedCertificates.isEmpty() && trustedCertificates == null) {
-				return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
-			}
-
-			// Anything that was trusted should be removed from the untrusted list
 			if (trustedCertificates != null) {
-				List<Certificate> trustedCertificateList = Arrays.asList(trustedCertificates);
-				untrustedCertificates.keySet().removeIf(it -> trustedCertificateList.contains(it.get(0)));
+				for (Entry<List<Certificate>, Set<IArtifactKey>> entry : untrustedCertificates.entrySet()) {
+					for (Certificate trustedCertificate : trustedCertificates) {
+						if (entry.getKey().contains(trustedCertificate)) {
+							trustedArtifactKeys.addAll(entry.getValue());
+						}
+					}
+				}
 			}
 
+			// Add any newly trusted keys.
+			// The artifacts associated with those keys are now trusted.
 			trustedKeySet.addAll(trustInfo.getTrustedPGPKeys());
-
-			Set<IArtifactKey> trustedArtifactKeys = trustedKeySet.stream().map(untrustedPGPKeys::get)
+			Set<IArtifactKey> pgpTrustedArtifactKeys = trustedKeySet.stream().map(untrustedPGPKeys::get)
 					.filter(Objects::nonNull).flatMap(Set::stream).collect(Collectors.toSet());
+			trustedArtifactKeys.addAll(pgpTrustedArtifactKeys);
+
+			// Remove all trusted artifacts the values of both maps.
+			untrustedCertificates.values().forEach(it -> it.removeAll(trustedArtifactKeys));
 			untrustedPGPKeys.values().forEach(it -> it.removeAll(trustedArtifactKeys));
+
+			// Remove any values that are now empty sets.
+			untrustedCertificates.values().removeIf(Collection::isEmpty);
 			untrustedPGPKeys.values().removeIf(Collection::isEmpty);
 
-			// If there is still untrusted content, cancel the operation
+			// If there is still untrusted artifacts, cancel the operation.
 			if (!untrustedCertificates.isEmpty() || !untrustedPGPKeys.isEmpty()) {
 				return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
 			}
