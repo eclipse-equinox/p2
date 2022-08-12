@@ -160,7 +160,8 @@ public class CertificateChecker {
 			artifactFiles.put(artifactKey, artifactFile);
 			try {
 				SignedContent content = verifierFactory.getSignedContent(artifactFile);
-				if (content.isSigned()) {
+				boolean signed = content.isSigned();
+				if (signed) {
 					SignerInfo[] signerInfo = content.getSignerInfos();
 					// Only record the untrusted elements if there are no trusted elements.
 					// Also check previously trusted certificates from the preferences.
