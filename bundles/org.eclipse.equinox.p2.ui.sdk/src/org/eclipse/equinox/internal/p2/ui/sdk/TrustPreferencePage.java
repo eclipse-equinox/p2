@@ -322,7 +322,8 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 				} else {
 					certificateChecker.setTrustAlways(true);
 				}
-
+			} else {
+				certificateChecker.setTrustAlways(false);
 			}
 		}));
 
