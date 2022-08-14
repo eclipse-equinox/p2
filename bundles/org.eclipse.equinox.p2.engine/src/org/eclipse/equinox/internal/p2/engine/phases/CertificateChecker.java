@@ -161,28 +161,12 @@ public class CertificateChecker {
 			IArtifactKey artifactKey = artifactDescriptor.getArtifactKey();
 			File artifactFile = artifact.getValue();
 			artifactFiles.put(artifactKey, artifactFile);
+			boolean artifactTrustedByCertificate = false;
 			try {
 				SignedContent content = verifierFactory.getSignedContent(artifactFile);
 				boolean signed = content.isSigned();
 				if (signed) {
 					SignerInfo[] signerInfo = content.getSignerInfos();
-
-					// Treat the artifact as untrusted if the signature is outside of the
-					// certificate's validity range.
-					if (VERIFY_CERTIFICATE_SIGNATURE_VALIDITY) {
-						Arrays.stream(signerInfo).filter(info -> {
-							try {
-								content.checkValidity(info);
-								return false;
-							} catch (CertificateExpiredException | CertificateNotYetValidException e) {
-								return true;
-							}
-						}).forEach(info -> {
-							List<Certificate> certificateChain = Arrays.asList(info.getCertificateChain());
-							untrustedCertificates.computeIfAbsent(certificateChain, key -> new LinkedHashSet<>())
-									.add(artifactKey);
-						});
-					}
 
 					// Only record the untrusted elements if there are no trusted elements.
 					// Also check previously trusted certificates from the preferences.
@@ -196,12 +180,39 @@ public class CertificateChecker {
 										.add(artifactKey);
 							}
 						}
+					} else {
+						artifactTrustedByCertificate = true;
 					}
+
+					// Treat the artifact as untrusted if the signature is outside of the
+					// certificate's validity range.
+					if (VERIFY_CERTIFICATE_SIGNATURE_VALIDITY) {
+						List<SignerInfo> invalidSignatures = Arrays.stream(signerInfo).filter(info -> {
+							try {
+								content.checkValidity(info);
+								return false;
+							} catch (CertificateExpiredException | CertificateNotYetValidException e) {
+								return true;
+							}
+						}).collect(Collectors.toList());
+
+						// Only complain if all signatures are invalid and do so even if the certificate
+						// itself is trusted.
+						if (signerInfo.length == invalidSignatures.size()) {
+							artifactTrustedByCertificate = false;
+							for (SignerInfo info : invalidSignatures) {
+								List<Certificate> certificateChain = Arrays.asList(info.getCertificateChain());
+								untrustedCertificates.computeIfAbsent(certificateChain, key -> new LinkedHashSet<>())
+										.add(artifactKey);
+							}
+						}
+					}
+
 				}
 
-				// Also check for PGP if there are untrusted certificates because there might be
-				// trusted PGP keys too.
-				if (!signed || !untrustedCertificates.isEmpty()) {
+				// Also check for PGP signatures if the artifact is not trusted by a certificate
+				// because there might be trusted PGP keys too.
+				if (!signed || !artifactTrustedByCertificate) {
 					// The keys are in this destination artifact's properties if and only if the
 					// PGPSignatureVerifier verified the signatures against these keys.
 					List<PGPPublicKey> verifiedKeys = PGPPublicKeyStore
@@ -217,14 +228,15 @@ public class CertificateChecker {
 						if (verifiedKeys.stream().noneMatch(trustedKeySet::contains)) {
 							verifiedKeys.forEach(key -> untrustedPGPKeys
 									.computeIfAbsent(key, k -> new LinkedHashSet<>()).add(artifactKey));
-						}
-						if (untrustedPGPKeys.isEmpty()) {
+						} else {
 							// There are PGP keys and at least one of them is trusted so even if there are
 							// untrusted certificates we will not prompt for those because we only prompt if
 							// none of the certificates *and* none of the PGP keys are trusted.
-							untrustedCertificates.clear();
+							// So clean them out of the map.
+							untrustedCertificates.values().forEach(it -> it.remove(artifactKey));
+							untrustedCertificates.values().removeIf(Collection::isEmpty);
 						}
-					} else if (untrustedCertificates.isEmpty()) {
+					} else if (!signed) {
 						unsignedArtifacts.add(artifactKey);
 					}
 				}
