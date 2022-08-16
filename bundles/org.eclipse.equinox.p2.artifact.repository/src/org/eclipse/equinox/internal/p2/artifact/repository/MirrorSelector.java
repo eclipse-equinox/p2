@@ -260,14 +260,25 @@ public class MirrorSelector {
 			if (document == null)
 				return null;
 			return buildMirrorInfos(document);
+		} catch (OperationCanceledException e) {
+			return null;
 		} catch (Exception e) {
 			// log if absolute url
 			if (mirrorsURL != null && (mirrorsURL.startsWith("http://") //$NON-NLS-1$
 					|| mirrorsURL.startsWith("https://") //$NON-NLS-1$
 					|| mirrorsURL.startsWith("file://") //$NON-NLS-1$
 					|| mirrorsURL.startsWith("ftp://") //$NON-NLS-1$
-					|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
-				log("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
+					|| mirrorsURL.startsWith("jar://"))) { //$NON-NLS-1$
+				if (e instanceof AuthenticationFailedException) {
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+							String.format("Authentication for mirrors URL %s failed", mirrorsURL))); //$NON-NLS-1$
+				} else if (e instanceof FileNotFoundException) {
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+							String.format("Mirrors URL %s was not found", mirrorsURL))); //$NON-NLS-1$
+				} else {
+					log("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
+				}
+			}
 			return null;
 		}
 	}
