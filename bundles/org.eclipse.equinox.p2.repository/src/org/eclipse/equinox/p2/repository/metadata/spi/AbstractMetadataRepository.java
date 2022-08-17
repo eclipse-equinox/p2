@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -31,7 +31,8 @@ import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
  * The common base class for all metadata repositories.
  * <p>
  * Clients may subclass this class.
- * <p>
+ * </p>
+ *
  * @since 2.0
  */
 public abstract class AbstractMetadataRepository extends AbstractRepository<IInstallableUnit> implements IMetadataRepository {
@@ -82,7 +83,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 
 	/**
 	 * Creates a new metadata repository that uses the provided agent.
-	 * 
+	 *
 	 * @param agent the provisioning agent to be used by this repository
 	 */
 	public AbstractMetadataRepository(IProvisioningAgent agent) {
@@ -91,14 +92,14 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 
 	/**
 	 * Initializes this class based on the provided previously persisted state
-	 * 
+	 *
 	 * @param state the persisted repository state
 	 */
 	public abstract void initialize(RepositoryState state);
 
 	/**
 	 * Creates a new metadata repository with the provided repository information
-	 * 
+	 *
 	 * @param agent the provisioning agent to be used by this repository
 	 * @param name the repository name
 	 * @param type the repository type
