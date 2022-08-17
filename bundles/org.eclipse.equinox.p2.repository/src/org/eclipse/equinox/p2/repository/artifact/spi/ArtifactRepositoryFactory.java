@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
  * An artifact repository factory is responsible for creating and loading instances
- * of a particular type of artifact repository. Factories are provided via the 
+ * of a particular type of artifact repository. Factories are provided via the
  * <code>org.eclipse.equinox.p2.artifact.repository.artifactRepositories</code> extension point.
  * @since 2.0
  */
@@ -32,9 +32,9 @@ public abstract class ArtifactRepositoryFactory {
 	private IProvisioningAgent agent;
 
 	/**
-	 * Creates and returns a new empty artifact repository of the given type at 
+	 * Creates and returns a new empty artifact repository of the given type at
 	 * the given location.
-	 * 
+	 *
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
@@ -59,33 +59,39 @@ public abstract class ArtifactRepositoryFactory {
 	}
 
 	/**
-	 * Loads and returns the repository of this factory's type at the given location. 
+	 * Loads and returns the repository of this factory's type at the given
+	 * location.
 	 * <p>
-	 * The error code returned in the case of failure is significant. In particular an
-	 * error code of {@link ProvisionException#REPOSITORY_FAILED_READ} indicates
-	 * that the location definitely identifies a repository of this type, but an error occurred
-	 * while loading the repository. The repository manager will not attempt to load
-	 * a repository from that location using any other factory.  An error code of
-	 * {@link ProvisionException#REPOSITORY_NOT_FOUND} indicates there is no
-	 * repository of this type at the given location, and the repository manager is free
-	 * to try again with a different repository factory.
+	 * The error code returned in the case of failure is significant. In particular
+	 * an error code of {@link ProvisionException#REPOSITORY_FAILED_READ} indicates
+	 * that the location definitely identifies a repository of this type, but an
+	 * error occurred while loading the repository. The repository manager will not
+	 * attempt to load a repository from that location using any other factory. An
+	 * error code of {@link ProvisionException#REPOSITORY_NOT_FOUND} indicates there
+	 * is no repository of this type at the given location, and the repository
+	 * manager is free to try again with a different repository factory.
 	 * </p>
 	 * <p>
-	 * The flags passed in should be taken as a hint for the type of repository to load.  If
-	 * the factory knows it will not load a repository that satisfies these hints, it can fail
-	 * fast and return null.
+	 * The flags passed in should be taken as a hint for the type of repository to
+	 * load. If the factory knows it will not load a repository that satisfies these
+	 * hints, it can fail fast and return null.
+	 * </p>
+	 *
 	 * @see IRepositoryManager#REPOSITORY_HINT_MODIFIABLE
-	 * </p>
+	 *
 	 * @param location the location in which to look for a repository description
-	 * @param flags to consider while loading the repository
-	 * @param monitor a progress monitor, or <code>null</code> if progress
-	 *    reporting is not desired
+	 * @param flags    to consider while loading the repository
+	 * @param monitor  a progress monitor, or <code>null</code> if progress
+	 *                 reporting is not desired
 	 * @return a repository object for the given location
-	 * @throws ProvisionException if the repository could not be created.  Reasons include:
-	 * <ul>
-	 * <li>There is no existing repository at that location.</li>
-	 * <li>The repository at that location could not be read.</li>
-	 * </ul>
+	 * @throws ProvisionException if the repository could not be created. Reasons
+	 *                            include:
+	 *                            <ul>
+	 *                            <li>There is no existing repository at that
+	 *                            location.</li>
+	 *                            <li>The repository at that location could not be
+	 *                            read.</li>
+	 *                            </ul>
 	 */
 	public abstract IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
 
@@ -93,7 +99,7 @@ public abstract class ArtifactRepositoryFactory {
 	 * Sets the provisioning agent associated with this repository factory. This method
 	 * is called by the provisioning agent to provide access to the agent instance. This
 	 * method is not intended to be called by clients.
-	 * 
+	 *
 	 * @param agent The provisioning agent
 	 */
 	public void setAgent(IProvisioningAgent agent) {
