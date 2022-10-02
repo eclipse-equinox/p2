@@ -5,3 +5,4 @@ bin/
 .META-INF_*
 pom.tycho
 .tycho-consumer-pom.xml
+apiAnalyzer-workspace/
