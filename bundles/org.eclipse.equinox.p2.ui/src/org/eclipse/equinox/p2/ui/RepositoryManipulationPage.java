@@ -792,17 +792,13 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			filter.setPattern(text);
 		if (filterJob != null)
 			filterJob.cancel();
-		filterJob = new org.eclipse.e4.ui.progress.UIJob("filter job") { //$NON-NLS-1$
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				if (monitor.isCanceled())
-					return Status.CANCEL_STATUS;
-				if (!repositoryViewer.getTable().isDisposed())
-					repositoryViewer.refresh();
-				return Status.OK_STATUS;
-			}
-
-		};
+		filterJob = org.eclipse.e4.ui.progress.UIJob.create("filter job", monitor -> { //$NON-NLS-1$
+			if (monitor.isCanceled())
+				return Status.CANCEL_STATUS;
+			if (!repositoryViewer.getTable().isDisposed())
+				repositoryViewer.refresh();
+			return Status.OK_STATUS;
+		});
 		filterJob.setSystem(true);
 		filterJob.schedule(FILTER_DELAY);
 	}

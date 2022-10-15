@@ -17,6 +17,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.e4.ui.progress.UIJob;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -61,24 +62,22 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		if (location[0] == null)
 			return;
 
-		Job job = new org.eclipse.e4.ui.progress.UIJob(
-				ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel) {
-
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				IStatus status = tracker.validateRepositoryLocation(ui.getSession(), location[0], false, monitor);
-				if (status.isOK()) {
-					tracker.addRepository(location[0], null, ui.getSession());
-					event.detail = DND.DROP_LINK;
-				} else if (status.getSeverity() == IStatus.CANCEL) {
-					event.detail = DND.DROP_NONE;
-				} else {
-					status = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, new IStatus[] {status}, NLS.bind(ProvUIMessages.RepositoryManipulatorDropTarget_DragSourceNotValid, URIUtil.toUnencodedString(location[0])), null);
-					event.detail = DND.DROP_NONE;
-				}
-				return status;
+		Job job = UIJob.create(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel, monitor -> {
+			IStatus status = tracker.validateRepositoryLocation(ui.getSession(), location[0], false, monitor);
+			if (status.isOK()) {
+				tracker.addRepository(location[0], null, ui.getSession());
+				event.detail = DND.DROP_LINK;
+			} else if (status.getSeverity() == IStatus.CANCEL) {
+				event.detail = DND.DROP_NONE;
+			} else {
+				status = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, new IStatus[] { status },
+						NLS.bind(ProvUIMessages.RepositoryManipulatorDropTarget_DragSourceNotValid,
+								URIUtil.toUnencodedString(location[0])),
+						null);
+				event.detail = DND.DROP_NONE;
 			}
-		};
+			return status;
+		});
 		job.setPriority(Job.SHORT);
 		job.setUser(true);
 		job.schedule();
