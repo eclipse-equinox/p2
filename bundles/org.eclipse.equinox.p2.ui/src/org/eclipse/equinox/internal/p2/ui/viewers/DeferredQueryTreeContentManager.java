@@ -65,17 +65,14 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	@Override
 	protected void addChildren(final Object parent, final Object[] children, IProgressMonitor monitor) {
 		// Overridden from original implementation to prevent the use of workbench job!
-		Job updateJob = new org.eclipse.e4.ui.progress.UIJob("Adding children") { //$NON-NLS-1$
-			@Override
-			public IStatus runInUIThread(IProgressMonitor updateMonitor) {
-				// Cancel the job if the tree viewer got closed
-				if (treeViewer.getControl().isDisposed() || updateMonitor.isCanceled()) {
-					return Status.CANCEL_STATUS;
-				}
-				treeViewer.add(parent, children);
-				return Status.OK_STATUS;
+		Job updateJob = org.eclipse.e4.ui.progress.UIJob.create("Adding children", updateMonitor -> { //$NON-NLS-1$
+			// Cancel the job if the tree viewer got closed
+			if (treeViewer.getControl().isDisposed() || updateMonitor.isCanceled()) {
+				return Status.CANCEL_STATUS;
 			}
-		};
+			treeViewer.add(parent, children);
+			return Status.OK_STATUS;
+		});
 		updateJob.setSystem(true);
 		updateJob.schedule();
 	}
@@ -109,20 +106,17 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 				return;
 			}
 			notifyListener(false, (ElementPendingUpdateAdapter) placeholder);
-			Job clearJob = new org.eclipse.e4.ui.progress.UIJob("Clearing") { //$NON-NLS-1$
-				@Override
-				public IStatus runInUIThread(IProgressMonitor monitor) {
-					if (!pendingUpdate.isRemoved()) {
-						Control control = treeViewer.getControl();
-						if (control.isDisposed()) {
-							return Status.CANCEL_STATUS;
-						}
-						treeViewer.remove(placeholder);
-						pendingUpdate.setRemoved(true);
+			Job clearJob = org.eclipse.e4.ui.progress.UIJob.create("Clearing", monitor -> { //$NON-NLS-1$
+				if (!pendingUpdate.isRemoved()) {
+					Control control = treeViewer.getControl();
+					if (control.isDisposed()) {
+						return Status.CANCEL_STATUS;
 					}
-					return Status.OK_STATUS;
+					treeViewer.remove(placeholder);
+					pendingUpdate.setRemoved(true);
 				}
-			};
+				return Status.OK_STATUS;
+			});
 			clearJob.setSystem(true);
 			// See bug 470554 if IElementCollector.done() is called immediately
 			// after IElementCollector.add(), SWT/GTK seem to be confused.
