@@ -32,8 +32,6 @@
     <qualifier>-SNAPSHOT</qualifier>
     <!-- disabled for now, should be enabled later! -->
     <addMavenDescriptor>false</addMavenDescriptor>
-    <tycho.surefire.useUIHarness>false</tycho.surefire.useUIHarness>
-    <tycho.surefire.useUIThread>true</tycho.surefire.useUIThread>
   </properties>
 
   <!-- 
@@ -131,18 +129,6 @@
         </executions>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.tycho</groupId>
-          <artifactId>tycho-surefire-plugin</artifactId>
-          <configuration>
-            <useUIHarness>${tycho.surefire.useUIHarness}</useUIHarness>
-            <useUIThread>${tycho.surefire.useUIThread}</useUIThread>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 
 </project>
