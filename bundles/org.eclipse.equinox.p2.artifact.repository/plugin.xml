@@ -50,9 +50,27 @@
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.artifactChecksums">
 		<artifactChecksum
+        algorithm="SHA-1"
+        id="sha-1"
+        priority="-1000"
+        publish="false"
+        warnInsecure="true">
+		</artifactChecksum>
+	</extension>
+	<extension
+			point="org.eclipse.equinox.p2.artifact.repository.artifactChecksums">
+		<artifactChecksum
         algorithm="SHA-256"
         id="sha-256"
         priority="1000">
+		</artifactChecksum>
+	</extension>
+	<extension
+			point="org.eclipse.equinox.p2.artifact.repository.artifactChecksums">
+		<artifactChecksum
+        algorithm="SHA-512"
+        id="sha-512"
+        priority="2000">
 		</artifactChecksum>
 	</extension>
 	
