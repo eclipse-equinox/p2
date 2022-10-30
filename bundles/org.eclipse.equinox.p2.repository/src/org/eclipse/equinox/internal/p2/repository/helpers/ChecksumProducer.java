@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2019 IBM Corporation and others.
+ * Copyright (c) 2009, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Mykola Nikishov - multiple artifact checksums
+ *     Christoph Läubrich - do not read data multiple times
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.repository.helpers;
@@ -27,6 +28,37 @@ import org.eclipse.osgi.util.NLS;
 public class ChecksumProducer {
 
 	private static final int BUFFER_SIZE = 4 * 1024;
+
+	private final String id;
+	private final String algorithm;
+	private final String providerName;
+
+	private MessageDigest messageDigest;
+
+	public ChecksumProducer(String id, String algorithm, String providerName) {
+		this.id = id;
+		this.algorithm = algorithm;
+		this.providerName = providerName;
+	}
+
+	public MessageDigest getMessageDigest() throws GeneralSecurityException {
+		if (messageDigest == null) {
+			messageDigest = getMessageDigest(algorithm, providerName);
+		}
+		return messageDigest;
+	}
+
+	public String getAlgorithm() {
+		return algorithm;
+	}
+
+	public String getProviderName() {
+		return providerName;
+	}
+
+	public String getId() {
+		return id;
+	}
 
 	/**
 	 * @param file should not be <code>null</code>

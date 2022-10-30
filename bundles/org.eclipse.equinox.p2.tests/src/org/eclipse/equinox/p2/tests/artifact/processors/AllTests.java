@@ -21,7 +21,7 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ ZipVerifierProcessorTest.class, ChecksumVerifierTest.class,
-		ChecksumUtilitiesTest.class, PGPSignatureVerifierTest.class })
+		ChecksumUtilitiesTest.class, PGPSignatureVerifierTest.class, ProduceChecksumTest.class })
 public class AllTests {
 // test suite
 }
