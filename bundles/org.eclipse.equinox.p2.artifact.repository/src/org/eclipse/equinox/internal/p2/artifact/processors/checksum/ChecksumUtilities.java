@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2019 Mykola Nikishov.
+ * Copyright (c) 2015, 2022 Mykola Nikishov and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,13 +10,12 @@
  *
  * Contributors:
  *     Mykola Nikishov - initial API and implementation
+ *     Christoph Läubrich - do not read data multiple times
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors.checksum;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
+import java.io.*;
+import java.security.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -94,37 +93,58 @@ public class ChecksumUtilities {
 	 * @param checksumsToSkip
 	 * @return status
 	 */
-	public static IStatus calculateChecksums(File pathOnDisk, Map<String, String> checksums, Collection<String> checksumsToSkip) {
-		// TODO pathOnDisk.getAbsolutePath() || pathOnDisk.getCanonicalPath()
-		MultiStatus status = new MultiStatus(Activator.ID, IStatus.OK, NLS.bind(Messages.calculateChecksum_file, pathOnDisk.getAbsolutePath()), null);
-		for (IConfigurationElement checksumVerifierConfiguration : ChecksumUtilities.getChecksumComparatorConfigurations()) {
+	public static IStatus calculateChecksums(File pathOnDisk, Map<String, String> checksums,
+			Collection<String> checksumsToSkip) {
+		MultiStatus status = new MultiStatus(Activator.ID, IStatus.OK,
+				NLS.bind(Messages.calculateChecksum_file, pathOnDisk.getAbsolutePath()), null);
+		Map<ChecksumProducer, MessageDigest> digestMap = new HashMap<>();
+		for (IConfigurationElement checksumVerifierConfiguration : ChecksumUtilities
+				.getChecksumComparatorConfigurations()) {
 			String id = checksumVerifierConfiguration.getAttribute("id"); //$NON-NLS-1$
 			if (checksumsToSkip.contains(id))
 				// don't calculate checksum if algo is disabled
 				continue;
 			String algorithm = checksumVerifierConfiguration.getAttribute("algorithm"); //$NON-NLS-1$
 			String providerName = checksumVerifierConfiguration.getAttribute("providerName"); //$NON-NLS-1$
-			Optional<String> checksum = calculateChecksum(pathOnDisk, status, id, algorithm, providerName);
-			checksum.ifPresent(c -> checksums.put(id, c));
+			try {
+				ChecksumProducer producer = new ChecksumProducer(id, algorithm, providerName);
+				digestMap.put(producer, producer.getMessageDigest());
+			} catch (GeneralSecurityException e) {
+				String message = NLS.bind(Messages.calculateChecksum_providerError,
+						new Object[] { id, algorithm, providerName });
+				status.add(new Status(IStatus.ERROR, Activator.ID, message, e));
+			}
 		}
-
-		return status;
-	}
-
-	private static Optional<String> calculateChecksum(File pathOnDisk, MultiStatus status, String id, String algorithm, String providerName) {
+		if (digestMap.isEmpty()) {
+			return status;
+		}
 		try {
-			String checksum = ChecksumProducer.produce(pathOnDisk, algorithm, providerName);
-			String message = NLS.bind(Messages.calculateChecksum_ok, new Object[] {id, algorithm, providerName, checksum});
-			status.add(new Status(IStatus.OK, Activator.ID, message));
-			return Optional.of(checksum);
-		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-			String message = NLS.bind(Messages.calculateChecksum_providerError, new Object[] {id, algorithm, providerName});
-			status.add(new Status(IStatus.ERROR, Activator.ID, message, e));
+			// chain all streams together
+			InputStream stream = new FileInputStream(pathOnDisk);
+			try {
+				for (MessageDigest md : digestMap.values()) {
+					stream = new DigestInputStream(stream, md);
+				}
+				// read all bytes and discard them
+				stream.transferTo(OutputStream.nullOutputStream());
+			} finally {
+				stream.close();
+			}
+			// now all digest contains the required data
+			for (var entry : digestMap.entrySet()) {
+				ChecksumProducer producer = entry.getKey();
+				String checksum = ChecksumHelper.toHexString(entry.getValue().digest());
+				String id = producer.getId();
+				String message = NLS.bind(Messages.calculateChecksum_ok,
+						new Object[] { id, producer.getAlgorithm(), producer.getProviderName(), checksum });
+				status.add(new Status(IStatus.OK, Activator.ID, message));
+				checksums.put(id, checksum);
+			}
 		} catch (IOException e) {
-			String message = NLS.bind(Messages.calculateChecksum_error, id, algorithm);
+			String message = NLS.bind(Messages.calculateChecksum_file, pathOnDisk.getAbsolutePath());
 			status.add(new Status(IStatus.ERROR, Activator.ID, message, e));
 		}
-		return Optional.empty();
+		return status;
 	}
 
 	/**
