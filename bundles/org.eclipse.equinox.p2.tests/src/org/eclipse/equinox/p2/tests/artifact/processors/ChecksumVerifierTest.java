@@ -67,7 +67,7 @@ public class ChecksumVerifierTest {
 		IProcessingStepDescriptor processingStepDescriptor = mock(IProcessingStepDescriptor.class);
 		when(processingStepDescriptor.getData()).thenReturn(checksum);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false);
+		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false, 0);
 
 		verifier.initialize(null, processingStepDescriptor, null);
 
@@ -87,7 +87,7 @@ public class ChecksumVerifierTest {
 		properties.put(downloadProperty, checksum);
 		when(artifactDescriptor.getProperties()).thenReturn(properties);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false);
+		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false, 0);
 
 		verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
 
@@ -107,7 +107,7 @@ public class ChecksumVerifierTest {
 		when(artifactDescriptor.getProperties()).thenReturn(properties);
 		when(artifactDescriptor.getProperty(not(eq(artifactProperty)))).thenReturn(null);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false);
+		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false, 0);
 
 		verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
 
