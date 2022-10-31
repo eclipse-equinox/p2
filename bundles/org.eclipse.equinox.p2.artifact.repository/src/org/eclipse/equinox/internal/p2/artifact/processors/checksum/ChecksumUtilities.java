@@ -60,7 +60,9 @@ public class ChecksumUtilities {
 					String checksumAlgorithm = checksumVerifierConfiguration.getAttribute("algorithm"); //$NON-NLS-1$
 					String providerName = checksumVerifierConfiguration.getAttribute("providerName"); //$NON-NLS-1$
 					boolean insecure = Boolean.parseBoolean(checksumVerifierConfiguration.getAttribute("warnInsecure")); //$NON-NLS-1$
-					ChecksumVerifier checksumVerifier = new ChecksumVerifier(checksumAlgorithm, providerName, checksumId, insecure);
+					int priority = parsePriority(checksumVerifierConfiguration.getAttribute("priority")); //$NON-NLS-1$
+					ChecksumVerifier checksumVerifier = new ChecksumVerifier(checksumAlgorithm, providerName,
+							checksumId, insecure, priority);
 					checksumVerifier.initialize(null, new ProcessingStepDescriptor(null, checksumEntry.getValue(), true), descriptor);
 					if (checksumVerifier.getStatus().isOK()) {
 						steps.add(checksumVerifier);
@@ -78,7 +80,19 @@ public class ChecksumUtilities {
 							descriptor.getArtifactKey())));
 		}
 
-		return steps;
+		return steps.stream().max(Comparator.comparing(ChecksumVerifier::getPriority)).stream()
+				.collect(Collectors.toList());
+	}
+
+	private static int parsePriority(String attribute) {
+		if (attribute != null && !attribute.isBlank()) {
+			try {
+				return Integer.parseInt(attribute);
+			} catch (RuntimeException e) {
+				// can't use it then... fallback to default
+			}
+		}
+		return 0;
 	}
 
 	public static IConfigurationElement[] getChecksumComparatorConfigurations() {

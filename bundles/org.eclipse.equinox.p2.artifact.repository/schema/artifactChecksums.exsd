@@ -84,6 +84,13 @@ Set to true if this algorithm is now considered as insecure. A warning will be l
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="priority" type="string" use="default" value="0">
+            <annotation>
+               <documentation>
+                  Gives a priority of this algorithm, algorithms with higher priority are preffered if multiple ones are applicable.
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
