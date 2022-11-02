@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.artifact.processors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -39,8 +40,7 @@ public class ProduceChecksumTest {
 				Collections.emptyList());
 		assertTrue(status.toString(), status.isOK());
 		String md5sum = hashMap.get("md5");
-		assertNotNull("MD5 was not computed!", md5sum);
-		assertEquals("MD5 mismatch", "25b68bb92a7a77238bd60ad5e21bb91f", md5sum);
+		assertNull("MD5 was computed but should be disabled!", md5sum);
 		String sha256sum = hashMap.get("sha-256");
 		assertNotNull("SHA256 was not computed!", sha256sum);
 		assertEquals("SHA256 mismatch", "39d083c8c75eac51b2c4566cca299b41cc93d5b0313906f5979fbebf1104ff49", sha256sum);
