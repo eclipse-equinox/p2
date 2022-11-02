@@ -115,7 +115,7 @@ public class ChecksumUtilities {
 		for (IConfigurationElement checksumVerifierConfiguration : ChecksumUtilities
 				.getChecksumComparatorConfigurations()) {
 			String id = checksumVerifierConfiguration.getAttribute("id"); //$NON-NLS-1$
-			if (checksumsToSkip.contains(id))
+			if (checksumsToSkip.contains(id) || !shouldPublish(checksumVerifierConfiguration))
 				// don't calculate checksum if algo is disabled
 				continue;
 			String algorithm = checksumVerifierConfiguration.getAttribute("algorithm"); //$NON-NLS-1$
@@ -159,6 +159,14 @@ public class ChecksumUtilities {
 			status.add(new Status(IStatus.ERROR, Activator.ID, message, e));
 		}
 		return status;
+	}
+
+	private static boolean shouldPublish(IConfigurationElement checksumVerifierConfiguration) {
+		String attribute = checksumVerifierConfiguration.getAttribute("publish"); //$NON-NLS-1$
+		if (attribute == null || attribute.isBlank()) {
+			return true;
+		}
+		return Boolean.parseBoolean(attribute);
 	}
 
 	/**

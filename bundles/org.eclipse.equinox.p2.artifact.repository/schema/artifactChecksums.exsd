@@ -91,6 +91,13 @@ Set to true if this algorithm is now considered as insecure. A warning will be l
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="publish" type="boolean" use="default" value="true">
+            <annotation>
+               <documentation>
+                  Controls if this checksum should be published when assembling a repository.
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
