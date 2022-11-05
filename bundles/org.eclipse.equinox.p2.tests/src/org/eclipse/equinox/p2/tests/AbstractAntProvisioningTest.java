@@ -16,7 +16,10 @@ package org.eclipse.equinox.p2.tests;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import org.eclipse.ant.core.AntRunner;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.URIUtil;
@@ -247,7 +250,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 
 	protected void assertLogContains(String content) {
 		try {
-			assertLogContainsLine(logLocation, content);
+			assertLogContainsLines(logLocation, content);
 		} catch (Exception e) {
 			fail("Error asserting log contents.", e);
 		}
