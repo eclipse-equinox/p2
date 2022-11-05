@@ -731,7 +731,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		assertNotEquals("Ensuring MD5 values are different",
+				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
+				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
 
 		//Setup make repositories
 		File repo1Location = getTestFolder(getUniqueString());
@@ -771,7 +773,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		assertNotEquals("Ensuring MD5 values are different",
+				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
+				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
 
 		//Setup make repositories
 		File repo1Location = getTestFolder(getUniqueString());
