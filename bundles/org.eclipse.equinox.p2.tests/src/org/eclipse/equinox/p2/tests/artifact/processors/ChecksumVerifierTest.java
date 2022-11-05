@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -26,7 +27,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumVerifier;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -38,9 +38,6 @@ public class ChecksumVerifierTest {
 	@Parameters
 	public static Collection<Object[]> generateData() {
 		return Arrays.asList(new Object[][] {
-				// legacy MD5 checksum location
-				{ "MD5", null, "md5", IArtifactDescriptor.DOWNLOAD_MD5, IArtifactDescriptor.ARTIFACT_MD5,
-						"123456789_123456789_123456789_12" },
 				// new checksum location
 				{ "MD5", null, "md5", IArtifactDescriptor.DOWNLOAD_CHECKSUM.concat(".md5"),
 						IArtifactDescriptor.ARTIFACT_CHECKSUM.concat(".md5"), "123456789_123456789_123456789_12" },
@@ -67,13 +64,10 @@ public class ChecksumVerifierTest {
 		IProcessingStepDescriptor processingStepDescriptor = mock(IProcessingStepDescriptor.class);
 		when(processingStepDescriptor.getData()).thenReturn(checksum);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false, 0);
-
-		verifier.initialize(null, processingStepDescriptor, null);
-
-		Assert.assertEquals(Status.OK_STATUS, verifier.getStatus());
-
-		verifier.close();
+		try (ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false, 0)) {
+			verifier.initialize(null, processingStepDescriptor, null);
+			assertEquals(Status.OK_STATUS, verifier.getStatus());
+		}
 	}
 
 	@Test
@@ -81,19 +75,16 @@ public class ChecksumVerifierTest {
 		IProcessingStepDescriptor processingStepDescriptor = mock(IProcessingStepDescriptor.class);
 		when(processingStepDescriptor.getData()).thenReturn(downloadProperty);
 		IArtifactDescriptor artifactDescriptor = mock(IArtifactDescriptor.class);
-		when(artifactDescriptor.getProperty(eq(downloadProperty))).thenReturn(checksum);
+		when(artifactDescriptor.getProperty(downloadProperty)).thenReturn(checksum);
 		when(artifactDescriptor.getProperty(not(eq(downloadProperty)))).thenReturn(null);
 		HashMap<String, String> properties = new HashMap<>();
 		properties.put(downloadProperty, checksum);
 		when(artifactDescriptor.getProperties()).thenReturn(properties);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false, 0);
-
-		verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
-
-		Assert.assertEquals(Status.OK_STATUS, verifier.getStatus());
-
-		verifier.close();
+		try (ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false, 0)) {
+			verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
+			assertEquals(Status.OK_STATUS, verifier.getStatus());
+		}
 	}
 
 	@Test
@@ -101,18 +92,15 @@ public class ChecksumVerifierTest {
 		IProcessingStepDescriptor processingStepDescriptor = mock(IProcessingStepDescriptor.class);
 		when(processingStepDescriptor.getData()).thenReturn(artifactProperty);
 		IArtifactDescriptor artifactDescriptor = mock(IArtifactDescriptor.class);
-		when(artifactDescriptor.getProperty(eq(artifactProperty))).thenReturn(checksum);
+		when(artifactDescriptor.getProperty(artifactProperty)).thenReturn(checksum);
 		HashMap<String, String> properties = new HashMap<>();
 		properties.put(artifactProperty, checksum);
 		when(artifactDescriptor.getProperties()).thenReturn(properties);
 		when(artifactDescriptor.getProperty(not(eq(artifactProperty)))).thenReturn(null);
 
-		ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false, 0);
-
-		verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
-
-		Assert.assertEquals(Status.OK_STATUS, verifier.getStatus());
-
-		verifier.close();
+		try (ChecksumVerifier verifier = new ChecksumVerifier(digestAlgorithm, providerName, algorithmId, false, 0)) {
+			verifier.initialize(null, processingStepDescriptor, artifactDescriptor);
+			assertEquals(Status.OK_STATUS, verifier.getStatus());
+		}
 	}
 }

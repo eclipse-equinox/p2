@@ -742,7 +742,9 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, baselineContentLocation);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different", descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		assertNotEquals("Ensuring MD5 values are different",
+				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
+				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
 
 		//Setup make repositories
 		IArtifactRepository repo = null;
@@ -803,7 +805,9 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
-		assertEquals("Ensuring destination contains the descriptor from the baseline", descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_MD5), destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+		assertEquals("Ensuring destination contains the descriptor from the baseline",
+				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
+				destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
 		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(baseline.getLocation()), URIUtil.toUnencodedString(repo.getLocation()), descriptor1});
 
 		assertLogContains(msg);

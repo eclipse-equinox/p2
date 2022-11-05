@@ -21,7 +21,9 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactDescriptorQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -54,7 +56,7 @@ public class MD5Tests extends AbstractProvisioningTest {
 		//MD5 sum should not affect the identity of the artifact
 
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")));
-		descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, "42");
+		descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5", "42");
 
 		try {
 			repo.getOutputStream(descriptor);
