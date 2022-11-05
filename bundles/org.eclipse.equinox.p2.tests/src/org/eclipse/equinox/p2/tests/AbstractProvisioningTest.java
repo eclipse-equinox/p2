@@ -1484,18 +1484,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * Assert that the given log file contains the given message
-	 * The message is expected to be contained on a single line
-	 */
-	public static void assertLogContainsLine(File log, String msg) throws Exception {
-		assertLogContainsLines(log, new String[] {msg});
-	}
-
-	/**
 	 * Assert that the given log file contains the given lines
 	 * Lines are expected to appear in order
 	 */
-	public static void assertLogContainsLines(File log, String[] lines) throws Exception {
+	public static void assertLogContainsLines(File log, String... lines) throws Exception {
 		assertNotNull(log);
 		assertTrue(log.exists());
 		assertTrue(log.length() > 0);

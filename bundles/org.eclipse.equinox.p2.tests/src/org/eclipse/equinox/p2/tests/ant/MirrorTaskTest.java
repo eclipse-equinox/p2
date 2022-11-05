@@ -125,7 +125,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		mirror.addAttribute("log", logFile);
 		addTask(mirror);
 		runAntTask();
-		assertLogContainsLine(new File(folder, "log.txt"), "No repository found at " + URIUtil.toUnencodedString(URIUtil.fromString(baseline)));
+		assertLogContainsLines(new File(folder, "log.txt"),
+				"No repository found at " + URIUtil.toUnencodedString(URIUtil.fromString(baseline)));
 	}
 
 	/*
@@ -278,7 +279,9 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		while (exception.getCause() != null && !(exception instanceof ProvisionException))
 			exception = exception.getCause();
-		assertTrue("Unexpected error", NLS.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.exception_invalidDestination, location).equals(exception.getMessage()));
+		assertEquals("Unexpected error", NLS
+				.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.exception_invalidDestination, location),
+				exception.getMessage());
 	}
 
 	/*
@@ -302,7 +305,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 			while (exception.getCause() != null && !(exception instanceof ProvisionException))
 				exception = exception.getCause();
-			assertTrue("Unexpected error", NLS.bind("No repository found at {0}.", location).equals(exception.getMessage()));
+			assertEquals("Unexpected error", NLS.bind("No repository found at {0}.", location), exception.getMessage());
 		} finally {
 			delete(new File(location));
 		}
