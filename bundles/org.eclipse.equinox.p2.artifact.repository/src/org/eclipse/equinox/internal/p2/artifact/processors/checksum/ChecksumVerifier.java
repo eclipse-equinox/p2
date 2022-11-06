@@ -27,12 +27,12 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
-final public class ChecksumVerifier extends MessageDigestProcessingStep {
+public final class ChecksumVerifier extends MessageDigestProcessingStep {
 
 	private String expectedChecksum;
-	final private String algorithmName;
-	final private String providerName;
-	final private String algorithmId;
+	private final String algorithmName;
+	private final String providerName;
+	private final String algorithmId;
 	private final boolean insecureAlgorithm;
 	private final int priority;
 
@@ -53,7 +53,7 @@ final public class ChecksumVerifier extends MessageDigestProcessingStep {
 	}
 
 	@Override
-	public final void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
 		basicInitialize(descriptor);
 		if (!getStatus().isOK()) {
@@ -82,7 +82,7 @@ final public class ChecksumVerifier extends MessageDigestProcessingStep {
 	}
 
 	@Override
-	final protected void onClose(String digestString) {
+	protected void onClose(String digestString) {
 		// if the hashes don't line up set the status to error.
 		if (!digestString.equals(expectedChecksum))
 			// TODO like ProvisionException.ARTIFACT_MD5_NOT_MATCH but for any checksum
