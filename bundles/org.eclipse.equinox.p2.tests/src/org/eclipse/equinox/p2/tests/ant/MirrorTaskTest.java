@@ -55,6 +55,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
 
 public class MirrorTaskTest extends AbstractAntProvisioningTest {
+	private static final String DOWNLOAD_CHECKSUM = IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".sha-256";
 	private static final String MIRROR_TASK = "p2.mirror";
 	private static final String MIRROR_ARTIFACTS_TASK = "p2.artifact.mirror";
 	private URI destinationRepo;
@@ -724,8 +725,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	/*
 	 * Modified from org.eclipse.equinox.p2.tests.mirror.ArtifactMirrorApplicationTest
 	 */
-	public void testBaselineCompareUsingMD5Comparator() {
-		//Setup create descriptors with different md5 values
+	public void testBaselineCompareUsingComparator() {
+		// Setup create descriptors with different checksum values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/content.xml");
 		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/content.xml");
@@ -742,9 +743,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, baselineContentLocation);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different",
-				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
+		assertNotEquals("Ensuring download checksums are different", descriptor1.getProperty(DOWNLOAD_CHECKSUM),
+				descriptor2.getProperty(DOWNLOAD_CHECKSUM));
 
 		//Setup make repositories
 		IArtifactRepository repo = null;
@@ -782,7 +782,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 			// Create a comparator element
 			AntTaskElement comparator = new AntTaskElement("comparator");
-			comparator.addAttribute("comparator", ArtifactChecksumComparator.COMPARATOR_ID + ".md5");
+			comparator.addAttribute("comparator", ArtifactChecksumComparator.COMPARATOR_ID + ".sha-256");
 			comparator.addElement(getRepositoryElement(baselineLocation.toURI(), null));
 			mirror.addElement(comparator);
 
@@ -806,9 +806,10 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
 		assertEquals("Ensuring destination contains the descriptor from the baseline",
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
-		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(baseline.getLocation()), URIUtil.toUnencodedString(repo.getLocation()), descriptor1});
+				descriptor2.getProperty(DOWNLOAD_CHECKSUM), destDescriptors[0].getProperty(DOWNLOAD_CHECKSUM));
+		String msg = NLS.bind(Messages.warning_different_checksum,
+				new Object[] { URIUtil.toUnencodedString(baseline.getLocation()),
+						URIUtil.toUnencodedString(repo.getLocation()), "SHA-256", descriptor1 });
 
 		assertLogContains(msg);
 	}

@@ -59,7 +59,8 @@ import org.eclipse.osgi.util.NLS;
  * Test API of the basic mirror application functionality's implementation.
  */
 public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
-	private static final String MD5_COMPARATOR = ArtifactChecksumComparator.COMPARATOR_ID + ".md5";
+	private static final String DOWNLOAD_CHECKSUM = IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".sha-256";
+	private static final String COMPARATOR = ArtifactChecksumComparator.COMPARATOR_ID + ".sha-256";
 	protected File destRepoLocation;
 	protected File sourceRepoLocation; //helloworldfeature
 	protected File sourceRepo2Location; //anotherfeature
@@ -958,7 +959,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Order in which mirror application mirrors artifacts is random.
 	}
 
-	public void testCompareUsingMD5Comparator() {
+	public void testCompareUsingComparator() {
 		//Setup create descriptors with different md5 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
@@ -967,9 +968,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different",
-				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
+		assertNotEquals("Ensuring download checksums are different", descriptor1.getProperty(DOWNLOAD_CHECKSUM),
+				descriptor2.getProperty(DOWNLOAD_CHECKSUM));
 
 		//Setup make repositories
 		File repo1Location = getTestFolder(getUniqueString());
@@ -987,21 +987,21 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Set compare flag.
-			String[] args = new String[] { "-source", repo1Location.toURL().toExternalForm(), "-destination",
-					repo2Location.toURL().toExternalForm(), "-verbose", "-compare", "-comparator",
-					MD5_COMPARATOR };
+			String[] args = { "-source", repo1Location.toURL().toExternalForm(), "-destination",
+					repo2Location.toURL().toExternalForm(), "-verbose", "-compare", "-comparator", COMPARATOR };
 			//run the mirror application
-			runMirrorApplication("Running with duplicate descriptors with different md5 values", args);
+			runMirrorApplication("Running with duplicate descriptors with different checksums", args);
 		} catch (Exception e) {
-			fail("Running mirror application with duplicate descriptors with different md5 values failed", e);
+			fail("Running mirror application with duplicate descriptors with different checksums failed", e);
 		}
 
 		IArtifactDescriptor[] destDescriptors = repo2.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
-		assertEquals("Ensuring proper descriptor exists in destination",
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
-		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(repo1.getLocation()), URIUtil.toUnencodedString(repo2.getLocation()), descriptor1});
+		assertEquals("Ensuring proper descriptor exists in destination", descriptor2.getProperty(DOWNLOAD_CHECKSUM),
+				destDescriptors[0].getProperty(DOWNLOAD_CHECKSUM));
+		String msg = NLS.bind(Messages.warning_different_checksum,
+				new Object[] { URIUtil.toUnencodedString(repo1.getLocation()),
+						URIUtil.toUnencodedString(repo2.getLocation()), "SHA-256", descriptor1 });
 		try {
 			assertLogContainsLines(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {
@@ -1027,9 +1027,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, baselineContentLocation);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different",
-				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
+		assertNotEquals("Ensuring download checksums are different", descriptor1.getProperty(DOWNLOAD_CHECKSUM),
+				descriptor2.getProperty(DOWNLOAD_CHECKSUM));
 
 		//Setup make repositories
 		IArtifactRepository repo = null;
@@ -1045,10 +1044,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Set compareAgaist
-			String[] args = new String[] { "-source", repoLocation.toURL().toExternalForm(), "-destination",
+			String[] args = { "-source", repoLocation.toURL().toExternalForm(), "-destination",
 					destRepoLocation.toURL().toExternalForm(), "-compareAgainst",
-					baselineLocation.toURL().toExternalForm(), "-verbose", "-compare", "-comparator",
-					MD5_COMPARATOR };
+					baselineLocation.toURL().toExternalForm(), "-verbose", "-compare", "-comparator", COMPARATOR };
 			//run the mirror application
 			runMirrorApplication("Running with baseline compare", args);
 		} catch (Exception e) {
@@ -1065,9 +1063,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
 		assertEquals("Ensuring destination contains the descriptor from the baseline",
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
-		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(baseline.getLocation()), URIUtil.toUnencodedString(repo.getLocation()), descriptor1});
+				descriptor2.getProperty(DOWNLOAD_CHECKSUM), destDescriptors[0].getProperty(DOWNLOAD_CHECKSUM));
+		String msg = NLS.bind(Messages.warning_different_checksum,
+				new Object[] { URIUtil.toUnencodedString(baseline.getLocation()),
+						URIUtil.toUnencodedString(repo.getLocation()), "SHA-256", descriptor1 });
 		try {
 			assertLogContainsLines(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {
@@ -1131,7 +1130,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		((ArtifactRepositoryManager) getArtifactRepositoryManager()).addRepository(retryRepo);
 
 		try {
-			String[] args = new String[] {"-source", URIUtil.toUnencodedString(retryRepo.getLocation()), "-destination", destRepoLocation.toURL().toExternalForm()};
+			String[] args = { "-source", URIUtil.toUnencodedString(retryRepo.getLocation()), "-destination",
+					destRepoLocation.toURL().toExternalForm() };
 			//run the mirror application
 			runMirrorApplication("Forcing Retry", args);
 		} catch (MalformedURLException e) {
@@ -1162,7 +1162,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		//verify log
 		try {
-			String[] parts = new String[] {"java.io.FileNotFoundException: ", "helloworld_1.0.0.jar"};
+			String[] parts = { "java.io.FileNotFoundException: ", "helloworld_1.0.0.jar" };
 			assertLogContainsLine(log.getFile(), parts);
 		} catch (Exception e) {
 			fail("error verifying output", e);
@@ -1202,7 +1202,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		//verify log
 		try {
-			String[] parts = new String[] {"java.io.FileNotFoundException: ", "helloworld_1.0.0.jar"};
+			String[] parts = { "java.io.FileNotFoundException: ", "helloworld_1.0.0.jar" };
 			assertLogContainsLine(log.getFile(), parts);
 		} catch (Exception e) {
 			fail("error verifying output", e);
@@ -1214,7 +1214,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//set the arguments with verbose
-			String[] args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-verbose"};
+			String[] args = { "-source", sourceRepoLocation.toURL().toExternalForm(), "-destination",
+					destRepoLocation.toURL().toExternalForm(), "-verbose" };
 			//run the mirror application
 			runMirrorApplication("Generating INO elements", args);
 		} catch (MalformedURLException e) {
@@ -1246,7 +1247,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Test how the mirror application handles a repository specified as a local path
 	 */
 	public void testArtifactMirrorNonURIDest() {
-		String[] args = new String[] {"-destination", destRepoLocation.toString(), "-source", sourceRepoLocation.toString()};
+		String[] args = { "-destination", destRepoLocation.toString(), "-source", sourceRepoLocation.toString() };
 
 		try {
 			runMirrorApplication("Mirroring", args);

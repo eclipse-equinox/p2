@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,8 +24,8 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * A comparator that compares two artifacts by checking the MD5 checksum
- * recorded in the artifact descriptor. This comparator doesn't actually compute MD5
- * checksums directly.
+ * recorded in the artifact descriptor. This comparator doesn't actually compute
+ * MD5 checksums directly.
  *
  * @deprecated
  * @noreference
@@ -39,7 +39,8 @@ public class MD5ArtifactComparator implements IArtifactComparator {
 	public static String MD5_COMPARATOR_ID = "org.eclipse.equinox.artifact.md5.comparator"; //$NON-NLS-1$
 
 	@Override
-	public IStatus compare(IArtifactRepository source, IArtifactDescriptor sourceDescriptor, IArtifactRepository destination, IArtifactDescriptor destDescriptor) {
+	public IStatus compare(IArtifactRepository source, IArtifactDescriptor sourceDescriptor,
+			IArtifactRepository destination, IArtifactDescriptor destDescriptor) {
 		String sourceMD5 = sourceDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5);
 		String destMD5 = destDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5);
 
@@ -47,14 +48,20 @@ public class MD5ArtifactComparator implements IArtifactComparator {
 			return new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.info_noMD5Infomation, sourceDescriptor));
 
 		if (sourceMD5 == null)
-			return new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.info_noMD5InRepository, source, sourceDescriptor));
+			return new Status(IStatus.INFO, Activator.ID,
+					NLS.bind(Messages.info_noMD5InRepository, source, sourceDescriptor));
 
 		if (destMD5 == null)
-			return new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.info_noMD5InRepository, destination, destDescriptor));
+			return new Status(IStatus.INFO, Activator.ID,
+					NLS.bind(Messages.info_noMD5InRepository, destination, destDescriptor));
 
 		if (sourceMD5.equals(destMD5))
 			return Status.OK_STATUS;
 
-		return new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(sourceDescriptor.getRepository().getLocation()), URIUtil.toUnencodedString(destDescriptor.getRepository().getLocation()), sourceDescriptor}));
+		return new Status(IStatus.WARNING, Activator.ID,
+				NLS.bind(Messages.warning_different_checksum,
+						new Object[] { URIUtil.toUnencodedString(sourceDescriptor.getRepository().getLocation()),
+								URIUtil.toUnencodedString(destDescriptor.getRepository().getLocation()), "MD-5", //$NON-NLS-1$
+								sourceDescriptor }));
 	}
 }

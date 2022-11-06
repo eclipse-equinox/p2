@@ -71,7 +71,8 @@ import org.eclipse.equinox.p2.tests.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
-	private static final String COMPARATOR_ID = ArtifactChecksumComparator.COMPARATOR_ID + ".md5";
+	private static final String DOWNLOAD_CHECKSUM = IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".sha-256";
+	private static final String COMPARATOR_ID = ArtifactChecksumComparator.COMPARATOR_ID + ".sha-256";
 	private static final String TEST_KEY = "TestKey";
 	private static final String TEST_VALUE = "TestValue";
 	//artifact repository to remove on tear down
@@ -723,7 +724,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testValidate() throws Exception {
-		//Setup create descriptors with different md5 values
+		// Setup create descriptors with different sha-256 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
 		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/artifacts.xml");
@@ -731,9 +732,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different",
-				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
+		assertNotEquals("Ensuring download checksums are different",
+				descriptor1.getProperty(DOWNLOAD_CHECKSUM), descriptor2.getProperty(DOWNLOAD_CHECKSUM));
 
 		//Setup make repositories
 		File repo1Location = getTestFolder(getUniqueString());
@@ -758,14 +758,14 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		compRepo.addChild(repo1Location.toURI());
 		compRepo.addChild(repo2Location.toURI());
 
-		//validate using the MD5 Comparator
+		// validate using the Comparator
 		ArtifactRepositoryValidator validator = new ArtifactRepositoryValidator(
 				COMPARATOR_ID);
 		assertFalse("Running verify on invalid repository", validator.validateComposite(compRepo).isOK());
 	}
 
 	public void testAddChildWithValidate() throws ProvisionException {
-		//Setup create descriptors with different md5 values
+		// Setup create descriptors with different checksum values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
 		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/artifacts.xml");
@@ -773,9 +773,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different",
-				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
+		assertNotEquals("Ensuring download checksums are different",
+				descriptor1.getProperty(DOWNLOAD_CHECKSUM), descriptor2.getProperty(DOWNLOAD_CHECKSUM));
 
 		//Setup make repositories
 		File repo1Location = getTestFolder(getUniqueString());
