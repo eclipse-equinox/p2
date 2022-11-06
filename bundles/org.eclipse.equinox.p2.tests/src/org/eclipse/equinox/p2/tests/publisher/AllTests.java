@@ -31,7 +31,6 @@ import org.eclipse.equinox.p2.tests.publisher.actions.FeaturesActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.JREActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.LocalUpdateSiteActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.LocalizationTests;
-import org.eclipse.equinox.p2.tests.publisher.actions.MD5GenerationTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.ProductActionCapturingTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.ProductActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.ProductActionTestMac;
@@ -51,8 +50,8 @@ import org.junit.runners.Suite;
 		AdviceFileParserTest.class, ANYConfigCUsActionTest.class, BundlesActionTest.class, CategoryPublisherTest.class,
 		ConfigCUsActionTest.class, ContextRepositoryTest.class, DefaultCUsActionTest.class,
 		EquinoxExecutableActionTest.class, EquinoxLauncherCUActionTest.class, FeaturesActionTest.class,
-		JREActionTest.class, LocalizationTests.class, LocalUpdateSiteActionTest.class, MD5GenerationTest.class,
-		ChecksumGenerationTest.class, ProductActionTest.class, ProductActionCapturingTest.class,
+		JREActionTest.class, LocalizationTests.class, LocalUpdateSiteActionTest.class, ChecksumGenerationTest.class,
+		ProductActionTest.class, ProductActionCapturingTest.class,
 		ProductActionTestMac.class, ProductActionWithJRELocationTest.class, ProductContentTypeTest.class,
 		ProductFileAdviceTest.class, ProductFileTest.class, RootFilesActionTest.class, RootIUActionTest.class,
 		GeneralPublisherTests.class, VersionAdviceTest.class })

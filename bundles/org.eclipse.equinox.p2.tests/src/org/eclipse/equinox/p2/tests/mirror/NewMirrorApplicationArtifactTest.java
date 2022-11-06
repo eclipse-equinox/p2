@@ -69,6 +69,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Theories.class)
 public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
+	private static final String DOWNLOAD_CHECKSUM = IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".sha-256";
 	private static final String MISSING_ARTIFACT = "canonical: osgi.bundle,javax.wsdl,1.4.0.v200803061811.";
 	protected File destRepoLocation;
 	protected File sourceRepoLocation; //helloworldfeature
@@ -1009,11 +1010,11 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	@DataPoints
-	public static String[] defaultComparator = { null, ArtifactChecksumComparator.COMPARATOR_ID + ".md5" };
+	public static String[] defaultComparator = { null, ArtifactChecksumComparator.COMPARATOR_ID + ".sha-256" };
 
 	@Theory
-	public void testCompareUsingMD5Comparator(String comparator) {
-		//Setup create descriptors with different md5 values
+	public void testCompareUsingComparator(String comparator) {
+		// Setup create descriptors with different checksums
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
 		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/artifacts.xml");
@@ -1021,9 +1022,8 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, artifact2);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different",
-				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
+		assertNotEquals("Ensuring download checksums are different",
+				descriptor1.getProperty(DOWNLOAD_CHECKSUM), descriptor2.getProperty(DOWNLOAD_CHECKSUM));
 
 		//Setup make repositories
 		File repo1Location = getTestFolder(getUniqueString());
@@ -1054,7 +1054,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 				//run the mirror application
 				app.run(null);
 			} catch (Exception e) {
-				fail("Running mirror application with duplicate descriptors with different md5 values failed", e);
+				fail("Running mirror application with duplicate descriptors with different checksums failed", e);
 			}
 		} finally {
 			System.setOut(out);
@@ -1062,10 +1062,11 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 		IArtifactDescriptor[] destDescriptors = repo2.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
-		assertEquals("Ensuring proper descriptor exists in destination",
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
-		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(repo1.getLocation()), URIUtil.toUnencodedString(repo2.getLocation()), descriptor1});
+		assertEquals("Ensuring proper descriptor exists in destination", descriptor2.getProperty(DOWNLOAD_CHECKSUM),
+				destDescriptors[0].getProperty(DOWNLOAD_CHECKSUM));
+		String msg = NLS.bind(Messages.warning_different_checksum,
+				new Object[] { URIUtil.toUnencodedString(repo1.getLocation()),
+						URIUtil.toUnencodedString(repo2.getLocation()), "SHA-256", descriptor1 });
 		try {
 			assertLogContainsLines(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {
@@ -1074,8 +1075,8 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	@Theory
-	public void testBaselineCompareUsingMD5Comparator(String comparator) {
-		//Setup create descriptors with different md5 values
+	public void testBaselineCompareUsingComparator(String comparator) {
+		// Setup create descriptors with different checksums
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/content.xml");
 		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/content.xml");
@@ -1092,9 +1093,8 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, baselineContentLocation);
 
 		assertEquals("Ensuring Descriptors are the same", descriptor1, descriptor2);
-		assertNotEquals("Ensuring MD5 values are different",
-				descriptor1.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
+		assertNotEquals("Ensuring download checksums are different", descriptor1.getProperty(DOWNLOAD_CHECKSUM),
+				descriptor2.getProperty(DOWNLOAD_CHECKSUM));
 
 		//Setup make repositories
 		IArtifactRepository repo = null;
@@ -1140,9 +1140,10 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
 		assertEquals("Ensuring destination contains the descriptor from the baseline",
-				descriptor2.getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"),
-				destDescriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".md5"));
-		String msg = NLS.bind(Messages.warning_differentMD5, new Object[] {URIUtil.toUnencodedString(baseline.getLocation()), URIUtil.toUnencodedString(repo.getLocation()), descriptor1});
+				descriptor2.getProperty(DOWNLOAD_CHECKSUM), destDescriptors[0].getProperty(DOWNLOAD_CHECKSUM));
+		String msg = NLS.bind(Messages.warning_different_checksum,
+				new Object[] { URIUtil.toUnencodedString(baseline.getLocation()),
+						URIUtil.toUnencodedString(repo.getLocation()), "SHA-256", descriptor1 });
 		try {
 			assertLogContainsLines(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {

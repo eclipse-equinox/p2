@@ -69,7 +69,6 @@ public class Messages extends NLS {
 
 	public static String info_noMD5Infomation;
 	public static String info_noMD5InRepository;
-	public static String warning_differentMD5;
 
 	public static String info_noChecksumInfomation;
 	public static String info_noChecksumInRepository;
