@@ -814,32 +814,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		super(name);
 	}
 
-	protected static void assertEquals(String message, byte[] expected, byte[] actual) {
-		if (expected == null && actual == null)
-			return;
-		if (expected == null)
-			fail(message + " expected null but was: " + Arrays.toString(actual));
-		if (actual == null)
-			fail(message + " array is unexpectedly null");
-		if (expected.length != actual.length)
-			fail(message + " expected array length:<" + expected.length + "> but was:<" + actual.length + ">");
-		for (int i = 0; i < expected.length; i++)
-			assertEquals(message + " arrays differ at position:<" + i + ">", expected[i], actual[i]);
-	}
-
-	protected static void assertEquals(String message, Object[] expected, Object[] actual) {
-		if (expected == null && actual == null)
-			return;
-		if (expected == null)
-			fail(message + " expected null but was: " + Arrays.toString(actual));
-		if (actual == null)
-			fail(message + " array is unexpectedly null");
-		if (expected.length != actual.length)
-			fail(message + " expected array length:<" + expected.length + "> but was:<" + actual.length + ">");
-		for (int i = 0; i < expected.length; i++)
-			assertEquals(message + " arrays differ at position:<" + i + ">", expected[i], actual[i]);
-	}
-
 	/**
 	 * Creates a profile with the given name. Ensures that no such profile
 	 * already exists.  The returned profile will be removed automatically
@@ -1451,8 +1425,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			return;
 		if (expected == null || actual == null)
 			fail(message);
-		Object[] expectedArray = expected.keySet().toArray();
-		for (Object expectedelement : expectedArray) {
+		for (Object expectedelement : expected.keySet()) {
 			assertTrue(message, actual.containsKey(expectedelement)); //Ensure the key exists
 			if (!expectedelement.equals("p2.timestamp")) {
 				assertEquals(message, expected.get(expectedelement), actual.get(expectedelement));
@@ -1702,10 +1675,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected void assertEqualJars(File expectedFile, File actualFile) {
-		JarFile expectedJar = null, actualJar = null;
-		try {
-			expectedJar = new JarFile(expectedFile);
-			actualJar = new JarFile(actualFile);
+		try (JarFile expectedJar = new JarFile(expectedFile); JarFile actualJar = new JarFile(actualFile)) {
 			int expectedEntryCount = 0, actualEntryCount = 0;
 			for (Enumeration<JarEntry> en = expectedJar.entries(); en.hasMoreElements();) {
 				expectedEntryCount++;
@@ -1721,19 +1691,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			assertEquals("Unexpected difference in entries for " + expectedFile.getName(), expectedEntryCount, actualEntryCount);
 		} catch (IOException e) {
 			fail("Unexpected error comparing jars", e);
-		} finally {
-			ensureClosed(expectedJar);
-			ensureClosed(actualJar);
-		}
-	}
-
-	private void ensureClosed(JarFile file) {
-		if (file == null)
-			return;
-		try {
-			file.close();
-		} catch (IOException e) {
-			//ignore
 		}
 	}
 
