@@ -29,7 +29,7 @@ public abstract class MessageDigestProcessingStep extends ProcessingStep {
 	private ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
 	@Override
-	final public void write(int b) throws IOException {
+	public final void write(int b) throws IOException {
 		getDestination().write(b);
 
 		boolean isBufferFull = buffer.remaining() == 0;
@@ -51,7 +51,7 @@ public abstract class MessageDigestProcessingStep extends ProcessingStep {
 	}
 
 	@Override
-	final public void close() throws IOException {
+	public final void close() throws IOException {
 		processBufferredBytes();
 		String digestString = digest();
 		onClose(digestString);
