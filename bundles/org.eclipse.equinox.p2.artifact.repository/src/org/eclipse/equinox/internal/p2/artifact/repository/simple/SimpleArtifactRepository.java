@@ -329,8 +329,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/*
 	 * This is only called by the parser when loading a repository.
 	 */
-	SimpleArtifactRepository(IProvisioningAgent agent, String name, String type, String version, String description, String provider, Set<SimpleArtifactDescriptor> artifacts, String[][] mappingRules, Map<String, String> properties) {
-		super(agent, name, type, version, null, description, provider, properties);
+	SimpleArtifactRepository(IProvisioningAgent agent, String name, String type, String version, String description,
+			URI uri, String provider, Set<SimpleArtifactDescriptor> artifacts, String[][] mappingRules,
+			Map<String, String> properties) {
+		super(agent, name, type, version, uri, description, provider, properties);
 		this.artifactDescriptors.addAll(artifacts);
 		this.mappingRules = mappingRules;
 		for (SimpleArtifactDescriptor desc : artifactDescriptors)
