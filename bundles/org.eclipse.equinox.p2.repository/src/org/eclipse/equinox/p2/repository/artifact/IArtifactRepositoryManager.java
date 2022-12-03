@@ -34,7 +34,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifact
 	/**
 	 * The name used for obtaining a reference to the metadata repository manager service
 	 */
-	public static final String SERVICE_NAME = IArtifactRepositoryManager.class.getName();
+	public static final String SERVICE_NAME = "org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager"; //$NON-NLS-1$
 
 	/**
 	 * A convenience constant representing an empty set of artifact requests.
