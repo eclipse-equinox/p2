@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -39,6 +40,14 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 	boolean removeArtifactRepo = true;
 	private Map<String, String> repoProperties = null;
 	private Map<IArtifactKey, IArtifactDescriptor[]> repoMap = null;
+
+	public RecreateRepositoryApplication() {
+		super();
+	}
+
+	public RecreateRepositoryApplication(IProvisioningAgent agent) {
+		super(agent);
+	}
 
 	@Override
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
