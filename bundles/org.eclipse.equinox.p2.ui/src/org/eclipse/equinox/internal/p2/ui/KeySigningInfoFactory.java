@@ -145,6 +145,9 @@ public class KeySigningInfoFactory implements IAdapterFactory {
 			// installation.
 			IFileArtifactRepository bundlePoolRepository = org.eclipse.equinox.internal.p2.extensionlocation.Activator
 					.getBundlePoolRepository();
+			if (bundlePoolRepository == null) {
+				return Collections.emptyMap();
+			}
 			IQueryResult<IArtifactKey> allArtifactKeys = bundlePoolRepository.query(ArtifactKeyQuery.ALL_KEYS,
 					new NullProgressMonitor());
 			for (IArtifactKey key : allArtifactKeys) {
