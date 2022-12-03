@@ -253,7 +253,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			inplace = true;
 	}
 
-	private void setupAgent() throws ProvisionException {
+	protected void setupAgent() throws ProvisionException {
 		agentRef = Activator.getContext().getServiceReference(IProvisioningAgent.class);
 		if (agentRef != null) {
 			agent = Activator.getContext().getService(agentRef);
