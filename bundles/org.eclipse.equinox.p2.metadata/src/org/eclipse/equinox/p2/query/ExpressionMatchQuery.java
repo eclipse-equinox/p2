@@ -31,6 +31,7 @@ import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
 
 /**
  * A query that matches candidates against an expression.
+ * 
  * @since 2.0
  */
 public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<T> {
@@ -43,7 +44,8 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 		this.matchingClass = matchingClass;
 		this.expression = ExpressionUtil.getFactory().matchExpression(expression, parameters);
 		this.context = this.expression.createContext();
-		this.indexedMembers = Expression.getIndexCandidateMembers(matchingClass, ExpressionFactory.THIS, (Expression) expression);
+		this.indexedMembers = Expression.getIndexCandidateMembers(matchingClass, ExpressionFactory.THIS,
+				(Expression) expression);
 	}
 
 	public ExpressionMatchQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
@@ -116,5 +118,11 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 	}
 
 	public void postPerform() { //
+	}
+
+	@Override
+	public String toString() {
+		return "ExpressionMatchQuery [expression=" + expression + ", matchingClass=" + matchingClass + ", context=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				+ context + ", indexedMembers=" + indexedMembers + "]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
