@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.internal.repository.comparator.ArtifactChecksumComparator;
@@ -63,6 +64,14 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private File comparatorLogFile; // file to comparator output to (optional)
 	private IArtifactMirrorLog mirrorLog;
 	private IArtifactMirrorLog comparatorLog;
+
+	public MirrorApplication() {
+		super();
+	}
+
+	public MirrorApplication(IProvisioningAgent agent) {
+		super(agent);
+	}
 
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
