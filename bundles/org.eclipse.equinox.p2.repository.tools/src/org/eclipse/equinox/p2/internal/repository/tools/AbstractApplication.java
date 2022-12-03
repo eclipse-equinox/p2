@@ -284,9 +284,11 @@ public abstract class AbstractApplication {
 	public IMetadataRepository getCompositeMetadataRepository() {
 		if (compositeMetadataRepository == null) {
 			compositeMetadataRepository = CompositeMetadataRepository.createMemoryComposite(agent);
-			for (RepositoryDescriptor repo : sourceRepositories) {
-				if (repo.isMetadata())
-					compositeMetadataRepository.addChild(repo.getRepoLocation());
+			if (compositeMetadataRepository != null) {
+				for (RepositoryDescriptor repo : sourceRepositories) {
+					if (repo.isMetadata())
+						compositeMetadataRepository.addChild(repo.getRepoLocation());
+				}
 			}
 		}
 		return compositeMetadataRepository;
@@ -295,9 +297,11 @@ public abstract class AbstractApplication {
 	public IArtifactRepository getCompositeArtifactRepository() {
 		if (compositeArtifactRepository == null) {
 			compositeArtifactRepository = CompositeArtifactRepository.createMemoryComposite(agent);
-			for (RepositoryDescriptor repo : sourceRepositories) {
-				if (repo.isArtifact())
-					compositeArtifactRepository.addChild(repo.getRepoLocation());
+			if (compositeArtifactRepository != null) {
+				for (RepositoryDescriptor repo : sourceRepositories) {
+					if (repo.isArtifact())
+						compositeArtifactRepository.addChild(repo.getRepoLocation());
+				}
 			}
 		}
 		return compositeArtifactRepository;
