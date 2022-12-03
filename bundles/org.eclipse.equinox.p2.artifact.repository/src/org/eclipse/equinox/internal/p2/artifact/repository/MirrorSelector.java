@@ -386,9 +386,11 @@ public class MirrorSelector {
 					long oldRate = mirror.bytesPerSecond;
 					long newRate = ((DownloadStatus) result).getTransferRate();
 					//average old and new rate so one slow download doesn't ruin the mirror's reputation
-					if (oldRate > 0)
-						newRate = (oldRate + newRate) / 2;
-					mirror.setBytesPerSecond(newRate);
+					if (newRate > 0) {
+						if (oldRate > 0)
+							newRate = (oldRate + newRate) / 2;
+						mirror.setBytesPerSecond(newRate);
+					}
 				}
 				if (Tracing.DEBUG_MIRRORS)
 					Tracing.debug("Updated mirror " + mirror); //$NON-NLS-1$
