@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
@@ -31,11 +32,20 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeRepositoryApplication extends AbstractApplication {
+
 	private List<RepositoryDescriptor> childrenToAdd = new ArrayList<>();
 	private List<RepositoryDescriptor> childrenToRemove = new ArrayList<>();
 	private boolean removeAllChildren = false;
 	private boolean failOnExists = false;
 	private String comparatorID = null;
+	
+	public CompositeRepositoryApplication() {
+		super();
+	}
+
+	public CompositeRepositoryApplication(IProvisioningAgent agent) {
+		super(agent);
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")
