@@ -15,12 +15,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -108,6 +103,16 @@ public class FeatureParser {
 				} catch (IOException e) {
 					//
 				}
+			}
+		} else if (location.getName().endsWith(".xml")) { //$NON-NLS-1$
+			try (InputStream input = new BufferedInputStream(new FileInputStream(location))) {
+				return parser.parse(input, toURL(location));
+			} catch (FileNotFoundException e) {
+				return null;
+			} catch (SAXException e) {
+				logWarning(location, e);
+			} catch (IOException e) {
+				logWarning(location, e);
 			}
 		}
 		return feature;

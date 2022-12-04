@@ -83,7 +83,7 @@ public class FeatureManifestParser extends DefaultHandler {
 		}
 		if (characters == null)
 			return;
-		if (null != localName)
+		if (localName != null && result != null) {
 			switch (localName) {
 			case "description": //$NON-NLS-1$
 				result.setDescription(localize(characters.toString().trim()));
@@ -97,6 +97,7 @@ public class FeatureManifestParser extends DefaultHandler {
 			default:
 				break;
 			}
+		}
 		characters = null;
 	}
 
@@ -139,16 +140,25 @@ public class FeatureManifestParser extends DefaultHandler {
 	}
 
 	private void processCopyright(Attributes attributes) {
+		if (result == null) {
+			return;
+		}
 		result.setCopyrightURL(attributes.getValue("url")); //$NON-NLS-1$
 		characters = new StringBuffer();
 	}
 
 	private void processDescription(Attributes attributes) {
+		if (result == null) {
+			return;
+		}
 		result.setDescriptionURL(attributes.getValue("url")); //$NON-NLS-1$
 		characters = new StringBuffer();
 	}
 
 	private void processDiscoverySite(Attributes attributes) {
+		if (result == null) {
+			return;
+		}
 		// ignore discovery sites of type 'web'
 		if ("web".equals(attributes.getValue("type"))) //$NON-NLS-1$ //$NON-NLS-2$
 			return;
@@ -189,6 +199,9 @@ public class FeatureManifestParser extends DefaultHandler {
 	}
 
 	private void processImport(Attributes attributes) {
+		if (result == null) {
+			return;
+		}
 		String id = attributes.getValue("feature"); //$NON-NLS-1$
 		boolean isPlugin = false;
 		if (id == null) {
@@ -219,6 +232,9 @@ public class FeatureManifestParser extends DefaultHandler {
 	}
 
 	private void processIncludes(Attributes attributes) {
+		if (result == null) {
+			return;
+		}
 		FeatureEntry entry = new FeatureEntry(attributes.getValue("id"), attributes.getValue("version"), false); //$NON-NLS-1$ //$NON-NLS-2$
 		String unpack = attributes.getValue("unpack"); //$NON-NLS-1$
 		if (unpack != null)
@@ -234,17 +250,26 @@ public class FeatureManifestParser extends DefaultHandler {
 	}
 
 	private void processInstallHandler(Attributes attributes) {
+		if (result == null) {
+			return;
+		}
 		result.setInstallHandler(attributes.getValue("handler")); //$NON-NLS-1$
 		result.setInstallHandlerLibrary(attributes.getValue("library")); //$NON-NLS-1$
 		result.setInstallHandlerURL(attributes.getValue("url")); //$NON-NLS-1$
 	}
 
 	private void processLicense(Attributes attributes) {
+		if (result == null) {
+			return;
+		}
 		result.setLicenseURL(attributes.getValue("url")); //$NON-NLS-1$
 		characters = new StringBuffer();
 	}
 
 	private void processPlugin(Attributes attributes) {
+		if (result == null) {
+			return;
+		}
 		String id = attributes.getValue("id"); //$NON-NLS-1$
 		String version = attributes.getValue("version"); //$NON-NLS-1$
 
@@ -270,6 +295,9 @@ public class FeatureManifestParser extends DefaultHandler {
 	}
 
 	private void processUpdateSite(Attributes attributes) {
+		if (result == null) {
+			return;
+		}
 		result.setUpdateSiteLabel(attributes.getValue("label")); //$NON-NLS-1$
 		result.setUpdateSiteURL(attributes.getValue("url")); //$NON-NLS-1$
 	}
