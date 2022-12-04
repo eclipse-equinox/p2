@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 public abstract class AbstractApplication {
@@ -58,27 +59,35 @@ public abstract class AbstractApplication {
 		}
 	}
 
+	public AbstractApplication(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
+
 	private void setupAgent() throws ProvisionException {
 		// note if we ever wanted these applications to act on a different agent than
 		// the currently running system we would need to set it here
-		ServiceReference<IProvisioningAgent> agentRef = Activator.getBundleContext()
+		BundleContext bundleContext = Activator.getBundleContext();
+		if (bundleContext == null) {
+			return;
+		}
+		ServiceReference<IProvisioningAgent> agentRef = bundleContext
 				.getServiceReference(IProvisioningAgent.class);
 		if (agentRef != null) {
-			agent = Activator.getBundleContext().getService(agentRef);
+			agent = bundleContext.getService(agentRef);
 			if (agent != null)
 				return;
 		}
 		// there is no agent around so we need to create one
-		ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getBundleContext()
+		ServiceReference<IProvisioningAgentProvider> providerRef = bundleContext
 				.getServiceReference(IProvisioningAgentProvider.class);
 		if (providerRef == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
-		IProvisioningAgentProvider provider = Activator.getBundleContext().getService(providerRef);
+		IProvisioningAgentProvider provider = bundleContext.getService(providerRef);
 		if (provider == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
 		// obtain agent for currently running system
 		agent = provider.createAgent(null);
-		Activator.getBundleContext().ungetService(providerRef);
+		bundleContext.ungetService(providerRef);
 	}
 
 	public void setSourceIUs(List<IInstallableUnit> ius) {
@@ -275,9 +284,11 @@ public abstract class AbstractApplication {
 	public IMetadataRepository getCompositeMetadataRepository() {
 		if (compositeMetadataRepository == null) {
 			compositeMetadataRepository = CompositeMetadataRepository.createMemoryComposite(agent);
-			for (RepositoryDescriptor repo : sourceRepositories) {
-				if (repo.isMetadata())
-					compositeMetadataRepository.addChild(repo.getRepoLocation());
+			if (compositeMetadataRepository != null) {
+				for (RepositoryDescriptor repo : sourceRepositories) {
+					if (repo.isMetadata())
+						compositeMetadataRepository.addChild(repo.getRepoLocation());
+				}
 			}
 		}
 		return compositeMetadataRepository;
@@ -286,9 +297,11 @@ public abstract class AbstractApplication {
 	public IArtifactRepository getCompositeArtifactRepository() {
 		if (compositeArtifactRepository == null) {
 			compositeArtifactRepository = CompositeArtifactRepository.createMemoryComposite(agent);
-			for (RepositoryDescriptor repo : sourceRepositories) {
-				if (repo.isArtifact())
-					compositeArtifactRepository.addChild(repo.getRepoLocation());
+			if (compositeArtifactRepository != null) {
+				for (RepositoryDescriptor repo : sourceRepositories) {
+					if (repo.isArtifact())
+						compositeArtifactRepository.addChild(repo.getRepoLocation());
+				}
 			}
 		}
 		return compositeArtifactRepository;

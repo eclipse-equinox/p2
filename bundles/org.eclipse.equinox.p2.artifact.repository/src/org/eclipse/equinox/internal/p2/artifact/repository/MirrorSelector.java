@@ -260,14 +260,25 @@ public class MirrorSelector {
 			if (document == null)
 				return null;
 			return buildMirrorInfos(document);
+		} catch (OperationCanceledException e) {
+			return null;
 		} catch (Exception e) {
 			// log if absolute url
 			if (mirrorsURL != null && (mirrorsURL.startsWith("http://") //$NON-NLS-1$
 					|| mirrorsURL.startsWith("https://") //$NON-NLS-1$
 					|| mirrorsURL.startsWith("file://") //$NON-NLS-1$
 					|| mirrorsURL.startsWith("ftp://") //$NON-NLS-1$
-					|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
-				log("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
+					|| mirrorsURL.startsWith("jar://"))) { //$NON-NLS-1$
+				if (e instanceof AuthenticationFailedException) {
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+							String.format("Authentication for mirrors URL %s failed", mirrorsURL))); //$NON-NLS-1$
+				} else if (e instanceof FileNotFoundException) {
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+							String.format("Mirrors URL %s was not found", mirrorsURL))); //$NON-NLS-1$
+				} else {
+					log("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
+				}
+			}
 			return null;
 		}
 	}
@@ -386,9 +397,11 @@ public class MirrorSelector {
 					long oldRate = mirror.bytesPerSecond;
 					long newRate = ((DownloadStatus) result).getTransferRate();
 					//average old and new rate so one slow download doesn't ruin the mirror's reputation
-					if (oldRate > 0)
-						newRate = (oldRate + newRate) / 2;
-					mirror.setBytesPerSecond(newRate);
+					if (newRate > 0) {
+						if (oldRate > 0)
+							newRate = (oldRate + newRate) / 2;
+						mirror.setBytesPerSecond(newRate);
+					}
 				}
 				if (Tracing.DEBUG_MIRRORS)
 					Tracing.debug("Updated mirror " + mirror); //$NON-NLS-1$

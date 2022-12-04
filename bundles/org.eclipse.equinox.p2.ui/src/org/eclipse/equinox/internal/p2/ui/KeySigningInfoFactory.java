@@ -110,12 +110,10 @@ public class KeySigningInfoFactory implements IAdapterFactory {
 
 				private Map<PGPSignature, PGPPublicKey> getDetails(Bundle bundle) {
 					try {
-						File bundleFile = FileLocator.getBundleFile(bundle).getCanonicalFile();
-						Map<PGPSignature, PGPPublicKey> details = bundlePoolArtficactSigningDetails.get(bundleFile);
-						return details;
+						File bundleFile = FileLocator.getBundleFileLocation(bundle).orElseThrow().getCanonicalFile();
+						return bundlePoolArtficactSigningDetails.get(bundleFile);
 					} catch (IOException | RuntimeException e) {
-						ProvUIActivator.getDefault().getLog()
-								.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e));
+						ProvUIActivator.getDefault().getLog().log(Status.error(e.getMessage(), e));
 						return null;
 					}
 				}
@@ -145,8 +143,10 @@ public class KeySigningInfoFactory implements IAdapterFactory {
 			// installation.
 			IFileArtifactRepository bundlePoolRepository = org.eclipse.equinox.internal.p2.extensionlocation.Activator
 					.getBundlePoolRepository();
-			IQueryResult<IArtifactKey> allArtifactKeys = bundlePoolRepository.query(ArtifactKeyQuery.ALL_KEYS,
-					new NullProgressMonitor());
+			if (bundlePoolRepository == null) {
+				return Collections.emptyMap();
+			}
+			IQueryResult<IArtifactKey> allArtifactKeys = bundlePoolRepository.query(ArtifactKeyQuery.ALL_KEYS, null);
 			for (IArtifactKey key : allArtifactKeys) {
 				for (IArtifactDescriptor descriptor : bundlePoolRepository.getArtifactDescriptors(key)) {
 					File file = bundlePoolRepository.getArtifactFile(descriptor);
@@ -169,15 +169,13 @@ public class KeySigningInfoFactory implements IAdapterFactory {
 								}
 							}
 						} catch (IOException | PGPException | RuntimeException e) {
-							ProvUIActivator.getDefault().getLog()
-									.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e));
+							ProvUIActivator.getDefault().getLog().log(Status.error(e.getMessage(), e));
 						}
 					}
 				}
 			}
 		} catch (RuntimeException e) {
-			ProvUIActivator.getDefault().getLog()
-					.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e));
+			ProvUIActivator.getDefault().getLog().log(Status.error(e.getMessage(), e));
 		}
 		return result;
 	}

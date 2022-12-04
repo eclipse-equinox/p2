@@ -329,8 +329,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/*
 	 * This is only called by the parser when loading a repository.
 	 */
-	SimpleArtifactRepository(IProvisioningAgent agent, String name, String type, String version, String description, String provider, Set<SimpleArtifactDescriptor> artifacts, String[][] mappingRules, Map<String, String> properties) {
-		super(agent, name, type, version, null, description, provider, properties);
+	SimpleArtifactRepository(IProvisioningAgent agent, String name, String type, String version, String description,
+			URI uri, String provider, Set<SimpleArtifactDescriptor> artifacts, String[][] mappingRules,
+			Map<String, String> properties) {
+		super(agent, name, type, version, uri, description, provider, properties);
 		this.artifactDescriptors.addAll(artifacts);
 		this.mappingRules = mappingRules;
 		for (SimpleArtifactDescriptor desc : artifactDescriptors)
@@ -411,6 +413,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public synchronized void addDescriptor(IArtifactDescriptor toAdd, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		boolean lockAcquired = false;
 		try {
 			if (canLock()) {
@@ -460,6 +463,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		boolean lockAcquired = false;
 		try {
 			if (canLock()) {
@@ -483,6 +487,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		steps.add(new SignatureVerifier());
 
@@ -507,6 +512,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private OutputStream addPreSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
@@ -631,6 +637,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	protected IStatus downloadArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		if (isFolderBased(descriptor)) {
 			File artifactFolder = getArtifactFile(descriptor);
 			if (artifactFolder == null) {
@@ -710,6 +717,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * @return the number of bytes written.
 	 */
 	private IStatus copyFileToStream(File in, OutputStream out, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		// Buffer filled with contents from the stream at a time
 		int bufferSize = 16 * 1024;
 		byte[] buffer = new byte[bufferSize];
@@ -740,6 +748,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private IStatus downloadArtifact(URI mirrorLocation, OutputStream destination, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		//Bug 340352: transport has performance overhead of 100ms and more, bypass it for local copies
 		IStatus result = Status.OK_STATUS;
 		if (SimpleArtifactRepositoryFactory.PROTOCOL_FILE.equals(mirrorLocation.getScheme()))
@@ -767,6 +776,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * @return the Location of the artifact in this repository, or an equivalent mirror
 	 */
 	private synchronized URI getMirror(URI baseLocation, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		if (!MIRRORS_ENABLED || (!isForceThreading() && isLocal()))
 			return baseLocation;
 		if (mirrors == null)
@@ -784,12 +794,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	IStatus getArtifact(IArtifactRequest request, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		request.perform(this, monitor);
 		return request.getResult();
 	}
 
 	@Override
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
 		}
@@ -806,6 +818,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
 		}
@@ -845,6 +858,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
 		}
@@ -1156,6 +1170,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public OutputStream processDestination(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		destination = addPostSteps(handler, descriptor, destination, monitor);
 		destination = handler.createAndLink(getProvisioningAgent(), descriptor.getProcessingSteps(), descriptor, destination, monitor);
 		destination = addPreSteps(handler, descriptor, destination, monitor);
@@ -1164,6 +1179,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public synchronized void removeAll(IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		boolean lockAcquired = false;
 		try {
 			if (canLock()) {
@@ -1186,6 +1202,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public synchronized void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		boolean lockAcquired = false;
 		try {
 			if (canLock()) {
@@ -1204,6 +1221,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		boolean lockAcquired = false;
 		try {
 			if (canLock()) {
@@ -1225,6 +1243,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public synchronized void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		boolean lockAcquired = false;
 		try {
 			if (canLock()) {
@@ -1249,6 +1268,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public synchronized void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		boolean lockAcquired = false;
 		try {
 			if (canLock()) {
@@ -1363,6 +1383,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private String doSetProperty(String key, String newValue, IProgressMonitor monitor, boolean save) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		String oldValue = super.setProperty(key, newValue, new NullProgressMonitor());
 		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
 			return oldValue;
@@ -1383,6 +1404,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public String setProperty(String key, String newValue, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		boolean lockAcquired = false;
 		try {
 			if (canLock()) {
@@ -1419,6 +1441,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		return IndexProvider.query(this, query, monitor);
 	}
 
@@ -1433,6 +1456,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		IStatus result = null;
 
 		boolean lockAcquired = false;
@@ -1498,6 +1522,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * @return Tue if the lock was acquired, false otherwise
 	 */
 	private synchronized boolean lockAndLoad(boolean ignoreLoad, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		if (holdsLock) {
 			throw new IllegalStateException("Locking is not reentrant"); //$NON-NLS-1$
 		}
@@ -1550,6 +1575,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * load it, see {@link SimpleArtifactRepository#lockAndLoad(boolean, IProgressMonitor)}.
 	 */
 	private synchronized boolean lock(boolean wait, IProgressMonitor monitor) throws IOException {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		if (!Activator.getInstance().enableArtifactLocking())
 			return true;
 
@@ -1607,6 +1633,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * @param monitor
 	 */
 	private void load(IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		if (!holdsLock())
 			doLoad(monitor);
 		else
@@ -1635,6 +1662,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * @param monitor
 	 */
 	private void doLoad(IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 
 		SimpleArtifactRepositoryFactory repositoryFactory = new SimpleArtifactRepositoryFactory();
 		IArtifactRepository repositoryOnDisk = null;
