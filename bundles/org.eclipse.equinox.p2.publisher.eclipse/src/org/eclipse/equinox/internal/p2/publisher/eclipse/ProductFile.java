@@ -1353,7 +1353,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		File iconFile = new File(value);
 		if (!iconFile.isFile()) {
 			//workspace
-			Location instanceLocation = ServiceHelper.getService(Activator.getContext(), Location.class, Location.INSTANCE_FILTER);
+			Location instanceLocation = getInstanceLocation();
 			if (instanceLocation != null && instanceLocation.getURL() != null) {
 				File workspace = URLUtil.toFile(instanceLocation.getURL());
 				if (workspace != null)
@@ -1369,6 +1369,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			icons.put(os, list);
 		}
 		list.add(iconFile.getAbsolutePath());
+	}
+
+	protected Location getInstanceLocation() {
+		return ServiceHelper.getService(Activator.getContext(), Location.class, Location.INSTANCE_FILTER);
 	}
 
 	private void processSolaris(Attributes attributes) {
