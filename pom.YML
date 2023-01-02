@@ -1,36 +1,559 @@
-
 </DOCUMENTTYPE/>
+Skip to content
+Search or jump to…
+Pull requests
+Issues
+Codespaces
+Marketplace
+Explore
+ 
+@zakwarlord7 
+Your account has been flagged.
+Because of that, your profile is hidden from the public. If you believe this is a mistake, contact support to have your account status reviewed.
+zakwarlord7
+/
+p2
+Public
+forked from eclipse-equinox/p2
+Code
+Pull requests
+Actions
+Projects
+Security
+Insights
+Settings
+Bug 222870 - Enabled MD5 processing step
+ master
+ v200821123-2300 
+…
+ I20120328-1956
+Pascal Rapicault committed on Oct 20, 2008 
+1 parent 616a1a6 commit 914b5e9ca1205942b5be96b61bae3a6e69bcbab3
+Show file tree Hide file tree
+Showing 18 changed files with 362 additions and 3 deletions.
+  6  
+bundles/org.eclipse.equinox.p2.artifact.repository/plugin.xml
+@@ -26,4 +26,10 @@
+         <run class="org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication"/>	         <run class="org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication"/>
+      </application>	      </application>
+   </extension>	   </extension>
 
-mtml version="1.0" encoding="UTF-8"?>
+   	<extension
+			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
+			id="org.eclipse.equinox.p2.processing.MD5Verifier">
+		<step class="org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier"/>
+	</extension>
+</plugin>	</plugin>
+ 83  
+...t.repository/src/org/eclipse/equinox/internal/p2/artifact/processors/md5/MD5Verifier.java
+@@ -0,0 +1,83 @@
+/*******************************************************************************
+ * Copyright (c) 2007 compeople AG and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * 	compeople AG (Stefan Liebig) - initial API and implementation
+ * 	IBM Corporation - ongoing development
+ *******************************************************************************/
+package org.eclipse.equinox.internal.p2.artifact.processors.md5;
 
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.osgi.util.NLS;
+
+public class MD5Verifier extends ProcessingStep {
+
+	protected String expectedMD5;
+	private MessageDigest md5;
+
+	public MD5Verifier() {
+		super();
+	}
+
+	public MD5Verifier(String expected) {
+		super();
+		this.expectedMD5 = expected;
+		basicInitialize(null);
+	}
+
+	//This handle the case where the MD5 verification is initiated by a processing step
+	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+		super.initialize(descriptor, context);
+		String data = descriptor.getData();
+		if (IArtifactDescriptor.DOWNLOAD_MD5.equals(data))
+			expectedMD5 = context.getProperty(IArtifactDescriptor.DOWNLOAD_MD5);
+		else if (IArtifactDescriptor.ARTIFACT_MD5.equals(data))
+			expectedMD5 = context.getProperty(IArtifactDescriptor.ARTIFACT_MD5);
+		else
+			expectedMD5 = data;
+		basicInitialize(descriptor);
+	}
+
+	private void basicInitialize(ProcessingStepDescriptor descriptor) {
+		int code = (descriptor == null) ? IStatus.ERROR : descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
+		if (expectedMD5 == null || expectedMD5.length() != 32)
+			setStatus(new Status(code, Activator.ID, NLS.bind(Messages.Error_invalid_hash, expectedMD5)));
+		try {
+			md5 = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+		} catch (NoSuchAlgorithmException e) {
+			setStatus(new Status(code, Activator.ID, Messages.Error_MD5_unavailable, e));
+		}
+	}
+
+	public void write(int b) throws IOException {
+		md5.update((byte) b);
+		getDestination().write(b);
+	}
+
+	public void close() throws IOException {
+		byte[] digest = md5.digest();
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < digest.length; i++) {
+			if ((digest[i] & 0xFF) < 0x10)
+				buf.append('0');
+			buf.append(Integer.toHexString(digest[i] & 0xFF));
+		}
+
+		// if the hashes don't line up set the status to error.
+		if (!buf.toString().equals(expectedMD5))
+			setStatus(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Error_unexpected_hash, expectedMD5, buf)));
+		super.close();
+	}
+}
+ 17  
+...fact.repository/src/org/eclipse/equinox/internal/p2/artifact/processors/md5/Messages.java
+@@ -0,0 +1,17 @@
+package org.eclipse.equinox.internal.p2.artifact.processors.md5;
+
+import org.eclipse.osgi.util.NLS;
+
+public class Messages extends NLS {
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.artifact.processors.md5.messages"; //$NON-NLS-1$
+	public static String Error_invalid_hash;
+	public static String Error_MD5_unavailable;
+	public static String Error_unexpected_hash;
+	static {
+		// initialize resource bundle
+		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+	}
+
+	private Messages() {
+	}
+}
+  7  
+.../org/eclipse/equinox/internal/p2/artifact/repository/simple/SimpleArtifactRepository.java
+@@ -17,6 +17,7 @@
+import java.util.jar.JarOutputStream;	import java.util.jar.JarOutputStream;
+import org.eclipse.core.runtime.*;	import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;	import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
+import org.eclipse.equinox.internal.p2.artifact.repository.*;	import org.eclipse.equinox.internal.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.Messages;	import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
+import org.eclipse.equinox.internal.p2.core.helpers.*;	import org.eclipse.equinox.internal.p2.core.helpers.*;
+@@ -34,6 +35,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
+	 */		 */
+	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$		public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
+
+
+	public static final boolean enableMD5 = !"false".equals(Activator.getContext().getProperty("eclipse.noMD5Check")); //$NON-NLS-1$//$NON-NLS-2$
+
+	/** 		/** 
+	 * The key for a integer property controls the maximum number		 * The key for a integer property controls the maximum number
+	 * of threads that should be used when optimizing downloads from a remote		 * of threads that should be used when optimizing downloads from a remote
+@@ -313,8 +316,6 @@ public synchronized void addDescriptors(IArtifactDescriptor[] descriptors) {
+	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {		private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		ArrayList steps = new ArrayList();			ArrayList steps = new ArrayList();
+		steps.add(new SignatureVerifier());			steps.add(new SignatureVerifier());
+		//		if (md5Verification)	
+		//			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5)));	
+		if (steps.isEmpty())			if (steps.isEmpty())
+			return destination;				return destination;
+		ProcessingStep[] stepArray = (ProcessingStep[]) steps.toArray(new ProcessingStep[steps.size()]);			ProcessingStep[] stepArray = (ProcessingStep[]) steps.toArray(new ProcessingStep[steps.size()]);
+@@ -326,6 +327,8 @@ private OutputStream addPreSteps(ProcessingStepHandler handler, IArtifactDescrip
+		ArrayList steps = new ArrayList();			ArrayList steps = new ArrayList();
+		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))			if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
+			steps.add(new ZipVerifierStep());				steps.add(new ZipVerifierStep());
+		if (enableMD5 && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
+			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5)));
+		// Add steps here if needed			// Add steps here if needed
+		if (steps.isEmpty())			if (steps.isEmpty())
+			return destination;				return destination;
+  45  
+...g/eclipse/equinox/internal/provisional/p2/metadata/generator/MetadataGeneratorHelper.java
+@@ -14,6 +14,8 @@
+import java.io.*;	import java.io.*;
+import java.net.URI;	import java.net.URI;
+import java.net.URISyntaxException;	import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;	import java.util.*;
+import java.util.zip.ZipEntry;	import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;	import java.util.zip.ZipFile;
+@@ -138,9 +140,50 @@ public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, Fil
+			// TODO - this is wrong but I'm testing a work-around for bug 205842				// TODO - this is wrong but I'm testing a work-around for bug 205842
+			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));				result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
+		}			}
+		String md5 = computeMD5(pathOnDisk);
+		if (md5 != null)
+			result.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
+		return result;			return result;
+	}		}
+
+
+	private static String computeMD5(File file) {
+		if (file == null || file.isDirectory() || !file.exists())
+			return null;
+		MessageDigest md5Checker;
+		try {
+			md5Checker = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+		} catch (NoSuchAlgorithmException e) {
+			return null;
+		}
+		InputStream fis = null;
+		try {
+			fis = new BufferedInputStream(new FileInputStream(file));
+			int read = -1;
+			while ((read = fis.read()) != -1) {
+				md5Checker.update((byte) read);
+			}
+			byte[] digest = md5Checker.digest();
+			StringBuffer buf = new StringBuffer();
+			for (int i = 0; i < digest.length; i++) {
+				if ((digest[i] & 0xFF) < 0x10)
+					buf.append('0');
+				buf.append(Integer.toHexString(digest[i] & 0xFF));
+			}
+			return buf.toString();
+		} catch (FileNotFoundException e) {
+			return null;
+		} catch (IOException e) {
+			return null;
+		} finally {
+			if (fis != null)
+				try {
+					fis.close();
+				} catch (IOException e) {
+					// ignore
+				}
+		}
+	}
+
+	/**		/**
+	 * @deprecated moved to AbstractPublishingAction		 * @deprecated moved to AbstractPublishingAction
+	 */		 */
+@@ -1379,4 +1422,4 @@ public static Map getHostLocalizations(File bundleLocation, String[] hostBundleM
+		return localizations;			return localizations;
+	}		}
+
+
+}	};
+ 42  
+...lipse.equinox.p2.tests/src/org/eclipse/equinox/p2/tests/artifact/repository/MD5Tests.java
+@@ -0,0 +1,42 @@
+package org.eclipse.equinox.p2.tests.artifact.repository;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+
+public class MD5Tests extends AbstractProvisioningTest {
+	File testRepo = null;
+	IArtifactRepository repo = null;
+
+	protected void setUp() throws Exception {
+		super.setUp();
+		testRepo = getTestData("Repository with MD5", "testData/artifactRepo/simpleWithMD5");
+		repo = getArtifactRepositoryManager().loadRepository(testRepo.toURI(), new NullProgressMonitor());
+		assertNotNull("1.0", repo);
+	}
+
+	public void testCheckMD5() {
+		IArtifactKey[] keys = repo.getArtifactKeys();
+		for (int i = 0; i < keys.length; i++) {
+			IArtifactDescriptor[] desc = repo.getArtifactDescriptors(keys[i]);
+			for (int j = 0; j < desc.length; j++) {
+				IStatus status = repo.getArtifact(desc[j], new ByteArrayOutputStream(500), new NullProgressMonitor());
+				if (desc[j].getArtifactKey().getId().startsWith("bogus")) {
+					assertNotOK(status);
+					continue;
+				}
+				assertOK("2.1 " + desc[j], status);
+			}
+		}
+	}
+
+	protected void tearDown() throws Exception {
+		getArtifactRepositoryManager().removeRepository(testRepo.toURI());
+		super.tearDown();
+	}
+}
+  1  
+...les/org.eclipse.equinox.p2.tests/src/org/eclipse/equinox/p2/tests/publisher/AllTests.java
+@@ -26,6 +26,7 @@ public static Test suite() {
+		suite.addTestSuite(ConfigCUsActionTest.class);			suite.addTestSuite(ConfigCUsActionTest.class);
+		suite.addTestSuite(EquinoxLauncherCUActionTest.class);			suite.addTestSuite(EquinoxLauncherCUActionTest.class);
+		suite.addTestSuite(EquinoxExecutableActionTest.class);			suite.addTestSuite(EquinoxExecutableActionTest.class);
+		suite.addTestSuite(MD5GenerationTest.class);
+		return suite;			return suite;
+	}		}
+
+
+ 40  
+...quinox.p2.tests/src/org/eclipse/equinox/p2/tests/publisher/actions/MD5GenerationTest.java
+@@ -0,0 +1,40 @@
+package org.eclipse.equinox.p2.tests.publisher.actions;
+
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.osgi.framework.Version;
+
+public class MD5GenerationTest extends AbstractProvisioningTest {
+	public void testGenerationFile() {
+		IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(new ArtifactKey("classifierTest", "idTest", new Version(1, 0, 0)), getTestData("Artifact to generate from", "testData/artifactRepo/simpleWithMD5/plugins/aaPlugin_1.0.0.jar"));
+		assertEquals("50d4ea58b02706ab373a908338877e02", ad.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+	}
+
+	public void testGenerationFile2() {
+		IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(new ArtifactKey("classifierTest", "idTest", new Version(1, 0, 0)), getTestData("Artifact to generate from", "testData/artifactRepo/simpleWithMD5/plugins/aaPlugin_1.0.0.jar"), true, false);
+		assertEquals("50d4ea58b02706ab373a908338877e02", ad.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+	}
+
+	public void testGenerationFolder() {
+		IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(new ArtifactKey("classifierTest", "idTest", new Version(1, 0, 0)), getTestData("Artifact to generate from", "testData/artifactRepo/simpleWithMD5/plugins/"));
+		assertNull(ad.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+	}
+
+	public void testGenerationFolder2() {
+		IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(new ArtifactKey("classifierTest", "idTest", new Version(1, 0, 0)), getTestData("Artifact to generate from", "testData/artifactRepo/simpleWithMD5/plugins/"), true, false);
+		assertNull(ad.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+	}
+
+	public void testGenerationNoFolder() {
+		IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(new ArtifactKey("classifierTest", "idTest", new Version(1, 0, 0)), null);
+		assertNull(ad.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+	}
+
+	public void testGenerationNoFolder2() {
+		IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(new ArtifactKey("classifierTest", "idTest", new Version(1, 0, 0)), null, true, false);
+		assertNull(ad.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
+	}
+}
+ 122  
+bundles/org.eclipse.equinox.p2.tests/testData/artifactRepo/simpleWithMD5/artifacts.xml
+@@ -0,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository class='org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository' version='1.0.0'?>
+<repository name='file:/C:/1target/provmiddle/aaTestSite/ - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.compressed' value='false'/>
+    <property name='p2.timestamp' value='1218734853468'/>
+    <property name='publishPackFilesAsSiblings' value='true'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle) (format=packed))' output='${repoUrl}/plugins/${id}_${version}.jar.pack.gz'/>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='2'>
+    <artifact classifier='osgi.bundle' id='aaPlugin' version='1.0.0'>
+      <properties size='4'>
+        <property name='artifact.size' value='469'/>
+        <property name='download.size' value='469'/>
+        <property name='download.contentType' value='application/zip'/>
+        <property name='download.md5' value='50d4ea58b02706ab373a908338877e02'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='aaFeature' version='1.0.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='670'/>
+        <property name='download.size' value='670'/>
+        <property name='download.md5' value='8eb801058775b83c00ca37082ce57b47'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='bogusbbPlugin' version='1.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='469'/>
+        <property name='download.size' value='469'/>
+        <property name='download.contentType' value='application/zip'/>
+        <property name='download.md5' value='bogusMD5'/>
+      </properties>
+    </artifact>
+        <artifact classifier='osgi.bundle' id='bogusccPlugin' version='1.0.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='469'/>
+        <property name='download.size' value='469'/>
+        <property name='download.contentType' value='application/zip'/>
+        <property name='download.md5' value='50d4ea58b02706ab373a908338877e01'/>
+      </properties>
+    </artifact>
+
+    <artifact classifier='osgi.bundle' id='org.eclipse.core.filebuffers' version='3.4.0.v20080603-2000'>
+      <processing size='2'>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='download.md5'/>
+        <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='artifact.md5'/> 
+      </processing>
+      <properties size='3'>
+        <property name='artifact.size' value='83200'/>
+        <property name='download.size' value='47275'/>
+        <property name='format' value='packed'/>
+        <property name='download.md5' value='80eefca900b225ba9821f9b2362f9ead'/>
+        <property name='artifact.md5' value='48b39605d3e8325bdeb92c61d036ee61'/>
+      </properties>
+    </artifact>
+
+    <artifact classifier='osgi.bundle' id='bogusorg.eclipse.core.filebuffers1' version='3.4.0.v20080603-2000'>
+      <processing size='2'>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='artifact.md5'/>
+        <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='download.md5'/> 
+      </processing>
+      <properties size='3'>
+        <property name='artifact.size' value='83200'/>
+        <property name='download.size' value='47275'/>
+        <property name='format' value='packed'/>
+        <property name='download.md5' value='80eefca900b225ba9821f9b2362f9ead'/>
+        <property name='artifact.md5' value='48b39605d3e8325bdeb92c61d036ee61'/>
+      </properties>
+    </artifact>
+
+    <artifact classifier='osgi.bundle' id='bogusorg.eclipse.core.filebuffers2' version='3.4.0.v20080603-2000'>
+      <processing size='2'>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='download.md5'/>
+        <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='download.md5'/> 
+      </processing>
+      <properties size='3'>
+        <property name='artifact.size' value='83200'/>
+        <property name='download.size' value='47275'/>
+        <property name='format' value='packed'/>
+        <property name='download.md5' value='80eefca900b225ba9821f9b2362f9ead'/>
+        <property name='artifact.md5' value='48b39605d3e8325bdeb92c61d036ee61'/>
+      </properties>
+    </artifact>
+
+    <artifact classifier='osgi.bundle' id='bogusorg.eclipse.core.filebuffers3' version='3.4.0.v20080603-2000'>
+      <processing size='2'>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='artifact.md5'/>
+        <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='artifact.md5'/> 
+      </processing>
+      <properties size='3'>
+        <property name='artifact.size' value='83200'/>
+        <property name='download.size' value='47275'/>
+        <property name='format' value='packed'/>
+        <property name='download.md5' value='80eefca900b225ba9821f9b2362f9ead'/>
+        <property name='artifact.md5' value='48b39605d3e8325bdeb92c61d036ee61'/>
+      </properties>
+    </artifact>
+
+    <artifact classifier='osgi.bundle' id='org.eclipse.core.filebuffers4' version='3.4.0.v20080603-2000'>
+      <processing size='2'>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='80eefca900b225ba9821f9b2362f9ead'/>
+        <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
+        <step id='org.eclipse.equinox.p2.processing.MD5Verifier' required='true' data='48b39605d3e8325bdeb92c61d036ee61'/> 
+      </processing>
+      <properties size='3'>
+        <property name='artifact.size' value='83200'/>
+        <property name='download.size' value='47275'/>
+        <property name='format' value='packed'/>
+      </properties>
+    </artifact>
+
+  </artifacts>
+</repository>
+ BIN +670 Bytes 
+...eclipse.equinox.p2.tests/testData/artifactRepo/simpleWithMD5/features/aaFeature_1.0.0.jar
+Binary file not shown.
+ BIN +469 Bytes 
+...g.eclipse.equinox.p2.tests/testData/artifactRepo/simpleWithMD5/plugins/aaPlugin_1.0.0.jar
+Binary file not shown.
+ BIN +469 Bytes 
+...ipse.equinox.p2.tests/testData/artifactRepo/simpleWithMD5/plugins/bogusbbPlugin_1.0.0.jar
+Binary file not shown.
+ BIN +469 Bytes 
+...ipse.equinox.p2.tests/testData/artifactRepo/simpleWithMD5/plugins/bogusccPlugin_1.0.0.jar
+Binary file not shown.
+ BIN +35 KB 
+...Repo/simpleWithMD5/plugins/org.eclipse.core.filebuffers2_3.4.0.v20080603-2000.jar.pack.gz
+Binary file not shown.
+ BIN +35 KB 
+...Repo/simpleWithMD5/plugins/org.eclipse.core.filebuffers3_3.4.0.v20080603-2000.jar.pack.gz
+Binary file not shown.
+ BIN +35 KB 
+...Repo/simpleWithMD5/plugins/org.eclipse.core.filebuffers4_3.4.0.v20080603-2000.jar.pack.gz
+Binary file not shown.
+ BIN +35 KB 
+...tRepo/simpleWithMD5/plugins/org.eclipse.core.filebuffers_3.4.0.v20080603-2000.jar.pack.gz
+Binary file not shown.
+ 2  
+bundles/org.eclipse.equinox.p2.tests/testData/artifactRepo/simpleWithMD5/readme.txt
+@@ -0,0 +1,2 @@
+This is a very simple artifact repository containing a single group IU (a feature), and
+a single bundle IU. This repository is used by ArtifactRepositoryManagerTest
+0 comments on commit 914b5e9
+@zakwarlord7
+ 
+Add heading textAdd bold text, <Ctrl+b>Add italic text, <Ctrl+i>
+Add a quote, <Ctrl+Shift+.>Add code, <Ctrl+e>Add a link, <Ctrl+k>
+Add a bulleted list, <Ctrl+Shift+8>Add a numbered list, <Ctrl+Shift+7>Add a task list, <Ctrl+Shift+l>
+Directly mention a user or team
+Reference an issue, pull request, or discussion
+Add saved reply
+Leave a comment
+No file chosen
+Attach files by dragging & dropping, selecting or pasting them.
+Styling with Markdown is supported
+ You’re not receiving notifications from this thread.
+Footer
+© 2023 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Bug 222870 - Enabled MD5 processing step · zakwarlord7/p2@914b5e9
+</mtml version="1.0" encoding="UTF-8"?>
 </.mtml/>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  
   <modelVersion>'4'.10'.0'.1"</contributing.md/Read.md>
-  
   <parent>
-  
   <groupId>org.eclipse.equinox.p2</groupId>
-  
   <artifactId>rt.equinox.p2</artifactId>
-  
   <version>${releaseVersion}${qualifier}</version>
-  
-  <relativePath>../pom.xml</relativePath>
-  
+    <relativePath>../pom.xml</relativePath
   </parent>
-  
   <artifactId>org.eclipse.equinox.p2.examples</artifactId>
-  
-  <packaging>pom.YML</packaging>
-  
+    <packaging>pom.YML</packaging>
   <properties>
-  
 <skip>
-
 orb/ash.yml
-
 </API:\Analysis>File by Mail Instructions for your 2021 Federal Tax Return Important: Your taxes are not finished until all required steps are completed.
 ZACHRY T WOOD5222 Bradford Dr Dallas, TX 75235-8314|  Page 1 of 2|  Balance|  Your federal tax return shows a Balance due of Due-/.$257567263607.00.Refund || You are paying by check.||What You | Your tax return - The official return for mailing is included in Need to | this printout. Remember to sign and date the return.Mail || Your payment - Mail a check or money order for $257,567,263,607.00,| payable to "United States Treasury". Write your Social Security| number and "2021 Form 1040" on the check. Mail the return and check| together.|| Attach the first copy or Copy B of Form(s) W-2 to the front of your| Form 1040.|| Mail your return, attachments and payment to:| Internal Revenue Service| P.O. Box 1214| Charlotte, NC 28201-1214|| Deadline: Postmarked by Monday, April 18, 2022|| Note: Your state return may be due on a different date. Please| review your state filing instructions.|| Don't forget correct postage on the envelope.||What You | Keep these instructions and a copy of your return for your records.Need to | You can download or print a copy of your return by logging into your Keep| TurboTax account.||2021 | Adjusted Gross Income $ 999,999.00Federal | Taxable Income $ 689,999.00Tax | Total Tax 257637118600.00.Return | Total Payments/Credits(deductions(subtractions-with-held))))":, $ 69,854,993.00Summary | Payment Due 257,567,263,607.00| Effective Tax Rate 0.00%| File by Mail Instructions for your 2021 Federal Tax ReturnImportant: Your taxes are not finished until all required steps are completed.ZACHRY T WOOD5222 Bradford DrDallas, TX 75235-8313Page 2 of 2|Estimated | Estimated Payments for 2022 - Do not mail these vouchers with yourPayments to | 2021 income tax return. The estimated vouchers displayed below areMake for Next | used to prepay your 2022 income taxes that will be filed next year.Year's Return | If you expect to owe more than $1,000 in 2022, you may incur| underpayment penalties if you do not make these four estimated tax| payments. This printout includes your estimated tax vouchers for your| federal estimated taxes (Form 1040-ES).|| Mail payments according to the schedule below:|| Voucher Number Due Date Amount| 1 04/18/2022 70,842,743,866.00| 2 06/15/2022 70,842,743,866.00| 3 09/15/2022 70,842,743,866.00| 4 01/17/2023 70,842,743,866.00|| Include a separate check or money order for each payment, payable to| "United States Treasury". Write your social security number and "Form| 1040-ES" on each check.|| Mail payments to:| Internal Revenue Service| P.O. Box 1300| Charlotte, NC 28201-1300______________________________________________________________________________________|
 Form 1040-ES Payment VoucherIIDetach Here and Mail With Your PaymentDepartment of the TreasuryCalendar Year 'Internal Revenue ServiceDue File only if you are making a payment of estimated tax by check or money order. Mail thisAmount of estimated taxvoucher with your check or money order payable to the 'United States Treasury.' Write youryou are paying by checksocial security number and ' Form 1040-ES' on your check or money order. Do not sendGcash. Enclose, but do not staple or attach, your payment with this voucher.or money order. . . . . . . . . . 1DALLAS TX 75235-831370,842,743,866.5222 BRADFORD DR633-44-1725INTERNAL REVENUE SERVICEPO BOX 1300CHARLOTTE NC 28201-130004/18/202220222022REV 04/09/22 INTUIT.CG.CFP.SP1555ZACHRY T WOOD633441725 BH WOOD 30 0 202212 430
