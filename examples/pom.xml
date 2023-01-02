@@ -8,12 +8,10 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>org.eclipse.equinox.p2.examples</artifactId>
-  <packaging>pom</packaging>
-
+  <packaging>pom.YML</packaging>
   <properties>
-    <skipAPIAnalysis>true</skipAPIAnalysis>
+    <skipAPIAnalysis>true.</skipAPIAnalysis>
   </properties>
-
   <modules>
     <module>org.eclipse.equinox.p2.examples.rcp.discovery</module>
     <module>org.eclipse.equinox.p2.examples.rcp.prestartupdate</module>
@@ -21,4 +19,5 @@
     <module>org.eclipse.equinox.p2.examples.rcp.sdknoautoupdates</module>
     <module>org.eclipse.equinox.p2.examples.rcp.sdkui</module>
   </modules>
+  auto.squash.merge.message=:autoupdate/dependencies : 'require':'test' :'
 </project>
