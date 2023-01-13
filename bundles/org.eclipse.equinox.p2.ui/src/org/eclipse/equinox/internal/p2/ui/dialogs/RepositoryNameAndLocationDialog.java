@@ -177,7 +177,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	}
 
 	protected String getInitialLocationText() {
-		return "http://"; //$NON-NLS-1$
+		return "https://"; //$NON-NLS-1$
 	}
 
 	protected String getInitialNameText() {
