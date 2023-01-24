@@ -496,7 +496,11 @@ public class CertificateChecker {
 		Map<ByteBuffer, Set<Bundle>> keys = new LinkedHashMap<>();
 
 		// Load from the extension registry.
-		for (IConfigurationElement extension : RegistryFactory.getRegistry()
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			return Map.of();
+		}
+		for (IConfigurationElement extension : registry
 				.getConfigurationElementsFor(EngineActivator.ID, "pgp")) { //$NON-NLS-1$
 			if ("trustedKeys".equals(extension.getName())) { //$NON-NLS-1$
 				String pathInBundle = extension.getAttribute("path"); //$NON-NLS-1$

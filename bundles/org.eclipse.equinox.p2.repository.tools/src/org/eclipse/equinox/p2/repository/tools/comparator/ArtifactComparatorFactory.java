@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Compeople AG (Stefan Liebig) - various ongoing maintenance
@@ -15,8 +15,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.tools.comparator;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -52,7 +51,8 @@ public class ArtifactComparatorFactory {
 	 * @throws {@link IllegalArgumentException} otherwise
 	 */
 	public static IArtifactComparator getArtifactComparator(String comparatorID) {
-		List<IConfigurationElement> extensions = Stream.of(RegistryFactory.getRegistry().getConfigurationElementsFor(COMPARATOR_POINT))
+		List<IConfigurationElement> extensions = Optional.ofNullable(RegistryFactory.getRegistry()).stream()
+				.flatMap(r -> Arrays.stream(r.getConfigurationElementsFor(COMPARATOR_POINT)))
 			.collect(Collectors.toList());
 		// exclude artifact checksum comparator, needs special care
 		extensions.removeIf(extension -> extension.getAttribute(ATTR_ID).equals(ArtifactChecksumComparator.COMPARATOR_ID));

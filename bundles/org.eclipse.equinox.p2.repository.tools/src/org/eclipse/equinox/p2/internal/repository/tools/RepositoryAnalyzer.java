@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009,2010 EclipseSource and others.
  *
  * This
@@ -39,7 +39,11 @@ public class RepositoryAnalyzer {
 		MultiStatus result = new MultiStatus(Activator.ID, IStatus.OK, null, null);
 
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 2);
-		IConfigurationElement[] config = RegistryFactory.getRegistry().getConfigurationElementsFor(IIUAnalyzer.ID);
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			return Status.CANCEL_STATUS;
+		}
+		IConfigurationElement[] config = registry.getConfigurationElementsFor(IIUAnalyzer.ID);
 
 		for (IMetadataRepository repository : repositories) {
 			IQueryResult<IInstallableUnit> queryResult = repository.query(QueryUtil.createIUAnyQuery(), sub);

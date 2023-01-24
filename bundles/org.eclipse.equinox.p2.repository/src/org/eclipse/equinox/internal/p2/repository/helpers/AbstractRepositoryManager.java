@@ -289,7 +289,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			if (loaded)
 				fail(location, ProvisionException.REPOSITORY_EXISTS);
 
-			IExtension extension = RegistryFactory.getRegistry().getExtension(getRepositoryProviderExtensionPointId(), type);
+			IExtension extension = getExtension(type);
 			if (extension == null)
 				fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
 			//		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
@@ -306,6 +306,14 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		//fire event after releasing load lock
 		broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ADDED, true);
 		return result;
+	}
+
+	private IExtension getExtension(String type) {
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			return null;
+		}
+		return registry.getExtension(getRepositoryProviderExtensionPointId(), type);
 	}
 
 	/**
@@ -406,12 +414,16 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	protected IExtension[] findMatchingRepositoryExtensions(String suffix, String type) {
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			return new IExtension[0];
+		}
 		IConfigurationElement[] elt = null;
 		if (type != null && type.length() > 0) {
-			IExtension ext = RegistryFactory.getRegistry().getExtension(getRepositoryProviderExtensionPointId(), type);
+			IExtension ext = registry.getExtension(getRepositoryProviderExtensionPointId(), type);
 			elt = (ext != null) ? ext.getConfigurationElements() : new IConfigurationElement[0];
 		} else {
-			elt = RegistryFactory.getRegistry().getConfigurationElementsFor(getRepositoryProviderExtensionPointId());
+			elt = registry.getConfigurationElementsFor(getRepositoryProviderExtensionPointId());
 		}
 		int count = 0;
 		for (int i = 0; i < elt.length; i++) {

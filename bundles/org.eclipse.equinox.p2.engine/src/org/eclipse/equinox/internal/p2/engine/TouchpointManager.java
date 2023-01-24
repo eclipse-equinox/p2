@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -90,13 +90,16 @@ public class TouchpointManager implements IRegistryChangeListener {
 		}
 	}
 
-	// TODO: Do we really want to store the touchpoints? The danger is 
+	// TODO: Do we really want to store the touchpoints? The danger is
 	//	     that if two installations are performed simultaneously, then...
 	// TODO: Figure out locking, concurrency requirements for touchpoints.
 	private Map<String, TouchpointEntry> touchpointEntries;
 
 	public TouchpointManager() {
-		RegistryFactory.getRegistry().addRegistryChangeListener(this, EngineActivator.ID);
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry != null) {
+			registry.addRegistryChangeListener(this, EngineActivator.ID);
+		}
 	}
 
 	/*
@@ -136,7 +139,12 @@ public class TouchpointManager implements IRegistryChangeListener {
 		if (touchpointEntries != null)
 			return touchpointEntries;
 
-		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_TOUCHPOINTS);
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			// maybe later...
+			return Map.of();
+		}
+		IExtensionPoint point = registry.getExtensionPoint(EngineActivator.ID, PT_TOUCHPOINTS);
 		IExtension[] extensions = point.getExtensions();
 		touchpointEntries = new HashMap<>(extensions.length);
 		for (IExtension extension : extensions) {

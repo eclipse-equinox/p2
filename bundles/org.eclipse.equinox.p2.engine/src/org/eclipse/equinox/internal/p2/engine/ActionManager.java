@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -42,7 +42,10 @@ public class ActionManager implements IRegistryChangeListener {
 
 	public ActionManager() {
 		this.touchpointManager = new TouchpointManager();
-		RegistryFactory.getRegistry().addRegistryChangeListener(this, EngineActivator.ID);
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry != null) {
+			registry.addRegistryChangeListener(this, EngineActivator.ID);
+		}
 	}
 
 	public Touchpoint getTouchpointPoint(ITouchpointType type) {
@@ -91,7 +94,12 @@ public class ActionManager implements IRegistryChangeListener {
 	private synchronized Map<String, IConfigurationElement> getActionMap() {
 		if (actionMap != null)
 			return actionMap;
-		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_ACTIONS);
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			// maybe later...
+			return Map.of();
+		}
+		IExtensionPoint point = registry.getExtensionPoint(EngineActivator.ID, PT_ACTIONS);
 		IExtension[] extensions = point.getExtensions();
 		actionMap = new HashMap<>(extensions.length);
 		for (IExtension extension : extensions) {

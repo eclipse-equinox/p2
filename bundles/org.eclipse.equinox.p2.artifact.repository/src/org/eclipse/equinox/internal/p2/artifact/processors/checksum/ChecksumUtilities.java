@@ -96,7 +96,11 @@ public class ChecksumUtilities {
 	}
 
 	public static IConfigurationElement[] getChecksumComparatorConfigurations() {
-		return RegistryFactory.getRegistry().getConfigurationElementsFor(ARTIFACT_CHECKSUMS_POINT);
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			return new IConfigurationElement[0];
+		}
+		return registry.getConfigurationElementsFor(ARTIFACT_CHECKSUMS_POINT);
 	}
 
 	/**
@@ -184,6 +188,7 @@ public class ChecksumUtilities {
 		return properties;
 	}
 
+	@SuppressWarnings("deprecation")
 	private static void putLegacyMd5Property(String propertyNamespace, Map<String, String> checksums, HashMap<String, String> result) {
 		String md5 = checksums.get(ChecksumHelper.MD5);
 		if (md5 != null) {

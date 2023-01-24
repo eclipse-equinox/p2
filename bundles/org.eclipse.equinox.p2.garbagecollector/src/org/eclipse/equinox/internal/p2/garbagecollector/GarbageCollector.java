@@ -189,6 +189,9 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 
 	private boolean traverseMainProfile(IProfile profile) {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			return false;
+		}
 		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
 
 		//First we collect all repos and keys for the profile being GC'ed
@@ -203,6 +206,9 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 
 	private void traverseRegisteredProfiles() {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			return;
+		}
 		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
 		for (IConfigurationElement configElt : configElts) {
 			if (configElt == null || !(configElt.getName().equals("run"))) { //$NON-NLS-1$
