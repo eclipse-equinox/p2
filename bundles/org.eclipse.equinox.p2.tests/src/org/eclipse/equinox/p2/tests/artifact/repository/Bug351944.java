@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011, 2017 Wind River and others.
+ *  Copyright (c) 2011, 2023 Wind River and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -15,13 +15,19 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug351944 extends AbstractProvisioningTest {
@@ -31,7 +37,7 @@ public class Bug351944 extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		File testData = getTestData("artifact repository", "testData/bug351944");
+		File testData = AbstractProvisioningTest.getTestData("artifact repository", "testData/bug351944");
 		artifactRepoFile = getTempFolder();
 		copy("Copy to temporary folder", testData, artifactRepoFile);
 		changeWritePermission(artifactRepoFile, false);
@@ -72,16 +78,18 @@ public class Bug351944 extends AbstractProvisioningTest {
 				requests.add(artifactRepositoryManager.createMirrorRequest(key, repo, null, null));
 
 			long start = System.currentTimeMillis();
-			IArtifactRequest[] toBeRequests = getRequestsForRepository(repo, requests.toArray(new IArtifactRequest[requests.size()]));
+			Collection<IArtifactRequest> toBeRequests = getRequestsForRepository(repo,
+					requests.toArray(new IArtifactRequest[requests.size()]));
 			long end = System.currentTimeMillis();
 			long queryArtifactOneByOne = end - start;
 
 			start = System.currentTimeMillis();
-			IArtifactRequest[] toBeRequests2 = getRequestsForRepository2(repo, requests.toArray(new IArtifactRequest[requests.size()]));
+			Collection<IArtifactRequest> toBeRequests2 = getRequestsForRepository2(repo,
+					requests.toArray(new IArtifactRequest[requests.size()]));
 			end = System.currentTimeMillis();
 			long queryAllArtifacts = end - start;
 
-			assertEquals("Test case has problem, not find same requests.", toBeRequests.length, toBeRequests2.length);
+			assertEquals("Test case has problem, not find same requests.", toBeRequests.size(), toBeRequests2.size());
 			assertEquals("Querying artifact key from simple repository has performance issue.", queryAllArtifacts, queryArtifactOneByOne, 10);
 		}
 	}
@@ -92,22 +100,24 @@ public class Bug351944 extends AbstractProvisioningTest {
 	 * @param requestsToProcess
 	 * @return
 	 */
-	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository, IArtifactRequest[] requestsToProcess) {
-		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
+	private Collection<IArtifactRequest> getRequestsForRepository(IArtifactRepository repository,
+			IArtifactRequest[] requestsToProcess) {
+		List<IArtifactRequest> applicable = new ArrayList<>();
 		for (IArtifactRequest request : requestsToProcess) {
 			if (repository.contains(request.getArtifactKey()))
 				applicable.add(request);
 		}
-		return applicable.toArray(new IArtifactRequest[applicable.size()]);
+		return applicable;
 	}
 
-	private IArtifactRequest[] getRequestsForRepository2(IArtifactRepository repository, IArtifactRequest[] requestsToProcess) {
+	private Collection<IArtifactRequest> getRequestsForRepository2(IArtifactRepository repository,
+			IArtifactRequest[] requestsToProcess) {
 		Set<IArtifactKey> keys = repository.query(ArtifactKeyQuery.ALL_KEYS, new NullProgressMonitor()).toSet();
 		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
 		for (IArtifactRequest request : requestsToProcess) {
 			if (keys.contains(request.getArtifactKey()))
 				applicable.add(request);
 		}
-		return applicable.toArray(new IArtifactRequest[applicable.size()]);
+		return applicable;
 	}
 }
