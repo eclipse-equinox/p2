@@ -15,13 +15,14 @@ package org.eclipse.equinox.internal.p2.transport.ecf;
 
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.filetransfer.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Credentials.LoginCanceledException;
 import org.eclipse.equinox.internal.p2.repository.Messages;
@@ -43,7 +44,32 @@ public class RepositoryTransport extends Transport {
 
 	public static final String TIMEOUT_RETRY = "org.eclipse.equinox.p2.transport.ecf.retry"; //$NON-NLS-1$
 	private static Map<URI, Integer> socketExceptionRetry = null;
+	private final Set<URI> loggedURIs = ConcurrentHashMap.newKeySet();
 	private IProvisioningAgent agent = null;
+
+	private enum HttpAction {
+		ALLOW, REDIRECT, BLOCK;
+
+		public static HttpAction of(String literal) {
+			if (literal == null) {
+				return BLOCK;
+			}
+			switch (literal) {
+			case "allow": //$NON-NLS-1$
+				return ALLOW;
+			case "redirect": //$NON-NLS-1$
+				return REDIRECT;
+			default: {
+				return BLOCK;
+			}
+			}
+		}
+	}
+
+	private static final HttpAction HTTP_ACTION = HttpAction.of(System.getProperty("p2.httpAction")); //$NON-NLS-1$
+
+	/** Allows to mute "Using unsafe http transport" warnings */
+	private static final boolean SKIP_REPOSITORY_PROTOCOL_CHECK = Boolean.getBoolean("p2.skipRepositoryProtocolCheck"); //$NON-NLS-1$
 
 	/**
 	 * Returns an shared instance of Generic Transport
@@ -74,10 +100,16 @@ public class RepositoryTransport extends Transport {
 		boolean promptUser = false;
 		boolean useJREHttp = false;
 		AuthenticationInfo loginDetails = null;
+		URI secureToDownload;
+		try {
+			secureToDownload = getSecureLocation(toDownload);
+		} catch (ProvisionException e) {
+			return e.getStatus();
+		}
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			FileReader reader = null;
 			try {
-				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
+				loginDetails = Credentials.forLocation(secureToDownload, promptUser, loginDetails);
 				IConnectContext context = (loginDetails == null) ? null
 						: ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(),
 								loginDetails.getPassword());
@@ -104,7 +136,7 @@ public class RepositoryTransport extends Transport {
 							eventBus.addListener(listener);
 						}
 					}
-					reader.readInto(toDownload, target, -1, monitor);
+					reader.readInto(secureToDownload, target, -1, monitor);
 				} finally {
 					if (eventBus != null) {
 						eventBus.removeListener(listener);
@@ -114,7 +146,7 @@ public class RepositoryTransport extends Transport {
 				// check that job ended ok - throw exceptions otherwise
 				IStatus result = reader.getResult();
 				if (result == null) {
-					String msg = NLS.bind(Messages.RepositoryTransport_failedReadRepo, toDownload);
+					String msg = NLS.bind(Messages.RepositoryTransport_failedReadRepo, secureToDownload);
 					DownloadStatus ds = new DownloadStatus(IStatus.ERROR, Activator.ID,
 							ProvisionException.REPOSITORY_FAILED_READ, msg, null);
 					return statusOn(target, ds, reader);
@@ -135,16 +167,16 @@ public class RepositoryTransport extends Transport {
 				throw e;
 			} catch (CoreException e) {
 				if (e.getStatus().getException() == null)
-					return statusOn(target, forException(e, toDownload), reader);
-				return statusOn(target, forStatus(e.getStatus(), toDownload), reader);
+					return statusOn(target, forException(e, secureToDownload), reader);
+				return statusOn(target, forStatus(e.getStatus(), secureToDownload), reader);
 			} catch (FileNotFoundException e) {
-				return statusOn(target, forException(e, toDownload), reader);
+				return statusOn(target, forException(e, secureToDownload), reader);
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
 			} catch (Credentials.LoginCanceledException e) {
 				DownloadStatus status = new DownloadStatus(IStatus.ERROR, Activator.ID,
 						ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
-						NLS.bind(Messages.UnableToRead_0_UserCanceled, toDownload), null);
+						NLS.bind(Messages.UnableToRead_0_UserCanceled, secureToDownload), null);
 				return statusOn(target, status, null);
 			} catch (JREHttpClientRequiredException e) {
 				if (!useJREHttp) {
@@ -157,7 +189,7 @@ public class RepositoryTransport extends Transport {
 		// reached maximum number of retries without success
 		DownloadStatus status = new DownloadStatus(IStatus.ERROR, Activator.ID,
 				ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, //
-				NLS.bind(Messages.UnableToRead_0_TooManyAttempts, toDownload), null);
+				NLS.bind(Messages.UnableToRead_0_TooManyAttempts, secureToDownload), null);
 		return statusOn(target, status, null);
 	}
 
@@ -168,17 +200,18 @@ public class RepositoryTransport extends Transport {
 		boolean promptUser = false;
 		boolean useJREHttp = false;
 		AuthenticationInfo loginDetails = null;
+		URI secureToDownload = getSecureLocation(toDownload);
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			FileReader reader = null;
 			try {
-				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
+				loginDetails = Credentials.forLocation(secureToDownload, promptUser, loginDetails);
 				IConnectContext context = (loginDetails == null) ? null
 						: ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(),
 								loginDetails.getPassword());
 
 				// perform the streamed download
 				reader = new FileReader(agent, context);
-				return reader.read(toDownload, monitor);
+				return reader.read(secureToDownload, monitor);
 			} catch (UserCancelledException e) {
 				throw new OperationCanceledException();
 			} catch (AuthenticationFailedException e) {
@@ -187,8 +220,8 @@ public class RepositoryTransport extends Transport {
 				// must translate this core exception as it is most likely not informative to a
 				// user
 				if (e.getStatus().getException() == null)
-					throw new CoreException(forException(e, toDownload));
-				throw new CoreException(forStatus(e.getStatus(), toDownload));
+					throw new CoreException(forException(e, secureToDownload));
+				throw new CoreException(forStatus(e.getStatus(), secureToDownload));
 			} catch (LoginCanceledException e) {
 				// i.e. same behavior when user cancels as when failing n attempts.
 				throw new AuthenticationFailedException();
@@ -233,23 +266,24 @@ public class RepositoryTransport extends Transport {
 		boolean promptUser = false;
 		boolean useJREHttp = false;
 		AuthenticationInfo loginDetails = null;
+		URI secureToDownload = getSecureLocation(toDownload);
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
 			try {
-				loginDetails = Credentials.forLocation(toDownload, promptUser, loginDetails);
+				loginDetails = Credentials.forLocation(secureToDownload, promptUser, loginDetails);
 				IConnectContext context = (loginDetails == null) ? null
 						: ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(),
 								loginDetails.getPassword());
 				// get the remote info
 				FileInfoReader reader = new FileInfoReader(context);
-				return reader.getLastModified(toDownload, monitor);
+				return reader.getLastModified(secureToDownload, monitor);
 			} catch (UserCancelledException e) {
 				throw new OperationCanceledException();
 			} catch (CoreException e) {
 				// must translate this core exception as it is most likely not informative to a
 				// user
 				if (e.getStatus().getException() == null)
-					throw new CoreException(forException(e, toDownload));
-				throw new CoreException(forStatus(e.getStatus(), toDownload));
+					throw new CoreException(forException(e, secureToDownload));
+				throw new CoreException(forStatus(e.getStatus(), secureToDownload));
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
 			} catch (LoginCanceledException e) {
@@ -266,6 +300,33 @@ public class RepositoryTransport extends Transport {
 		}
 		// reached maximum number of authentication retries without success
 		throw new AuthenticationFailedException();
+	}
+
+	private URI getSecureLocation(URI location) throws ProvisionException {
+		if ("http".equalsIgnoreCase(location.getScheme())) { //$NON-NLS-1$
+			switch (HTTP_ACTION) {
+			case REDIRECT: {
+				try {
+					return new URI("https", location.getUserInfo(), location.getHost(), //$NON-NLS-1$
+							location.getPort(), location.getPath(), location.getQuery(), location.getFragment());
+				} catch (URISyntaxException e) {
+					// Cannot happen.
+					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, e.getLocalizedMessage(), e));
+				}
+			}
+			case BLOCK: {
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
+						NLS.bind(Messages.RepositoryTransport_unsafeHttpBlocked, location)));
+			}
+			}
+			if (!SKIP_REPOSITORY_PROTOCOL_CHECK) {
+				if (loggedURIs.add(location)) {
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+							NLS.bind(Messages.RepositoryTransport_unsafeHttp, location)));
+				}
+			}
+		}
+		return location;
 	}
 
 	private static boolean isForgiveableException(Throwable t) {

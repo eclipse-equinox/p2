@@ -82,9 +82,6 @@ public class CacheManager {
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
-	/** Allows to mute "Using unsafe http transport" warnings */
-	private static final boolean SKIP_REPOSITORY_PROTOCOL_CHECK = Boolean.getBoolean("p2.skipRepositoryProtocolCheck"); //$NON-NLS-1$
-
 	private final HashSet<String> knownPrefixes = new HashSet<>(5);
 
 	/**
@@ -98,7 +95,6 @@ public class CacheManager {
 		if (!isURL(remoteFile)) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_CannotLoadNonUrlLocation, remoteFile), null));
 		}
-		checkLocationIsSecure(remoteFile);
 
 		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
 		try {
@@ -165,7 +161,6 @@ public class CacheManager {
 		if (!isURL(repositoryLocation)) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_CannotLoadNonUrlLocation, repositoryLocation), null));
 		}
-		checkLocationIsSecure(repositoryLocation);
 		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
 		try {
 			knownPrefixes.add(prefix);
@@ -269,15 +264,6 @@ public class CacheManager {
 			return cacheFile;
 		} finally {
 			submonitor.done();
-		}
-	}
-
-	private void checkLocationIsSecure(URI repositoryLocation) {
-		if (SKIP_REPOSITORY_PROTOCOL_CHECK) {
-			return;
-		}
-		if ("http".equals(repositoryLocation.getScheme())) { //$NON-NLS-1$
-			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.unsafeHttp, repositoryLocation)));
 		}
 	}
 
