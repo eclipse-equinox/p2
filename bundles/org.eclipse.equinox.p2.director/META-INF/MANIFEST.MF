@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.director;singleton:=true
-Bundle-Version: 2.5.400.qualifier
+Bundle-Version: 2.6.0.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.equinox.internal.p2.director.DirectorActivator
 Bundle-Vendor: %providerName
@@ -27,7 +27,7 @@ Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.3.0,4.0.0)",
  org.eclipse.equinox.p2.metadata;bundle-version="[2.0.0,3.0.0)",
  org.sat4j.core;bundle-version="[2.3.5,3.0.0)",
  org.sat4j.pb;bundle-version="[2.3.5,3.0.0)"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/director.xml, OSGI-INF/planner.xml
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,

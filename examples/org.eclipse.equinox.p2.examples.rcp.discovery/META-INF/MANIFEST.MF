@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: RCP Mail (Cloud Update Example)
 Bundle-SymbolicName: org.eclipse.equinox.p2.examples.rcp.discovery;singleton:=true
-Bundle-Version: 2.2.100.qualifier
+Bundle-Version: 2.3.0.qualifier
 Bundle-Activator: org.eclipse.equinox.p2.examples.rcp.cloud.Activator
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
@@ -29,5 +29,5 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
  org.apache.httpcomponents.client5.httpclient5;bundle-version="5.0.2",
  org.eclipse.ecf.provider.filetransfer.httpclient5;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.eclipse.equinox.p2.examples.rcp.cloud
