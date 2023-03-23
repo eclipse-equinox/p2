@@ -47,12 +47,12 @@ public class RepositoryTransport extends Transport {
 	private final Set<URI> loggedURIs = ConcurrentHashMap.newKeySet();
 	private IProvisioningAgent agent = null;
 
-	private enum HttpAction {
+	private enum ProtocolRule {
 		ALLOW, REDIRECT, BLOCK;
 
-		public static HttpAction of(String literal) {
+		public static ProtocolRule of(String literal) {
 			if (literal == null) {
-				return BLOCK;
+				return REDIRECT;
 			}
 			switch (literal) {
 			case "allow": //$NON-NLS-1$
@@ -66,7 +66,9 @@ public class RepositoryTransport extends Transport {
 		}
 	}
 
-	private static final HttpAction HTTP_ACTION = HttpAction.of(System.getProperty("p2.httpAction")); //$NON-NLS-1$
+	private static final Map<String, ProtocolRule> RULES = Map.of( //
+			"http", ProtocolRule.of(System.getProperty("p2.httpRule")), //$NON-NLS-1$ //$NON-NLS-2$
+			"ftp", ProtocolRule.of(System.getProperty("p2.ftpRule"))); //$NON-NLS-1$ //$NON-NLS-2$
 
 	/** Allows to mute "Using unsafe http transport" warnings */
 	private static final boolean SKIP_REPOSITORY_PROTOCOL_CHECK = Boolean.getBoolean("p2.skipRepositoryProtocolCheck"); //$NON-NLS-1$
@@ -303,11 +305,14 @@ public class RepositoryTransport extends Transport {
 	}
 
 	private URI getSecureLocation(URI location) throws ProvisionException {
-		if ("http".equalsIgnoreCase(location.getScheme())) { //$NON-NLS-1$
-			switch (HTTP_ACTION) {
+		String scheme = location.getScheme();
+		String canonicalScheme = scheme == null ? "null" : scheme.toLowerCase(); //$NON-NLS-1$
+		ProtocolRule protocolRule = RULES.get(canonicalScheme); // $NON-NLS-1$
+		if (protocolRule != null) { // $NON-NLS-1$
+			switch (protocolRule) {
 			case REDIRECT: {
 				try {
-					return new URI("https", location.getUserInfo(), location.getHost(), //$NON-NLS-1$
+					return new URI(canonicalScheme + "s", location.getUserInfo(), location.getHost(), //$NON-NLS-1$
 							location.getPort(), location.getPath(), location.getQuery(), location.getFragment());
 				} catch (URISyntaxException e) {
 					// Cannot happen.
@@ -316,14 +321,16 @@ public class RepositoryTransport extends Transport {
 			}
 			case BLOCK: {
 				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
-						NLS.bind(Messages.RepositoryTransport_unsafeHttpBlocked, location)));
+						NLS.bind(Messages.RepositoryTransport_unsafeProtocolBlocked, canonicalScheme, location)));
 			}
-			}
-			if (!SKIP_REPOSITORY_PROTOCOL_CHECK) {
-				if (loggedURIs.add(location)) {
-					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
-							NLS.bind(Messages.RepositoryTransport_unsafeHttp, location)));
+			default: {
+				if (!SKIP_REPOSITORY_PROTOCOL_CHECK) {
+					if (loggedURIs.add(location)) {
+						LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+								NLS.bind(Messages.RepositoryTransport_unsafeProtocol, canonicalScheme, location)));
+					}
 				}
+			}
 			}
 		}
 		return location;
