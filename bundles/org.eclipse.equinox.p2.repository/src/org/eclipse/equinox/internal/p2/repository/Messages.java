@@ -90,8 +90,8 @@ public class Messages extends NLS {
 	public static String UnableToRead_0_UserCanceled;
 
 	public static String RepositoryTransport_failedReadRepo;
-	public static String RepositoryTransport_unsafeHttpBlocked;
-	public static String RepositoryTransport_unsafeHttp;
+	public static String RepositoryTransport_unsafeProtocolBlocked;
+	public static String RepositoryTransport_unsafeProtocol;
 
 	static {
 		// initialize resource bundles
