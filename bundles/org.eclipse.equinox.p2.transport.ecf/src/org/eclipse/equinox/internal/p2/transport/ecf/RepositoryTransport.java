@@ -15,8 +15,10 @@ package org.eclipse.equinox.internal.p2.transport.ecf;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
@@ -43,7 +45,29 @@ import org.eclipse.osgi.util.NLS;
 public class RepositoryTransport extends Transport {
 
 	public static final String TIMEOUT_RETRY = "org.eclipse.equinox.p2.transport.ecf.retry"; //$NON-NLS-1$
-	private static Map<URI, Integer> socketExceptionRetry = null;
+
+	private static class Retry {
+		long LIFETIME = TimeUnit.MINUTES.toMillis(10);
+		long expiration;
+		int count;
+
+		public Retry() {
+			expiration = System.currentTimeMillis() + LIFETIME;
+		}
+
+		public synchronized int increment() {
+			long now = System.currentTimeMillis();
+			if (now > expiration) {
+				expiration = now + LIFETIME;
+				count = 1;
+				return 1;
+			}
+			return ++count;
+		}
+	}
+
+	private static final Map<URI, Retry> SOCKET_EXCEPTION_RETRY = new ConcurrentHashMap<>();
+
 	private final Set<URI> loggedURIs = ConcurrentHashMap.newKeySet();
 	private IProvisioningAgent agent = null;
 
@@ -359,24 +383,11 @@ public class RepositoryTransport extends Transport {
 		if (isForgiveableException(t)) {
 			int retry = Integer.getInteger(TIMEOUT_RETRY, 0);
 			if (retry > 0) {
-				Integer retryCount = null;
-				if (socketExceptionRetry == null) {
-					socketExceptionRetry = new HashMap<>();
-					retryCount = Integer.valueOf(1);
-				} else {
-					Integer alreadyRetryCount = socketExceptionRetry.get(toDownload);
-					if (alreadyRetryCount == null)
-						retryCount = Integer.valueOf(1);
-					else if (alreadyRetryCount.intValue() < retry) {
-						retryCount = Integer.valueOf(alreadyRetryCount.intValue() + 1);
-					}
-				}
-				if (retryCount != null && retryCount.intValue() <= retry) {
-					socketExceptionRetry.put(toDownload, retryCount);
-					return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY,
-							NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2,
-									new String[] { toDownload.toString(), t.getMessage(), retryCount.toString() }),
-							t);
+				int retryCount = SOCKET_EXCEPTION_RETRY.computeIfAbsent(toDownload, uri -> new Retry()).increment();
+				if (retryCount <= retry) {
+					return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY, NLS.bind(
+							Messages.connection_to_0_failed_on_1_retry_attempt_2,
+							new String[] { toDownload.toString(), t.getMessage(), Integer.toString(retryCount) }), t);
 				}
 			}
 		}
