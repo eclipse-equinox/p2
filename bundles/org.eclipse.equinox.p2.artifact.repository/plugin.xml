@@ -6,12 +6,6 @@
    <extension-point id="artifactComparators" name="Artifact Comparators" schema="schema/artifactComparators.exsd"/>
    <extension-point id="artifactChecksums" name="Artifact Checksum support" schema="schema/artifactChecksums.exsd"/>
 
-	<extension
-			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
-			id="org.eclipse.equinox.p2.processing.Pack200Unpacker">
-		<step class="org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep"/>
-	</extension>
-
    <extension id="XZedRepository"  point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
 		<filter suffix="artifacts.xml.xz"/>
 		<factory class="org.eclipse.equinox.internal.p2.artifact.repository.simple.XZedSimpleArtifactRepositoryFactory"/>

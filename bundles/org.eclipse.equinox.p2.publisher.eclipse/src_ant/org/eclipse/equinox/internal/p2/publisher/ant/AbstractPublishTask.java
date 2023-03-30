@@ -19,8 +19,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.tools.ant.Task;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
@@ -28,7 +32,9 @@ import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.Publisher;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
@@ -91,7 +97,6 @@ public abstract class AbstractPublishTask extends Task {
 	}
 
 	protected boolean compress = false;
-	protected boolean reusePackedFiles = false;
 	protected boolean append = true;
 	protected boolean publish = true;
 	protected String source = null;
@@ -119,7 +124,7 @@ public abstract class AbstractPublishTask extends Task {
 		if (artifactLocation != null) {
 			@SuppressWarnings("removal")
 			IArtifactRepository repo = Publisher.createArtifactRepository(getProvisioningAgent(), artifactLocation,
-					artifactRepoName, compress, reusePackedFiles);
+					artifactRepoName, compress);
 			if (!append && !isEmpty(repo)) {
 				File repoLocation = URIUtil.toFile(artifactLocation);
 				if (repoLocation != null && source != null) {
@@ -172,10 +177,6 @@ public abstract class AbstractPublishTask extends Task {
 
 	public void setCompress(String value) {
 		compress = Boolean.parseBoolean(value);
-	}
-
-	public void setReusePackedFiles(String value) {
-		reusePackedFiles = Boolean.parseBoolean(value);
 	}
 
 	public void setAppend(String value) {

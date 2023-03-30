@@ -15,7 +15,12 @@ package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
@@ -344,17 +349,6 @@ public class SiteModel {
 	}
 
 	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public boolean isPack200Supported() {
-		return false;
-	}
-
-	/**
 	 * Sets the site description.
 	 * 
 	 * @param description site description
@@ -411,18 +405,6 @@ public class SiteModel {
 	 */
 	public void setMirrorsURIString(String mirrorsURI) {
 		this.mirrorsURIString = mirrorsURI;
-	}
-
-	/**
-	 * NO-OP as pack200 is not supported in Java 14+.
-	 * 
-	 * @see <a href=
-	 *      "https://github.com/eclipse-equinox/p2/issues/40">https://github.com/eclipse-equinox/p2/issues/40</a>
-	 * @param value
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public void setSupportsPack200(boolean value) {
-		// NO-OP
 	}
 
 	/**

@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2009, 2017 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat, Inc. - fragment creation
@@ -15,6 +15,7 @@
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.util.List;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.eclipse.core.runtime.IStatus;
@@ -25,12 +26,12 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Ant task which calls the "repo to runnable" application. This application takes an
- * existing p2 repository (local or remote), iterates over its list of IUs, and fetches 
- * all of the corresponding artifacts to a user-specified location. Once fetched, the
- * artifacts will be in "runnable" form... that is directory-based bundles will be
- * extracted into folders and packed JAR files will be un-packed.
- * 
+ * Ant task which calls the "repo to runnable" application. This application
+ * takes an existing p2 repository (local or remote), iterates over its list of
+ * IUs, and fetches all of the corresponding artifacts to a user-specified
+ * location. Once fetched, the artifacts will be in "runnable" form... that is
+ * directory-based bundles will be extracted into folders.
+ *
  * @since 1.0
  */
 public class Repo2RunnableTask extends AbstractRepositoryTask {

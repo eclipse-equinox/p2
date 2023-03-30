@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -136,10 +137,6 @@ public class MirrorTask extends AbstractRepositoryTask {
 
 	public void setValidate(boolean value) {
 		((MirrorApplication) application).setValidate(value);
-	}
-
-	public void setIncludePacked(boolean value) {
-		((MirrorApplication) application).setIncludePacked(value);
 	}
 
 	public void setReferences(boolean value) {

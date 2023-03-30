@@ -16,7 +16,10 @@ package org.eclipse.equinox.internal.p2.jarprocessor.ant;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Properties;
-import org.apache.tools.ant.*;
+
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DirectoryScanner;
+import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
@@ -63,18 +66,6 @@ public class JarProcessorTask extends Task {
 	public void setKeypass(String keypass) {
 		if (keypass != null && keypass.length() > 0 && !keypass.startsWith("${")) //$NON-NLS-1$
 			signArgs.setProperty(KEYPASS, keypass);
-	}
-
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public void setPack(boolean pack) {
-		log("Support for pack200 is scheduled for removal after June 2023 and is NO-OP since June 2022.", //$NON-NLS-1$
-				Project.MSG_WARN);
-	}
-
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public void setNormalize(boolean normalize) {
-		log("Support for pack200 is scheduled for removal after June 2023 and is NO-OP since June 2022.", //$NON-NLS-1$
-				Project.MSG_WARN);
 	}
 
 	public void setUnsign(boolean unsign) {

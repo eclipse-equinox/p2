@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.tests.gc;
 import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.garbagecollector.CoreGarbageCollector;

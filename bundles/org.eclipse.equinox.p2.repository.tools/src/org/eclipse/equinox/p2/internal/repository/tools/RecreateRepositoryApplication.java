@@ -18,8 +18,17 @@ package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -29,12 +38,15 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class RecreateRepositoryApplication extends AbstractApplication {
-	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 	private URI repoLocation;
 	private String repoName = null;
 	boolean removeArtifactRepo = true;
@@ -109,11 +121,8 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 	private void recreateRepository(IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
-		// add pack200 mappings, the existing repoProperties is not modifiable
-		Map<String, String> newProperties = new HashMap<>(repoProperties);
-		newProperties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 		IArtifactRepository repository = manager.createRepository(repoLocation, repoName,
-				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, newProperties);
+				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, repoProperties);
 		if (!(repository instanceof IFileArtifactRepository))
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 

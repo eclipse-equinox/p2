@@ -14,16 +14,36 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.util.*;
-import javax.xml.parsers.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.osgi.util.NLS;
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -854,7 +874,6 @@ public class DefaultSiteParser extends DefaultHandler {
 	/*
 	 * process site info
 	 */
-	@SuppressWarnings("removal")
 	private void processSite(Attributes attributes) {
 		// create site map
 		SiteModel site = new SiteModel();
@@ -892,11 +911,6 @@ public class DefaultSiteParser extends DefaultHandler {
 			// Since we are parsing the site at p2 generation time and the
 			// mirrors may change, there is no point doing the mirror expansion now
 			site.setMirrorsURIString(mirrorsURL);
-		}
-
-		String pack200 = attributes.getValue("pack200"); //$NON-NLS-1$
-		if (pack200 != null && Boolean.parseBoolean(pack200)) {
-			site.setSupportsPack200(true);
 		}
 
 		String digestURL = attributes.getValue("digestURL"); //$NON-NLS-1$

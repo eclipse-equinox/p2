@@ -16,8 +16,19 @@ package org.eclipse.equinox.p2.internal.repository.tools;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -27,13 +38,24 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.internal.repository.comparator.ArtifactChecksumComparator;
-import org.eclipse.equinox.p2.internal.repository.mirroring.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.internal.repository.mirroring.FileMirrorLog;
+import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
+import org.eclipse.equinox.p2.internal.repository.mirroring.Mirroring;
+import org.eclipse.equinox.p2.internal.repository.mirroring.XMLMirrorLog;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.CompoundQueryable;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -57,7 +79,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private boolean mirrorReferences = true;
 	private String metadataOrArtifacts = null;
 	private String[] rootIUs = null;
-	private boolean includePacked = true;
 	private boolean mirrorProperties = false;
 
 	private File mirrorLogFile; // file to log mirror output to (optional)
@@ -255,7 +276,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		mirror.setValidate(validate);
 		mirror.setCompareExclusions(compareExclusions);
 		mirror.setTransport((Transport) agent.getService(Transport.SERVICE_NAME));
-		mirror.setIncludePacked(includePacked);
 		mirror.setMirrorProperties(mirrorProperties);
 
 		// If IUs have been specified then only they should be mirrored, otherwise
@@ -495,10 +515,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	public void setComparatorExclusions(IQuery<IArtifactDescriptor> exclusions) {
 		compareExclusions = exclusions;
-	}
-
-	public void setIncludePacked(boolean includePacked) {
-		this.includePacked = includePacked;
 	}
 
 	public void setMirrorProperties(boolean mirrorProperties) {

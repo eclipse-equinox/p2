@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -826,7 +827,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	public void testArtifactFileCopying() throws MalformedURLException, Exception {
 		//Setup: load the repository containing packed data
-		File packedRepoLocation = getTestData("26.0", "/testData/mirror/mirrorPackedRepo");
+		File packedRepoLocation = getTestData("26.0", "/testData/mirror/mirrorRepo");
 
 		basicRunMirrorApplication("26.1", packedRepoLocation.toURL(), destRepoLocation.toURL(), false);
 

@@ -29,12 +29,6 @@ public interface IGeneratorConstants {
 	public static final String APPEND = "-append"; //$NON-NLS-1$
 	public static final String NO_DEFAULT_IUS = "-noDefaultIUs"; //$NON-NLS-1$
 	public static final String COMPRESS = "-compress"; //$NON-NLS-1$
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.6.0")
-	public static final String REUSE_PACK200 = "-reusePack200Files"; //$NON-NLS-1$
 	public static final String SOURCE = "-source"; //$NON-NLS-1$
 	public static final String INPLACE = "-inplace"; //$NON-NLS-1$
 	public static final String CONFIG = "-config"; //$NON-NLS-1$

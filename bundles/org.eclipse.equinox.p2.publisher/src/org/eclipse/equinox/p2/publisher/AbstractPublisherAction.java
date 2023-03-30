@@ -17,25 +17,60 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import org.eclipse.core.runtime.*;
+import java.util.Set;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.equinox.p2.publisher.actions.*;
-import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.artifact.*;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.publisher.actions.IAdditionalInstallableUnitAdvice;
+import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
+import org.eclipse.equinox.p2.publisher.actions.IFilterAdvice;
+import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
+import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
+import org.eclipse.equinox.p2.publisher.actions.IUpdateDescriptorAdvice;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
@@ -206,24 +241,6 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		root.setId(id);
 		root.setVersion(version);
 		return root;
-	}
-
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.6.0")
-	protected IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk,
-			String installSize) {
-		ArtifactDescriptor result = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info, key,
-				pathOnDisk);
-		// TODO this size calculation is bogus
-		if (pathOnDisk != null) {
-			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
-			// TODO - this is wrong but I'm testing a work-around for bug 205842
-			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
-		}
-		return result;
 	}
 
 	protected InstallableUnitDescription createParentIU(Collection<? extends IVersionedId> children, String id,

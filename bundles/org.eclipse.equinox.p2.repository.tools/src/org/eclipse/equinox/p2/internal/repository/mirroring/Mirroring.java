@@ -15,8 +15,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.mirroring;
 
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
 import org.eclipse.equinox.internal.p2.repository.Transport;
@@ -26,7 +36,9 @@ import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.tools.comparator.ArtifactComparatorFactory;
 import org.eclipse.equinox.p2.repository.tools.comparator.IArtifactComparator;
@@ -49,7 +61,6 @@ public class Mirroring {
 	private List<IArtifactKey> keysToMirror;
 	private IArtifactMirrorLog comparatorLog;
 	private Transport transport;
-	private boolean includePacked = true;
 	private boolean mirrorProperties = false;
 
 	private IArtifactComparator getComparator() {
@@ -149,12 +160,7 @@ public class Mirroring {
 		return multiStatus;
 	}
 
-	@SuppressWarnings("removal")
 	private IStatus mirror(IArtifactDescriptor sourceDescriptor, boolean verbose) {
-		if (!includePacked
-				&& IArtifactDescriptor.FORMAT_PACKED.equals(sourceDescriptor.getProperty(IArtifactDescriptor.FORMAT)))
-			return Status.OK_STATUS;
-
 		IArtifactDescriptor targetDescriptor = raw ? sourceDescriptor : new ArtifactDescriptor(sourceDescriptor);
 		IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(sourceDescriptor);
 
@@ -367,7 +373,4 @@ public class Mirroring {
 		this.transport = transport;
 	}
 
-	public void setIncludePacked(boolean includePacked) {
-		this.includePacked = includePacked;
-	}
 }

@@ -17,13 +17,21 @@ package org.eclipse.equinox.p2.publisher;
 
 import java.net.URI;
 import java.util.Collection;
-import org.eclipse.core.runtime.*;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.repository.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -105,60 +113,6 @@ public class Publisher {
 		return result;
 	}
 
-	/**
-	 * Returns an artifact repository that corresponds to the given settings. If a
-	 * repository at the given location already exists, it is updated with the
-	 * settings and returned. If no repository is found then a new Simple repository
-	 * is created, configured and returned
-	 *
-	 * @param agent            the provisioning agent to use when creating the
-	 *                         repository
-	 * @param location         the URL location of the repository
-	 * @param name             the name of the repository
-	 * @param compress         whether or not to compress the repository index
-	 * @param reusePackedFiles whether or not to include discovered Pack200 files in
-	 *                         the repository
-	 * @return the discovered or created repository
-	 * @throws ProvisionException
-	 *
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details. Use
-	 *             {@link #createArtifactRepository(IprovisioningAgent, URI, String, boolean)}
-	 *             instead.
-	 */
-	@Deprecated(forRemoval = true, since = "2.3.0")
-	public static IArtifactRepository createArtifactRepository(IProvisioningAgent agent, URI location, String name,
-			boolean compress, boolean reusePackedFiles) throws ProvisionException {
-		try {
-			IArtifactRepository result = loadArtifactRepository(agent, location, true, true);
-			if (result != null && result.isModifiable()) {
-				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
-				if (reusePackedFiles)
-					result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-				return result;
-			}
-		} catch (ProvisionException e) {
-			// fall through and create a new repository
-		}
-
-		IArtifactRepositoryManager manager = getService(agent, IArtifactRepositoryManager.SERVICE_NAME);
-		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(location, repositoryName,
-				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		if (result != null) {
-			manager.removeRepository(result.getLocation());
-			if (reusePackedFiles)
-				result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
-			return result;
-		}
-		// I don't think we can really get here, but just in case, we better throw a
-		// provisioning exception
-		String msg = org.eclipse.equinox.internal.p2.artifact.repository.Messages.repoMan_internalError;
-		throw new ProvisionException(
-				new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
-	}
 
 	/**
 	 * Returns an artifact repository that corresponds to the given settings. If a
