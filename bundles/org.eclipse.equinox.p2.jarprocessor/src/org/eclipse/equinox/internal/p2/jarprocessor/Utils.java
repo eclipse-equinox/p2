@@ -13,12 +13,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.jarprocessor;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
-import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
 
 /**
  * @author aniefer@ca.ibm.com
@@ -32,106 +44,21 @@ public class Utils {
 	 */
 	// comma separated list of jars to exclude from sigining
 	public static final String SIGN_EXCLUDES = "sign.excludes"; //$NON-NLS-1$
-	// comma separated list of jars to exlclude from packing
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static final String PACK_EXCLUDES = "pack.excludes"; //$NON-NLS-1$
-	// Suffix used when specifying arguments to use when running pack200 on a jar
 
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static final String PACK_ARGS_SUFFIX = ".pack.args"; //$NON-NLS-1$
-
-	/*
-	 * Properties found in both pack.properties and eclipse.inf
-	 */
-	// Default arguments to use when running pack200.
-	// Affects all jars when specified in pack.properties, affects children when
-	// specified in eclipse.inf
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static final String DEFAULT_PACK_ARGS = "pack200.default.args"; //$NON-NLS-1$
-
-	/*
-	 * Properties found in eclipse.inf file
-	 */
-	// This jar has been conditioned with pack200
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static final String MARK_PROPERTY = "pack200.conditioned"; //$NON-NLS-1$
 	// Exclude this jar from processing
 	public static final String MARK_EXCLUDE = "jarprocessor.exclude"; //$NON-NLS-1$
-	// Exclude this jar from pack200
-	public static final String MARK_EXCLUDE_PACK = "jarprocessor.exclude.pack"; //$NON-NLS-1$
 	// Exclude this jar from signing
 	public static final String MARK_EXCLUDE_SIGN = "jarprocessor.exclude.sign"; //$NON-NLS-1$
 	// Exclude this jar's children from processing
 	public static final String MARK_EXCLUDE_CHILDREN = "jarprocessor.exclude.children"; //$NON-NLS-1$
-	// Exclude this jar's children from pack200
-	public static final String MARK_EXCLUDE_CHILDREN_PACK = "jarprocessor.exclude.children.pack"; //$NON-NLS-1$
 	// Exclude this jar's children from signing
 	public static final String MARK_EXCLUDE_CHILDREN_SIGN = "jarprocessor.exclude.children.sign"; //$NON-NLS-1$
-	// Arguments used in pack200 for this jar
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static final String PACK_ARGS = "pack200.args"; //$NON-NLS-1$
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static final String PACK200_PROPERTY = "org.eclipse.update.jarprocessor.pack200"; //$NON-NLS-1$
 	public static final String JRE = "@jre"; //$NON-NLS-1$
 	public static final String PATH = "@path"; //$NON-NLS-1$
 	public static final String NONE = "@none"; //$NON-NLS-1$
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
 	public static final String JAR_SUFFIX = ".jar"; //$NON-NLS-1$
 
 	public static final FileFilter JAR_FILTER = pathname -> pathname.isFile() && pathname.getName().endsWith(".jar"); //$NON-NLS-1$
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@SuppressWarnings("removal")
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static final FileFilter PACK_GZ_FILTER = pathname -> pathname.isFile()
-			&& pathname.getName().endsWith(JarProcessor.PACKED_SUFFIX);
 
 	public static void close(Object stream) {
 		if (stream != null) {
@@ -146,24 +73,6 @@ public class Utils {
 				// ignore
 			}
 		}
-	}
-
-	/**
-	 * Get the set of commands to try to execute pack/unpack
-	 * 
-	 * @param cmd the command, either "pack200" or "unpack200"
-	 * @return <code>null</code> as pack200 is not supported on Java >= 14
-	 * 
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             and <a href=
-	 *             "https://github.com/eclipse-equinox/p2/issues/40">issue</a> for
-	 *             details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static String[] getPack200Commands(String cmd) {
-		return null;
 	}
 
 	/**
@@ -330,9 +239,8 @@ public class Utils {
 		if (processAll)
 			return false;
 
-		// otherwise, we skip if not marked marked
-		String marked = inf.getProperty(MARK_PROPERTY);
-		return !Boolean.parseBoolean(marked);
+		// otherwise, we skip
+		return true;
 	}
 
 	/**

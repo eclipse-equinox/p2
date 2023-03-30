@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.tests.generator;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Map;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
@@ -143,7 +144,11 @@ public class GeneratorTests extends AbstractProvisioningTest {
 		new File(rootFolder, "content.xml").delete();
 		new File(rootFolder, "artifacts.xml").delete();
 
-		String[] arguments = {"-updateSite", rootFolder.getAbsolutePath(), "-site", new File(rootFolder, "site.xml").getAbsolutePath(), "-metadataRepository", URIUtil.toUnencodedString(rootFolder.toURI()), "-artifactRepository", URIUtil.toUnencodedString(rootFolder.toURI()), "-metadataRepositoryName", "Basic Metadata Test Site", "-artifactRepositoryName", "Basic Artifact Test Site", "-compress", "-reusePack200Files", "-noDefaultIUs"};
+		String[] arguments = { "-updateSite", rootFolder.getAbsolutePath(), "-site",
+				new File(rootFolder, "site.xml").getAbsolutePath(), "-metadataRepository",
+				URIUtil.toUnencodedString(rootFolder.toURI()), "-artifactRepository",
+				URIUtil.toUnencodedString(rootFolder.toURI()), "-metadataRepositoryName", "Basic Metadata Test Site",
+				"-artifactRepositoryName", "Basic Artifact Test Site", "-compress", "-noDefaultIUs" };
 
 		TestGeneratorApplication app = new TestGeneratorApplication();
 		app.go(arguments);

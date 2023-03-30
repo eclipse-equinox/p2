@@ -19,14 +19,20 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.runtime.*;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
-import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -46,12 +52,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	// instead of a 'plugins' directory, so a separate constant is defined and used
 	// here.
 	protected static final String[][] INPLACE_MAPPING_RULES = {
-			{ "(& (classifier=osgi.bundle) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz" }, //$NON-NLS-1$//$NON-NLS-2$
 			{ "(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar" }, //$NON-NLS-1$//$NON-NLS-2$
 			{ "(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}" }, //$NON-NLS-1$//$NON-NLS-2$
 			{ "(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar" } }; //$NON-NLS-1$//$NON-NLS-2$
-
-	public static final String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
 	protected PublisherInfo info;
 	protected String source;
@@ -65,7 +68,6 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected boolean compress = false;
 	protected boolean inplace = false;
 	protected boolean append = false;
-	protected boolean reusePackedFiles = false;
 	protected String[] configurations;
 	private IStatus status;
 
@@ -107,7 +109,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (artifactLocation != null) {
 			@SuppressWarnings("removal")
 			IArtifactRepository repo = Publisher.createArtifactRepository(agent, artifactLocation, artifactRepoName,
-					compress, reusePackedFiles);
+					compress);
 			if (!append && !isEmpty(repo)) {
 				File repoLocation = URIUtil.toFile(artifactLocation);
 				if (repoLocation != null && source != null) {
@@ -246,9 +248,6 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (arg.equalsIgnoreCase("-compress")) //$NON-NLS-1$
 			compress = true;
 
-		if (arg.equalsIgnoreCase("-reusePack200Files")) //$NON-NLS-1$
-			reusePackedFiles = true;
-
 		if (arg.equalsIgnoreCase("-inplace")) //$NON-NLS-1$
 			inplace = true;
 	}
@@ -360,21 +359,6 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	public void setMetadataLocation(URI location) {
 		this.metadataLocation = location;
-	}
-
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.6.0")
-	public boolean reuseExistingPack200Files() {
-		return reusePackedFiles;
-	}
-
-	public void setReuseExistingPackedFiles(boolean value) {
-		reusePackedFiles = value;
 	}
 
 	public void setCompress(boolean value) {

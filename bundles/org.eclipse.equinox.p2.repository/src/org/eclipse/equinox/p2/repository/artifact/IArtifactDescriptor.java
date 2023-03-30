@@ -15,6 +15,7 @@
 package org.eclipse.equinox.p2.repository.artifact;
 
 import java.util.Map;
+
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
@@ -89,17 +90,22 @@ public interface IArtifactDescriptor {
 	String FORMAT = "format"; //$NON-NLS-1$
 
 	/**
-	 * A property value for the {@link #FORMAT} artifact descriptor property (value "packed")
-	 * indicating the storage format is using pack200 compression.
+	 * A property value for the {@link #FORMAT} artifact descriptor property (value
+	 * "packed") indicating the storage format is using pack200 compression.
+	 *
 	 * @see #FORMAT
 	 * @noreference This field is not intended to be referenced by clients.
-	 * 
-	 * @deprecated See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a> for details.
+	 *
+	 * @deprecated See <a href=
+	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
+	 *             for details.
 	 */
-	@Deprecated(forRemoval = true, since = "2.5.0") String FORMAT_PACKED = "packed"; //$NON-NLS-1$
+	@Deprecated(forRemoval = true, since = "2.5.0")
+	String FORMAT_PACKED = "packed"; //$NON-NLS-1$
 
 	/**
 	 * Return the key for the artifact described by this descriptor.
+	 *
 	 * @return the key associated with this descriptor
 	 */
 	IArtifactKey getArtifactKey();

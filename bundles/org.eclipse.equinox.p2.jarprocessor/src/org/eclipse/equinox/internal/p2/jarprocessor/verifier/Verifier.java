@@ -14,14 +14,16 @@
 
 package org.eclipse.equinox.internal.p2.jarprocessor.verifier;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
-import org.eclipse.equinox.internal.p2.jarprocessor.UnpackStep;
-import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
-import org.eclipse.internal.provisional.equinox.p2.jarprocessor.*;
 
-@SuppressWarnings("removal")
+import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.IProcessStep;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
+
 public class Verifier extends JarProcessorExecutor {
 
 	private static void printUsage() {
@@ -30,8 +32,8 @@ public class Verifier extends JarProcessorExecutor {
 		System.out.println(
 				"Usage: java -cp jarprocessor.jar org.eclipse.update.internal.jarprocessor.verifier.Verifier -dir <workingDirectory> input [input]"); //$NON-NLS-1$
 		System.out.println(""); //$NON-NLS-1$
-		System.out.println("-dir : specifies a working directory where pack.gz files can be temporarily unpacked"); //$NON-NLS-1$
-		System.out.println("input : a list of directories and/or pack.gz files to verify."); //$NON-NLS-1$
+		System.out.println("-dir : specifies a working directory "); //$NON-NLS-1$
+		System.out.println("input : a list of directories to verify."); //$NON-NLS-1$
 
 	}
 
@@ -82,8 +84,6 @@ public class Verifier extends JarProcessorExecutor {
 	public void verify(final File workingDirectory, String[] input) {
 		options = new Options();
 		options.verbose = false;
-		options.repack = false; // We first unpack first during repack/sign phase
-		options.pack = false; // then we are verifying during the pack phase.
 		options.outputDir = workingDirectory.toString();
 
 		Properties properties = new Properties();
@@ -106,29 +106,6 @@ public class Verifier extends JarProcessorExecutor {
 		};
 		verifier.setWorkingDirectory(workingDirectory.getAbsolutePath());
 
-		for (String input1 : input) {
-			File inputFile = new File(input1);
-			if (inputFile.exists()) {
-				try {
-					process(inputFile, Utils.PACK_GZ_FILTER, true, verifier, properties);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
-		}
 		Utils.clear(workingDirectory);
-	}
-
-	@Override
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public void addPackStep(JarProcessor processor, Properties properties,
-			JarProcessorExecutor.Options processOptions) {
-		processor.addProcessStep(new VerifyStep(properties, processOptions.verbose));
-	}
-
-	@Override
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public void addPackUnpackStep(JarProcessor processor, Properties properties, Options processOptions) {
-		processor.addProcessStep(new UnpackStep(properties, processOptions.verbose));
 	}
 }

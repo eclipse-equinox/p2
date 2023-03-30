@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2009, 2018 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
@@ -15,34 +15,64 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.DownloadManager;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
+import org.eclipse.equinox.internal.p2.engine.Phase;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
+import org.eclipse.equinox.internal.p2.engine.ProfileWriter;
+import org.eclipse.equinox.internal.p2.engine.ProfileXMLConstants;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 
 /**
- * The transformer takes an existing p2 repository (local or remote), iterates over 
- * its list of IUs, and fetches all of the corresponding artifacts to a user-specified location. 
- * Once fetched, the artifacts will be in "runnable" form... that is directory-based bundles will be
- * extracted into folders and packed JAR files will be un-packed.
- * 
+ * The transformer takes an existing p2 repository (local or remote), iterates
+ * over its list of IUs, and fetches all of the corresponding artifacts to a
+ * user-specified location. Once fetched, the artifacts will be in "runnable"
+ * form... that is directory-based bundles will be extracted into folders.
+ *
  * @since 1.0
  */
 public class Repo2Runnable extends AbstractApplication implements IApplication {
@@ -121,7 +151,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		}
 	}
 
-	// the list of IUs that we actually transformed... could have come from the repo 
+	// the list of IUs that we actually transformed... could have come from the repo
 	// or have been user-specified.
 	private Collection<IInstallableUnit> processedIUs = new ArrayList<>();
 
@@ -260,7 +290,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 
 	/*
 	 * If there is a destination metadata repository set, then add all our transformed
-	 * IUs to it. 
+	 * IUs to it.
 	 */
 	private void publishMetadata(IProgressMonitor monitor) {
 		// publishing the metadata is optional

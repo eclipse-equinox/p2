@@ -26,6 +26,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -854,7 +855,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	@Test
 	public void testArtifactFileCopying() throws Exception {
 		//Setup: load the repository containing packed data
-		File packedRepoLocation = getTestData("26.0", "/testData/mirror/mirrorPackedRepo");
+		File packedRepoLocation = getTestData("26.0", "/testData/mirror/mirrorSourceRepo2");
 
 		basicRunMirrorApplication("26.1", packedRepoLocation.toURI(), destRepoLocation.toURI(), false, false);
 

@@ -13,20 +13,31 @@
  *******************************************************************************/
 package org.eclipse.internal.provisional.equinox.p2.jarprocessor;
 
-import java.io.*;
-import java.util.*;
-import java.util.jar.*;
-import org.eclipse.equinox.internal.p2.jarprocessor.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarException;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+
+import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
+import org.eclipse.equinox.internal.p2.jarprocessor.ZipProcessor;
 
 public class JarProcessor {
-	/**
-	 * @noreference This field is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static final String PACKED_SUFFIX = "pack.gz"; //$NON-NLS-1$
 
 	private List<IProcessStep> steps = new ArrayList<>();
 	private String workingDirectory = ""; //$NON-NLS-1$
@@ -34,58 +45,6 @@ public class JarProcessor {
 	private boolean verbose = false;
 	private boolean processAll = false;
 	private LinkedList<Properties> containingInfs = new LinkedList<>();
-
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             and <a href=
-	 *             "https://github.com/eclipse-equinox/p2/issues/40">issue</a> for
-	 *             details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static JarProcessor getUnpackProcessor(Properties properties) {
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             and <a
-	 *             href="https://github.com/eclipse-equinox/p2/issues/40>issue</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static JarProcessor getPackProcessor(Properties properties) {
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             and <a
-	 *             href="https://github.com/eclipse-equinox/p2/issues/40>issue</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static boolean canPerformPack() {
-		return PackStep.canPack();
-	}
-
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @deprecated See <a href=
-	 *             "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572043">bug</a>
-	 *             and <a
-	 *             href="https://github.com/eclipse-equinox/p2/issues/40>issue</a>
-	 *             for details.
-	 */
-	@Deprecated(forRemoval = true, since = "1.2.0")
-	public static boolean canPerformUnpack() {
-		return UnpackStep.canUnpack();
-	}
 
 	public String getWorkingDirectory() {
 		return workingDirectory;
@@ -414,10 +373,6 @@ public class JarProcessor {
 	}
 
 	private void normalize(File input, File directory) {
-		if (input.getName().endsWith(JarProcessor.PACKED_SUFFIX)) {
-			// not a jar
-			return;
-		}
 		try {
 			File tempJar = new File(directory, "temp_" + input.getName()); //$NON-NLS-1$
 			JarFile jar = null;
