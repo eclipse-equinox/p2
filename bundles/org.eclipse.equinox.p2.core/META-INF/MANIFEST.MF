@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.core;singleton:=true
-Bundle-Version: 2.9.200.qualifier
+Bundle-Version: 2.10.0.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.equinox.internal.p2.core.Activator
 Bundle-Vendor: %providerName
@@ -66,7 +66,7 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.transport.ecf",
  org.eclipse.equinox.p2.core;version="2.8.0";uses:="org.eclipse.core.runtime",
  org.eclipse.equinox.p2.core.spi;version="2.1.0";uses:="org.eclipse.equinox.p2.core"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/eventBus.xml, OSGI-INF/agentProvider.xml
 Import-Package: org.bouncycastle.bcpg;version="1.65.0",

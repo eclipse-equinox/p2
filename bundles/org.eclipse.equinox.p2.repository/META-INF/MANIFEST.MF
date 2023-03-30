@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.repository;singleton:=true
-Bundle-Version: 2.6.400.qualifier
+Bundle-Version: 2.7.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.repository.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -39,7 +39,7 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;
  org.eclipse.equinox.p2.repository.spi;version="2.0.0"
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry;bundle-version="3.3.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.crypto,
  org.bouncycastle;version="1.72.0",
