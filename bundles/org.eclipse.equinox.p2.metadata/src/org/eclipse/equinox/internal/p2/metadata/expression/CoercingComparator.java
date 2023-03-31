@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2023 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,11 +18,13 @@ import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Comparator;
+
 import org.eclipse.equinox.p2.metadata.Version;
 import org.osgi.framework.FrameworkUtil;
 
 /**
  * A comparator that performs coercion if needed before comparison.
+ * 
  * @param <T> The type for the comparator.
  */
 public abstract class CoercingComparator<T> {
@@ -34,10 +36,10 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		Boolean coerce(Object v) {
-			if (v instanceof Boolean)
-				return (Boolean) v;
-			if (v instanceof String) {
-				String sv = ((String) v).trim();
+			if (v instanceof Boolean b)
+				return b;
+			if (v instanceof String s) {
+				String sv = s.trim();
 				if (sv.equalsIgnoreCase("true")) //$NON-NLS-1$
 					return Boolean.TRUE;
 				if (sv.equalsIgnoreCase("false")) //$NON-NLS-1$
@@ -67,9 +69,9 @@ public abstract class CoercingComparator<T> {
 		Class<?> coerce(Object v) {
 			if (v instanceof Class<?>)
 				return (Class<?>) v;
-			if (v instanceof String) {
+			if (v instanceof String s) {
 				try {
-					return FrameworkUtil.getBundle(CoercingComparator.class).loadClass(((String) v).trim());
+					return FrameworkUtil.getBundle(CoercingComparator.class).loadClass(s.trim());
 				} catch (Exception e) {
 					//
 				}
@@ -101,9 +103,9 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		T coerce(Object v) {
-			if (v instanceof String) {
+			if (v instanceof String s) {
 				try {
-					return constructor.newInstance(((String) v).trim());
+					return constructor.newInstance(s.trim());
 				} catch (Exception e) {
 					//
 				}
@@ -135,13 +137,13 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		Integer coerce(Object v) {
-			if (v instanceof Integer)
-				return (Integer) v;
-			if (v instanceof Number)
-				return Integer.valueOf(((Number) v).intValue());
-			if (v instanceof String) {
+			if (v instanceof Integer i)
+				return i;
+			if (v instanceof Number n)
+				return Integer.valueOf(n.intValue());
+			if (v instanceof String s) {
 				try {
-					return Integer.valueOf(((String) v).trim());
+					return Integer.valueOf(s.trim());
 				} catch (NumberFormatException e) {
 					//
 				}
@@ -168,13 +170,13 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		Long coerce(Object v) {
-			if (v instanceof Long)
-				return (Long) v;
-			if (v instanceof Number)
-				return Long.valueOf(((Number) v).longValue());
-			if (v instanceof String) {
+			if (v instanceof Long l)
+				return l;
+			if (v instanceof Number n)
+				return Long.valueOf(n.longValue());
+			if (v instanceof String s) {
 				try {
-					return Long.valueOf(((String) v).trim());
+					return Long.valueOf(s.trim());
 				} catch (NumberFormatException e) {
 					//
 				}
@@ -230,11 +232,11 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		Version coerce(Object v) {
-			if (v instanceof Version)
-				return (Version) v;
-			if (v instanceof String) {
+			if (v instanceof Version version)
+				return version;
+			if (v instanceof String s) {
 				try {
-					return Version.create((String) v);
+					return Version.create(s);
 				} catch (NumberFormatException e) {
 					//
 				}
@@ -267,29 +269,33 @@ public abstract class CoercingComparator<T> {
 		}
 	}
 
-	private static CoercingComparator<?>[] coercers = {new ClassCoercer(), new BooleanCoercer(), new LongCoercer(), new IntegerCoercer(), new VersionCoercer(), new StringCoercer()};
+	private static CoercingComparator<?>[] coercers = { new ClassCoercer(), new BooleanCoercer(), new LongCoercer(),
+			new IntegerCoercer(), new VersionCoercer(), new StringCoercer() };
 
-	private static final Class<?>[] constructorType = new Class<?>[] {String.class};
+	private static final Class<?>[] constructorType = new Class<?>[] { String.class };
 
 	/**
-	 * Finds the comparator for <code>a</code> and <code>b</code> and delegates the coercion/comparison to the comparator
-	 * according to priority.
+	 * Finds the comparator for <code>a</code> and <code>b</code> and delegates the
+	 * coercion/comparison to the comparator according to priority.
+	 * 
 	 * @param o1 the first object to be compared.
 	 * @param o2 the second object to be compared.
 	 * @return The result of the comparison
-	 * @throws IllegalArgumentException if no comparator was found or if coercion was impossible
+	 * @throws IllegalArgumentException if no comparator was found or if coercion
+	 *                                  was impossible
 	 * @see Comparator#compare(Object, Object)
 	 */
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static <TA extends Object, TB extends Object> int coerceAndCompare(TA o1, TB o2) throws IllegalArgumentException {
+	@SuppressWarnings({ "unchecked" })
+	public static <TA extends Object, TB extends Object> int coerceAndCompare(TA o1, TB o2)
+			throws IllegalArgumentException {
 		if (o1 == null || o2 == null)
 			throw new IllegalArgumentException("Cannot compare null to anything"); //$NON-NLS-1$
 
-		if (o1 instanceof Comparable && o1.getClass().isAssignableFrom(o2.getClass()))
-			return ((Comparable) o1).compareTo(o2);
+		if (o1 instanceof Comparable c1 && o1.getClass().isAssignableFrom(o2.getClass()))
+			return c1.compareTo(o2);
 
-		if (o2 instanceof Comparable && o2.getClass().isAssignableFrom(o1.getClass()))
-			return -((Comparable) o2).compareTo(o1);
+		if (o2 instanceof Comparable c2 && o2.getClass().isAssignableFrom(o1.getClass()))
+			return -c2.compareTo(o1);
 
 		CoercingComparator<TA> ca = getComparator(o1, o2);
 		CoercingComparator<TB> cb = getComparator(o2, o1);
@@ -297,15 +303,18 @@ public abstract class CoercingComparator<T> {
 	}
 
 	/**
-	 * Finds the comparator for <code>a</code> and <code>b</code> and delegates the coercion/equal to the comparator
-	 * according to priority.
+	 * Finds the comparator for <code>a</code> and <code>b</code> and delegates the
+	 * coercion/equal to the comparator according to priority.
+	 * 
 	 * @param o1 the first object to be compared.
 	 * @param o2 the second object to be compared.
 	 * @return The result of the equality test
-	 * @throws IllegalArgumentException if no comparator was found or if coercion was impossible
+	 * @throws IllegalArgumentException if no comparator was found or if coercion
+	 *                                  was impossible
 	 * @see Object#equals(Object)
 	 */
-	public static <TA extends Object, TB extends Object> boolean coerceAndEquals(TA o1, TB o2) throws IllegalArgumentException {
+	public static <TA extends Object, TB extends Object> boolean coerceAndEquals(TA o1, TB o2)
+			throws IllegalArgumentException {
 		if (o1 == o2)
 			return true;
 
@@ -330,10 +339,11 @@ public abstract class CoercingComparator<T> {
 
 	/**
 	 * Obtains the coercing comparator for the given <code>value</code>.
-	 * @param value The value 
+	 * 
+	 * @param value The value
 	 * @return The coercing comparator
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public static <V> CoercingComparator<V> getComparator(V value, Object v2) {
 		Class<V> vClass = (Class<V>) value.getClass();
 		CoercingComparator<?>[] carr = coercers;
@@ -341,8 +351,7 @@ public abstract class CoercingComparator<T> {
 		while (--idx >= 0) {
 			CoercingComparator<?> c = carr[idx];
 			if (c.canCoerceTo(vClass)) {
-				CoercingComparator<V> cv = (CoercingComparator<V>) c;
-				return cv;
+				return (CoercingComparator<V>) c;
 			}
 		}
 
