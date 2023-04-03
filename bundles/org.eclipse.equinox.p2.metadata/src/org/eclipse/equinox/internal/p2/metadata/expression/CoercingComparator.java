@@ -285,7 +285,7 @@ public abstract class CoercingComparator<T> {
 	 *                                  was impossible
 	 * @see Comparator#compare(Object, Object)
 	 */
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <TA extends Object, TB extends Object> int coerceAndCompare(TA o1, TB o2)
 			throws IllegalArgumentException {
 		if (o1 == null || o2 == null)
@@ -343,7 +343,7 @@ public abstract class CoercingComparator<T> {
 	 * @param value The value
 	 * @return The coercing comparator
 	 */
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings({ "unchecked", "deprecation", "removal" })
 	public static <V> CoercingComparator<V> getComparator(V value, Object v2) {
 		Class<V> vClass = (Class<V>) value.getClass();
 		CoercingComparator<?>[] carr = coercers;
