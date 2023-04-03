@@ -62,7 +62,7 @@ public class Activator implements BundleActivator {
 	public static BundleContext getContext() {
 		synchronized (Activator.class) {
 			if (Activator.context == null) {
-				throw new IllegalStateException("bundle " + ID + "is not started"); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new IllegalStateException("bundle " + ID + " is not started"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			return Activator.context;
 		}
