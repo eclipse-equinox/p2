@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPPublicKeyStore;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
@@ -35,6 +36,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.IArtifactUIServices;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.osgi.service.security.TrustEngine;
@@ -154,10 +156,15 @@ public class CertificateChecker {
 		Map<PGPPublicKey, Set<IArtifactKey>> untrustedPGPKeys = new LinkedHashMap<>();
 		Set<IArtifactKey> unsignedArtifacts = new LinkedHashSet<>();
 		Set<PGPPublicKey> trustedKeySet = new HashSet<>();
+		Set<SimpleArtifactRepository> repositories = new HashSet<>();
 		boolean isTrustedKeySetInitialized = false;
 		Map<IArtifactKey, File> artifactFiles = new LinkedHashMap<>();
 		for (Entry<IArtifactDescriptor, File> artifact : artifacts.entrySet()) {
 			IArtifactDescriptor artifactDescriptor = artifact.getKey();
+			IArtifactRepository repository = artifactDescriptor.getRepository();
+			if (repository instanceof SimpleArtifactRepository simpleArtifactRepository) {
+				repositories.add(simpleArtifactRepository);
+			}
 			IArtifactKey artifactKey = artifactDescriptor.getArtifactKey();
 			File artifactFile = artifact.getValue();
 			artifactFiles.put(artifactKey, artifactFile);
@@ -303,12 +310,6 @@ public class CertificateChecker {
 		setTrustAlways(trustInfo.trustAlways());
 
 		if (!trustInfo.trustAlways()) {
-			// If there is unsigned content and user doesn't trust unsigned content, cancel
-			// the operation.
-			if (!unsignedArtifacts.isEmpty() && !trustInfo.trustUnsignedContent()) {
-				return Status.CANCEL_STATUS;
-			}
-
 			// For any certificate that was newly trusted, its associated artifacts are
 			// trusted.
 			Set<IArtifactKey> trustedArtifactKeys = new HashSet<>();
@@ -338,9 +339,23 @@ public class CertificateChecker {
 			untrustedCertificates.values().removeIf(Collection::isEmpty);
 			untrustedPGPKeys.values().removeIf(Collection::isEmpty);
 
-			// If there is still untrusted artifacts, cancel the operation.
-			if (!untrustedCertificates.isEmpty() || !untrustedPGPKeys.isEmpty()) {
-				return new Status(IStatus.CANCEL, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
+			IStatus status =
+					// If there is unsigned content and user doesn't trust unsigned content, cancel
+					// the operation.
+					!unsignedArtifacts.isEmpty() && !trustInfo.trustUnsignedContent() ? Status.CANCEL_STATUS :
+					// If there is still untrusted artifacts, cancel the operation.
+							!untrustedCertificates.isEmpty() || !untrustedPGPKeys.isEmpty() ? new Status(IStatus.CANCEL,
+									EngineActivator.ID, Messages.CertificateChecker_CertificateRejected) : null;
+			if (status != null) {
+				Set<IArtifactKey> keys = new HashSet<>();
+				keys.addAll(unsignedArtifacts);
+				untrustedCertificates.values().stream().forEach(keys::addAll);
+				untrustedPGPKeys.values().stream().forEach(keys::addAll);
+				for (var repository : repositories) {
+					repository.removeDescriptors(keys.toArray(IArtifactKey[]::new), true, null);
+				}
+
+				return status;
 			}
 		}
 

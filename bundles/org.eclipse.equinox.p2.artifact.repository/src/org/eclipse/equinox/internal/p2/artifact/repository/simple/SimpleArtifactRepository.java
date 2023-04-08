@@ -19,48 +19,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
-
-import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumVerifier;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
-import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
-import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
-import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
-import org.eclipse.equinox.internal.p2.artifact.repository.SignatureVerifier;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -69,29 +41,17 @@ import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
 import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.ChecksumHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ZipVerifierStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
-import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.*;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
@@ -318,6 +278,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	static final private Integer REPOSITORY_VERSION = 1;
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	protected Set<SimpleArtifactDescriptor> artifactDescriptors = new HashSet<>();
+	private Set<SimpleArtifactDescriptor> addedDescriptors = new HashSet<>();
 	/**
 	 * Map<IArtifactKey,List<IArtifactDescriptor>> containing the index of artifacts in the repository.
 	 */
@@ -372,7 +333,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			mapDescriptor(desc);
 	}
 
-	private synchronized void mapDescriptor(IArtifactDescriptor descriptor) {
+	private synchronized void mapDescriptor(SimpleArtifactDescriptor descriptor) {
+		addedDescriptors.add(descriptor);
 		IArtifactKey key = descriptor.getArtifactKey();
 		if (snapshotNeeded) {
 			cloneAritfactMap();
@@ -388,6 +350,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private synchronized void unmapDescriptor(IArtifactDescriptor descriptor) {
+		addedDescriptors.remove(descriptor);
 		IArtifactKey key = descriptor.getArtifactKey();
 		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null)
@@ -1231,6 +1194,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	@Override
 	public synchronized void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
+		removeDescriptors(keys, false, monitor);
+	}
+
+	public synchronized void removeDescriptors(IArtifactKey[] keys, boolean removeIfAdded, IProgressMonitor monitor) {
 		monitor = IProgressMonitor.nullSafe(monitor);
 		boolean lockAcquired = false;
 		try {
@@ -1244,7 +1211,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			for (IArtifactKey key : keys) {
 				IArtifactDescriptor[] descriptors = getArtifactDescriptors(key);
 				for (IArtifactDescriptor descriptor : descriptors)
-					changed |= doRemoveArtifact(descriptor);
+					if (!removeIfAdded || addedDescriptors.remove(descriptor)) {
+						changed |= doRemoveArtifact(descriptor);
+					}
 			}
 			if (changed)
 				save();
@@ -1684,6 +1653,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				//
 				this.artifactDescriptors = ((SimpleArtifactRepository) repositoryOnDisk).artifactDescriptors;
 				this.artifactMap = ((SimpleArtifactRepository) repositoryOnDisk).artifactMap;
+				this.addedDescriptors.clear();
 			}
 		} finally {
 			monitor.done();
