@@ -85,7 +85,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | SWT.MAX | getDefaultOrientation());
 
 		if (input instanceof TreeNode[]) {
-			init((TreeNode[]) input);
+			init(null, (TreeNode[]) input);
 		}
 
 		setTitle(ProvUIMessages.TrustCertificateDialog_Title);
@@ -118,10 +118,12 @@ public class TrustCertificateDialog extends SelectionDialog {
 		}
 	}
 
-	private void init(TreeNode[] treeNodes) {
+	private void init(TreeNode parent, TreeNode[] treeNodes) {
 		for (TreeNode node : treeNodes) {
 			IArtifactKey[] associatedArtifacts = getInstance(node, IArtifactKey[].class);
-			artifactMap.put(node, associatedArtifacts == null ? List.of() : Arrays.asList(associatedArtifacts));
+			if (associatedArtifacts != null || parent == null) {
+				artifactMap.put(node, associatedArtifacts == null ? List.of() : Arrays.asList(associatedArtifacts));
+			}
 
 			Date revocation = getInstance(node, Date.class);
 			if (revocation != null) {
@@ -133,7 +135,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 			TreeNode[] children = node.getChildren();
 			if (children != null) {
-				init(children);
+				init(node, children);
 			}
 		}
 	}
