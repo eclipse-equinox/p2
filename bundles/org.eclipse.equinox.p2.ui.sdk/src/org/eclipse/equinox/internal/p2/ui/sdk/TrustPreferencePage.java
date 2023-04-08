@@ -78,6 +78,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 	@Override
 	protected Control createContents(Composite parent) {
 		IProvisioningAgent provisioningAgent = ProvSDKUIActivator.getDefault().getProvisioningAgent();
+		PGPPublicKeyService keyService = provisioningAgent.getService(PGPPublicKeyService.class);
 		certificateChecker = new CertificateChecker(provisioningAgent);
 		certificateChecker
 				.setProfile(provisioningAgent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF));
@@ -136,6 +137,12 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 				contributedTrustedKeys.isEmpty() ? 8 : 15);
 
 		createColumn(viewer, ProvSDKMessages.TrustPreferencePage_ValidityColumn, pgp -> {
+			if (keyService != null) {
+				Date verifiedRevocationDate = keyService.getVerifiedRevocationDate(pgp);
+				if (verifiedRevocationDate != null) {
+					return NLS.bind(ProvSDKMessages.TrustPreferencePage_RevokedPGPKey, verifiedRevocationDate);
+				}
+			}
 			if (pgp.getCreationTime().after(Date.from(Instant.now()))) {
 				return NLS.bind(ProvSDKMessages.TrustPreferencePage_DateNotYetValid, pgp.getCreationTime());
 			}
@@ -273,8 +280,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 				// create and open dialog for certificate chain
 				CertificateLabelProvider.openDialog(getShell(), (X509Certificate) element);
 			} else {
-				new PGPPublicKeyViewDialog(getShell(), (PGPPublicKey) element,
-						provisioningAgent.getService(PGPPublicKeyService.class)).open();
+				new PGPPublicKeyViewDialog(getShell(), (PGPPublicKey) element, keyService).open();
 			}
 		};
 

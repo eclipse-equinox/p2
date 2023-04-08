@@ -222,7 +222,8 @@ public class CertificateChecker {
 					if (!verifiedKeys.isEmpty()) {
 						if (!isTrustedKeySetInitialized) {
 							isTrustedKeySetInitialized = true;
-							trustedKeySet.addAll(trustedKeys.get().all());
+							trustedKeySet.addAll(trustedKeys.get().all().stream()
+									.filter(it -> keyService.getVerifiedRevocationDate(it) == null).toList());
 						}
 						// Only record the untrusted keys if none of the keys are trusted.
 						if (verifiedKeys.stream().noneMatch(trustedKeySet::contains)) {

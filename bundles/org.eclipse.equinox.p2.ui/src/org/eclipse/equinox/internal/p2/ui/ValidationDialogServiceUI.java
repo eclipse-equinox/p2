@@ -288,7 +288,8 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			for (Map.Entry<PGPPublicKey, Set<IArtifactKey>> entry : untrustedPGPKeys.entrySet()) {
 				PGPPublicKey key = entry.getKey();
 				Set<IArtifactKey> associatedArtifacts = entry.getValue();
-				ExtendedTreeNode node = new ExtendedTreeNode(key, associatedArtifacts);
+				Date verifiedRevocationDate = keyService.getVerifiedRevocationDate(key);
+				ExtendedTreeNode node = new ExtendedTreeNode(key, associatedArtifacts, verifiedRevocationDate);
 				children.add(node);
 				expandChildren(node, key, keyService, new HashSet<>(), Integer.getInteger("p2.pgp.trust.depth", 3)); //$NON-NLS-1$
 			}
@@ -311,7 +312,8 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 				List<TreeNode> children = new ArrayList<>();
 				for (PGPPublicKey certifyingKey : certifications) {
 					if (visited.add(certifyingKey)) {
-						TreeNode treeNode = new TreeNode(certifyingKey);
+						Date verifiedRevocationDate = keyService.getVerifiedRevocationDate(key);
+						TreeNode treeNode = new ExtendedTreeNode(certifyingKey, null, verifiedRevocationDate);
 						children.add(treeNode);
 					}
 				}
@@ -461,6 +463,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 
 	private static class ExtendedTreeNode extends TreeNode implements IAdaptable {
 		private final Set<IArtifactKey> artifacts;
+		private Date revocationDate;
 
 		public ExtendedTreeNode(Object value) {
 			super(value);
@@ -468,8 +471,13 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 		}
 
 		public ExtendedTreeNode(Object value, Set<IArtifactKey> artifacts) {
+			this(value, artifacts, null);
+		}
+
+		public ExtendedTreeNode(Object value, Set<IArtifactKey> artifacts, Date revocationDate) {
 			super(value);
 			this.artifacts = artifacts;
+			this.revocationDate = revocationDate;
 		}
 
 		@Override
@@ -482,6 +490,9 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			}
 			if (adapter == IArtifactKey[].class && artifacts != null) {
 				return adapter.cast(artifacts.toArray(IArtifactKey[]::new));
+			}
+			if (adapter == Date.class) {
+				return adapter.cast(revocationDate);
 			}
 
 			return null;
