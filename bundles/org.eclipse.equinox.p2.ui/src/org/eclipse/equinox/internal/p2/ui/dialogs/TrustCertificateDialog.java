@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -60,7 +61,7 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 public class TrustCertificateDialog extends SelectionDialog {
 	private static final String EXPORT_FILTER_PATH = "exportFilterPath"; //$NON-NLS-1$
 
-	private CheckboxTableViewer certifcateViewer;
+	private CheckboxTableViewer certificateViewer;
 
 	private TreeViewer certificateChainViewer;
 
@@ -76,25 +77,22 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 	private final Map<TreeNode, List<IArtifactKey>> artifactMap = new LinkedHashMap<>();
 
+	private final Map<PGPPublicKey, Date> revocationMap = new LinkedHashMap<>();
+
 	public TrustCertificateDialog(Shell parentShell, Object input) {
 		super(parentShell);
 
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | SWT.MAX | getDefaultOrientation());
 
 		if (input instanceof TreeNode[]) {
-			for (TreeNode node : (TreeNode[]) input) {
-				IArtifactKey[] associatedArtifacts = null;
-				if (node instanceof IAdaptable) {
-					associatedArtifacts = ((IAdaptable) node).getAdapter(IArtifactKey[].class);
-				}
-				artifactMap.put(node, associatedArtifacts == null ? List.of() : Arrays.asList(associatedArtifacts));
-			}
+			init((TreeNode[]) input);
 		}
 
 		setTitle(ProvUIMessages.TrustCertificateDialog_Title);
 
 		boolean unsignedContent = artifactMap.keySet().stream().map(TreeNode::getValue).anyMatch(Objects::isNull);
 		boolean pgpContent = containsInstance(input, PGPPublicKey.class);
+		boolean revokedPGPContent = pgpContent && !revocationMap.isEmpty();
 		boolean certifcateContent = containsInstance(input, Certificate.class);
 
 		List<String> messages = new ArrayList<>();
@@ -103,6 +101,9 @@ public class TrustCertificateDialog extends SelectionDialog {
 		}
 		if (unsignedContent) {
 			messages.add(ProvUIMessages.TrustCertificateDialog_MessageUnsigned);
+		}
+		if (revokedPGPContent) {
+			messages.add(ProvUIMessages.TrustCertificateDialog_MessageRevoked);
 		}
 		if (certifcateContent || pgpContent) {
 			messages.add(ProvUIMessages.TrustCertificateDialog_MessageNameWarning);
@@ -114,6 +115,26 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 		if (PlatformUI.isWorkbenchRunning()) {
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(parentShell, IProvHelpContextIds.TRUST_DIALOG);
+		}
+	}
+
+	private void init(TreeNode[] treeNodes) {
+		for (TreeNode node : treeNodes) {
+			IArtifactKey[] associatedArtifacts = getInstance(node, IArtifactKey[].class);
+			artifactMap.put(node, associatedArtifacts == null ? List.of() : Arrays.asList(associatedArtifacts));
+
+			Date revocation = getInstance(node, Date.class);
+			if (revocation != null) {
+				PGPPublicKey pgp = getInstance(node, PGPPublicKey.class);
+				if (pgp != null) {
+					revocationMap.put(pgp, revocation);
+				}
+			}
+
+			TreeNode[] children = node.getChildren();
+			if (children != null) {
+				init(children);
+			}
 		}
 	}
 
@@ -188,7 +209,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		}
 
 		if (!artifactMap.isEmpty()) {
-			certifcateViewer.setSelection(new StructuredSelection(artifactMap.keySet().iterator().next()));
+			certificateViewer.setSelection(new StructuredSelection(artifactMap.keySet().iterator().next()));
 		}
 
 		return mainComposite;
@@ -295,8 +316,8 @@ public class TrustCertificateDialog extends SelectionDialog {
 		Table table = WidgetFactory
 				.table(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.CHECK)
 				.headerVisible(true).linesVisible(true).font(composite.getFont()).create(tableComposite);
-		certifcateViewer = new CheckboxTableViewer(table);
-		certifcateViewer.setContentProvider(new TreeNodeContentProvider());
+		certificateViewer = new CheckboxTableViewer(table);
+		certificateViewer.setContentProvider(new TreeNodeContentProvider());
 
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.heightHint = convertHeightInCharsToPixels(Math.min(artifactMap.keySet().size() + 2, 6)) * 3 / 2;
@@ -304,17 +325,17 @@ public class TrustCertificateDialog extends SelectionDialog {
 		tableComposite.setLayoutData(data);
 
 		// This column is packed later.
-		TableViewerColumn typeColumn = createColumn(certifcateViewer, ProvUIMessages.TrustCertificateDialog_ObjectType,
+		TableViewerColumn typeColumn = createColumn(certificateViewer, ProvUIMessages.TrustCertificateDialog_ObjectType,
 				new PGPOrX509ColumnLabelProvider(key -> "PGP", cert -> "x509", //$NON-NLS-1$ //$NON-NLS-2$
 						ProvUIMessages.TrustCertificateDialog_Unsigned),
 				tableColumnLayout, 1);
 
-		createColumn(certifcateViewer, ProvUIMessages.TrustCertificateDialog_Id,
+		createColumn(certificateViewer, ProvUIMessages.TrustCertificateDialog_Id,
 				new PGPOrX509ColumnLabelProvider(TrustCertificateDialog::userFriendlyFingerPrint,
 						cert -> cert.getSerialNumber().toString(), ProvUIMessages.TrustCertificateDialog_NotApplicable),
 				tableColumnLayout, 10);
 
-		createColumn(certifcateViewer, ProvUIMessages.TrustCertificateDialog_Name,
+		createColumn(certificateViewer, ProvUIMessages.TrustCertificateDialog_Name,
 				new PGPOrX509ColumnLabelProvider(pgp -> {
 					java.util.List<String> users = new ArrayList<>();
 					pgp.getUserIDs().forEachRemaining(users::add);
@@ -325,8 +346,14 @@ public class TrustCertificateDialog extends SelectionDialog {
 							+ principalHelper.getO();
 				}, ProvUIMessages.TrustCertificateDialog_Unknown), tableColumnLayout, 15);
 
-		createColumn(certifcateViewer, ProvUIMessages.TrustCertificateDialog_dates,
+		createColumn(certificateViewer, ProvUIMessages.TrustCertificateDialog_dates,
 				new PGPOrX509ColumnLabelProvider(pgp -> {
+
+					Date verifiedRevocationDate = revocationMap.get(pgp);
+					if (verifiedRevocationDate != null) {
+						return NLS.bind(ProvUIMessages.TrustCertificateDialog_revoked, verifiedRevocationDate);
+					}
+
 					if (pgp.getCreationTime().after(Date.from(Instant.now()))) {
 						return NLS.bind(ProvUIMessages.TrustCertificateDialog_NotYetValidStartDate,
 								pgp.getCreationTime());
@@ -350,11 +377,11 @@ public class TrustCertificateDialog extends SelectionDialog {
 					}
 				}, ProvUIMessages.TrustCertificateDialog_NotApplicable), tableColumnLayout, 10);
 
-		createMenu(certifcateViewer);
+		createMenu(certificateViewer);
 
 		addSelectionButtons(composite);
 
-		certifcateViewer.addDoubleClickListener(e -> {
+		certificateViewer.addDoubleClickListener(e -> {
 			StructuredSelection selection = (StructuredSelection) e.getSelection();
 			X509Certificate cert = getInstance(selection, X509Certificate.class);
 			if (cert != null) {
@@ -363,7 +390,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			}
 		});
 
-		certifcateViewer.addSelectionChangedListener(e -> {
+		certificateViewer.addSelectionChangedListener(e -> {
 			if (certificateChainViewer != null) {
 				TreeNode treeNode = getInstance(e.getSelection(), TreeNode.class);
 				if (treeNode != null) {
@@ -377,7 +404,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			updateOkButton();
 		});
 
-		certifcateViewer.setInput(artifactMap.keySet().toArray(TreeNode[]::new));
+		certificateViewer.setInput(artifactMap.keySet().toArray(TreeNode[]::new));
 
 		typeColumn.getColumn().pack();
 	}
@@ -452,7 +479,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		composite.addDisposeListener(e -> boldFont.dispose());
 
 		Function<IArtifactKey, Font> fontProvider = e -> {
-			for (Object object : certifcateViewer.getCheckedElements()) {
+			for (Object object : certificateViewer.getCheckedElements()) {
 				List<IArtifactKey> list = artifactMap.get(object);
 				if (list != null && list.contains(e)) {
 					return boldFont;
@@ -461,7 +488,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			return null;
 		};
 
-		certifcateViewer.addCheckStateListener(e -> artifactViewer.refresh(true));
+		certificateViewer.addCheckStateListener(e -> artifactViewer.refresh(true));
 
 		artifactViewer.addPostSelectionChangedListener(e -> {
 			if (table.isFocusControl()) {
@@ -479,11 +506,11 @@ public class TrustCertificateDialog extends SelectionDialog {
 					}
 				}
 
-				certifcateViewer.setSelection(new StructuredSelection(newSelection), true);
+				certificateViewer.setSelection(new StructuredSelection(newSelection), true);
 			}
 		});
 
-		certifcateViewer.addPostSelectionChangedListener(e -> {
+		certificateViewer.addPostSelectionChangedListener(e -> {
 			if (!table.isFocusControl()) {
 				Set<IArtifactKey> associatedArtifacts = new LinkedHashSet<>();
 				for (Object object : e.getStructuredSelection()) {
@@ -553,7 +580,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 	private void checkInitialSelections() {
 		Iterator<?> itemsToCheck = getInitialElementSelections().iterator();
 		while (itemsToCheck.hasNext()) {
-			certifcateViewer.setChecked(itemsToCheck.next(), true);
+			certificateViewer.setChecked(itemsToCheck.next(), true);
 			if (artifactViewer != null) {
 				artifactViewer.refresh(true);
 			}
@@ -617,7 +644,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 					// Restore the checkbox state.
 					trustAlwaysButton.setSelection(false);
 				} else {
-					certifcateViewer.setAllChecked(true);
+					certificateViewer.setAllChecked(true);
 					if (artifactViewer != null) {
 						artifactViewer.refresh(true);
 					}
@@ -638,7 +665,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		Button selectButton = createButton(rightButtonArea, IDialogConstants.SELECT_ALL_ID,
 				ProvUIMessages.TrustCertificateDialog_SelectAll, false);
 		selectButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			certifcateViewer.setAllChecked(true);
+			certificateViewer.setAllChecked(true);
 			if (artifactViewer != null) {
 				artifactViewer.refresh(true);
 			}
@@ -648,7 +675,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 		Button deselectButton = createButton(rightButtonArea, IDialogConstants.DESELECT_ALL_ID,
 				ProvUIMessages.TrustCertificateDialog_DeselectAll, false);
 		deselectButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			certifcateViewer.setAllChecked(false);
+			certificateViewer.setAllChecked(false);
 			if (artifactViewer != null) {
 				artifactViewer.refresh(true);
 			}
@@ -684,8 +711,8 @@ public class TrustCertificateDialog extends SelectionDialog {
 	private void updateOkButton() {
 		Button okButton = getOkButton();
 		if (okButton != null) {
-			certifcateViewer.getCheckedElements();
-			Object[] checkedElements = certifcateViewer.getCheckedElements();
+			certificateViewer.getCheckedElements();
+			Object[] checkedElements = certificateViewer.getCheckedElements();
 			Set<IArtifactKey> artifacts = artifactMap.values().stream().flatMap(Collection::stream)
 					.collect(Collectors.toSet());
 			if (artifacts.isEmpty()) {
@@ -701,7 +728,26 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 	@Override
 	protected void okPressed() {
-		setResult(Arrays.asList(certifcateViewer.getCheckedElements()));
+		if (!revocationMap.isEmpty()) {
+			// Prompt the user to ensure they really understand that they've chosen to
+			// install content signed with a revoked PGP key.
+			MessageDialog messageDialog = new MessageDialog(getShell(),
+					ProvUIMessages.TrustCertificateDialogQuestionTrustRevokedKeyTitle, null,
+					ProvUIMessages.TrustCertificateDialogQuestionTrustRevokedKeyQuestion, MessageDialog.QUESTION,
+					new String[] { ProvUIMessages.TrustCertificateDialogQuestionTrustRevokedKeyAccept,
+							ProvUIMessages.TrustCertificateDialogQuestionTrustRevokedKeyReject },
+					1) {
+				@Override
+				public Image getImage() {
+					return getWarningImage();
+				}
+			};
+			if (messageDialog.open() != Window.OK) {
+				return;
+			}
+		}
+
+		setResult(Arrays.asList(certificateViewer.getCheckedElements()));
 		super.okPressed();
 	}
 
@@ -768,27 +814,39 @@ public class TrustCertificateDialog extends SelectionDialog {
 		return count;
 	}
 
-	private static <T> T getInstance(Object element, Class<T> type) {
+	private static <T> T getInstance(Object element, Class<T> type, Predicate<T> filter) {
 		if (type.isInstance(element)) {
-			return type.cast(element);
+			if (filter == null || filter.test(type.cast(element))) {
+				return type.cast(element);
+			}
 		} else if (element instanceof Iterable) {
 			for (Object object : ((Iterable<?>) element)) {
-				T instance = getInstance(object, type);
+				T instance = getInstance(object, type, filter);
 				if (instance != null) {
 					return instance;
 				}
 			}
 		} else if (element instanceof TreeNode) {
-			return getInstance(((TreeNode) element).getValue(), type);
+			if (element instanceof IAdaptable adaptable) {
+				T instance = adaptable.getAdapter(type);
+				if (instance != null) {
+					return instance;
+				}
+			}
+			return getInstance(((TreeNode) element).getValue(), type, filter);
 		} else if (element instanceof TreeNode[]) {
 			for (TreeNode child : (TreeNode[]) element) {
-				T instance = getInstance(child, type);
+				T instance = getInstance(child, type, filter);
 				if (instance != null) {
 					return instance;
 				}
 			}
 		}
 		return null;
+	}
+
+	private static <T> T getInstance(Object element, Class<T> type) {
+		return getInstance(element, type, null);
 	}
 
 	private static boolean containsInstance(Object element, Class<?> type) {

@@ -231,10 +231,9 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 							if (!Boolean.FALSE.toString()
 									.equalsIgnoreCase(System.getProperty("p2.pgp.verifyRevocation"))) { //$NON-NLS-1$
 								if (!keyService.isCreatedBeforeRevocation(signature, verifyingKey)) {
-									setStatus(new Status(IStatus.ERROR, Activator.ID,
+									LogHelper.log(new Status(IStatus.ERROR, Activator.ID,
 											NLS.bind(Messages.Error_SignatureAfterKeyRevocation, PGPPublicKeyService
 													.toHexFingerprint(verifyingKey))));
-									return;
 								}
 							}
 
@@ -265,9 +264,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 			}
 
 			setStatus(Status.OK_STATUS);
-		} finally
-
-		{
+		} finally {
 			super.close();
 		}
 	}
