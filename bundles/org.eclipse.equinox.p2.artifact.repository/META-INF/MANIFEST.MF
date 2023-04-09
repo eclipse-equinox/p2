@@ -19,6 +19,7 @@ Export-Package: org.eclipse.equinox.internal.p2.artifact.processing;x-friends:="
    org.eclipse.equinox.p2.publisher.eclipse",
  org.eclipse.equinox.internal.p2.artifact.repository.simple;
   x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,
+   org.eclipse.equinox.p2.engine,
    org.eclipse.equinox.p2.tests,
    org.eclipse.equinox.p2.directorywatcher,
    org.eclipse.equinox.p2.updatesite,
