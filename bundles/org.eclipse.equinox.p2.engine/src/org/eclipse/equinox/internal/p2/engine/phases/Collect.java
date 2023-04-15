@@ -15,6 +15,7 @@
 package org.eclipse.equinox.internal.p2.engine.phases;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.repository.DownloadPauseResumeEvent;
@@ -33,6 +34,7 @@ import org.eclipse.osgi.util.NLS;
 public class Collect extends InstallableUnitPhase {
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	public static final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
+	private static final String PARM_IUS = "ius"; //$NON-NLS-1$
 	private IProvisioningAgent agent = null;
 
 	public Collect(int weight) {
@@ -87,6 +89,17 @@ public class Collect extends InstallableUnitPhase {
 			agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 		}
 
+		if (Boolean.parseBoolean(context.getProperty(ProvisioningContext.CHECK_AUTHORITIES))) {
+			@SuppressWarnings("unchecked")
+			Set<IInstallableUnit> ius = (Set<IInstallableUnit>) parameters.get(PARM_IUS);
+			IStatus authorityStatus = new AuthorityChecker(agent, context, ius, artifactRequests.stream()
+						.flatMap(Arrays::stream).map(IArtifactRequest::getArtifactKey).collect(Collectors.toList()),
+						profile).start(monitor);
+			if (!authorityStatus.isOK()) {
+				return authorityStatus;
+			}
+		}
+
 		if (isPaused) {
 			try {
 				Thread.sleep(1000);
@@ -123,6 +136,7 @@ public class Collect extends InstallableUnitPhase {
 	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
+		parameters.put(PARM_IUS, new HashSet<IInstallableUnit>());
 		return null;
 	}
 
@@ -148,6 +162,9 @@ public class Collect extends InstallableUnitPhase {
 		// defer setting the IU until after the super method to avoid triggering touchpoint initialization
 		IInstallableUnit iu = operand.second();
 		parameters.put(PARM_IU, iu);
+		@SuppressWarnings("unchecked")
+		Set<IInstallableUnit> ius = (Set<IInstallableUnit>) parameters.get(PARM_IUS);
+		ius.add(iu);
 		return status;
 	}
 

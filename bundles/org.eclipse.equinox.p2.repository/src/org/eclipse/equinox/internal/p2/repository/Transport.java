@@ -17,12 +17,53 @@ package org.eclipse.equinox.internal.p2.repository;
 
 import java.io.*;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.osgi.util.NLS;
 
 public abstract class Transport {
 
 	public static final String SERVICE_NAME = Transport.class.getName();
+
+	private enum ProtocolRule {
+		ALLOW, REDIRECT, BLOCK;
+
+		public static ProtocolRule of(String literal) {
+			if (literal == null) {
+				return REDIRECT;
+			}
+			switch (literal) {
+			case "allow": //$NON-NLS-1$
+				return ALLOW;
+			case "redirect": //$NON-NLS-1$
+				return REDIRECT;
+			default: {
+				return BLOCK;
+			}
+			}
+		}
+	}
+
+	private static final Map<String, ProtocolRule> RULES = Map.of( //
+			"http", ProtocolRule.of(System.getProperty("p2.httpRule")), //$NON-NLS-1$ //$NON-NLS-2$
+			"ftp", ProtocolRule.of(System.getProperty("p2.ftpRule"))); //$NON-NLS-1$ //$NON-NLS-2$
+
+	/** Allows to mute "Using unsafe http transport" warnings */
+	private static final boolean SKIP_REPOSITORY_PROTOCOL_CHECK = Boolean.getBoolean("p2.skipRepositoryProtocolCheck"); //$NON-NLS-1$
+
+	/** Supports extracting the underlying URI of an archive URI. */
+	private static final Pattern ARCHIVE_URI_PATTERN = Pattern.compile("(?i)(jar|zip|archive):(.*)!/(.*)"); //$NON-NLS-1$
+
+	/** Avoids repeated logging the same URI. */
+	private final Set<URI> loggedURIs = ConcurrentHashMap.newKeySet();
 
 	/**
 	 * Perform a download, writing into the target output stream. Progress is
@@ -88,4 +129,68 @@ public abstract class Transport {
 	 */
 	public abstract long getLastModified(URI toDownload, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException;
 
+	/**
+	 * Returns the corresponding secure location given an arbitrary location.
+	 * Subclasses are encouraged to use this method, to ensure that only secure
+	 * locations are accessed by the transport implementation.
+	 * <p>
+	 * System properties affect the behavior:
+	 * </p>
+	 * <ul>
+	 * <li>p2.httpRule</li>
+	 * <ul>
+	 * <li>redirect http:// -&gt; https://</li>
+	 * <li>allow http:// -&gt; http://</li>
+	 * <li>block http:// -&gt; CoreException</li>
+	 * </ul>
+	 * <li>p2.ftpRule</li>
+	 * <ul>
+	 * <li>redirect ftp:// -&gt; ftps://</li>
+	 * <li>allow ftp:// -&gt; ftp://</li>
+	 * <li>block ftp:// -&gt; CoreException</li>
+	 * </ul>
+	 * </ul>
+	 *
+	 * @param location an arbitrary location.
+	 * @return the corresponding secure location or the location itself.
+	 * @throws CoreException if the location URI is considered unacceptably
+	 *                       insecure.
+	 */
+	public URI getSecureLocation(URI location) throws CoreException {
+		String scheme = location.getScheme();
+		String canonicalScheme = scheme == null ? "null" : scheme.toLowerCase(); //$NON-NLS-1$
+		ProtocolRule protocolRule = RULES.get(canonicalScheme); // $NON-NLS-1$
+		if (protocolRule != null) { // $NON-NLS-1$
+			switch (protocolRule) {
+			case REDIRECT: {
+				try {
+					return new URI(canonicalScheme + "s", location.getUserInfo(), location.getHost(), //$NON-NLS-1$
+							location.getPort(), location.getPath(), location.getQuery(), location.getFragment());
+				} catch (URISyntaxException e) {
+					// Cannot happen.
+					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, e.getLocalizedMessage(), e));
+				}
+			}
+			case BLOCK: {
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
+						NLS.bind(Messages.RepositoryTransport_unsafeProtocolBlocked, canonicalScheme, location)));
+			}
+			default: {
+				if (!SKIP_REPOSITORY_PROTOCOL_CHECK) {
+					if (loggedURIs.add(location)) {
+						LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+								NLS.bind(Messages.RepositoryTransport_unsafeProtocol, canonicalScheme, location)));
+					}
+				}
+			}
+			}
+		} else {
+			Matcher matcher = ARCHIVE_URI_PATTERN.matcher(location.toString());
+			if (matcher.matches()) {
+				return URI.create(matcher.group(1) + ':'
+						+ getSecureLocation(URI.create(matcher.group(2) + "!/" + matcher.group(3)))); //$NON-NLS-1$
+			}
+		}
+		return location;
+	}
 }

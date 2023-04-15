@@ -16,7 +16,6 @@ package org.eclipse.equinox.internal.p2.transport.ecf;
 import java.io.*;
 import java.net.*;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.core.runtime.*;
@@ -24,7 +23,6 @@ import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.filetransfer.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Credentials.LoginCanceledException;
 import org.eclipse.equinox.internal.p2.repository.Messages;
@@ -68,34 +66,7 @@ public class RepositoryTransport extends Transport {
 
 	private static final Map<URI, Retry> SOCKET_EXCEPTION_RETRY = new ConcurrentHashMap<>();
 
-	private final Set<URI> loggedURIs = ConcurrentHashMap.newKeySet();
 	private IProvisioningAgent agent = null;
-
-	private enum ProtocolRule {
-		ALLOW, REDIRECT, BLOCK;
-
-		public static ProtocolRule of(String literal) {
-			if (literal == null) {
-				return REDIRECT;
-			}
-			switch (literal) {
-			case "allow": //$NON-NLS-1$
-				return ALLOW;
-			case "redirect": //$NON-NLS-1$
-				return REDIRECT;
-			default: {
-				return BLOCK;
-			}
-			}
-		}
-	}
-
-	private static final Map<String, ProtocolRule> RULES = Map.of( //
-			"http", ProtocolRule.of(System.getProperty("p2.httpRule")), //$NON-NLS-1$ //$NON-NLS-2$
-			"ftp", ProtocolRule.of(System.getProperty("p2.ftpRule"))); //$NON-NLS-1$ //$NON-NLS-2$
-
-	/** Allows to mute "Using unsafe http transport" warnings */
-	private static final boolean SKIP_REPOSITORY_PROTOCOL_CHECK = Boolean.getBoolean("p2.skipRepositoryProtocolCheck"); //$NON-NLS-1$
 
 	/**
 	 * Returns an shared instance of Generic Transport
@@ -129,7 +100,7 @@ public class RepositoryTransport extends Transport {
 		URI secureToDownload;
 		try {
 			secureToDownload = getSecureLocation(toDownload);
-		} catch (ProvisionException e) {
+		} catch (CoreException e) {
 			return e.getStatus();
 		}
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
@@ -326,38 +297,6 @@ public class RepositoryTransport extends Transport {
 		}
 		// reached maximum number of authentication retries without success
 		throw new AuthenticationFailedException();
-	}
-
-	private URI getSecureLocation(URI location) throws ProvisionException {
-		String scheme = location.getScheme();
-		String canonicalScheme = scheme == null ? "null" : scheme.toLowerCase(); //$NON-NLS-1$
-		ProtocolRule protocolRule = RULES.get(canonicalScheme); // $NON-NLS-1$
-		if (protocolRule != null) { // $NON-NLS-1$
-			switch (protocolRule) {
-			case REDIRECT: {
-				try {
-					return new URI(canonicalScheme + "s", location.getUserInfo(), location.getHost(), //$NON-NLS-1$
-							location.getPort(), location.getPath(), location.getQuery(), location.getFragment());
-				} catch (URISyntaxException e) {
-					// Cannot happen.
-					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, e.getLocalizedMessage(), e));
-				}
-			}
-			case BLOCK: {
-				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
-						NLS.bind(Messages.RepositoryTransport_unsafeProtocolBlocked, canonicalScheme, location)));
-			}
-			default: {
-				if (!SKIP_REPOSITORY_PROTOCOL_CHECK) {
-					if (loggedURIs.add(location)) {
-						LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
-								NLS.bind(Messages.RepositoryTransport_unsafeProtocol, canonicalScheme, location)));
-					}
-				}
-			}
-			}
-		}
-		return location;
 	}
 
 	private static boolean isForgiveableException(Throwable t) {

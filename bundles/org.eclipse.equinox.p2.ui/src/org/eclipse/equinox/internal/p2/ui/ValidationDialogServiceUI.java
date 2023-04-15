@@ -15,8 +15,10 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,12 +28,14 @@ import java.util.stream.Collectors;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog;
-import org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog;
+import org.eclipse.equinox.internal.p2.engine.phases.AuthorityChecker;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.spi.IArtifactUIServices;
+import org.eclipse.equinox.p2.repository.metadata.spi.IInstallableUnitUIServices;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.*;
@@ -50,7 +54,7 @@ import org.eclipse.ui.PlatformUI;
  * declaration is made in the serviceui_component.xml file.
  *
  */
-public class ValidationDialogServiceUI extends UIServices implements IArtifactUIServices {
+public class ValidationDialogServiceUI extends UIServices implements IArtifactUIServices, IInstallableUnitUIServices {
 
 	private final IProvisioningAgent agent;
 
@@ -288,7 +292,7 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			for (Map.Entry<PGPPublicKey, Set<IArtifactKey>> entry : untrustedPGPKeys.entrySet()) {
 				PGPPublicKey key = entry.getKey();
 				Set<IArtifactKey> associatedArtifacts = entry.getValue();
-				Date verifiedRevocationDate = keyService.getVerifiedRevocationDate(key);
+				Date verifiedRevocationDate = keyService == null ? null : keyService.getVerifiedRevocationDate(key);
 				ExtendedTreeNode node = new ExtendedTreeNode(key, associatedArtifacts, verifiedRevocationDate);
 				children.add(node);
 				expandChildren(node, key, keyService, new HashSet<>(), Integer.getInteger("p2.pgp.trust.depth", 3)); //$NON-NLS-1$
@@ -368,6 +372,111 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 					MessageDialog.INFORMATION, new String[] { IDialogConstants.OK_LABEL }, 0, linkText, linkHandler);
 			dialog.open();
 		});
+	}
+
+	private static class OriginTreeNode extends TreeNode implements IAdaptable, Comparable<OriginTreeNode> {
+
+		private final Set<IInstallableUnit> ius = new TreeSet<>();
+
+		private final List<Certificate> certificates = new ArrayList<>();
+
+		private final List<OriginTreeNode> children = new ArrayList<>();
+
+		public OriginTreeNode(URI value, List<Certificate> certificates) {
+			super(value);
+			if (certificates != null) {
+				this.certificates.addAll(certificates);
+			}
+		}
+
+		@Override
+		public int compareTo(OriginTreeNode o) {
+			return ((URI) getValue()).compareTo(((URI) o.getValue()));
+		}
+
+		@Override
+		public <T> T getAdapter(Class<T> adapter) {
+			if (adapter == X509Certificate.class && !certificates.isEmpty()) {
+				if (certificates.get(0) instanceof X509Certificate certificate) {
+					return adapter.cast(certificate);
+				}
+			}
+			if (adapter.equals(Certificate[].class)) {
+				return adapter.cast(certificates.toArray(Certificate[]::new));
+			}
+			if (adapter.equals(IInstallableUnit[].class)) {
+				return adapter.cast(ius.toArray(IInstallableUnit[]::new));
+			}
+			return null;
+		}
+
+		public Set<IInstallableUnit> getIUs() {
+			return ius;
+		}
+
+		public void setParent(OriginTreeNode parent) {
+			if (parent != getParent()) {
+				super.setParent(parent);
+				parent.children.add(this);
+				children.sort(null);
+			}
+		}
+
+		@Override
+		public TreeNode[] getChildren() {
+			return children.toArray(TreeNode[]::new);
+		}
+
+		@Override
+		public boolean hasChildren() {
+			return !children.isEmpty();
+		}
+	}
+
+	@Override
+	public TrustAuthorityInfo getTrustAuthorityInfo(Map<URI, Set<IInstallableUnit>> siteIUs,
+			Map<URI, List<Certificate>> authorityCertificates) {
+		var trustedAuthorities = new TreeSet<URI>();
+		var persistTrust = new AtomicBoolean();
+		var trustAlways = new AtomicBoolean();
+		if (!isHeadless()) {
+			var nodes = new TreeMap<URI, OriginTreeNode>();
+			for (var entry : siteIUs.entrySet()) {
+				URI location = entry.getKey();
+				var authorityChain = AuthorityChecker.getAuthorityChain(location);
+				if (authorityChain.size() > 3) {
+					authorityChain.subList(2, authorityChain.size() - 1).clear();
+				}
+				var ius = entry.getValue();
+				var certificates = authorityCertificates.get(location);
+				OriginTreeNode parent = null;
+				for (var uri : authorityChain) {
+					var treeNode = nodes.computeIfAbsent(uri, key -> new OriginTreeNode(key, certificates));
+					treeNode.getIUs().addAll(ius);
+					treeNode.setParent(parent);
+					parent = treeNode;
+				}
+			}
+
+			if (!nodes.isEmpty()) {
+				nodes.values().removeIf(node -> node.getParent() != null);
+				getDisplay().syncExec(() -> {
+					var shell = shellProvider.getShell();
+					var trustCertificateDialog = new TrustAuthorityDialog(shell,
+							nodes.values().toArray(TreeNode[]::new));
+					if (trustCertificateDialog.open() == Window.OK) {
+						URI[] dialogResult = trustCertificateDialog.getResult();
+						if (dialogResult != null) {
+							trustedAuthorities.addAll(Arrays.asList(dialogResult));
+						}
+						persistTrust.set(trustCertificateDialog.isRememberSelectedAuthorities());
+						trustAlways.set(trustCertificateDialog.isTrustAlways());
+					}
+				});
+			}
+		}
+
+		return new TrustAuthorityInfo(trustedAuthorities, persistTrust.get(), trustAlways.get());
 	}
 
 	/**

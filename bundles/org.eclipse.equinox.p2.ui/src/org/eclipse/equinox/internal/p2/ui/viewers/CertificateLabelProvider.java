@@ -14,6 +14,8 @@
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.equinox.internal.provisional.security.ui.X500PrincipalHelper;
 import org.eclipse.equinox.internal.provisional.security.ui.X509CertificateViewDialog;
 import org.eclipse.jface.viewers.*;
@@ -68,8 +70,20 @@ public class CertificateLabelProvider implements ILabelProvider {
 	 */
 	public static String getText(X509Certificate cert) {
 		X500PrincipalHelper principalHelper = new X500PrincipalHelper(cert.getSubjectX500Principal());
-		return principalHelper.getCN() + "; " + principalHelper.getOU() + "; " //$NON-NLS-1$ //$NON-NLS-2$
-				+ principalHelper.getO();
+		List<String> parts = new ArrayList<>();
+		String cn = principalHelper.getCN();
+		if (cn != null) {
+			parts.add(cn);
+		}
+		String ou = principalHelper.getOU();
+		if (ou != null) {
+			parts.add(ou);
+		}
+		String o = principalHelper.getO();
+		if (o != null) {
+			parts.add(o);
+		}
+		return String.join("; ", parts); //$NON-NLS-1$
 	}
 
 	/**

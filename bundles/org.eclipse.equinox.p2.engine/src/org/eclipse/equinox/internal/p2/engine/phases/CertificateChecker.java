@@ -547,12 +547,19 @@ public class CertificateChecker {
 		return false;
 	}
 
-	public void setTrustAlways(boolean trustAlways) {
+	public IStatus setTrustAlways(boolean trustAlways) {
 		if (profile != null) {
 			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
 					profile.getProfileId());
-			profileScope.getNode(EngineActivator.ID).putBoolean(TRUST_ALWAYS_PROPERTY, trustAlways);
+			IEclipsePreferences node = profileScope.getNode(EngineActivator.ID);
+			try {
+				node.putBoolean(TRUST_ALWAYS_PROPERTY, trustAlways);
+				node.flush();
+			} catch (BackingStoreException ex) {
+				return new Status(IStatus.ERROR, EngineActivator.ID, ex.getMessage(), ex);
+			}
 		}
+		return Status.OK_STATUS;
 	}
 
 	public PGPPublicKeyStore getPreferenceTrustedKeys() {

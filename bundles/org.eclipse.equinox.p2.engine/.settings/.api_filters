@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.engine" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter comment="ProvisioningContext.CHECK_AUTHORITIES added " id="923795461">
+            <message_arguments>
+                <message_argument value="2.8.0"/>
+                <message_argument value="2.7.500"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/engine/ProvisioningContext.java" type="org.eclipse.equinox.p2.engine.ProvisioningContext">
+        <filter comment="ProvisioningContext.CHECK_AUTHORITIES added " id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.engine.ProvisioningContext"/>
+                <message_argument value="CHECK_AUTHORITIES"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

@@ -65,7 +65,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 
 	private TreeViewer certificateChainViewer;
 
-	private CheckboxTableViewer artifactViewer;
+	private TableViewer artifactViewer;
 
 	private Button detailsButton;
 
@@ -257,7 +257,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 				if (cert != null || key != null) {
 					FileDialog destination = new FileDialog(exportButton.getShell(), SWT.SAVE);
 					destination.setFilterPath(getFilterPath(EXPORT_FILTER_PATH));
-					destination.setText(ProvUIMessages.TrustCertificateDialog_Export);
+					destination.setText(ProvUIMessages.TrustCertificateDialog_ExportDialogTitle);
 					if (cert != null) {
 						destination.setFilterExtensions(new String[] { "*.der" }); //$NON-NLS-1$
 						destination.setFileName(cert.getSerialNumber().toString() + ".der"); //$NON-NLS-1$
@@ -464,7 +464,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 				.layoutData(new GridData(SWT.FILL, SWT.FILL, true, true)).layout(tableColumnLayout).create(composite);
 		Table table = WidgetFactory.table(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION)
 				.headerVisible(true).linesVisible(true).font(composite.getFont()).create(tableComposite);
-		artifactViewer = new CheckboxTableViewer(table);
+		artifactViewer = new TableViewer(table);
 		artifactViewer.setContentProvider(ArrayContentProvider.getInstance());
 
 		GridData data = new GridData(GridData.FILL_BOTH);
