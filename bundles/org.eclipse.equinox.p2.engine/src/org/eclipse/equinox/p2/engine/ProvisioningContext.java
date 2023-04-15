@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.DebugHelper;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -45,6 +46,8 @@ public class ProvisioningContext {
 	private Map<String, URI> referencedArtifactRepositories = null;
 	private Map<URI, IArtifactRepository> loadedArtifactRepositories = new HashMap<>();
 	private Map<URI, IMetadataRepository> loadedMetadataRepositories = new HashMap<>();
+	private Map<URI, IMetadataRepository> allLoadedMetadataRepositories;
+	private Map<URI, IArtifactRepository> allLoadedArtifactRepositories;
 	private Set<URI> failedArtifactRepositories = new HashSet<>();
 	private Set<URI> failedMetadataRepositories = new HashSet<>();
 
@@ -88,6 +91,16 @@ public class ProvisioningContext {
 	 * @see #setMetadataRepositories(URI[])
 	 */
 	public static final String FOLLOW_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followRepositoryReferences"; //$NON-NLS-1$
+
+	/**
+	 * Instructs the {@link PhaseSetFactory#PHASE_COLLECT collect phase} to check
+	 * the originating sources of all installable units and artifacts.
+	 *
+	 * @see #getInstallableUnitSources(Collection, IProgressMonitor)
+	 * @see #getArtifactSources(Collection, IProgressMonitor)
+	 * @since 2.8
+	 */
+	public static final String CHECK_AUTHORITIES = "org.eclipse.equinox.p2.director.checkAuthorities"; //$NON-NLS-1$
 
 	private static final String FOLLOW_ARTIFACT_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followArtifactRepositoryReferences"; //$NON-NLS-1$
 
@@ -297,6 +310,156 @@ public class ProvisioningContext {
 	 */
 	public IQueryable<IInstallableUnit> getMetadata(IProgressMonitor monitor) {
 		return QueryUtil.compoundQueryable(getLoadedMetadataRepositories(monitor));
+	}
+
+	/**
+	 * Returns a map from simple metadata repository location to a subset of the
+	 * given installable units available in that repository. All available
+	 * {@link #setMetadataRepositories(URI...) metadata repositories} are
+	 * considered, including all transitive
+	 * {@link ICompositeRepository#getChildren() composite children} and all
+	 * {@link IMetadataRepository#getReferences()} where applicable.
+	 *
+	 * @param ius     the installable units to consider.
+	 * @param monitor a progress monitor to be used when querying the repositories.
+	 * @return a map from simple metadata repository location to a subset of the
+	 *         given installable units available in that repository.
+	 * @since 2.8
+	 */
+	public Map<URI, Set<IInstallableUnit>> getInstallableUnitSources(Collection<? extends IInstallableUnit> ius,
+			IProgressMonitor monitor) {
+		var result = new TreeMap<URI, Set<IInstallableUnit>>();
+		var transport = agent.getService(Transport.class);
+		for (var repository : getAllLoadedMetadataRepositories(monitor)) {
+			if (repository instanceof ICompositeRepository<?>) {
+				continue;
+			}
+			var location = getSecureLocation(repository.getLocation(), transport);
+			var repositoryIUs = new TreeSet<>(repository.query(QueryUtil.ALL_UNITS, monitor).toUnmodifiableSet());
+			repositoryIUs.retainAll(ius);
+			result.put(location, repositoryIUs);
+		}
+		return result;
+	}
+
+	private URI getSecureLocation(URI uri, Transport transport) {
+		try {
+			return transport.getSecureLocation(uri);
+		} catch (CoreException e) {
+			return uri;
+		}
+	}
+
+	private interface Manager<T> {
+		T loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
+	}
+
+	private Collection<IMetadataRepository> getAllLoadedMetadataRepositories(IProgressMonitor monitor) {
+		if (allLoadedMetadataRepositories == null) {
+			var repoManager = agent.getService(IMetadataRepositoryManager.class);
+			getLoadedMetadataRepositories(monitor);
+			allLoadedMetadataRepositories = getAllLoadedRepositories(repoManager::loadRepository,
+					loadedMetadataRepositories, failedMetadataRepositories, monitor);
+		}
+		return allLoadedMetadataRepositories.values();
+	}
+
+	private Collection<IArtifactRepository> getAllLoadedArtifactRepositories(IProgressMonitor monitor) {
+		if (allLoadedArtifactRepositories == null) {
+			var repoManager = agent.getService(IArtifactRepositoryManager.class);
+			getLoadedArtifactRepositories(monitor);
+			allLoadedArtifactRepositories = getAllLoadedRepositories(repoManager::loadRepository,
+					loadedArtifactRepositories, failedArtifactRepositories, monitor);
+		}
+		return allLoadedArtifactRepositories.values();
+	}
+
+	private <T> Map<URI, T> getAllLoadedRepositories(Manager<T> manager,
+			Map<URI, T> loadedRepositories,
+			Set<URI> failedRepositories,
+			IProgressMonitor monitor) {
+		var allLoadedRepositories = new HashMap<>(loadedRepositories);
+		if (!loadedRepositories.isEmpty()) {
+			for (var repository : loadedRepositories.values()) {
+				loadComposites(manager, repository, allLoadedRepositories, failedRepositories, monitor);
+				if (monitor.isCanceled()) {
+					throw new OperationCanceledException();
+				}
+			}
+		}
+		return allLoadedRepositories;
+	}
+
+	private <T> void loadComposites(Manager<T> manager, T repository, Map<URI, T> repos, Set<URI> failedRepositories,
+			IProgressMonitor monitor) {
+		if (repository instanceof ICompositeRepository<?> composite) {
+			for (var location : composite.getChildren()) {
+				loadRepository(manager, location, repos, failedRepositories, monitor);
+			}
+		}
+	}
+
+	private <T> void loadRepository(Manager<T> manager, URI location, Map<URI, T> repos,
+			Set<URI> failedRepositories, IProgressMonitor monitor) {
+		if (monitor.isCanceled()) {
+			throw new OperationCanceledException();
+		}
+
+		if (repos.containsKey(location) || failedMetadataRepositories.contains(location)) {
+			return;
+		}
+
+		var repository = repos.get(location);
+		if (repository == null) {
+			try {
+				repository = manager.loadRepository(location, monitor);
+				repos.put(location, repository);
+				loadComposites(manager, repository, repos, failedRepositories, monitor);
+			} catch (ProvisionException e) {
+				failedMetadataRepositories.add(location);
+				return;
+			}
+		}
+	}
+
+	private static Comparator<IArtifactKey> ARTIFACT_KEY_COMPARATOR = (o1, o2) -> {
+		var cmp = o1.getId().compareTo(o2.getId());
+		if (cmp == 0)
+			cmp = o1.getVersion().compareTo(o2.getVersion());
+		return cmp;
+	};
+
+	/**
+	 * Returns a map from simple artifact repository location to a subset of the
+	 * given artifact keys available in that repository. All available
+	 * {@link #setArtifactRepositories(URI...) artifacts repositories} are
+	 * considered, including all transitive
+	 * {@link ICompositeRepository#getChildren() composite children} and all
+	 * {@link IMetadataRepository#getReferences()} where applicable.
+	 *
+	 * @param keys    the artifact keys to consider.
+	 * @param monitor a progress monitor to be used when querying the repositories.
+	 *
+	 * @return a map from simple artifact repository location to a subset of the
+	 *         given artifact keys available in that repository.
+	 * @since 2.8
+	 */
+	public Map<URI, Set<IArtifactKey>> getArtifactSources(Collection<? extends IArtifactKey> keys,
+			IProgressMonitor monitor) {
+		var transport = agent.getService(Transport.class);
+		var result = new TreeMap<URI, Set<IArtifactKey>>();
+		for (var repository : getAllLoadedArtifactRepositories(monitor)) {
+			if (repository instanceof ICompositeRepository<?>) {
+				continue;
+			}
+			var location = getSecureLocation(repository.getLocation(), transport);
+			for (var key : keys) {
+				if (repository.contains(key)) {
+					result.computeIfAbsent(location, it -> new TreeSet<>(ARTIFACT_KEY_COMPARATOR)).add(key);
+				}
+			}
+		}
+		return result;
 	}
 
 	/**

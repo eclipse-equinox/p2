@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import java.util.Arrays;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -76,6 +77,20 @@ public class Engine implements IEngine {
 				DebugHelper.debug(ENGINE, "Beginning engine operation for profile=" + profile.getProfileId() + " [" + profile.getTimestamp() + "]:" + DebugHelper.LINE_SEPARATOR + DebugHelper.formatOperation(phaseSet, operands, context)); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
 			EngineSession session = new EngineSession(agent, profile, context);
+
+			// If the property is set already in the context, respect that value.
+			String property = context.getProperty(ProvisioningContext.CHECK_AUTHORITIES);
+			if (property == null) {
+				// Allow a system property to force the property.
+				property = EngineActivator.getContext().getProperty(ProvisioningContext.CHECK_AUTHORITIES);
+				if (property == null) {
+					// Otherwise, if we are checking trust, also check the authorities.
+					if (Arrays.asList(phases.getPhaseIds()).contains(PhaseSetFactory.PHASE_CHECK_TRUST)) {
+						property = Boolean.TRUE.toString();
+					}
+				}
+				context.setProperty(ProvisioningContext.CHECK_AUTHORITIES, property);
+			}
 
 			MultiStatus result = phaseSet.perform(session, operands, monitor);
 			if (result.isOK() || result.matches(IStatus.INFO | IStatus.WARNING)) {

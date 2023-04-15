@@ -46,4 +46,5 @@ public interface IProvHelpContextIds {
 
 	String TRUST_DIALOG = PREFIX + "trust_dialog_context"; //$NON-NLS-1$
 
+	String TRUST_AUTHORITIES_DIALOG = PREFIX + "trust_authorities_dialog_context"; //$NON-NLS-1$
 }
