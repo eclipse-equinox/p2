@@ -338,7 +338,6 @@ public class AuthorityChecker {
 						}
 					}
 				} catch (URISyntaxException e) {
-					e.printStackTrace();
 					//$FALL-THROUGH$
 				}
 			}
@@ -347,33 +346,32 @@ public class AuthorityChecker {
 		return result;
 	}
 
-	@SuppressWarnings("nls")
-	public static void main(String[] args) {
-		System.err.println(getAuthorityChain(URI.create("file:/C:/folder/file")));
-		System.err.println(getAuthorityChain(URI.create("https://host/folder/file")));
-		System.err.println(getAuthorityChain(URI.create("jar:https://host/folder/file.jar!/path")));
-		System.err.println(getAuthorityChain(URI.create("https://host/folder/file?query")));
-
-		System.err.println(getAuthorityChain(URI.create("file://///")));
-		System.err.println(getAuthorityChain(URI.create("https://%41")));
-		System.err.println(getAuthorityChain(URI.create("https://%41/")));
-		System.err.println(getAuthorityChain(URI.create("file:///")));
-		System.err.println(getAuthorityChain(URI.create("file:////")));
-		System.err.println(getAuthorityChain(URI.create("file:///a/b/")));
-		System.err.println(getAuthorityChain(URI.create("file:/a/b")));
-		System.err.println(getAuthorityChain(URI.create("file:/C:/")));
-		System.err.println(getAuthorityChain(URI.create("file:/C:/a/b")));
-		System.err.println(getAuthorityChain(URI.create("file://C:/a/b")));
-		System.err.println(getAuthorityChain(URI.create("file:///C:/a/b")));
-		System.err.println(getAuthorityChain(URI.create("https://%41/")));
-		System.err.println(getAuthorityChain(URI.create("https://%41/%20/?x")));
-		System.err.println(getAuthorityChain(URI.create("https://%41/%20/")));
-		System.err.println(getAuthorityChain(URI.create("https://%41/group/%20/")));
-		System.err.println(getAuthorityChain(URI.create("https://%41/%20")));
-		System.err.println(getAuthorityChain(URI.create("https://%41/%20#")));
-		System.err.println(getAuthorityChain(URI.create("jar:https://%41/%20!/sadfsda")));
-		System.err.println(getAuthorityChain(URI.create("jar:https://%41/%20/x.jar!/sadfsda")));
-		System.err.println(getAuthorityChain(URI.create("a/b?x")));
-	}
+//	@SuppressWarnings("nls")
+//	public static void main(String[] args) {
+//		System.err.println(getAuthorityChain(URI.create("file:/C:/folder/file")));
+//		System.err.println(getAuthorityChain(URI.create("https://host/folder/file")));
+//		System.err.println(getAuthorityChain(URI.create("jar:https://host/folder/file.jar!/path")));
+//		System.err.println(getAuthorityChain(URI.create("https://host/folder/file?query")));
+//		System.err.println(getAuthorityChain(URI.create("https://%41")));
+//		System.err.println(getAuthorityChain(URI.create("https://%41/")));
+//		System.err.println(getAuthorityChain(URI.create("file:///")));
+//		System.err.println(getAuthorityChain(URI.create("file:////")));
+//		System.err.println(getAuthorityChain(URI.create("file://///")));
+//		System.err.println(getAuthorityChain(URI.create("file:///a/b/")));
+//		System.err.println(getAuthorityChain(URI.create("file:/a/b")));
+//		System.err.println(getAuthorityChain(URI.create("file:/C:/")));
+//		System.err.println(getAuthorityChain(URI.create("file:/C:/a/b")));
+//		System.err.println(getAuthorityChain(URI.create("file://C:/a/b")));
+//		System.err.println(getAuthorityChain(URI.create("file:///C:/a/b")));
+//		System.err.println(getAuthorityChain(URI.create("https://%41/")));
+//		System.err.println(getAuthorityChain(URI.create("https://%41/%20/?x")));
+//		System.err.println(getAuthorityChain(URI.create("https://%41/%20/")));
+//		System.err.println(getAuthorityChain(URI.create("https://%41/group/%20/")));
+//		System.err.println(getAuthorityChain(URI.create("https://%41/%20")));
+//		System.err.println(getAuthorityChain(URI.create("https://%41/%20#")));
+//		System.err.println(getAuthorityChain(URI.create("jar:https://%41/%20!/sadfsda")));
+//		System.err.println(getAuthorityChain(URI.create("jar:https://%41/%20/x.jar!/sadfsda")));
+//		System.err.println(getAuthorityChain(URI.create("a/b?x")));
+//	}
 
 }
