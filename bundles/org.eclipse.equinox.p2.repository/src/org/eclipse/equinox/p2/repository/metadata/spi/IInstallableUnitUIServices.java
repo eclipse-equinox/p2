@@ -68,8 +68,8 @@ public interface IInstallableUnitUIServices {
 		 * Return whether to always trust all authorities, both during this operation
 		 * and for all future operations.
 		 *
-		 * @returns whether to always trust all authorities, both during this operation
-		 *          and for all future operations.
+		 * @return whether to always trust all authorities, both during this operation
+		 *         and for all future operations.
 		 */
 		public boolean isTrustAlways() {
 			return trustAlways;
