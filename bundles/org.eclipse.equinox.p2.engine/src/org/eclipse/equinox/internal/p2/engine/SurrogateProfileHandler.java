@@ -62,7 +62,18 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		for (IInstallableUnit iu : rootIUs) {
 			userProfile.addInstallableUnit(iu);
 			userProfile.addInstallableUnitProperties(iu, sharedProfile.getInstallableUnitProperties(iu));
-			userProfile.setInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
+			String profileLockedIUSystemProperty = EngineActivator.getContext()
+					.getProperty(IProfile.PROP_PROFILE_LOCKED_IU);
+			if (profileLockedIUSystemProperty == null) {
+				userProfile.setInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
+			} else {
+				String installableUnitProperty = userProfile.getInstallableUnitProperty(iu,
+						IProfile.PROP_PROFILE_LOCKED_IU);
+				int locked = installableUnitProperty == null ? IProfile.LOCK_NONE
+						: Integer.parseInt(installableUnitProperty);
+				userProfile.setInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU,
+						Integer.toString(locked | Integer.parseInt(profileLockedIUSystemProperty)));
+			}
 			userProfile.setInstallableUnitProperty(iu, PROP_BASE, Boolean.TRUE.toString());
 		}
 
