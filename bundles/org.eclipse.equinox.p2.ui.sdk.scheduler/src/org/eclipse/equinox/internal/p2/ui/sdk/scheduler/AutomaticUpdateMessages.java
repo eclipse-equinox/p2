@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,6 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *     Christian Georgi <christian.georgi@sap.com> - Bug 432887 - Setting to show update wizard w/o notification popup
  *     Mikael Barbero (Eclipse Foundation) - Bug 498116
+ *     Vasili Gulevich (Spirent Communications) - Bug #254
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
@@ -19,7 +20,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Message class for provisioning UI messages.  
+ * Message class for provisioning UI messages.
  * 
  * @since 3.5
  */
@@ -42,6 +43,7 @@ public class AutomaticUpdateMessages extends NLS {
 	public static String AutomaticUpdateScheduler_240Minutes;
 	public static String AutomaticUpdateScheduler_UpdateNotInitialized;
 	public static String AutomaticUpdatesPopup_UpdatesAvailableTitle;
+	public static String AutomaticUpdatesFailPopup_ClickToReviewUpdates;
 	public static String AutomaticUpdater_AutomaticDownloadOperationName;
 	public static String AutomaticUpdater_ClickToReviewUpdates;
 	public static String AutomaticUpdater_ClickToReviewUpdatesWithProblems;

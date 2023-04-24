@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 IBM Corporation and others.
+ * Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,7 @@
  *     Sonatype, Inc. - ongoing development
  *     Christian Georgi <christian.georgi@sap.com> - Bug 432887 - Setting to show update wizard w/o notification popup
  *     Mikael Barbero (Eclipse Foundation) - Bug 498116
+ *     Vasili Gulevich (Spirent Communications) - Bug #254
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -50,9 +51,18 @@ public class AutomaticUpdater implements IUpdateListener {
 	String profileId;
 	ProvisioningListener profileListener;
 	AutomaticUpdatesPopup popup;
+	UpdatesPopup failPopup;
 	boolean alreadyDownloaded = false;
 	UpdateOperation operation;
 	private static final String AUTO_UPDATE_STATUS_ITEM = "AutoUpdatesStatus"; //$NON-NLS-1$
+	private static final String WARN_LOCKED_PROPERTY = AutomaticUpdatePlugin.getContext().getBundle().getSymbolicName()
+			+ ".warnLocked"; //$NON-NLS-1$
+	/**
+	 * https://github.com/eclipse-equinox/p2/issues/254 If all updatable IUs are
+	 * preinstalled in a locked profile, warn user about outdated software
+	 **/
+	private static final boolean WARN_ABOUT_LOCKED_UPDATES = Boolean
+			.parseBoolean(AutomaticUpdatePlugin.getContext().getProperty(WARN_LOCKED_PROPERTY));
 
 	public AutomaticUpdater() {
 		createProfileListener();
@@ -112,8 +122,18 @@ public class AutomaticUpdater implements IUpdateListener {
 		IStatus status = operation.resolveModal(new NullProgressMonitor());
 
 		if (!status.isOK() || operation.getPossibleUpdates() == null || operation.getPossibleUpdates().length == 0) {
-			if (PlatformUI.isWorkbenchRunning()) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(this::clearUpdateAffordances);
+			if (WARN_ABOUT_LOCKED_UPDATES) {
+				operation = new UpdateOperation(getSession(), event.getIUs());
+				operation.setProfileId(event.getProfileId());
+				status = operation.resolveModal(new NullProgressMonitor());
+				if (status.matches(IStatus.ERROR)) {
+					StatusManager.getManager().handle(status, StatusManager.LOG);
+					asyncExec(this::clearUpdateAffordances);
+				} else {
+					asyncExec(() -> notifyUserOfUpdates(false, notifyWithPopup, false));
+				}
+			} else {
+				asyncExec(this::clearUpdateAffordances);
 			}
 			return;
 		}
@@ -134,9 +154,8 @@ public class AutomaticUpdater implements IUpdateListener {
 					IStatus jobStatus = jobEvent.getResult();
 					if (jobStatus.isOK()) {
 						alreadyDownloaded = true;
-						PlatformUI.getWorkbench().getDisplay()
-								.asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(),
-										notifyWithPopup, showUpdateWizard));
+						asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup,
+								showUpdateWizard));
 					} else if (jobStatus.getSeverity() != IStatus.CANCEL) {
 						StatusManager.getManager().handle(jobStatus, StatusManager.LOG);
 					}
@@ -144,11 +163,16 @@ public class AutomaticUpdater implements IUpdateListener {
 			});
 			job.schedule();
 		} else {
-			PlatformUI.getWorkbench().getDisplay()
-					.asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup,
-							showUpdateWizard));
+			asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup,
+					showUpdateWizard));
 		}
 
+	}
+
+	private void asyncExec(Runnable runnable) {
+		if (PlatformUI.isWorkbenchRunning()) {
+			PlatformUI.getWorkbench().getDisplay().asyncExec(runnable);
+		}
 	}
 
 	ProvisioningSession getSession() {
@@ -281,6 +305,9 @@ public class AutomaticUpdater implements IUpdateListener {
 			updateAffordance.setImage(
 					AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE)));
 		} else {
+			if (showPopup) {
+				openUpdateFailPopup();
+			}
 			updateAffordance.setTooltip(AutomaticUpdateMessages.AutomaticUpdater_ClickToReviewUpdatesWithProblems);
 			updateAffordance.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry()
 					.get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE_PROBLEMS)));
@@ -313,6 +340,12 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	}
 
+	void openUpdateFailPopup() {
+		if (failPopup == null)
+			failPopup = new AutomaticUpdatesFailPopup(getWorkbenchWindowShell());
+		failPopup.open();
+	}
+
 	void clearUpdateAffordances() {
 		if (updateAffordance != null) {
 			IStatusLineManager manager = getStatusLineManager();
@@ -326,6 +359,10 @@ public class AutomaticUpdater implements IUpdateListener {
 		if (popup != null) {
 			popup.close(false);
 			popup = null;
+		}
+		if (failPopup != null) {
+			failPopup.close();
+			failPopup = null;
 		}
 	}
 
