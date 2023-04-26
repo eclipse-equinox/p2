@@ -113,20 +113,23 @@ public class CacheManager {
 				// it is not meaningful to continue - the credentials are for the server
 				// do not pass the exception - it gives no additional meaningful user information
 				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, remoteFile), null));
+			} catch (FileNotFoundException e) {
+				throw new FileNotFoundException(NLS.bind(Messages.CacheManager_Repository_not_found, remoteFile));
 			} catch (CoreException e) {
-				// give up on a timeout - if we did not get a 404 on the jar, we will just prolong the pain
-				// by (almost certainly) also timing out on the xml.
-				if (e.getStatus() != null && e.getStatus().getException() != null) {
-					Throwable ex = e.getStatus().getException();
+				IStatus status = e.getStatus();
+				if (status == null)
+					throw new ProvisionException(
+							new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND,
+									NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, remoteFile), e));
+				else if (status.getException() instanceof FileNotFoundException)
+					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
+							ProvisionException.REPOSITORY_NOT_FOUND, status.getMessage(), status.getException()));
+				else if (status.getException() != null) {
+					Throwable ex = status.getException();
 					if (ex.getClass() == java.net.SocketTimeoutException.class)
 						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, remoteFile), ex));
 				}
-			} catch (OperationCanceledException e) {
-				// must pass this on
-				throw e;
-			} catch (Exception e) {
-				// not ideal, just skip the jar on error, and try the xml instead - report errors for
-				// the xml.
+				throw new ProvisionException(status);
 			}
 
 			stale = lastModifiedRemote != lastModified;
