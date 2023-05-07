@@ -18,23 +18,39 @@ package org.eclipse.equinox.internal.p2.repository;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.service.prefs.BackingStoreException;
 
 public abstract class Transport {
 
 	public static final String SERVICE_NAME = Transport.class.getName();
 
-	private enum ProtocolRule {
-		ALLOW, REDIRECT, BLOCK;
+	/**
+	 * Rules for how to handle a URI scheme's.
+	 */
+	public enum ProtocolRule {
+		/**
+		 * Allow the scheme to be used as is.
+		 */
+		ALLOW,
+		/**
+		 * Redirect to a secure variant of the scheme.
+		 */
+		REDIRECT,
+		/**
+		 * Disallow the scheme.
+		 */
+		BLOCK;
 
 		public static ProtocolRule of(String literal) {
 			if (literal == null) {
@@ -61,6 +77,10 @@ public abstract class Transport {
 
 	/** Supports extracting the underlying URI of an archive URI. */
 	private static final Pattern ARCHIVE_URI_PATTERN = Pattern.compile("(?i)(jar|zip|archive):(.*)!/(.*)"); //$NON-NLS-1$
+
+	private static IEclipsePreferences getTransportPreferences() {
+		return (IEclipsePreferences) ConfigurationScope.INSTANCE.getNode(Activator.ID).node("protocolRules"); //$NON-NLS-1$
+	}
 
 	/** Avoids repeated logging the same URI. */
 	private final Set<URI> loggedURIs = ConcurrentHashMap.newKeySet();
@@ -94,47 +114,56 @@ public abstract class Transport {
 	}
 
 	/**
-	 * Perform a download, writing into the target output stream. Progress is reported on the
-	 * monitor. If the <code>target</code> is an instance of {@link IStateful} the resulting status
-	 * is also set on the target.
+	 * Perform a download, writing into the target output stream. Progress is
+	 * reported on the monitor. If the <code>target</code> is an instance of
+	 * {@link IStateful} the resulting status is also set on the target.
 	 *
 	 * @returns IStatus, that is a {@link DownloadStatus} on success.
 	 * @param toDownload URI of file to download
-	 * @param target OutputStream where result is written
-	 * @param monitor where progress should be reported
+	 * @param target     OutputStream where result is written
+	 * @param monitor    where progress should be reported
 	 * @throws OperationCanceledException if the operation was canceled.
 	 */
 	public abstract IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor);
 
 	/**
-	 * Perform a stream download, writing into an InputStream that is returned. Performs authentication if needed.
+	 * Perform a stream download, writing into an InputStream that is returned.
+	 * Performs authentication if needed.
 	 *
-	 * @returns InputStream a stream with the content from the toDownload URI, or null
+	 * @returns InputStream a stream with the content from the toDownload URI, or
+	 *          null
 	 * @param toDownload URI of file to download
-	 * @param monitor monitor checked for cancellation
-	 * @throws OperationCanceledException if the operation was canceled.
-	 * @throws AuthenticationFailedException if authentication failed, or too many attempt were made
-	 * @throws FileNotFoundException if the toDownload was reported as non existing
-	 * @throws CoreException on errors
+	 * @param monitor    monitor checked for cancellation
+	 * @throws OperationCanceledException    if the operation was canceled.
+	 * @throws AuthenticationFailedException if authentication failed, or too many
+	 *                                       attempt were made
+	 * @throws FileNotFoundException         if the toDownload was reported as non
+	 *                                       existing
+	 * @throws CoreException                 on errors
 	 */
-	public abstract InputStream stream(URI toDownload, IProgressMonitor monitor) throws FileNotFoundException, CoreException, AuthenticationFailedException;
+	public abstract InputStream stream(URI toDownload, IProgressMonitor monitor)
+			throws FileNotFoundException, CoreException, AuthenticationFailedException;
 
 	/**
-	 * Returns the last modified date for a URI. A last modified of 0 typically indicates that
-	 * the server response is wrong, but should not be interpreted as a file not found.
+	 * Returns the last modified date for a URI. A last modified of 0 typically
+	 * indicates that the server response is wrong, but should not be interpreted as
+	 * a file not found.
+	 *
 	 * @param toDownload
 	 * @param monitor
 	 * @throws OperationCanceledException if the operation was canceled by the user.
 	 * @return last modified date (possibly 0)
 	 */
-	public abstract long getLastModified(URI toDownload, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException;
+	public abstract long getLastModified(URI toDownload, IProgressMonitor monitor)
+			throws CoreException, FileNotFoundException, AuthenticationFailedException;
 
 	/**
 	 * Returns the corresponding secure location given an arbitrary location.
 	 * Subclasses are encouraged to use this method, to ensure that only secure
 	 * locations are accessed by the transport implementation.
 	 * <p>
-	 * System properties affect the behavior:
+	 * System properties affect the {@link #getDefaultProtocolRules() default}
+	 * behavior:
 	 * </p>
 	 * <ul>
 	 * <li>p2.httpRule</li>
@@ -155,11 +184,14 @@ public abstract class Transport {
 	 * @return the corresponding secure location or the location itself.
 	 * @throws CoreException if the location URI is considered unacceptably
 	 *                       insecure.
+	 * 
+	 * @see #getProtocolRules()
+	 * @see #getDefaultProtocolRules()
 	 */
 	public URI getSecureLocation(URI location) throws CoreException {
 		String scheme = location.getScheme();
 		String canonicalScheme = scheme == null ? "null" : scheme.toLowerCase(); //$NON-NLS-1$
-		ProtocolRule protocolRule = RULES.get(canonicalScheme); // $NON-NLS-1$
+		ProtocolRule protocolRule = getProtocolRule(canonicalScheme); // $NON-NLS-1$
 		if (protocolRule != null) { // $NON-NLS-1$
 			switch (protocolRule) {
 			case REDIRECT: {
@@ -192,5 +224,72 @@ public abstract class Transport {
 			}
 		}
 		return location;
+	}
+
+	/**
+	 * Returns the protocol rule, if any, associated with the given scheme. The
+	 * default implementation first considers the {@link #getProtocolRules()
+	 * preferred protocol rules}, and then the {@link #getDefaultProtocolRules()
+	 * default protocol rules}.
+	 *
+	 * @param scheme the scheme in question.
+	 * @return the protocol rule, if any, associated with the given scheme.
+	 *
+	 * @see #getSecureLocation(URI)
+	 */
+	protected ProtocolRule getProtocolRule(String scheme) {
+		ProtocolRule result = getProtocolRules().get(scheme);
+		if (result == null) {
+			result = getDefaultProtocolRules().get(scheme);
+		}
+		return result;
+	}
+
+	/**
+	 * Returns the known default protocol rules.
+	 *
+	 * @return the known default protocol rules.
+	 */
+	public Map<String, ProtocolRule> getDefaultProtocolRules() {
+		return RULES;
+	}
+
+	/**
+	 * Returns the preferred protocol rules.
+	 *
+	 * @return the preferred protocol rules.
+	 */
+	public Map<String, ProtocolRule> getProtocolRules() {
+		var rules = new TreeMap<String, ProtocolRule>();
+		IEclipsePreferences transportPreferences = getTransportPreferences();
+		for (String key : RULES.keySet()) {
+			String value = transportPreferences.get(key, null);
+			rules.put(key, value == null ? null : ProtocolRule.of(value));
+		}
+		return rules;
+	}
+
+	/**
+	 * Updates the preferred protocol rules.
+	 *
+	 * @param rules the new preferred protocol rules.
+	 */
+	public void setProtocolRules(Map<String, ProtocolRule> rules) {
+		IEclipsePreferences transportPreferences = getTransportPreferences();
+		for (var entry : rules.entrySet()) {
+			String key = entry.getKey();
+			ProtocolRule value = entry.getValue();
+			if (value == null) {
+				transportPreferences.remove(key);
+			} else {
+				transportPreferences.put(key, value.toString().toLowerCase());
+			}
+		}
+
+		try {
+			transportPreferences.flush();
+		} catch (BackingStoreException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getLocalizedMessage(), e));
+		}
 	}
 }
