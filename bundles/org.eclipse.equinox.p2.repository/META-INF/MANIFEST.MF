@@ -21,7 +21,8 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;
    org.eclipse.equinox.p2.transport.ecf,
    org.eclipse.equinox.p2.engine,
    org.eclipse.equinox.p2.discovery.compatibility,
-   org.eclipse.equinox.p2.publisher",
+   org.eclipse.equinox.p2.publisher,
+   org.eclipse.equinox.p2.ui.sdk",
  org.eclipse.equinox.internal.p2.repository.helpers;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.exemplarysetup,

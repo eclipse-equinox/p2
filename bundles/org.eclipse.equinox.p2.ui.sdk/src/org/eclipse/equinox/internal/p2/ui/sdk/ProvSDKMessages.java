@@ -58,10 +58,12 @@ public class ProvSDKMessages extends NLS {
 	public static String TrustPreferencePage_addPGPKeyButtonLabel;
 	public static String TrustPreferencePage_AddAuthorityDescription;
 	public static String TrustPreferencePage_AddAuthorityTitle;
+	public static String TrustPreferencePage_AllowProtocolRule;
 	public static String TrustPreferencePage_ArtifactsTabName;
 	public static String TrustPreferencePage_AuthoritiesTabDescription;
 	public static String TrustPreferencePage_AuthoritiesTabName;
 	public static String TrustPreferencePage_AuthorityColumnTitle;
+	public static String TrustPreferencePage_BlockProtocolRule;
 	public static String TrustPreferencePage_CertificatesJobName;
 	public static String TrustPreferencePage_ComputingAuthoritySecurity;
 	public static String TrustPreferencePage_ConfirmTrustAllAuthorities;
@@ -74,6 +76,7 @@ public class ProvSDKMessages extends NLS {
 	public static String TrustPreferencePage_DateNotYetvalid;
 	public static String TrustPreferencePage_DateNotYetValid;
 	public static String TrustPreferencePage_DateValid;
+	public static String TrustPreferencePage_DefaultProtocolRuleQualifier;
 	public static String TrustPreferencePage_Details;
 	public static String TrustPreferencePage_EmptyHostNameMessage;
 	public static String TrustPreferencePage_Export;
@@ -81,7 +84,9 @@ public class ProvSDKMessages extends NLS {
 	public static String TrustPreferencePage_InsecureAuthority;
 	public static String TrustPreferencePage_NameColumn;
 	public static String TrustPreferencePage_PreferenceContributor;
+	public static String TrustPreferencePage_ProtocolRulesGroupLabel;
 	public static String TrustPreferencePage_removePGPKeyButtonLabel;
+	public static String TrustPreferencePage_RedirectProtocolRule;
 	public static String TrustPreferencePage_RejectTrustAllAuthorities;
 	public static String TrustPreferencePage_RevokedPGPKey;
 	public static String TrustPreferencePage_SecureAuthority;

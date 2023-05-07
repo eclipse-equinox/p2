@@ -31,6 +31,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPPublicKeyStore;
 import org.eclipse.equinox.internal.p2.engine.phases.AuthorityChecker;
 import org.eclipse.equinox.internal.p2.engine.phases.CertificateChecker;
+import org.eclipse.equinox.internal.p2.repository.Transport;
+import org.eclipse.equinox.internal.p2.repository.Transport.ProtocolRule;
 import org.eclipse.equinox.internal.p2.ui.dialogs.PGPPublicKeyViewDialog;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -80,6 +82,9 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 	private Set<URI> trustedAuthorities;
 	private ConcurrentHashMap<URI, List<Certificate>> authorityCertificates = new ConcurrentHashMap<>();
 	private Job authorityCertificatesJob;
+	private Transport transport;
+	private Map<String, ProtocolRule> protocolRules;
+	private final List<Runnable> restoreProtocolRules = new ArrayList<>();
 
 	public TrustPreferencePage() {
 		super(ProvSDKMessages.TrustPreferencePage_title);
@@ -150,6 +155,9 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 		artifactsComposite.setLayout(new GridLayout(2, false));
 		artifactsTab.setControl(artifactsComposite);
 		createArtifactsTab(artifactsComposite, keyService, parent.getFont());
+
+		transport = provisioningAgent.getService(Transport.class);
+		protocolRules = new LinkedHashMap<>(transport.getProtocolRules());
 
 		var authoritiesTab = new TabItem(tabFolder, SWT.NONE);
 		authoritiesTab.setText(ProvSDKMessages.TrustPreferencePage_AuthoritiesTabName);
@@ -577,6 +585,37 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 			}
 		}));
 
+		if (!protocolRules.isEmpty()) {
+			var defaultProtocolRules = transport.getDefaultProtocolRules();
+			var groupLayoutData = new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1);
+			groupLayoutData.verticalIndent = 5;
+			var protocolRulesGroup = WidgetFactory.group(SWT.NONE).text(ProvSDKMessages.TrustPreferencePage_ProtocolRulesGroupLabel)
+					.layout(new GridLayout(2, false)).layoutData(groupLayoutData).create(res);
+			for (var entry : protocolRules.entrySet()) {
+				var protocol = entry.getKey();
+				WidgetFactory.label(SWT.NONE).text(protocol + ':').create(protocolRulesGroup);
+
+				var combo = new Combo(protocolRulesGroup, SWT.READ_ONLY);
+				var items = new LinkedHashMap<String, ProtocolRule>();
+				var defaultItem = NLS.bind(ProvSDKMessages.TrustPreferencePage_DefaultProtocolRuleQualifier, getProtocolRuleLabel(defaultProtocolRules.get(protocol)));
+				items.put(defaultItem, null);
+				for (var value : ProtocolRule.values()) {
+					items.put(getProtocolRuleLabel(value), value);
+				}
+				combo.setItems(items.keySet().toArray(String[]::new));
+
+				var rule = entry.getValue();
+				restoreProtocolRules.add(() -> combo.setText(rule == null ? defaultItem : getProtocolRuleLabel(rule)));
+
+				combo.addModifyListener(e -> {
+					var newRule = items.get(combo.getText());
+					protocolRules.put(protocol, newRule);
+				});
+			}
+
+			restoreProtocolRules.forEach(Runnable::run);
+		}
+
 		authorityViewer.addDoubleClickListener(e -> details.run());
 
 		securedColumn.getColumn().pack();
@@ -719,6 +758,9 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 		trustedCertificates = new LinkedHashSet<>(certificateChecker.getPreferenceTrustedCertificates());
 		trustedKeys = certificateChecker.getPreferenceTrustedKeys();
 		trustedAuthorities = authorityChecker.getPreferenceTrustedAuthorities();
+		protocolRules = new LinkedHashMap<>(transport.getProtocolRules());
+		restoreProtocolRules.forEach(Runnable::run);
+
 		updateInput();
 		super.performDefaults();
 	}
@@ -738,7 +780,24 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 			dirtyAuthorities = false;
 		}
 
+		transport.setProtocolRules(protocolRules);
+
 		return true;
+	}
+
+	private static String getProtocolRuleLabel(ProtocolRule rule) {
+		if (rule == null) {
+			return ProvSDKMessages.TrustPreferencePage_AllowProtocolRule;
+		}
+		switch (rule) {
+		case ALLOW:
+			return ProvSDKMessages.TrustPreferencePage_AllowProtocolRule;
+		case REDIRECT:
+			return ProvSDKMessages.TrustPreferencePage_RedirectProtocolRule;
+		case BLOCK:
+		default:
+			return ProvSDKMessages.TrustPreferencePage_BlockProtocolRule;
+		}
 	}
 
 	private static class PGPOrX509ColumnLabelProvider extends ColumnLabelProvider {
