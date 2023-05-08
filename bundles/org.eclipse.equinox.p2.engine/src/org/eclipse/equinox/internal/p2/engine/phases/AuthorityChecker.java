@@ -111,7 +111,7 @@ public class AuthorityChecker {
 			// Remove all trusted sources from consideration.
 			iuSources.keySet().removeIf(source -> {
 				for (var uri : getAuthorityChain(source)) {
-					if ("file".equalsIgnoreCase(source.getScheme())) { //$NON-NLS-1$
+					if ("file".equalsIgnoreCase(uri.getScheme())) { //$NON-NLS-1$
 						return true;
 					}
 					if (allTrustedAuthorities.contains(uri)) {
