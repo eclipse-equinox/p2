@@ -12,12 +12,12 @@ package org.eclipse.equinox.internal.p2.engine.phases;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
+import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.security.cert.Certificate;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -247,30 +247,34 @@ public class AuthorityChecker {
 
 	public static void gatherCertificates(Map<URI, List<Certificate>> authorities, IProgressMonitor montior) {
 		var client = HttpClient.newBuilder().build();
-		var requests = authorities.keySet().stream()
-				.collect(Collectors.toMap(Function.identity(),
-						uri -> client.sendAsync(
-								HttpRequest.newBuilder().uri(uri).method("HEAD", BodyPublishers.noBody()).build(), //$NON-NLS-1$
-								BodyHandlers.ofString())));
+		var requests = authorities.keySet().stream().collect(Collectors.toMap(Function.identity(), uri -> {
+			try {
+				return Optional.of(client.sendAsync(
+						HttpRequest.newBuilder().uri(uri).method("HEAD", BodyPublishers.noBody()).build(), //$NON-NLS-1$
+						BodyHandlers.ofString()));
+			} catch (RuntimeException ex) {
+				return Optional.<CompletableFuture<HttpResponse<String>>>ofNullable(null);
+			}
+		}));
 
 		for (var entry : authorities.entrySet()) {
 			if (montior.isCanceled()) {
 				return;
 			}
-			var certificates = entry.getValue();
-			try {
-				var httpResponse = requests.get(entry.getKey()).get();
-				httpResponse.sslSession().ifPresent(sslSession -> {
-					try {
-						var peerCertificates = sslSession.getPeerCertificates();
-						certificates.addAll(Arrays.asList(peerCertificates));
-					} catch (SSLPeerUnverifiedException e) {
-						//$FALL-THROUGH$
-					}
-				});
-			} catch (RuntimeException | InterruptedException | ExecutionException e) {
-				//$FALL-THROUGH$
-			}
+			requests.get(entry.getKey()).ifPresent(httpResponse -> {
+				try {
+					httpResponse.get().sslSession().ifPresent(sslSession -> {
+						try {
+							var peerCertificates = sslSession.getPeerCertificates();
+							entry.getValue().addAll(Arrays.asList(peerCertificates));
+						} catch (SSLPeerUnverifiedException e) {
+							//$FALL-THROUGH$
+						}
+					});
+				} catch (RuntimeException | InterruptedException | ExecutionException e) {
+					//$FALL-THROUGH$
+				}
+			});
 		}
 	}
 
