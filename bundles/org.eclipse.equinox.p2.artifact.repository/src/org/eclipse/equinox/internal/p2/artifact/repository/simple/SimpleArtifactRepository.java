@@ -330,11 +330,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		this.artifactDescriptors.addAll(artifacts);
 		this.mappingRules = mappingRules;
 		for (SimpleArtifactDescriptor desc : artifactDescriptors)
-			mapDescriptor(desc);
+			mapDescriptor(desc, false);
 	}
 
-	private synchronized void mapDescriptor(SimpleArtifactDescriptor descriptor) {
-		addedDescriptors.add(descriptor);
+	private synchronized void mapDescriptor(SimpleArtifactDescriptor descriptor, boolean added) {
+		if (added) {
+			addedDescriptors.add(descriptor);
+		}
 		IArtifactKey key = descriptor.getArtifactKey();
 		if (snapshotNeeded) {
 			cloneAritfactMap();
@@ -410,7 +412,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 			SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(toAdd);
 			artifactDescriptors.add(internalDescriptor);
-			mapDescriptor(internalDescriptor);
+			mapDescriptor(internalDescriptor, true);
 			save();
 		} finally {
 			if (lockAcquired)
@@ -455,7 +457,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					continue;
 				SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(descriptor);
 				artifactDescriptors.add(internalDescriptor);
-				mapDescriptor(internalDescriptor);
+				mapDescriptor(internalDescriptor, true);
 			}
 			save();
 		} finally {
