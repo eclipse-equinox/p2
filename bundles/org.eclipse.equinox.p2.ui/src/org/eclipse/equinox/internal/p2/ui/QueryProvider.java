@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.ui.model.*;
@@ -100,7 +99,7 @@ public class QueryProvider {
 		switch (queryType) {
 			case ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager(ui, false).locationsQueriable();
-				return new ElementQueryDescriptor(queryable, new RepositoryLocationQuery(), new Collector<URI>(), new ArtifactRepositoryElementWrapper(null, element));
+				return new ElementQueryDescriptor(queryable, new RepositoryLocationQuery(), new Collector<>(), new ArtifactRepositoryElementWrapper(null, element));
 
 			case AVAILABLE_IUS :
 				// Things get more complicated if the user wants to filter out installed items.
@@ -206,12 +205,12 @@ public class QueryProvider {
 					IQuery<IInstallableUnit> meetsAnyRequirementQuery = QueryUtil.createMatchQuery(factory.or(requirementExpressions));
 					IQuery<IInstallableUnit> visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
 					IQuery<IInstallableUnit> createCompoundQuery = QueryUtil.createCompoundQuery(visibleAsAvailableQuery, meetsAnyRequirementQuery, true);
-					return new ElementQueryDescriptor(queryable, createCompoundQuery, new Collector<IInstallableUnit>(), new InstalledIUElementWrapper(queryable, element));
+					return new ElementQueryDescriptor(queryable, createCompoundQuery, new Collector<>(), new InstalledIUElementWrapper(queryable, element));
 				}
 				profile = ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)
 					return null;
-				return new ElementQueryDescriptor(profile, policy.getVisibleInstalledIUQuery(), new Collector<IInstallableUnit>(), new InstalledIUElementWrapper(profile, element));
+				return new ElementQueryDescriptor(profile, policy.getVisibleInstalledIUQuery(), new Collector<>(), new InstalledIUElementWrapper(profile, element));
 
 			case METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
@@ -219,7 +218,7 @@ public class QueryProvider {
 						queryable = new QueryableMetadataRepositoryManager(ui, ((MetadataRepositories) element).getIncludeDisabledRepositories()).locationsQueriable();
 						element.setQueryable(queryable);
 					}
-					return new ElementQueryDescriptor(element.getQueryable(), new RepositoryLocationQuery(), new Collector<URI>(), new MetadataRepositoryElementWrapper(null, element));
+					return new ElementQueryDescriptor(element.getQueryable(), new RepositoryLocationQuery(), new Collector<>(), new MetadataRepositoryElementWrapper(null, element));
 				}
 				return null;
 
