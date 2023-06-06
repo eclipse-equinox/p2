@@ -505,18 +505,9 @@ public class EquinoxFwConfigFileParser {
 
 	private void saveProperties(File outputFile, Properties configProps) throws IOException {
 		String header = "This configuration file was written by: " + this.getClass().getName(); //$NON-NLS-1$
-		FileOutputStream out = null;
-		try {
-			out = new FileOutputStream(outputFile);
+		try (FileOutputStream out = new FileOutputStream(outputFile)){
 			configProps.store(out, header);
 			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_propertiesSaved, outputFile));
-		} finally {
-			try {
-				out.flush();
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

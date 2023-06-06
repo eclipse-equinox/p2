@@ -36,7 +36,7 @@ public class EngineActivator implements BundleActivator {
 	public static boolean EXTENDED = EXTENSIONS != null;
 	private static final String LINK_KEY = "link"; //$NON-NLS-1$
 	private static final String LINK_FILE_EXTENSION = ".link"; //$NON-NLS-1$
-	private static final Set<File> reportedExtensions = Collections.synchronizedSet(new HashSet<File>(0));
+	private static final Set<File> reportedExtensions = Collections.synchronizedSet(new HashSet<>(0));
 
 	public static final String ID = "org.eclipse.equinox.p2.engine"; //$NON-NLS-1$
 
@@ -126,7 +126,9 @@ public class EngineActivator implements BundleActivator {
 			for (File extension : extensions) {
 				if (extension.isFile() && extension.getName().endsWith(LINK_FILE_EXTENSION)) {
 					Properties link = new Properties();
-					link.load(new FileInputStream(extension));
+					try (FileInputStream inStream = new FileInputStream(extension)) {
+						link.load(inStream);
+					}
 					String newInfoName = link.getProperty(LINK_KEY);
 					URI newInfoURI = new URI(newInfoName);
 					File newInfoFile = null;
