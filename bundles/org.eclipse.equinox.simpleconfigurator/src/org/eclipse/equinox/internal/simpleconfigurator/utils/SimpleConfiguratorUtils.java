@@ -132,7 +132,9 @@ public class SimpleConfiguratorUtils {
 			for (File extension : extensions) {
 				if (extension.isFile() && extension.getName().endsWith(LINK_FILE_EXTENSION)) {
 					Properties link = new Properties();
-					link.load(new FileInputStream(extension));
+					try (FileInputStream inStream = new FileInputStream(extension)) {
+						link.load(inStream);
+					}
 					String newInfoName = link.getProperty(LINK_KEY);
 					URI newInfoURI = new URI(newInfoName);
 					File newInfoFile = null;
