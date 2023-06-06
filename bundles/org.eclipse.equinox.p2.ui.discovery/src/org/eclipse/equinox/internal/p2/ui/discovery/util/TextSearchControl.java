@@ -302,8 +302,8 @@ public class TextSearchControl extends Composite {
 		event.display = textControl.getDisplay();
 
 		SelectionEvent e = new SelectionEvent(event);
-		for (Object element : selectionListeners) {
-			((SelectionListener) element).widgetDefaultSelected(e);
+		for (SelectionListener listener : selectionListeners) {
+			listener.widgetDefaultSelected(e);
 		}
 	}
 
