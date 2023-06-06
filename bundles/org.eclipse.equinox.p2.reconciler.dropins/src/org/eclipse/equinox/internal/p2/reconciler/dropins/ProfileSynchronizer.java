@@ -109,7 +109,7 @@ public class ProfileSynchronizer {
 			return Status.OK_STATUS;
 
 		ProvisioningContext context = getContext();
-		context.setProperty(EXPLANATION, Boolean.valueOf(Tracing.DEBUG_RECONCILER).toString());
+		context.setProperty(EXPLANATION, Boolean.toString(Tracing.DEBUG_RECONCILER));
 
 		String updatedCacheExtensions = synchronizeCacheExtensions();
 
