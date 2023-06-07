@@ -34,10 +34,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 public class RemediationGroup {
-	final int ALLOWPARTIALINSTALL_INDEX = 0;
-	final int ALLOWDIFFERENTVERSION_INDEX = 1;
-	final int ALLOWINSTALLEDUPDATE_INDEX = 2;
-	final int ALLOWINSTALLEDREMOVAL_INDEX = 3;
+	static final int ALLOWPARTIALINSTALL_INDEX = 0;
+	static final int ALLOWDIFFERENTVERSION_INDEX = 1;
+	static final int ALLOWINSTALLEDUPDATE_INDEX = 2;
+	static final int ALLOWINSTALLEDREMOVAL_INDEX = 3;
 
 	private RemediationOperation remediationOperation;
 	Composite remediationComposite;

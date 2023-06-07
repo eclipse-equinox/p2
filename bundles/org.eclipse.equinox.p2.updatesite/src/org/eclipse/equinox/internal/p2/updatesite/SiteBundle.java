@@ -31,7 +31,7 @@ public class SiteBundle {
 
 	private String os;
 	private String patch;
-	private final boolean resolved = false;
+	private static final boolean resolved = false;
 	private SiteModel site;
 	private String type;
 	private URL url;
