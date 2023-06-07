@@ -27,10 +27,10 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
 
 public class RequestFlexer {
-	final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
-	final String INCLUSION_OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
-	final String INCLUSION_STRICT = "STRICT"; //$NON-NLS-1$
-	final String EXPLANATION_ENABLEMENT = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
+	static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
+	static final String INCLUSION_OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
+	static final String INCLUSION_STRICT = "STRICT"; //$NON-NLS-1$
+	static final String EXPLANATION_ENABLEMENT = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
 
 	IPlanner planner;
 
