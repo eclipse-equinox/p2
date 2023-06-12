@@ -13,21 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.jarprocessor;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.io.*;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
@@ -89,13 +76,7 @@ public class Utils {
 		source = new BufferedInputStream(source);
 		destination = new BufferedOutputStream(destination);
 		try {
-			byte[] buffer = new byte[8192];
-			while (true) {
-				int bytesRead = -1;
-				if ((bytesRead = source.read(buffer)) == -1)
-					break;
-				destination.write(buffer, 0, bytesRead);
-			}
+			source.transferTo(destination);
 		} finally {
 			if (close) {
 				close(source);
@@ -197,9 +178,7 @@ public class Utils {
 				System.out.println("Failed to obtain eclipse.inf due to missing jar file: " + jarFile); //$NON-NLS-1$
 			return null;
 		}
-		JarFile jar = null;
-		try {
-			jar = new JarFile(jarFile, false);
+		try (JarFile jar = new JarFile(jarFile, false)) {
 			JarEntry mark = jar.getJarEntry(MARK_FILE_NAME);
 			if (mark != null) {
 				try (InputStream in = jar.getInputStream(mark)) {
@@ -218,8 +197,6 @@ public class Utils {
 				e.printStackTrace();
 			}
 			return null;
-		} finally {
-			close(jar);
 		}
 	}
 
