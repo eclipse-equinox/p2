@@ -604,25 +604,15 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 		profile.setTimestamp(currentTimestamp);
 		profile.setChanged(false);
-		OutputStream os = null;
-		try {
-			if (shouldGzipFile)
-				os = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(profileFile)));
-			else
-				os = new BufferedOutputStream(new FileOutputStream(profileFile));
+		try (OutputStream os = shouldGzipFile
+				? new GZIPOutputStream(new FileOutputStream(profileFile))
+				: new FileOutputStream(profileFile)) {
 			Writer writer = new Writer(os);
 			writer.writeProfile(profile);
 		} catch (IOException e) {
 			profile.setTimestamp(previousTimestamp);
 			profileFile.delete();
 			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_persisting_profile, profile.getProfileId()), e));
-		} finally {
-			try {
-				if (os != null)
-					os.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 	}
 

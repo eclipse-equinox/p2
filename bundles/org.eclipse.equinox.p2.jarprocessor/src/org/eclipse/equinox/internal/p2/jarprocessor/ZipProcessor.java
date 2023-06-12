@@ -166,15 +166,11 @@ public class ZipProcessor {
 		ZipEntry entry = zip.getEntry("pack.properties"); //$NON-NLS-1$
 		properties = new Properties();
 		if (entry != null) {
-			InputStream stream = null;
-			try {
-				stream = zip.getInputStream(entry);
+			try (InputStream stream = zip.getInputStream(entry)) {
 				properties.load(stream);
 			} catch (IOException e) {
 				if (options.verbose)
 					e.printStackTrace();
-			} finally {
-				Utils.close(stream);
 			}
 		}
 

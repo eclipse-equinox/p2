@@ -18,10 +18,9 @@ import java.util.Enumeration;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.*;
-import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
 
 /**
- * This class removes the signature files from a jar and clean up the manifest.   
+ * This class removes the signature files from a jar and clean up the manifest.
  */
 public class Unsigner {
 	private static final String META_INF = "META-INF"; //$NON-NLS-1$
@@ -35,9 +34,7 @@ public class Unsigner {
 	private boolean keepManifestContent = false;
 
 	private boolean isSigned(File file) {
-		ZipFile jar = null;
-		try {
-			jar = new ZipFile(file);
+		try (ZipFile jar = new ZipFile(file)) {
 
 			if (signers != null) {
 				for (String signer : signers) {
@@ -59,14 +56,6 @@ public class Unsigner {
 			return false;
 		} catch (IOException e) {
 			return false;
-		} finally {
-			if (jar != null) {
-				try {
-					jar.close();
-				} catch (IOException e) {
-					//Ignore
-				}
-			}
 		}
 	}
 
@@ -75,56 +64,46 @@ public class Unsigner {
 	}
 
 	private void processJar(File inputFile) {
-		if (!isSigned(inputFile))
+		if (!isSigned(inputFile)) {
 			return;
-
-		ZipInputStream input = null;
-		ZipOutputStream output = null;
+		}
 		try {
-			input = new ZipInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
 			File outputFile = File.createTempFile("removing.", ".signature", inputFile.getParentFile()); //$NON-NLS-1$ //$NON-NLS-2$
-			output = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)));
+			try (ZipInputStream input = new ZipInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
+					ZipOutputStream output = new ZipOutputStream(
+							new BufferedOutputStream(new FileOutputStream(outputFile)))) {
 
-			ZipEntry inputZe = input.getNextEntry();
-			byte[] b = new byte[8192];
-			while (inputZe != null) {
-				byte remove = shouldRemove(inputZe);
-				if (remove == 2) {
-					inputZe = input.getNextEntry();
-					continue;
-				}
-
-				//copy the file or modify the manifest.mf
-				if (remove == 1) {
-					output.putNextEntry(new ZipEntry(inputZe.getName()));
-					Manifest m = new Manifest();
-					m.read(input);
-					m.getEntries().clear(); //This is probably not subtle enough
-					m.write(output);
-				} else {
-					output.putNextEntry(inputZe);
-					while (input.available() != 0) {
-						int read = input.read(b);
-						if (read != -1)
-							output.write(b, 0, read);
+				ZipEntry inputZe = input.getNextEntry();
+				while (inputZe != null) {
+					byte remove = shouldRemove(inputZe);
+					if (remove == 2) {
+						inputZe = input.getNextEntry();
+						continue;
 					}
-				}
-				output.closeEntry();
-				input.closeEntry();
 
-				inputZe = input.getNextEntry();
+					// copy the file or modify the manifest.mf
+					if (remove == 1) {
+						output.putNextEntry(new ZipEntry(inputZe.getName()));
+						Manifest m = new Manifest();
+						m.read(input);
+						m.getEntries().clear(); // This is probably not subtle enough
+						m.write(output);
+					} else {
+						output.putNextEntry(inputZe);
+						input.transferTo(output);
+					}
+					output.closeEntry();
+					input.closeEntry();
+
+					inputZe = input.getNextEntry();
+				}
 			}
-			output.close();
-			input.close();
 			inputFile.delete();
 			outputFile.renameTo(inputFile);
 		} catch (FileNotFoundException e) {
-			//this can't happen we have checked before
+			// this can't happen we have checked before
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			Utils.close(input);
-			Utils.close(output);
 		}
 	}
 
@@ -135,12 +114,15 @@ public class Unsigner {
 		}
 		if (signers != null) {
 			for (String signer : signers) {
-				if (entryName.equalsIgnoreCase(META_INF_PREFIX + signer + SF_EXT) || entryName.equalsIgnoreCase(META_INF_PREFIX + signer + RSA_EXT) || entryName.equalsIgnoreCase(META_INF_PREFIX + signer + DSA_EXT)) {
+				if (entryName.equalsIgnoreCase(META_INF_PREFIX + signer + SF_EXT)
+						|| entryName.equalsIgnoreCase(META_INF_PREFIX + signer + RSA_EXT)
+						|| entryName.equalsIgnoreCase(META_INF_PREFIX + signer + DSA_EXT)) {
 					return 2;
 				}
 			}
 		} else {
-			if (entryName.startsWith(META_INF) && (entryName.endsWith(SF_EXT) || entryName.endsWith(RSA_EXT) || entryName.endsWith(DSA_EXT)))
+			if (entryName.startsWith(META_INF)
+					&& (entryName.endsWith(SF_EXT) || entryName.endsWith(RSA_EXT) || entryName.endsWith(DSA_EXT)))
 				return 2;
 		}
 		return 0;

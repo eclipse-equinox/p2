@@ -32,10 +32,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	 * Save the given configuration to the specified location.
 	 */
 	static void save(Configuration configuration, File location, URL osgiInstallArea) throws ProvisionException {
-		XMLWriter writer = null;
-		try {
-			OutputStream output = new BufferedOutputStream(new FileOutputStream(location));
-			writer = new XMLWriter(output);
+		try (XMLWriter writer = new XMLWriter(new BufferedOutputStream(new FileOutputStream(location)))) {
 			Map<String, String> args = new HashMap<>();
 
 			// always write out an up-to-date timestamp
@@ -60,11 +57,6 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			writer.endTag(ELEMENT_CONFIG);
 		} catch (FileNotFoundException e) {
 			throw new ProvisionException(NLS.bind(Messages.error_saving_config, location), e);
-		} finally {
-			if (writer != null) {
-				writer.flush();
-				writer.close();
-			}
 		}
 		// put the config in the cache in case someone in the same session wants to read it
 		ConfigurationCache.put(location, configuration);

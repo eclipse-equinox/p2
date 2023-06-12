@@ -13,27 +13,9 @@
  *******************************************************************************/
 package org.eclipse.internal.provisional.equinox.p2.jarprocessor;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.jar.JarEntry;
-import java.util.jar.JarException;
-import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
-
+import java.io.*;
+import java.util.*;
+import java.util.jar.*;
 import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
 import org.eclipse.equinox.internal.p2.jarprocessor.ZipProcessor;
 
@@ -325,12 +307,9 @@ public class JarProcessor {
 					File parent = tempJar.getParentFile();
 					if (!parent.exists())
 						parent.mkdirs();
-					JarOutputStream jarOut = null;
-					try {
-						jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
+					try (JarOutputStream jarOut = new JarOutputStream(
+							new BufferedOutputStream(new FileOutputStream(tempJar)))) {
 						recreateJar(jar, jarOut, replacements, tempDir, inf);
-					} finally {
-						Utils.close(jarOut);
 					}
 					if (tempJar != null) {
 						if (!workingFile.equals(input)) {
@@ -375,31 +354,23 @@ public class JarProcessor {
 	private void normalize(File input, File directory) {
 		try {
 			File tempJar = new File(directory, "temp_" + input.getName()); //$NON-NLS-1$
-			JarFile jar = null;
-			JarOutputStream jarOut = null;
-			InputStream jarIn = null;
-			try {
-				jar = new JarFile(input, false);
-				jarOut = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempJar)));
+			try (JarFile jar = new JarFile(input, false);
+					JarOutputStream jarOut = new JarOutputStream(
+							new BufferedOutputStream(new FileOutputStream(tempJar)))) {
 				Enumeration<JarEntry> entries = jar.entries();
 				for (JarEntry entry = entries.nextElement(); entry != null; entry = entries.hasMoreElements()
 						? (JarEntry) entries.nextElement()
 						: null) {
 					JarEntry newEntry = new JarEntry(entry.getName());
 					newEntry.setTime(entry.getTime());
-					jarIn = new BufferedInputStream(jar.getInputStream(entry));
-					jarOut.putNextEntry(newEntry);
-					Utils.transferStreams(jarIn, jarOut, false);
-					jarOut.closeEntry();
-					jarIn.close();
+					try (InputStream jarIn = new BufferedInputStream(jar.getInputStream(entry))) {
+						jarOut.putNextEntry(newEntry);
+						jarIn.transferTo(jarOut);
+					}
 				}
 			} catch (JarException e) {
 				// not a jar
 				return;
-			} finally {
-				Utils.close(jarOut);
-				Utils.close(jarIn);
-				Utils.close(jar);
 			}
 			tempJar.setLastModified(input.lastModified());
 			input.delete();
