@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 import org.bouncycastle.bcpg.*;
@@ -38,7 +39,8 @@ import org.eclipse.swt.widgets.*;
  */
 public class PGPPublicKeyViewDialog extends TitleAreaDialog {
 
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); //$NON-NLS-1$
+	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'") //$NON-NLS-1$
+			.withZone(ZoneOffset.UTC);
 
 	final private PGPPublicKey originalKey;
 
@@ -50,7 +52,6 @@ public class PGPPublicKeyViewDialog extends TitleAreaDialog {
 		super(parentShell);
 		this.originalKey = key;
 		this.keyService = keyService;
-		DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC")); //$NON-NLS-1$
 	}
 
 	@Override
@@ -141,7 +142,7 @@ public class PGPPublicKeyViewDialog extends TitleAreaDialog {
 		content.append(fingerprint);
 
 		content.append(" ");
-		content.append(DATE_FORMAT.format(key.getCreationTime()));
+		content.append(DATE_FORMAT.format(key.getCreationTime().toInstant()));
 
 		content.append(" ");
 		content.append("\n");
@@ -174,12 +175,13 @@ public class PGPPublicKeyViewDialog extends TitleAreaDialog {
 			content.append(PGPPublicKeyService.toHex(keyID));
 			content.append(" ");
 			Date creationTime = signature.getCreationTime();
-			String formattedCreationTime = DATE_FORMAT.format(creationTime);
+			String formattedCreationTime = DATE_FORMAT.format(creationTime.toInstant());
 			content.append(formattedCreationTime);
 			long signatureExpirationTime = signature.getHashedSubPackets().getSignatureExpirationTime();
 			content.append(" ");
 			content.append(signatureExpirationTime == 0 ? formattedCreationTime.replaceAll(".", "_")
-					: DATE_FORMAT.format(new Date(creationTime.getTime() + 1000 * signatureExpirationTime)));
+					: DATE_FORMAT
+							.format(new Date(creationTime.getTime() + 1000 * signatureExpirationTime).toInstant()));
 
 			content.append(" ");
 			Optional<PGPPublicKey> resolvedKey = verifiedCertifications.stream().filter(k -> k.getKeyID() == keyID)
@@ -188,8 +190,9 @@ public class PGPPublicKeyViewDialog extends TitleAreaDialog {
 			long keyExpirationTime = signature.getHashedSubPackets().getKeyExpirationTime();
 			content.append(keyExpirationTime == 0 || resolvedKey == null || !resolvedKey.isPresent()
 					? formattedCreationTime.replaceAll(".", "_")
-					: DATE_FORMAT.format(
-							new Date(resolvedKey.get().getCreationTime().getTime() + 1000 * keyExpirationTime)));
+					: DATE_FORMAT
+							.format(new Date(resolvedKey.get().getCreationTime().getTime() + 1000 * keyExpirationTime)
+									.toInstant()));
 
 			if (resolvedKey != null && resolvedKey.isPresent()) {
 				content.append(" ");
