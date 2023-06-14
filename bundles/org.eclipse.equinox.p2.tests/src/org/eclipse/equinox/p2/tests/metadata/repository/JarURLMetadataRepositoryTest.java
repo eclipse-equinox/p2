@@ -21,8 +21,8 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -73,7 +73,7 @@ public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testZipFileRepository() throws IOException, ProvisionException, OperationCanceledException {
 		//ensure a random agent doesn't cause it to fail
 		File zip = TestData.getFile("bug369834", "f-TestBuild-group.group.group.zip");
-		URI location = URIUtil.toJarURI(zip.toURI(), new Path(""));
+		URI location = URIUtil.toJarURI(zip.toURI(), IPath.EMPTY);
 		IMetadataRepository repo = manager.loadRepository(location, null);
 		assertTrue(!repo.query(QueryUtil.createIUAnyQuery(), null).isEmpty());
 	}

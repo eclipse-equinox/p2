@@ -40,9 +40,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -222,7 +222,7 @@ public class BundlesActionTest extends ActionTest {
 		IArtifactKey key1 = ArtifactKey.parse("osgi.bundle,test1,0.1.0");//$NON-NLS-1$
 		ZipInputStream zis = artifactRepository.getZipInputStream(key1);
 		Map<String, Object[]> fileMap = getFileMap(new HashMap<>(), new File[] { TEST_FILE1 },
-				new Path(TEST_FILE1.getAbsolutePath()));
+				IPath.fromOSString(TEST_FILE1.getAbsolutePath()));
 		TestData.assertContains(fileMap, zis, true);
 	}
 

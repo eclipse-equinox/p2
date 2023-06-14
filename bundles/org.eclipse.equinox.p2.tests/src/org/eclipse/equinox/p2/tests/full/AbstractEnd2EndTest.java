@@ -22,7 +22,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -287,13 +286,13 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 		}
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
-			IPath path = new Path(name);
+			IPath path = IPath.fromOSString(name);
 			if ("exe".equals(path.getFileExtension())) //$NON-NLS-1$
 				return name;
 			return name + ".exe"; //$NON-NLS-1$
 		}
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
-			IPath path = new Path(name);
+			IPath path = IPath.fromOSString(name);
 			if ("app".equals(path.getFileExtension())) //$NON-NLS-1$
 				return name;
 			StringBuilder buffer = new StringBuilder();

@@ -22,11 +22,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
@@ -64,8 +62,7 @@ public class CacheManagerTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Path repositoryLocationPath = new Path(repositoryLocation.getPath());
-		deleteFileOrDirectory(repositoryLocationPath.toFile());
+		deleteFileOrDirectory(new File(repositoryLocation));
 	}
 
 	@Test
@@ -151,9 +148,9 @@ public class CacheManagerTest {
 		repository.deleteOnExit();
 		assertTrue(repository.delete());
 		assertTrue(repository.mkdirs());
-		IPath contentXmlPath = new Path(repository.getAbsolutePath()).append("content.xml"); //$NON-NLS-1$
-		assertTrue(contentXmlPath.toFile().createNewFile());
-		contentXmlFile = contentXmlPath.toFile();
+		File contentXmlPath = new File(repository, "content.xml"); //$NON-NLS-1$
+		assertTrue(contentXmlPath.createNewFile());
+		contentXmlFile = contentXmlPath;
 		return repository.toURI();
 	}
 

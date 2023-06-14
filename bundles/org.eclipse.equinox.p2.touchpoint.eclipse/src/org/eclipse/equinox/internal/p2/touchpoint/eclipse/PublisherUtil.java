@@ -15,7 +15,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
@@ -25,8 +25,8 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 public class PublisherUtil {
 
 	/**
-	 * Returns an IU corresponding to the given artifact key and bundle, or <code>null</code>
-	 * if an IU could not be created.
+	 * Returns an IU corresponding to the given artifact key and bundle, or
+	 * <code>null</code> if an IU could not be created.
 	 */
 	public static IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescriptionIgnoringExceptions(bundleFile);
@@ -34,7 +34,8 @@ public class PublisherUtil {
 			return null;
 		PublisherInfo info = new PublisherInfo();
 		Version version = Version.create(bundleDescription.getVersion().toString());
-		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), version, new Path(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
+		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), version,
+				IPath.fromOSString(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
 		if (advice.containsAdvice())
 			info.addAdvice(advice);
 		String shape = bundleFile.isDirectory() ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;

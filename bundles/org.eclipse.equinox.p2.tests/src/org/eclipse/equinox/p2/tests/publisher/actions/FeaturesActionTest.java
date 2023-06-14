@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -339,11 +339,11 @@ public class FeaturesActionTest extends ActionTest {
 	private void verifyArtifacts() throws IOException {
 		ZipInputStream actualStream = artifactRepository.getZipInputStream(FOO_KEY);
 		Map<String, Object[]> expected = getFileMap(new HashMap<>(), new File[] { new File(root, FOO) },
-				new Path(new File(root, FOO).getAbsolutePath()));
+				IPath.fromFile(new File(root, FOO)));
 		TestData.assertContains(expected, actualStream, true);
 
 		expected = getFileMap(new HashMap<>(), new File[] { new File(root, BAR) },
-				new Path(new File(root, BAR).getAbsolutePath()));
+				IPath.fromFile(new File(root, BAR)));
 		actualStream = artifactRepository.getZipInputStream(BAR_KEY);
 		TestData.assertContains(expected, actualStream, true);
 	}

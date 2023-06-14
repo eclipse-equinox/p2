@@ -287,7 +287,7 @@ public class FileUtils {
 	 * @throws IOException
 	 */
 	public static void zip(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer) throws IOException {
-		zip(output, source, exclusions, pathComputer, new HashSet<IPath>());
+		zip(output, source, exclusions, pathComputer, new HashSet<>());
 	}
 
 	public static void zip(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
@@ -396,7 +396,7 @@ public class FileUtils {
 		}
 
 		if (isManifest) {
-			zipDirectoryEntry(output, new Path("META-INF"), source.lastModified(), directoryEntries); //$NON-NLS-1$
+			zipDirectoryEntry(output, IPath.fromOSString("META-INF"), source.lastModified(), directoryEntries); //$NON-NLS-1$
 		}
 	}
 
@@ -432,8 +432,8 @@ public class FileUtils {
 		return new IPathComputer() {
 			@Override
 			public IPath computePath(File source) {
-				IPath result = new Path(source.getAbsolutePath());
-				IPath rootPath = new Path(root.getAbsolutePath());
+				IPath result = IPath.fromOSString(source.getAbsolutePath());
+				IPath rootPath = IPath.fromOSString(root.getAbsolutePath());
 				result = result.removeFirstSegments(rootPath.matchingFirstSegments(result));
 				return result.setDevice(null);
 			}
@@ -472,7 +472,7 @@ public class FileUtils {
 			@Override
 			public IPath computePath(File source) {
 				if (computer == null) {
-					IPath sourcePath = new Path(source.getAbsolutePath());
+					IPath sourcePath = IPath.fromOSString(source.getAbsolutePath());
 					sourcePath = sourcePath.removeLastSegments(segmentsToKeep);
 					computer = createRootPathComputer(sourcePath.toFile());
 				}
@@ -495,7 +495,7 @@ public class FileUtils {
 		return new IPathComputer() {
 			@Override
 			public IPath computePath(File source) {
-				IPath sourcePath = new Path(source.getAbsolutePath());
+				IPath sourcePath = IPath.fromOSString(source.getAbsolutePath());
 				sourcePath = sourcePath.removeFirstSegments(Math.max(0, sourcePath.segmentCount() - segmentsToKeep));
 				return sourcePath.setDevice(null);
 			}
