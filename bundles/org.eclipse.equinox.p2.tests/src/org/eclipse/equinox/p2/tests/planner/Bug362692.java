@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +22,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -93,7 +93,7 @@ public class Bug362692 extends AbstractPlannerTest {
 		// set the metadata repositories on the provisioning context. one for the dropins and one for the shared area
 		Collection<URI> repoURLs = new ArrayList<>();
 		repoURLs.add(repo.getLocation());
-		repoURLs.add(new Path(getTestDataPath()).append("shared").toFile().toURI());
+		repoURLs.add(new File(getTestDataPath(), "shared").toURI());
 		ProvisioningContext context = getContext(repoURLs);
 		context.setExtraInstallableUnits(new ArrayList<>(toAdd));
 		IProfileChangeRequest actualChangeRequest = createProfileChangeRequest(toAdd, null, null);

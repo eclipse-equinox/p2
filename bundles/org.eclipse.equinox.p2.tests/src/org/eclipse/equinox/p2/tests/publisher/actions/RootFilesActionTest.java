@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -188,7 +188,7 @@ public class RootFilesActionTest extends ActionTest {
 			FileUtils.copyStream(new FileInputStream(contentBytes), false, content, true);
 			boolean includeRootInEntry = ((testArg & INCLUDES_ROOT) > 0);
 			String entry = includeRootInEntry ? new File(fileEntry).getPath() : new File(fileEntry).getName();
-			entry = new Path(entry).toString();
+			entry = IPath.fromOSString(entry).toString();
 			map.put(entry, new Object[] {contentBytes, content.toByteArray()});
 		} catch (IOException e) {
 			e.printStackTrace();

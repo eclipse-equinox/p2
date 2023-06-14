@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -136,7 +135,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return result;
 	}
 
-	protected Map<String, Object[]> getFileMap(Map<String, Object[]> map, File[] files, Path root) {
+	protected Map<String, Object[]> getFileMap(Map<String, Object[]> map, File[] files, IPath root) {
 		for (File file : files) {
 			if (file.isDirectory()) {
 				map = getFileMap(map, file.listFiles(), root);
@@ -148,7 +147,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 					ByteArrayOutputStream content = new ByteArrayOutputStream();
 					File contentBytes = file;
 					FileUtils.copyStream(new FileInputStream(contentBytes), false, content, true);
-					IPath entryPath = new Path(file.getAbsolutePath());
+					IPath entryPath = IPath.fromOSString(file.getAbsolutePath());
 					entryPath = entryPath.removeFirstSegments(root.matchingFirstSegments(entryPath));
 					entryPath = entryPath.setDevice(null);
 					map.put(entryPath.toString(), new Object[] {contentBytes, content.toByteArray()});

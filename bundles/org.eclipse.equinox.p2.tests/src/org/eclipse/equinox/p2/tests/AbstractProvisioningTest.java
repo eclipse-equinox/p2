@@ -52,10 +52,10 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -1013,7 +1013,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (base == null)
 			fail(message + " entry not found in bundle: " + entry);
 		try {
-			String osPath = new Path(FileLocator.toFileURL(base).getPath()).toOSString();
+			String osPath = IPath.fromOSString(FileLocator.toFileURL(base).getPath()).toOSString();
 			File result = new File(osPath);
 			if (!result.getCanonicalPath().equals(result.getPath()))
 				fail(message + " result path: " + result.getPath() + " does not match canonical path: " + result.getCanonicalFile().getPath());
@@ -1659,7 +1659,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 							fail(message + " descriptor mismatch");
 						if (!(expectedFile.exists() && actualFile.exists()))
 							fail(message + " file does not exist");
-						if ("jar".equals(new Path(expectedFile.getName()).getFileExtension())) {
+						if ("jar".equals(IPath.fromOSString(expectedFile.getName()).getFileExtension())) {
 							//compare jar contents
 							assertEqualJars(expectedFile, actualFile);
 						} else {

@@ -25,7 +25,6 @@ import java.util.zip.ZipOutputStream;
 import org.apache.tools.tar.TarEntry;
 import org.apache.tools.tar.TarOutputStream;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
@@ -359,7 +358,7 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 
 	private void validate(IPathComputer computer, String input, String output) {
 		IPath computed = computer.computePath(new File(input));
-		IPath desired = new Path(output);
+		IPath desired = IPath.fromOSString(output);
 		assertEquals(computed, desired);
 	}
 

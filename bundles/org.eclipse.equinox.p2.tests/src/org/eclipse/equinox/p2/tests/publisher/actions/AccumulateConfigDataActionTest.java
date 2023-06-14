@@ -23,8 +23,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
@@ -72,11 +72,11 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 		assertTrue(programArgs.length == 4);
 		assertTrue(programArgs[0].equalsIgnoreCase("-startup")); //$NON-NLS-1$
 
-		Path path1 = new Path(TestActivator.getTestDataFolder().getPath() + FOO);
+		IPath path1 = IPath.fromOSString(TestActivator.getTestDataFolder().getPath() + FOO);
 		assertTrue(path1.toFile().toURI().equals(new URI(programArgs[1])));
 		assertTrue(programArgs[2].equalsIgnoreCase("--launcher.library"));//$NON-NLS-1$
 
-		Path path2 = new Path(TestActivator.getTestDataFolder().getPath() + BAR);
+		IPath path2 = IPath.fromOSString(TestActivator.getTestDataFolder().getPath() + BAR);
 		assertTrue(path2.toFile().toURI().equals(new URI(programArgs[3])));
 
 		String[] vmArgs = captured.getVMArguments();

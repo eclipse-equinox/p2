@@ -28,7 +28,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.update.Configuration;
@@ -289,7 +289,8 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 		for (BundleInfo info : infos.values()) {
 			if (info.getSymbolicName().contains("equinox.launcher"))
 				continue;
-			File location = new File(sharedBundleLocation, new Path(info.getLocation().toString()).lastSegment());
+			File location = new File(sharedBundleLocation,
+					IPath.fromOSString(info.getLocation().toString()).lastSegment());
 			assertTrue("3.1." + location.getAbsolutePath(), location.exists());
 			info.setLocation(location.toURI());
 		}

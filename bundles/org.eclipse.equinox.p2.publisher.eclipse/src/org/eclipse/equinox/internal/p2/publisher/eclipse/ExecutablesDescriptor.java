@@ -104,7 +104,7 @@ public class ExecutablesDescriptor {
 		ExecutablesDescriptor result = new ExecutablesDescriptor(os, executable, location, null);
 		File[] files = location.listFiles();
 		for (int i = 0; files != null && i < files.length; i++) {
-			String extension = new Path(files[i].getName()).getFileExtension();
+			String extension = IPath.fromOSString(files[i].getName()).getFileExtension();
 			if (files[i].isFile() && (extension == null || extension.equals("so"))) //$NON-NLS-1$
 				result.addFile(files[i]);
 		}
