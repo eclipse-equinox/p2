@@ -99,10 +99,6 @@ public class Activator implements BundleActivator {
 		}
 	}
 
-	public static BundleContext getContext() {
-		return context;
-	}
-
 	/**
 	 * Returns the framework log, or null if not available
 	 */

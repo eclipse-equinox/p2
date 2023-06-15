@@ -23,7 +23,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
 
 /*
@@ -180,7 +179,7 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 		}
 	}
 
-	public CompositeParser(BundleContext context, String bundleId, String type) {
+	public CompositeParser(String bundleId, String type) {
 		super(bundleId);
 		this.repositoryType = type;
 	}

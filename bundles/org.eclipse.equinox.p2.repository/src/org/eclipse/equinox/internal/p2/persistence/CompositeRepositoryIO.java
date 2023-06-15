@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * This class reads and writes repository metadata (e.g. table of contents files) 
+ * This class reads and writes repository metadata (e.g. table of contents files)
  * for composite artifact and metadata repositories.
  * <p>
  * Note: This class is not used for reading or writing the actual composite repositories.
@@ -54,7 +54,7 @@ public class CompositeRepositoryIO {
 	/**
 	 * Reads the composite repository from the given stream,
 	 * and returns the contained array of abstract composite repositories.
-	 * 
+	 *
 	 * This method performs buffering, and closes the stream when finished.
 	 */
 	public CompositeRepositoryState read(URL location, InputStream input, String type, IProgressMonitor monitor) throws ProvisionException {
@@ -62,7 +62,7 @@ public class CompositeRepositoryIO {
 		try {
 			try {
 				bufferedInput = new BufferedInputStream(input);
-				CompositeParser repositoryParser = new CompositeParser(Activator.getContext(), Activator.ID, type);
+				CompositeParser repositoryParser = new CompositeParser(Activator.ID, type);
 				repositoryParser.setErrorContext(location.toExternalForm());
 				repositoryParser.parse(input);
 				IStatus result = repositoryParser.getStatus();
