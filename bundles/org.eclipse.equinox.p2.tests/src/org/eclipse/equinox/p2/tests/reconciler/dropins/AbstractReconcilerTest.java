@@ -274,6 +274,11 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			}
 		} else {
 			file = new File(property);
+			try {
+				file = file.getCanonicalFile();
+			} catch (IOException e) {
+				// then use the non canonical one...
+			}
 		}
 		StringBuffer detailedMessage = new StringBuffer(600);
 		detailedMessage.append(" propertyToPlatformArchive was ").append(propertyToPlatformArchive == null ? " not set " : propertyToPlatformArchive).append('\n');

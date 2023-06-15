@@ -19,7 +19,6 @@ pipeline {
 					mvn clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 						-Pbree-libs -Papi-check \
 						-Dcompare-version-with-baselines.skip=false \
-						-Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true \
 						-Dproject.build.sourceEncoding=UTF-8 \
 						-T1C
 					"""
