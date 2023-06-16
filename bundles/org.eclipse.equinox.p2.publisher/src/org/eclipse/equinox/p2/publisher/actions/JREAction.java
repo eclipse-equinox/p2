@@ -262,7 +262,7 @@ public class JREAction extends AbstractPublisherAction {
 
 		String profileLocation = profileProperties.get(PROFILE_LOCATION);
 
-		String profileName = profileLocation != null ? new Path(profileLocation).lastSegment() : profileProperties.get(PROFILE_NAME);
+		String profileName = profileLocation != null ? IPath.fromOSString(profileLocation).lastSegment() : profileProperties.get(PROFILE_NAME);
 		if (profileName.endsWith(".profile")) //$NON-NLS-1$
 			profileName = profileName.substring(0, profileName.length() - 8);
 		Version version = null;

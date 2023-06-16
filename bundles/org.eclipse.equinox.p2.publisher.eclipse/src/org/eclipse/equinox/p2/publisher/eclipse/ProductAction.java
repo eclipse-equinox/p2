@@ -169,7 +169,7 @@ public class ProductAction extends AbstractPublisherAction {
 		if (productFileLocation == null)
 			return;
 
-		AdviceFileAdvice advice = new AdviceFileAdvice(product.getId(), Version.parseVersion(product.getVersion()), new Path(productFileLocation.getParent()), new Path("p2.inf")); //$NON-NLS-1$
+		AdviceFileAdvice advice = new AdviceFileAdvice(product.getId(), Version.parseVersion(product.getVersion()), IPath.fromOSString(productFileLocation.getParent()), IPath.fromOSString("p2.inf")); //$NON-NLS-1$
 		if (advice.containsAdvice())
 			info.addAdvice(advice);
 	}

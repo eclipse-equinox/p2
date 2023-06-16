@@ -141,12 +141,12 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	private IMetadataRepository getMatchingRepo(Collection<IMetadataRepository> repositoryList, String urlString) {
 		if (repositoryList == null)
 			return null;
-		IPath urlPath = new Path(urlString).makeAbsolute();
+		IPath urlPath = IPath.fromOSString(urlString).makeAbsolute();
 		for (IMetadataRepository repo : repositoryList) {
 			File file = URIUtil.toFile(repo.getLocation());
 			if (file == null)
 				continue;
-			Path repoPath = new Path(file.getAbsolutePath());
+			IPath repoPath = IPath.fromOSString(file.getAbsolutePath());
 			if (repoPath.makeAbsolute().equals(urlPath))
 				return repo;
 			// normalize the URLs to be the same

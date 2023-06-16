@@ -200,7 +200,7 @@ public class ProfilePreferences extends EclipsePreferences {
 			LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Agent location service not available", new RuntimeException())); //$NON-NLS-1$
 			return null;
 		}
-		IPath dataArea = new Path(URIUtil.toFile(location.getDataArea(EngineActivator.ID)).getAbsolutePath());
+		IPath dataArea = IPath.fromOSString(URIUtil.toFile(location.getDataArea(EngineActivator.ID)).getAbsolutePath());
 		return computeLocation(dataArea, qualifier);
 	}
 
@@ -226,7 +226,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	private IPath getProfileLocation(IProfileRegistry registry, String profileId) {
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) registry;
 		File profileDataDirectory = profileRegistry.getProfileDataDirectory(profileId);
-		return computeLocation(new Path(profileDataDirectory.getAbsolutePath()), qualifier);
+		return computeLocation(IPath.fromOSString(profileDataDirectory.getAbsolutePath()), qualifier);
 	}
 
 	@Override

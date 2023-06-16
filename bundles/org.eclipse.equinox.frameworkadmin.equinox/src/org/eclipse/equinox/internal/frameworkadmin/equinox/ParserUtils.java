@@ -55,7 +55,7 @@ public class ParserUtils {
 			if (Constants.OS_MACOSX.equals(launcherData.getOS())) { //
 				//TODO We are going to change this - the equinox launcher will look 3 levels up on the mac when going from executable to launcher.jar
 				//see org.eclipse.equinox.executable/library/eclipse.c : findStartupJar();
-				IPath launcherPath = new Path(launcherFile.getAbsolutePath());
+				IPath launcherPath = IPath.fromOSString(launcherFile.getAbsolutePath());
 				if (launcherPath.segmentCount() > 2) {
 					//removing "MacOS/eclipse" from the end of the path
 					launcherPath = launcherPath.removeLastSegments(2).append("Eclipse"); //$NON-NLS-1$
@@ -125,7 +125,7 @@ public class ParserUtils {
 	}
 
 	public static File fromOSGiJarToOSGiInstallArea(String path) {
-		IPath parentFolder = new Path(path).removeLastSegments(1);
+		IPath parentFolder = IPath.fromOSString(path).removeLastSegments(1);
 		if ("plugins".equalsIgnoreCase(parentFolder.lastSegment())) //$NON-NLS-1$
 			return parentFolder.removeLastSegments(1).toFile();
 		return parentFolder.toFile();

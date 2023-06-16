@@ -659,7 +659,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		String bundleLocalization = bundleManifestValues[BUNDLE_LOCALIZATION_INDEX]; // Bundle localization is the last
 																						// one in the list
 
-		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
+		if ("jar".equalsIgnoreCase(IPath.fromOSString(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
 			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, bundleLocalization,
 					defaultLocale, bundleManifestValues);
@@ -718,7 +718,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (hostBundleLocalization == null)
 			return null;
 
-		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
+		if ("jar".equalsIgnoreCase(IPath.fromOSString(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
 			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, hostBundleLocalization,
 					defaultLocale, hostBundleManifestValues);
@@ -829,7 +829,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			throws IOException, BundleException {
 		InputStream manifestStream = null;
 		ZipFile jarFile = null;
-		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && bundleLocation.isFile()) { //$NON-NLS-1$
+		if ("jar".equalsIgnoreCase(IPath.fromOSString(bundleLocation.getName()).getFileExtension()) && bundleLocation.isFile()) { //$NON-NLS-1$
 			jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
 			ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
 			if (manifestEntry != null) {
@@ -1074,7 +1074,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			return;
 
 		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(),
-				PublisherHelper.fromOSGiVersion(bundleDescription.getVersion()), new Path(location),
+				PublisherHelper.fromOSGiVersion(bundleDescription.getVersion()), IPath.fromOSString(location),
 				AdviceFileAdvice.BUNDLE_ADVICE_FILE);
 		if (advice.containsAdvice())
 			publisherInfo.addAdvice(advice);

@@ -122,9 +122,9 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 		assertEquals("1.8", "anotherRoot", roots[1].getId());
 		assertEquals("1.9", Version.create("1.0.1"), roots[1].getVersion());
 		assertTrue("1.10", !description.isAutoStart());
-		assertEquals("1.11", new Path("/tmp/agent/"), description.getAgentLocation());
-		assertEquals("1.12", new Path("/tmp/bundles/"), description.getBundleLocation());
-		assertEquals("1.13", new Path("/tmp/install/"), description.getInstallLocation());
+		assertEquals("1.11", IPath.fromOSString("/tmp/agent/"), description.getAgentLocation());
+		assertEquals("1.12", IPath.fromOSString("/tmp/bundles/"), description.getBundleLocation());
+		assertEquals("1.13", IPath.fromOSString("/tmp/install/"), description.getInstallLocation());
 	}
 
 	public void testLoadBadDescription() {

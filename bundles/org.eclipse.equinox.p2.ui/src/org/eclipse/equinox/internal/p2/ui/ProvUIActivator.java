@@ -114,7 +114,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	 * Creates the specified image descriptor and registers it
 	 */
 	private void createImageDescriptor(String id, ImageRegistry reg) {
-		URL url = FileLocator.find(getBundle(), new Path(ProvUIImages.ICON_PATH + id), null);
+		URL url = FileLocator.find(getBundle(), IPath.fromOSString(ProvUIImages.ICON_PATH + id), null);
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 		reg.put(id, desc);
 	}

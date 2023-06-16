@@ -336,7 +336,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 		 * *.app/Contents/Eclipse if the path exists.
 		 */
 		if ("cocoa".equals(SWT.getPlatform())) { //$NON-NLS-1$
-			Path nPath = new Path(selectedFileName);
+			IPath nPath = IPath.fromOSString(selectedFileName);
 			if (nPath.lastSegment().endsWith(".app")) { //$NON-NLS-1$
 				IPath appendedPath = nPath.append("Contents").append("Eclipse");//$NON-NLS-1$ //$NON-NLS-2$
 				if (appendedPath.toFile().exists()) {

@@ -17,7 +17,8 @@ import java.io.*;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
 
 public class FileUtils {
@@ -340,8 +341,8 @@ public class FileUtils {
 		// foo/something/bar2.txt
 		// foo/something/else/bar3.txt
 		Arrays.sort(files, (arg0, arg1) -> {
-			Path a = new Path(arg0.getAbsolutePath());
-			Path b = new Path(arg1.getAbsolutePath());
+			IPath a = IPath.fromOSString(arg0.getAbsolutePath());
+			IPath b = IPath.fromOSString(arg1.getAbsolutePath());
 			if (a.segmentCount() == b.segmentCount()) {
 				if (arg0.isDirectory() && arg1.isFile())
 					return 1;

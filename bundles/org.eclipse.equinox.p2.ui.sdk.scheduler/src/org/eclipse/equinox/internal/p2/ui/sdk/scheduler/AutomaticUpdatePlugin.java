@@ -174,7 +174,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	 * Creates the specified image descriptor and registers it
 	 */
 	private void createImageDescriptor(String id, ImageRegistry reg) {
-		URL url = FileLocator.find(getBundle(), new Path(ICON_PATH).append(id), null);
+		URL url = FileLocator.find(getBundle(), IPath.fromOSString(ICON_PATH).append(id), null);
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 		reg.put(id, desc);
 	}

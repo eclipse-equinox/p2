@@ -82,7 +82,7 @@ public class PlatformConfigurationWrapper {
 				// the equinox launcher will look 3 levels up on the mac when going from
 				// executable to launcher.jar
 				// see org.eclipse.equinox.executable/library/eclipse.c : findStartupJar();
-				IPath launcherPath = new Path(launcherFile.getAbsolutePath());
+				IPath launcherPath = IPath.fromOSString(launcherFile.getAbsolutePath());
 				if (launcherPath.segmentCount() > 2) {
 					// removing "Eclipse.app/Contents/MacOS/eclipse"
 					launcherPath = launcherPath.removeLastSegments(2);
@@ -125,7 +125,7 @@ public class PlatformConfigurationWrapper {
 	}
 
 	private static File fromOSGiJarToOSGiInstallArea(String path) {
-		IPath parentFolder = new Path(path).removeLastSegments(1);
+		IPath parentFolder = IPath.fromOSString(path).removeLastSegments(1);
 		if (parentFolder.lastSegment().equals("plugins")) //$NON-NLS-1$
 			return parentFolder.removeLastSegments(1).toFile();
 		return parentFolder.toFile();

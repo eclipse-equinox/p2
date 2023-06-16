@@ -37,7 +37,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	/**
 	 * The location of the bundle advice file, relative to the bundle root location.
 	 */
-	public static final IPath BUNDLE_ADVICE_FILE = new Path("META-INF/p2.inf"); //$NON-NLS-1$
+	public static final IPath BUNDLE_ADVICE_FILE = IPath.fromOSString("META-INF/p2.inf"); //$NON-NLS-1$
 
 	private final String id;
 	private final Version version;

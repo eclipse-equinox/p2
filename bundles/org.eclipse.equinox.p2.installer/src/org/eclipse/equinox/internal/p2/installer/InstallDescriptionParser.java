@@ -115,15 +115,15 @@ public class InstallDescriptionParser {
 
 		property = properties.get(PROP_INSTALL_LOCATION);
 		if (property != null)
-			description.setInstallLocation(new Path(property));
+			description.setInstallLocation(IPath.fromOSString(property));
 
 		property = properties.get(PROP_AGENT_LOCATION);
 		if (property != null)
-			description.setAgentLocation(new Path(property));
+			description.setAgentLocation(IPath.fromOSString(property));
 
 		property = properties.get(PROP_BUNDLE_LOCATION);
 		if (property != null)
-			description.setBundleLocation(new Path(property));
+			description.setBundleLocation(IPath.fromOSString(property));
 
 		property = properties.get(PROP_PROFILE_NAME);
 		if (property != null)

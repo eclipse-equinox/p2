@@ -256,7 +256,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			arg = arg.substring(5);
 
 		// we create a path object here to handle ../ entries in the middle of paths
-		return Path.fromOSString(arg).toFile();
+		return IPath.fromOSString(arg).toFile();
 	}
 
 	private IArtifactRepositoryManager artifactManager;
@@ -918,7 +918,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				}
 				if (sharedLocation == null)
 					// -shared without an argument means "Use default shared area"
-					sharedLocation = Path.fromOSString(System.getProperty("user.home")).append(".p2/").toFile(); //$NON-NLS-1$ //$NON-NLS-2$
+					sharedLocation = IPath.fromOSString(System.getProperty("user.home")).append(".p2/").toFile(); //$NON-NLS-1$ //$NON-NLS-2$
 				continue;
 			}
 
