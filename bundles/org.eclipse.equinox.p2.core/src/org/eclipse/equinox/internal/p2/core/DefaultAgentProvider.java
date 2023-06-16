@@ -18,10 +18,12 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.equinox.p2.core.*;
 import org.osgi.framework.*;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Default implementation of {@link IProvisioningAgentProvider}.
  */
+@Component(service = IProvisioningAgentProvider.class, name = "org.eclipse.equinox.p2.di.agentProvider")
 public class DefaultAgentProvider implements IProvisioningAgentProvider {
 	private BundleContext context;
 

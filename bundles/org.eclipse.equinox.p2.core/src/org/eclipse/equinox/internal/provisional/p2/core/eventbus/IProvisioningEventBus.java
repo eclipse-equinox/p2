@@ -24,19 +24,19 @@ public interface IProvisioningEventBus extends EventDispatcher<ProvisioningListe
 	/**
 	 * The name used for obtaining a reference to the event bus service.
 	 */
-	public static final String SERVICE_NAME = IProvisioningEventBus.class.getName();
+	String SERVICE_NAME = "org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus"; //$NON-NLS-1$
 
-	public abstract void addListener(ProvisioningListener toAdd);
+	void addListener(ProvisioningListener toAdd);
 
-	public abstract void removeListener(ProvisioningListener toRemove);
+	void removeListener(ProvisioningListener toRemove);
 
-	public abstract void publishEvent(EventObject event);
+	void publishEvent(EventObject event);
 
 	/**
 	 * Closes the event bus.  This will stop dispatching of any events currently
 	 * being processed by the bus. Events published after the bus is closed
 	 * are ignored.
 	 */
-	public abstract void close();
+	void close();
 
 }
