@@ -245,7 +245,7 @@ public class NativeTouchpoint extends Touchpoint {
 
 	public static File getFileFromBundle(String distro, String file) {
 		URL[] installScripts = FileLocator.findEntries(Activator.getContext().getBundle(),
-				new Path(NativeTouchpoint.FOLDER + '/' + distro + '/' + file));
+				IPath.fromOSString(NativeTouchpoint.FOLDER + '/' + distro + '/' + file));
 		if (installScripts.length == 0)
 			return null;
 

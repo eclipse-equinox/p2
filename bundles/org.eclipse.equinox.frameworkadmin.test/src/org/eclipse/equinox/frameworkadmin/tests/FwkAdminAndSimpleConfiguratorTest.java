@@ -49,7 +49,7 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 		launcherName = "eclipse";
 
 		boolean isMacOS = Constants.OS_MACOSX.equals(os);
-		launcherPath = isMacOS ? new Path("../").append(launcherName) : new Path(launcherName);
+		launcherPath = isMacOS ? IPath.fromOSString("../").append(launcherName) : IPath.fromOSString(launcherName);
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setHome(installFolder);

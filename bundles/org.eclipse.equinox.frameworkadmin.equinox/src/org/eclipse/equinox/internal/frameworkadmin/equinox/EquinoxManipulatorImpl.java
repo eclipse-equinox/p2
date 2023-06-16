@@ -599,13 +599,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	}
 
 	public static String makeRelative(String original, String rootPath) {
-		IPath path = new Path(original);
+		IPath path = IPath.fromOSString(original);
 		// ensure we have an absolute path to start with
 		if (!path.isAbsolute())
 			return original;
 
 		// Returns the original string if no relativization has been done
-		IPath result = path.makeRelativeTo(new Path(rootPath));
+		IPath result = path.makeRelativeTo(IPath.fromOSString(rootPath));
 		return path.equals(result) ? original : result.toString();
 	}
 
@@ -632,8 +632,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			return urlString;
 
 		String rootString = rootURL.toExternalForm();
-		IPath one = new Path(urlString.substring(index));
-		IPath two = new Path(rootString.substring(rootString.indexOf(FILE_PROTOCOL) + 5));
+		IPath one = IPath.fromOSString(urlString.substring(index));
+		IPath two = IPath.fromOSString(rootString.substring(rootString.indexOf(FILE_PROTOCOL) + 5));
 		String deviceOne = one.getDevice();
 		String deviceTwo = two.getDevice();
 		// do checking here because we want to return the exact string we got initially
@@ -676,11 +676,11 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * TODO: can we use URIUtil in these #make* methods?
 	 */
 	public static String makeAbsolute(String original, String rootPath) {
-		IPath path = new Path(original);
+		IPath path = IPath.fromOSString(original);
 		// ensure we have a relative path to start with
 		if (path.isAbsolute())
 			return original;
-		IPath root = new Path(rootPath);
+		IPath root = IPath.fromOSString(rootPath);
 		return root.addTrailingSeparator().append(original.replace(':', '}')).toOSString().replace('}', ':');
 	}
 

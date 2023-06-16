@@ -325,7 +325,7 @@ public class Util {
 		}
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
-			IPath path = new Path(name);
+			IPath path = IPath.fromOSString(name);
 			if ("exe".equals(path.getFileExtension())) //$NON-NLS-1$
 				return name;
 			return name + ".exe"; //$NON-NLS-1$

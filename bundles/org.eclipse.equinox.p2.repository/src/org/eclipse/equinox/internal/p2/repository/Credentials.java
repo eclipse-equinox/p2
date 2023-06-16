@@ -297,7 +297,7 @@ public class Credentials {
 				// case the key is the path without the last segment.
 				// Using "Path" this way may result in an empty string - which later will result in
 				// an invalid key.
-				host = new Path(location.toString()).removeLastSegments(1).toString();
+				host = IPath.fromOSString(location.toString()).removeLastSegments(1).toString();
 			else
 				// it is an opaque URI - details are unknown - can only use entire string.
 				host = location.toString();

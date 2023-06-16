@@ -55,13 +55,13 @@ public class PathUtil {
 	}
 
 	public static String makeRelative(String original, String rootPath) {
-		IPath path = new Path(original);
+		IPath path = IPath.fromOSString(original);
 		// ensure we have an absolute path to start with
 		if (!path.isAbsolute())
 			return original;
 
 		//Returns the original string if no relativization has been done
-		String result = makeRelative(path, new Path(rootPath));
+		String result = makeRelative(path, IPath.fromOSString(rootPath));
 		return path.toOSString().equals(result) ? original : result;
 	}
 
@@ -96,11 +96,11 @@ public class PathUtil {
 	 * Method similar to one from SimpleConfigurationManipulatorImpl.
 	 */
 	public static String makeAbsolute(String original, String rootPath) {
-		IPath path = new Path(original);
+		IPath path = IPath.fromOSString(original);
 		// ensure we have a relative path to start with
 		if (path.isAbsolute())
 			return original;
-		IPath root = new Path(rootPath);
+		IPath root = IPath.fromOSString(rootPath);
 		return root.addTrailingSeparator().append(original.replace(':', '}')).toOSString().replace('}', ':');
 	}
 

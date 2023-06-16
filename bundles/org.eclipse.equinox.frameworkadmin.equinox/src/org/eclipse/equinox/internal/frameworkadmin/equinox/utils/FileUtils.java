@@ -78,7 +78,7 @@ public class FileUtils {
 		else if (launcherData.getLauncher() != null) {
 			File launcherDir = null;
 			if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
-				IPath launcherPath = new Path(launcherData.getLauncher().getAbsolutePath());
+				IPath launcherPath = IPath.fromOSString(launcherData.getLauncher().getAbsolutePath());
 				if (launcherPath.segmentCount() > 2) {
 					launcherPath = launcherPath.removeLastSegments(2).append("Eclipse");
 					launcherDir = launcherPath.toFile();

@@ -113,10 +113,10 @@ public class Activator implements BundleActivator {
 			return new AgentLocation(null);
 		if (location.startsWith(VAR_USER_HOME)) {
 			String base = substituteVar(location, VAR_USER_HOME, PROP_USER_HOME);
-			location = new Path(base).toFile().getAbsolutePath();
+			location = IPath.fromOSString(base).toFile().getAbsolutePath();
 		} else if (location.startsWith(VAR_USER_DIR)) {
 			String base = substituteVar(location, VAR_USER_DIR, PROP_USER_DIR);
-			location = new Path(base).toFile().getAbsolutePath();
+			location = IPath.fromOSString(base).toFile().getAbsolutePath();
 		} else if (location.startsWith(VAR_CONFIG_DIR)) {
 			//note the config dir system property is already a URL
 			location = substituteVar(location, VAR_CONFIG_DIR, PROP_CONFIG_DIR);

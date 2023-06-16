@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -335,7 +335,7 @@ public class InstallDialog {
 		manualProxyTypeCheckBox.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
 			IProxyService proxies = (IProxyService) InstallApplication.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
 			if (proxies != null) {
-				//When the manual check box is selected the system properties should be disabled. 
+				//When the manual check box is selected the system properties should be disabled.
 				//This cases the net component to switch to manual proxy provider.
 				proxies.setSystemProxiesEnabled(!manualProxyTypeCheckBox.getSelection());
 				if (proxySettingsButton != null) {
@@ -457,7 +457,7 @@ public class InstallDialog {
 		if (shell == null || shell.isDisposed())
 			throw new OperationCanceledException();
 		setInstallSettingsEnablement(false);
-		Path location = new Path(settingsLocation.getText());
+		IPath location = IPath.fromOSString(settingsLocation.getText());
 		description.setInstallLocation(location);
 		if (settingsStandalone.getSelection()) {
 			//force everything to be co-located regardless of what values were set in the install description
@@ -465,7 +465,7 @@ public class InstallDialog {
 			description.setBundleLocation(location);
 		} else {
 			if (description.getAgentLocation() == null)
-				description.setAgentLocation(new Path(System.getProperty("user.home")).append(".p2/")); //$NON-NLS-1$ //$NON-NLS-2$
+				description.setAgentLocation(IPath.fromOSString(System.getProperty("user.home")).append(".p2/")); //$NON-NLS-1$ //$NON-NLS-2$
 			//use bundle pool location specified in install description
 			//by default this will be null, causing the bundle pool to be nested in the agent location
 		}
@@ -479,7 +479,7 @@ public class InstallDialog {
 	 * <p>
 	 * This method must be called from the UI thread. The operation will be
 	 * executed outside the UI thread.
-	 * 
+	 *
 	 * @param operation The operation to run
 	 * @return The result of the operation
 	 */
@@ -544,10 +544,10 @@ public class InstallDialog {
 	 */
 	void validateInstallSettings() {
 		boolean enabled = settingsStandalone.getSelection() || settingsShared.getSelection();
-		enabled &= Path.ROOT.isValidPath(settingsLocation.getText());
+		enabled &= IPath.ROOT.isValidPath(settingsLocation.getText());
 		if (enabled) {
 			//make sure the install location is an absolute path
-			IPath location = new Path(settingsLocation.getText());
+			IPath location = IPath.fromOSString(settingsLocation.getText());
 			enabled &= location.isAbsolute();
 		}
 		okButton.setEnabled(enabled);

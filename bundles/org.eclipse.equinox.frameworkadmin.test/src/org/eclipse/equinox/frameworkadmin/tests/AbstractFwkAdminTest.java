@@ -277,7 +277,7 @@ public abstract class AbstractFwkAdminTest {
 		if (base == null)
 			fail(message + " entry not found in bundle: " + entry);
 		try {
-			String osPath = new Path(FileLocator.toFileURL(base).getPath()).toOSString();
+			String osPath = IPath.fromOSString(FileLocator.toFileURL(base).getPath()).toOSString();
 			File result = new File(osPath);
 			if (!result.getCanonicalPath().equals(result.getPath()))
 				fail(message + " result path: " + result.getPath() + " does not match canonical path: " + result.getCanonicalFile().getPath());
