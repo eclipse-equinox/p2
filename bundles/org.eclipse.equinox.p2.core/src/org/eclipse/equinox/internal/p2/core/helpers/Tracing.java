@@ -17,6 +17,7 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 import java.util.Date;
 import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.osgi.service.debug.DebugOptions;
+import org.osgi.framework.*;
 
 /**
  * Manages debug tracing options and provides convenience methods for printing
@@ -44,25 +45,31 @@ public class Tracing {
 	public static boolean DEBUG_DEFAULT_UI = false;
 
 	static {
-		DebugOptions options = ServiceHelper.getService(Activator.context, DebugOptions.class);
-		if (options != null) {
-			DEBUG = options.getBooleanOption(Activator.ID + "/debug", false); //$NON-NLS-1$
-			if (DEBUG) {
-				DEBUG_EVENTS_CLIENT = options.getBooleanOption(Activator.ID + "/events/client", false); //$NON-NLS-1$
-				DEBUG_GENERATOR_PARSING = options.getBooleanOption(Activator.ID + "/generator/parsing", false); //$NON-NLS-1$
-				DEBUG_INSTALL_REGISTRY = options.getBooleanOption(Activator.ID + "/engine/installregistry", false); //$NON-NLS-1$
-				DEBUG_METADATA_PARSING = options.getBooleanOption(Activator.ID + "/metadata/parsing", false); //$NON-NLS-1$
-				DEBUG_MIRRORS = options.getBooleanOption(Activator.ID + "/artifacts/mirrors", false); //$NON-NLS-1$
-				DEBUG_PARSE_PROBLEMS = options.getBooleanOption(Activator.ID + "/core/parseproblems", false); //$NON-NLS-1$
-				DEBUG_PLANNER_OPERANDS = options.getBooleanOption(Activator.ID + "/planner/operands", false); //$NON-NLS-1$
-				DEBUG_PLANNER_PROJECTOR = options.getBooleanOption(Activator.ID + "/planner/projector", false); //$NON-NLS-1$
-				DEBUG_PLANNER_PROJECTOR_ENCODING = options.getBooleanOption(Activator.ID + "/planner/encoding", false); //$NON-NLS-1$
-				DEBUG_PROFILE_PREFERENCES = options.getBooleanOption(Activator.ID + "/engine/profilepreferences", false); //$NON-NLS-1$
-				DEBUG_PUBLISHING = options.getBooleanOption(Activator.ID + "/publisher", false); //$NON-NLS-1$
-				DEBUG_RECONCILER = options.getBooleanOption(Activator.ID + "/reconciler", false); //$NON-NLS-1$
-				DEBUG_REMOVE_REPO = options.getBooleanOption(Activator.ID + "/core/removeRepo", false); //$NON-NLS-1$
-				DEBUG_UPDATE_CHECK = options.getBooleanOption(Activator.ID + "/updatechecker", false); //$NON-NLS-1$
-				DEBUG_DEFAULT_UI = options.getBooleanOption(Activator.ID + "/ui/default", false); //$NON-NLS-1$
+		Bundle bundle = FrameworkUtil.getBundle(Tracing.class);
+		if (bundle != null) {
+			BundleContext bundleContext = bundle.getBundleContext();
+			DebugOptions options = ServiceHelper.getService(bundleContext, DebugOptions.class);
+			if (options != null) {
+				DEBUG = options.getBooleanOption(Activator.ID + "/debug", false); //$NON-NLS-1$
+				if (DEBUG) {
+					DEBUG_EVENTS_CLIENT = options.getBooleanOption(Activator.ID + "/events/client", false); //$NON-NLS-1$
+					DEBUG_GENERATOR_PARSING = options.getBooleanOption(Activator.ID + "/generator/parsing", false); //$NON-NLS-1$
+					DEBUG_INSTALL_REGISTRY = options.getBooleanOption(Activator.ID + "/engine/installregistry", false); //$NON-NLS-1$
+					DEBUG_METADATA_PARSING = options.getBooleanOption(Activator.ID + "/metadata/parsing", false); //$NON-NLS-1$
+					DEBUG_MIRRORS = options.getBooleanOption(Activator.ID + "/artifacts/mirrors", false); //$NON-NLS-1$
+					DEBUG_PARSE_PROBLEMS = options.getBooleanOption(Activator.ID + "/core/parseproblems", false); //$NON-NLS-1$
+					DEBUG_PLANNER_OPERANDS = options.getBooleanOption(Activator.ID + "/planner/operands", false); //$NON-NLS-1$
+					DEBUG_PLANNER_PROJECTOR = options.getBooleanOption(Activator.ID + "/planner/projector", false); //$NON-NLS-1$
+					DEBUG_PLANNER_PROJECTOR_ENCODING = options.getBooleanOption(Activator.ID + "/planner/encoding", //$NON-NLS-1$
+							false);
+					DEBUG_PROFILE_PREFERENCES = options.getBooleanOption(Activator.ID + "/engine/profilepreferences", //$NON-NLS-1$
+							false);
+					DEBUG_PUBLISHING = options.getBooleanOption(Activator.ID + "/publisher", false); //$NON-NLS-1$
+					DEBUG_RECONCILER = options.getBooleanOption(Activator.ID + "/reconciler", false); //$NON-NLS-1$
+					DEBUG_REMOVE_REPO = options.getBooleanOption(Activator.ID + "/core/removeRepo", false); //$NON-NLS-1$
+					DEBUG_UPDATE_CHECK = options.getBooleanOption(Activator.ID + "/updatechecker", false); //$NON-NLS-1$
+					DEBUG_DEFAULT_UI = options.getBooleanOption(Activator.ID + "/ui/default", false); //$NON-NLS-1$
+				}
 			}
 		}
 	}

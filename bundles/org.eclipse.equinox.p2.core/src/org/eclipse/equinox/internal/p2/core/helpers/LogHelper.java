@@ -19,18 +19,38 @@ import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.framework.log.FrameworkLogEntry;
+import org.osgi.framework.*;
 
 public class LogHelper {
 
 	public static void log(IStatus status) {
-		FrameworkLog log = Activator.getFrameworkLog();
-		if (log != null) {
-			log.log(getLog(status));
-		} else {
+		if (!doOSGiLog(status)) {
 			System.out.println(status.getMessage());
 			if (status.getException() != null)
 				status.getException().printStackTrace();
 		}
+	}
+
+	private static boolean doOSGiLog(IStatus status) {
+		Bundle bundle = FrameworkUtil.getBundle(LogHelper.class);
+		if (bundle == null) {
+			return false;
+		}
+		BundleContext bundleContext = bundle.getBundleContext();
+		if (bundleContext == null) {
+			return false;
+		}
+		ServiceReference<FrameworkLog> reference = bundleContext.getServiceReference(FrameworkLog.class);
+		if (reference == null) {
+			return false;
+		}
+		FrameworkLog log = bundleContext.getService(reference);
+		if (log == null) {
+			return false;
+		}
+		log.log(getLog(status));
+		bundleContext.ungetService(reference);
+		return true;
 	}
 
 	public static void log(ProvisionException exception) {
