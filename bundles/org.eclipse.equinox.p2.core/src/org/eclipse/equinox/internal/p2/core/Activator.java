@@ -21,18 +21,15 @@ import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.*;
-import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.osgi.framework.*;
-import org.osgi.util.tracker.ServiceTracker;
 
 public class Activator implements BundleActivator {
 	public static IAgentLocation agentDataLocation = null;
 
-	public static BundleContext context;
+	private static BundleContext context;
 	private static final String DEFAULT_AGENT_LOCATION = "../p2"; //$NON-NLS-1$
 	public static final String ID = "org.eclipse.equinox.p2.core"; //$NON-NLS-1$
 
-	private static Activator instance;
 	// Data mode constants for user, configuration and data locations.
 	private static final String NO_DEFAULT = "@noDefault"; //$NON-NLS-1$
 	private static final String NONE = "@none"; //$NON-NLS-1$
@@ -51,8 +48,6 @@ public class Activator implements BundleActivator {
 
 	private IProvisioningAgent agent;
 	private ServiceRegistration<IAgentLocation> agentLocationRegistration = null;
-
-	ServiceTracker<FrameworkLog, FrameworkLog> logTracker;
 
 	/**
 	 * NOTE: This method is copied from LocationHelper in org.eclipse.osgi
@@ -99,20 +94,6 @@ public class Activator implements BundleActivator {
 		}
 	}
 
-	/**
-	 * Returns the framework log, or null if not available
-	 */
-	public static FrameworkLog getFrameworkLog() {
-		//protect against concurrent shutdown
-		Activator a = instance;
-		if (a == null)
-			return null;
-		ServiceTracker<FrameworkLog, FrameworkLog> tracker = a.getLogTracker();
-		if (tracker == null)
-			return null;
-		return tracker.getService();
-	}
-
 	private static String substituteVar(String source, String var, String prop) {
 		String value = Activator.context.getProperty(prop);
 		if (value == null)
@@ -146,17 +127,6 @@ public class Activator implements BundleActivator {
 			result = new AgentLocation(url);
 		}
 		return result;
-	}
-
-	private ServiceTracker<FrameworkLog, FrameworkLog> getLogTracker() {
-		if (logTracker != null)
-			return logTracker;
-		//lazy init if the bundle has been started
-		if (context == null)
-			return null;
-		logTracker = new ServiceTracker<>(context, FrameworkLog.class, null);
-		logTracker.open();
-		return logTracker;
 	}
 
 	/**
@@ -232,7 +202,6 @@ public class Activator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext aContext) throws Exception {
-		instance = this;
 		Activator.context = aContext;
 		URI defaultLocation = URIUtil.fromString(aContext.getProperty(PROP_CONFIG_DIR) + DEFAULT_AGENT_LOCATION + '/');
 		agentDataLocation = buildLocation(PROP_AGENT_DATA_AREA, defaultLocation, false, true);
@@ -247,14 +216,9 @@ public class Activator implements BundleActivator {
 	@Override
 	public void stop(BundleContext aContext) throws Exception {
 		unregisterAgent();
-		instance = null;
 		agentDataLocation = null;
 		if (agentLocationRegistration != null)
 			agentLocationRegistration.unregister();
-		if (logTracker != null) {
-			logTracker.close();
-			logTracker = null;
-		}
 		Activator.context = null;
 	}
 
