@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -181,7 +182,7 @@ public class PGPPublicKeyViewDialog extends TitleAreaDialog {
 			content.append(" ");
 			content.append(signatureExpirationTime == 0 ? formattedCreationTime.replaceAll(".", "_")
 					: DATE_FORMAT
-							.format(new Date(creationTime.getTime() + 1000 * signatureExpirationTime).toInstant()));
+							.format(Instant.ofEpochMilli(creationTime.getTime() + 1000 * signatureExpirationTime)));
 
 			content.append(" ");
 			Optional<PGPPublicKey> resolvedKey = verifiedCertifications.stream().filter(k -> k.getKeyID() == keyID)
@@ -190,9 +191,8 @@ public class PGPPublicKeyViewDialog extends TitleAreaDialog {
 			long keyExpirationTime = signature.getHashedSubPackets().getKeyExpirationTime();
 			content.append(keyExpirationTime == 0 || resolvedKey == null || !resolvedKey.isPresent()
 					? formattedCreationTime.replaceAll(".", "_")
-					: DATE_FORMAT
-							.format(new Date(resolvedKey.get().getCreationTime().getTime() + 1000 * keyExpirationTime)
-									.toInstant()));
+					: DATE_FORMAT.format(Instant
+							.ofEpochMilli(resolvedKey.get().getCreationTime().getTime() + 1000 * keyExpirationTime)));
 
 			if (resolvedKey != null && resolvedKey.isPresent()) {
 				content.append(" ");
