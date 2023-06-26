@@ -18,7 +18,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -97,7 +97,7 @@ public class SimpleLicenseManager extends LicenseManager {
 		try {
 			pref.flush();
 		} catch (BackingStoreException e) {
-			Platform.getLog(SimpleLicenseManager.class).error("Persisting remembered licenses failed", e); //$NON-NLS-1$
+			ILog.of(SimpleLicenseManager.class).error("Persisting remembered licenses failed", e); //$NON-NLS-1$
 		}
 	}
 }

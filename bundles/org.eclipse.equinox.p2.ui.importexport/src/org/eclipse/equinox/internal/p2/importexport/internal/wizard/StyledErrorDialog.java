@@ -127,13 +127,13 @@ public class StyledErrorDialog extends MessageDialog {
 							prefCommand.executeWithChecks(new ExecutionEvent(prefCommand, para, null, null));
 						}
 					} catch (ExecutionException e) {
-						Platform.getLog(Platform.getBundle(Constants.Bundle_ID)).log(new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
+						ILog.of(Platform.getBundle(Constants.Bundle_ID)).log(new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
 					} catch (NotDefinedException e) {
-						Platform.getLog(Platform.getBundle(Constants.Bundle_ID)).log(new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
+						ILog.of(Platform.getBundle(Constants.Bundle_ID)).log(new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
 					} catch (NotEnabledException e) {
-						Platform.getLog(Platform.getBundle(Constants.Bundle_ID)).log(new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
+						ILog.of(Platform.getBundle(Constants.Bundle_ID)).log(new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
 					} catch (NotHandledException e) {
-						Platform.getLog(Platform.getBundle(Constants.Bundle_ID)).log(new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
+						ILog.of(Platform.getBundle(Constants.Bundle_ID)).log(new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
 					}
 				}
 			});
