@@ -3,3 +3,4 @@ Bug 403352 - Update all parent versions to match our build stream
 Bug 414457 - Comparator report indicates problem with org.eclipse.equinox.p2.ui.discovery
 Bug 416980 - ControlListViewer.class appears to have changed, though qualifier has not
 Bug 509973 - Comparator errors in I20170105-0320
+Bug 527899 [9] Implement JEP 280: Indify String Concatenation
