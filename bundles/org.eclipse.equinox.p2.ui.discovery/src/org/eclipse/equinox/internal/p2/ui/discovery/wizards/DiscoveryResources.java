@@ -66,15 +66,15 @@ public class DiscoveryResources {
 	}
 
 	public Font getHeaderFont() {
-		return resourceManager.createFont(h1FontDescriptor);
+		return resourceManager.create(h1FontDescriptor);
 	}
 
 	public Font getSmallHeaderFont() {
-		return resourceManager.createFont(h2FontDescriptor);
+		return resourceManager.create(h2FontDescriptor);
 	}
 
 	public Image getInfoImage() {
-		return resourceManager.createImage(DiscoveryImages.MESSAGE_INFO);
+		return resourceManager.create(DiscoveryImages.MESSAGE_INFO);
 	}
 
 	public Image getIconImage(AbstractCatalogSource discoverySource, Icon icon, int dimension, boolean fallback) {
@@ -100,7 +100,7 @@ public class DiscoveryResources {
 			URL resource = discoverySource.getResource(imagePath);
 			if (resource != null) {
 				ImageDescriptor descriptor = ImageDescriptor.createFromURL(resource);
-				return resourceManager.createImage(descriptor);
+				return resourceManager.create(descriptor);
 			}
 		}
 		return null;
@@ -119,7 +119,7 @@ public class DiscoveryResources {
 	}
 
 	public Image getUpdateImage() {
-		return resourceManager.createImage(DiscoveryImages.IU_UPDATABLE);
+		return resourceManager.create(DiscoveryImages.IU_UPDATABLE);
 	}
 
 }
