@@ -16,6 +16,7 @@ package org.eclipse.equinox.internal.p2.repository.helpers;
 
 import java.io.File;
 import java.net.*;
+import java.util.Objects;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -34,8 +35,8 @@ public class RepositoryHelper {
 	public static URI localRepoURIHelper(URI location) {
 		if (location == null)
 			return null;
-		if (location.getScheme() == null)
-			// Probably a local path:  /home/user/repo
+		if (location.getScheme() == null)			// Probably a local path:  /home/user/repo
+
 			location = (new File(location.getPath())).getAbsoluteFile().toURI();
 		else if (location.getScheme().length() == 1)
 			// Probably a windows path:  C:\repo
@@ -52,8 +53,8 @@ public class RepositoryHelper {
 	}
 
 	/**
-	 * Determine if the repository could be used as a valid destination (eg, it is modifiable)
-	 * @param repository the repository to test
+		 * Determine if the repository could be used as a valid destination (eg, it is modifiable)
+ * @param repository the repository to test
 	 * @return the repository
 	 */
 	public static <T> IRepository<T> validDestinationRepository(IRepository<T> repository) {
@@ -63,9 +64,9 @@ public class RepositoryHelper {
 	}
 
 	/**
-	 * Determine if the location is a syntactically correct repository location. Intended to be used
-	 * from the UI when checking validity of user input.
-	 * 
+	 * Determine if the location is a syntactically correct repository location.
+	 * Intended to be used from the UI when checking validity of user input.
+	 *
 	 * @throws IllegalArgumentException if location is null
 	 */
 	public static IStatus checkRepositoryLocationSyntax(URI location) {
@@ -73,11 +74,27 @@ public class RepositoryHelper {
 			throw new IllegalArgumentException("Location cannot be null"); //$NON-NLS-1$
 		if (!location.isAbsolute())
 			return new Status(IStatus.ERROR, Activator.ID, Messages.locationMustBeAbsolute);
+		String scheme = location.getScheme();
+		if (scheme == null) {
+			return Status.error(Messages.schemeNotProvided);
+		}
 		try {
-			new URL(location.getScheme(), "dummy.com", -1, "dummy.txt"); //$NON-NLS-1$ //$NON-NLS-2$
+			new URL(scheme, "dummy.com", -1, "dummy.txt"); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (MalformedURLException e) {
-			return new Status(IStatus.ERROR, Activator.ID, Messages.schemeNotSupported);
-
+			// check if the scheme is probably provided to ECF but not yet loaded
+			IExtensionRegistry reg = RegistryFactory.getRegistry();
+			if (reg != null) {
+				IExtensionPoint handlersExtensionPoint = reg
+						.getExtensionPoint("org.eclipse.ecf.filetransfer.urlStreamHandlerService"); //$NON-NLS-1$
+				IConfigurationElement[] configurationElements = handlersExtensionPoint.getConfigurationElements();
+				for (IConfigurationElement configurationElement : configurationElements) {
+					String protocol = configurationElement.getAttribute("protocol"); //$NON-NLS-1$
+					if (Objects.equals(scheme, protocol)) {
+						return Status.OK_STATUS;
+					}
+				}
+			}
+			return new Status(IStatus.ERROR, Activator.ID, Messages.schemeNotSupported, e);
 		}
 		return Status.OK_STATUS;
 	}
