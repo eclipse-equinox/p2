@@ -23,6 +23,5 @@ Export-Package: org.eclipse.equinox.internal.p2.ui.discovery;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.discovery.repository;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.discovery.util;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.discovery.wizards;x-internal:=true
-Bundle-ClassPath: .
 Import-Package: org.eclipse.equinox.p2.planner;version="2.0.0"
 Automatic-Module-Name: org.eclipse.equinox.p2.ui.discovery
