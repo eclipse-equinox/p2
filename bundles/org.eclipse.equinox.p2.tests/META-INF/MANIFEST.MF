@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.tests;singleton:=true
 Bundle-Version: 1.9.100.qualifier
-Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.equinox.p2.tests.TestActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
