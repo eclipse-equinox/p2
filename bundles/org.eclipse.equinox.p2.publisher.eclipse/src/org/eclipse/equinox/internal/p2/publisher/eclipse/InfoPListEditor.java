@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2015, 2017 Rapicorp, Inc and others.
+ *  Copyright (c) 2015, 2023 Rapicorp, Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -22,6 +22,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.*;
+import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -61,18 +62,14 @@ public class InfoPListEditor {
 			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); //$NON-NLS-1$
 			builder = factory.newDocumentBuilder();
 			return new InfoPListEditor(builder.parse(file));
-		} catch (ParserConfigurationException e) {
-			exception = e;
-		} catch (SAXException e) {
-			exception = e;
-		} catch (IOException e) {
+		} catch (ParserConfigurationException | SAXException | IOException e) {
 			exception = e;
 		}
 		throw new IOException("Problem parsing " + file.getAbsolutePath(), exception); //$NON-NLS-1$
 	}
 
 	public void save(File file) throws TransformerException {
-		final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		final TransformerFactory transformerFactory = SecureXMLUtil.createTransformerFactoryWithErrorOnDOCTYPE();
 		final Transformer transformer = transformerFactory.newTransformer();
 		final DOMSource toSerialize = new DOMSource(document);
 

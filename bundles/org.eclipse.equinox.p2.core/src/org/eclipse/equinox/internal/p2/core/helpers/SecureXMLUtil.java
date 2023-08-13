@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Manumitting Technologies Inc and others.
+ * Copyright (c) 2017, 2023 Manumitting Technologies Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.*;
+import javax.xml.transform.TransformerFactory;
 import org.xml.sax.*;
 
 /**
@@ -31,6 +32,9 @@ public class SecureXMLUtil {
 	public static DocumentBuilderFactory newSecureDocumentBuilderFactory() throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		// completely disable external entities declarations:
+		factory.setFeature("http://xml.org/sax/features/external-general-entities", false); //$NON-NLS-1$
+		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); //$NON-NLS-1$
 		return factory;
 	}
 
@@ -44,6 +48,10 @@ public class SecureXMLUtil {
 	public static SAXParserFactory newSecureSAXParserFactory() throws SAXNotRecognizedException, SAXNotSupportedException, ParserConfigurationException {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		// ignore DOCTYPE:
+		factory.setFeature("http://xml.org/sax/features/external-general-entities", false); //$NON-NLS-1$
+		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false); //$NON-NLS-1$
+		factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); //$NON-NLS-1$
 		return factory;
 	}
 
@@ -57,5 +65,19 @@ public class SecureXMLUtil {
 		SAXParserFactory factory = newSecureSAXParserFactory();
 		factory.setNamespaceAware(true);
 		return factory.newSAXParser().getXMLReader();
+	}
+
+	/**
+	 * Creates TransformerFactory which throws TransformerException when detecting
+	 * external entities.
+	 *
+	 * @return javax.xml.transform.TransformerFactory
+	 */
+	public static TransformerFactory createTransformerFactoryWithErrorOnDOCTYPE() {
+		TransformerFactory factory = TransformerFactory.newInstance();
+		// prohibit the use of all protocols by external entities:
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, ""); //$NON-NLS-1$
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, ""); //$NON-NLS-1$
+		return factory;
 	}
 }
