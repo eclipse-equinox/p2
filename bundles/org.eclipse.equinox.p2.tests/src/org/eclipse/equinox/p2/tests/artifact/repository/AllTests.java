@@ -25,7 +25,7 @@ import org.junit.runners.Suite;
 		ArtifactRepositoryMissingSizeData.class, ArtifactRepositoryWithReferenceDescriptors.class,
 		BatchExecuteArtifactRepositoryTest.class, Bug252308.class, Bug265577.class, Bug351944.class,
 		CompositeArtifactRepositoryTest.class, CorruptedJar.class, FoldersRepositoryTest.class,
-		JarURLArtifactRepositoryTest.class, LocationTest.class, MD5Tests.class, MirrorSelectorTest.class,
+		JarURLArtifactRepositoryTest.class, MD5Tests.class, MirrorSelectorTest.class,
 		MirrorRequestTest.class, SimpleArtifactRepositoryTest.class, TransferTest.class, PGPVerifierTest.class
 })
 public class AllTests {
