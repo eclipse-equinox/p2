@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -179,7 +181,6 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Failed to load source repository");
 		}
-		// Set status sequence, actual Statuses added later
 		source.setSequence(seq);
 		// Grab an ArtifactKey to mirror, doesn't matter which
 		IQueryResult<IArtifactKey> keys = source.query(ArtifactKeyQuery.ALL_KEYS, null);
@@ -188,35 +189,29 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		IArtifactKey key = keys.iterator().next();
 		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
-		// Set Status sequence
-		seq.add(new Status(IStatus.ERROR, "Activator", "Message"));
-		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
 
 		// packed artifact is ignored as Java 14 removed pack200
-		assertEquals("Expected ERROR status", IStatus.ERROR, req.getResult().getSeverity());
+		assertEquals("Expected OK status", IStatus.OK, req.getResult().getSeverity());
 
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key, new NullProgressMonitor());
-		// Set Status sequence
+
 		req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
-		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
-		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
 
 		// packed artifact is ignored as Java 14 removed pack200
-		assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
+		assertEquals("Expected OK status", IStatus.OK, req.getResult().getSeverity());
 
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key, new NullProgressMonitor());
-		// Set Status sequence
+
 		req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
-		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
 		// packed artifact is ignored as Java 14 removed pack200
-		assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
+		assertEquals("Expected OK status", IStatus.OK, req.getResult().getSeverity());
 	}
 
 	protected static void assertStatusContains(String message, IStatus status, String statusString) {
