@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 IBM Corporation and others.
+ * Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -106,6 +106,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifact
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
+	@Override
 	IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties)
 			throws ProvisionException;
 
@@ -130,6 +131,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifact
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
+	@Override
 	IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
@@ -160,6 +162,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifact
 	 * </ul>
 	 * @see IRepositoryManager#REPOSITORY_HINT_MODIFIABLE
 	 */
+	@Override
 	IArtifactRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
@@ -179,6 +182,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifact
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
+	@Override
 	IArtifactRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
 
 }

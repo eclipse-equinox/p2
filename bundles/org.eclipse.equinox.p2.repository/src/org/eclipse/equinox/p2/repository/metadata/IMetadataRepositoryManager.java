@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -69,6 +69,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * </ul>
 	 * @throws OperationCanceledException if this operation has been canceled
 	 */
+	@Override
 	IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties)
 			throws ProvisionException, OperationCanceledException;
 
@@ -94,6 +95,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
+	@Override
 	IMetadataRepository loadRepository(URI location, IProgressMonitor monitor)
 			throws ProvisionException, OperationCanceledException;
 
@@ -125,6 +127,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * </ul>
 	 * @see IRepositoryManager#REPOSITORY_HINT_MODIFIABLE
 	 */
+	@Override
 	IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
 			throws ProvisionException, OperationCanceledException;
 
@@ -146,6 +149,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
+	@Override
 	IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor)
 			throws ProvisionException, OperationCanceledException;
 

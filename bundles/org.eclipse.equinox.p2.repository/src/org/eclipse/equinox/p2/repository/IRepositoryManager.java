@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,11 +10,15 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Hannes Wellmann - Generalize create/load/refereshRepository() into IRepositoryManager
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository;
 
 import java.net.URI;
+import java.util.Map;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
@@ -253,5 +257,106 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	 * @see #isEnabled(URI)
 	 */
 	void setEnabled(URI location, boolean enablement);
+
+
+	/**
+	 * Creates and returns a new empty repository of the given type at the given location.
+	 * <p>
+	 * The resulting repository is added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URI)}
+	 * if they do not want the repository manager to remember the repository for subsequent
+	 * load attempts.
+	 * </p>
+	 *
+	 * @param location the absolute location for the new repository
+	 * @param name the name of the new repository
+	 * @param type the kind of repository to create
+	 * @param properties the properties to set on the repository
+	 * @return the newly created repository
+	 * @throws ProvisionException if the repository could not be created. Reasons include:
+	 * <ul>
+	 * <li>The repository type is unknown.</li>
+	 * <li>There was an error writing to the given repository location.</li>
+	 * <li>A repository already exists at that location.</li>
+	 * </ul>
+	 * @since 2.8
+	 */
+	IRepository<T> createRepository(URI location, String name, String type, Map<String, String> properties)
+			throws ProvisionException;
+
+	/**
+	 * Loads the repository at the given location. If a repository has
+	 * previously been loaded at that location, the same cached repository
+	 * may be returned.
+	 * <p>
+	 * The resulting repository is added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URI)}
+	 * if they do not want the repository manager to remember the repository for subsequent
+	 * load attempts.
+	 * </p>
+	 *
+	 * @param location the absolute location of the repository to load
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return the loaded repository
+	 * @throws ProvisionException if the repository could not be created. Reasons include:
+	 * <ul>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
+	 * @since 2.8
+	 */
+	IRepository<T> loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
+
+	/**
+	 * Loads the repository at the given location. If a repository has
+	 * previously been loaded at that location, the same cached repository may be returned.
+	 * <p>
+	 * The resulting repository is added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URI)}
+	 * if they do not want the repository manager to remember the repository for subsequent
+	 * load attempts.
+	 * </p>
+	 * <p>
+	 * The flags passed in should be taken as a hint for the type of repository to load. If
+	 * the manager cannot load a repository that satisfies these hints, it can fail fast.
+	 * </p>
+	 *
+	 * @param location the absolute location of the repository to load
+	 * @param flags bit-wise or of flags to consider when loading the repository
+	 *  (currently only {@link IRepositoryManager#REPOSITORY_HINT_MODIFIABLE} is supported)
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return the loaded repository
+	 * @throws ProvisionException if the repository could not be created. Reasons include:
+	 * <ul>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
+	 * @see IRepositoryManager#REPOSITORY_HINT_MODIFIABLE
+	 * @since 2.8
+	 */
+	IRepository<T> loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
+
+	/**
+	 * Refreshes the repository corresponding to the given URL. This method discards
+	 * any cached state held by the repository manager and reloads the repository
+	 * contents. The provided repository location must already be known to the repository
+	 * manager.
+	 *
+	 * @param location The absolute location of the repository to refresh
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return The refreshed repository
+	 * @throws ProvisionException if the repository could not be refreshed. Reasons include:
+	 * <ul>
+	 * <li>The location is not known to the repository manager.</li>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
+	 * @since 2.8
+	 */
+	IRepository<T> refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
+
 
 }
