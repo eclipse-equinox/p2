@@ -14,15 +14,21 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
- * A result optimized for dealing with iterators returned from
- * expression evaluation.
+ * A result optimized for dealing with iterators returned from expression
+ * evaluation.
  */
 public class QueryResult<T> implements IQueryResult<T> {
 
@@ -30,15 +36,18 @@ public class QueryResult<T> implements IQueryResult<T> {
 	private boolean firstUse = true;
 
 	/**
-	 * Create an QueryResult based on the given iterator. The <code>oneShot</code> parameter
-	 * can be set to <code>true</code> if the returned instance is expected to be perused
-	 * only once. This will allow some optimizations since the result of the iteration doesn't
-	 * need to be copied in preparation for a second iteration.
+	 * Create an QueryResult based on the given iterator. The <code>oneShot</code>
+	 * parameter can be set to <code>true</code> if the returned instance is
+	 * expected to be perused only once. This will allow some optimizations since
+	 * the result of the iteration doesn't need to be copied in preparation for a
+	 * second iteration.
 	 *
 	 * @param iterator The iterator to use as the result iterator.
 	 */
 	public QueryResult(Iterator<T> iterator) {
-		this.iterator = (iterator instanceof IRepeatableIterator<?>) ? (IRepeatableIterator<T>) iterator : RepeatableIterator.create(iterator);
+		this.iterator = (iterator instanceof IRepeatableIterator<T> repeatable) //
+				? repeatable
+				: RepeatableIterator.create(iterator);
 	}
 
 	public QueryResult(Collection<T> collection) {
@@ -63,31 +72,26 @@ public class QueryResult<T> implements IQueryResult<T> {
 	@SuppressWarnings("unchecked")
 	public T[] toArray(Class<T> clazz) {
 		Object provider = iterator.getIteratorProvider();
-		if (provider.getClass().isArray())
+		if (provider.getClass().isArray()) {
 			return (T[]) provider;
-
-		Collection<T> c = toUnmodifiableSet();
-		return c.toArray((T[]) Array.newInstance(clazz, c.size()));
+		}
+		return toArray(toUnmodifiableSet(), clazz);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public Set<T> toSet() {
 		Object provider = iterator.getIteratorProvider();
-		if (provider instanceof Collection<?>)
-			return new HashSet<>((Collection<T>) provider);
-		if (provider instanceof IIndexProvider<?>)
-			return iteratorToSet(((IIndexProvider<T>) provider).everything());
-		if (provider.getClass().isArray()) {
+		if (provider instanceof Collection collection) {
+			return new HashSet<>(collection);
+		} else if (provider instanceof IIndexProvider indexProvider) {
+			return iteratorToSet(indexProvider.everything());
+		} else if (provider.getClass().isArray()) {
 			T[] elems = (T[]) provider;
-			int idx = elems.length;
-			HashSet<T> copy = new HashSet<>(idx);
-			while (--idx >= 0)
-				copy.add(elems[idx]);
-			return copy;
+			return new HashSet<>(Arrays.asList(elems));
+		} else if (provider instanceof Map<?, ?> map) {
+			return new HashSet<>((Set<T>) map.entrySet());
 		}
-		if (provider instanceof Map<?, ?>)
-			return new HashSet<>((Set<T>) ((Map<?, ?>) provider).entrySet());
 		return iteratorToSet(iterator());
 	}
 
@@ -100,17 +104,25 @@ public class QueryResult<T> implements IQueryResult<T> {
 	@SuppressWarnings("unchecked")
 	public Set<T> toUnmodifiableSet() {
 		Object provider = iterator.getIteratorProvider();
-		if (provider instanceof Set<?>)
-			return Collections.unmodifiableSet((Set<T>) provider);
-		if (provider instanceof Map<?, ?>)
-			return Collections.unmodifiableSet((Set<T>) ((Map<?, ?>) provider).entrySet());
+		if (provider instanceof Set set) {
+			return Collections.unmodifiableSet(set);
+		} else if (provider instanceof Map map) {
+			return Collections.unmodifiableSet((Set<T>) map.entrySet());
+		}
 		return toSet();
 	}
 
 	private Set<T> iteratorToSet(Iterator<T> iter) {
-		HashSet<T> set = new HashSet<>();
-		while (iter.hasNext())
+		Set<T> set = new HashSet<>();
+		while (iter.hasNext()) {
 			set.add(iter.next());
+		}
 		return set;
+	}
+
+	public static <T> T[] toArray(Collection<T> collection, Class<T> clazz) {
+		@SuppressWarnings("unchecked")
+		T[] arr = (T[]) Array.newInstance(clazz, collection == null ? 0 : collection.size());
+		return collection != null ? collection.toArray(arr) : arr;
 	}
 }
