@@ -14,8 +14,7 @@
 package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
@@ -23,11 +22,8 @@ import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.repository.ICompositeRepository;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
@@ -38,7 +34,7 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	private boolean removeAllChildren = false;
 	private boolean failOnExists = false;
 	private String comparatorID = null;
-	
+
 	public CompositeRepositoryApplication() {
 		super();
 	}
@@ -106,75 +102,57 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	}
 
 	@Override
-	protected IArtifactRepository initializeDestination(RepositoryDescriptor toInit, IArtifactRepositoryManager mgr) throws ProvisionException {
+	protected <T> IRepository<T> initializeDestination(RepositoryDescriptor toInit, IRepositoryManager<T> mgr)
+			throws ProvisionException {
+
+		String repositoryType;
+		String defaultName;
+		if (mgr instanceof IArtifactRepositoryManager) {
+			repositoryType = IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY;
+			defaultName = Messages.CompositeRepository_default_artifactRepo_name;
+		} else if (mgr instanceof IMetadataRepositoryManager) {
+			repositoryType = IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY;
+			defaultName = Messages.CompositeRepository_default_metadataRepo_name;
+		} else {
+			throw new AssertionError("Unsupported repository type: " + mgr.getClass()); //$NON-NLS-1$
+		}
 		// remove the repo first.
 		mgr.removeRepository(toInit.getRepoLocation());
 
 		// first try and load to see if one already exists at that location.
 		try {
-			IArtifactRepository repository = mgr.loadRepository(toInit.getRepoLocation(), null);
-			if (validRepositoryLocation(repository) && initDestinationRepository(repository, toInit))
-				return repository;
-			throw new ProvisionException(new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.CompositeRepository_composite_repository_exists, toInit.getRepoLocation())));
-		} catch (ProvisionException e) {
-			// re-throw the exception if we got anything other than "repo not found"
-			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
-				if (e.getCause() instanceof MalformedURLException)
-					throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()), e.getCause());
-				throw e;
+			IRepository<T> repository = mgr.loadRepository(toInit.getRepoLocation(), null);
+			validRepositoryLocation(repository);
+			if (!initDestinationRepository(repository, toInit)) {
+				throw new ProvisionException(Status.info(
+						NLS.bind(Messages.CompositeRepository_composite_repository_exists, toInit.getRepoLocation())));
 			}
-		}
-
-		IArtifactRepository source = null;
-		try {
-			if (toInit.getFormat() != null)
-				source = mgr.loadRepository(toInit.getFormat(), 0, null);
-		} catch (ProvisionException e) {
-			//Ignore.
-		}
-		//This code assumes source has been successfully loaded before this point
-		try {
-			//No existing repository; create a new repository at destinationLocation but with source's attributes.
-			IArtifactRepository repo = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : Messages.CompositeRepository_default_artifactRepo_name), IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, source != null ? source.getProperties() : null);
-			initRepository(repo, toInit);
-			return repo;
-		} catch (IllegalStateException e) {
-			mgr.removeRepository(toInit.getRepoLocation());
-			throw e;
-		}
-	}
-
-	@Override
-	protected IMetadataRepository initializeDestination(RepositoryDescriptor toInit, IMetadataRepositoryManager mgr) throws ProvisionException {
-		// remove the repo first.
-		mgr.removeRepository(toInit.getRepoLocation());
-
-		// first try and load to see if one already exists at that location.
-		try {
-			IMetadataRepository repository = mgr.loadRepository(toInit.getRepoLocation(), null);
-			if (!validRepositoryLocation(repository) && initDestinationRepository(repository, toInit))
-				throw new ProvisionException(new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.CompositeRepository_composite_repository_exists, toInit.getRepoLocation())));
 			return repository;
 		} catch (ProvisionException e) {
 			// re-throw the exception if we got anything other than "repo not found"
 			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
 				if (e.getCause() instanceof MalformedURLException)
-					throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()), e.getCause());
+					throw new ProvisionException(
+							NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()), e.getCause());
 				throw e;
 			}
 		}
 
-		IMetadataRepository source = null;
+		IRepository<T> source = null;
 		try {
-			if (toInit.getFormat() != null)
+			if (toInit.getFormat() != null) {
 				source = mgr.loadRepository(toInit.getFormat(), 0, null);
+			}
 		} catch (ProvisionException e) {
-			//Ignore
+			// Ignore
 		}
-		//This code assumes source has been successfully loaded before this point
+		// This code assumes source has been successfully loaded before this point
 		try {
-			//No existing repository; create a new repository at destinationLocation but with source's attributes.
-			IMetadataRepository repo = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : Messages.CompositeRepository_default_metadataRepo_name), IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, source != null ? source.getProperties() : null);
+			// No existing repository; create a new repository at destinationLocation but
+			// with source's attributes.
+			String name = Optional.ofNullable(toInit.getName()).orElse(source != null ? source.getName() : defaultName);
+			IRepository<T> repo = mgr.createRepository(toInit.getRepoLocation(), name, repositoryType,
+					source != null ? source.getProperties() : null);
 			initRepository(repo, toInit);
 			return repo;
 		} catch (IllegalStateException e) {
@@ -186,17 +164,16 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	/*
 	 * Determine if the repository is valid for this operation
 	 */
-	private boolean validRepositoryLocation(IRepository<?> repository) throws ProvisionException {
+	private void validRepositoryLocation(IRepository<?> repository) throws ProvisionException {
 		if (repository instanceof ICompositeRepository<?>) {
 			// if we have an already existing repository at that location, then throw an error
 			// if the user told us to
-			if (failOnExists)
+			if (failOnExists) {
 				throw new ProvisionException(NLS.bind(Messages.CompositeRepository_composite_repository_exists, repository.getLocation()));
+			}
 			RepositoryHelper.validDestinationRepository(repository);
-			return true;
 		}
 		// we have a non-composite repo at this location. that is ok because we can co-exist.
-		return true;
 	}
 
 	/*

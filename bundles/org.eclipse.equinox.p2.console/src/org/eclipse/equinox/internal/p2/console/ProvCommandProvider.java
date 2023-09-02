@@ -305,11 +305,9 @@ public class ProvCommandProvider implements CommandProvider {
 		String id = processArgument(interpreter.nextArgument());
 		String version = processArgument(interpreter.nextArgument());
 		if (urlString == null) {
-			URI[] repositories = ProvisioningHelper.getMetadataRepositories(agent);
-			if (repositories != null)
-				for (URI repository : repositories) {
-					interpreter.println(repository);
-				}
+			for (URI repository : ProvisioningHelper.getMetadataRepositories(agent)) {
+				interpreter.println(repository);
+			}
 			return;
 		}
 		URI repoLocation = toURI(interpreter, urlString);
@@ -358,10 +356,7 @@ public class ProvCommandProvider implements CommandProvider {
 	public void _provlar(CommandInterpreter interpreter) {
 		String urlString = processArgument(interpreter.nextArgument());
 		if (urlString == null) {
-			URI[] repositories = ProvisioningHelper.getArtifactRepositories(agent);
-			if (repositories == null)
-				return;
-			for (URI repository : repositories) {
+			for (URI repository : ProvisioningHelper.getArtifactRepositories(agent)) {
 				interpreter.println(repository);
 			}
 			return;

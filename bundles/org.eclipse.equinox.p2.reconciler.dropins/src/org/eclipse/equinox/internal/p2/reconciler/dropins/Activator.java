@@ -32,6 +32,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -98,12 +99,7 @@ public class Activator implements BundleActivator {
 	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
-		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
-		IMetadataRepository repository = manager.loadRepository(location, monitor);
-		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, String.valueOf(true));
-		return repository;
+		return (IMetadataRepository) loadRepository(IMetadataRepositoryManager.class, location, monitor);
 	}
 
 	/**
@@ -141,10 +137,16 @@ public class Activator implements BundleActivator {
 	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepositoryManager manager = getAgent().getService(IArtifactRepositoryManager.class);
-		if (manager == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
-		IArtifactRepository repository = manager.loadRepository(location, monitor);
+		return (IArtifactRepository) loadRepository(IArtifactRepositoryManager.class, location, monitor);
+	}
+
+	private static <T> IRepository<T> loadRepository(Class<? extends IRepositoryManager<T>> repositoryManager,
+			URI location, IProgressMonitor monitor) throws ProvisionException {
+		IRepositoryManager<T> manager = getAgent().getService(repositoryManager);
+		if (manager == null) {
+			throw new IllegalStateException(repositoryManager.getSimpleName() + " not registered."); //$NON-NLS-1$
+		}
+		IRepository<T> repository = manager.loadRepository(location, monitor);
 		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, String.valueOf(true));
 		return repository;
 	}

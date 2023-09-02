@@ -28,6 +28,8 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -79,42 +81,17 @@ public class RepositoryListener extends DirectoryChangeListener {
 		info.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_NO_MD5);
 	}
 
-	protected CachingArtifactRepository initializeArtifactRepository(String name, URI repositoryLocation, Map<String, String> properties) {
-		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		if (manager == null)
-			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
-
-		try {
-			IArtifactRepository result = manager.loadRepository(repositoryLocation, null);
-			return result == null ? null : new CachingArtifactRepository(result);
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-		}
-		try {
-			IArtifactRepository result = manager.createRepository(repositoryLocation, name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			return result == null ? null : new CachingArtifactRepository(result);
-		} catch (ProvisionException e) {
-			LogHelper.log(e);
-			throw new IllegalStateException(NLS.bind(Messages.failed_create_artifact_repo, repositoryLocation));
-		}
+	protected CachingArtifactRepository initializeArtifactRepository(String name, URI repositoryLocation,
+			Map<String, String> properties) {
+		IArtifactRepository repository = (IArtifactRepository) initializeRepository(IArtifactRepositoryManager.class,
+				name, repositoryLocation, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		return repository == null ? null : new CachingArtifactRepository(repository);
 	}
 
-	protected IMetadataRepository initializeMetadataRepository(String name, URI repositoryLocation, Map<String, String> properties) {
-		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		if (manager == null)
-			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
-
-		try {
-			return manager.loadRepository(repositoryLocation, null);
-		} catch (ProvisionException e) {
-			//fall through and create new repository
-		}
-		try {
-			return manager.createRepository(repositoryLocation, name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		} catch (ProvisionException e) {
-			LogHelper.log(e);
-			throw new IllegalStateException(NLS.bind(Messages.failed_create_metadata_repo, repositoryLocation));
-		}
+	protected IMetadataRepository initializeMetadataRepository(String name, URI repositoryLocation,
+			Map<String, String> properties) {
+		return (IMetadataRepository) initializeRepository(IMetadataRepositoryManager.class, name, repositoryLocation,
+				IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 	}
 
 	@Override
@@ -136,7 +113,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private boolean process(File file, boolean isAddition) {
 		boolean isDirectory = file.isDirectory();
 		// is it a feature ?
-		if (isDirectory && file.getParentFile() != null && file.getParentFile().getName().equals("features") && new File(file, "feature.xml").exists()) //$NON-NLS-1$ //$NON-NLS-2$)
+		if (isDirectory && file.getParentFile() != null && file.getParentFile().getName().equals("features") //$NON-NLS-1$
+				&& new File(file, "feature.xml").exists()) //$NON-NLS-1$ )
 			return processFeature(file, isAddition);
 		// could it be a bundle ?
 		if (isDirectory || file.getName().endsWith(".jar")) //$NON-NLS-1$
@@ -150,7 +128,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			return false;
 
 		advice.setProperties(file, file.lastModified(), file.toURI());
-		return publish(new BundlesAction(new BundleDescription[] {bundleDescription}), isAddition);
+		return publish(new BundlesAction(new BundleDescription[] { bundleDescription }), isAddition);
 		// TODO see bug 222370
 		// we only want to return the bundle IU so must exclude all fragment IUs
 		// not sure if this is still relevant but we should investigate.
@@ -159,7 +137,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private boolean processFeature(File file, boolean isAddition) {
 		String link = metadataRepository.getProperties().get(Site.PROP_LINK_FILE);
 		advice.setProperties(file, file.lastModified(), file.toURI(), link);
-		return publish(new FeaturesAction(new File[] {file}), isAddition);
+		return publish(new FeaturesAction(new File[] { file }), isAddition);
 	}
 
 	private boolean publish(IPublisherAction action, boolean isAddition) {
@@ -238,7 +216,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (artifactRepository == null)
 			return;
 		if (!removedFiles.isEmpty()) {
-			IArtifactDescriptor[] descriptors = artifactRepository.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null).toArray(IArtifactDescriptor.class);
+			IArtifactDescriptor[] descriptors = artifactRepository.descriptorQueryable()
+					.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null).toArray(IArtifactDescriptor.class);
 			for (IArtifactDescriptor d : descriptors) {
 				SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) d;
 				String filename = descriptor.getRepositoryProperty(FILE_NAME);
@@ -305,14 +284,28 @@ public class RepositoryListener extends DirectoryChangeListener {
 		return artifactRepository;
 	}
 
-	private static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		BundleContext bundleContext = FrameworkUtil.getBundle(RepositoryListener.class).getBundleContext();
-		return ServiceHelper.getService(bundleContext, IProvisioningAgent.class).getService(IMetadataRepositoryManager.class);
-	}
+	private static <T> IRepository<T> initializeRepository(Class<? extends IRepositoryManager<T>> repositoryManager,
+			String name, URI repositoryLocation, String type, Map<String, String> properties) {
 
-	private static IArtifactRepositoryManager getArtifactRepositoryManager() {
 		BundleContext bundleContext = FrameworkUtil.getBundle(RepositoryListener.class).getBundleContext();
-		return ServiceHelper.getService(bundleContext, IProvisioningAgent.class).getService(IArtifactRepositoryManager.class);
+		IProvisioningAgent agent = ServiceHelper.getService(bundleContext, IProvisioningAgent.class);
+		IRepositoryManager<T> manager = agent.getService(repositoryManager);
+		if (manager == null) {
+			throw new IllegalStateException(
+					NLS.bind(Messages.repo_manager_not_registered, repositoryManager.getSimpleName()));
+		}
+		try {
+			return manager.loadRepository(repositoryLocation, null);
+		} catch (ProvisionException e) {
+			// fall through and create a new repository
+		}
+		try {
+			return manager.createRepository(repositoryLocation, name, type, properties);
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+			throw new IllegalStateException(
+					NLS.bind(Messages.failed_create_repo, repositoryManager.getSimpleName(), repositoryLocation));
+		}
 	}
 
 	private static URI getDefaultRepositoryLocation(Object object, String repositoryName) {

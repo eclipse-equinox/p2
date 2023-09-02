@@ -68,8 +68,9 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 
 	@Override
 	protected RepositoryTracker getRepositoryTracker() {
-		if (tracker == null)
-			tracker = new ArtifactRepositoryTracker(getProvisioningUI());
+		if (tracker == null) {
+			tracker = SingleRepositoryTracker.createArtifactRepositoryTracker(getProvisioningUI());
+		}
 		return tracker;
 	}
 

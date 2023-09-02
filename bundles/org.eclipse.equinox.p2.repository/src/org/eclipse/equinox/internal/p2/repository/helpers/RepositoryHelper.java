@@ -17,18 +17,23 @@ package org.eclipse.equinox.internal.p2.repository.helpers;
 import java.io.File;
 import java.net.*;
 import java.util.Objects;
+import java.util.stream.LongStream;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.Activator;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class RepositoryHelper {
 	protected static final String FILE_SCHEME = "file"; //$NON-NLS-1$
 
 	/**
-	 * If the provided URI can be interpreted as representing a local address (no schema, or one letter schema) 
-	 * but is missing the file schema, a new URI is created which represents the local file. 
-	 * 
+	 * If the provided URI can be interpreted as representing a local address (no schema, or one letter schema)
+	 * but is missing the file schema, a new URI is created which represents the local file.
+	 *
 	 * @param location the URI to convert
 	 * @return the converted URI, or the original
 	 */
@@ -98,4 +103,39 @@ public class RepositoryHelper {
 		}
 		return Status.OK_STATUS;
 	}
+
+	/**
+	 * Create a Composite repository in memory.
+	 *
+	 * @return the repository or null if unable to create one
+	 */
+	public static <T> IRepository<T> createMemoryComposite(IProvisioningAgent agent,
+			Class<? extends IRepositoryManager<T>> repoManagerClass, String repositoryType) {
+		if (agent == null) {
+			return null;
+		}
+		IRepositoryManager<T> manager = agent.getService(repoManagerClass);
+		if (manager == null) {
+			return null;
+		}
+		try {
+			// create a unique URI
+			URI repositoryURI = LongStream.iterate(System.currentTimeMillis(), t -> t + 1)
+					.mapToObj(t -> URI.create("memory:" + t)) //$NON-NLS-1$
+					.dropWhile(manager::contains).findFirst().orElseThrow();
+			IRepository<T> result = manager.createRepository(repositoryURI, repositoryURI.toString(), repositoryType,
+					null);
+			manager.removeRepository(repositoryURI);
+			return result;
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+			// just return null
+		} catch (IllegalArgumentException e) {
+			if (!(e.getCause() instanceof URISyntaxException)) {
+				throw e; // not thrown by the URI creation above
+			} // else just return null
+		}
+		return null;
+	}
+
 }

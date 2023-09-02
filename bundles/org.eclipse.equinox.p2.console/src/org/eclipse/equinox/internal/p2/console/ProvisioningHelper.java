@@ -16,97 +16,46 @@
 package org.eclipse.equinox.internal.p2.console;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 
 public class ProvisioningHelper {
 
-	static IMetadataRepository addMetadataRepository(IProvisioningAgent agent, URI location) {
-		IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
-		boolean createRepo = "file".equals(location.getScheme()); //$NON-NLS-1$
-
-		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
-		try {
-			return manager.loadRepository(location, null);
-		} catch (ProvisionException e) {
-			if (!createRepo)
-				return null;
-		}
-
-		// for convenience create and add a repository here
-		String repositoryName = location + " - metadata"; //$NON-NLS-1$
-		try {
-			return manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		} catch (ProvisionException e) {
-			return null;
-		}
+	static IRepository<IInstallableUnit> addMetadataRepository(IProvisioningAgent agent, URI location) {
+		return addRepository(IMetadataRepositoryManager.class, agent, location, "metadata", //$NON-NLS-1$
+				IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 	}
 
-	static IMetadataRepository getMetadataRepository(IProvisioningAgent agent, URI location) {
-		IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
-		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
-		try {
-			return manager.loadRepository(location, null);
-		} catch (ProvisionException e) {
-			return null;
-		}
+	static IRepository<IInstallableUnit> getMetadataRepository(IProvisioningAgent agent, URI location) {
+		return getRepository(IMetadataRepositoryManager.class, agent, location);
 	}
 
 	static void removeMetadataRepository(IProvisioningAgent agent, URI location) {
-		IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
-		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
-		manager.removeRepository(location);
+		removeRepository(IMetadataRepositoryManager.class, agent, location);
 	}
 
-	static IArtifactRepository addArtifactRepository(IProvisioningAgent agent, URI location) {
-		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
-		boolean createRepo = "file".equals(location.getScheme()); //$NON-NLS-1$
-
-		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
-
-		try {
-			return manager.loadRepository(location, null);
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-			if (!createRepo)
-				return null;
-		}
-		// could not load a repo at that location so create one as a convenience
-		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
-		try {
-			return manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		} catch (ProvisionException e) {
-			return null;
-		}
+	static IRepository<IArtifactKey> addArtifactRepository(IProvisioningAgent agent, URI location) {
+		return addRepository(IArtifactRepositoryManager.class, agent, location, "artifacts", //$NON-NLS-1$
+				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 	}
 
 	static void removeArtifactRepository(IProvisioningAgent agent, URI location) {
-		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
-		if (manager == null)
-			// TODO log here
-			return;
-		manager.removeRepository(location);
+		removeRepository(IArtifactRepositoryManager.class, agent, location);
 	}
 
 	static IProfile addProfile(IProvisioningAgent agent, String profileId, Map<String, String> properties) throws ProvisionException {
@@ -172,15 +121,8 @@ public class ProvisioningHelper {
 		return Collector.emptyCollector();
 	}
 
-	static URI[] getMetadataRepositories(IProvisioningAgent agent) {
-		IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
-		if (manager == null)
-			// TODO log here
-			return null;
-		URI[] repos = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		if (repos.length > 0)
-			return repos;
-		return null;
+	static List<URI> getMetadataRepositories(IProvisioningAgent agent) {
+		return getRepositories(IArtifactRepositoryManager.class, agent);
 	}
 
 	/**
@@ -194,11 +136,8 @@ public class ProvisioningHelper {
 			StringBuilder error = new StringBuilder();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n'); //$NON-NLS-1$
 			error.append("Repositories searched:\n");//$NON-NLS-1$
-			URI[] repos = getMetadataRepositories(agent);
-			if (repos != null) {
-				for (URI repo : repos)
-					error.append(repo + "\n");//$NON-NLS-1$
-			}
+			for (URI repo : getMetadataRepositories(agent))
+				error.append(repo + "\n");//$NON-NLS-1$
 			throw new ProvisionException(error.toString());
 		}
 
@@ -216,25 +155,12 @@ public class ProvisioningHelper {
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
 
-	static URI[] getArtifactRepositories(IProvisioningAgent agent) {
-		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
-		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
-		URI[] repos = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		if (repos.length > 0)
-			return repos;
-		return null;
+	static List<URI> getArtifactRepositories(IProvisioningAgent agent) {
+		return getRepositories(IArtifactRepositoryManager.class, agent);
 	}
 
 	static IArtifactRepository getArtifactRepository(IProvisioningAgent agent, URI repoURL) {
-		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
-		try {
-			if (manager != null)
-				return manager.loadRepository(repoURL, null);
-		} catch (ProvisionException e) {
-			//for console, just ignore repositories that can't be read
-		}
-		return null;
+		return (IArtifactRepository) getRepository(IArtifactRepositoryManager.class, agent, repoURL);
 	}
 
 	static long[] getProfileTimestamps(IProvisioningAgent agent, String profileId) {
@@ -273,8 +199,8 @@ public class ProvisioningHelper {
 		}
 		if (targetProfile == null)
 			throw new ProvisionException("target profile with timestamp=" + revertToPreviousState + " not found"); //$NON-NLS-1$//$NON-NLS-2$
-		URI[] artifactRepos = getArtifactRepositories(agent);
-		URI[] metadataRepos = getMetadataRepositories(agent);
+		URI[] artifactRepos = getArtifactRepositories(agent).toArray(URI[]::new);
+		URI[] metadataRepos = getMetadataRepositories(agent).toArray(URI[]::new);
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
 		ProvisioningContext context = new ProvisioningContext(agent);
 		context.setMetadataRepositories(metadataRepos);
@@ -293,10 +219,8 @@ public class ProvisioningHelper {
 			StringBuilder error = new StringBuilder();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n'); //$NON-NLS-1$
 			error.append("Repositories searched:\n"); //$NON-NLS-1$
-			URI[] repos = getMetadataRepositories(agent);
-			if (repos != null) {
-				for (URI repo : repos)
-					error.append(repo + "\n"); //$NON-NLS-1$
+			for (URI repo : getMetadataRepositories(agent)) {
+				error.append(repo + "\n"); //$NON-NLS-1$
 			}
 			throw new ProvisionException(error.toString());
 		}
@@ -315,4 +239,57 @@ public class ProvisioningHelper {
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
 
+	private static <T> IRepository<T> addRepository(Class<? extends IRepositoryManager<T>> repositoryManager,
+			IProvisioningAgent agent, URI location, String nameSuffix, String repoType) {
+		IRepositoryManager<T> manager = getRepositoryManager(agent, repositoryManager);
+		try {
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			// fall through and create a new repository
+			boolean createRepo = "file".equals(location.getScheme()); //$NON-NLS-1$
+			if (!createRepo) {
+				return null;
+			}
+		}
+		// could not load a repo at that location so create one as a convenience
+		String repositoryName = location + " - " + nameSuffix; //$NON-NLS-1$
+		try {
+			return manager.createRepository(location, repositoryName, repoType, null);
+		} catch (ProvisionException e) {
+			return null;
+		}
+	}
+
+	private static <T> void removeRepository(Class<? extends IRepositoryManager<T>> repositoryManager,
+			IProvisioningAgent agent, URI location) {
+		IRepositoryManager<T> manager = getRepositoryManager(agent, repositoryManager);
+		manager.removeRepository(location);
+	}
+
+	private static <T> IRepository<T> getRepository(Class<? extends IRepositoryManager<T>> repositoryManager,
+			IProvisioningAgent agent, URI location) {
+		IRepositoryManager<T> manager = getRepositoryManager(agent, repositoryManager);
+		try {
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			// for console, just ignore repositories that can't be read
+			return null;
+		}
+	}
+
+	private static <T> List<URI> getRepositories(Class<? extends IRepositoryManager<T>> repositoryManager,
+			IProvisioningAgent agent) {
+		IRepositoryManager<T> manager = getRepositoryManager(agent, repositoryManager);
+		URI[] repos = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		return Arrays.asList(repos);
+	}
+
+	private static <T> IRepositoryManager<T> getRepositoryManager(IProvisioningAgent agent,
+			Class<? extends IRepositoryManager<T>> repositoryManager) {
+		IRepositoryManager<T> manager = agent.getService(repositoryManager);
+		if (manager == null) {
+			throw new IllegalStateException("No repository manager found for type " + repositoryManager); //$NON-NLS-1$
+		}
+		return manager;
+	}
 }
