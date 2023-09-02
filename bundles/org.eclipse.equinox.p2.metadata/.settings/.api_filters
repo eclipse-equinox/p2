@@ -8,4 +8,12 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/equinox/p2/query/IQueryResult.java" type="org.eclipse.equinox.p2.query.IQueryResult">
+        <filter id="404000815">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.query.IQueryResult"/>
+                <message_argument value="stream()"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>

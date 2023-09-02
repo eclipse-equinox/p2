@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.Messages;
@@ -177,5 +178,10 @@ public class Collector<T> implements IQueryResult<T> {
 			return Collections.emptySet();
 		}
 		return Collections.unmodifiableSet(collected);
+	}
+
+	@Override
+	public Stream<T> stream() {
+		return collected == null ? Stream.empty() : collected.stream();
 	}
 }

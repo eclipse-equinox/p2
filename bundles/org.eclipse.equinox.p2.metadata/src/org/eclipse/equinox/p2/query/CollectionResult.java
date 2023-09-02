@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.expression.QueryResult;
 
@@ -67,5 +68,10 @@ public class CollectionResult<T> implements IQueryResult<T> {
 	@Override
 	public String toString() {
 		return collection.toString();
+	}
+
+	@Override
+	public Stream<T> stream() {
+		return collection.stream();
 	}
 }
