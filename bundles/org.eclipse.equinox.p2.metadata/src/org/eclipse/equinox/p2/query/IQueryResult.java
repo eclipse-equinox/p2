@@ -14,8 +14,11 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * An IQueryResult represents the results of a query.
@@ -63,4 +66,18 @@ public interface IQueryResult<T> extends IQueryable<T>, Iterable<T> {
 	 * @return A Set backed by this query result.
 	 */
 	Set<T> toUnmodifiableSet();
+
+	/**
+	 * Returns a sequential {@code Stream} of the collected objects.
+	 * 
+	 * @implSpec The default implementation creates a sequential {@code Stream} from
+	 *           this query-results {@code Spliterator}. Implementations backed by a
+	 *           {@code Collection} should override this method and call
+	 *           {@link Collection#stream()}.
+	 * @since 2.8
+	 */
+	default Stream<T> stream() {
+		return StreamSupport.stream(spliterator(), false);
+	}
+
 }
