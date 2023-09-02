@@ -16,7 +16,6 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.*;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -24,6 +23,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -58,28 +58,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * @return the repository or null if unable to create one
 	 */
 	public static CompositeArtifactRepository createMemoryComposite(IProvisioningAgent agent) {
-		if (agent == null)
-			return null;
-		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
-		if (manager == null)
-			return null;
-		try {
-			//create a unique URI
-			long time = System.currentTimeMillis();
-			URI repositoryURI = new URI("memory:" + String.valueOf(time)); //$NON-NLS-1$
-			while (manager.contains(repositoryURI))
-				repositoryURI = new URI("memory:" + String.valueOf(++time)); //$NON-NLS-1$
-
-			CompositeArtifactRepository result = (CompositeArtifactRepository) manager.createRepository(repositoryURI, repositoryURI.toString(), IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
-			manager.removeRepository(repositoryURI);
-			return result;
-		} catch (ProvisionException e) {
-			LogHelper.log(e);
-			// just return null
-		} catch (URISyntaxException e) {
-			// just return null
-		}
-		return null;
+		return (CompositeArtifactRepository) RepositoryHelper.createMemoryComposite(agent,
+				IArtifactRepositoryManager.class, IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY);
 	}
 
 	private IArtifactRepositoryManager getManager() {

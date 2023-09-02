@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.internal.repository.tools;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Predicate;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
@@ -97,11 +98,13 @@ public abstract class AbstractApplication {
 	protected void finalizeRepositories() {
 		if (removeAddedRepositories) {
 			IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
-			for (URI uri : artifactReposToRemove)
+			for (URI uri : artifactReposToRemove) {
 				artifactRepositoryManager.removeRepository(uri);
+			}
 			IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
-			for (URI uri : metadataReposToRemove)
+			for (URI uri : metadataReposToRemove) {
 				metadataRepositoryManager.removeRepository(uri);
+			}
 		}
 		metadataReposToRemove = null;
 		artifactReposToRemove = null;
@@ -127,14 +130,15 @@ public abstract class AbstractApplication {
 			try {
 				curLocation = repo.getRepoLocation();
 				if (repo.isBoth()) {
-					addRepository(artifactRepositoryManager, curLocation, 0, progress);
-					addRepository(metadataRepositoryManager, curLocation, 0, progress);
-				} else if (repo.isArtifact())
-					addRepository(artifactRepositoryManager, curLocation, 0, progress);
-				else if (repo.isMetadata())
-					addRepository(metadataRepositoryManager, curLocation, 0, progress);
-				else
+					addRepository(artifactRepositoryManager, curLocation, 0, artifactReposToRemove, progress);
+					addRepository(metadataRepositoryManager, curLocation, 0, metadataReposToRemove, progress);
+				} else if (repo.isArtifact()) {
+					addRepository(artifactRepositoryManager, curLocation, 0, artifactReposToRemove, progress);
+				} else if (repo.isMetadata()) {
+					addRepository(metadataRepositoryManager, curLocation, 0, metadataReposToRemove, progress);
+				} else {
 					throw new ProvisionException(NLS.bind(Messages.unknown_repository_type, repo.getRepoLocation()));
+				}
 			} catch (ProvisionException e) {
 				if (e.getCause() instanceof MalformedURLException) {
 					throw new ProvisionException(NLS.bind(Messages.exception_invalidSource, curLocation), e);
@@ -149,43 +153,33 @@ public abstract class AbstractApplication {
 
 	// Helper to add a repository. It takes care of adding the repos to the deletion
 	// list and loading it
-	protected IMetadataRepository addRepository(IMetadataRepositoryManager manager, URI location, int flags,
-			IProgressMonitor monitor) throws ProvisionException {
-		if (!manager.contains(location))
-			metadataReposToRemove.add(location);
-		return manager.loadRepository(location, flags, monitor);
-	}
-
-	// Helper to add a repository. It takes care of adding the repos to the deletion
-	// list and loading it
-	protected IArtifactRepository addRepository(IArtifactRepositoryManager manager, URI location, int flags,
-			IProgressMonitor monitor) throws ProvisionException {
-		if (!manager.contains(location))
-			artifactReposToRemove.add(location);
+	protected <T> IRepository<T> addRepository(IRepositoryManager<T> manager, URI location, int flags,
+			List<URI> repoList, IProgressMonitor monitor) throws ProvisionException {
+		if (!manager.contains(location)) {
+			repoList.add(location);
+		}
 		return manager.loadRepository(location, flags, monitor);
 	}
 
 	private void processDestinationRepos(IArtifactRepositoryManager artifactRepositoryManager,
 			IMetadataRepositoryManager metadataRepositoryManager) throws ProvisionException {
-		RepositoryDescriptor artifactRepoDescriptor = null;
-		RepositoryDescriptor metadataRepoDescriptor = null;
 
-		Iterator<RepositoryDescriptor> iter = destinationRepos.iterator();
-		while (iter.hasNext() && (artifactRepoDescriptor == null || metadataRepoDescriptor == null)) {
-			RepositoryDescriptor repo = iter.next();
-			if (repo.isArtifact() && artifactRepoDescriptor == null)
-				artifactRepoDescriptor = repo;
-			if (repo.isMetadata() && metadataRepoDescriptor == null)
-				metadataRepoDescriptor = repo;
-		}
-
-		if (artifactRepoDescriptor != null)
-			destinationArtifactRepository = initializeDestination(artifactRepoDescriptor, artifactRepositoryManager);
-		if (metadataRepoDescriptor != null)
-			destinationMetadataRepository = initializeDestination(metadataRepoDescriptor, metadataRepositoryManager);
-
-		if (destinationMetadataRepository == null && destinationArtifactRepository == null)
+		destinationArtifactRepository = (IArtifactRepository) initializeDestinationRepo(artifactRepositoryManager,
+				RepositoryDescriptor::isArtifact);
+		destinationMetadataRepository = (IMetadataRepository) initializeDestinationRepo(metadataRepositoryManager,
+				RepositoryDescriptor::isMetadata);
+		if (destinationMetadataRepository == null && destinationArtifactRepository == null) {
 			throw new ProvisionException(Messages.AbstractApplication_no_valid_destinations);
+		}
+	}
+
+	private <T> IRepository<T> initializeDestinationRepo(IRepositoryManager<T> repositoryManager,
+			Predicate<RepositoryDescriptor> typeFilter) throws ProvisionException {
+		Optional<RepositoryDescriptor> descriptor = destinationRepos.stream().filter(typeFilter).findFirst();
+		if (descriptor.isPresent()) {
+			return initializeDestination(descriptor.get(), repositoryManager);
+		}
+		return null;
 	}
 
 	public IMetadataRepository getDestinationMetadataRepository() {
@@ -196,55 +190,34 @@ public abstract class AbstractApplication {
 		return destinationArtifactRepository;
 	}
 
-	protected IMetadataRepository initializeDestination(RepositoryDescriptor toInit, IMetadataRepositoryManager mgr)
+	protected <T> IRepository<T> initializeDestination(RepositoryDescriptor toInit, IRepositoryManager<T> mgr)
 			throws ProvisionException {
+
+		String repositoryType;
+		List<URI> repoList;
+		if (mgr instanceof IMetadataRepositoryManager) {
+			repositoryType = IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY;
+			repoList = metadataReposToRemove;
+		} else if (mgr instanceof IArtifactRepositoryManager) {
+			repositoryType = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
+			repoList = artifactReposToRemove;
+		} else  {
+			throw new AssertionError("Unsupported repository type: " + mgr.getClass()); //$NON-NLS-1$
+		}
 		try {
-			IMetadataRepository repository = addRepository(mgr, toInit.getRepoLocation(),
-					IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
-			if (initDestinationRepository(repository, toInit))
+			IRepository<T> repository = addRepository(mgr, toInit.getRepoLocation(),
+					IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, repoList, null);
+			if (initDestinationRepository(repository, toInit)) {
 				return repository;
+			}
 		} catch (ProvisionException e) {
 			// fall through and create a new repository below
 		}
-
-		IMetadataRepository source = null;
+		IRepository<T> source = null;
 		try {
-			if (toInit.getFormat() != null)
+			if (toInit.getFormat() != null) {
 				source = mgr.loadRepository(toInit.getFormat(), 0, null);
-		} catch (ProvisionException e) {
-			// Ignore.
-		}
-		// This code assumes source has been successfully loaded before this point
-		// No existing repository; create a new repository at destinationLocation but
-		// with source's attributes.
-		try {
-			IMetadataRepository result = mgr.createRepository(toInit.getRepoLocation(),
-					toInit.getName() != null ? toInit.getName()
-							: (source != null ? source.getName() : toInit.getRepoLocation().toString()),
-					IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
-			if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED))
-				result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
-			return (IMetadataRepository) RepositoryHelper.validDestinationRepository(result);
-		} catch (UnsupportedOperationException e) {
-			throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()),
-					e.getCause());
-		}
-	}
-
-	protected IArtifactRepository initializeDestination(RepositoryDescriptor toInit, IArtifactRepositoryManager mgr)
-			throws ProvisionException {
-		try {
-			IArtifactRepository repository = addRepository(mgr, toInit.getRepoLocation(),
-					IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
-			if (initDestinationRepository(repository, toInit))
-				return repository;
-		} catch (ProvisionException e) {
-			// fall through and create a new repository below
-		}
-		IArtifactRepository source = null;
-		try {
-			if (toInit.getFormat() != null)
-				source = mgr.loadRepository(toInit.getFormat(), 0, null);
+			}
 		} catch (ProvisionException e) {
 			// Ignore.
 		}
@@ -253,13 +226,13 @@ public abstract class AbstractApplication {
 		// with source's attributes.
 		// TODO for now create a Simple repo by default.
 		try {
-			IArtifactRepository result = mgr.createRepository(toInit.getRepoLocation(),
+			IRepository<T> result = mgr.createRepository(toInit.getRepoLocation(),
 					toInit.getName() != null ? toInit.getName()
 							: (source != null ? source.getName() : toInit.getRepoLocation().toString()),
-					IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, source != null ? source.getProperties() : null);
+					repositoryType, source != null ? source.getProperties() : null);
 			if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED))
 				result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
-			return (IArtifactRepository) RepositoryHelper.validDestinationRepository(result);
+			return RepositoryHelper.validDestinationRepository(result);
 		} catch (UnsupportedOperationException e) {
 			throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()),
 					e.getCause());
@@ -268,14 +241,16 @@ public abstract class AbstractApplication {
 
 	protected boolean initDestinationRepository(IRepository<?> repository, RepositoryDescriptor descriptor) {
 		if (repository != null && repository.isModifiable()) {
-			if (descriptor.getName() != null)
+			if (descriptor.getName() != null) {
 				repository.setProperty(IRepository.PROP_NAME, descriptor.getName());
-			if (repository instanceof ICompositeRepository<?> && !descriptor.isAppend())
+			}
+			if (repository instanceof ICompositeRepository<?> && !descriptor.isAppend()) {
 				((ICompositeRepository<?>) repository).removeAllChildren();
-			else if (repository instanceof IMetadataRepository && !descriptor.isAppend())
-				((IMetadataRepository) repository).removeAll();
-			else if (repository instanceof IArtifactRepository && !descriptor.isAppend())
-				((IArtifactRepository) repository).removeAll();
+			} else if (repository instanceof IMetadataRepository metadataRepository && !descriptor.isAppend()) {
+				metadataRepository.removeAll();
+			} else if (repository instanceof IArtifactRepository artifactRepository && !descriptor.isAppend()) {
+				artifactRepository.removeAll();
+			}
 			return true;
 		}
 		return false;
@@ -308,11 +283,11 @@ public abstract class AbstractApplication {
 	}
 
 	public boolean hasArtifactSources() {
-		return ((ICompositeRepository<?>) getCompositeArtifactRepository()).getChildren().size() > 0;
+		return !((ICompositeRepository<?>) getCompositeArtifactRepository()).getChildren().isEmpty();
 	}
 
 	public boolean hasMetadataSources() {
-		return ((ICompositeRepository<?>) getCompositeMetadataRepository()).getChildren().size() > 0;
+		return !((ICompositeRepository<?>) getCompositeMetadataRepository()).getChildren().isEmpty();
 	}
 
 	public abstract IStatus run(IProgressMonitor monitor) throws ProvisionException;

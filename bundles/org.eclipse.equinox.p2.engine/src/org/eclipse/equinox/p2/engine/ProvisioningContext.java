@@ -224,9 +224,7 @@ public class ProvisioningContext {
 		for (URI repositorie : repositories) {
 			loadMetadataRepository(repoManager, repositorie, repos, shouldFollowReferences(), sub.split(1));
 		}
-		Set<IMetadataRepository> set = new HashSet<>();
-		set.addAll(repos.values());
-		return set;
+		return new HashSet<>(repos.values());
 	}
 
 	private void loadMetadataRepository(IMetadataRepositoryManager manager, URI location,
@@ -346,16 +344,12 @@ public class ProvisioningContext {
 		}
 	}
 
-	private interface Manager<T> {
-		T loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
-	}
-
 	private Collection<IMetadataRepository> getAllLoadedMetadataRepositories(IProgressMonitor monitor) {
 		if (allLoadedMetadataRepositories == null) {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 			var repoManager = agent.getService(IMetadataRepositoryManager.class);
 			getLoadedMetadataRepositories(subMonitor.split(1));
-			allLoadedMetadataRepositories = getAllLoadedRepositories(repoManager::loadRepository,
+			allLoadedMetadataRepositories = getAllLoadedRepositories(repoManager,
 					loadedMetadataRepositories, failedMetadataRepositories, subMonitor.split(1));
 		}
 		return allLoadedMetadataRepositories.values();
@@ -366,14 +360,14 @@ public class ProvisioningContext {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 			var repoManager = agent.getService(IArtifactRepositoryManager.class);
 			getLoadedArtifactRepositories(subMonitor.split(1));
-			allLoadedArtifactRepositories = getAllLoadedRepositories(repoManager::loadRepository,
+			allLoadedArtifactRepositories = getAllLoadedRepositories(repoManager,
 					loadedArtifactRepositories, failedArtifactRepositories, subMonitor.split(1));
 		}
 		return allLoadedArtifactRepositories.values();
 	}
 
-	private <T> Map<URI, T> getAllLoadedRepositories(Manager<T> manager, Map<URI, T> loadedRepositories,
-			Set<URI> failedRepositories, IProgressMonitor monitor) {
+	private <T, R extends IRepository<T>> Map<URI, R> getAllLoadedRepositories(IRepositoryManager<T> manager,
+			Map<URI, R> loadedRepositories, Set<URI> failedRepositories, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, loadedRepositories.size());
 		var allLoadedRepositories = new HashMap<>(loadedRepositories);
 		for (var repository : loadedRepositories.values()) {
@@ -382,8 +376,8 @@ public class ProvisioningContext {
 		return allLoadedRepositories;
 	}
 
-	private <T> void loadComposites(Manager<T> manager, T repository, Map<URI, T> repos, Set<URI> failedRepositories,
-			IProgressMonitor monitor) {
+	private <T, R extends IRepository<T>> void loadComposites(IRepositoryManager<T> manager, R repository,
+			Map<URI, R> repos, Set<URI> failedRepositories, IProgressMonitor monitor) {
 		if (repository instanceof ICompositeRepository<?> composite) {
 			List<URI> children = composite.getChildren();
 			SubMonitor subMonitor = SubMonitor.convert(monitor, children.size());
@@ -393,18 +387,18 @@ public class ProvisioningContext {
 		}
 	}
 
-	private <T> void loadRepository(Manager<T> manager, URI location, Map<URI, T> repos, Set<URI> failedRepositories,
+	private <T, R extends IRepository<T>> void loadRepository(IRepositoryManager<T> manager, URI location,
+			Map<URI, R> repos, Set<URI> failedRepositories,
 			IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 
-		if (repos.containsKey(location) || failedMetadataRepositories.contains(location)) {
+		if (failedMetadataRepositories.contains(location)) {
 			return;
 		}
-
-		var repository = repos.get(location);
-		if (repository == null) {
+		if (!repos.containsKey(location)) { // A previous attempt may have failed
 			try {
-				repository = manager.loadRepository(location, subMonitor.split(1));
+				@SuppressWarnings("unchecked")
+				R repository = (R) manager.loadRepository(location, subMonitor.split(1));
 				repos.put(location, repository);
 				loadComposites(manager, repository, repos, failedRepositories, subMonitor.split(1));
 			} catch (ProvisionException e) {

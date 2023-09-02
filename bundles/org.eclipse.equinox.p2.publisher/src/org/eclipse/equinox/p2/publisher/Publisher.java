@@ -17,21 +17,13 @@ package org.eclipse.equinox.p2.publisher;
 
 import java.net.URI;
 import java.util.Collection;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -103,16 +95,8 @@ public class Publisher {
 	 */
 	public static IMetadataRepository loadMetadataRepository(IProvisioningAgent agent, URI location, boolean modifiable,
 			boolean removeFromManager) throws ProvisionException {
-		IMetadataRepositoryManager manager = getService(agent, IMetadataRepositoryManager.SERVICE_NAME);
-		boolean existing = manager.contains(location);
-
-		IMetadataRepository result = manager.loadRepository(location,
-				modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
-		if (!existing && removeFromManager)
-			manager.removeRepository(location);
-		return result;
+		return loadRepository(agent, IMetadataRepositoryManager.SERVICE_NAME, location, modifiable, removeFromManager);
 	}
-
 
 	/**
 	 * Returns an artifact repository that corresponds to the given settings. If a
@@ -169,13 +153,19 @@ public class Publisher {
 	 */
 	public static IArtifactRepository loadArtifactRepository(IProvisioningAgent agent, URI location, boolean modifiable,
 			boolean removeFromManager) throws ProvisionException {
-		IArtifactRepositoryManager manager = getService(agent, IArtifactRepositoryManager.SERVICE_NAME);
-		boolean existing = manager.contains(location);
+		return loadRepository(agent, IArtifactRepositoryManager.SERVICE_NAME, location, modifiable, removeFromManager);
+	}
 
-		IArtifactRepository result = manager.loadRepository(location,
-				modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
-		if (!existing && removeFromManager)
+	private static <T, R extends IRepository<T>> R loadRepository(IProvisioningAgent agent, String serviceName,
+			URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
+		IRepositoryManager<T> manager = getService(agent, serviceName);
+		boolean existing = manager.contains(location);
+		int flags = modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0;
+		@SuppressWarnings("unchecked")
+		R result = (R) manager.loadRepository(location, flags, null);
+		if (!existing && removeFromManager) {
 			manager.removeRepository(location);
+		}
 		return result;
 	}
 

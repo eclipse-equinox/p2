@@ -136,8 +136,9 @@ public class MetadataRepositoriesView extends RepositoriesView {
 
 	@Override
 	protected RepositoryTracker getRepositoryTracker() {
-		if (tracker == null)
-			tracker = new MetadataRepositoryTracker(getProvisioningUI());
+		if (tracker == null) {
+			tracker = SingleRepositoryTracker.createMetadataRepositoryTracker(getProvisioningUI());
+		}
 		return tracker;
 	}
 }

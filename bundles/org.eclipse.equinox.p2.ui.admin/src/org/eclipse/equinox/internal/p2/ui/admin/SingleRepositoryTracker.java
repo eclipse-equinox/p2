@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Hannes Wellmann - Unify ArtifactRepositoryTracker and MetadataRepositoryTracker to one class
  ******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui.admin;
@@ -17,38 +18,53 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
-public class ArtifactRepositoryTracker extends RepositoryTracker {
+public class SingleRepositoryTracker extends RepositoryTracker {
 
-	ProvisioningUI ui;
+	public static RepositoryTracker createMetadataRepositoryTracker(ProvisioningUI ui) {
+		return new SingleRepositoryTracker(ui, IRepository.TYPE_METADATA, IMetadataRepositoryManager.class);
+	}
 
-	public ArtifactRepositoryTracker(ProvisioningUI ui) {
+	public static RepositoryTracker createArtifactRepositoryTracker(ProvisioningUI ui) {
+		return new SingleRepositoryTracker(ui, IRepository.TYPE_ARTIFACT, IArtifactRepositoryManager.class);
+	}
+
+	private final ProvisioningUI ui;
+	private final int repositoryType;
+	private final Class<? extends IRepositoryManager<?>> repositoryManagerType;
+
+	private SingleRepositoryTracker(ProvisioningUI ui, int repositoryType,
+			Class<? extends IRepositoryManager<?>> repositoryManagerType) {
 		this.ui = ui;
+		this.repositoryType = repositoryType;
+		this.repositoryManagerType = repositoryManagerType;
 	}
 
 	@Override
 	public URI[] getKnownRepositories(ProvisioningSession session) {
-		return getArtifactRepositoryManager().getKnownRepositories(getArtifactRepositoryFlags());
+		return getRepositoryManager().getKnownRepositories(getArtifactRepositoryFlags());
 	}
 
 	@Override
 	public void addRepository(URI repoLocation, String nickname, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
 		try {
-			getArtifactRepositoryManager().addRepository(repoLocation);
-			if (nickname != null)
-				getArtifactRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
+			getRepositoryManager().addRepository(repoLocation);
+			if (nickname != null) {
+				getRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
+			}
 		} finally {
 			ui.signalRepositoryOperationComplete(
-					new RepositoryEvent(repoLocation, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED, true), true);
+					new RepositoryEvent(repoLocation, repositoryType, RepositoryEvent.ADDED, true), true);
 		}
 	}
 
@@ -57,7 +73,7 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 		ui.signalRepositoryOperationStart();
 		try {
 			for (URI repoLocation : repoLocations) {
-				getArtifactRepositoryManager().removeRepository(repoLocation);
+				getRepositoryManager().removeRepository(repoLocation);
 			}
 		} finally {
 			ui.signalRepositoryOperationComplete(null, true);
@@ -70,8 +86,8 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
 		for (URI location : locations) {
 			try {
-				getArtifactRepositoryManager().refreshRepository(location, mon.newChild(100));
-			}catch (ProvisionException e) {
+				getRepositoryManager().refreshRepository(location, mon.newChild(100));
+			} catch (ProvisionException e) {
 				// ignore problematic repositories when refreshing
 			}
 		}
@@ -81,12 +97,12 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 		ui.signalRepositoryOperationComplete(null, true);
 	}
 
-	IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return ProvUI.getArtifactRepositoryManager(ui.getSession());
+	private IRepositoryManager<?> getRepositoryManager() {
+		return ui.getSession().getProvisioningAgent().getService(repositoryManagerType);
 	}
 
 	@Override
 	protected boolean contains(URI location, ProvisioningSession session) {
-		return ProvUI.getArtifactRepositoryManager(session).contains(location);
+		return session.getProvisioningAgent().getService(repositoryManagerType).contains(location);
 	}
 }

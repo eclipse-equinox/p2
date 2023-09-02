@@ -16,7 +16,6 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -24,6 +23,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
@@ -63,28 +63,8 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	 * @return the repository or null if unable to create one
 	 */
 	public static CompositeMetadataRepository createMemoryComposite(IProvisioningAgent agent) {
-		if (agent == null)
-			return null;
-		IMetadataRepositoryManager repoManager = agent.getService(IMetadataRepositoryManager.class);
-		if (repoManager == null)
-			return null;
-		try {
-			//create a unique opaque URI
-			long time = System.currentTimeMillis();
-			URI repositoryURI = new URI("memory:" + String.valueOf(time)); //$NON-NLS-1$
-			while (repoManager.contains(repositoryURI))
-				repositoryURI = new URI("memory:" + String.valueOf(++time)); //$NON-NLS-1$
-
-			CompositeMetadataRepository result = (CompositeMetadataRepository) repoManager.createRepository(repositoryURI, repositoryURI.toString(), IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
-			repoManager.removeRepository(repositoryURI);
-			return result;
-		} catch (ProvisionException e) {
-			// just return null
-			LogHelper.log(e);
-		} catch (URISyntaxException e) {
-			// just return null
-		}
-		return null;
+		return (CompositeMetadataRepository) RepositoryHelper.createMemoryComposite(agent,
+				IMetadataRepositoryManager.class, IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY);
 	}
 
 	private IMetadataRepositoryManager getManager() {

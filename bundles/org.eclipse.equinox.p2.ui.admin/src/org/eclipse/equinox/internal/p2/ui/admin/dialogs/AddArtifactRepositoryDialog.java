@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.admin.ArtifactRepositoryTracker;
+import org.eclipse.equinox.internal.p2.ui.admin.SingleRepositoryTracker;
 import org.eclipse.equinox.internal.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -36,7 +36,7 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 	@Override
 	protected RepositoryTracker getRepositoryTracker() {
 		if (tracker == null) {
-			tracker = new ArtifactRepositoryTracker(getProvisioningUI());
+			tracker = SingleRepositoryTracker.createArtifactRepositoryTracker(getProvisioningUI());
 		}
 		return tracker;
 	}
