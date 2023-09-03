@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -125,18 +125,11 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 
 	@Override
 	public String toString() {
-		StringBuilder result = new StringBuilder();
-
-		result.append(getNamespace());
-		result.append("; "); //$NON-NLS-1$
-		result.append(getName());
-		result.append(" "); //$NON-NLS-1$
-		result.append(getRange());
-
-		return result.toString();
+		return getNamespace() + "; " + getName() + " " + getRange(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public static IMatchExpression<IInstallableUnit> createMatchExpressionFromRange(String namespace, String name, VersionRange range) {
+	public static IMatchExpression<IInstallableUnit> createMatchExpressionFromRange(String namespace, String name,
+			VersionRange range) {
 		Assert.isNotNull(namespace);
 		Assert.isNotNull(name);
 
@@ -184,27 +177,23 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 		IExpression expr = ExpressionUtil.getOperand(matchExpression);
 		Object[] params = matchExpression.getParameters();
 
-		switch (params.length) {
-			// No version parameter
-			case 2 :
-				return emptyRange;
-			// One version parameter: strict or one of the open ranges
-			case 3 :
-				Version v = (Version) params[2];
-				if (expr.equals(STRICT)) {
-					return new VersionRange(v, true, v, true);
-				}
-				return new VersionRange(v, expr.equals(OPEN_I), MAX_VERSION, true);
-			// Two version parameters: one of the closed ranges
-			default :
-				Version left = (Version) params[2];
-				boolean leftInclusive = expr.equals(CLOSED_II) || expr.equals(CLOSED_IN);
-
-				Version right = (Version) params[3];
-				boolean rightInclusive = expr.equals(CLOSED_II) || expr.equals(CLOSED_NI);
-
-				return new VersionRange(left, leftInclusive, right, rightInclusive);
+		return switch (params.length) {
+		case 2 -> emptyRange; // No version parameter
+		case 3 -> { // One version parameter: strict or one of the open ranges
+			Version v = (Version) params[2];
+			if (expr.equals(STRICT)) {
+				yield new VersionRange(v, true, v, true);
+			}
+			yield new VersionRange(v, expr.equals(OPEN_I), MAX_VERSION, true);
 		}
+		default -> { // Two version parameters: one of the closed ranges
+			Version left = (Version) params[2];
+			boolean leftInclusive = expr.equals(CLOSED_II) || expr.equals(CLOSED_IN);
+			Version right = (Version) params[3];
+			boolean rightInclusive = expr.equals(CLOSED_II) || expr.equals(CLOSED_NI);
+			yield new VersionRange(left, leftInclusive, right, rightInclusive);
+		}
+		};
 	}
 
 	public static boolean isStrictVersionRequirement(IMatchExpression<IInstallableUnit> matchExpression) {

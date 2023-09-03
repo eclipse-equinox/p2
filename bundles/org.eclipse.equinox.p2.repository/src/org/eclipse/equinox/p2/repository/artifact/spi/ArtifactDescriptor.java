@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,8 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact.spi;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
@@ -50,7 +49,6 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 	 * @param base the descriptor to use as a template for this new descriptor
 	 */
 	public ArtifactDescriptor(IArtifactDescriptor base) {
-		super();
 		key = base.getArtifactKey();
 		setProcessingSteps(base.getProcessingSteps());
 		properties.putAll(base.getProperties());
@@ -63,7 +61,6 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 	 * @param key The artifact key corresponding to this descriptor
 	 */
 	public ArtifactDescriptor(IArtifactKey key) {
-		super();
 		this.key = key;
 	}
 
@@ -78,10 +75,11 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 	}
 
 	public void setProperty(String key, String value) {
-		if (value == null)
+		if (value == null) {
 			properties.remove(key);
-		else
+		} else {
 			properties.put(key, value);
+		}
 	}
 
 	public void addProperties(Map<String, String> additionalProperties) {
@@ -108,43 +106,22 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
-			return false;
-
+		}
 		// Other implementations of IArtifactDescriptor must not be considered equal
-		if (!(obj.getClass().equals(getClass())))
+		if (obj == null || !(obj.getClass().equals(getClass()))) {
 			return false;
-
+		}
 		ArtifactDescriptor other = (ArtifactDescriptor) obj;
-		if (key == null) {
-			if (other.getArtifactKey() != null)
-				return false;
-		} else if (!key.equals(other.getArtifactKey()))
-			return false;
-
-		if (!Arrays.equals(processingSteps, other.getProcessingSteps()))
-			return false;
-
-		String format = getProperty(FORMAT);
-		String otherFormat = other.getProperty(FORMAT);
-		if (format != null ? !format.equals(otherFormat) : otherFormat != null)
-			return false;
-
-		return true;
+		return Objects.equals(key, other.getArtifactKey()) //
+				&& Arrays.equals(processingSteps, other.getProcessingSteps())
+				&& Objects.equals(getProperty(FORMAT), other.getProperty(FORMAT));
 	}
 
 	@Override
 	public int hashCode() {
-		String format = getProperty(FORMAT);
-
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		result = prime * result + Arrays.asList(processingSteps).hashCode();
-		result = prime * result + (format != null ? format.hashCode() : 0);
-		return result;
+		return Objects.hash(key, Arrays.asList(processingSteps), getProperty(FORMAT));
 	}
 
 	@Override
@@ -159,26 +136,21 @@ public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider 
 	@Override
 	public String toString() {
 		String format = getProperty(IArtifactDescriptor.FORMAT);
-		if (format == null)
+		if (format == null) {
 			return "canonical: " + key.toString(); //$NON-NLS-1$
+		}
 		return format + ": " + key.toString(); //$NON-NLS-1$
 	}
 
 	@Override
 	public Object getMember(String memberName) {
-		if (memberName == MEMBER_ARTIFACT_KEY)
-			return key;
-
-		if (memberName == MEMBER_PROPERTIES)
-			return properties;
-
-		if (memberName == MEMBER_PROCESSING_STEPS)
-			return processingSteps;
-
-		if (memberName == MEMBER_REPOSITORY)
-			return repository;
-
-		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+		return switch (memberName) {
+		case MEMBER_ARTIFACT_KEY -> key;
+		case MEMBER_PROPERTIES -> properties;
+		case MEMBER_PROCESSING_STEPS -> processingSteps;
+		case MEMBER_REPOSITORY -> repository;
+		default -> throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+		};
 	}
 
 }

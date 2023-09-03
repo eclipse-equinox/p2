@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.Objects;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -54,7 +55,8 @@ public class Requirement implements IRequirement, IMemberProvider {
 	protected final int max;
 	protected final String description;
 
-	public Requirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter, int min, int max, boolean greedy, String description) {
+	public Requirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter,
+			int min, int max, boolean greedy, String description) {
 		this.matchExpression = requirement;
 		this.filter = filter;
 		this.min = min;
@@ -88,11 +90,7 @@ public class Requirement implements IRequirement, IMemberProvider {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((filter == null) ? 0 : filter.hashCode());
-		result = prime * result + matchExpression.hashCode();
-		return result;
+		return Objects.hash(filter, matchExpression, min, max, greedy, matchExpression);
 	}
 
 	@Override
@@ -100,21 +98,11 @@ public class Requirement implements IRequirement, IMemberProvider {
 		if (this == obj) {
 			return true;
 		}
-
-		if (!(obj instanceof IRequirement)) {
-			return false;
-		}
-
-		IRequirement other = (IRequirement) obj;
-		if (filter == null) {
-			if (other.getFilter() != null) {
-				return false;
-			}
-		} else if (!filter.equals(other.getFilter())) {
-			return false;
-		}
-
-		return min == other.getMin() && max == other.getMax() && greedy == other.isGreedy() && matchExpression.equals(other.getMatches());
+		return obj instanceof IRequirement other //
+				&& Objects.equals(filter, other.getFilter()) //
+				&& min == other.getMin() && max == other.getMax() //
+				&& greedy == other.isGreedy() //
+				&& matchExpression.equals(other.getMatches());
 	}
 
 	@Override
@@ -154,19 +142,13 @@ public class Requirement implements IRequirement, IMemberProvider {
 
 	@Override
 	public Object getMember(String memberName) {
-		switch (memberName) {
-			case MEMBER_FILTER :
-				return filter;
-			case MEMBER_MIN :
-				return min;
-			case MEMBER_MAX :
-				return max;
-			case MEMBER_GREEDY :
-				return greedy;
-			case MEMBER_MATCH :
-				return matchExpression;
-			default :
-				throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
-		}
+		return switch (memberName) {
+		case MEMBER_FILTER -> filter;
+		case MEMBER_MIN -> min;
+		case MEMBER_MAX -> max;
+		case MEMBER_GREEDY -> greedy;
+		case MEMBER_MATCH -> matchExpression;
+		default -> throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+		};
 	}
 }
